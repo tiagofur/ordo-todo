@@ -110,6 +110,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.aIProfile;
   }
 
+  get productivityReport() {
+    return this.prisma.productivityReport;
+  }
+
   get dailyMetrics() {
     return this.prisma.dailyMetrics;
   }

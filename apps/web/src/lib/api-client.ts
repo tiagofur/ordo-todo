@@ -141,6 +141,19 @@ export const apiClient = {
   getMonthlyMetrics: (params?: { monthStart?: string }) => axiosInstance.get('/analytics/monthly', { params }).then((res) => res.data),
   getDateRangeMetrics: (startDate: string, endDate: string) => axiosInstance.get('/analytics/range', { params: { startDate, endDate } }).then((res) => res.data),
 
+  // AI
+  getAIProfile: () => axiosInstance.get('/ai/profile').then((res) => res.data),
+  getOptimalSchedule: (params?: { topN?: number }) => axiosInstance.get('/ai/optimal-schedule', { params }).then((res) => res.data),
+  predictTaskDuration: (params?: { title?: string; description?: string; category?: string; priority?: string }) =>
+    axiosInstance.get('/ai/predict-duration', { params }).then((res) => res.data),
+
+  // AI Reports
+  generateWeeklyReport: (weekStart?: string) => axiosInstance.post('/ai/reports/weekly', null, { params: { weekStart } }).then((res) => res.data),
+  getReports: (params?: { scope?: string; limit?: number; offset?: number }) =>
+    axiosInstance.get('/ai/reports', { params }).then((res) => res.data),
+  getReport: (id: string) => axiosInstance.get(`/ai/reports/${id}`).then((res) => res.data),
+  deleteReport: (id: string) => axiosInstance.delete(`/ai/reports/${id}`).then((res) => res.data),
+
   // Comment
   getTaskComments: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/comments`).then((res) => res.data),
   createComment: (data: CreateCommentDto) => axiosInstance.post('/comments', data).then((res) => res.data),

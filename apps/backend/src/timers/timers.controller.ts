@@ -20,7 +20,7 @@ import { SwitchTaskDto } from './dto/switch-task.dto';
 @Controller('timers')
 @UseGuards(JwtAuthGuard)
 export class TimersController {
-  constructor(private readonly timersService: TimersService) {}
+  constructor(private readonly timersService: TimersService) { }
 
   @Post('start')
   @HttpCode(HttpStatus.CREATED)

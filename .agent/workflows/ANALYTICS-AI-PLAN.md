@@ -238,76 +238,70 @@ Sistema completo de seguimiento de tiempo, métricas de productividad y reportes
 ## FASE 4: Reportes con IA (Gemini) 🤖
 **Objetivo**: Generar reportes inteligentes con insights y recomendaciones
 
-### 4.1 Setup de Gemini API
-**Archivos a crear**:
-- `packages/core/src/ai/gemini-ai.service.ts`
-- `apps/backend/.env` (añadir GEMINI_API_KEY)
+### 4.1 Setup de Gemini API ✅
+**Archivos creados**:
+- `apps/backend/src/ai/gemini-ai.service.ts` ✅
+- `apps/backend/.env` (GEMINI_API_KEY configurada) ✅
 
 **Tareas**:
-- [ ] Instalar SDK: `npm install @google/generative-ai`
-- [ ] Crear GeminiAIService que implementa AIService
-- [ ] Configurar API key en variables de entorno
-- [ ] Métodos:
-  - `generateProductivityReport(metrics, sessions, profile)`
-  - `analyzeTaskPatterns(tasks, sessions)`
-  - `suggestOptimizations(profile, recentMetrics)`
+- [x] Instalar SDK: `npm install @google/generative-ai`
+- [x] Crear GeminiAIService con generación de reportes
+- [x] Configurar API key en variables de entorno (con fallback a mock data)
+- [x] Métodos implementados:
+  - `generateProductivityReport(metrics, sessions, profile)` ✅
+  - Extracción robusta de JSON con regex ✅
+  - Mock data fallback si falla API ✅
 
-### 4.2 Core Domain - ProductivityReport Entity
-**Archivos a crear**:
-- `packages/core/src/ai/model/productivity-report.entity.ts`
-- `packages/core/src/ai/provider/productivity-report.repository.ts`
-
-**Tareas**:
-- [ ] Crear `ProductivityReport` entity
-  - scope: ReportScope
-  - summary: string
-  - strengths: string[]
-  - weaknesses: string[]
-  - recommendations: string[]
-  - patterns: string[]
-  - productivityScore: number (0-100)
-  - metricsSnapshot: TaskTimeMetrics
-- [ ] Métodos de validación y serialización
-
-### 4.3 Core Domain - Use Cases de Reportes
-**Archivos a crear**:
-- `packages/core/src/ai/usecase/generate-task-report.usecase.ts`
-- `packages/core/src/ai/usecase/generate-weekly-report.usecase.ts`
-- `packages/core/src/ai/usecase/generate-monthly-report.usecase.ts`
+### 4.2 Core Domain - ProductivityReport Entity ✅
+**Archivos creados**:
+- `packages/core/src/ai/model/productivity-report.entity.ts` ✅
+- `packages/core/src/ai/provider/productivity-report.repository.ts` ✅
 
 **Tareas**:
-- [ ] **GenerateTaskReportUseCase**
-  - Al completar una tarea
-  - Analiza todas las TimeSessions de esa tarea
-  - Calcula métricas: tiempo total, pausas, interrupciones
-  - Llama a Gemini para generar insights
-  - Guarda ProductivityReport con scope=TASK_COMPLETION
-- [ ] **GenerateWeeklyReportUseCase**
-  - Se ejecuta automáticamente cada domingo
-  - Recopila DailyMetrics de los últimos 7 días
-  - Recopila todas las TimeSessions de la semana
-  - Llama a Gemini con contexto completo
-  - Genera reporte con scope=WEEKLY_SCHEDULED
-- [ ] **GenerateMonthlyReportUseCase**
-  - Similar a weekly pero para el mes
-  - Incluye comparación con mes anterior
+- [x] Crear `ProductivityReport` entity
+  - scope: ReportScope ✅
+  - summary: string ✅
+  - strengths: string[] ✅
+  - weaknesses: string[] ✅
+  - recommendations: string[] ✅
+  - patterns: string[] ✅
+  - productivityScore: number (0-100) ✅
+  - metricsSnapshot: MetricsSnapshot ✅
+- [x] Métodos de validación y helpers
+- [x] getScopeLabel, getScoreColor, isGoodScore, getMetricsSummary
 
-### 4.4 Backend - Endpoints de Reportes
-**Archivos a crear/modificar**:
-- `apps/backend/src/ai/ai.controller.ts`
-- `apps/backend/src/ai/ai.service.ts`
-- `apps/web/src/server/api/routers/ai.ts`
+### 4.3 Core Domain - Use Cases de Reportes ✅
+**Archivos creados**:
+- `packages/core/src/ai/usecase/generate-weekly-report.usecase.ts` ✅
 
 **Tareas**:
-- [ ] Endpoint: `ai.generateTaskReport(taskId)` - generar reporte de tarea
-- [ ] Endpoint: `ai.generateWeeklyReport()` - generar reporte semanal
-- [ ] Endpoint: `ai.generateMonthlyReport()` - generar reporte mensual
-- [ ] Endpoint: `ai.getReports(scope?, limit?)` - listar reportes
-- [ ] Endpoint: `ai.getReport(reportId)` - obtener reporte específico
+- [x] **GenerateWeeklyReportUseCase** IMPLEMENTADO
+  - Recopila DailyMetrics de los últimos 7 días ✅
+  - Recopila todas las TimeSessions de la semana ✅
+  - Calcula metricsSnapshot agregado ✅
+  - Llama a Gemini con contexto completo ✅
+  - Previene duplicados (verifica semana existente) ✅
+  - Genera reporte con scope=WEEKLY_SCHEDULED ✅
+- [ ] **GenerateTaskReportUseCase** - Futuro (Fase 5)
+- [ ] **GenerateMonthlyReportUseCase** - Futuro (Fase 5)
 
-### 4.5 Backend - Jobs Automáticos (Opcional)
-**Archivos a crear**:
-- `apps/backend/src/jobs/reports.scheduler.ts`
+### 4.4 Backend - Endpoints de Reportes ✅
+**Archivos creados/modificados**:
+- `apps/backend/src/ai/ai.controller.ts` ✅ (4 endpoints nuevos)
+- `apps/backend/src/ai/ai.service.ts` ✅
+- `apps/backend/src/repositories/productivity-report.repository.ts` ✅
+- `apps/backend/src/database/prisma.service.ts` ✅ (getter añadido)
+
+**Tareas**:
+- [x] POST `/ai/reports/weekly` - generar reporte semanal ✅
+- [x] GET `/ai/reports?scope=X&limit=Y` - listar reportes con filtros ✅
+- [x] GET `/ai/reports/:id` - obtener reporte específico ✅
+- [x] DELETE `/ai/reports/:id` - eliminar reporte ✅
+- [ ] Endpoint: `ai.generateTaskReport(taskId)` - Futuro (Fase 5)
+- [ ] Endpoint: `ai.generateMonthlyReport()` - Futuro (Fase 5)
+
+### 4.5 Backend - Jobs Automáticos
+**Estado**: ⏸️ POSPUESTO (Fase 5)
 
 **Tareas**:
 - [ ] Instalar: `npm install @nestjs/schedule`
@@ -315,39 +309,44 @@ Sistema completo de seguimiento de tiempo, métricas de productividad y reportes
 - [ ] Configurar CronJob para reportes mensuales (último día del mes)
 - [ ] Enviar notificación al usuario cuando reporte esté listo
 
-### 4.6 Frontend - Vista de Reportes
-**Archivos a crear**:
-- `apps/web/src/app/(pages)/reports/page.tsx`
-- `apps/web/src/components/ai/report-card.tsx`
-- `apps/web/src/components/ai/report-detail.tsx`
-- `apps/web/src/components/ai/generate-report-dialog.tsx`
+### 4.6 Frontend - Vista de Reportes ✅
+**Archivos creados**:
+- `apps/web/src/app/(pages)/reports/page.tsx` ✅
+- `apps/web/src/components/ai/report-card.tsx` ✅
+- `apps/web/src/components/ai/report-detail.tsx` ✅
+- `apps/web/src/components/ai/generate-report-dialog.tsx` ✅
+- `apps/web/src/lib/api-client.ts` ✅ (4 métodos añadidos)
+- `apps/web/src/lib/api-hooks.ts` ✅ (4 hooks añadidos)
 
 **Tareas**:
-- [ ] **ReportCard**
-  - Muestra resumen del reporte
-  - Scope badge (Task / Weekly / Monthly)
-  - Productivity score con gauge
-  - Fecha de generación
-  - Click para ver detalle
-- [ ] **ReportDetail**
-  - Vista completa del reporte
-  - Summary en formato markdown
-  - Lista de strengths (con iconos verdes)
-  - Lista de weaknesses (con iconos rojos)
-  - Lista de recommendations (con iconos azules)
-  - Patterns detectados
-  - Gráfico del metricsSnapshot
-- [ ] **GenerateReportDialog**
-  - Botón "Generar Reporte"
-  - Selector de scope
-  - Si es TASK, selector de tarea
-  - Loader mientras genera
-  - Muestra reporte al completar
-- [ ] **Página de Reportes**
-  - Lista de todos los reportes
-  - Filtros por scope
-  - Ordenar por fecha
-  - Botón para generar nuevo reporte
+- [x] **ReportCard**
+  - Muestra resumen del reporte ✅
+  - Scope badge (Semanal / Mensual / etc.) ✅
+  - Productivity score con color dinámico ✅
+  - Fecha de generación (español con date-fns) ✅
+  - Click para ver detalle ✅
+  - Metrics snapshot preview ✅
+- [x] **ReportDetail**
+  - Vista completa del reporte ✅
+  - Summary con formato prose ✅
+  - Lista de strengths (con checkmarks verdes) ✅
+  - Lista de weaknesses (con X rojas) ✅
+  - Lista de recommendations (numeradas con badge primario) ✅
+  - Patterns detectados (bullets azules) ✅
+  - Metrics snapshot grid ✅
+  - FocusScoreGauge integrado ✅
+- [x] **GenerateReportDialog**
+  - Botón "Generar Reporte con IA" ✅
+  - Loading state con spinner ✅
+  - Success state con checkmark ✅
+  - Error state con retry button ✅
+  - Auto-cierra después de 2 segundos ✅
+- [x] **Página de Reportes**
+  - Lista de todos los reportes en grid ✅
+  - Tabs por scope (Todos, Semanales, Mensuales, Tareas, Personal) ✅
+  - Dialog full-screen para detalle ✅
+  - Empty states por tab ✅
+  - Generate button en header ✅
 
 ---
 
@@ -478,12 +477,23 @@ Formato JSON.
   - [x] WeeklyChart component
   - [x] FocusScoreGauge component
   - [x] Página de Analytics con tabs
+- [x] **FASE 3: AIProfile - Aprendizaje de Patrones** ✨
+  - [x] AIProfile entity con métodos inmutables
+  - [x] AIProfileRepository interface y Prisma implementation
+  - [x] LearnFromSessionUseCase (auto-learning)
+  - [x] GetOptimalScheduleUseCase
+  - [x] PredictTaskDurationUseCase
+  - [x] Integración automática en TimersService.stop()
+  - [x] Endpoints REST (profile, optimal-schedule, predict-duration)
+  - [x] API client y React Query hooks
+  - [x] ProductivityInsights component
+  - [x] PeakHoursChart component
+  - [x] Nuevo tab "AI Insights" en Analytics page
 
 ### 🔄 En Progreso
 - [ ] (Ninguna actualmente)
 
 ### ⏳ Pendiente
-- [ ] Fase 3: AIProfile - Aprendizaje de Patrones
 - [ ] Fase 4: Reportes con IA (Gemini)
 - [ ] Fase 5: Features avanzadas
 
@@ -491,8 +501,44 @@ Formato JSON.
 
 ## Próximo Paso Recomendado
 
-**Iniciar FASE 3: AIProfile - Aprendizaje de Patrones**
-- Crear AIProfile entity
-- Implementar LearnFromSessionUseCase
-- Integrar learning automático al completar sesiones
-- Crear componentes de ProductivityInsights y PeakHoursChart
+**✅ FASE 4 COMPLETADA - Sistema de Reportes con IA Funcional!**
+
+### Documentación Completa:
+- Ver `.agent/workflows/FASE-4-RESUMEN.md` para detalles técnicos completos
+
+### Lo que Funciona:
+- ✅ Generación de reportes semanales con Gemini AI
+- ✅ ProductivityReport entity completa con validaciones
+- ✅ GenerateWeeklyReportUseCase con deduplicación inteligente
+- ✅ 4 endpoints REST (/ai/reports)
+- ✅ UI completa: Cards, Detail View, Generate Dialog
+- ✅ Página dedicada /reports con tabs y filtros
+- ✅ React Query hooks con cache invalidation
+- ✅ Fallback a mock data si no hay API key
+
+### Próximas Mejoras Sugeridas (Fase 5):
+1. **Tests Completos**
+   - Unit tests para ProductivityReport entity
+   - Unit tests para GenerateWeeklyReportUseCase
+   - Integration tests para endpoints
+   - E2E tests para flujo completo
+   - Frontend component tests
+
+2. **Jobs Automáticos**
+   - CronJob para reportes semanales automáticos
+   - Notificaciones cuando reporte esté listo
+
+3. **Reportes Adicionales**
+   - GenerateTaskReportUseCase (al completar tareas)
+   - GenerateMonthlyReportUseCase (mensuales)
+   - GenerateProjectReportUseCase (por proyecto)
+
+4. **Exportación y Compartir**
+   - Exportar reportes a PDF
+   - Compartir reportes con equipo
+   - Integración con Slack/Discord
+
+5. **Mejoras de IA**
+   - Usar embeddings para análisis más profundo
+   - Detectar patrones a largo plazo
+   - Sugerencias proactivas basadas en reportes anteriores

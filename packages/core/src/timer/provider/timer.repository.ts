@@ -7,4 +7,5 @@ export interface TimerRepository {
     findActiveSession(userId: string): Promise<TimeSession | null>;
     findByTaskId(taskId: string): Promise<TimeSession[]>;
     findByUserId(userId: string): Promise<TimeSession[]>;
+    findByUserIdAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<TimeSession[]>;
 }

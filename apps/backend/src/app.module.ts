@@ -12,6 +12,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { TagsModule } from './tags/tags.module';
 import { TimersModule } from './timers/timers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AIModule } from './ai/ai.module';
 import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { UploadModule } from './upload/upload.module';
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     TagsModule,
     TimersModule,
     AnalyticsModule,
+    AIModule,
     CommentsModule,
     AttachmentsModule,
     UploadModule,

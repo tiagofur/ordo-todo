@@ -39,7 +39,10 @@
       "Bash(npm run db:generate:*)",
       "Bash(dir:*)",
       "Bash(if not exist \"C:\\Users\\Usuario\\source\\repos\\ordo-todo\\apps\\web\\src\\components\\analytics\" mkdir \"C:\\Users\\Usuario\\source\\repos\\ordo-todo\\apps\\web\\src\\components\\analytics\")",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(if exist dist rmdir /s /q dist)",
+      "Bash(npx nest build)"
     ],
     "deny": [],
     "ask": []

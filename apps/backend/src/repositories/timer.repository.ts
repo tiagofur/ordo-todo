@@ -11,46 +11,57 @@ export class PrismaTimerRepository implements TimerRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   private toDomain(prismaSession: PrismaTimeSession): TimeSession {
+    // console.log('toDomain processing session:', prismaSession.id);
     const rawPauseData = prismaSession.pauseData;
     let pauseData: { startedAt: Date; endedAt: Date; duration: number }[] = [];
     let currentPauseStart: Date | undefined = undefined;
 
-    if (
-      rawPauseData &&
-      typeof rawPauseData === 'object' &&
-      !Array.isArray(rawPauseData)
-    ) {
-      const data = rawPauseData as Record<string, any>;
-      if (Array.isArray(data.pauses)) {
-        pauseData = data.pauses.map((item: unknown) => {
-          const p = item as {
-            startedAt: string | Date;
-            endedAt: string | Date;
-            duration: number | string;
-          };
-          return {
-            startedAt: new Date(p.startedAt),
-            endedAt: new Date(p.endedAt),
-            duration: Number(p.duration),
-          };
-        });
+    try {
+      if (
+        rawPauseData &&
+        typeof rawPauseData === 'object' &&
+        !Array.isArray(rawPauseData)
+      ) {
+        const data = rawPauseData as Record<string, any>;
+        if (Array.isArray(data.pauses)) {
+          pauseData = data.pauses
+            .filter((p: any) => p && p.startedAt && p.endedAt)
+            .map((item: unknown) => {
+              const p = item as {
+                startedAt: string | Date;
+                endedAt: string | Date;
+                duration: number | string;
+              };
+              return {
+                startedAt: new Date(p.startedAt),
+                endedAt: new Date(p.endedAt),
+                duration: Number(p.duration || 0),
+              };
+            });
+        }
+        if (data.currentPauseStart) {
+          currentPauseStart = new Date(data.currentPauseStart as string);
+        }
+      } else if (Array.isArray(rawPauseData)) {
+        pauseData = rawPauseData
+          .filter((p: any) => p && p.startedAt && p.endedAt)
+          .map((item: unknown) => {
+            const p = item as {
+              startedAt: string | Date;
+              endedAt: string | Date;
+              duration: number | string;
+            };
+            return {
+              startedAt: new Date(p.startedAt),
+              endedAt: new Date(p.endedAt),
+              duration: Number(p.duration || 0),
+            };
+          });
       }
-      if (data.currentPauseStart) {
-        currentPauseStart = new Date(data.currentPauseStart as string);
-      }
-    } else if (Array.isArray(rawPauseData)) {
-      pauseData = rawPauseData.map((item: unknown) => {
-        const p = item as {
-          startedAt: string | Date;
-          endedAt: string | Date;
-          duration: number | string;
-        };
-        return {
-          startedAt: new Date(p.startedAt),
-          endedAt: new Date(p.endedAt),
-          duration: Number(p.duration),
-        };
-      });
+    } catch (error) {
+      console.error('Error parsing pauseData for session:', prismaSession.id, error);
+      pauseData = [];
+      currentPauseStart = undefined;
     }
 
     return new TimeSession({
@@ -204,6 +215,26 @@ export class PrismaTimerRepository implements TimerRepository {
   async findByUserId(userId: string): Promise<TimeSession[]> {
     const sessions = await this.prisma.timeSession.findMany({
       where: { userId },
+    });
+    return sessions.map((s) => this.toDomain(s));
+  }
+
+  async findByUserIdAndDateRange(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<TimeSession[]> {
+    const sessions = await this.prisma.timeSession.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: {
+        startedAt: 'asc',
+      },
     });
     return sessions.map((s) => this.toDomain(s));
   }

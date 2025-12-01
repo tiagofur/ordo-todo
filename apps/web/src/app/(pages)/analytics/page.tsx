@@ -5,9 +5,11 @@ import { useState } from "react";
 import { DailyMetricsCard } from "@/components/analytics/daily-metrics-card";
 import { WeeklyChart } from "@/components/analytics/weekly-chart";
 import { FocusScoreGauge } from "@/components/analytics/focus-score-gauge";
+import { ProductivityInsights } from "@/components/analytics/productivity-insights";
+import { PeakHoursChart } from "@/components/analytics/peak-hours-chart";
 import { useDailyMetrics } from "@/lib/api-hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, TrendingUp, Target, BarChart3 } from "lucide-react";
+import { CalendarIcon, TrendingUp, Target, BarChart3, Brain } from "lucide-react";
 
 export default function AnalyticsPage() {
   const [selectedDate] = useState<Date>(new Date());
@@ -53,6 +55,10 @@ export default function AnalyticsPage() {
               <Target className="h-4 w-4" />
               Enfoque
             </TabsTrigger>
+            <TabsTrigger value="ai-insights" className="flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              AI Insights
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -62,6 +68,9 @@ export default function AnalyticsPage() {
 
             {/* Weekly Chart */}
             <WeeklyChart />
+
+            {/* AI Insights */}
+            <ProductivityInsights />
 
             {/* Focus Score */}
             {todayMetrics?.focusScore !== undefined && (
@@ -174,6 +183,53 @@ export default function AnalyticsPage() {
                 </p>
               </div>
             )}
+          </TabsContent>
+
+          {/* AI Insights Tab */}
+          <TabsContent value="ai-insights" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Productivity Insights */}
+              <ProductivityInsights />
+
+              {/* Peak Hours Chart */}
+              <PeakHoursChart />
+
+              {/* Info Section */}
+              <div className="bg-muted/50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  ¿Cómo funciona el AI Learning?
+                </h3>
+                <div className="space-y-4 text-sm text-muted-foreground">
+                  <p>
+                    El sistema de IA de Ordo aprende automáticamente de tus patrones de trabajo
+                    cada vez que completas una sesión con el timer. No necesitas hacer nada extra.
+                  </p>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-foreground">¿Qué analiza?</h4>
+                    <ul className="space-y-1 ml-4">
+                      <li>• Horas del día en las que eres más productivo</li>
+                      <li>• Días de la semana con mejor rendimiento</li>
+                      <li>• Duración promedio de tus tareas</li>
+                      <li>• Tasa de completitud de sesiones</li>
+                      <li>• Patrones de pausas y concentración</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-foreground">¿Qué te ofrece?</h4>
+                    <ul className="space-y-1 ml-4">
+                      <li>• Recomendaciones personalizadas de horarios óptimos</li>
+                      <li>• Predicciones de duración de tareas</li>
+                      <li>• Insights sobre tus mejores momentos de productividad</li>
+                      <li>• Visualizaciones de tus patrones de trabajo</li>
+                    </ul>
+                  </div>
+                  <p className="italic pt-2 border-t">
+                    💡 Cuanto más uses el timer, más precisas serán las recomendaciones de la IA.
+                  </p>
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { TimerRepository, TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
+import type { TimerRepository, TaskRepository, AnalyticsRepository, AIProfileRepository } from '@ordo-todo/core';
 import {
   StartTimerUseCase,
   StopTimerUseCase,
@@ -8,6 +8,7 @@ import {
   SwitchTaskUseCase,
   UpdateDailyMetricsUseCase,
   CalculateFocusScoreUseCase,
+  LearnFromSessionUseCase,
 } from '@ordo-todo/core';
 import { StartTimerDto } from './dto/start-timer.dto';
 import { StopTimerDto } from './dto/stop-timer.dto';
@@ -24,6 +25,8 @@ export class TimersService {
     private readonly taskRepository: TaskRepository,
     @Inject('AnalyticsRepository')
     private readonly analyticsRepository: AnalyticsRepository,
+    @Inject('AIProfileRepository')
+    private readonly aiProfileRepository: AIProfileRepository,
   ) { }
 
   async start(startTimerDto: StartTimerDto, userId: string) {
@@ -74,6 +77,15 @@ export class TimersService {
           pomodorosCompleted: sessionType === 'WORK' ? 1 : 0,
           focusScore,
         });
+
+        // Learn from this session to improve AI recommendations
+        try {
+          const learnFromSession = new LearnFromSessionUseCase(this.aiProfileRepository);
+          await learnFromSession.execute({ session });
+        } catch (error) {
+          // Don't fail the entire stop operation if learning fails
+          console.error('Failed to learn from session:', error);
+        }
       }
     }
 

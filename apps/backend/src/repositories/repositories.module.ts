@@ -9,6 +9,8 @@ import { PrismaWorkflowRepository } from './workflow.repository';
 import { PrismaTagRepository } from './tag.repository';
 import { PrismaTimerRepository } from './timer.repository';
 import { PrismaAnalyticsRepository } from './analytics.repository';
+import { PrismaAIProfileRepository } from './ai-profile.repository';
+import { PrismaProductivityReportRepository } from './productivity-report.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -57,6 +59,18 @@ import { PrismaAnalyticsRepository } from './analytics.repository';
         new PrismaAnalyticsRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'AIProfileRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaAIProfileRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'ProductivityReportRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaProductivityReportRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -67,6 +81,8 @@ import { PrismaAnalyticsRepository } from './analytics.repository';
     'TagRepository',
     'TimerRepository',
     'AnalyticsRepository',
+    'AIProfileRepository',
+    'ProductivityReportRepository',
   ],
 })
 export class RepositoriesModule {}

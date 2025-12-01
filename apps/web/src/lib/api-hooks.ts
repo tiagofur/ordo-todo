@@ -85,6 +85,16 @@ export const queryKeys = {
   monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
   dateRangeMetrics: (startDate: string, endDate: string) => ['analytics', 'range', startDate, endDate] as const,
 
+  // AI
+  aiProfile: ['ai', 'profile'] as const,
+  optimalSchedule: (params?: { topN?: number }) => ['ai', 'optimal-schedule', params] as const,
+  taskDurationPrediction: (params?: { title?: string; description?: string; category?: string; priority?: string }) =>
+    ['ai', 'predict-duration', params] as const,
+
+  // AI Reports
+  reports: (params?: { scope?: string; limit?: number; offset?: number }) => ['ai', 'reports', params] as const,
+  report: (id: string) => ['ai', 'reports', id] as const,
+
   // Comments
   taskComments: (taskId: string) => ['tasks', taskId, 'comments'] as const,
 
@@ -602,6 +612,71 @@ export function useDateRangeMetrics(startDate: string, endDate: string) {
   return useQuery({
     queryKey: queryKeys.dateRangeMetrics(startDate, endDate),
     queryFn: () => apiClient.getDateRangeMetrics(startDate, endDate),
+  });
+}
+
+// ============ AI HOOKS ============
+
+export function useAIProfile() {
+  return useQuery({
+    queryKey: queryKeys.aiProfile,
+    queryFn: () => apiClient.getAIProfile(),
+  });
+}
+
+export function useOptimalSchedule(params?: { topN?: number }) {
+  return useQuery({
+    queryKey: queryKeys.optimalSchedule(params),
+    queryFn: () => apiClient.getOptimalSchedule(params),
+  });
+}
+
+export function useTaskDurationPrediction(params?: { title?: string; description?: string; category?: string; priority?: string }) {
+  return useQuery({
+    queryKey: queryKeys.taskDurationPrediction(params),
+    queryFn: () => apiClient.predictTaskDuration(params),
+    enabled: !!params?.title || !!params?.description, // Only fetch if we have at least title or description
+  });
+}
+
+// ============ AI REPORTS HOOKS ============
+
+export function useGenerateWeeklyReport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (weekStart?: string) => apiClient.generateWeeklyReport(weekStart),
+    onSuccess: () => {
+      // Invalidate reports list
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
+    },
+  });
+}
+
+export function useReports(params?: { scope?: string; limit?: number; offset?: number }) {
+  return useQuery({
+    queryKey: queryKeys.reports(params),
+    queryFn: () => apiClient.getReports(params),
+  });
+}
+
+export function useReport(id: string) {
+  return useQuery({
+    queryKey: queryKeys.report(id),
+    queryFn: () => apiClient.getReport(id),
+    enabled: !!id,
+  });
+}
+
+export function useDeleteReport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiClient.deleteReport(id),
+    onSuccess: () => {
+      // Invalidate reports list
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
+    },
   });
 }
 
