@@ -1,0 +1,26 @@
+{
+  "name": "@ordo-todo/api-client",
+  "version": "1.0.0",
+  "description": "Shared API client for Ordo-Todo applications (Web, Mobile, Desktop)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "ordo-todo",
+    "api-client",
+    "rest-api",
+    "typescript"
+  ],
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "typescript": "^5.1.3"
+  }
+}

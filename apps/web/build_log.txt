@@ -1,0 +1,67 @@
+
+> @ordo-todo/web@0.1.0 build
+> next build --turbopack
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ÔÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\Usuario\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\Usuario\source\repos\ordo-todo\package-lock.json
+
+   Ôû▓ Next.js 16.0.5 (Turbopack)
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Found 1 warning while optimizing generated CSS:
+
+Ôöé }
+Ôöé @layer base {
+Ôöé   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+Ôöå          ^-- Unknown at rule: @import
+Ôöå
+Ôöé   body {
+Ôöé     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+
+
+Turbopack build encountered 1 warnings:
+./source/repos/ordo-todo/apps/web/src/app/api/upload/route.ts:87:14
+Next.js can't recognize the exported `config` field in route. Page config in `config` is deprecated and ignored, use individual exports instead.
+  85 |
+  86 | // Configure route
+> 87 | export const config = {
+     |              ^^^^^^
+  88 |     api: {
+  89 |         bodyParser: false,
+  90 |     },
+
+The exported configuration object in a source file needs to have a very specific format from which some properties can be statically parsed at compiled-time.
+
+https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
+
+ Ô£ô Compiled successfully in 5.2s
+   Running TypeScript ...
+Failed to compile.
+
+./src/hooks/use-timer-backend.ts:237:39
+Type error: Argument of type '"CONTINUOUS" | "SHORT_BREAK" | "LONG_BREAK"' is not assignable to parameter of type '"WORK" | "SHORT_BREAK" | "LONG_BREAK"'.
+  Type '"CONTINUOUS"' is not assignable to type '"WORK" | "SHORT_BREAK" | "LONG_BREAK"'.
+
+  235 |
+  236 |                 // Notify session complete
+> 237 |                 notifySessionComplete(mode);
+      |                                       ^
+  238 |
+  239 |                 // Auto-start next pomodoro if enabled
+  240 |                 if (config.autoStartPomodoros && taskId) {
+Next.js build worker exited with code: 1 and signal: null
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path C:\Users\Usuario\source\repos\ordo-todo\apps\web
+npm error workspace @ordo-todo/web@0.1.0
+npm error location C:\Users\Usuario\source\repos\ordo-todo\apps\web
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build --turbopack

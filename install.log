@@ -1,0 +1,101 @@
+npm warn skipping integrity check for git dependency ssh://git@github.com/electron/node-gyp.git
+npm warn deprecated @npmcli/move-file@2.0.1: This functionality has been moved to @npmcli/fs
+npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@8.1.0: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@8.1.0: Glob versions prior to v9 are no longer supported
+npm warn deprecated electron-notarize@1.2.2: Please use @electron/notarize moving forward.  There is no API change, just a package name change
+npm warn cleanup Failed to remove some directories [
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\Users\\Usuario\\source\\repos\\ordo-todo\\packages\\core\\node_modules\\esbuild',
+npm warn cleanup     [Error: EBUSY: resource busy or locked, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\packages\core\node_modules\esbuild'] {
+npm warn cleanup       errno: -4082,
+npm warn cleanup       code: 'EBUSY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\packages\\core\\node_modules\\esbuild'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\packages\\core\\node_modules\\esbuild',
+npm warn cleanup     [Error: EBUSY: resource busy or locked, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\packages\core\node_modules\esbuild'] {
+npm warn cleanup       errno: -4082,
+npm warn cleanup       code: 'EBUSY',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\packages\\core\\node_modules\\esbuild'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo-router',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\node_modules\expo-router\node_modules\@radix-ui'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo-router\\node_modules\\@radix-ui'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo\\node_modules\\expo-modules-autolinking',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\node_modules\expo\node_modules\expo-modules-autolinking\android\expo-gradle-plugin\expo-autolinking-settings-plugin\src\test'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo\\node_modules\\expo-modules-autolinking\\android\\expo-gradle-plugin\\expo-autolinking-settings-plugin\\src\\test'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\node_modules\expo\node_modules\expo-modules-autolinking\android\expo-gradle-plugin\expo-autolinking-settings-plugin\src\main\kotlin\expo'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo\\node_modules\\expo-modules-autolinking\\android\\expo-gradle-plugin\\expo-autolinking-settings-plugin\\src\\main\\kotlin\\expo'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\node_modules\expo\node_modules\expo-modules-autolinking\android\expo-gradle-plugin\expo-autolinking-plugin-shared\src\main\kotlin'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\expo\\node_modules\\expo-modules-autolinking\\android\\expo-gradle-plugin\\expo-autolinking-plugin-shared\\src\\main\\kotlin'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\@react-native',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\Users\Usuario\source\repos\ordo-todo\node_modules\@react-native\gradle-plugin'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\node_modules\\@react-native\\gradle-plugin'
+npm warn cleanup     }
+npm warn cleanup   ]
+npm warn cleanup ]
+npm error code 1
+npm error path C:\Users\Usuario\source\repos\ordo-todo\apps\desktop\node_modules\electron
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c node install.js
+npm error node:internal/modules/cjs/loader:1404
+npm error   throw err;
+npm error   ^
+npm error
+npm error Error: Cannot find module '@electron/get'
+npm error Require stack:
+npm error - C:\Users\Usuario\source\repos\ordo-todo\apps\desktop\node_modules\electron\install.js
+npm error     at Function._resolveFilename (node:internal/modules/cjs/loader:1401:15)
+npm error     at defaultResolveImpl (node:internal/modules/cjs/loader:1057:19)
+npm error     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1062:22)
+npm error     at Function._load (node:internal/modules/cjs/loader:1211:37)
+npm error     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+npm error     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+npm error     at Module.require (node:internal/modules/cjs/loader:1487:12)
+npm error     at require (node:internal/modules/helpers:135:16)
+npm error     at Object.<anonymous> (C:\Users\Usuario\source\repos\ordo-todo\apps\desktop\node_modules\electron\install.js:3:30)
+npm error     at Module._compile (node:internal/modules/cjs/loader:1730:14) {
+npm error   code: 'MODULE_NOT_FOUND',
+npm error   requireStack: [
+npm error     'C:\\Users\\Usuario\\source\\repos\\ordo-todo\\apps\\desktop\\node_modules\\electron\\install.js'
+npm error   ]
+npm error }
+npm error
+npm error Node.js v22.17.1
+npm error A complete log of this run can be found in: C:\Users\Usuario\AppData\Local\npm-cache\_logs\2025-11-28T02_28_10_401Z-debug-0.log

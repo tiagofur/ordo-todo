@@ -1,0 +1,31 @@
+{
+  "name": "ordo-todo",
+  "private": true,
+  "description": "The Modern Task Organization Platform - DDD + Clean Architecture Monorepo",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:desktop": "npm run dev --workspace=@ordo-todo/desktop",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.8",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.9.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@tabler/icons-vue": "^3.35.0"
+  }
+}

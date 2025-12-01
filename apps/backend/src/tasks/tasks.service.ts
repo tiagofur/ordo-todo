@@ -1,0 +1,198 @@
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import type { TaskRepository } from '@ordo-todo/core';
+import { CreateTaskUseCase, CompleteTaskUseCase } from '@ordo-todo/core';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateSubtaskDto } from './dto/create-subtask.dto';
+import { PrismaService } from '../database/prisma.service';
+import { ActivitiesService } from '../activities/activities.service';
+
+@Injectable()
+export class TasksService {
+  constructor(
+    @Inject('TaskRepository')
+    private readonly taskRepository: TaskRepository,
+    private readonly prisma: PrismaService,
+    private readonly activitiesService: ActivitiesService,
+  ) { }
+
+  async create(createTaskDto: CreateTaskDto, userId: string) {
+    const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
+    const task = await createTaskUseCase.execute({
+      ...createTaskDto,
+      creatorId: userId,
+    });
+
+    // Log activity
+    await this.activitiesService.logTaskCreated(task.id as string, userId);
+
+    return task.props;
+  }
+
+  async complete(id: string, userId: string) {
+    const completeTaskUseCase = new CompleteTaskUseCase(this.taskRepository);
+    const task = await completeTaskUseCase.execute({
+      taskId: id,
+      creatorId: userId,
+    });
+
+    // Log activity
+    await this.activitiesService.logTaskCompleted(id, userId);
+
+    // If subtask, log on parent
+    if (task.props.parentTaskId) {
+      await this.activitiesService.logSubtaskCompleted(
+        task.props.parentTaskId,
+        userId,
+        task.props.title,
+      );
+    }
+
+    return task.props;
+  }
+
+  async findAll(userId: string, projectId?: string) {
+    const tasks = await this.taskRepository.findByCreatorId(userId);
+    // Filtrar solo tareas principales (sin parentTaskId) y opcionalmente por proyecto
+    const filteredTasks = tasks.filter((t) => {
+      const isMainTask = !t.props.parentTaskId;
+      const matchesProject = projectId ? t.props.projectId === projectId : true;
+      return isMainTask && matchesProject;
+    });
+    return filteredTasks.map((t) => t.props);
+  }
+
+  async findOne(id: string) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return {
+      ...task.props,
+      subTasks: task.props.subTasks?.map((st) => st.props) || [],
+    };
+  }
+
+  async findOneWithDetails(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: {
+        subTasks: true,
+        comments: {
+          include: { author: true },
+          orderBy: { createdAt: 'desc' },
+        },
+        attachments: {
+          include: { uploadedBy: true } as any,
+          orderBy: { uploadedAt: 'desc' },
+        },
+        activities: {
+          include: { user: true },
+          orderBy: { createdAt: 'desc' },
+          take: 50, // Limit to last 50 activities
+        },
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    return {
+      ...task,
+      estimatedTime: task.estimatedMinutes,
+    };
+  }
+
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const oldTask = task.props;
+    const updatedTask = task.update(updateTaskDto);
+    await this.taskRepository.save(updatedTask);
+
+    // Get userId from the task creator (you might want to pass this as parameter)
+    const userId = oldTask.creatorId;
+
+    // Log specific field changes
+    if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {
+      await this.activitiesService.logStatusChanged(
+        id,
+        userId,
+        oldTask.status,
+        updateTaskDto.status,
+      );
+    }
+
+    if (updateTaskDto.priority && updateTaskDto.priority !== oldTask.priority) {
+      await this.activitiesService.logPriorityChanged(
+        id,
+        userId,
+        oldTask.priority,
+        updateTaskDto.priority,
+      );
+    }
+
+    if (
+      updateTaskDto.dueDate !== undefined &&
+      updateTaskDto.dueDate?.toString() !== oldTask.dueDate?.toString()
+    ) {
+      await this.activitiesService.logDueDateChanged(
+        id,
+        userId,
+        oldTask.dueDate?.toISOString() || null,
+        updateTaskDto.dueDate?.toISOString() || null,
+      );
+    }
+
+    // Log general update if other fields changed
+    if (
+      updateTaskDto.title ||
+      updateTaskDto.description ||
+      updateTaskDto.estimatedTime
+    ) {
+      await this.activitiesService.logTaskUpdated(id, userId);
+    }
+
+    return updatedTask.props;
+  }
+
+  async remove(id: string) {
+    await this.taskRepository.delete(id);
+    return { success: true };
+  }
+
+  async createSubtask(
+    parentTaskId: string,
+    createSubtaskDto: CreateSubtaskDto,
+    userId: string,
+  ) {
+    const parentTask = await this.taskRepository.findById(parentTaskId);
+    if (!parentTask) {
+      throw new NotFoundException('Parent task not found');
+    }
+
+    const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
+    const subtask = await createTaskUseCase.execute({
+      ...createSubtaskDto,
+      projectId: createSubtaskDto.projectId || parentTask.props.projectId,
+      creatorId: userId,
+      parentTaskId,
+    });
+
+    // Log activity on parent task
+    await this.activitiesService.logSubtaskAdded(
+      parentTaskId,
+      userId,
+      subtask.props.title,
+    );
+
+    // Log creation on the subtask itself
+    await this.activitiesService.logTaskCreated(subtask.id as string, userId);
+
+    return subtask.props;
+  }
+}
