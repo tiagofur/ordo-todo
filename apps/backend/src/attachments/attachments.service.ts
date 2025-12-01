@@ -87,7 +87,10 @@ export class AttachmentsService {
       this.logger.log(`Deleted physical file: ${filepath}`);
     } catch (error) {
       // Log error but don't throw - file might already be deleted or not exist
-      this.logger.warn(`Failed to delete physical file for URL ${url}:`, error.message);
+      this.logger.warn(
+        `Failed to delete physical file for URL ${url}:`,
+        error.message,
+      );
     }
   }
 
@@ -120,12 +123,17 @@ export class AttachmentsService {
             this.logger.log(`Deleted orphaned file: ${file}`);
           } catch (error) {
             errors++;
-            this.logger.error(`Failed to delete orphaned file ${file}:`, error.message);
+            this.logger.error(
+              `Failed to delete orphaned file ${file}:`,
+              error.message,
+            );
           }
         }
       }
 
-      this.logger.log(`Cleanup complete: ${deleted} files deleted, ${errors} errors`);
+      this.logger.log(
+        `Cleanup complete: ${deleted} files deleted, ${errors} errors`,
+      );
       return { deleted, errors };
     } catch (error) {
       this.logger.error('Failed to clean orphaned files:', error.message);

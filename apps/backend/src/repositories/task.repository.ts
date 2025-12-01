@@ -28,6 +28,12 @@ export class PrismaTaskRepository implements TaskRepository {
       creatorId: prismaTask.creatorId,
       parentTaskId: prismaTask.parentTaskId ?? undefined,
       subTasks: prismaTask.subTasks?.map((st) => this.toDomain(st)),
+      tags: (prismaTask as any).tags?.map((t: any) => ({
+        id: t.tag.id,
+        name: t.tag.name,
+        color: t.tag.color,
+        workspaceId: t.tag.workspaceId,
+      })),
       estimatedTime: prismaTask.estimatedMinutes ?? undefined,
       createdAt: prismaTask.createdAt,
       updatedAt: prismaTask.updatedAt,
@@ -124,8 +130,35 @@ export class PrismaTaskRepository implements TaskRepository {
     return this.toDomain(task);
   }
 
-  async findByCreatorId(creatorId: string): Promise<Task[]> {
-    const tasks = await this.prisma.task.findMany({ where: { creatorId } });
+  async findByCreatorId(
+    creatorId: string,
+    filters?: { projectId?: string; tags?: string[] },
+  ): Promise<Task[]> {
+    const where: any = { creatorId };
+
+    if (filters?.projectId) {
+      where.projectId = filters.projectId;
+    }
+
+    if (filters?.tags && filters.tags.length > 0) {
+      where.tags = {
+        some: {
+          tagId: {
+            in: filters.tags,
+          },
+        },
+      };
+    }
+
+    const tasks = await this.prisma.task.findMany({
+      where,
+      include: {
+        subTasks: true,
+        tags: {
+          include: { tag: true },
+        },
+      },
+    });
     return tasks.map((t) => this.toDomain(t));
   }
 

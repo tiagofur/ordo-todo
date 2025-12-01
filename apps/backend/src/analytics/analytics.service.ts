@@ -45,11 +45,7 @@ export class AnalyticsService {
     return metrics.map((m) => m.props);
   }
 
-  async getDateRangeMetrics(
-    userId: string,
-    startDate: Date,
-    endDate: Date,
-  ) {
+  async getDateRangeMetrics(userId: string, startDate: Date, endDate: Date) {
     const metrics = await this.analyticsRepository.getRange(
       userId,
       startDate,

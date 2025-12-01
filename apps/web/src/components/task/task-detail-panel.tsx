@@ -31,6 +31,11 @@ import { CommentThread } from "./comment-thread";
 import { FileUpload } from "./file-upload";
 import { AttachmentList } from "./attachment-list";
 import { ActivityFeed } from "./activity-feed";
+import { Tag as TagIcon, Plus } from "lucide-react";
+import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -61,6 +66,8 @@ export function TaskDetailPanel({
 }: TaskDetailPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("subtasks");
+  const [showCreateTagDialog, setShowCreateTagDialog] = useState(false);
+  const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch task data with all details (comments, attachments, activities)
@@ -95,6 +102,12 @@ export function TaskDetailPanel({
 
   // Delete task mutation
   const deleteTask = useDeleteTask();
+
+  // Tag management
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { data: availableTags } = useTags(selectedWorkspaceId || "");
+  const assignTag = useAssignTagToTask();
+  const removeTag = useRemoveTagFromTask();
 
   const handleSave = () => {
     if (!taskId) return;
@@ -172,7 +185,17 @@ export function TaskDetailPanel({
                       onValueChange={(value) => {
                         handleFieldChange("status", value);
                         // Auto-save status changes
-                        updateTask.mutate({ taskId, data: { status: value as any } });
+                        updateTask.mutate(
+                          { taskId, data: { status: value as any } },
+                          {
+                            onSuccess: () => toast.success("Estado actualizado"),
+                            onError: (error: any) => {
+                              toast.error(error.message || "Error al actualizar estado");
+                              // Revert local change on error
+                              handleFieldChange("status", task?.status || "TODO");
+                            },
+                          }
+                        );
                       }}
                     >
                       <SelectTrigger className={cn("h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
@@ -195,7 +218,17 @@ export function TaskDetailPanel({
                       onValueChange={(value) => {
                         handleFieldChange("priority", value);
                         // Auto-save priority changes
-                        updateTask.mutate({ taskId, data: { priority: value as any } });
+                        updateTask.mutate(
+                          { taskId, data: { priority: value as any } },
+                          {
+                            onSuccess: () => toast.success("Prioridad actualizada"),
+                            onError: (error: any) => {
+                              toast.error(error.message || "Error al actualizar prioridad");
+                              // Revert local change on error
+                              handleFieldChange("priority", task?.priority || "MEDIUM");
+                            },
+                          }
+                        );
                       }}
                     >
                       <SelectTrigger className={cn("h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
@@ -224,13 +257,125 @@ export function TaskDetailPanel({
                       autoFocus
                     />
                   ) : (
-                    <h2 
+                    <h2
                       className="text-2xl font-bold cursor-text hover:bg-accent/20 rounded px-2 -ml-2 py-1 transition-colors"
                       onClick={() => setIsEditing(true)}
                     >
                       {formData.title}
                     </h2>
                   )}
+
+                  {/* Tags Section - Moved here for better visibility */}
+                  <div className="flex flex-wrap items-center gap-2 -ml-2 px-2">
+                    <TagIcon className="w-4 h-4 text-muted-foreground" />
+                    {task?.tags && task.tags.length > 0 ? (
+                      task.tags.map((tag: any) => (
+                        <Badge
+                          key={tag.id}
+                          variant="secondary"
+                          className="gap-1.5 pr-1 border hover:shadow-sm transition-shadow"
+                          style={{
+                            backgroundColor: tag.color + '20',
+                            color: tag.color,
+                            borderColor: tag.color + '40'
+                          }}
+                        >
+                          {tag.name}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeTag.mutate({ tagId: tag.id, taskId });
+                            }}
+                            className="hover:bg-background/30 rounded-full p-0.5 transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">Sin etiquetas</span>
+                    )}
+                    <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs gap-1 rounded-full px-2 hover:bg-accent"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Añadir etiqueta
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-2 w-64" align="start">
+                        <div className="space-y-1">
+                          {/* Available Tags */}
+                          {availableTags && availableTags.length > 0 ? (
+                            <>
+                              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                                Etiquetas disponibles
+                              </div>
+                              {availableTags.map((tag: any) => {
+                                const isAssigned = task?.tags?.some((t: any) => t.id === tag.id);
+                                if (isAssigned) return null;
+
+                                return (
+                                  <button
+                                    key={tag.id}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (!taskId) {
+                                        toast.error("Error: ID de tarea no disponible");
+                                        return;
+                                      }
+                                      assignTag.mutate(
+                                        { tagId: tag.id, taskId },
+                                        {
+                                          onSuccess: () => {
+                                            toast.success(`Etiqueta "${tag.name}" asignada`);
+                                            setTagPopoverOpen(false);
+                                          },
+                                          onError: (error: any) => {
+                                            toast.error(error.message || "Error al asignar etiqueta");
+                                          }
+                                        }
+                                      );
+                                    }}
+                                    className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                                  >
+                                    <div
+                                      className="w-3 h-3 rounded-full flex-shrink-0"
+                                      style={{ backgroundColor: tag.color }}
+                                    />
+                                    <span className="flex-1 text-left">{tag.name}</span>
+                                  </button>
+                                );
+                              })}
+                              <Separator className="my-1" />
+                            </>
+                          ) : (
+                            <div className="text-center py-4 text-sm text-muted-foreground">
+                              No hay etiquetas disponibles
+                            </div>
+                          )}
+
+                          {/* Create New Tag Button */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setTagPopoverOpen(false);
+                              setShowCreateTagDialog(true);
+                            }}
+                            className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground text-primary transition-colors cursor-pointer font-medium"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Crear nueva etiqueta</span>
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
 
                 <div className="flex items-start gap-2 pt-1">
@@ -343,6 +488,7 @@ export function TaskDetailPanel({
                             />
                           </div>
                         </div>
+
                       </div>
                     </div>
                   </div>
@@ -440,6 +586,13 @@ export function TaskDetailPanel({
           </>
         )}
       </SheetContent>
+
+      {/* Create Tag Dialog */}
+      <CreateTagDialog
+        open={showCreateTagDialog}
+        onOpenChange={setShowCreateTagDialog}
+        workspaceId={selectedWorkspaceId || undefined}
+      />
     </Sheet>
   );
 }

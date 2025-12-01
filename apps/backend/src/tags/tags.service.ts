@@ -2,16 +2,20 @@ import { Injectable, Inject } from '@nestjs/common';
 import type { TagRepository } from '@ordo-todo/core';
 import {
   CreateTagUseCase,
+  UpdateTagUseCase,
   AssignTagToTaskUseCase,
   RemoveTagFromTaskUseCase,
 } from '@ordo-todo/core';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { UpdateTagDto } from './dto/update-tag.dto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class TagsService {
   constructor(
     @Inject('TagRepository')
     private readonly tagRepository: TagRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   async create(createTagDto: CreateTagDto) {
@@ -23,9 +27,34 @@ export class TagsService {
     return tag.props;
   }
 
+  async update(id: string, updateTagDto: UpdateTagDto) {
+    const updateTagUseCase = new UpdateTagUseCase(this.tagRepository);
+    const tag = await updateTagUseCase.execute(id, updateTagDto);
+    return tag.props;
+  }
+
   async findAll(workspaceId: string) {
-    const tags = await this.tagRepository.findByWorkspaceId(workspaceId);
-    return tags.map((t) => t.props);
+    // Get tags with task count from Prisma directly
+    const tagsWithCount = await this.prisma.tag.findMany({
+      where: { workspaceId },
+      include: {
+        _count: {
+          select: { tasks: true },
+        },
+      },
+    });
+
+    const result = tagsWithCount.map((tag) => ({
+      id: tag.id,
+      name: tag.name,
+      color: tag.color,
+      workspaceId: tag.workspaceId,
+      createdAt: tag.createdAt,
+      taskCount: tag._count.tasks,
+    }));
+
+    console.log('Tags with count:', JSON.stringify(result, null, 2));
+    return result;
   }
 
   async assignToTask(tagId: string, taskId: string) {

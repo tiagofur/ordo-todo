@@ -29,7 +29,19 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     const [isPaused, setIsPaused] = useState(false);
     const [timeLeft, setTimeLeft] = useState(type === "CONTINUOUS" ? 0 : config.workDuration * 60);
     const [mode, setMode] = useState<TimerMode>(type === "CONTINUOUS" ? "CONTINUOUS" : "WORK");
-    const [completedPomodoros, setCompletedPomodoros] = useState(0);
+    const [completedPomodoros, setCompletedPomodoros] = useState(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("ordo-completed-pomodoros");
+            return saved ? parseInt(saved, 10) : 0;
+        }
+        return 0;
+    });
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("ordo-completed-pomodoros", completedPomodoros.toString());
+        }
+    }, [completedPomodoros]);
     const [localPauseStartTime, setLocalPauseStartTime] = useState<Date | null>(null);
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);

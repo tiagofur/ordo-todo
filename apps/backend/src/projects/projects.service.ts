@@ -14,7 +14,7 @@ export class ProjectsService {
   constructor(
     @Inject('ProjectRepository')
     private readonly projectRepository: ProjectRepository,
-  ) { }
+  ) {}
 
   async create(createProjectDto: CreateProjectDto) {
     const createProjectUseCase = new CreateProjectUseCase(

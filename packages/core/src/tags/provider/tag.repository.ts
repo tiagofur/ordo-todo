@@ -2,6 +2,7 @@ import { Tag } from "../model/tag.entity";
 
 export interface TagRepository {
     create(tag: Tag): Promise<Tag>;
+    update(tag: Tag): Promise<Tag>;
     findById(id: string): Promise<Tag | null>;
     findByWorkspaceId(workspaceId: string): Promise<Tag[]>;
     delete(id: string): Promise<void>;

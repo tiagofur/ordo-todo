@@ -40,7 +40,6 @@ export default function ProjectDetailPage() {
   const deleteProject = useDeleteProject();
 
   const handleArchive = () => {
-    console.log("handleArchive called for project:", projectId, "Current status:", project.archived);
     const action = project.archived ? "desarchivar" : "archivar";
     
     if (confirm(`¿Estás seguro de ${action} este proyecto?`)) {
@@ -256,6 +255,8 @@ export default function ProjectDetailPage() {
             </div>
           </div>
         </div>
+
+
 
         {/* View Toggle */}
         <div className="flex items-center justify-between">

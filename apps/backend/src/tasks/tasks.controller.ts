@@ -56,8 +56,12 @@ export class TasksController {
   findAll(
     @CurrentUser() user: RequestUser,
     @Query('projectId') projectId?: string,
+    @Query('tags') tags?: string | string[],
   ) {
-    return this.tasksService.findAll(user.id, projectId);
+    const tagList = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
+    console.log('Tasks Controller - received tags query param:', tags);
+    console.log('Tasks Controller - processed tagList:', tagList);
+    return this.tasksService.findAll(user.id, projectId, tagList);
   }
 
   @Get(':id')
@@ -71,8 +75,12 @@ export class TasksController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(id, updateTaskDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.tasksService.update(id, updateTaskDto, user.id);
   }
 
   @Delete(':id')

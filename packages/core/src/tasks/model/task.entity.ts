@@ -14,6 +14,7 @@ export interface TaskProps extends EntityProps {
     parentTaskId?: string;
     subTasks?: Task[];
     estimatedTime?: number;
+    tags?: any[]; // Using any[] to avoid circular dependency for now, or import Tag
     createdAt?: Date;
     updatedAt?: Date;
 }

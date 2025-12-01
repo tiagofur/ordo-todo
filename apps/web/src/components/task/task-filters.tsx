@@ -1,6 +1,8 @@
 "use client";
 
 import { Filter, X } from "lucide-react";
+import { useTags } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,8 +16,9 @@ interface TaskFiltersProps {
   filters: {
     status: string[];
     priority: string[];
+    tags?: string[];
   };
-  onFiltersChange: (filters: { status: string[]; priority: string[] }) => void;
+  onFiltersChange: (filters: { status: string[]; priority: string[]; tags?: string[] }) => void;
 }
 
 const statusOptions = [
@@ -33,6 +36,9 @@ const priorityOptions = [
 ];
 
 export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { data: tags } = useTags(selectedWorkspaceId || "");
+
   const toggleStatus = (status: string) => {
     const newStatuses = filters.status.includes(status)
       ? filters.status.filter((s) => s !== status)
@@ -47,11 +53,19 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
     onFiltersChange({ ...filters, priority: newPriorities });
   };
 
-  const clearFilters = () => {
-    onFiltersChange({ status: [], priority: [] });
+  const toggleTag = (tagId: string) => {
+    const currentTags = filters.tags || [];
+    const newTags = currentTags.includes(tagId)
+      ? currentTags.filter((t) => t !== tagId)
+      : [...currentTags, tagId];
+    onFiltersChange({ ...filters, tags: newTags });
   };
 
-  const hasActiveFilters = filters.status.length > 0 || filters.priority.length > 0;
+  const clearFilters = () => {
+    onFiltersChange({ status: [], priority: [], tags: [] });
+  };
+
+  const hasActiveFilters = filters.status.length > 0 || filters.priority.length > 0 || (filters.tags?.length || 0) > 0;
 
   return (
     <div className="flex items-center gap-2">
@@ -62,7 +76,7 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
             Filtros
             {hasActiveFilters && (
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                {filters.status.length + filters.priority.length}
+                {filters.status.length + filters.priority.length + (filters.tags?.length || 0)}
               </span>
             )}
           </button>
@@ -89,6 +103,22 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
               onCheckedChange={() => togglePriority(option.value)}
             >
               {option.label}
+            </DropdownMenuCheckboxItem>
+          ))}
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuLabel>Etiquetas</DropdownMenuLabel>
+          {tags?.map((tag: any) => (
+            <DropdownMenuCheckboxItem
+              key={tag.id}
+              checked={filters.tags?.includes(tag.id)}
+              onCheckedChange={() => toggleTag(tag.id)}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tag.color }} />
+                {tag.name}
+              </div>
             </DropdownMenuCheckboxItem>
           ))}
         </DropdownMenuContent>

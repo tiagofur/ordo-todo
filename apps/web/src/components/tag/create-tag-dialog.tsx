@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateTag } from "@/lib/api-hooks";
+import { useCreateTag, useUpdateTag } from "@/lib/api-hooks";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,7 @@ interface CreateTagDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workspaceId?: string;
+  tagToEdit?: { id: string; name: string; color?: string; workspaceId: string };
 }
 
 const tagColors = [
@@ -43,47 +44,83 @@ const tagColors = [
   "#84CC16", // lime
 ];
 
-export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }: CreateTagDialogProps) {
-  const [selectedColor, setSelectedColor] = useState(tagColors[0]);
+export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: CreateTagDialogProps) {
+  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || tagColors[0]);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CreateTagForm>({
     resolver: zodResolver(createTagSchema),
     defaultValues: {
-      workspaceId: workspaceId,
-      color: tagColors[0],
+      name: tagToEdit?.name || "",
+      workspaceId: workspaceId || tagToEdit?.workspaceId,
+      color: tagToEdit?.color || tagColors[0],
     },
   });
 
+  const watchedName = watch("name");
+
+  // Update form when workspaceId or tagToEdit changes
+  useEffect(() => {
+    if (tagToEdit) {
+      setValue("name", tagToEdit.name);
+      setValue("workspaceId", tagToEdit.workspaceId);
+      setSelectedColor(tagToEdit.color || tagColors[0]);
+    } else if (workspaceId) {
+      setValue("workspaceId", workspaceId);
+      if (!open) {
+        reset({ name: "", workspaceId, color: tagColors[0] });
+        setSelectedColor(tagColors[0]);
+      }
+    }
+  }, [workspaceId, tagToEdit, setValue, reset, open]);
+
   const createTag = useCreateTag();
+  const updateTag = useUpdateTag();
 
   const onSubmit = (data: CreateTagForm) => {
-    createTag.mutate({
+    const payload = {
       ...data,
       color: selectedColor,
-    }, {
-      onSuccess: () => {
-        toast.success("Etiqueta creada exitosamente");
-        reset();
-        onOpenChange(false);
-      },
-      onError: (error: any) => {
-        toast.error(error.message || "Error al crear etiqueta");
-      }
-    });
+    };
+    
+    if (tagToEdit) {
+      updateTag.mutate({ tagId: tagToEdit.id, data: payload }, {
+        onSuccess: () => {
+          toast.success("Etiqueta actualizada");
+          reset();
+          onOpenChange(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Error al actualizar etiqueta");
+        }
+      });
+    } else {
+      createTag.mutate(payload, {
+        onSuccess: () => {
+          toast.success("Etiqueta creada exitosamente");
+          reset();
+          onOpenChange(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Error al crear etiqueta");
+        }
+      });
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
-          <DialogTitle>Crear Etiqueta</DialogTitle>
+          <DialogTitle>{tagToEdit ? "Editar Etiqueta" : "Crear Etiqueta"}</DialogTitle>
           <DialogDescription>
-            Organiza tus tareas con etiquetas personalizadas
+            {tagToEdit ? "Modifica los detalles de la etiqueta" : "Organiza tus tareas con etiquetas personalizadas"}
           </DialogDescription>
         </DialogHeader>
 
@@ -132,7 +169,7 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
                   color: selectedColor,
                 }}
               >
-                {register("name").name || "Etiqueta"}
+                {watchedName || "Etiqueta"}
               </span>
             </div>
           </div>
@@ -150,10 +187,13 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
             </button>
             <button
               type="submit"
-              disabled={createTag.isPending}
+              disabled={createTag.isPending || updateTag.isPending}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {createTag.isPending ? "Creando..." : "Crear Etiqueta"}
+              {tagToEdit 
+                ? (updateTag.isPending ? "Guardando..." : "Guardar Cambios") 
+                : (createTag.isPending ? "Creando..." : "Crear Etiqueta")
+              }
             </button>
           </DialogFooter>
         </form>

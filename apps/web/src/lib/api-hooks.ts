@@ -34,6 +34,7 @@ import type {
   CreateSubtaskDto,
   // Tag
   CreateTagDto,
+  UpdateTagDto,
   // Timer
   StartTimerDto,
   StopTimerDto,
@@ -362,10 +363,10 @@ export function useDeleteProject() {
 
 // ============ TASK HOOKS ============
 
-export function useTasks(projectId?: string) {
+export function useTasks(projectId?: string, tags?: string[]) {
   return useQuery({
-    queryKey: queryKeys.tasks(projectId),
-    queryFn: () => apiClient.getTasks(projectId),
+    queryKey: projectId ? ['tasks', projectId, { tags }] : ['tasks', { tags }],
+    queryFn: () => apiClient.getTasks(projectId, tags),
   });
 }
 
@@ -479,6 +480,18 @@ export function useCreateTag() {
   });
 }
 
+export function useUpdateTag() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ tagId, data }: { tagId: string; data: UpdateTagDto }) =>
+      apiClient.updateTag(tagId, data),
+    onSuccess: (tag) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+    },
+  });
+}
+
 export function useAssignTagToTask() {
   const queryClient = useQueryClient();
 
@@ -486,8 +499,14 @@ export function useAssignTagToTask() {
     mutationFn: ({ tagId, taskId }: { tagId: string; taskId: string }) =>
       apiClient.assignTagToTask(tagId, taskId),
     onSuccess: (_, { taskId }) => {
+      // Invalidate task queries to update tag display
       queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidate all task lists
+
+      // Invalidate tag queries to update task counts
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
     },
   });
 }
@@ -499,8 +518,14 @@ export function useRemoveTagFromTask() {
     mutationFn: ({ tagId, taskId }: { tagId: string; taskId: string }) =>
       apiClient.removeTagFromTask(tagId, taskId),
     onSuccess: (_, { taskId }) => {
+      // Invalidate task queries to update tag display
       queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidate all task lists
+
+      // Invalidate tag queries to update task counts
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
     },
   });
 }

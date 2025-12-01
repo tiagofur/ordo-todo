@@ -33,7 +33,8 @@ export class AttachmentsController {
         destination: './uploads',
         filename: (req, file, callback) => {
           const taskId = req.body.taskId || 'temp';
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
           const sanitizedName = file.originalname
             .replace(ext, '')

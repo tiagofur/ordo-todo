@@ -42,7 +42,9 @@
       "Bash(ls:*)",
       "Bash(npx prisma generate:*)",
       "Bash(if exist dist rmdir /s /q dist)",
-      "Bash(npx nest build)"
+      "Bash(npx nest build)",
+      "Bash(npm run lint:*)",
+      "Bash(npx next build:*)"
     ],
     "deny": [],
     "ask": []

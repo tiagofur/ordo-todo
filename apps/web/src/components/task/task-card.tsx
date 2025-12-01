@@ -16,6 +16,7 @@ import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TaskDetailPanel } from "./task-detail-panel";
+import { Badge } from "@/components/ui/badge";
 
 interface TaskCardProps {
   task: {
@@ -25,6 +26,7 @@ interface TaskCardProps {
     status: string;
     priority: string;
     dueDate?: Date | string | null;
+    tags?: any[];
   };
   index?: number;
 }
@@ -110,6 +112,24 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {task.tags && task.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {task.tags.map((tag: any) => (
+                <Badge
+                  key={tag.id}
+                  variant="secondary"
+                  className="text-[10px] px-1.5 py-0 h-5 border-0 font-medium"
+                  style={{
+                    backgroundColor: tag.color + '20',
+                    color: tag.color,
+                  }}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+          )}
 
           {task.description && (
             <p className="text-sm text-muted-foreground line-clamp-2 mb-6 flex-grow">

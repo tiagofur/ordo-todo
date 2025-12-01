@@ -8,7 +8,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaTimerRepository implements TimerRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaSession: PrismaTimeSession): TimeSession {
     // console.log('toDomain processing session:', prismaSession.id);
@@ -59,7 +59,11 @@ export class PrismaTimerRepository implements TimerRepository {
           });
       }
     } catch (error) {
-      console.error('Error parsing pauseData for session:', prismaSession.id, error);
+      console.error(
+        'Error parsing pauseData for session:',
+        prismaSession.id,
+        error,
+      );
       pauseData = [];
       currentPauseStart = undefined;
     }

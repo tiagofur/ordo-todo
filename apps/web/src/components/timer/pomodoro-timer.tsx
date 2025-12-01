@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Play, Pause, Square, SkipForward, RefreshCw, Timer } from "lucide-react";
-import { useTimerBackend } from "@/hooks/use-timer-backend";
+import { useTimer } from "@/components/providers/timer-provider";
 import { toast } from "sonner";
 import { TaskSelector } from "./task-selector";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useTimerSettings } from "@/hooks/use-timer-settings";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,11 +17,9 @@ import {
 } from "@/components/ui/dialog";
 
 export function PomodoroTimer() {
-  const { settings: config, isLoaded } = useTimerSettings();
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [showSwitchDialog, setShowSwitchDialog] = useState(false);
-
-  const {
+  const { 
+    config, 
+    isLoaded,
     isRunning,
     isPaused,
     timeLeft,
@@ -37,21 +34,11 @@ export function PomodoroTimer() {
     formatTime,
     getProgress,
     activeSession,
-  } = useTimerBackend({
-    type: config.defaultMode, // POMODORO or CONTINUOUS from settings
-    config,
-    taskId: selectedTaskId,
-    onSessionComplete: () => {
-      toast.success("¡Sesión completada!");
-    },
-  });
+    selectedTaskId,
+    setSelectedTaskId
+  } = useTimer();
 
-  // Sync selected task with active session
-  useEffect(() => {
-    if (activeSession?.taskId) {
-        setSelectedTaskId(activeSession.taskId);
-    }
-  }, [activeSession]);
+  const [showSwitchDialog, setShowSwitchDialog] = useState(false);
 
   const accentColor = config.defaultMode === "POMODORO" ? "#ef4444" : "#3b82f6";
   const modeLabel = config.defaultMode === "POMODORO" ? "Pomodoro" : "Tiempo Corrido";

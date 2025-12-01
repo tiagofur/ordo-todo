@@ -8,7 +8,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   @Public()
   @Get()
@@ -52,7 +52,7 @@ export class AppController {
           archived: true,
           completed: true,
           workspaceId: true,
-        }
+        },
       });
 
       return { count: projects.length, projects };

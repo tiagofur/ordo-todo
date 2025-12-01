@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ProductivityReport as PrismaProductivityReport, Prisma } from '@prisma/client';
+import {
+  ProductivityReport as PrismaProductivityReport,
+  Prisma,
+} from '@prisma/client';
 import {
   ProductivityReport,
   ProductivityReportRepository,
@@ -8,14 +11,10 @@ import {
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
-export class PrismaProductivityReportRepository
-  implements ProductivityReportRepository
-{
+export class PrismaProductivityReportRepository implements ProductivityReportRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private toDomain(
-    prismaReport: PrismaProductivityReport,
-  ): ProductivityReport {
+  private toDomain(prismaReport: PrismaProductivityReport): ProductivityReport {
     return new ProductivityReport({
       id: prismaReport.id,
       userId: prismaReport.userId,
@@ -139,10 +138,7 @@ export class PrismaProductivityReportRepository
     });
   }
 
-  async countByUserId(
-    userId: string,
-    scope?: ReportScope,
-  ): Promise<number> {
+  async countByUserId(userId: string, scope?: ReportScope): Promise<number> {
     return await this.prisma.productivityReport.count({
       where: {
         userId,

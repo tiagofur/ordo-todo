@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, Play, Pause } from "lucide-react";
-import { useActiveTimer } from "@/lib/api-hooks";
+import { useTimer } from "@/components/providers/timer-provider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -10,27 +10,8 @@ import { motion } from "framer-motion";
 export function TimerWidget() {
   const pathname = usePathname();
   const isActive = pathname === "/timer";
-  const { data: activeSessionData } = useActiveTimer();
-  const activeSession = activeSessionData as any;
-  const accentColor = "#4f46e5"; // Indigo
-
-  const formatDuration = (startedAt: Date | string): string => {
-    const start = typeof startedAt === "string" ? new Date(startedAt) : startedAt;
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - start.getTime()) / 1000);
-    
-    const hours = Math.floor(diff / 3600);
-    const minutes = Math.floor((diff % 3600) / 60);
-    const seconds = diff % 60;
-    
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-    }
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  };
-
-  const isRunning = activeSession && !activeSession.endedAt;
-
+  const { isRunning, timeLeft, formatTime } = useTimer();
+  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -57,7 +38,7 @@ export function TimerWidget() {
         <div className="flex-1">
           {isRunning ? (
             <div className="font-medium tabular-nums">
-              {formatDuration(activeSession.startedAt)}
+              {formatTime(timeLeft)}
             </div>
           ) : (
             <span>Iniciar timer</span>

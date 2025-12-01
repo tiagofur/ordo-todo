@@ -3,7 +3,7 @@ import { Entity, EntityProps } from "../../shared/entity";
 export interface TagProps extends EntityProps {
     name: string;
     color: string;
-    workspaceId: string; // Tags are usually per workspace or global? Schema says workspaceId.
+    workspaceId?: string; // Tags are usually per workspace or global? Schema says workspaceId.
     createdAt?: Date;
 }
 
@@ -19,6 +19,12 @@ export class Tag extends Entity<TagProps> {
     static create(props: Omit<TagProps, "id" | "createdAt">): Tag {
         return new Tag({
             ...props,
+        });
+    }
+
+    update(props: Partial<Omit<TagProps, "id" | "workspaceId" | "createdAt">>): Tag {
+        return this.clone({
+            ...props
         });
     }
 }

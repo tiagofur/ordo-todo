@@ -9,10 +9,12 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TagsService } from './tags.service';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { UpdateTagDto } from './dto/update-tag.dto';
 
 @Controller('tags')
 @UseGuards(JwtAuthGuard)
@@ -23,6 +25,12 @@ export class TagsController {
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createTagDto: CreateTagDto) {
     return this.tagsService.create(createTagDto);
+  }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  update(@Param('id') id: string, @Body() updateTagDto: UpdateTagDto) {
+    return this.tagsService.update(id, updateTagDto);
   }
 
   @Get()

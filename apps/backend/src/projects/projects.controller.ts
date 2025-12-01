@@ -22,7 +22,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) { }
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

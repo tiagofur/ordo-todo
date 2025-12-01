@@ -21,12 +21,16 @@ export class GeminiAIService {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
 
     if (!apiKey) {
-      this.logger.warn('GEMINI_API_KEY not configured. AI features will be limited.');
+      this.logger.warn(
+        'GEMINI_API_KEY not configured. AI features will be limited.',
+      );
       return;
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    this.model = this.genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+    });
   }
 
   /**
@@ -59,7 +63,10 @@ export class GeminiAIService {
           weaknesses: data.weaknesses || [],
           recommendations: data.recommendations || [],
           patterns: data.patterns || [],
-          productivityScore: Math.min(100, Math.max(0, data.productivityScore || 50)),
+          productivityScore: Math.min(
+            100,
+            Math.max(0, data.productivityScore || 50),
+          ),
         };
       }
 
@@ -86,7 +93,13 @@ Context:
 
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
-${sessions.slice(0, 10).map((s: any, i: number) => `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`).join('\n')}
+${sessions
+  .slice(0, 10)
+  .map(
+    (s: any, i: number) =>
+      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+  )
+  .join('\n')}
 `;
     }
 
@@ -142,16 +155,12 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
         'Mantuviste un ritmo constante de trabajo',
         'Completaste varias sesiones exitosamente',
       ],
-      weaknesses: [
-        'Se detectaron algunas interrupciones en tus sesiones',
-      ],
+      weaknesses: ['Se detectaron algunas interrupciones en tus sesiones'],
       recommendations: [
         'Intenta reducir las pausas durante las sesiones de trabajo',
         'Programa tus tareas más importantes durante tus horas pico',
       ],
-      patterns: [
-        'Trabajas mejor en bloques de 25-30 minutos',
-      ],
+      patterns: ['Trabajas mejor en bloques de 25-30 minutos'],
       productivityScore: 70,
     };
   }

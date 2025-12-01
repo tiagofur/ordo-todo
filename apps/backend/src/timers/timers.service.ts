@@ -1,5 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { TimerRepository, TaskRepository, AnalyticsRepository, AIProfileRepository } from '@ordo-todo/core';
+import type {
+  TimerRepository,
+  TaskRepository,
+  AnalyticsRepository,
+  AIProfileRepository,
+} from '@ordo-todo/core';
 import {
   StartTimerUseCase,
   StopTimerUseCase,
@@ -27,7 +32,7 @@ export class TimersService {
     private readonly analyticsRepository: AnalyticsRepository,
     @Inject('AIProfileRepository')
     private readonly aiProfileRepository: AIProfileRepository,
-  ) { }
+  ) {}
 
   async start(startTimerDto: StartTimerDto, userId: string) {
     const startTimerUseCase = new StartTimerUseCase(
@@ -69,7 +74,9 @@ export class TimersService {
         });
 
         // Update daily metrics
-        const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+        const updateMetrics = new UpdateDailyMetricsUseCase(
+          this.analyticsRepository,
+        );
         await updateMetrics.execute({
           userId,
           date: session.props.endedAt ?? new Date(),
@@ -80,7 +87,9 @@ export class TimersService {
 
         // Learn from this session to improve AI recommendations
         try {
-          const learnFromSession = new LearnFromSessionUseCase(this.aiProfileRepository);
+          const learnFromSession = new LearnFromSessionUseCase(
+            this.aiProfileRepository,
+          );
           await learnFromSession.execute({ session });
         } catch (error) {
           // Don't fail the entire stop operation if learning fails

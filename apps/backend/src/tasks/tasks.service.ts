@@ -14,7 +14,7 @@ export class TasksService {
     private readonly taskRepository: TaskRepository,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
-  ) { }
+  ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
@@ -51,14 +51,17 @@ export class TasksService {
     return task.props;
   }
 
-  async findAll(userId: string, projectId?: string) {
-    const tasks = await this.taskRepository.findByCreatorId(userId);
-    // Filtrar solo tareas principales (sin parentTaskId) y opcionalmente por proyecto
-    const filteredTasks = tasks.filter((t) => {
-      const isMainTask = !t.props.parentTaskId;
-      const matchesProject = projectId ? t.props.projectId === projectId : true;
-      return isMainTask && matchesProject;
+  async findAll(userId: string, projectId?: string, tags?: string[]) {
+    console.log('TasksService.findAll - tags param:', tags);
+    const tasks = await this.taskRepository.findByCreatorId(userId, {
+      projectId,
+      tags,
     });
+    console.log('TasksService.findAll - tasks found:', tasks.length);
+    // Filter only main tasks (no parentTaskId)
+    // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
+    const filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
+    console.log('TasksService.findAll - filtered tasks:', filteredTasks.length);
     return filteredTasks.map((t) => t.props);
   }
 
@@ -91,6 +94,9 @@ export class TasksService {
           orderBy: { createdAt: 'desc' },
           take: 50, // Limit to last 50 activities
         },
+        tags: {
+          include: { tag: true },
+        },
       },
     });
 
@@ -100,11 +106,12 @@ export class TasksService {
 
     return {
       ...task,
+      tags: task.tags.map((t) => t.tag),
       estimatedTime: task.estimatedMinutes,
     };
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto) {
+  async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
     const task = await this.taskRepository.findById(id);
     if (!task) {
       throw new NotFoundException('Task not found');
@@ -113,9 +120,6 @@ export class TasksService {
     const oldTask = task.props;
     const updatedTask = task.update(updateTaskDto);
     await this.taskRepository.save(updatedTask);
-
-    // Get userId from the task creator (you might want to pass this as parameter)
-    const userId = oldTask.creatorId;
 
     // Log specific field changes
     if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {

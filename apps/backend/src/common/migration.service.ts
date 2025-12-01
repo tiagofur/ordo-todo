@@ -3,24 +3,24 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class MigrationService {
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    async fixCompletedField() {
-        try {
-            console.log('🔧 Fixing completed field for existing projects...');
+  async fixCompletedField() {
+    try {
+      console.log('🔧 Fixing completed field for existing projects...');
 
-            const result = await this.prisma.$executeRaw`
+      const result = await this.prisma.$executeRaw`
         UPDATE "Project" 
         SET completed = false, "updatedAt" = NOW()
         WHERE completed IS NULL
       `;
 
-            console.log(`✅ Updated ${result} projects`);
+      console.log(`✅ Updated ${result} projects`);
 
-            return { success: true, updated: result };
-        } catch (error) {
-            console.error('❌ Error fixing completed field:', error);
-            throw error;
-        }
+      return { success: true, updated: result };
+    } catch (error) {
+      console.error('❌ Error fixing completed field:', error);
+      throw error;
     }
+  }
 }

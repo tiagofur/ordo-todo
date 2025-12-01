@@ -12,7 +12,7 @@ export class PrismaTagRepository implements TagRepository {
       id: prismaTag.id,
       name: prismaTag.name,
       color: prismaTag.color,
-      workspaceId: (prismaTag as any).workspaceId,
+      workspaceId: prismaTag.workspaceId ?? undefined,
       createdAt: prismaTag.createdAt,
     });
   }
@@ -32,6 +32,20 @@ export class PrismaTagRepository implements TagRepository {
     return this.toDomain(created);
   }
 
+  async update(tag: Tag): Promise<Tag> {
+    const data = {
+      name: tag.props.name,
+      color: tag.props.color,
+    };
+
+    const updated = await this.prisma.tag.update({
+      where: { id: tag.id as string },
+      data: data,
+    });
+
+    return this.toDomain(updated);
+  }
+
   async findById(id: string): Promise<Tag | null> {
     const tag = await this.prisma.tag.findUnique({ where: { id } });
     if (!tag) return null;
@@ -40,7 +54,12 @@ export class PrismaTagRepository implements TagRepository {
 
   async findByWorkspaceId(workspaceId: string): Promise<Tag[]> {
     const tags = await this.prisma.tag.findMany({
-      where: { workspaceId } as any,
+      where: { workspaceId },
+      include: {
+        _count: {
+          select: { tasks: true },
+        },
+      },
     });
     return tags.map((t) => this.toDomain(t));
   }
