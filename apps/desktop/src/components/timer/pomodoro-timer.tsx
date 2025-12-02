@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Play, Pause, Square, SkipForward, Coffee, Zap, CheckSquare } from "lucide-react";
+import {
+  Play,
+  Pause,
+  Square,
+  SkipForward,
+  Coffee,
+  Zap,
+  CheckSquare,
+} from "lucide-react";
 import { useTimer, TimerType, TimerMode, SessionData } from "@/hooks/use-timer";
 import { api } from "@/utils/api";
 import { toast } from "sonner";
@@ -17,13 +25,18 @@ const DEFAULT_CONFIG = {
   pomodorosUntilLongBreak: 4,
 };
 
-export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }: PomodoroTimerProps) {
+export function PomodoroTimer({
+  taskId: initialTaskId,
+  timerType = "POMODORO",
+}: PomodoroTimerProps) {
   const [config] = useState(DEFAULT_CONFIG);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialTaskId || null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(
+    initialTaskId || null
+  );
   const utils = api.useUtils();
 
   const startTimer = api.timer.start.useMutation({
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(error.message || "Error al iniciar timer");
     },
   });
@@ -32,7 +45,7 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
     onSuccess: () => {
       utils.timer.active.invalidate();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(error.message || "Error al guardar sesión");
     },
   });
@@ -92,7 +105,7 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
     if (isRunning && !isPaused) {
       // If timer is running, split the session
       split();
-      
+
       // If we have a new task, start a new session immediately
       if (newTaskId) {
         await startTimer.mutateAsync({
@@ -101,7 +114,7 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
         });
       }
     }
-    
+
     setSelectedTaskId(newTaskId);
   };
 
@@ -109,12 +122,12 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
     if (selectedTaskId) {
       // Complete the task in backend
       await completeTask.mutateAsync({ id: selectedTaskId });
-      
+
       // Split the timer session (log time for this task)
       if (isRunning) {
         split();
       }
-      
+
       // Clear selection but keep timer running
       setSelectedTaskId(null);
       toast.success("Tarea completada! Selecciona otra para continuar.");
@@ -124,11 +137,11 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
   const getModeColor = (mode: TimerMode): string => {
     switch (mode) {
       case "WORK":
-        return "from-red-500 to-orange-500";
+        return "bg-red-500";
       case "SHORT_BREAK":
-        return "from-blue-500 to-cyan-500";
+        return "bg-blue-500";
       case "LONG_BREAK":
-        return "from-green-500 to-emerald-500";
+        return "bg-green-500";
     }
   };
 
@@ -158,7 +171,9 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
       <div className="rounded-2xl border bg-card p-8 shadow-lg">
         {/* Mode Indicator */}
         <div className="mb-6 flex items-center justify-center gap-2">
-          <div className={`flex items-center gap-2 rounded-full bg-gradient-to-r ${getModeColor(mode)} px-4 py-2 text-white`}>
+          <div
+            className={`flex items-center gap-2 rounded-full ${getModeColor(mode)} px-4 py-2 text-white`}
+          >
             {getModeIcon(mode)}
             <span className="text-sm font-medium">{getModeLabel(mode)}</span>
           </div>
@@ -167,15 +182,15 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
         {/* Task Selector */}
         <div className="mb-8">
           <div className="flex gap-2">
-            <TaskSelector 
-              selectedTaskId={selectedTaskId} 
+            <TaskSelector
+              selectedTaskId={selectedTaskId}
               onSelect={handleTaskSelect}
               className="flex-1"
             />
             {selectedTaskId && (
               <button
                 onClick={handleCompleteTask}
-                className="flex items-center justify-center rounded-lg border border-green-200 bg-green-50 px-3 text-green-600 hover:bg-green-100 dark:border-green-900 dark:bg-green-900/20 dark:text-green-400"
+                className="flex items-center justify-center rounded-lg border border-green-500 bg-green-100 px-3 text-green-700 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
                 title="Completar tarea y seguir trabajando"
               >
                 <CheckSquare className="h-5 w-5" />
@@ -207,7 +222,11 @@ export function PomodoroTimer({ taskId: initialTaskId, timerType = "POMODORO" }:
               strokeDasharray={`${2 * Math.PI * 120}`}
               strokeDashoffset={`${2 * Math.PI * 120 * (1 - getProgress() / 100)}`}
               className={`text-gradient transition-all duration-1000 ${
-                mode === "WORK" ? "text-red-500" : mode === "SHORT_BREAK" ? "text-blue-500" : "text-green-500"
+                mode === "WORK"
+                  ? "text-red-500"
+                  : mode === "SHORT_BREAK"
+                    ? "text-blue-500"
+                    : "text-green-500"
               }`}
               strokeLinecap="round"
             />

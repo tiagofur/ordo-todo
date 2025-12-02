@@ -3,6 +3,8 @@ import {
   Get,
   Post,
   Body,
+  Query,
+  Param,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -16,6 +18,8 @@ import { StopTimerDto } from './dto/stop-timer.dto';
 import { PauseTimerDto } from './dto/pause-timer.dto';
 import { ResumeTimerDto } from './dto/resume-timer.dto';
 import { SwitchTaskDto } from './dto/switch-task.dto';
+import { GetSessionsDto } from './dto/get-sessions.dto';
+import { GetTimerStatsDto } from './dto/timer-stats.dto';
 
 @Controller('timers')
 @UseGuards(JwtAuthGuard)
@@ -63,5 +67,29 @@ export class TimersController {
   @Get('active')
   getActive(@CurrentUser() user: RequestUser) {
     return this.timersService.getActive(user.id);
+  }
+
+  @Get('history')
+  getHistory(
+    @Query() getSessionsDto: GetSessionsDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.timersService.getSessionHistory(getSessionsDto, user.id);
+  }
+
+  @Get('stats')
+  getStats(
+    @Query() getStatsDto: GetTimerStatsDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.timersService.getTimerStats(getStatsDto, user.id);
+  }
+
+  @Get('task/:taskId')
+  getTaskSessions(
+    @Param('taskId') taskId: string,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.timersService.getTaskSessions(taskId, user.id);
   }
 }

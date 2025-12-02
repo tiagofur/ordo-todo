@@ -36,9 +36,17 @@ export function useTimer({ type, config, onSessionComplete }: UseTimerProps) {
     const [pauseCount, setPauseCount] = useState(0);
     const [totalPauseTime, setTotalPauseTime] = useState(0);
 
+    // Use refs to avoid stale closure issues
+    const completedPomodorosRef = useRef(0);
+    const isTransitioningRef = useRef(false);
     const sessionStartRef = useRef<Date | null>(null);
     const pauseStartRef = useRef<Date | null>(null);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Keep ref in sync with state
+    useEffect(() => {
+        completedPomodorosRef.current = completedPomodoros;
+    }, [completedPomodoros]);
 
     const getDuration = useCallback((mode: TimerMode): number => {
         switch (mode) {
@@ -103,34 +111,66 @@ export function useTimer({ type, config, onSessionComplete }: UseTimerProps) {
     }, [mode, getDuration, stop]);
 
     const skipToNext = useCallback(() => {
+        // Prevent multiple simultaneous transitions
+        if (isTransitioningRef.current) {
+            return;
+        }
+        isTransitioningRef.current = true;
+
+        // Clear the interval immediately
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+
         if (type === "POMODORO") {
             if (mode === "WORK") {
-                setCompletedPomodoros(prev => prev + 1);
-                const nextMode = (completedPomodoros + 1) % config.pomodorosUntilLongBreak === 0
+                // Use ref for accurate count
+                const newCount = completedPomodorosRef.current + 1;
+                setCompletedPomodoros(newCount);
+                completedPomodorosRef.current = newCount;
+
+                const nextMode = newCount % config.pomodorosUntilLongBreak === 0
                     ? "LONG_BREAK"
                     : "SHORT_BREAK";
+
+                // Stop current session first
+                stop(true);
+
+                // Then update mode and time for next session
                 setMode(nextMode);
                 setTimeLeft(getDuration(nextMode));
             } else {
+                // Stop current break session
+                stop(true);
+
+                // Set up next work session
                 setMode("WORK");
                 setTimeLeft(getDuration("WORK"));
             }
+        } else {
+            stop(true);
         }
-        stop(true);
-    }, [type, mode, completedPomodoros, config.pomodorosUntilLongBreak, getDuration, stop]);
+
+        isTransitioningRef.current = false;
+    }, [type, mode, config.pomodorosUntilLongBreak, getDuration, stop]);
 
     // Timer countdown effect
     useEffect(() => {
-        if (isRunning && !isPaused) {
+        if (isRunning && !isPaused && !isTransitioningRef.current) {
             intervalRef.current = setInterval(() => {
                 setTimeLeft(prev => {
                     if (prev <= 1) {
-                        // Timer completed
-                        if (type === "POMODORO") {
-                            skipToNext();
-                        } else {
-                            stop(true);
-                        }
+                        // Timer completed - schedule transition outside setState
+                        setTimeout(() => {
+                            if (!isTransitioningRef.current) {
+                                if (type === "POMODORO") {
+                                    skipToNext();
+                                } else {
+                                    stop(true);
+                                }
+                            }
+                        }, 0);
                         return 0;
                     }
                     return prev - 1;

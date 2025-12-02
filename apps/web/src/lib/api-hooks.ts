@@ -71,7 +71,11 @@ export const queryKeys = {
 
   // Timer
   activeTimer: ['timer', 'active'] as const,
-  timerHistory: ['timer', 'history'] as const,
+  timerHistory: (params?: { taskId?: string; type?: string; startDate?: string; endDate?: string; page?: number; limit?: number; completedOnly?: boolean }) =>
+    ['timer', 'history', params] as const,
+  timerStats: (params?: { startDate?: string; endDate?: string }) =>
+    ['timer', 'stats', params] as const,
+  taskTimeSessions: (taskId: string) => ['timer', 'task', taskId] as const,
 
   // Tags
   tags: (workspaceId: string) => ['tags', workspaceId] as const,
@@ -672,7 +676,40 @@ export function useSwitchTask() {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
     },
+  });
+}
+
+// Session History and Stats Hooks
+export function useSessionHistory(params?: {
+  taskId?: string;
+  type?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  completedOnly?: boolean;
+}) {
+  return useQuery({
+    queryKey: queryKeys.timerHistory(params),
+    queryFn: () => apiClient.getSessionHistory(params),
+  });
+}
+
+export function useTimerStats(params?: { startDate?: string; endDate?: string }) {
+  return useQuery({
+    queryKey: queryKeys.timerStats(params),
+    queryFn: () => apiClient.getTimerStats(params),
+  });
+}
+
+export function useTaskTimeSessions(taskId: string) {
+  return useQuery({
+    queryKey: queryKeys.taskTimeSessions(taskId),
+    queryFn: () => apiClient.getTaskTimeSessions(taskId),
+    enabled: !!taskId,
   });
 }
 

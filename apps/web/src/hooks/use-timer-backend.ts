@@ -5,6 +5,15 @@ import { useTimerNotifications } from "./use-timer-notifications";
 
 export type TimerMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "CONTINUOUS";
 export type TimerType = "POMODORO" | "CONTINUOUS";
+type SessionTypeValue = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "CONTINUOUS";
+
+// Session type map for backend API - returns typed values
+const SESSION_TYPE_MAP: Record<TimerMode, SessionTypeValue> = {
+    WORK: "WORK",
+    SHORT_BREAK: "SHORT_BREAK",
+    LONG_BREAK: "LONG_BREAK",
+    CONTINUOUS: "CONTINUOUS",
+};
 
 interface TimerConfig {
     workDuration: number; // minutes
@@ -36,8 +45,13 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         }
         return 0;
     });
+    // Use a ref to track current completed pomodoros to avoid stale closure issues
+    const completedPomodorosRef = useRef(completedPomodoros);
+    // Flag to prevent multiple transitions
+    const isTransitioningRef = useRef(false);
 
     useEffect(() => {
+        completedPomodorosRef.current = completedPomodoros;
         if (typeof window !== "undefined") {
             localStorage.setItem("ordo-completed-pomodoros", completedPomodoros.toString());
         }
@@ -195,83 +209,116 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     }, [stopTimerMutation, mode, type, getDuration, refetchActiveSession, onSessionComplete]);
 
     const skipToNext = useCallback(async () => {
-        if (type === "POMODORO") {
-            let nextMode: TimerMode;
+        // Prevent multiple simultaneous transitions
+        if (isTransitioningRef.current) {
+            return;
+        }
+        isTransitioningRef.current = true;
 
-            if (mode === "WORK") {
-                // Completed a work session
-                setCompletedPomodoros(prev => prev + 1);
-                nextMode = (completedPomodoros + 1) % config.pomodorosUntilLongBreak === 0
-                    ? "LONG_BREAK"
-                    : "SHORT_BREAK";
+        // Clear the interval immediately to prevent further countdown
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
 
-                // Stop current session
-                await stop(true);
+        try {
+            if (type === "POMODORO") {
+                const currentMode = mode;
+                let nextMode: TimerMode;
 
-                // Notify session complete
-                notifySessionComplete(mode);
+                if (currentMode === "WORK") {
+                    // Use ref to get current value (avoid stale closure)
+                    const newCompletedCount = completedPomodorosRef.current + 1;
+                    setCompletedPomodoros(newCompletedCount);
+                    completedPomodorosRef.current = newCompletedCount;
 
-                // Auto-start break if enabled
-                if (config.autoStartBreaks && taskId) {
+                    // Determine next mode based on updated count
+                    nextMode = newCompletedCount % config.pomodorosUntilLongBreak === 0
+                        ? "LONG_BREAK"
+                        : "SHORT_BREAK";
+
+                    // Stop current work session (mark as completed)
+                    await stopTimerMutation.mutateAsync({ wasCompleted: true });
+
+                    // Notify session complete
+                    notifySessionComplete(currentMode);
+                    toast.success("¡Pomodoro completado!");
+
+                    // Update UI state for next mode
                     setMode(nextMode);
                     setTimeLeft(getDuration(nextMode));
+                    setIsRunning(false);
+                    setIsPaused(false);
 
-                    try {
-                        await startTimerMutation.mutateAsync({
-                            taskId,
-                            type: nextMode,
-                        });
-                        setIsRunning(true);
-                        setIsPaused(false);
+                    // Auto-start break if enabled
+                    if (config.autoStartBreaks) {
+                        try {
+                            await startTimerMutation.mutateAsync({
+                                taskId: taskId || undefined,
+                                type: SESSION_TYPE_MAP[nextMode],
+                            });
+                            setIsRunning(true);
+                            await refetchActiveSession();
+                            notifyAutoStart(nextMode);
+                            toast.success(`Iniciando ${nextMode === "LONG_BREAK" ? "descanso largo" : "descanso corto"}`);
+                        } catch (error: any) {
+                            console.error("Error auto-starting break:", error);
+                            toast.error("Error al auto-iniciar descanso");
+                        }
+                    } else {
                         await refetchActiveSession();
-                        notifyAutoStart(nextMode);
-                        toast.success(`Iniciando ${nextMode === "LONG_BREAK" ? "descanso largo" : "descanso corto"}`);
-                    } catch (error: any) {
-                        toast.error("Error al auto-iniciar descanso");
                     }
                 } else {
+                    // Completed a break session (SHORT_BREAK or LONG_BREAK)
+                    nextMode = "WORK";
+
+                    // Stop current break session (mark as completed)
+                    await stopTimerMutation.mutateAsync({ wasCompleted: true });
+
+                    // Notify session complete
+                    notifySessionComplete(currentMode);
+                    toast.success(currentMode === "LONG_BREAK" ? "¡Descanso largo completado!" : "¡Descanso corto completado!");
+
+                    // Update UI state for next mode
                     setMode(nextMode);
                     setTimeLeft(getDuration(nextMode));
+                    setIsRunning(false);
+                    setIsPaused(false);
+
+                    // Auto-start next pomodoro if enabled
+                    if (config.autoStartPomodoros) {
+                        try {
+                            await startTimerMutation.mutateAsync({
+                                taskId: taskId || undefined,
+                                type: SESSION_TYPE_MAP[nextMode],
+                            });
+                            setIsRunning(true);
+                            await refetchActiveSession();
+                            notifyAutoStart(nextMode);
+                            toast.success("Iniciando siguiente Pomodoro");
+                        } catch (error: any) {
+                            console.error("Error auto-starting pomodoro:", error);
+                            toast.error("Error al auto-iniciar Pomodoro");
+                        }
+                    } else {
+                        await refetchActiveSession();
+                    }
                 }
             } else {
-                // Completed a break session
-                nextMode = "WORK";
-
-                // Stop current session
-                await stop(true);
-
-                // Notify session complete
-                notifySessionComplete(mode);
-
-                // Auto-start next pomodoro if enabled
-                if (config.autoStartPomodoros && taskId) {
-                    setMode(nextMode);
-                    setTimeLeft(getDuration(nextMode));
-
-                    try {
-                        await startTimerMutation.mutateAsync({
-                            taskId,
-                            type: nextMode,
-                        });
-                        setIsRunning(true);
-                        setIsPaused(false);
-                        await refetchActiveSession();
-                        notifyAutoStart(nextMode);
-                        toast.success("Iniciando siguiente Pomodoro");
-                    } catch (error: any) {
-                        toast.error("Error al auto-iniciar Pomodoro");
-                    }
-                } else {
-                    setMode(nextMode);
-                    setTimeLeft(getDuration(nextMode));
-                }
+                // CONTINUOUS mode - just stop
+                await stopTimerMutation.mutateAsync({ wasCompleted: true });
+                notifySessionComplete("WORK");
+                setIsRunning(false);
+                setIsPaused(false);
+                await refetchActiveSession();
             }
-        } else {
-            // CONTINUOUS mode - just stop
-            await stop(true);
-            notifySessionComplete("WORK");
+        } catch (error: any) {
+            console.error("Error in skipToNext:", error);
+            toast.error("Error al cambiar de modo");
+        } finally {
+            isTransitioningRef.current = false;
         }
-    }, [type, mode, completedPomodoros, config, getDuration, stop, taskId, startTimerMutation, refetchActiveSession, notifySessionComplete, notifyAutoStart]);
+    }, [type, mode, config, getDuration, taskId, startTimerMutation, stopTimerMutation, refetchActiveSession, notifySessionComplete, notifyAutoStart]);
 
     const switchTask = useCallback(async (newTaskId: string) => {
         try {
@@ -289,7 +336,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
 
     // Timer countdown/countup effect
     useEffect(() => {
-        if (isRunning && !isPaused) {
+        if (isRunning && !isPaused && !isTransitioningRef.current) {
             intervalRef.current = setInterval(() => {
                 setTimeLeft(prev => {
                     if (mode === "CONTINUOUS") {
@@ -297,12 +344,18 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                     }
 
                     if (prev <= 1) {
-                        // Timer completed - trigger skip to next
-                        if (type === "POMODORO") {
-                            skipToNext();
-                        } else {
-                            stop(true);
-                        }
+                        // Timer completed - trigger transition
+                        // Don't call skipToNext here directly, schedule it outside setState
+                        // to avoid calling async functions inside setState callback
+                        setTimeout(() => {
+                            if (!isTransitioningRef.current) {
+                                if (type === "POMODORO") {
+                                    skipToNext();
+                                } else {
+                                    stop(true);
+                                }
+                            }
+                        }, 0);
                         return 0;
                     }
                     return prev - 1;

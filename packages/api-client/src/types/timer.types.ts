@@ -44,3 +44,65 @@ export interface ActiveTimerResponse extends TimeSession {
   elapsedSeconds: number;
   isPaused: boolean;
 }
+
+// Session History Types
+export interface GetSessionsParams {
+  taskId?: string;
+  type?: SessionType;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  completedOnly?: boolean;
+}
+
+export interface PaginatedSessionsResponse {
+  sessions: TimeSession[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// Timer Stats Types
+export interface GetTimerStatsParams {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface TimerStatsResponse {
+  totalSessions: number;
+  totalWorkSessions: number;
+  totalBreakSessions: number;
+  totalMinutesWorked: number;
+  totalBreakMinutes: number;
+  pomodorosCompleted: number;
+  avgSessionDuration: number;
+  avgFocusScore: number;
+  totalPauses: number;
+  avgPausesPerSession: number;
+  totalPauseMinutes: number;
+  completionRate: number;
+  byType: {
+    WORK: { count: number; totalMinutes: number };
+    SHORT_BREAK: { count: number; totalMinutes: number };
+    LONG_BREAK: { count: number; totalMinutes: number };
+    CONTINUOUS: { count: number; totalMinutes: number };
+  };
+  dailyBreakdown: Array<{
+    date: string;
+    sessions: number;
+    minutesWorked: number;
+    pomodorosCompleted: number;
+  }>;
+}
+
+export interface TaskTimeResponse {
+  taskId: string;
+  taskTitle?: string;
+  totalSessions: number;
+  totalMinutes: number;
+  completedSessions: number;
+  avgSessionDuration: number;
+  lastSessionAt?: Date;
+}

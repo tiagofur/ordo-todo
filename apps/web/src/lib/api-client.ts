@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { config } from '@/config';
 import type {
   RegisterDto,
@@ -23,6 +23,9 @@ import type {
   UpdateCommentDto,
   CreateAttachmentDto,
 } from '@ordo-todo/api-client';
+import { useSyncStore } from '@/stores/sync-store';
+import { PendingActionType } from '@/lib/offline-storage';
+import { logger } from '@/lib/logger';
 
 const axiosInstance = axios.create({
   baseURL: config.api.baseURL,
@@ -31,6 +34,96 @@ const axiosInstance = axios.create({
   },
   withCredentials: true,
 });
+
+// Extended request config to track offline queueing metadata
+interface OfflineRequestConfig extends InternalAxiosRequestConfig {
+  _offlineAction?: {
+    type: PendingActionType;
+    entityType: 'task' | 'project' | 'comment' | 'timer';
+    entityId?: string;
+    skipQueue?: boolean;
+  };
+}
+
+/**
+ * Check if a request can be queued for offline sync
+ */
+function canQueueRequest(config: OfflineRequestConfig): boolean {
+  // Skip if explicitly marked
+  if (config._offlineAction?.skipQueue) return false;
+
+  // Only queue mutation requests (POST, PUT, PATCH, DELETE)
+  if (!config.method || config.method.toLowerCase() === 'get') return false;
+
+  // Only queue API requests to our backend
+  const url = config.url || '';
+  if (!url.startsWith('/tasks') &&
+    !url.startsWith('/projects') &&
+    !url.startsWith('/comments') &&
+    !url.startsWith('/timers')) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Determine the action type from the request
+ */
+function getActionType(config: OfflineRequestConfig): PendingActionType | null {
+  if (config._offlineAction?.type) return config._offlineAction.type;
+
+  const url = config.url || '';
+  const method = (config.method || 'get').toUpperCase();
+
+  // Tasks
+  if (url.startsWith('/tasks')) {
+    if (method === 'POST') return 'CREATE_TASK';
+    if (method === 'PUT') return 'UPDATE_TASK';
+    if (method === 'DELETE') return 'DELETE_TASK';
+    if (method === 'PATCH' && url.includes('/complete')) return 'COMPLETE_TASK';
+  }
+
+  // Projects
+  if (url.startsWith('/projects')) {
+    if (method === 'POST') return 'CREATE_PROJECT';
+    if (method === 'PUT') return 'UPDATE_PROJECT';
+    if (method === 'DELETE') return 'DELETE_PROJECT';
+  }
+
+  // Comments
+  if (url.startsWith('/comments')) {
+    if (method === 'POST') return 'CREATE_COMMENT';
+  }
+
+  // Timers
+  if (url.startsWith('/timers')) {
+    if (url.includes('/start')) return 'START_TIMER';
+    if (url.includes('/stop')) return 'STOP_TIMER';
+  }
+
+  return null;
+}
+
+/**
+ * Determine entity type from the request URL
+ */
+function getEntityType(url: string): 'task' | 'project' | 'comment' | 'timer' {
+  if (url.startsWith('/tasks')) return 'task';
+  if (url.startsWith('/projects')) return 'project';
+  if (url.startsWith('/comments')) return 'comment';
+  if (url.startsWith('/timers')) return 'timer';
+  return 'task';
+}
+
+/**
+ * Extract entity ID from the request URL
+ */
+function getEntityId(url: string): string | undefined {
+  // Match patterns like /tasks/123, /projects/abc-def
+  const match = url.match(/\/(tasks|projects|comments)\/([^/]+)/);
+  return match ? match[2] : undefined;
+}
 
 // Token management
 const TOKEN_KEY = 'ordo_auth_token';
@@ -67,7 +160,50 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error: AxiosError) => {
+    const config = error.config as OfflineRequestConfig | undefined;
+
+    // Check if this is a network error and we can queue the request
+    if (error.message === 'Network Error' || !navigator.onLine) {
+      if (config && canQueueRequest(config)) {
+        const actionType = getActionType(config);
+
+        if (actionType) {
+          const url = config.url || '';
+          const entityType = config._offlineAction?.entityType || getEntityType(url);
+          const entityId = config._offlineAction?.entityId || getEntityId(url);
+          const method = (config.method?.toUpperCase() || 'POST') as 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+          try {
+            // Queue the action for later sync
+            const actionId = await useSyncStore.getState().queueAction(
+              actionType,
+              url,
+              method,
+              config.data ? JSON.parse(config.data) : {},
+              entityType,
+              entityId
+            );
+
+            logger.log(`[API] Queued offline action: ${actionType}`, { actionId, url });
+
+            // Return a mock success response for optimistic updates
+            return {
+              data: config.data ? JSON.parse(config.data) : {},
+              status: 202, // Accepted - will be processed later
+              statusText: 'Queued for sync',
+              headers: {},
+              config,
+              _offlineQueued: true,
+              _actionId: actionId,
+            };
+          } catch (queueError) {
+            logger.error('[API] Failed to queue offline action:', queueError);
+          }
+        }
+      }
+    }
+
     if (error.response?.status === 401) {
       removeToken();
     }
@@ -136,6 +272,12 @@ export const apiClient = {
   pauseTimer: (data?: { pauseStartedAt?: Date }) => axiosInstance.post('/timers/pause', data).then((res) => res.data),
   resumeTimer: (data: { pauseStartedAt: Date }) => axiosInstance.post('/timers/resume', data).then((res) => res.data),
   switchTask: (data: { newTaskId: string; type?: string; splitReason?: string }) => axiosInstance.post('/timers/switch-task', data).then((res) => res.data),
+  getSessionHistory: (params?: { taskId?: string; type?: string; startDate?: string; endDate?: string; page?: number; limit?: number; completedOnly?: boolean }) =>
+    axiosInstance.get('/timers/history', { params }).then((res) => res.data),
+  getTimerStats: (params?: { startDate?: string; endDate?: string }) =>
+    axiosInstance.get('/timers/stats', { params }).then((res) => res.data),
+  getTaskTimeSessions: (taskId: string) =>
+    axiosInstance.get(`/timers/task/${taskId}`).then((res) => res.data),
 
   // Analytics
   getDailyMetrics: (params?: GetDailyMetricsParams) => axiosInstance.get('/analytics/daily', { params }).then((res) => res.data),

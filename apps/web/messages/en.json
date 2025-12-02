@@ -550,6 +550,42 @@
       "description": "Time worked on the current task will be saved. Select a new task to continue."
     }
   },
+  "SessionHistory": {
+    "error": "Error loading session history",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "totalTime": "Total Time",
+      "focusScore": "Focus Score",
+      "completionRate": "Completion"
+    },
+    "filters": {
+      "title": "Filters",
+      "type": "Type",
+      "allTypes": "All types",
+      "status": "Status",
+      "allStatus": "All sessions",
+      "completedOnly": "Completed only"
+    },
+    "types": {
+      "work": "Work",
+      "short_break": "Short Break",
+      "long_break": "Long Break",
+      "continuous": "Continuous"
+    },
+    "sessions": {
+      "title": "Session History",
+      "count": "sessions",
+      "empty": "No sessions found for the selected filters",
+      "pause": "pause",
+      "pauses": "pauses"
+    },
+    "pagination": {
+      "showing": "Showing {from} to {to} of {total}"
+    },
+    "chart": {
+      "title": "Daily Activity (Last 7 Days)"
+    }
+  },
   "TaskSelector": {
     "placeholder": "Select task to work on...",
     "searchPlaceholder": "Search task...",
@@ -848,6 +884,20 @@
       "title": "You're Offline",
       "description": "Some features may be limited. Your data will sync when you're back online."
     }
+  },
+  "SyncStatus": {
+    "offline": "Offline",
+    "syncing": "Syncing... {progress}%",
+    "error": "Sync Error",
+    "pending": "{count} pending",
+    "synced": "Synced",
+    "idle": "Ready",
+    "neverSynced": "Never synced",
+    "justNow": "Just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "lastSync": "Last sync",
+    "clickToSync": "Click to sync now"
   },
   "PWAInstallButton": {
     "install": "Install App"

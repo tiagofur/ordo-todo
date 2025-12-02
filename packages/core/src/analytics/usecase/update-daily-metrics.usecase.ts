@@ -8,6 +8,9 @@ export interface UpdateDailyMetricsInput {
     tasksCompleted?: number;
     minutesWorked?: number;
     pomodorosCompleted?: number;
+    shortBreaksCompleted?: number;
+    longBreaksCompleted?: number;
+    breakMinutes?: number;
     focusScore?: number;
 }
 
@@ -50,6 +53,22 @@ export class UpdateDailyMetricsUseCase {
             for (let i = 0; i < input.pomodorosCompleted; i++) {
                 metrics = metrics.incrementPomodoros();
             }
+        }
+
+        if (input.shortBreaksCompleted) {
+            for (let i = 0; i < input.shortBreaksCompleted; i++) {
+                metrics = metrics.incrementShortBreaks();
+            }
+        }
+
+        if (input.longBreaksCompleted) {
+            for (let i = 0; i < input.longBreaksCompleted; i++) {
+                metrics = metrics.incrementLongBreaks();
+            }
+        }
+
+        if (input.breakMinutes) {
+            metrics = metrics.addBreakMinutes(input.breakMinutes);
         }
 
         if (input.focusScore !== undefined) {

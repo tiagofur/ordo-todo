@@ -1,6 +1,8 @@
 const CACHE_NAME = "ordo-todo-v1";
 const STATIC_CACHE = "ordo-todo-static-v1";
 const DYNAMIC_CACHE = "ordo-todo-dynamic-v1";
+const OFFLINE_DB_NAME = "ordo-todo-offline";
+const OFFLINE_DB_VERSION = 1;
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -10,6 +12,172 @@ const STATIC_ASSETS = [
   "/icons/icon-512.png",
   "/offline.html",
 ];
+
+// ============================================
+// IndexedDB Helpers for Service Worker
+// ============================================
+
+/**
+ * Open the IndexedDB database
+ */
+function openOfflineDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(OFFLINE_DB_NAME, OFFLINE_DB_VERSION);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      // Create stores if they don't exist
+      if (!db.objectStoreNames.contains("tasks")) {
+        const taskStore = db.createObjectStore("tasks", { keyPath: "id" });
+        taskStore.createIndex("by-project", "projectId");
+        taskStore.createIndex("by-workspace", "workspaceId");
+        taskStore.createIndex("by-status", "status");
+        taskStore.createIndex("by-updated", "updatedAt");
+      }
+
+      if (!db.objectStoreNames.contains("projects")) {
+        const projectStore = db.createObjectStore("projects", {
+          keyPath: "id",
+        });
+        projectStore.createIndex("by-workspace", "workspaceId");
+        projectStore.createIndex("by-updated", "updatedAt");
+      }
+
+      if (!db.objectStoreNames.contains("pending-actions")) {
+        const actionStore = db.createObjectStore("pending-actions", {
+          keyPath: "id",
+        });
+        actionStore.createIndex("by-timestamp", "timestamp");
+        actionStore.createIndex("by-entity", "entityId");
+        actionStore.createIndex("by-type", "type");
+      }
+
+      if (!db.objectStoreNames.contains("sync-metadata")) {
+        db.createObjectStore("sync-metadata", { keyPath: "key" });
+      }
+    };
+  });
+}
+
+/**
+ * Get all pending actions from IndexedDB
+ */
+async function getPendingActions() {
+  try {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("pending-actions", "readonly");
+      const store = tx.objectStore("pending-actions");
+      const index = store.index("by-timestamp");
+      const request = index.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("[SW] Failed to get pending actions:", error);
+    return [];
+  }
+}
+
+/**
+ * Remove a pending action from IndexedDB
+ */
+async function removePendingAction(actionId) {
+  try {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("pending-actions", "readwrite");
+      const store = tx.objectStore("pending-actions");
+      const request = store.delete(actionId);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("[SW] Failed to remove pending action:", error);
+  }
+}
+
+/**
+ * Increment retry count for a pending action
+ */
+async function incrementRetryCount(actionId, error) {
+  try {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("pending-actions", "readwrite");
+      const store = tx.objectStore("pending-actions");
+      const getRequest = store.get(actionId);
+
+      getRequest.onsuccess = () => {
+        const action = getRequest.result;
+        if (action) {
+          action.retryCount = (action.retryCount || 0) + 1;
+          action.lastError = error;
+          store.put(action);
+        }
+        resolve(action);
+      };
+      getRequest.onerror = () => reject(getRequest.error);
+    });
+  } catch (error) {
+    console.error("[SW] Failed to increment retry count:", error);
+  }
+}
+
+/**
+ * Update last sync time in IndexedDB
+ */
+async function setLastSyncTime() {
+  try {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("sync-metadata", "readwrite");
+      const store = tx.objectStore("sync-metadata");
+      const request = store.put({
+        key: "lastSyncTime",
+        value: Date.now(),
+        updatedAt: Date.now(),
+      });
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("[SW] Failed to set last sync time:", error);
+  }
+}
+
+/**
+ * Get auth token from localStorage (via client message)
+ * Note: Service workers can't directly access localStorage
+ */
+let cachedAuthToken = null;
+
+// Listen for token updates from the main thread
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SET_AUTH_TOKEN") {
+    cachedAuthToken = event.data.token;
+    console.log("[SW] Auth token updated");
+  }
+
+  if (event.data && event.data.type === "TRIGGER_SYNC") {
+    console.log("[SW] Manual sync triggered");
+    syncPendingTasks().then(() => {
+      // Notify all clients that sync is complete
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: "SYNC_COMPLETE" });
+        });
+      });
+    });
+  }
+});
 
 // Install event - cache static assets
 self.addEventListener("install", (event) => {
@@ -134,10 +302,10 @@ self.addEventListener("push", (event) => {
     data: {
       dateOfArrival: Date.now(),
       primaryKey: 1,
-      url: data.url || '/', // Ensure URL is stored in data
+      url: data.url || "/", // Ensure URL is stored in data
       ...data,
     },
-    tag: data.tag || 'ordo-notification', // Group notifications
+    tag: data.tag || "ordo-notification", // Group notifications
     renotify: true, // Vibrate even if tag is same
     requireInteraction: true, // Keep notification until user interacts
     actions: [
@@ -199,39 +367,102 @@ self.addEventListener("sync", (event) => {
   }
 });
 
+/**
+ * Sync all pending tasks to the server
+ */
 async function syncPendingTasks() {
-  try {
-    // Get pending tasks from IndexedDB or similar
-    const pendingTasks = await getPendingTasks();
+  console.log("[SW] Starting background sync...");
 
-    for (const task of pendingTasks) {
+  try {
+    const pendingActions = await getPendingActions();
+
+    if (pendingActions.length === 0) {
+      console.log("[SW] No pending actions to sync");
+      await setLastSyncTime();
+      return;
+    }
+
+    console.log(`[SW] Syncing ${pendingActions.length} pending actions...`);
+
+    let syncedCount = 0;
+    let failedCount = 0;
+
+    for (const action of pendingActions) {
       try {
-        await syncTaskToServer(task);
-        await removePendingTask(task.id);
+        await syncActionToServer(action);
+        await removePendingAction(action.id);
+        syncedCount++;
+        console.log(`[SW] Synced action: ${action.id} (${action.type})`);
       } catch (error) {
-        console.error("[SW] Failed to sync task:", task.id, error);
+        console.error(`[SW] Failed to sync action ${action.id}:`, error);
+
+        const updated = await incrementRetryCount(action.id, error.message);
+
+        if (updated && updated.retryCount >= (updated.maxRetries || 3)) {
+          console.error(
+            `[SW] Action ${action.id} exceeded max retries, marking as failed`
+          );
+          failedCount++;
+        }
       }
     }
+
+    await setLastSyncTime();
+
+    console.log(
+      `[SW] Background sync complete: ${syncedCount} synced, ${failedCount} failed`
+    );
+
+    // Notify all clients about sync completion
+    const clients = await self.clients.matchAll();
+    clients.forEach((client) => {
+      client.postMessage({
+        type: "SYNC_COMPLETE",
+        synced: syncedCount,
+        failed: failedCount,
+      });
+    });
   } catch (error) {
     console.error("[SW] Background sync failed:", error);
+    throw error; // Re-throw to trigger retry
   }
 }
 
-// Placeholder functions - implement based on your data storage
-async function getPendingTasks() {
-  // Implement based on your offline storage solution
-  return [];
-}
+/**
+ * Sync a single action to the server
+ */
+async function syncActionToServer(action) {
+  const headers = {
+    "Content-Type": "application/json",
+  };
 
-async function syncTaskToServer(task) {
-  // Implement API call to sync task
-  return fetch("/api/tasks", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(task),
-  });
-}
+  // Add auth token if available
+  if (cachedAuthToken) {
+    headers["Authorization"] = `Bearer ${cachedAuthToken}`;
+  }
 
-async function removePendingTask(taskId) {
-  // Remove from offline storage
+  // Determine the full URL
+  // Note: In production, this should be configurable
+  const baseURL = self.location.origin;
+  const url = `${baseURL}/api${action.endpoint}`;
+
+  const fetchOptions = {
+    method: action.method,
+    headers,
+    credentials: "include",
+  };
+
+  // Add body for non-DELETE requests
+  if (action.method !== "DELETE" && action.payload) {
+    fetchOptions.body = JSON.stringify(action.payload);
+  }
+
+  const response = await fetch(url, fetchOptions);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `HTTP ${response.status}`);
+  }
+
+  return response.json().catch(() => undefined);
 }

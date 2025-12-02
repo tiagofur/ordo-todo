@@ -39,6 +39,11 @@ import type {
   StartTimerDto,
   StopTimerDto,
   ActiveTimerResponse,
+  GetSessionsParams,
+  PaginatedSessionsResponse,
+  GetTimerStatsParams,
+  TimerStatsResponse,
+  TaskTimeResponse,
   // Analytics
   DailyMetrics,
   GetDailyMetricsParams,
@@ -678,6 +683,37 @@ export class OrdoApiClient {
       oldSession: TimeSession;
       newSession: TimeSession;
     }>('/timers/switch-task', data);
+    return response.data;
+  }
+
+  /**
+   * Get timer session history with filters and pagination
+   * GET /timers/history
+   */
+  async getSessionHistory(params?: GetSessionsParams): Promise<PaginatedSessionsResponse> {
+    const response = await this.axios.get<PaginatedSessionsResponse>('/timers/history', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get timer statistics for the current user
+   * GET /timers/stats
+   */
+  async getTimerStats(params?: GetTimerStatsParams): Promise<TimerStatsResponse> {
+    const response = await this.axios.get<TimerStatsResponse>('/timers/stats', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get time tracking info for a specific task
+   * GET /timers/task/:taskId
+   */
+  async getTaskTimeSessions(taskId: string): Promise<TaskTimeResponse> {
+    const response = await this.axios.get<TaskTimeResponse>(`/timers/task/${taskId}`);
     return response.data;
   }
 

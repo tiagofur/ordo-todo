@@ -13,6 +13,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
             tasksCompleted: prismaMetrics.tasksCompleted,
             minutesWorked: prismaMetrics.minutesWorked,
             pomodorosCompleted: prismaMetrics.pomodorosCompleted,
+            shortBreaksCompleted: (prismaMetrics as any).shortBreaksCompleted ?? 0,
+            longBreaksCompleted: (prismaMetrics as any).longBreaksCompleted ?? 0,
+            breakMinutes: (prismaMetrics as any).breakMinutes ?? 0,
             focusScore: prismaMetrics.focusScore ?? undefined,
             createdAt: prismaMetrics.createdAt,
         });
@@ -26,6 +29,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
             tasksCompleted: metrics.props.tasksCompleted,
             minutesWorked: metrics.props.minutesWorked,
             pomodorosCompleted: metrics.props.pomodorosCompleted,
+            shortBreaksCompleted: metrics.props.shortBreaksCompleted,
+            longBreaksCompleted: metrics.props.longBreaksCompleted,
+            breakMinutes: metrics.props.breakMinutes,
             focusScore: metrics.props.focusScore,
         };
 

@@ -3,7 +3,15 @@ import {
   TimeSession as PrismaTimeSession,
   SessionType as PrismaSessionType,
 } from '@prisma/client';
-import { TimeSession, TimerRepository, SessionType } from '@ordo-todo/core';
+import {
+  TimeSession,
+  TimerRepository,
+  SessionType,
+  SessionFilters,
+  PaginationParams,
+  PaginatedSessions,
+  SessionStats,
+} from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
@@ -241,5 +249,149 @@ export class PrismaTimerRepository implements TimerRepository {
       },
     });
     return sessions.map((s) => this.toDomain(s));
+  }
+
+  async findWithFilters(
+    userId: string,
+    filters: SessionFilters,
+    pagination: PaginationParams,
+  ): Promise<PaginatedSessions> {
+    const where: any = { userId };
+
+    if (filters.taskId) {
+      where.taskId = filters.taskId;
+    }
+
+    if (filters.type) {
+      where.type = this.mapTypeToPrisma(filters.type);
+    }
+
+    if (filters.startDate || filters.endDate) {
+      where.startedAt = {};
+      if (filters.startDate) {
+        where.startedAt.gte = filters.startDate;
+      }
+      if (filters.endDate) {
+        where.startedAt.lte = filters.endDate;
+      }
+    }
+
+    if (filters.completedOnly) {
+      where.wasCompleted = true;
+      where.endedAt = { not: null };
+    }
+
+    const [sessions, total] = await Promise.all([
+      this.prisma.timeSession.findMany({
+        where,
+        orderBy: { startedAt: 'desc' },
+        skip: (pagination.page - 1) * pagination.limit,
+        take: pagination.limit,
+      }),
+      this.prisma.timeSession.count({ where }),
+    ]);
+
+    return {
+      sessions: sessions.map((s) => this.toDomain(s)),
+      total,
+      page: pagination.page,
+      limit: pagination.limit,
+      totalPages: Math.ceil(total / pagination.limit),
+    };
+  }
+
+  async getStats(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<SessionStats> {
+    const where: any = {
+      userId,
+      endedAt: { not: null }, // Only completed sessions
+    };
+
+    if (startDate || endDate) {
+      where.startedAt = {};
+      if (startDate) {
+        where.startedAt.gte = startDate;
+      }
+      if (endDate) {
+        where.startedAt.lte = endDate;
+      }
+    }
+
+    const sessions = await this.prisma.timeSession.findMany({ where });
+
+    const stats: SessionStats = {
+      totalSessions: sessions.length,
+      totalWorkSessions: 0,
+      totalBreakSessions: 0,
+      totalMinutesWorked: 0,
+      totalBreakMinutes: 0,
+      pomodorosCompleted: 0,
+      totalPauses: 0,
+      totalPauseSeconds: 0,
+      completedSessions: 0,
+      byType: {
+        WORK: { count: 0, totalMinutes: 0 },
+        SHORT_BREAK: { count: 0, totalMinutes: 0 },
+        LONG_BREAK: { count: 0, totalMinutes: 0 },
+        CONTINUOUS: { count: 0, totalMinutes: 0 },
+      },
+    };
+
+    for (const session of sessions) {
+      const duration = session.duration ?? 0;
+      const type = this.mapTypeToDomain(session.type);
+
+      stats.byType[type].count++;
+      stats.byType[type].totalMinutes += duration;
+
+      if (type === 'WORK' || type === 'CONTINUOUS') {
+        stats.totalWorkSessions++;
+        stats.totalMinutesWorked += duration;
+        if (session.wasCompleted && type === 'WORK') {
+          stats.pomodorosCompleted++;
+        }
+      } else {
+        stats.totalBreakSessions++;
+        stats.totalBreakMinutes += duration;
+      }
+
+      if (session.wasCompleted) {
+        stats.completedSessions++;
+      }
+
+      stats.totalPauses += session.pauseCount;
+      stats.totalPauseSeconds += session.totalPauseTime;
+    }
+
+    return stats;
+  }
+
+  async getTaskTimeStats(
+    userId: string,
+    taskId: string,
+  ): Promise<{
+    totalSessions: number;
+    totalMinutes: number;
+    completedSessions: number;
+    lastSessionAt?: Date;
+  }> {
+    const sessions = await this.prisma.timeSession.findMany({
+      where: {
+        userId,
+        taskId,
+        endedAt: { not: null },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+
+    return {
+      totalSessions: sessions.length,
+      totalMinutes: sessions.reduce((acc, s) => acc + (s.duration ?? 0), 0),
+      completedSessions: sessions.filter((s) => s.wasCompleted).length,
+      lastSessionAt: sessions[0]?.startedAt,
+    };
   }
 }

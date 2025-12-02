@@ -551,6 +551,11 @@ model DailyMetrics {
   minutesWorked   Int      @default(0)
   pomodorosCompleted Int   @default(0)
 
+  // Breaks
+  shortBreaksCompleted Int @default(0)
+  longBreaksCompleted  Int @default(0)
+  breakMinutes         Int @default(0)
+
   // Focus
   focusScore      Float?   // 0-1 scale
 

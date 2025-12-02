@@ -550,6 +550,42 @@
       "description": "El tiempo trabajado en la tarea actual se guardará como completado. Selecciona la nueva tarea para continuar."
     }
   },
+  "SessionHistory": {
+    "error": "Error al cargar el historial de sesiones",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "totalTime": "Tiempo Total",
+      "focusScore": "Puntuación de Enfoque",
+      "completionRate": "Completadas"
+    },
+    "filters": {
+      "title": "Filtros",
+      "type": "Tipo",
+      "allTypes": "Todos los tipos",
+      "status": "Estado",
+      "allStatus": "Todas las sesiones",
+      "completedOnly": "Solo completadas"
+    },
+    "types": {
+      "work": "Trabajo",
+      "short_break": "Descanso Corto",
+      "long_break": "Descanso Largo",
+      "continuous": "Continuo"
+    },
+    "sessions": {
+      "title": "Historial de Sesiones",
+      "count": "sesiones",
+      "empty": "No se encontraron sesiones para los filtros seleccionados",
+      "pause": "pausa",
+      "pauses": "pausas"
+    },
+    "pagination": {
+      "showing": "Mostrando {from} a {to} de {total}"
+    },
+    "chart": {
+      "title": "Actividad Diaria (Últimos 7 Días)"
+    }
+  },
   "TaskSelector": {
     "placeholder": "Seleccionar tarea para trabajar...",
     "searchPlaceholder": "Buscar tarea...",
@@ -848,6 +884,20 @@
       "title": "Estás desconectado",
       "description": "Algunas funciones pueden estar limitadas. Tus datos se sincronizarán cuando vuelvas a estar en línea."
     }
+  },
+  "SyncStatus": {
+    "offline": "Sin conexión",
+    "syncing": "Sincronizando... {progress}%",
+    "error": "Error de sincronización",
+    "pending": "{count} pendientes",
+    "synced": "Sincronizado",
+    "idle": "Listo",
+    "neverSynced": "Nunca sincronizado",
+    "justNow": "Ahora mismo",
+    "minutesAgo": "hace {count}m",
+    "hoursAgo": "hace {count}h",
+    "lastSync": "Última sincronización",
+    "clickToSync": "Clic para sincronizar"
   },
   "PWAInstallButton": {
     "install": "Instalar App"

@@ -849,6 +849,20 @@
       "description": "Alguns recursos podem estar limitados. Seus dados serão sincronizados quando você voltar online."
     }
   },
+  "SyncStatus": {
+    "offline": "Offline",
+    "syncing": "Sincronizando... {progress}%",
+    "error": "Erro de sincronização",
+    "pending": "{count} pendentes",
+    "synced": "Sincronizado",
+    "idle": "Pronto",
+    "neverSynced": "Nunca sincronizado",
+    "justNow": "Agora mesmo",
+    "minutesAgo": "há {count}m",
+    "hoursAgo": "há {count}h",
+    "lastSync": "Última sincronização",
+    "clickToSync": "Clique para sincronizar"
+  },
   "PWAInstallButton": {
     "install": "Instalar App"
   },

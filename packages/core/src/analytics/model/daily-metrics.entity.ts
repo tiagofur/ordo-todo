@@ -7,6 +7,9 @@ export interface DailyMetricsProps extends EntityProps {
     tasksCompleted: number;
     minutesWorked: number;
     pomodorosCompleted: number;
+    shortBreaksCompleted: number;
+    longBreaksCompleted: number;
+    breakMinutes: number;
     focusScore?: number;
     createdAt?: Date;
 }
@@ -19,17 +22,23 @@ export class DailyMetrics extends Entity<DailyMetricsProps> {
             tasksCompleted: props.tasksCompleted ?? 0,
             minutesWorked: props.minutesWorked ?? 0,
             pomodorosCompleted: props.pomodorosCompleted ?? 0,
+            shortBreaksCompleted: props.shortBreaksCompleted ?? 0,
+            longBreaksCompleted: props.longBreaksCompleted ?? 0,
+            breakMinutes: props.breakMinutes ?? 0,
             createdAt: props.createdAt ?? new Date(),
         });
     }
 
-    static create(props: Omit<DailyMetricsProps, "id" | "createdAt" | "tasksCreated" | "tasksCompleted" | "minutesWorked" | "pomodorosCompleted">): DailyMetrics {
+    static create(props: Omit<DailyMetricsProps, "id" | "createdAt" | "tasksCreated" | "tasksCompleted" | "minutesWorked" | "pomodorosCompleted" | "shortBreaksCompleted" | "longBreaksCompleted" | "breakMinutes">): DailyMetrics {
         return new DailyMetrics({
             ...props,
             tasksCreated: 0,
             tasksCompleted: 0,
             minutesWorked: 0,
             pomodorosCompleted: 0,
+            shortBreaksCompleted: 0,
+            longBreaksCompleted: 0,
+            breakMinutes: 0,
         });
     }
 
@@ -51,5 +60,17 @@ export class DailyMetrics extends Entity<DailyMetricsProps> {
 
     updateFocusScore(score: number): DailyMetrics {
         return this.clone({ focusScore: Math.max(0, Math.min(1, score)) });
+    }
+
+    incrementShortBreaks(): DailyMetrics {
+        return this.clone({ shortBreaksCompleted: this.props.shortBreaksCompleted + 1 });
+    }
+
+    incrementLongBreaks(): DailyMetrics {
+        return this.clone({ longBreaksCompleted: this.props.longBreaksCompleted + 1 });
+    }
+
+    addBreakMinutes(minutes: number): DailyMetrics {
+        return this.clone({ breakMinutes: this.props.breakMinutes + minutes });
     }
 }
