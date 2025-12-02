@@ -27,6 +27,7 @@ interface TaskCardProps {
     priority: string;
     dueDate?: Date | string | null;
     tags?: any[];
+    project?: { id: string; name: string; color: string };
   };
   index?: number;
 }
@@ -43,7 +44,8 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
   const isCompleted = task.status === "COMPLETED";
   const priority = priorityConfig[task.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
   
-  const accentColor = "#8b5cf6"; // Purple
+  // Use project color if available, otherwise fallback to purple
+  const accentColor = task.project?.color || "#8b5cf6"; // Purple fallback
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;

@@ -2,12 +2,19 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Settings, Trash2, Plus, List, LayoutGrid, Briefcase, FolderKanban, CheckSquare } from "lucide-react";
+import { ArrowLeft, Settings, Trash2, Plus, List, LayoutGrid, Briefcase, FolderKanban, CheckSquare, MoreHorizontal } from "lucide-react";
 import { useWorkspace, useAllProjects, useDeleteWorkspace } from "@/lib/api-hooks";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
+import { WorkspaceSettingsDialog } from "@/components/workspace/workspace-settings-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -25,6 +32,7 @@ export default function WorkspaceDetailPage() {
   const router = useRouter();
   const workspaceId = params.workspaceId as string;
   const [showCreateProject, setShowCreateProject] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspace(workspaceId);
@@ -158,9 +166,23 @@ export default function WorkspaceDetailPage() {
               Nuevo Proyecto
             </button>
 
-            <Button variant="outline" size="sm" onClick={handleDelete} className="text-red-600">
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configuraciones
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -235,6 +257,12 @@ export default function WorkspaceDetailPage() {
         open={showCreateProject}
         onOpenChange={setShowCreateProject}
         workspaceId={workspaceId}
+      />
+
+      <WorkspaceSettingsDialog
+        workspaceId={workspaceId}
+        open={showSettings}
+        onOpenChange={setShowSettings}
       />
     </div>
   );

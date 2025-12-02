@@ -14,10 +14,10 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaTaskRepository implements TaskRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  private toDomain(prismaTask: PrismaTask & { subTasks?: PrismaTask[] }): Task {
-    return new Task({
+  private toDomain(prismaTask: PrismaTask & { subTasks?: PrismaTask[]; project?: any }): Task {
+    const taskData: any = {
       id: prismaTask.id,
       title: prismaTask.title,
       description: prismaTask.description ?? undefined,
@@ -37,7 +37,18 @@ export class PrismaTaskRepository implements TaskRepository {
       estimatedTime: prismaTask.estimatedMinutes ?? undefined,
       createdAt: prismaTask.createdAt,
       updatedAt: prismaTask.updatedAt,
-    });
+    };
+
+    // Include project information if available
+    if ((prismaTask as any).project) {
+      taskData.project = {
+        id: (prismaTask as any).project.id,
+        name: (prismaTask as any).project.name,
+        color: (prismaTask as any).project.color,
+      };
+    }
+
+    return new Task(taskData);
   }
 
   private mapStatusToDomain(status: PrismaTaskStatus): TaskStatus {
@@ -124,7 +135,16 @@ export class PrismaTaskRepository implements TaskRepository {
   async findById(id: string): Promise<Task | null> {
     const task = await this.prisma.task.findUnique({
       where: { id },
-      include: { subTasks: true },
+      include: {
+        subTasks: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+      },
     });
     if (!task) return null;
     return this.toDomain(task);
@@ -156,6 +176,13 @@ export class PrismaTaskRepository implements TaskRepository {
         subTasks: true,
         tags: {
           include: { tag: true },
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
         },
       },
     });

@@ -15,6 +15,7 @@ export interface TaskProps extends EntityProps {
     subTasks?: Task[];
     estimatedTime?: number;
     tags?: any[]; // Using any[] to avoid circular dependency for now, or import Tag
+    project?: { id: string; name: string; color: string }; // Project information for display
     createdAt?: Date;
     updatedAt?: Date;
 }

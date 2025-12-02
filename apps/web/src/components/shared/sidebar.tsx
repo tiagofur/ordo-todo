@@ -60,7 +60,7 @@ export function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.name}
@@ -101,7 +101,7 @@ export function Sidebar() {
               href="/settings"
               className={cn(
                 "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                pathname === "/settings"
+                pathname === "/settings" || pathname?.startsWith("/settings/")
                   ? activeColorClasses.blue
                   : cn(
                       "text-muted-foreground hover:text-foreground",
@@ -111,7 +111,7 @@ export function Sidebar() {
             >
               <Settings className={cn(
                 "h-5 w-5 transition-transform duration-200",
-                pathname === "/settings" ? "" : "group-hover:scale-110"
+                pathname === "/settings" || pathname?.startsWith("/settings/") ? "" : "group-hover:scale-110"
               )} />
               Configuración
             </Link>

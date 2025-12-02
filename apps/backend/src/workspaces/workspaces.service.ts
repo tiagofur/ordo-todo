@@ -19,7 +19,7 @@ export class WorkspacesService {
   constructor(
     @Inject('WorkspaceRepository')
     private readonly workspaceRepository: WorkspaceRepository,
-  ) {}
+  ) { }
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
     const createWorkspaceUseCase = new CreateWorkspaceUseCase(
@@ -52,9 +52,9 @@ export class WorkspacesService {
       throw new NotFoundException('Workspace not found');
     }
 
-    Object.assign(workspace.props, updateWorkspaceDto);
-    await this.workspaceRepository.update(workspace);
-    return workspace.props;
+    const updatedWorkspace = workspace.update(updateWorkspaceDto);
+    await this.workspaceRepository.update(updatedWorkspace);
+    return updatedWorkspace.props;
   }
 
   async remove(id: string, userId: string) {
