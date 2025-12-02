@@ -7,6 +7,7 @@
     "mobile-native": "react-components",
     "web-angular": "angular",
     "web-react": "react-components",
-    "web-vue": "vue",
-  }
+    "web-vue": "vue"
+  },
+  "debug.javascript.unmapMissingSources": true
 }

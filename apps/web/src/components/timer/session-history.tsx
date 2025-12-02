@@ -262,7 +262,7 @@ export function SessionHistory() {
                       <div
                         className={cn(
                           "p-2 rounded-full",
-                          getSessionTypeColor(session.type),
+                          getSessionTypeColor(session.type)
                         )}
                       >
                         {getSessionTypeIcon(session.type)}
@@ -273,7 +273,7 @@ export function SessionHistory() {
                             variant="outline"
                             className={cn(
                               "text-xs",
-                              getSessionTypeColor(session.type),
+                              getSessionTypeColor(session.type)
                             )}
                           >
                             {t(`types.${session.type.toLowerCase()}`)}
@@ -365,7 +365,7 @@ export function SessionHistory() {
             <div className="flex items-end justify-between gap-2 h-32">
               {statsData.dailyBreakdown.map((day: any) => {
                 const maxMinutes = Math.max(
-                  ...statsData.dailyBreakdown.map((d: any) => d.minutesWorked),
+                  ...statsData.dailyBreakdown.map((d: any) => d.minutesWorked)
                 );
                 const height =
                   maxMinutes > 0 ? (day.minutesWorked / maxMinutes) * 100 : 0;
@@ -378,7 +378,7 @@ export function SessionHistory() {
                       initial={{ height: 0 }}
                       animate={{ height: `${height}%` }}
                       transition={{ duration: 0.5, delay: 0.1 }}
-                      className="w-full bg-primary/80 rounded-t-md min-h-[4px]"
+                      className="w-full bg-primary/80 rounded-t-md min-h-1"
                       title={`${formatDuration(day.minutesWorked)} - ${day.pomodorosCompleted} pomodoros`}
                     />
                     <span className="text-xs text-muted-foreground">

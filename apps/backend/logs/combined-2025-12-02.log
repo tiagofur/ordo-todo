@@ -119,3 +119,120 @@
 {"context":"ActivitiesService","level":"info","message":"Activity: TASK_UPDATED on task f82afebe-7886-480f-b2ba-7f3fcf91738f","timestamp":"2025-12-02T20:48:07.121Z"}
 {"context":"GlobalExceptionFilter","level":"error","message":"Status: 500 Error: {\"statusCode\":500,\"timestamp\":\"2025-12-02T20:48:11.882Z\",\"path\":\"/api/v1/tasks/f82afebe-7886-480f-b2ba-7f3fcf91738f\",\"message\":\"\\nInvalid `this.prisma.task.upsert()` invocation in\\nC:\\\\Users\\\\tfurt\\\\source\\\\repos\\\\ordo-todo\\\\apps\\\\backend\\\\src\\\\repositories\\\\task.repository.ts:128:28\\n\\n  125   parentTaskId: task.props.parentTaskId ?? null,\\n  126 };\\n  127 \\n→ 128 await this.prisma.task.upsert({\\n        where: {\\n          id: \\\"f82afebe-7886-480f-b2ba-7f3fcf91738f\\\"\\n        },\\n        create: {\\n          id: \\\"f82afebe-7886-480f-b2ba-7f3fcf91738f\\\",\\n          description: undefined,\\n          status: \\\"COMPLETED\\\",\\n          priority: \\\"MEDIUM\\\",\\n          dueDate: undefined,\\n          estimatedMinutes: undefined,\\n          projectId: \\\"7543950b-cb32-4dea-aff7-c8b1612f8d33\\\",\\n          creatorId: \\\"93e1f111-1214-4c96-97f1-9293fab939b9\\\",\\n          parentTaskId: null,\\n      +   title: String\\n        },\\n        update: {\\n          id: \\\"f82afebe-7886-480f-b2ba-7f3fcf91738f\\\",\\n          title: undefined,\\n          description: undefined,\\n          status: \\\"COMPLETED\\\",\\n          priority: \\\"MEDIUM\\\",\\n          dueDate: undefined,\\n          estimatedMinutes: undefined,\\n          projectId: \\\"7543950b-cb32-4dea-aff7-c8b1612f8d33\\\",\\n          creatorId: \\\"93e1f111-1214-4c96-97f1-9293fab939b9\\\",\\n          parentTaskId: null\\n        }\\n      })\\n\\nArgument `title` is missing.\",\"error\":\"Internal Server Error\"}","stack":["PrismaClientValidationError: \nInvalid `this.prisma.task.upsert()` invocation in\nC:\\Users\\tfurt\\source\\repos\\ordo-todo\\apps\\backend\\src\\repositories\\task.repository.ts:128:28\n\n  125   parentTaskId: task.props.parentTaskId ?? null,\n  126 };\n  127 \n→ 128 await this.prisma.task.upsert({\n        where: {\n          id: \"f82afebe-7886-480f-b2ba-7f3fcf91738f\"\n        },\n        create: {\n          id: \"f82afebe-7886-480f-b2ba-7f3fcf91738f\",\n          description: undefined,\n          status: \"COMPLETED\",\n          priority: \"MEDIUM\",\n          dueDate: undefined,\n          estimatedMinutes: undefined,\n          projectId: \"7543950b-cb32-4dea-aff7-c8b1612f8d33\",\n          creatorId: \"93e1f111-1214-4c96-97f1-9293fab939b9\",\n          parentTaskId: null,\n      +   title: String\n        },\n        update: {\n          id: \"f82afebe-7886-480f-b2ba-7f3fcf91738f\",\n          title: undefined,\n          description: undefined,\n          status: \"COMPLETED\",\n          priority: \"MEDIUM\",\n          dueDate: undefined,\n          estimatedMinutes: undefined,\n          projectId: \"7543950b-cb32-4dea-aff7-c8b1612f8d33\",\n          creatorId: \"93e1f111-1214-4c96-97f1-9293fab939b9\",\n          parentTaskId: null\n        }\n      })\n\nArgument `title` is missing.\n    at throwValidationException (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@prisma\\client\\src\\runtime\\core\\errorRendering\\throwValidationException.ts:46:9)\n    at $r.handleRequestError (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@prisma\\client\\src\\runtime\\RequestHandler.ts:202:7)\n    at $r.handleAndLogRequestError (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@prisma\\client\\src\\runtime\\RequestHandler.ts:174:12)\n    at $r.request (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@prisma\\client\\src\\runtime\\RequestHandler.ts:143:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async a (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@prisma\\client\\src\\runtime\\getPrismaClient.ts:766:24)\n    at async PrismaTaskRepository.save (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\apps\\backend\\src\\repositories\\task.repository.ts:128:5)\n    at async TasksService.update (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\apps\\backend\\src\\tasks\\tasks.service.ts:124:5)\n    at async C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:28\n    at async C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17"],"timestamp":"2025-12-02T20:48:11.883Z"}
 {"context":"GlobalExceptionFilter","level":"error","message":"Status: 500 Error: {\"statusCode\":500,\"timestamp\":\"2025-12-02T21:25:01.728Z\",\"path\":\"/api/v1/timers/stop\",\"message\":\"No active timer session found\",\"error\":\"Internal Server Error\"}","stack":["Error: No active timer session found\n    at StopTimerUseCase.execute (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\packages\\core\\dist\\index.js:1054:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async TimersService.stop (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\apps\\backend\\src\\timers\\timers.service.ts:52:21)\n    at async C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:28\n    at async C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17"],"timestamp":"2025-12-02T21:25:01.731Z"}
+{"context":"GlobalExceptionFilter","level":"error","message":"Status: 500 Error: {\"statusCode\":500,\"timestamp\":\"2025-12-02T21:58:44.420Z\",\"path\":\"/api/v1/timers/stop\",\"message\":\"No active timer session found\",\"error\":\"Internal Server Error\"}","stack":["Error: No active timer session found\n    at StopTimerUseCase.execute (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\packages\\core\\dist\\index.js:1054:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async TimersService.stop (C:\\Users\\tfurt\\source\\repos\\ordo-todo\\apps\\backend\\src\\timers\\timers.service.ts:52:21)\n    at async C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:28\n    at async C:\\Users\\tfurt\\source\\repos\\ordo-todo\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17"],"timestamp":"2025-12-02T21:58:44.422Z"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application...","timestamp":"2025-12-02T22:02:17.182Z"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-12-02T22:02:17.214Z"}
+{"context":"InstanceLoader","level":"info","message":"DatabaseModule dependencies initialized","timestamp":"2025-12-02T22:02:17.215Z"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized","timestamp":"2025-12-02T22:02:17.215Z"}
+{"context":"InstanceLoader","level":"info","message":"MulterModule dependencies initialized","timestamp":"2025-12-02T22:02:17.217Z"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized","timestamp":"2025-12-02T22:02:17.219Z"}
+{"context":"InstanceLoader","level":"info","message":"WinstonModule dependencies initialized","timestamp":"2025-12-02T22:02:17.220Z"}
+{"context":"InstanceLoader","level":"info","message":"RepositoriesModule dependencies initialized","timestamp":"2025-12-02T22:02:17.222Z"}
+{"context":"InstanceLoader","level":"info","message":"ActivitiesModule dependencies initialized","timestamp":"2025-12-02T22:02:17.223Z"}
+{"context":"GeminiAIService","level":"warn","message":"GEMINI_API_KEY not configured. AI features will be limited.","timestamp":"2025-12-02T22:02:17.227Z"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-12-02T22:02:17.232Z"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-12-02T22:02:17.234Z"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized","timestamp":"2025-12-02T22:02:17.246Z"}
+{"context":"InstanceLoader","level":"info","message":"UploadModule dependencies initialized","timestamp":"2025-12-02T22:02:17.253Z"}
+{"context":"InstanceLoader","level":"info","message":"AttachmentsModule dependencies initialized","timestamp":"2025-12-02T22:02:17.261Z"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized","timestamp":"2025-12-02T22:02:17.265Z"}
+{"context":"InstanceLoader","level":"info","message":"ProjectsModule dependencies initialized","timestamp":"2025-12-02T22:02:17.268Z"}
+{"context":"InstanceLoader","level":"info","message":"WorkspacesModule dependencies initialized","timestamp":"2025-12-02T22:02:17.272Z"}
+{"context":"InstanceLoader","level":"info","message":"WorkflowsModule dependencies initialized","timestamp":"2025-12-02T22:02:17.276Z"}
+{"context":"InstanceLoader","level":"info","message":"TagsModule dependencies initialized","timestamp":"2025-12-02T22:02:17.277Z"}
+{"context":"InstanceLoader","level":"info","message":"AnalyticsModule dependencies initialized","timestamp":"2025-12-02T22:02:17.278Z"}
+{"context":"InstanceLoader","level":"info","message":"TimersModule dependencies initialized","timestamp":"2025-12-02T22:02:17.279Z"}
+{"context":"InstanceLoader","level":"info","message":"CommentsModule dependencies initialized","timestamp":"2025-12-02T22:02:17.280Z"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized","timestamp":"2025-12-02T22:02:17.281Z"}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized","timestamp":"2025-12-02T22:02:17.282Z"}
+{"context":"InstanceLoader","level":"info","message":"TasksModule dependencies initialized","timestamp":"2025-12-02T22:02:17.283Z"}
+{"context":"InstanceLoader","level":"info","message":"AIModule dependencies initialized","timestamp":"2025-12-02T22:02:17.284Z"}
+{"context":"RoutesResolver","level":"info","message":"AppController {/api/v1}:","timestamp":"2025-12-02T22:02:17.297Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1, GET} route","timestamp":"2025-12-02T22:02:17.304Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/health, GET} route","timestamp":"2025-12-02T22:02:17.307Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/migrate/fix-completed, POST} route","timestamp":"2025-12-02T22:02:17.309Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/debug/projects, GET} route","timestamp":"2025-12-02T22:02:17.312Z"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/api/v1/auth}:","timestamp":"2025-12-02T22:02:17.313Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/auth/register, POST} route","timestamp":"2025-12-02T22:02:17.315Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/auth/login, POST} route","timestamp":"2025-12-02T22:02:17.316Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/auth/logout, POST} route","timestamp":"2025-12-02T22:02:17.317Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/auth/refresh, POST} route","timestamp":"2025-12-02T22:02:17.318Z"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/api/v1/users}:","timestamp":"2025-12-02T22:02:17.321Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/users/me, GET} route","timestamp":"2025-12-02T22:02:17.324Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/users/me, PUT} route","timestamp":"2025-12-02T22:02:17.326Z"}
+{"context":"RoutesResolver","level":"info","message":"WorkspacesController {/api/v1/workspaces}:","timestamp":"2025-12-02T22:02:17.327Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces, POST} route","timestamp":"2025-12-02T22:02:17.328Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces, GET} route","timestamp":"2025-12-02T22:02:17.329Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces/:id, GET} route","timestamp":"2025-12-02T22:02:17.330Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces/:id, PUT} route","timestamp":"2025-12-02T22:02:17.334Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.337Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces/:id/members, POST} route","timestamp":"2025-12-02T22:02:17.338Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workspaces/:id/members/:userId, DELETE} route","timestamp":"2025-12-02T22:02:17.339Z"}
+{"context":"RoutesResolver","level":"info","message":"WorkflowsController {/api/v1/workflows}:","timestamp":"2025-12-02T22:02:17.339Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workflows, POST} route","timestamp":"2025-12-02T22:02:17.340Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workflows, GET} route","timestamp":"2025-12-02T22:02:17.340Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workflows/:id, PUT} route","timestamp":"2025-12-02T22:02:17.341Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/workflows/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.342Z"}
+{"context":"RoutesResolver","level":"info","message":"ProjectsController {/api/v1/projects}:","timestamp":"2025-12-02T22:02:17.342Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects, POST} route","timestamp":"2025-12-02T22:02:17.342Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects, GET} route","timestamp":"2025-12-02T22:02:17.343Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects/all, GET} route","timestamp":"2025-12-02T22:02:17.343Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects/:id, GET} route","timestamp":"2025-12-02T22:02:17.344Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects/:id, PUT} route","timestamp":"2025-12-02T22:02:17.344Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects/:id/archive, PATCH} route","timestamp":"2025-12-02T22:02:17.345Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects/:id/complete, PATCH} route","timestamp":"2025-12-02T22:02:17.345Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/projects/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.346Z"}
+{"context":"RoutesResolver","level":"info","message":"TasksController {/api/v1/tasks}:","timestamp":"2025-12-02T22:02:17.346Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks, POST} route","timestamp":"2025-12-02T22:02:17.346Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id/complete, PATCH} route","timestamp":"2025-12-02T22:02:17.347Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks, GET} route","timestamp":"2025-12-02T22:02:17.347Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id, GET} route","timestamp":"2025-12-02T22:02:17.348Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id/details, GET} route","timestamp":"2025-12-02T22:02:17.348Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id, PUT} route","timestamp":"2025-12-02T22:02:17.348Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.349Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id/subtasks, POST} route","timestamp":"2025-12-02T22:02:17.349Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id/tags, GET} route","timestamp":"2025-12-02T22:02:17.350Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id/comments, GET} route","timestamp":"2025-12-02T22:02:17.350Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tasks/:id/attachments, GET} route","timestamp":"2025-12-02T22:02:17.351Z"}
+{"context":"RoutesResolver","level":"info","message":"TagsController {/api/v1/tags}:","timestamp":"2025-12-02T22:02:17.351Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tags, POST} route","timestamp":"2025-12-02T22:02:17.352Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tags/:id, PUT} route","timestamp":"2025-12-02T22:02:17.352Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tags, GET} route","timestamp":"2025-12-02T22:02:17.352Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tags/:tagId/tasks/:taskId, POST} route","timestamp":"2025-12-02T22:02:17.353Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tags/:tagId/tasks/:taskId, DELETE} route","timestamp":"2025-12-02T22:02:17.353Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/tags/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.354Z"}
+{"context":"RoutesResolver","level":"info","message":"CommentsController {/api/v1/comments}:","timestamp":"2025-12-02T22:02:17.354Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/comments, POST} route","timestamp":"2025-12-02T22:02:17.354Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/comments/:id, GET} route","timestamp":"2025-12-02T22:02:17.355Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/comments/:id, PUT} route","timestamp":"2025-12-02T22:02:17.355Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/comments/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.356Z"}
+{"context":"RoutesResolver","level":"info","message":"AttachmentsController {/api/v1/attachments}:","timestamp":"2025-12-02T22:02:17.356Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/attachments/upload, POST} route","timestamp":"2025-12-02T22:02:17.356Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/attachments, POST} route","timestamp":"2025-12-02T22:02:17.357Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/attachments/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.358Z"}
+{"context":"RoutesResolver","level":"info","message":"TimersController {/api/v1/timers}:","timestamp":"2025-12-02T22:02:17.358Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/start, POST} route","timestamp":"2025-12-02T22:02:17.359Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/stop, POST} route","timestamp":"2025-12-02T22:02:17.359Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/pause, POST} route","timestamp":"2025-12-02T22:02:17.360Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/resume, POST} route","timestamp":"2025-12-02T22:02:17.360Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/switch-task, POST} route","timestamp":"2025-12-02T22:02:17.361Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/active, GET} route","timestamp":"2025-12-02T22:02:17.361Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/history, GET} route","timestamp":"2025-12-02T22:02:17.362Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/stats, GET} route","timestamp":"2025-12-02T22:02:17.362Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/timers/task/:taskId, GET} route","timestamp":"2025-12-02T22:02:17.363Z"}
+{"context":"RoutesResolver","level":"info","message":"AnalyticsController {/api/v1/analytics}:","timestamp":"2025-12-02T22:02:17.363Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/analytics/daily, GET} route","timestamp":"2025-12-02T22:02:17.364Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/analytics/weekly, GET} route","timestamp":"2025-12-02T22:02:17.364Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/analytics/monthly, GET} route","timestamp":"2025-12-02T22:02:17.364Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/analytics/range, GET} route","timestamp":"2025-12-02T22:02:17.365Z"}
+{"context":"RoutesResolver","level":"info","message":"AIController {/api/v1/ai}:","timestamp":"2025-12-02T22:02:17.365Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/profile, GET} route","timestamp":"2025-12-02T22:02:17.366Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/optimal-schedule, GET} route","timestamp":"2025-12-02T22:02:17.366Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/predict-duration, GET} route","timestamp":"2025-12-02T22:02:17.367Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/reports/weekly, POST} route","timestamp":"2025-12-02T22:02:17.367Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/reports, GET} route","timestamp":"2025-12-02T22:02:17.368Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/reports/:id, GET} route","timestamp":"2025-12-02T22:02:17.368Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/ai/reports/:id, DELETE} route","timestamp":"2025-12-02T22:02:17.368Z"}
+{"context":"RoutesResolver","level":"info","message":"UploadController {/api/v1/upload}:","timestamp":"2025-12-02T22:02:17.368Z"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/upload, POST} route","timestamp":"2025-12-02T22:02:17.369Z"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started","timestamp":"2025-12-02T22:02:17.419Z"}

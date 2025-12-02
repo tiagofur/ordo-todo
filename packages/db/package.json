@@ -29,10 +29,10 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.10.1",
     "prisma": "^7.0.1",
     "tsx": "^4.19.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.9.3"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",
