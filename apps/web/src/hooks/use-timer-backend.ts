@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/lib/api-hooks";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { useTimerNotifications } from "./use-timer-notifications";
 
 export type TimerMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "CONTINUOUS";
@@ -103,6 +103,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 const sessionDuration = getDuration(activeSession.type as TimerMode);
                 const remaining = Math.max(0, sessionDuration - elapsed);
                 setTimeLeft(remaining);
+                console.log('useTimerBackend - activeSession.type:', activeSession.type, 'setting mode to:', activeSession.type as TimerMode);
                 setMode(activeSession.type as TimerMode);
             }
 
@@ -151,9 +152,9 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsRunning(true);
             setIsPaused(false);
             await refetchActiveSession();
-            toast.success("Timer iniciado");
+            notify.success("Timer iniciado");
         } catch (error: any) {
-            toast.error(error.message || "Error al iniciar timer");
+            notify.error(error.message || "Error al iniciar timer");
         }
     }, [taskId, mode, type, startTimerMutation, refetchActiveSession]);
 
@@ -167,7 +168,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsRunning(false);
             await refetchActiveSession();
         } catch (error: any) {
-            toast.error(error.message || "Error al pausar timer");
+            notify.error(error.message || "Error al pausar timer");
         }
     }, [pauseTimerMutation, refetchActiveSession]);
 
@@ -181,7 +182,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setLocalPauseStartTime(null);
             await refetchActiveSession();
         } catch (error: any) {
-            toast.error(error.message || "Error al reanudar timer");
+            notify.error(error.message || "Error al reanudar timer");
         }
     }, [localPauseStartTime, resumeTimerMutation, refetchActiveSession]);
 
@@ -204,7 +205,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 onSessionComplete();
             }
         } catch (error: any) {
-            toast.error(error.message || "Error al detener timer");
+            notify.error(error.message || "Error al detener timer");
         }
     }, [stopTimerMutation, mode, type, getDuration, refetchActiveSession, onSessionComplete]);
 
@@ -242,7 +243,11 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
 
                     // Notify session complete
                     notifySessionComplete(currentMode);
-                    toast.success("¡Pomodoro completado!");
+
+                    // Only show completion toast if NOT auto-starting break
+                    if (!config.autoStartBreaks) {
+                        notify.pomodoro("¡Pomodoro completado!", "Has terminado un pomodoro. ¡Bien hecho!");
+                    }
 
                     // Update UI state for next mode
                     setMode(nextMode);
@@ -260,10 +265,21 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                             setIsRunning(true);
                             await refetchActiveSession();
                             notifyAutoStart(nextMode);
-                            toast.success(`Iniciando ${nextMode === "LONG_BREAK" ? "descanso largo" : "descanso corto"}`);
+                            // Combined notification
+                            if (nextMode === "LONG_BREAK") {
+                                notify.longBreak(
+                                    `¡Pomodoro completado!`,
+                                    `Iniciando descanso largo. Relájate un poco.`
+                                );
+                            } else {
+                                notify.shortBreak(
+                                    `¡Pomodoro completado!`,
+                                    `Iniciando descanso corto. Relájate un poco.`
+                                );
+                            }
                         } catch (error: any) {
                             console.error("Error auto-starting break:", error);
-                            toast.error("Error al auto-iniciar descanso");
+                            notify.error("Error al auto-iniciar descanso");
                         }
                     } else {
                         await refetchActiveSession();
@@ -277,7 +293,15 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
 
                     // Notify session complete
                     notifySessionComplete(currentMode);
-                    toast.success(currentMode === "LONG_BREAK" ? "¡Descanso largo completado!" : "¡Descanso corto completado!");
+
+                    // Only show completion toast if NOT auto-starting pomodoro
+                    if (!config.autoStartPomodoros) {
+                        if (currentMode === "LONG_BREAK") {
+                            notify.longBreak("¡Descanso largo completado!", "Hora de volver al trabajo.");
+                        } else {
+                            notify.shortBreak("¡Descanso corto completado!", "Hora de volver al trabajo.");
+                        }
+                    }
 
                     // Update UI state for next mode
                     setMode(nextMode);
@@ -295,10 +319,14 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                             setIsRunning(true);
                             await refetchActiveSession();
                             notifyAutoStart(nextMode);
-                            toast.success("Iniciando siguiente Pomodoro");
+                            // Combined notification
+                            notify.pomodoro(
+                                "¡Descanso completado!",
+                                "Iniciando siguiente Pomodoro. ¡A trabajar!"
+                            );
                         } catch (error: any) {
                             console.error("Error auto-starting pomodoro:", error);
-                            toast.error("Error al auto-iniciar Pomodoro");
+                            notify.error("Error al auto-iniciar Pomodoro");
                         }
                     } else {
                         await refetchActiveSession();
@@ -314,7 +342,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             }
         } catch (error: any) {
             console.error("Error in skipToNext:", error);
-            toast.error("Error al cambiar de modo");
+            notify.error("Error al cambiar de modo");
         } finally {
             isTransitioningRef.current = false;
         }
@@ -328,9 +356,9 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 splitReason: "TASK_SWITCH",
             });
             await refetchActiveSession();
-            toast.success("Tarea cambiada");
+            notify.success("Tarea cambiada");
         } catch (error: any) {
-            toast.error(error.message || "Error al cambiar de tarea");
+            notify.error(error.message || "Error al cambiar de tarea");
         }
     }, [mode, type, switchTaskMutation, refetchActiveSession]);
 

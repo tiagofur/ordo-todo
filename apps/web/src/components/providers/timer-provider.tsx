@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useTimerBackend, TimerMode, TimerType } from "@/hooks/use-timer-backend";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 
 interface TimerContextType {
   isRunning: boolean;
@@ -43,7 +43,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       // Actually useTimerBackend calls notifySessionComplete which might handle notifications
       // But PomodoroTimer had: toast.success("¡Sesión completada!");
       // We can keep it here.
-      toast.success("¡Sesión completada!");
+      notify.success("¡Sesión completada!");
     },
   });
 

@@ -15,7 +15,7 @@ interface ToastContentProps {
   title: string;
   description?: React.ReactNode;
   icon: React.ElementType;
-  variant: 'success' | 'error' | 'warning' | 'info';
+  variant: 'success' | 'error' | 'warning' | 'info' | 'pomodoro' | 'short_break' | 'long_break';
   onDismiss: () => void;
   action?: NotifyOptions['action'];
 }
@@ -29,16 +29,19 @@ const ToastContent = ({
   action
 }: ToastContentProps) => {
   const variants = {
-    success: "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-none",
-    error: "bg-gradient-to-r from-red-500 to-rose-600 text-white border-none",
-    warning: "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-none",
-    info: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-none",
+    success: "bg-emerald-600 text-white border-none",
+    error: "bg-red-600 text-white border-none",
+    warning: "bg-amber-500 text-white border-none",
+    info: "bg-blue-600 text-white border-none",
+    pomodoro: "bg-red-600 text-white border-none",
+    short_break: "bg-green-500 text-white border-none", // Light green
+    long_break: "bg-green-800 text-white border-none", // Dark green
   };
 
   return (
     <div className={cn(
       "relative flex w-full items-start gap-4 rounded-xl p-4 shadow-xl transition-all hover:scale-[1.02] cursor-default",
-      variants[variant]
+      variants[variant as keyof typeof variants] || variants.info
     )}>
       <Icon className="h-6 w-6 shrink-0 mt-0.5" strokeWidth={2.5} />
       <div className="flex-1 grid gap-1">
@@ -50,7 +53,7 @@ const ToastContent = ({
               e.stopPropagation();
               action.onClick();
             }}
-            className="mt-2 w-fit rounded-md bg-white/20 px-3 py-1.5 text-xs font-bold hover:bg-white/30 transition-colors"
+            className="mt-2 w-fit rounded-md bg-white px-3 py-1.5 text-xs font-bold text-gray-900 hover:bg-gray-100 transition-colors"
           >
             {action.label}
           </button>
@@ -61,7 +64,7 @@ const ToastContent = ({
           e.stopPropagation();
           onDismiss();
         }}
-        className="absolute right-2 top-2 rounded-full p-1 text-white/50 hover:bg-white/20 hover:text-white transition-colors"
+        className="absolute right-2 top-2 rounded-full p-1 text-white hover:bg-white hover:text-gray-900 transition-colors"
       >
         <X className="h-4 w-4" />
       </button>
@@ -113,6 +116,42 @@ export const notify = {
         description={description} 
         icon={Info} 
         variant="info" 
+        onDismiss={() => toast.dismiss(t)}
+        action={options?.action}
+      />
+    ), { duration: options?.duration || 4000 });
+  },
+  pomodoro: (title: string, description?: React.ReactNode, options?: NotifyOptions) => {
+    toast.custom((t) => (
+      <ToastContent 
+        title={title} 
+        description={description} 
+        icon={CheckCircle2} 
+        variant="pomodoro" 
+        onDismiss={() => toast.dismiss(t)}
+        action={options?.action}
+      />
+    ), { duration: options?.duration || 4000 });
+  },
+  shortBreak: (title: string, description?: React.ReactNode, options?: NotifyOptions) => {
+    toast.custom((t) => (
+      <ToastContent 
+        title={title} 
+        description={description} 
+        icon={Info} 
+        variant="short_break" 
+        onDismiss={() => toast.dismiss(t)}
+        action={options?.action}
+      />
+    ), { duration: options?.duration || 4000 });
+  },
+  longBreak: (title: string, description?: React.ReactNode, options?: NotifyOptions) => {
+    toast.custom((t) => (
+      <ToastContent 
+        title={title} 
+        description={description} 
+        icon={Info} 
+        variant="long_break" 
         onDismiss={() => toast.dismiss(t)}
         action={options?.action}
       />

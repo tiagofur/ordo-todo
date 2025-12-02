@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Send, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { useCreateComment, useUpdateComment, useDeleteComment } from "@/lib/api-hooks";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,11 +61,11 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
       content: newComment,
     }, {
       onSuccess: () => {
-        toast.success(t('toast.added'));
+        notify.success(t('toast.added'));
         setNewComment("");
       },
       onError: (error: any) => {
-        toast.error(error.message || t('toast.addError'));
+        notify.error(error.message || t('toast.addError'));
       }
     });
   };
@@ -78,12 +78,12 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
       data: { content: editContent },
     }, {
       onSuccess: () => {
-        toast.success(t('toast.updated'));
+        notify.success(t('toast.updated'));
         setEditingId(null);
         setEditContent("");
       },
       onError: (error: any) => {
-        toast.error(error.message || t('toast.updateError'));
+        notify.error(error.message || t('toast.updateError'));
       }
     });
   };
@@ -92,10 +92,10 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
     if (confirm(t('confirmDelete'))) {
       deleteComment.mutate(String(commentId), {
         onSuccess: () => {
-          toast.success(t('toast.deleted'));
+          notify.success(t('toast.deleted'));
         },
         onError: (error: any) => {
-          toast.error(error.message || t('toast.deleteError'));
+          notify.error(error.message || t('toast.deleteError'));
         }
       });
     }

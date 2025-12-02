@@ -16,7 +16,7 @@ import {
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { TaskCard } from "@/components/task/task-card";
 import { ProjectSettingsDialog } from "@/components/project/project-settings-dialog";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -45,14 +45,14 @@ export default function ProjectDetailPage() {
     if (confirm(`¿Estás seguro de ${action} este proyecto?`)) {
       archiveProject.mutate(projectId, {
         onSuccess: () => {
-          toast.success(`Proyecto ${project.archived ? "desarchivado" : "archivado"}`);
+          notify.success(`Proyecto ${project.archived ? "desarchivado" : "archivado"}`);
           // Only redirect to projects list when archiving, not when unarchiving
           if (!project.archived) {
             router.push("/projects");
           }
         },
         onError: (error: any) => {
-          toast.error(`Error al ${action} el proyecto`);
+          notify.error(`Error al ${action} el proyecto`);
           console.error("Archive error:", error);
         }
       });
@@ -65,10 +65,10 @@ export default function ProjectDetailPage() {
     if (confirm(`¿Estás seguro de ${action} este proyecto?`)) {
       completeProject.mutate(projectId, {
         onSuccess: () => {
-          toast.success(`Proyecto ${project.completed ? "marcado como no completado" : "completado"}`);
+          notify.success(`Proyecto ${project.completed ? "marcado como no completado" : "completado"}`);
         },
         onError: (error: any) => {
-          toast.error(`Error al ${action} el proyecto`);
+          notify.error(`Error al ${action} el proyecto`);
           console.error("Complete error:", error);
         }
       });
@@ -79,7 +79,7 @@ export default function ProjectDetailPage() {
     if (confirm(`¿Estás seguro de eliminar este proyecto? Se eliminarán ${projectTasks.length} tareas. Esta acción no se puede deshacer.`)) {
       deleteProject.mutate(projectId, {
         onSuccess: () => {
-          toast.success("Proyecto eliminado");
+          notify.success("Proyecto eliminado");
           router.push("/projects");
         }
       });

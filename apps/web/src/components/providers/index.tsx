@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/auth-context";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { TimerProvider } from "./timer-provider";
@@ -37,7 +37,7 @@ export function Providers({ children }: ProvidersProps) {
         <AuthProvider>
           <TimerProvider>
             {children}
-            <Toaster />
+            <Toaster richColors position="top-right" />
           </TimerProvider>
         </AuthProvider>
       </QueryClientProvider>

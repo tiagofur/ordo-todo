@@ -5,7 +5,7 @@ import { useCreateTask } from "@/lib/api-hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { useTranslations } from "next-intl";
 
 export function TaskForm({ projectId }: { projectId?: string }) {
@@ -17,16 +17,16 @@ export function TaskForm({ projectId }: { projectId?: string }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !projectId) {
-        if (!projectId) toast.error(t('toast.projectIdRequired'));
+        if (!projectId) notify.error(t('toast.projectIdRequired'));
         return;
     }
     createTask.mutate({ title, projectId }, {
       onSuccess: () => {
         setTitle("");
-        toast.success(t('toast.success'));
+        notify.success(t('toast.success'));
       },
       onError: (error: any) => {
-        toast.error(t('toast.error', { message: error.message }));
+        notify.error(t('toast.error', { message: error.message }));
       }
     });
   };

@@ -23,6 +23,7 @@ export function PomodoroTimer() {
     isPaused,
     timeLeft,
     mode,
+    completedPomodoros,
     pauseCount,
     start,
     pause,
@@ -39,14 +40,27 @@ export function PomodoroTimer() {
 
   const [showSwitchDialog, setShowSwitchDialog] = useState(false);
 
-  const accentColor = config.defaultMode === "POMODORO" ? "#ef4444" : "#3b82f6";
+  const MODE_COLORS = {
+    WORK: "#ef4444", // Red
+    SHORT_BREAK: "#4ade80", // Light Green (Leaves)
+    LONG_BREAK: "#15803d", // Dark Green (Branches)
+    CONTINUOUS: "#3b82f6", // Blue
+  };
+
+  const accentColor = MODE_COLORS[mode] || "#ef4444";
   const modeLabel = config.defaultMode === "POMODORO" ? t('modes.pomodoro') : t('modes.continuous');
+
+  // Debug logging
+  console.log('PomodoroTimer - mode:', mode, 'accentColor:', accentColor, 'completedPomodoros:', completedPomodoros);
 
   const getModeLabel = () => {
     if (config.defaultMode === "CONTINUOUS") {
       return t('modes.stopwatch');
     }
-    if (mode === "WORK") return t('modes.pomodoroCount', { count: Math.floor((activeSession?.duration ?? 0) / config.workDuration) + 1 });
+    if (mode === "WORK") {
+      // Show the current pomodoro being worked on
+      return t('modes.pomodoroCount', { count: completedPomodoros + 1 });
+    }
     if (mode === "SHORT_BREAK") return t('modes.shortBreak');
     if (mode === "LONG_BREAK") return t('modes.longBreak');
     return "";

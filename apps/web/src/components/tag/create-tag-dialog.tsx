@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { useTranslations } from "next-intl";
 
 interface CreateTagDialogProps {
@@ -94,23 +94,23 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
     if (tagToEdit) {
       updateTag.mutate({ tagId: tagToEdit.id, data: payload }, {
         onSuccess: () => {
-          toast.success(t('toast.updated'));
+          notify.success(t('toast.updated'));
           reset();
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || t('toast.updateError'));
+          notify.error(error.message || t('toast.updateError'));
         }
       });
     } else {
       createTag.mutate(payload, {
         onSuccess: () => {
-          toast.success(t('toast.created'));
+          notify.success(t('toast.created'));
           reset();
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || t('toast.createError'));
+          notify.error(error.message || t('toast.createError'));
         }
       });
     }

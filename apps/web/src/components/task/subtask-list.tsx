@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
 import { useCreateSubtask, useCompleteTask, useDeleteTask } from "@/lib/api-hooks";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,12 +45,12 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
       }
     }, {
       onSuccess: () => {
-        toast.success(t('toast.created'));
+        notify.success(t('toast.created'));
         setNewSubtaskTitle("");
         setIsAdding(false);
       },
       onError: (error: any) => {
-        toast.error(error.message || t('toast.createError'));
+        notify.error(error.message || t('toast.createError'));
       }
     });
   };
@@ -59,10 +59,10 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     if (currentStatus !== "COMPLETED") {
       completeSubtask.mutate(subtaskId, {
         onSuccess: () => {
-          toast.success(t('toast.completed'));
+          notify.success(t('toast.completed'));
         },
         onError: (error: any) => {
-          toast.error(error.message || t('toast.completeError'));
+          notify.error(error.message || t('toast.completeError'));
         }
       });
     }
@@ -72,10 +72,10 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     if (confirm(t('confirmDelete'))) {
       deleteSubtask.mutate(subtaskId, {
         onSuccess: () => {
-          toast.success(t('toast.deleted'));
+          notify.success(t('toast.deleted'));
         },
         onError: (error: any) => {
-          toast.error(error.message || t('toast.deleteError'));
+          notify.error(error.message || t('toast.deleteError'));
         }
       });
     }

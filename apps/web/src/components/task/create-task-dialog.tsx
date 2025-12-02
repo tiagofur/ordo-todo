@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag } from "lucide-react";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
@@ -68,18 +68,18 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         ...data,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
       });
-      toast.success(t('toast.success'));
+      notify.success(t('toast.success'));
       reset();
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.message || t('toast.error'));
+      notify.error(error?.message || t('toast.error'));
     }
   };
 
   const handleAIMagic = async () => {
     const title = watch("title");
     if (!title) {
-      toast.error(t('toast.aiTitleRequired'));
+      notify.error(t('toast.aiTitleRequired'));
       return;
     }
 
@@ -88,7 +88,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     setTimeout(() => {
       setValue("description", t('ai.generatedDescription', { title }));
       setIsGenerating(false);
-      toast.success(t('toast.aiSuccess'));
+      notify.success(t('toast.aiSuccess'));
     }, 1500);
   };
 

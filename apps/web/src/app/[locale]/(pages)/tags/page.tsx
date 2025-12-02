@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/shared/app-layout";
 import { Plus, Tag as TagIcon, Trash2, MoreVertical, Edit, CheckSquare } from "lucide-react";
 import { useTags, useDeleteTag, useTasks } from "@/lib/api-hooks";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -42,8 +42,8 @@ export default function TagsPage() {
     if (!tagId) return;
     if (confirm(t('confirmDelete'))) {
       deleteTag.mutate(String(tagId), {
-        onSuccess: () => toast.success(t('tagDeleted')),
-        onError: (error: any) => toast.error(error.message || t('deleteError')),
+        onSuccess: () => notify.success(t('tagDeleted')),
+        onError: (error: any) => notify.error(error.message || t('deleteError')),
       });
     }
   };

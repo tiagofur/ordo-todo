@@ -3,9 +3,19 @@
 import { AppLayout } from "@/components/shared/app-layout";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 import { Clock } from "lucide-react";
+import { useTimer } from "@/components/providers/timer-provider";
 
 export default function TimerPage() {
-  const accentColor = "#4f46e5"; // Indigo
+  const { mode } = useTimer();
+
+  const MODE_COLORS = {
+    WORK: "#ef4444", // Red
+    SHORT_BREAK: "#4ade80", // Light Green (Leaves)
+    LONG_BREAK: "#15803d", // Dark Green (Branches)
+    CONTINUOUS: "#3b82f6", // Blue
+  };
+
+  const accentColor = MODE_COLORS[mode] || "#ef4444";
 
   return (
     <AppLayout>

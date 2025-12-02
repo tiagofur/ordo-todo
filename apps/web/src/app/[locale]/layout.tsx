@@ -1,6 +1,6 @@
 import "../globals.css";
 import { Montserrat } from "next/font/google";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/providers";
 import { PWAProvider } from "@/components/providers/pwa-provider";
 import { NextIntlClientProvider } from 'next-intl';
@@ -14,9 +14,6 @@ export const metadata: Metadata = {
   title: "Ordo-Todo",
   description: "The Modern Task Organization Platform",
   manifest: "/manifest.json",
-  themeColor: "#4F46E5",
-  viewport:
-    "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -37,6 +34,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#4F46E5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default async function RootLayout({
   children,
   params
@@ -51,7 +56,7 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#4F46E5" />
+
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="icon" href="/icons/icon-192.png" />
       </head>
