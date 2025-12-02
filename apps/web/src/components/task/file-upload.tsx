@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Upload, File, X, Image as ImageIcon, FileText, Film, Music } from "lucide-react";
 import { useCreateAttachment } from "@/lib/api-hooks";
 import { getToken } from "@/lib/api-client";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "next-intl";
 
 interface FileUploadProps {
   taskId: string;
@@ -40,11 +41,16 @@ export function FileUpload({
   onUploadComplete,
   maxFileSize = DEFAULT_MAX_SIZE,
   acceptedFileTypes = DEFAULT_ACCEPTED_TYPES,
-}: FileUploadProps) {
+  filesToUpload = [],
+  onFilesHandled,
+}: FileUploadProps & { filesToUpload?: File[]; onFilesHandled?: () => void }) {
+  const t = useTranslations('FileUpload');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<
     Array<{ name: string; progress: number; error?: string }>
   >([]);
+
+
 
   // Mutation to create attachment record
   const createAttachment = useCreateAttachment();
@@ -69,7 +75,7 @@ export function FileUpload({
     // Check file size
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxFileSize) {
-      return `El archivo es demasiado grande. Máximo ${maxFileSize}MB.`;
+      return t('errors.tooLarge', { maxFileSize });
     }
 
     // Check file type
@@ -82,7 +88,7 @@ export function FileUpload({
     });
 
     if (!isAccepted) {
-      return "Tipo de archivo no permitido.";
+      return t('errors.invalidType');
     }
 
     return null;
@@ -122,17 +128,17 @@ export function FileUpload({
 
           // Validate response structure
           if (!response.success) {
-            throw new Error("Invalid response from upload server");
+            throw new Error(t('errors.invalidResponse'));
           }
 
           // Backend already created the attachment record
-          toast.success(`${file.name} subido exitosamente`);
+          toast.success(t('success.uploaded', { fileName: file.name }));
           setUploadingFiles((prev) => prev.filter((f) => f.name !== file.name));
           onUploadComplete?.();
         } catch (err) {
           console.error("Upload error:", err);
-          const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-          toast.error(`Error al subir: ${errorMessage}`);
+          const errorMessage = err instanceof Error ? err.message : t('errors.unknown');
+          toast.error(t('errors.uploadError', { errorMessage }));
           setUploadingFiles((prev) =>
             prev.map((f) =>
               f.name === file.name ? { ...f, error: errorMessage } : f
@@ -141,7 +147,7 @@ export function FileUpload({
         }
       } else {
         console.error("Upload failed with status:", xhr.status, xhr.responseText);
-        let errorMessage = `Error ${xhr.status}: ${xhr.statusText}`;
+        let errorMessage = t('errors.statusError', { status: xhr.status, statusText: xhr.statusText });
 
         try {
           const errorResponse = JSON.parse(xhr.responseText);
@@ -165,7 +171,7 @@ export function FileUpload({
 
     xhr.addEventListener("error", () => {
       console.error("XHR Error event triggered");
-      const errorMessage = "Error de red durante la subida";
+      const errorMessage = t('errors.networkError');
       toast.error(errorMessage);
       setUploadingFiles((prev) =>
         prev.map((f) =>
@@ -195,6 +201,15 @@ export function FileUpload({
     });
   };
 
+  // Handle initial files passed from parent (e.g. via drag & drop on the panel)
+  useEffect(() => {
+    if (filesToUpload.length > 0) {
+      handleFiles(filesToUpload as unknown as FileList);
+      onFilesHandled?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filesToUpload]);
+
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -218,7 +233,7 @@ export function FileUpload({
 
   const cancelUpload = (fileName: string) => {
     setUploadingFiles((prev) => prev.filter((f) => f.name !== fileName));
-    toast.info(`Subida de ${fileName} cancelada`);
+    toast.info(t('info.cancelled', { fileName }));
   };
 
   return (
@@ -263,11 +278,11 @@ export function FileUpload({
           <div className="space-y-1">
             <p className="text-sm font-medium">
               {isDragging
-                ? "Suelta los archivos aquí"
-                : "Arrastra archivos aquí o haz click para seleccionar"}
+                ? t('dropzone.dragging')
+                : t('dropzone.idle')}
             </p>
             <p className="text-xs text-muted-foreground">
-              Máximo {maxFileSize}MB por archivo
+              {t('dropzone.maxSize', { maxFileSize })}
             </p>
           </div>
         </div>
@@ -276,7 +291,7 @@ export function FileUpload({
       {/* Uploading Files */}
       {uploadingFiles.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-semibold">Subiendo archivos...</p>
+          <p className="text-sm font-semibold">{t('uploading')}</p>
           {uploadingFiles.map((file) => {
             const FileIcon = FILE_ICONS[getFileType({ type: file.name } as File)];
 

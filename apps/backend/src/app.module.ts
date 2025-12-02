@@ -17,8 +17,8 @@ import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { UploadModule } from './upload/upload.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { WinstonModule } from 'nest-winston';
+import { loggerConfig } from './common/logger/logger.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -40,6 +40,7 @@ import { AppService } from './app.service';
     CommentsModule,
     AttachmentsModule,
     UploadModule,
+    WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
   providers: [
@@ -48,14 +49,6 @@ import { AppService } from './app.service';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: PrismaExceptionFilter,
-    },
   ],
 })
-export class AppModule {}
+export class AppModule { }

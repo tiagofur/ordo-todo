@@ -49,6 +49,12 @@ import type {
   // Attachment
   Attachment,
   CreateAttachmentDto,
+  // AI
+  AIProfile,
+  OptimalScheduleResponse,
+  PredictDurationResponse,
+  WeeklyReportResponse,
+  ProductivityReport,
 } from './types';
 
 /**
@@ -502,22 +508,21 @@ export class OrdoApiClient {
     const response = await this.axios.patch<Task>(`/tasks/${taskId}/complete`);
     return response.data;
   }
-
   /**
    * Get all tasks (optionally filtered by project)
    * GET /tasks?projectId=xxx
    */
-  async getTasks(projectId?: string): Promise<Task[]> {
+  async getTasks(projectId?: string, tags?: string[]): Promise<Task[]> {
+    const params: any = {};
+    if (projectId) params.projectId = projectId;
+    if (tags && tags.length > 0) params.tags = tags;
+
     const response = await this.axios.get<Task[]>('/tasks', {
-      params: projectId ? { projectId } : undefined,
+      params,
     });
     return response.data;
   }
 
-  /**
-   * Get a specific task by ID
-   * GET /tasks/:id
-   */
   async getTask(taskId: string): Promise<Task> {
     const response = await this.axios.get<Task>(`/tasks/${taskId}`);
     return response.data;
@@ -752,5 +757,86 @@ export class OrdoApiClient {
   async getTaskAttachments(taskId: string): Promise<Attachment[]> {
     const response = await this.axios.get<Attachment[]>(`/tasks/${taskId}/attachments`);
     return response.data;
+  }
+
+  // ============ AI ENDPOINTS (7) ============
+
+  /**
+   * Get AI profile for current user
+   * GET /ai/profile
+   */
+  async getAIProfile(): Promise<AIProfile> {
+    const response = await this.axios.get<AIProfile>('/ai/profile');
+    return response.data;
+  }
+
+  /**
+   * Get optimal schedule based on AI profile
+   * GET /ai/optimal-schedule
+   */
+  async getOptimalSchedule(topN?: number): Promise<OptimalScheduleResponse> {
+    const response = await this.axios.get<OptimalScheduleResponse>('/ai/optimal-schedule', {
+      params: { topN },
+    });
+    return response.data;
+  }
+
+  /**
+   * Predict task duration based on AI profile
+   * GET /ai/predict-duration
+   */
+  async predictTaskDuration(params: {
+    title?: string;
+    description?: string;
+    category?: string;
+    priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  }): Promise<PredictDurationResponse> {
+    const response = await this.axios.get<PredictDurationResponse>('/ai/predict-duration', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Generate weekly productivity report
+   * POST /ai/reports/weekly
+   */
+  async generateWeeklyReport(weekStart?: string): Promise<WeeklyReportResponse> {
+    const response = await this.axios.post<WeeklyReportResponse>('/ai/reports/weekly', null, {
+      params: { weekStart },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get productivity reports
+   * GET /ai/reports
+   */
+  async getReports(params?: {
+    scope?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ProductivityReport[]> {
+    const response = await this.axios.get<ProductivityReport[]>('/ai/reports', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get a specific productivity report
+   * GET /ai/reports/:id
+   */
+  async getReport(reportId: string): Promise<ProductivityReport> {
+    const response = await this.axios.get<ProductivityReport>(`/ai/reports/${reportId}`);
+    return response.data;
+  }
+
+  /**
+   * Delete a productivity report
+   * DELETE /ai/reports/:id
+   */
+  async deleteReport(reportId: string): Promise<void> {
+    await this.axios.delete(`/ai/reports/${reportId}`);
   }
 }

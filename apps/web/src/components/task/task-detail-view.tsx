@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Flag, Clock } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface TaskDetailViewProps {
   taskId: string | null;
@@ -22,6 +23,7 @@ interface TaskDetailViewProps {
 }
 
 export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewProps) {
+  const t = useTranslations('TaskDetailView');
   const { data: task, isLoading } = useTask(taskId as string);
 
   const completeTask = useCompleteTask();
@@ -32,9 +34,9 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Detalles de Tarea</SheetTitle>
+          <SheetTitle>{t('title')}</SheetTitle>
           <SheetDescription>
-            Gestiona los detalles y subtareas
+            {t('description')}
           </SheetDescription>
         </SheetHeader>
 
@@ -79,7 +81,7 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>{task.dueDate ? format(new Date(task.dueDate), "PPP") : "Sin fecha"}</span>
+                <span>{task.dueDate ? format(new Date(task.dueDate), "PPP") : t('noDate')}</span>
               </div>
             </div>
 
@@ -88,7 +90,7 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
             {/* Subtasks */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">Subtareas</h3>
+                <h3 className="font-medium">{t('subtasks.title')}</h3>
                 {/* Add Subtask Button would go here */}
               </div>
               
@@ -104,7 +106,7 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">No hay subtareas</p>
+                <p className="text-sm text-muted-foreground italic">{t('subtasks.empty')}</p>
               )}
             </div>
 
@@ -112,17 +114,17 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
             <div className="rounded-lg bg-muted/50 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="h-4 w-4" />
-                <h3 className="font-medium">Tiempo</h3>
+                <h3 className="font-medium">{t('time.title')}</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                El seguimiento de tiempo estará disponible pronto.
+                {t('time.comingSoon')}
               </p>
             </div>
 
           </div>
         ) : (
           <div className="py-8 text-center text-muted-foreground">
-            Tarea no encontrada
+            {t('notFound')}
           </div>
         )}
       </SheetContent>

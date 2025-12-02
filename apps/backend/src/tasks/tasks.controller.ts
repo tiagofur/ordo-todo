@@ -13,6 +13,7 @@ import {
   HttpStatus,
   Inject,
   forwardRef,
+  Logger,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -28,6 +29,8 @@ import { CreateSubtaskDto } from './dto/create-subtask.dto';
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
 export class TasksController {
+  private readonly logger = new Logger(TasksController.name);
+
   constructor(
     private readonly tasksService: TasksService,
     @Inject(forwardRef(() => TagsService))
@@ -36,7 +39,7 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -59,8 +62,8 @@ export class TasksController {
     @Query('tags') tags?: string | string[],
   ) {
     const tagList = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
-    console.log('Tasks Controller - received tags query param:', tags);
-    console.log('Tasks Controller - processed tagList:', tagList);
+    this.logger.debug(`Received tags query param: ${JSON.stringify(tags)}`);
+    this.logger.debug(`Processed tagList: ${JSON.stringify(tagList)}`);
     return this.tasksService.findAll(user.id, projectId, tagList);
   }
 

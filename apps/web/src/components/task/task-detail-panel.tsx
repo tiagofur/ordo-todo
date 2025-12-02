@@ -5,7 +5,7 @@ import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Pap
 import { useTaskDetails, useUpdateTask, useDeleteTask } from "@/lib/api-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/api-hooks";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -36,26 +36,14 @@ import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/lib/api-hoo
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
+import { useTranslations } from "next-intl";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const PRIORITY_CONFIG = {
-  LOW: { label: "Baja", color: "bg-slate-500", textColor: "text-slate-600", icon: Flag },
-  MEDIUM: { label: "Media", color: "bg-blue-500", textColor: "text-blue-600", icon: Flag },
-  HIGH: { label: "Alta", color: "bg-orange-500", textColor: "text-orange-600", icon: Flag },
-  URGENT: { label: "Urgente", color: "bg-red-500", textColor: "text-red-600", icon: Activity },
-};
-
-const STATUS_CONFIG = {
-  TODO: { label: "Por Hacer", color: "bg-slate-500", variant: "outline" },
-  IN_PROGRESS: { label: "En Progreso", color: "bg-blue-500", variant: "default" },
-  COMPLETED: { label: "Completada", color: "bg-green-500", variant: "default" },
-  CANCELLED: { label: "Cancelada", color: "bg-red-500", variant: "destructive" },
-};
 
 type TabType = "subtasks" | "comments" | "attachments" | "activity";
 
@@ -64,11 +52,36 @@ export function TaskDetailPanel({
   open,
   onOpenChange,
 }: TaskDetailPanelProps) {
+  const t = useTranslations('TaskDetailPanel');
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("subtasks");
   const [showCreateTagDialog, setShowCreateTagDialog] = useState(false);
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  // Drag & Drop State
+  const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+  const handleGlobalDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingOver(true);
+  };
+
+  const handleGlobalDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+  };
+
+  const handleGlobalDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setDroppedFiles(Array.from(e.dataTransfer.files));
+      setActiveTab("attachments");
+    }
+  };
 
   // Fetch task data with all details (comments, attachments, activities)
   const { data: task, isLoading } = useTaskDetails(taskId as string);
@@ -109,6 +122,20 @@ export function TaskDetailPanel({
   const assignTag = useAssignTagToTask();
   const removeTag = useRemoveTagFromTask();
 
+  const PRIORITY_CONFIG = {
+    LOW: { label: t('priorities.low'), color: "bg-slate-500", textColor: "text-slate-600", icon: Flag },
+    MEDIUM: { label: t('priorities.medium'), color: "bg-blue-500", textColor: "text-blue-600", icon: Flag },
+    HIGH: { label: t('priorities.high'), color: "bg-orange-500", textColor: "text-orange-600", icon: Flag },
+    URGENT: { label: t('priorities.urgent'), color: "bg-red-500", textColor: "text-red-600", icon: Activity },
+  };
+
+  const STATUS_CONFIG = {
+    TODO: { label: t('statuses.todo'), color: "bg-slate-500", variant: "outline" },
+    IN_PROGRESS: { label: t('statuses.inProgress'), color: "bg-blue-500", variant: "default" },
+    COMPLETED: { label: t('statuses.completed'), color: "bg-green-500", variant: "default" },
+    CANCELLED: { label: t('statuses.cancelled'), color: "bg-red-500", variant: "destructive" },
+  };
+
   const handleSave = () => {
     if (!taskId) return;
 
@@ -124,25 +151,25 @@ export function TaskDetailPanel({
       }
     }, {
       onSuccess: () => {
-        toast.success("Tarea actualizada");
+        notify.success(t('toast.updated'));
         setIsEditing(false);
       },
       onError: (error: any) => {
-        toast.error(error.message || "Error al actualizar tarea");
+        notify.error(error.message || t('toast.updateError'));
       }
     });
   };
 
   const handleDelete = () => {
     if (!taskId) return;
-    if (confirm("¿Estás seguro de eliminar esta tarea?")) {
+    if (confirm(t('confirmDelete'))) {
       deleteTask.mutate(taskId, {
         onSuccess: () => {
-          toast.success("Tarea eliminada");
+          notify.success(t('toast.deleted'));
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al eliminar tarea");
+          notify.error(error.message || t('toast.deleteError'));
         }
       });
     }
@@ -162,18 +189,55 @@ export function TaskDetailPanel({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side="right" 
-        className="w-full sm:max-w-xl md:max-w-2xl p-0 gap-0 overflow-hidden flex flex-col bg-background"
+        className={cn(
+          "w-full sm:max-w-xl md:max-w-2xl p-0 gap-0 overflow-hidden flex flex-col bg-background transition-colors",
+          isDraggingOver && "bg-accent/20"
+        )}
         hideCloseButton
+        onDragOver={handleGlobalDragOver}
+        onDragLeave={handleGlobalDragLeave}
+        onDrop={handleGlobalDrop}
       >
         <SheetTitle className="sr-only">
-          {task?.title || "Detalles de la tarea"}
+          {task?.title || t('title')}
         </SheetTitle>
         {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div className="flex flex-col h-full animate-pulse">
+             {/* Header Skeleton */}
+             <div className="px-6 py-5 border-b bg-muted/10 space-y-4">
+               <div className="flex gap-2">
+                 <Skeleton className="h-8 w-24" />
+                 <Skeleton className="h-8 w-24" />
+               </div>
+               <Skeleton className="h-10 w-3/4" />
+               <div className="flex gap-2">
+                 <Skeleton className="h-6 w-16 rounded-full" />
+                 <Skeleton className="h-6 w-16 rounded-full" />
+               </div>
+             </div>
+             
+             {/* Content Skeleton */}
+             <div className="flex-1 p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                   <div className="md:col-span-2 space-y-3">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-32 w-full" />
+                   </div>
+                   <div className="space-y-4">
+                      <Skeleton className="h-40 w-full rounded-xl" />
+                   </div>
+                </div>
+                <Skeleton className="h-px w-full" />
+                <div className="flex gap-2">
+                   <Skeleton className="h-8 w-24" />
+                   <Skeleton className="h-8 w-24" />
+                   <Skeleton className="h-8 w-24" />
+                </div>
+                <Skeleton className="h-64 w-full" />
+             </div>
           </div>
         ) : (
-          <>
+          <div className="flex flex-col h-full animate-in fade-in duration-300">
             {/* Header Area */}
             <div className="px-6 py-5 border-b bg-muted/10">
               <div className="flex items-start justify-between gap-6">
@@ -188,9 +252,9 @@ export function TaskDetailPanel({
                         updateTask.mutate(
                           { taskId, data: { status: value as any } },
                           {
-                            onSuccess: () => toast.success("Estado actualizado"),
+                            onSuccess: () => notify.success(t('toast.statusUpdated')),
                             onError: (error: any) => {
-                              toast.error(error.message || "Error al actualizar estado");
+                              notify.error(error.message || t('toast.statusError'));
                               // Revert local change on error
                               handleFieldChange("status", task?.status || "TODO");
                             },
@@ -221,9 +285,9 @@ export function TaskDetailPanel({
                         updateTask.mutate(
                           { taskId, data: { priority: value as any } },
                           {
-                            onSuccess: () => toast.success("Prioridad actualizada"),
+                            onSuccess: () => notify.success(t('toast.priorityUpdated')),
                             onError: (error: any) => {
-                              toast.error(error.message || "Error al actualizar prioridad");
+                              notify.error(error.message || t('toast.priorityError'));
                               // Revert local change on error
                               handleFieldChange("priority", task?.priority || "MEDIUM");
                             },
@@ -253,7 +317,7 @@ export function TaskDetailPanel({
                       value={formData.title}
                       onChange={(e) => handleFieldChange("title", e.target.value)}
                       className="text-2xl font-bold h-auto py-2 px-3 -ml-3 bg-transparent border-transparent hover:bg-accent/50 focus:bg-background focus:border-input transition-colors"
-                      placeholder="Título de la tarea"
+                      placeholder={t('titlePlaceholder')}
                       autoFocus
                     />
                   ) : (
@@ -293,7 +357,7 @@ export function TaskDetailPanel({
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-xs text-muted-foreground italic">Sin etiquetas</span>
+                      <span className="text-xs text-muted-foreground italic">{t('tags.none')}</span>
                     )}
                     <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
                       <PopoverTrigger asChild>
@@ -303,7 +367,7 @@ export function TaskDetailPanel({
                           className="h-7 text-xs gap-1 rounded-full px-2 hover:bg-accent"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          Añadir etiqueta
+                          {t('tags.add')}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="p-2 w-64" align="start">
@@ -312,7 +376,7 @@ export function TaskDetailPanel({
                           {availableTags && availableTags.length > 0 ? (
                             <>
                               <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                                Etiquetas disponibles
+                                {t('tags.available')}
                               </div>
                               {availableTags.map((tag: any) => {
                                 const isAssigned = task?.tags?.some((t: any) => t.id === tag.id);
@@ -325,18 +389,18 @@ export function TaskDetailPanel({
                                       e.preventDefault();
                                       e.stopPropagation();
                                       if (!taskId) {
-                                        toast.error("Error: ID de tarea no disponible");
+                                        notify.error(t('toast.noTaskId'));
                                         return;
                                       }
                                       assignTag.mutate(
                                         { tagId: tag.id, taskId },
                                         {
                                           onSuccess: () => {
-                                            toast.success(`Etiqueta "${tag.name}" asignada`);
+                                            notify.success(t('toast.tagAssigned', { tagName: tag.name }));
                                             setTagPopoverOpen(false);
                                           },
                                           onError: (error: any) => {
-                                            toast.error(error.message || "Error al asignar etiqueta");
+                                            notify.error(error.message || t('toast.tagError'));
                                           }
                                         }
                                       );
@@ -355,7 +419,7 @@ export function TaskDetailPanel({
                             </>
                           ) : (
                             <div className="text-center py-4 text-sm text-muted-foreground">
-                              No hay etiquetas disponibles
+                              {t('tags.noAvailable')}
                             </div>
                           )}
 
@@ -370,7 +434,7 @@ export function TaskDetailPanel({
                             className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground text-primary transition-colors cursor-pointer font-medium"
                           >
                             <Plus className="w-4 h-4" />
-                            <span>Crear nueva etiqueta</span>
+                            <span>{t('tags.create')}</span>
                           </button>
                         </div>
                       </PopoverContent>
@@ -382,7 +446,7 @@ export function TaskDetailPanel({
                   {isEditing ? (
                     <Button size="sm" onClick={handleSave} disabled={updateTask.isPending} className="h-9">
                       <Save className="w-4 h-4 mr-2" />
-                      Guardar
+                      {t('buttons.save')}
                     </Button>
                   ) : (
                     <>
@@ -406,13 +470,13 @@ export function TaskDetailPanel({
                   {/* Left Column: Description */}
                   <div className="md:col-span-2 space-y-3 flex flex-col">
                     <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Descripción
+                      {t('description.label')}
                     </Label>
                     {isEditing ? (
                       <Textarea
                         value={formData.description}
                         onChange={(e) => handleFieldChange("description", e.target.value)}
-                        placeholder="Añade una descripción detallada..."
+                        placeholder={t('description.placeholder')}
                         className="flex-1 resize-none text-sm"
                       />
                     ) : (
@@ -429,7 +493,7 @@ export function TaskDetailPanel({
                         {formData.description ? (
                           <p className="whitespace-pre-wrap text-sm leading-relaxed">{formData.description}</p>
                         ) : (
-                          <p className="text-muted-foreground italic text-sm">Sin descripción. Haz clic para añadir una.</p>
+                          <p className="text-muted-foreground italic text-sm">{t('description.empty')}</p>
                         )}
                       </div>
                     )}
@@ -440,12 +504,12 @@ export function TaskDetailPanel({
                     <div className="space-y-4 p-5 rounded-xl bg-gradient-to-br from-muted/40 to-muted/20 border-2 border-border/50 shadow-sm">
                       <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
                         <div className="w-1 h-4 bg-primary rounded-full" />
-                        Detalles
+                        {t('details.title')}
                       </h3>
                       
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">Fecha de Vencimiento</Label>
+                          <Label className="text-xs font-medium text-muted-foreground">{t('details.dueDate')}</Label>
                           <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
                             <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                             <Input
@@ -468,7 +532,7 @@ export function TaskDetailPanel({
                         <Separator className="my-3" />
 
                         <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">Estimación (horas)</Label>
+                          <Label className="text-xs font-medium text-muted-foreground">{t('details.estimation')}</Label>
                           <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
                             <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                             <Input
@@ -503,28 +567,28 @@ export function TaskDetailPanel({
                       active={activeTab === "subtasks"} 
                       onClick={() => setActiveTab("subtasks")}
                       icon={CheckSquare}
-                      label="Subtareas"
+                      label={t('tabs.subtasks')}
                       count={task?.subTasks?.length}
                     />
                     <TabButton 
                       active={activeTab === "comments"} 
                       onClick={() => setActiveTab("comments")}
                       icon={MessageSquare}
-                      label="Comentarios"
+                      label={t('tabs.comments')}
                       count={task?.comments?.length}
                     />
                     <TabButton 
                       active={activeTab === "attachments"} 
                       onClick={() => setActiveTab("attachments")}
                       icon={Paperclip}
-                      label="Archivos"
+                      label={t('tabs.attachments')}
                       count={task?.attachments?.length}
                     />
                     <TabButton 
                       active={activeTab === "activity"} 
                       onClick={() => setActiveTab("activity")}
                       icon={Activity}
-                      label="Actividad"
+                      label={t('tabs.activity')}
                     />
                   </div>
 
@@ -543,6 +607,8 @@ export function TaskDetailPanel({
                       <div className="space-y-4">
                         <FileUpload
                           taskId={taskId}
+                          filesToUpload={droppedFiles}
+                          onFilesHandled={() => setDroppedFiles([])}
                           onUploadComplete={() => {
                             // Invalidate queries to refresh the attachment list
                             queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
@@ -576,14 +642,14 @@ export function TaskDetailPanel({
                 onClick={handleDelete}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Eliminar Tarea
+                {t('buttons.delete')}
               </Button>
               
               <div className="text-xs text-muted-foreground">
-                Creada el {task?.createdAt ? new Date(task.createdAt).toLocaleDateString() : "-"}
+                {t('footer.created')} {task?.createdAt ? new Date(task.createdAt).toLocaleDateString() : "-"}
               </div>
             </div>
-          </>
+          </div>
         )}
       </SheetContent>
 

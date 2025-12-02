@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { TagRepository } from '@ordo-todo/core';
 import {
   CreateTagUseCase,
@@ -12,11 +12,13 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class TagsService {
+  private readonly logger = new Logger(TagsService.name);
+
   constructor(
     @Inject('TagRepository')
     private readonly tagRepository: TagRepository,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async create(createTagDto: CreateTagDto) {
     const createTagUseCase = new CreateTagUseCase(this.tagRepository);
@@ -53,7 +55,7 @@ export class TagsService {
       taskCount: tag._count.tasks,
     }));
 
-    console.log('Tags with count:', JSON.stringify(result, null, 2));
+    this.logger.debug(`Found ${result.length} tags for workspace ${workspaceId}`);
     return result;
   }
 

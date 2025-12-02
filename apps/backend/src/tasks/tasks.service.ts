@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, Logger } from '@nestjs/common';
 import type { TaskRepository } from '@ordo-todo/core';
 import { CreateTaskUseCase, CompleteTaskUseCase } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -9,12 +9,14 @@ import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
   constructor(
     @Inject('TaskRepository')
     private readonly taskRepository: TaskRepository,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
-  ) {}
+  ) { }
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
@@ -52,16 +54,16 @@ export class TasksService {
   }
 
   async findAll(userId: string, projectId?: string, tags?: string[]) {
-    console.log('TasksService.findAll - tags param:', tags);
+    this.logger.debug(`Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}`);
     const tasks = await this.taskRepository.findByCreatorId(userId, {
       projectId,
       tags,
     });
-    console.log('TasksService.findAll - tasks found:', tasks.length);
+    this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
     // Filter only main tasks (no parentTaskId)
     // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
     const filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
-    console.log('TasksService.findAll - filtered tasks:', filteredTasks.length);
+    this.logger.debug(`Filtered to ${filteredTasks.length} main tasks`);
     return filteredTasks.map((t) => t.props);
   }
 

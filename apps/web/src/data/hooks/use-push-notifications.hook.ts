@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 export interface NotificationAction {
     action: string;
@@ -32,8 +33,7 @@ export function usePushNotifications() {
         }
     }, []);
 
-    // Register service worker - DISABLED for now to avoid issues
-    /*
+    // Register service worker
     useEffect(() => {
         if (!isSupported) return;
 
@@ -41,15 +41,14 @@ export function usePushNotifications() {
             try {
                 const reg = await navigator.serviceWorker.register('/sw.js');
                 setRegistration(reg);
-                console.log('Service Worker registered:', reg);
+                logger.log('Service Worker registered:', reg);
             } catch (error) {
-                console.error('Service Worker registration failed:', error);
+                logger.error('Service Worker registration failed:', error);
             }
         };
 
         registerSW();
     }, [isSupported]);
-    */
 
     // Request permission for notifications
     const requestPermission = useCallback(async () => {
@@ -60,7 +59,7 @@ export function usePushNotifications() {
             setPermission(result);
             return result === 'granted';
         } catch (error) {
-            console.error('Error requesting notification permission:', error);
+            logger.error('Error requesting notification permission:', error);
             return false;
         }
     }, [isSupported]);
@@ -76,10 +75,10 @@ export function usePushNotifications() {
             });
 
             setIsSubscribed(true);
-            console.log('Push subscription successful:', subscription);
+            logger.log('Push subscription successful:', subscription);
             return subscription;
         } catch (error) {
-            console.error('Push subscription failed:', error);
+            logger.error('Push subscription failed:', error);
             return null;
         }
     }, [registration, permission]);
@@ -93,10 +92,10 @@ export function usePushNotifications() {
             if (subscription) {
                 await subscription.unsubscribe();
                 setIsSubscribed(false);
-                console.log('Push unsubscription successful');
+                logger.log('Push unsubscription successful');
             }
         } catch (error) {
-            console.error('Push unsubscription failed:', error);
+            logger.error('Push unsubscription failed:', error);
         }
     }, [registration]);
 
@@ -135,7 +134,7 @@ export function usePushNotifications() {
                 // Note: vibrate is only available in service worker notifications, not browser notifications
             });
         } catch (error) {
-            console.error('Background notification failed:', error);
+            logger.error('Background notification failed:', error);
         }
     }, [registration]);
 

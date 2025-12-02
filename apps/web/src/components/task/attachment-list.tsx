@@ -1,12 +1,15 @@
 "use client";
 
-import { Download, Trash2, File, Image as ImageIcon, FileText, Film, Music, Eye } from "lucide-react";
+import { Download, Trash2, File, Image as ImageIcon, FileText, Film, Music, Eye, X } from "lucide-react";
 import { useDeleteAttachment } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface Attachment {
   id: string | number;
@@ -35,7 +38,10 @@ const FILE_ICONS = {
 };
 
 export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps) {
+  const t = useTranslations('AttachmentList');
+  const locale = useLocale();
   const deleteAttachment = useDeleteAttachment();
+  const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
 
   const getFileType = (mimeType: string): keyof typeof FILE_ICONS => {
     if (mimeType.startsWith("image/")) return "image";
@@ -78,34 +84,38 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success(`Descargando ${attachment.filename}`);
+    toast.success(t('toast.downloading', { filename: attachment.filename }));
   };
 
   const handleDelete = (attachment: Attachment) => {
-    if (confirm(`¿Estás seguro de eliminar ${attachment.filename}?`)) {
+    if (confirm(t('confirmDelete', { filename: attachment.filename }))) {
       deleteAttachment.mutate(String(attachment.id), {
         onSuccess: () => {
-          toast.success("Archivo eliminado");
+          toast.success(t('toast.deleted'));
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al eliminar archivo");
+          toast.error(error.message || t('toast.deleteError'));
         }
       });
     }
   };
 
-  const handlePreview = (attachment: Attachment) => {
-    // Open in new tab for preview
-    window.open(getFullUrl(attachment.url), "_blank");
-  };
-
   const isImage = (type: string) => type.startsWith("image/");
   const isPDF = (type: string) => type.includes("pdf");
+
+  const handlePreview = (attachment: Attachment) => {
+    if (isImage(attachment.mimeType)) {
+      setPreviewAttachment(attachment);
+    } else {
+      // Open in new tab for preview
+      window.open(getFullUrl(attachment.url), "_blank");
+    }
+  };
 
   if (attachments.length === 0) {
     return (
       <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
-        No hay archivos adjuntos aún.
+        {t('empty')}
       </div>
     );
   }
@@ -115,10 +125,10 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
       {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold">
-          Archivos ({attachments.length})
+          {t('title')} ({attachments.length})
         </p>
         <p className="text-xs text-muted-foreground">
-          {formatFileSize(attachments.reduce((acc, att) => acc + att.filesize, 0))} total
+          {formatFileSize(attachments.reduce((acc, att) => acc + att.filesize, 0))} {t('total')}
         </p>
       </div>
 
@@ -179,13 +189,13 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                         typeof attachment.uploadedAt === "string"
                           ? new Date(attachment.uploadedAt)
                           : attachment.uploadedAt,
-                        { addSuffix: true, locale: es }
+                        { addSuffix: true, locale: locale === 'es' ? es : enUS }
                       )}
                     </span>
                   </div>
                   {attachment.uploadedBy && (
                     <p className="text-xs text-muted-foreground">
-                      por {attachment.uploadedBy.name}
+                      {t('by')} {attachment.uploadedBy.name}
                     </p>
                   )}
                 </div>
@@ -198,7 +208,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                       size="icon"
                       className="h-7 w-7"
                       onClick={() => handlePreview(attachment)}
-                      title="Vista previa"
+                      title={t('tooltips.preview')}
                     >
                       <Eye className="h-3 w-3" />
                     </Button>
@@ -208,7 +218,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                     size="icon"
                     className="h-7 w-7"
                     onClick={() => handleDownload(attachment)}
-                    title="Descargar"
+                    title={t('tooltips.download')}
                   >
                     <Download className="h-3 w-3" />
                   </Button>
@@ -217,7 +227,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
                     size="icon"
                     className="h-7 w-7 text-destructive"
                     onClick={() => handleDelete(attachment)}
-                    title="Eliminar"
+                    title={t('tooltips.delete')}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -227,6 +237,29 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
           );
         })}
       </div>
+
+      <Dialog open={!!previewAttachment} onOpenChange={(open) => !open && setPreviewAttachment(null)}>
+        <DialogContent className="max-w-4xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none">
+          <DialogTitle className="sr-only">{previewAttachment?.filename}</DialogTitle>
+          {previewAttachment && (
+            <div className="relative w-full h-[80vh] flex items-center justify-center">
+              <img
+                src={getFullUrl(previewAttachment.url)}
+                alt={previewAttachment.filename}
+                className="max-w-full max-h-full object-contain rounded-md shadow-2xl"
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute top-4 right-4 rounded-full"
+                onClick={() => setPreviewAttachment(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

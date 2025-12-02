@@ -101,4 +101,21 @@ export class PrismaTimerRepository implements TimerRepository {
         const sessions = await this.prisma.timeSession.findMany({ where: { userId } });
         return sessions.map(s => this.toDomain(s));
     }
+
+    async findByUserIdAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<TimeSession[]> {
+        const sessions = await this.prisma.timeSession.findMany({
+            where: {
+                userId,
+                startedAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+        });
+        return sessions.map(s => this.toDomain(s));
+    }
+
+    async delete(id: string): Promise<void> {
+        await this.prisma.timeSession.delete({ where: { id } });
+    }
 }

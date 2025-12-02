@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ProjectRepository } from '@ordo-todo/core';
 import {
   CreateProjectUseCase,
@@ -11,10 +11,12 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
+  private readonly logger = new Logger(ProjectsService.name);
+
   constructor(
     @Inject('ProjectRepository')
     private readonly projectRepository: ProjectRepository,
-  ) {}
+  ) { }
 
   async create(createProjectDto: CreateProjectDto) {
     const createProjectUseCase = new CreateProjectUseCase(
@@ -52,17 +54,17 @@ export class ProjectsService {
   }
 
   async archive(id: string) {
-    console.log('📦 Archive service called for project:', id);
+    this.logger.log(`Archiving project: ${id}`);
     const archiveProjectUseCase = new ArchiveProjectUseCase(
       this.projectRepository,
     );
     const project = await archiveProjectUseCase.execute(id);
-    console.log('✅ Project archived status:', project.props.archived);
+    this.logger.log(`Project ${id} archived successfully. Status: ${project.props.archived}`);
     return project.props;
   }
 
   async complete(id: string) {
-    console.log('✅ Complete service called for project:', id);
+    this.logger.log(`Completing project: ${id}`);
     const project = await this.projectRepository.findById(id);
     if (!project) {
       throw new Error('Project not found');
@@ -79,7 +81,7 @@ export class ProjectsService {
       completedAt: completedProject.props.completedAt,
     });
 
-    console.log('✅ Project completed at:', updated.props.completedAt);
+    this.logger.log(`Project ${id} completed at: ${updated.props.completedAt}`);
     return updated.props;
   }
 

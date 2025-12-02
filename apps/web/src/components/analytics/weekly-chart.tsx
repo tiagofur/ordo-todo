@@ -4,12 +4,14 @@ import { useWeeklyMetrics } from "@/lib/api-hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 interface WeeklyChartProps {
   weekStart?: Date;
 }
 
 export function WeeklyChart({ weekStart }: WeeklyChartProps) {
+  const t = useTranslations('WeeklyChart');
   const weekStartParam = weekStart ? weekStart.toISOString().split('T')[0] : undefined;
   const { data: metrics, isLoading } = useWeeklyMetrics(weekStartParam ? { weekStart: weekStartParam } : undefined);
 
@@ -42,7 +44,7 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
 
     // Create a map of existing metrics
     const metricsMap = new Map(
-      metrics.map((m) => [
+      metrics.map((m: any) => [
         new Date(m.date).toISOString().split('T')[0],
         m,
       ])
@@ -55,7 +57,7 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
       const date = new Date(start);
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
-      const metric = metricsMap.get(dateStr);
+      const metric = metricsMap.get(dateStr) as any;
 
       chartData.push({
         day: date.toLocaleDateString('es-ES', { weekday: 'short' }),
@@ -78,11 +80,11 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
           <p className="font-semibold text-sm mb-2">{data.day}</p>
           <div className="space-y-1">
             <p className="text-sm">
-              <span className="text-blue-500">Tareas: </span>
+              <span className="text-blue-500">{t('tooltip.tasks')}: </span>
               <span className="font-medium">{data.tasksCompleted}</span>
             </p>
             <p className="text-sm">
-              <span className="text-green-500">Tiempo: </span>
+              <span className="text-green-500">{t('tooltip.time')}: </span>
               <span className="font-medium">
                 {Math.floor(data.minutesWorked / 60)}h {data.minutesWorked % 60}m
               </span>
@@ -98,8 +100,8 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Actividad Semanal</CardTitle>
-          <CardDescription>Últimos 7 días</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
@@ -111,11 +113,11 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Actividad Semanal</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
         <CardDescription>
           {weekStart
-            ? `Semana del ${weekStart.toLocaleDateString('es-ES')}`
-            : 'Últimos 7 días'}
+            ? t('weekOf', { date: weekStart.toLocaleDateString('es-ES') })
+            : t('description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -131,14 +133,14 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
               yAxisId="left"
               className="text-xs"
               tick={{ fill: 'currentColor' }}
-              label={{ value: 'Tareas', angle: -90, position: 'insideLeft' }}
+              label={{ value: t('tasks'), angle: -90, position: 'insideLeft' }}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
               className="text-xs"
               tick={{ fill: 'currentColor' }}
-              label={{ value: 'Minutos', angle: 90, position: 'insideRight' }}
+              label={{ value: t('minutes'), angle: 90, position: 'insideRight' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
@@ -146,14 +148,14 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
               yAxisId="left"
               dataKey="tasksCompleted"
               fill="hsl(var(--primary))"
-              name="Tareas Completadas"
+              name={t('tasksCompleted')}
               radius={[4, 4, 0, 0]}
             />
             <Bar
               yAxisId="right"
               dataKey="minutesWorked"
               fill="hsl(var(--chart-2))"
-              name="Minutos Trabajados"
+              name={t('minutesWorked')}
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

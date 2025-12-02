@@ -757,539 +757,53 @@ export class TasksController {
 }
 ```
 
-### 3.2 Task Router Example
+### 3.2 Task Controller Example
+
 
 ```typescript
-// src/server/api/routers/task.ts
+// src/tasks/tasks.controller.ts
 
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { CreateTaskUseCase, CompleteTaskUseCase } from "@ordo-todo/core";
-import { PrismaTaskRepository } from "../../repositories/task.prisma";
+import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { TasksService } from './tasks.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-export const taskRouter = createTRPCRouter({
-  create: protectedProcedure
-    .input(
-      z.object({
-        title: z.string().min(1),
-        description: z.string().optional(),
-        priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
-        dueDate: z.date().optional(),
-        projectId: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const taskRepository = new PrismaTaskRepository(ctx.db);
-      const createTaskUseCase = new CreateTaskUseCase(taskRepository);
+@Controller('tasks')
+@UseGuards(JwtAuthGuard)
+export class TasksController {
+  constructor(private readonly tasksService: TasksService) {}
 
-      const user = ctx.session.user as any;
-      const task = await createTaskUseCase.execute({
-        ...input,
-        creatorId: user.id,
-      });
-
-      return task.props;
-    }),
-
-  complete: protectedProcedure
-    .input(z.object({ taskId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const taskRepository = new PrismaTaskRepository(ctx.db);
-      const completeTaskUseCase = new CompleteTaskUseCase(taskRepository);
-
-      const user = ctx.session.user as any;
-      const task = await completeTaskUseCase.execute({
-        taskId: input.taskId,
-        creatorId: user.id,
-      });
-
-      return task.props;
-    }),
-
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const taskRepository = new PrismaTaskRepository(ctx.db);
-    const user = ctx.session.user as any;
-    const tasks = await taskRepository.findByCreatorId(user.id);
-    return tasks.map((t) => t.props);
-  }),
-});
-});
-
-export const taskRouter = createTRPCRouter({
-  // Create task
-  create: protectedProcedure
-    .input(taskSchema)
-    .mutation(async ({ ctx, input }) => {
-      // Verify user has access to project
-      const project = await ctx.db.project.findFirst({
-        where: {
-          id: input.projectId,
-          workspace: {
-            members: {
-              some: { userId: ctx.session.user.id },
-            },
-          },
-        },
-      });
-
-      if (!project) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
-
-      // AI: Analyze task and add suggestions
-      const aiSuggestions = await ctx.ai.analyzeNewTask({
-        title: input.title,
-        description: input.description,
-        userId: ctx.session.user.id,
-      });
-
-      const task = await ctx.db.task.create({
-        data: {
-          ...input,
-          creatorId: ctx.session.user.id,
-          aiSuggestions,
-          energyRequired: aiSuggestions.estimatedEnergy,
-          tags: input.tags
-            ? {
-                create: input.tags.map((tagName) => ({
-                  tag: {
-                    connectOrCreate: {
-                      where: { name: tagName },
-                      create: { name: tagName },
-                    },
-                  },
-                })),
-              }
-            : undefined,
-        },
-        include: {
-          tags: { include: { tag: true } },
-          project: true,
-        },
-      });
-
-      // Emit real-time update
-      ctx.pubsub.publish(`project:${input.projectId}:taskCreated`, task);
-
-      return task;
-    }),
-
-  // Get tasks with filters
-  list: protectedProcedure
-    .input(
-      z.object({
-        workspaceId: z.string().cuid().optional(),
-        projectId: z.string().cuid().optional(),
-        status: z
-          .enum(["TODO", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
-          .optional(),
-        priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
-        dueDate: z
-          .object({
-            from: z.date().optional(),
-            to: z.date().optional(),
-          })
-          .optional(),
-        tags: z.array(z.string()).optional(),
-        search: z.string().optional(),
-        limit: z.number().min(1).max(100).default(50),
-        cursor: z.string().cuid().optional(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const tasks = await ctx.db.task.findMany({
-        where: {
-          creatorId: ctx.session.user.id,
-          ...(input.projectId && { projectId: input.projectId }),
-          ...(input.status && { status: input.status }),
-          ...(input.priority && { priority: input.priority }),
-          ...(input.dueDate && {
-            dueDate: {
-              gte: input.dueDate.from,
-              lte: input.dueDate.to,
-            },
-          }),
-          ...(input.tags && {
-            tags: {
-              some: {
-                tag: { name: { in: input.tags } },
-              },
-            },
-          }),
-          ...(input.search && {
-            OR: [
-              { title: { contains: input.search, mode: "insensitive" } },
-              { description: { contains: input.search, mode: "insensitive" } },
-            ],
-          }),
-        },
-        include: {
-          tags: { include: { tag: true } },
-          project: true,
-          subTasks: true,
-          _count: { select: { comments: true } },
-        },
-        orderBy: [{ status: "asc" }, { priority: "desc" }, { dueDate: "asc" }],
-        take: input.limit + 1,
-        cursor: input.cursor ? { id: input.cursor } : undefined,
-      });
-
-      let nextCursor: string | undefined = undefined;
-      if (tasks.length > input.limit) {
-        const nextItem = tasks.pop();
-        nextCursor = nextItem!.id;
-      }
-
-      return {
-        items: tasks,
-        nextCursor,
-      };
-    }),
-
-  // Update task
-  update: protectedProcedure
-    .input(
-      z.object({
-        id: z.string().cuid(),
-        data: taskSchema.partial(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      // Verify ownership
-      const existing = await ctx.db.task.findUnique({
-        where: { id: input.id },
-        include: { project: true },
-      });
-
-      if (!existing || existing.creatorId !== ctx.session.user.id) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
-
-      const updated = await ctx.db.task.update({
-        where: { id: input.id },
-        data: input.data,
-        include: {
-          tags: { include: { tag: true } },
-          project: true,
-        },
-      });
-
-      ctx.pubsub.publish(`project:${existing.projectId}:taskUpdated`, updated);
-
-      return updated;
-    }),
-
-  // Complete task
-  complete: protectedProcedure
-    .input(
-      z.object({
-        id: z.string().cuid(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const task = await ctx.db.task.update({
-        where: { id: input.id },
-        data: {
-          status: "COMPLETED",
-          completedAt: new Date(),
-        },
-        include: { project: true },
-      });
-
-      // Update metrics
-      await ctx.db.dailyMetrics.upsert({
-        where: {
-          userId_date: {
-            userId: ctx.session.user.id,
-            date: new Date(),
-          },
-        },
-        update: {
-          tasksCompleted: { increment: 1 },
-        },
-        create: {
-          userId: ctx.session.user.id,
-          date: new Date(),
-          tasksCompleted: 1,
-        },
-      });
-
-      // Check for achievements/streaks
-      await ctx.gamification.checkAchievements(ctx.session.user.id);
-
-      ctx.pubsub.publish(`project:${task.projectId}:taskCompleted`, task);
-
-      return task;
-    }),
-
-  // Delete task
-  delete: protectedProcedure
-    .input(
-      z.object({
-        id: z.string().cuid(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const task = await ctx.db.task.findUnique({
-        where: { id: input.id },
-      });
-
-      if (!task || task.creatorId !== ctx.session.user.id) {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
-
-      await ctx.db.task.delete({
-        where: { id: input.id },
-      });
-
-      ctx.pubsub.publish(`project:${task.projectId}:taskDeleted`, {
-        id: input.id,
-      });
-
-      return { success: true };
-    }),
-
-  // Subscribe to real-time updates
-  onUpdate: protectedProcedure
-    .input(
-      z.object({
-        projectId: z.string().cuid(),
-      })
-    )
-    .subscription(async ({ ctx, input }) => {
-      return ctx.pubsub.subscribe(`project:${input.projectId}:*`);
-    }),
-});
+  @Post()
+  create(@Body() createTaskDto: CreateTaskDto, @Request() req) {
+    return this.tasksService.create(createTaskDto, req.user.id);
+  }
+}
 ```
 
-### 3.3 AI Router Example
+### 3.3 AI Controller Example
 
 ```typescript
-// src/server/api/routers/ai.ts
+// src/ai/ai.controller.ts
 
-export const aiRouter = createTRPCRouter({
-  // Suggest next tasks
-  suggestNextTasks: protectedProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(10).default(3),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
+import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { AIService } from './ai.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-      // Get user's AI profile and preferences
-      const [profile, preferences] = await Promise.all([
-        ctx.db.aiProfile.findUnique({ where: { userId } }),
-        ctx.db.userPreferences.findUnique({ where: { userId } }),
-      ]);
+@Controller('ai')
+@UseGuards(JwtAuthGuard)
+export class AIController {
+  constructor(private readonly aiService: AIService) {}
 
-      // Get all pending tasks
-      const tasks = await ctx.db.task.findMany({
-        where: {
-          creatorId: userId,
-          status: { in: ["TODO", "IN_PROGRESS"] },
-        },
-        include: {
-          project: true,
-          tags: { include: { tag: true } },
-          blockedBy: { include: { blockingTask: true } },
-        },
-      });
+  @Post('suggest-tasks')
+  suggestNextTasks(@Body() body: { limit: number }, @Request() req) {
+    return this.aiService.suggestNextTasks(req.user.id, body.limit);
+  }
 
-      // AI scoring algorithm
-      const scoredTasks = tasks.map((task) => ({
-        task,
-        score: calculateTaskScore(task, profile, preferences),
-      }));
-
-      // Sort by score and return top N
-      scoredTasks.sort((a, b) => b.score - a.score);
-
-      return scoredTasks.slice(0, input.limit).map(({ task, score }) => ({
-        ...task,
-        aiRecommendationScore: score,
-      }));
-    }),
-
-  // Estimate task duration
-  estimateDuration: protectedProcedure
-    .input(
-      z.object({
-        title: z.string(),
-        description: z.string().optional(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      // Use GPT-4 to analyze task
-      const completion = await ctx.openai.chat.completions.create({
-        model: "gpt-4-turbo-preview",
-        messages: [
-          {
-            role: "system",
-            content: `You are a task duration estimator. 
-            Analyze the task and provide a realistic time estimate in minutes.
-            Consider complexity, typical execution time, and common blockers.
-            Respond with JSON: { "estimatedMinutes": number, "confidence": number (0-1), "reasoning": string }`,
-          },
-          {
-            role: "user",
-            content: `Task: ${input.title}\nDescription: ${
-              input.description || "N/A"
-            }`,
-          },
-        ],
-        response_format: { type: "json_object" },
-      });
-
-      const result = JSON.parse(completion.choices[0].message.content);
-
-      // Learn from user's actual time vs estimates
-      // This feeds back into the model over time
-
-      return result;
-    }),
-
-  // Smart scheduling
-  smartSchedule: protectedProcedure
-    .input(
-      z.object({
-        taskIds: z.array(z.string().cuid()),
-        targetDate: z.date(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
-
-      // Get user's energy profile and existing schedule
-      const [preferences, existingTasks] = await Promise.all([
-        ctx.db.userPreferences.findUnique({ where: { userId } }),
-        ctx.db.task.findMany({
-          where: {
-            creatorId: userId,
-            dueDate: {
-              gte: startOfDay(input.targetDate),
-              lte: endOfDay(input.targetDate),
-            },
-          },
-        }),
-      ]);
-
-      // Use AI to schedule tasks optimally
-      const schedule = await ctx.ai.generateOptimalSchedule({
-        tasks: input.taskIds,
-        preferences,
-        existingCommitments: existingTasks,
-        targetDate: input.targetDate,
-      });
-
-      return schedule;
-    }),
-
-  // Parse natural language
-  parseNaturalLanguage: protectedProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      // Use GPT-4 to extract task details
-      const completion = await ctx.openai.chat.completions.create({
-        model: "gpt-4-turbo-preview",
-        messages: [
-          {
-            role: "system",
-            content: `Parse task creation from natural language.
-            Extract: title, dueDate, priority, tags, estimatedMinutes.
-            Examples:
-            - "Meeting with John tomorrow at 3pm #work @high" 
-            - "Buy groceries this weekend"
-            - "Review PR for 30 minutes today @urgent #coding"
-            
-            Return JSON with extracted fields. Use null for missing data.`,
-          },
-          {
-            role: "user",
-            content: input.text,
-          },
-        ],
-        response_format: { type: "json_object" },
-      });
-
-      return JSON.parse(completion.choices[0].message.content);
-    }),
-
-  // Generate daily brief
-  generateDailyBrief: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    const today = new Date();
-
-    // Get today's tasks and recent metrics
-    const [todayTasks, metrics, upcomingDeadlines] = await Promise.all([
-      ctx.db.task.findMany({
-        where: {
-          creatorId: userId,
-          OR: [
-            { dueDate: { gte: startOfDay(today), lte: endOfDay(today) } },
-            { status: "IN_PROGRESS" },
-          ],
-        },
-        include: { project: true, tags: { include: { tag: true } } },
-      }),
-      ctx.db.dailyMetrics.findMany({
-        where: {
-          userId,
-          date: { gte: subDays(today, 7) },
-        },
-        orderBy: { date: "desc" },
-      }),
-      ctx.db.task.findMany({
-        where: {
-          creatorId: userId,
-          status: { not: "COMPLETED" },
-          dueDate: {
-            gte: today,
-            lte: addDays(today, 7),
-          },
-        },
-        orderBy: { dueDate: "asc" },
-        take: 5,
-      }),
-    ]);
-
-    // Generate brief with GPT-4
-    const completion = await ctx.openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
-      messages: [
-        {
-          role: "system",
-          content: `You are a productivity assistant. 
-            Generate a motivating, concise daily brief for the user.
-            Include: summary of today's tasks, productivity trends, upcoming deadlines, and one actionable tip.
-            Keep it under 200 words. Be encouraging and specific.`,
-        },
-        {
-          role: "user",
-          content: JSON.stringify({
-            todayTasks,
-            recentProductivity: metrics,
-            upcomingDeadlines,
-          }),
-        },
-      ],
-    });
-
-    return {
-      brief: completion.choices[0].message.content,
-      stats: {
-        tasksToday: todayTasks.length,
-        avgProductivityLast7Days: avg(metrics.map((m) => m.tasksCompleted)),
-        upcomingDeadlines: upcomingDeadlines.length,
-      },
-    };
-  }),
-});
+  @Post('estimate-duration')
+  estimateDuration(@Body() body: { title: string; description?: string }) {
+    return this.aiService.estimateDuration(body.title, body.description);
+  }
+}
 ```
 
 ---
@@ -1379,25 +893,27 @@ export async function initializeWebSocket(httpServer: any) {
 
 ```typescript
 // src/hooks/useTaskMutations.ts
-
-import { api } from "@/utils/api";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 
 export function useTaskMutations() {
   const queryClient = useQueryClient();
-  const utils = api.useUtils();
 
-  const updateTask = api.task.update.useMutation({
+  const updateTask = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      return apiClient.patch(`/tasks/${id}`, data);
+    },
     // Optimistic update
     onMutate: async (variables) => {
       // Cancel outgoing refetches
-      await utils.task.list.cancel();
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
 
       // Snapshot previous value
-      const previousTasks = utils.task.list.getData();
+      const previousTasks = queryClient.getQueryData(['tasks']);
 
       // Optimistically update cache
-      utils.task.list.setData(undefined, (old) =>
+      queryClient.setQueryData(['tasks'], (old: any[]) =>
         old?.map((task) =>
           task.id === variables.id ? { ...task, ...variables.data } : task
         )
@@ -1409,14 +925,14 @@ export function useTaskMutations() {
     // Rollback on error
     onError: (err, variables, context) => {
       if (context?.previousTasks) {
-        utils.task.list.setData(undefined, context.previousTasks);
+        queryClient.setQueryData(['tasks'], context.previousTasks);
       }
       toast.error("Failed to update task");
     },
 
     // Refetch on success
     onSuccess: () => {
-      utils.task.list.invalidate();
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast.success("Task updated");
     },
   });
@@ -1456,7 +972,7 @@ When the device is **offline**:
 **3. Reconnection & Replay:**
 When the device comes **online**:
 1.  **Process Queue**: Iterate through `MutationQueue` in FIFO order.
-2.  **Send to API**: Execute tRPC mutations.
+2.  **Send to API**: Execute REST API calls.
 3.  **Ack/Nack**:
     - **Success**: Remove from queue.
     - **Error (Retryable)**: Exponential backoff (e.g., 500 error).
@@ -1588,10 +1104,6 @@ src/
 │       └── cn.ts
 │
 ├── server/
-│   ├── api/
-│   │   ├── routers/
-│   │   ├── trpc.ts
-│   │   └── root.ts
 │   ├── db/
 │   │   └── schema.prisma
 │   └── auth/
@@ -1708,8 +1220,8 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   },
 }));
 
-// Server State (React Query via tRPC)
-// Handled automatically by tRPC hooks
+// Server State (React Query)
+// Handled by React Query hooks and custom API client
 
 // Form State (React Hook Form + Zod)
 // Handled per-component basis
@@ -2063,55 +1575,38 @@ export default NextAuth(authOptions);
 ### 8.2 Authorization Middleware
 
 ```typescript
-// src/server/api/trpc.ts
+// src/auth/jwt-auth.guard.ts
 
-import { TRPCError, initTRPC } from "@trpc/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth/config";
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
-const t = initTRPC.create();
+@Injectable()
+export class JwtAuthGuard implements CanActivate {
+  constructor(private jwtService: JwtService) {}
 
-export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
+    
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+    
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET
+      });
+      request['user'] = payload;
+    } catch {
+      throw new UnauthorizedException();
+    }
+    
+    return true;
   }
 
-  return next({
-    ctx: {
-      ...ctx,
-      session,
-    },
-  });
-});
-
-// Workspace-level authorization
-export const workspaceProtectedProcedure = protectedProcedure
-  .input(z.object({ workspaceId: z.string() }))
-  .use(async ({ ctx, input, next }) => {
-    const member = await ctx.db.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
-        },
-      },
-    });
-
-    if (!member) {
-      throw new TRPCError({ code: "FORBIDDEN" });
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        workspace: { id: input.workspaceId, role: member.role },
-      },
-    });
-  });
-```
-
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
 ### 8.3 Data Encryption
 
 ```typescript
@@ -2297,73 +1792,6 @@ describe("TaskCard", () => {
 
 // src/server/api/__tests__/task.router.test.ts
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { createCaller } from "../root";
-import { createTestContext } from "../../test/context";
-import { prisma } from "../../db/client";
-
-describe("Task Router Integration", () => {
-  let caller: ReturnType<typeof createCaller>;
-  let testUser: { id: string };
-  let testProject: { id: string };
-
-  beforeAll(async () => {
-    // Setup test database
-    const ctx = await createTestContext();
-    caller = createCaller(ctx);
-
-    // Create test fixtures
-    testUser = await prisma.user.create({
-      data: { email: "test@example.com", name: "Test User" },
-    });
-
-    const workspace = await prisma.workspace.create({
-      data: { name: "Test Workspace", type: "PERSONAL", ownerId: testUser.id },
-    });
-
-    testProject = await prisma.project.create({
-      data: { name: "Test Project", workspaceId: workspace.id },
-    });
-  });
-
-  afterAll(async () => {
-    await prisma.$executeRaw`TRUNCATE TABLE tasks, projects, workspaces, users CASCADE`;
-  });
-
-  it("creates task and returns with project info", async () => {
-    const result = await caller.task.create({
-      title: "Integration Test Task",
-      projectId: testProject.id,
-    });
-
-    expect(result.id).toBeDefined();
-    expect(result.title).toBe("Integration Test Task");
-    expect(result.project.id).toBe(testProject.id);
-  });
-
-  it("lists tasks with pagination", async () => {
-    // Create 15 tasks
-    for (let i = 0; i < 15; i++) {
-      await caller.task.create({
-        title: `Task ${i}`,
-        projectId: testProject.id,
-      });
-    }
-
-    const page1 = await caller.task.list({ limit: 10 });
-    expect(page1.items).toHaveLength(10);
-    expect(page1.nextCursor).toBeDefined();
-
-    const page2 = await caller.task.list({
-      limit: 10,
-      cursor: page1.nextCursor,
-    });
-    expect(page2.items.length).toBeGreaterThan(0);
-  });
-});
-```
-
-### 9.4 End-to-End Testing
 
 ```typescript
 // Framework: Playwright
@@ -3513,7 +2941,7 @@ Phase 1 - MVP (Months 1-4):
   Backend:
     - Authentication system (NextAuth.js)
     - Database schema (Prisma)
-    - Core tRPC routers (task, project, workspace)
+    - Core REST Controllers (task, project, workspace)
     - Basic timer logic
     - Real-time sync foundation
 

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslations } from "next-intl";
 
 interface SubtaskListProps {
   taskId: string;
@@ -21,6 +22,7 @@ interface SubtaskListProps {
 }
 
 export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
+  const t = useTranslations('SubtaskList');
   const [isAdding, setIsAdding] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
 
@@ -43,12 +45,12 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
       }
     }, {
       onSuccess: () => {
-        toast.success("Subtarea creada");
+        toast.success(t('toast.created'));
         setNewSubtaskTitle("");
         setIsAdding(false);
       },
       onError: (error: any) => {
-        toast.error(error.message || "Error al crear subtarea");
+        toast.error(error.message || t('toast.createError'));
       }
     });
   };
@@ -57,23 +59,23 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     if (currentStatus !== "COMPLETED") {
       completeSubtask.mutate(subtaskId, {
         onSuccess: () => {
-          toast.success("Subtarea completada");
+          toast.success(t('toast.completed'));
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al completar subtarea");
+          toast.error(error.message || t('toast.completeError'));
         }
       });
     }
   };
 
   const handleDelete = (subtaskId: string) => {
-    if (confirm("¿Estás seguro de eliminar esta subtarea?")) {
+    if (confirm(t('confirmDelete'))) {
       deleteSubtask.mutate(subtaskId, {
         onSuccess: () => {
-          toast.success("Subtarea eliminada");
+          toast.success(t('toast.deleted'));
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al eliminar subtarea");
+          toast.error(error.message || t('toast.deleteError'));
         }
       });
     }
@@ -88,7 +90,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
       {/* Header with Progress */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Subtareas</h3>
+          <h3 className="text-sm font-semibold">{t('title')}</h3>
           {totalCount > 0 && (
             <span className="text-xs text-muted-foreground">
               {completedCount}/{totalCount}
@@ -125,7 +127,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
             {/* Drag Handle */}
             <button
               className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing mt-0.5"
-              title="Arrastrar para reordenar"
+              title={t('tooltips.drag')}
             >
               <GripVertical className="h-4 w-4 text-muted-foreground" />
             </button>
@@ -156,7 +158,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
                 size="icon"
                 className="h-6 w-6"
                 onClick={() => handleDelete(String(subtask.id))}
-                title="Eliminar subtarea"
+                title={t('tooltips.delete')}
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -167,7 +169,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
         {/* Empty State */}
         {subtasks.length === 0 && !isAdding && (
           <div className="text-center py-6 text-sm text-muted-foreground">
-            No hay subtareas. Agrega una para dividir esta tarea.
+            {t('empty')}
           </div>
         )}
       </div>
@@ -178,7 +180,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
           <Input
             value={newSubtaskTitle}
             onChange={(e) => setNewSubtaskTitle(e.target.value)}
-            placeholder="Título de la subtarea..."
+            placeholder={t('placeholder')}
             className="flex-1"
             autoFocus
             onKeyDown={(e) => {
@@ -216,7 +218,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
           className="w-full"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Agregar Subtarea
+          {t('add')}
         </Button>
       )}
 
@@ -224,7 +226,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
       {subtasks.some((st: any) => st.parentTaskId) && (
         <div className="text-xs text-muted-foreground flex items-center gap-1">
           <ArrowRight className="h-3 w-3" />
-          Algunas subtareas tienen sub-subtareas
+          {t('nested')}
         </div>
       )}
     </div>

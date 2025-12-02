@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Send, X, Bot, User } from "lucide-react";
 import { aiService } from "@ordo-todo/core/src/ai/ai-service"; // Adjust import path if needed
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface Message {
   id: string;
@@ -20,11 +21,12 @@ interface AIAssistantSidebarProps {
 }
 
 export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps) {
+  const t = useTranslations('AIAssistantSidebar');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "assistant",
-      content: "Hi! I'm Ordo AI. How can I help you organize your day?",
+      content: t('welcome'),
       timestamp: new Date(),
     },
   ]);
@@ -64,7 +66,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      toast.error("Failed to get response from AI");
+      toast.error(t('error'));
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +80,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-purple-500" />
-          <h3 className="font-semibold">Ordo AI Copilot</h3>
+          <h3 className="font-semibold">{t('title')}</h3>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -125,7 +127,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
                 <Bot className="h-4 w-4" />
               </div>
               <div className="bg-muted rounded-lg p-3 text-sm">
-                <span className="animate-pulse">Thinking...</span>
+                <span className="animate-pulse">{t('thinking')}</span>
               </div>
             </div>
           )}
@@ -145,7 +147,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask AI..."
+            placeholder={t('placeholder')}
             disabled={isLoading}
             className="flex-1"
           />

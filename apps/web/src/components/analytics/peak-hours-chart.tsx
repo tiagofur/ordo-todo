@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export function PeakHoursChart() {
+  const t = useTranslations('PeakHoursChart');
   const { data: profile, isLoading } = useAIProfile();
 
   if (isLoading) {
@@ -15,9 +17,9 @@ export function PeakHoursChart() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Productivity by Hour
+            {t('title')}
           </CardTitle>
-          <CardDescription>Your productivity score throughout the day</CardDescription>
+          <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
@@ -32,14 +34,14 @@ export function PeakHoursChart() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Productivity by Hour
+            {t('title')}
           </CardTitle>
-          <CardDescription>Your productivity score throughout the day</CardDescription>
+          <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[300px]">
             <p className="text-muted-foreground text-sm">
-              No data yet. Start working to see your productivity patterns!
+              {t('empty')}
             </p>
           </div>
         </CardContent>
@@ -74,9 +76,9 @@ export function PeakHoursChart() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          Productivity by Hour
+          {t('title')}
         </CardTitle>
-        <CardDescription>Your productivity score throughout the day</CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -92,7 +94,7 @@ export function PeakHoursChart() {
               tickLine={{ stroke: 'hsl(var(--border))' }}
               domain={[0, 100]}
               label={{
-                value: 'Productivity Score (%)',
+                value: t('yAxis'),
                 angle: -90,
                 position: 'insideLeft',
                 style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 },
@@ -107,7 +109,7 @@ export function PeakHoursChart() {
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-semibold">{data.label}</span>
                         <span className="text-xs text-muted-foreground">
-                          Productivity: {Math.round(data.score)}%
+                          {t('tooltip')}: {Math.round(data.score)}%
                         </span>
                       </div>
                     </div>
@@ -128,19 +130,19 @@ export function PeakHoursChart() {
         <div className="flex items-center justify-center gap-4 mt-4 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: "#22c55e" }} />
-            <span className="text-muted-foreground">High (80-100%)</span>
+            <span className="text-muted-foreground">{t('legend.high')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: "#eab308" }} />
-            <span className="text-muted-foreground">Good (60-79%)</span>
+            <span className="text-muted-foreground">{t('legend.good')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: "#f97316" }} />
-            <span className="text-muted-foreground">Fair (40-59%)</span>
+            <span className="text-muted-foreground">{t('legend.fair')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ef4444" }} />
-            <span className="text-muted-foreground">Low (0-39%)</span>
+            <span className="text-muted-foreground">{t('legend.low')}</span>
           </div>
         </div>
       </CardContent>

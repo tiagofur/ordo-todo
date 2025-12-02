@@ -11,6 +11,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -22,7 +23,9 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  private readonly logger = new Logger(ProjectsController.name);
+
+  constructor(private readonly projectsService: ProjectsService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -52,13 +55,13 @@ export class ProjectsController {
 
   @Patch(':id/archive')
   archive(@Param('id') id: string) {
-    console.log('🔄 Archive endpoint called for project:', id);
+    this.logger.debug(`Archive endpoint called for project: ${id}`);
     return this.projectsService.archive(id);
   }
 
   @Patch(':id/complete')
   complete(@Param('id') id: string) {
-    console.log('✅ Complete endpoint called for project:', id);
+    this.logger.debug(`Complete endpoint called for project: ${id}`);
     return this.projectsService.complete(id);
   }
 

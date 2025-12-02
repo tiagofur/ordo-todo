@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceSettingsDialogProps {
   workspaceId: string;
@@ -35,6 +36,7 @@ export function WorkspaceSettingsDialog({
   open,
   onOpenChange,
 }: WorkspaceSettingsDialogProps) {
+  const t = useTranslations('WorkspaceSettingsDialog');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { data: workspace, isLoading } = useWorkspace(workspaceId);
@@ -66,10 +68,10 @@ export function WorkspaceSettingsDialog({
         workspaceId,
         data: formData,
       });
-      toast.success("Workspace actualizado");
+      toast.success(t('toast.updated'));
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.message || "Error al actualizar workspace");
+      toast.error(error?.message || t('toast.updateError'));
     }
   };
 
@@ -80,12 +82,12 @@ export function WorkspaceSettingsDialog({
     }
     try {
       await deleteWorkspaceMutation.mutateAsync(workspaceId);
-      toast.success("Workspace eliminado");
+      toast.success(t('toast.deleted'));
       onOpenChange(false);
       // Redirect to first available workspace or create new one
       window.location.href = "/workspaces";
     } catch (error: any) {
-      toast.error(error?.message || "Error al eliminar workspace");
+      toast.error(error?.message || t('toast.deleteError'));
     }
   };
 
@@ -111,10 +113,10 @@ export function WorkspaceSettingsDialog({
         <div className="p-6 pb-0">
           <DialogHeader className="mb-6">
             <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">
-              Configuración del Workspace
+              {t('title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-base">
-              Administra la información general de tu espacio de trabajo.
+              {t('description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -123,13 +125,13 @@ export function WorkspaceSettingsDialog({
               {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-semibold text-foreground">
-                  Nombre del Workspace
+                  {t('form.name.label')}
                 </Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ej. Mi Proyecto Personal"
+                  placeholder={t('form.name.placeholder')}
                   required
                   className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30 font-medium"
                 />
@@ -138,13 +140,13 @@ export function WorkspaceSettingsDialog({
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-semibold text-foreground">
-                  Descripción
+                  {t('form.description.label')}
                 </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe brevemente el propósito de este espacio..."
+                  placeholder={t('form.description.placeholder')}
                   rows={3}
                   className="bg-muted/30 border-input focus-visible:ring-primary/30 resize-none"
                 />
@@ -153,7 +155,7 @@ export function WorkspaceSettingsDialog({
               {/* Type */}
               <div className="space-y-2">
                 <Label htmlFor="type" className="text-sm font-semibold text-foreground">
-                  Tipo de Espacio
+                  {t('form.type.label')}
                 </Label>
                 <Select
                   value={formData.type}
@@ -165,23 +167,23 @@ export function WorkspaceSettingsDialog({
                   <SelectContent>
                     <SelectItem value="PERSONAL">
                       <span className="flex items-center gap-2">
-                        👤 Personal
+                        👤 {t('form.type.options.PERSONAL')}
                       </span>
                     </SelectItem>
                     <SelectItem value="WORK">
                       <span className="flex items-center gap-2">
-                        💼 Trabajo
+                        💼 {t('form.type.options.WORK')}
                       </span>
                     </SelectItem>
                     <SelectItem value="TEAM">
                       <span className="flex items-center gap-2">
-                        👥 Equipo
+                        👥 {t('form.type.options.TEAM')}
                       </span>
                     </SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[0.8rem] text-muted-foreground">
-                  El tipo define el color y el icono predeterminado del workspace.
+                  {t('form.type.helper')}
                 </p>
               </div>
             </div>
@@ -196,9 +198,9 @@ export function WorkspaceSettingsDialog({
            <div className="rounded-lg border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h4 className="text-sm font-medium text-red-900 dark:text-red-200">Zona de Peligro</h4>
+                  <h4 className="text-sm font-medium text-red-900 dark:text-red-200">{t('dangerZone.title')}</h4>
                   <p className="text-xs text-red-700 dark:text-red-300/70">
-                    Esta acción no se puede deshacer.
+                    {t('dangerZone.description')}
                   </p>
                 </div>
                 {!showDeleteConfirm ? (
@@ -210,7 +212,7 @@ export function WorkspaceSettingsDialog({
                     className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Eliminar
+                    {t('dangerZone.delete')}
                   </Button>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -221,7 +223,7 @@ export function WorkspaceSettingsDialog({
                       onClick={handleDelete}
                       disabled={deleteWorkspaceMutation.isPending}
                     >
-                      {deleteWorkspaceMutation.isPending ? "Eliminando..." : "Confirmar"}
+                      {deleteWorkspaceMutation.isPending ? t('dangerZone.deleting') : t('dangerZone.confirm')}
                     </Button>
                     <Button
                       type="button"
@@ -244,7 +246,7 @@ export function WorkspaceSettingsDialog({
                 onClick={() => onOpenChange(false)}
                 className="px-6"
               >
-                Cancelar
+                {t('actions.cancel')}
               </Button>
               <Button
                 onClick={handleSubmit}
@@ -252,7 +254,7 @@ export function WorkspaceSettingsDialog({
                 className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
               >
                 <Save className="mr-2 h-4 w-4" />
-                {updateWorkspaceMutation.isPending ? "Guardando..." : "Guardar Cambios"}
+                {updateWorkspaceMutation.isPending ? t('actions.saving') : t('actions.save')}
               </Button>
             </div>
         </div>

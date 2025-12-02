@@ -20,7 +20,7 @@ export class AuthService {
     private readonly cryptoProvider: BcryptCryptoProvider,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     try {
@@ -103,5 +103,57 @@ export class AuthService {
       email: user.email,
       name: user.name,
     };
+  }
+
+  async refresh(refreshToken: string): Promise<AuthResponseDto> {
+    try {
+      // Verify the refresh token
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_SECRET')!,
+      });
+
+      // Validate that the user still exists
+      const user = await this.validateUser(payload.email);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Generate new tokens (token rotation for security)
+      const newPayload = {
+        sub: user.id,
+        email: user.email,
+        name: user.name,
+      };
+
+      const accessToken = this.jwtService.sign(newPayload);
+      const newRefreshToken = this.jwtService.sign(newPayload, {
+        expiresIn: this.configService.get<string>(
+          'JWT_REFRESH_EXPIRATION',
+        )! as any,
+      });
+
+      return {
+        accessToken,
+        refreshToken: newRefreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name || null,
+        },
+      };
+    } catch (error) {
+      // Re-throw if it's already an UnauthorizedException
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Refresh token expired');
+      }
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      throw new UnauthorizedException('Failed to refresh token');
+    }
   }
 }

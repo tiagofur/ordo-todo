@@ -184,6 +184,53 @@ npx prisma studio       # Open DB GUI
 | [WIREFRAMES.md](./WIREFRAMES.md) | UI/UX designs |
 | [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) | Current progress |
 | [QUICKSTART.md](./QUICKSTART.md) | Quick start guide |
+| [internationalization.md](./docs/getting-started/internationalization.md) | i18n implementation guide |
+
+---
+
+## 🌍 Internationalization (i18n)
+
+Ordo-Todo is fully internationalized and supports multiple languages:
+
+### Supported Languages
+- 🇺🇸 **English (en)** - Default language
+- 🇪🇸 **Spanish (es)** - Español
+- 🇧🇷 **Portuguese (pt-BR)** - Português (Brasil)
+
+### Implementation
+The application uses `next-intl` for internationalization with:
+- **Namespace-based organization**: Each component has its own translation namespace
+- **Type-safe translations**: Full TypeScript support
+- **Server and client components**: Works with both Next.js rendering modes
+- **Dynamic content support**: Handles pluralization, date formatting, and variables
+
+### Quick Example
+```typescript
+import { useTranslations } from 'next-intl';
+
+export function MyComponent() {
+  const t = useTranslations('MyComponent');
+  
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <p>{t('description')}</p>
+    </div>
+  );
+}
+```
+
+### Translation Files
+All translations are stored in `apps/web/messages/`:
+```
+messages/
+├── en.json     # English translations
+├── es.json     # Spanish translations
+└── pt-br.json  # Portuguese (Brazil) translations
+```
+
+For detailed implementation guide, best practices, and how to add new languages, see:
+📖 [Internationalization Guide](./docs/getting-started/internationalization.md)
 
 ---
 

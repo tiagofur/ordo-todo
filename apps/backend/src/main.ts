@@ -1,13 +1,19 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { WinstonModule } from 'nest-winston';
 import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { loggerConfig } from './common/logger/logger.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: WinstonModule.createLogger(loggerConfig),
+  });
   const configService = app.get(ConfigService);
+  const httpAdapter = app.get(HttpAdapterHost);
 
   // Serve static files from uploads directory
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
@@ -23,6 +29,9 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix(configService.get<string>('API_PREFIX')!);
+
+  // Global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter(httpAdapter));
 
   // Global validation pipe
   app.useGlobalPipes(

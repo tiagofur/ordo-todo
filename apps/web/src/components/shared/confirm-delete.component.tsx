@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface ConfirmDeleteProps {
   children: React.ReactNode;
@@ -25,12 +26,13 @@ interface ConfirmDeleteProps {
 export function ConfirmDelete({
   children,
   onConfirm,
-  title = "Tem certeza que deseja excluir?",
-  description = "Esta ação não pode ser desfeita. Os dados serão permanentemente removidos.",
-  confirmText = "Excluir",
-  cancelText = "Cancelar",
+  title,
+  description,
+  confirmText,
+  cancelText,
   disabled = false,
 }: ConfirmDeleteProps) {
+  const t = useTranslations('ConfirmDelete');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -59,9 +61,9 @@ export function ConfirmDelete({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-left">{title}</DialogTitle>
+          <DialogTitle className="text-left">{title || t('title')}</DialogTitle>
           <DialogDescription className="text-left">
-            {description}
+            {description || t('description')}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
@@ -72,7 +74,7 @@ export function ConfirmDelete({
             disabled={loading}
             className="w-full sm:w-auto"
           >
-            {cancelText}
+            {cancelText || t('cancel')}
           </Button>
           <Button
             type="button"
@@ -81,7 +83,7 @@ export function ConfirmDelete({
             disabled={loading}
             className="w-full sm:w-auto"
           >
-            {loading ? "Excluindo..." : confirmText}
+            {loading ? t('deleting') : (confirmText || t('confirm'))}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -16,7 +16,7 @@ ordo-todo/
 ├── apps/
 │   ├── web/           # Next.js 16 ✅ PWA Features Added
 │   ├── mobile/        # React Native + Expo ✅ Native Features Added
-│   ├── backend/       # NestJS ⚠️ To be replaced with tRPC
+│   ├── backend/       # NestJS REST API
 │   └── db/            # SQLite ⚠️ Old, use packages/db instead
 │
 ├── packages/
@@ -110,14 +110,14 @@ ordo-todo/
 | `analytics`  | ✅ Done    | DailyMetrics                 | Calculate, Report, UpdateMetrics, CalculateFocusScore |
 | `ai`         | 🔜 Future  | -                            | Suggestions, Parsing            |
 
-### Phase 3: API Layer (tRPC) ⏳ IN PROGRESS
+### Phase 3: API Layer (NestJS REST) ⏳ IN PROGRESS
 
 | Router      | Status     | Key Procedures                 |
 | ----------- | ---------- | ------------------------------ |
 | `auth`      | ✅ Done    | register, login, logout, me    |
 | `user`      | ✅ Done    | me, updateProfile              |
 | `workspace` | ✅ Done    | create, list, addMember, removeMember |
-| `workflow`  | ⏳ Pending | create, list, update, delete   |
+| `workflow`  | ✅ Done    | create, list, update, delete   |
 | `project`   | ✅ Done    | create, list, update, archive, delete |
 | `task`      | ✅ Done    | list, create, complete         |
 | `tag`       | ✅ Done    | create, list, assign, remove   |
@@ -260,8 +260,8 @@ npm run check-types
 | ---------------------- | --------------------------- | ---------------------------------------------- |
 | Monorepo               | Turborepo                   | Build caching, code sharing                    |
 | Architecture           | DDD + Clean                 | Testability, maintainability                   |
-| API                    | tRPC in Next.js             | Type-safety, simpler deployment, better DX     |
-| Backend Alternative    | NestJS (VPS)                | Considered for VPS, but tRPC preferred for MVP |
+| API                    | NestJS REST                 | Standard REST API, scalable architecture       |
+| Backend Alternative    | tRPC                        | Considered but discarded in favor of NestJS    |
 | Database               | PostgreSQL                  | Full-text search, production-ready             |
 | ORM                    | Prisma                      | Type-safe, excellent DX                        |
 | State (client)         | Zustand                     | Lightweight, simple                            |
@@ -364,7 +364,7 @@ npm run check-types
 
 ### Backend Architecture
 
-**Decision**: Mantener tRPC integrado en Next.js (no NestJS separado)  
+**Decision**: Usar NestJS REST API separado (no tRPC)  
 **Rationale**:
 
 - Mejor DX y type-safety end-to-end

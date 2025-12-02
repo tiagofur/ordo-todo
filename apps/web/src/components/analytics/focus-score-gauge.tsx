@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface FocusScoreGaugeProps {
   score: number; // 0-1
@@ -9,7 +10,8 @@ interface FocusScoreGaugeProps {
   description?: string;
 }
 
-export function FocusScoreGauge({ score, label = "Focus Score", description }: FocusScoreGaugeProps) {
+export function FocusScoreGauge({ score, label, description }: FocusScoreGaugeProps) {
+  const t = useTranslations('FocusScoreGauge');
   const percentage = Math.round(score * 100);
 
   const getColor = (score: number): string => {
@@ -31,12 +33,12 @@ export function FocusScoreGauge({ score, label = "Focus Score", description }: F
   };
 
   const getMessage = (score: number): string => {
-    if (score >= 0.9) return "Excelente enfoque";
-    if (score >= 0.8) return "Muy buen enfoque";
-    if (score >= 0.7) return "Buen enfoque";
-    if (score >= 0.5) return "Enfoque moderado";
-    if (score >= 0.3) return "Enfoque bajo";
-    return "Necesitas mejorar el enfoque";
+    if (score >= 0.9) return t('messages.excellent');
+    if (score >= 0.8) return t('messages.veryGood');
+    if (score >= 0.7) return t('messages.good');
+    if (score >= 0.5) return t('messages.moderate');
+    if (score >= 0.3) return t('messages.low');
+    return t('messages.needsImprovement');
   };
 
   const radius = 70;
@@ -46,8 +48,8 @@ export function FocusScoreGauge({ score, label = "Focus Score", description }: F
   return (
     <Card className={cn("transition-colors", getBackgroundColor(score))}>
       <CardHeader>
-        <CardTitle>{label}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
+        <CardTitle>{label || t('label')}</CardTitle>
+        <CardDescription>{description || t('description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
         {/* Circular Gauge */}
@@ -91,7 +93,7 @@ export function FocusScoreGauge({ score, label = "Focus Score", description }: F
             {getMessage(score)}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Basado en tiempo de trabajo vs pausas
+            {description || t('description')}
           </p>
         </div>
 

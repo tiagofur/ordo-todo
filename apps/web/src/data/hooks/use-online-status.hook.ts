@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 export function useOnlineStatus() {
     const [isOnline, setIsOnline] = useState(true);
@@ -11,7 +12,7 @@ export function useOnlineStatus() {
         setIsOnline(navigator.onLine);
 
         const handleOnline = () => {
-            console.log('[OnlineStatus] Connection restored');
+            logger.log('[OnlineStatus] Connection restored');
             setIsOnline(true);
             setWasOffline(true);
 
@@ -23,7 +24,7 @@ export function useOnlineStatus() {
         };
 
         const handleOffline = () => {
-            console.log('[OnlineStatus] Connection lost');
+            logger.log('[OnlineStatus] Connection lost');
             setIsOnline(false);
 
             // Dispatch custom event

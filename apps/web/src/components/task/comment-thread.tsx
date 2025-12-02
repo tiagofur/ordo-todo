@@ -15,7 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
 
 interface Comment {
   id: string | number;
@@ -37,6 +38,8 @@ interface CommentThreadProps {
 }
 
 export function CommentThread({ taskId, comments = [], currentUserId }: CommentThreadProps) {
+  const t = useTranslations('CommentThread');
+  const locale = useLocale();
   const [newComment, setNewComment] = useState("");
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [editContent, setEditContent] = useState("");
@@ -58,11 +61,11 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
       content: newComment,
     }, {
       onSuccess: () => {
-        toast.success("Comentario agregado");
+        toast.success(t('toast.added'));
         setNewComment("");
       },
       onError: (error: any) => {
-        toast.error(error.message || "Error al agregar comentario");
+        toast.error(error.message || t('toast.addError'));
       }
     });
   };
@@ -75,24 +78,24 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
       data: { content: editContent },
     }, {
       onSuccess: () => {
-        toast.success("Comentario actualizado");
+        toast.success(t('toast.updated'));
         setEditingId(null);
         setEditContent("");
       },
       onError: (error: any) => {
-        toast.error(error.message || "Error al actualizar comentario");
+        toast.error(error.message || t('toast.updateError'));
       }
     });
   };
 
   const handleDeleteComment = (commentId: string | number) => {
-    if (confirm("¿Estás seguro de eliminar este comentario?")) {
+    if (confirm(t('confirmDelete'))) {
       deleteComment.mutate(String(commentId), {
         onSuccess: () => {
-          toast.success("Comentario eliminado");
+          toast.success(t('toast.deleted'));
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al eliminar comentario");
+          toast.error(error.message || t('toast.deleteError'));
         }
       });
     }
@@ -119,7 +122,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
 
   const formatTimestamp = (date: Date | string) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
-    return formatDistanceToNow(dateObj, { addSuffix: true, locale: es });
+    return formatDistanceToNow(dateObj, { addSuffix: true, locale: locale === 'es' ? es : enUS });
   };
 
   return (
@@ -127,7 +130,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          Comentarios {comments.length > 0 && `(${comments.length})`}
+          {t('title')} {comments.length > 0 && `(${comments.length})`}
         </h3>
       </div>
 
@@ -159,7 +162,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
                     <p className="text-xs text-muted-foreground">
                       {formatTimestamp(comment.createdAt)}
                       {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                        <span className="ml-1">(editado)</span>
+                        <span className="ml-1">{t('edited')}</span>
                       )}
                     </p>
                   </div>
@@ -175,14 +178,14 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleStartEdit(comment)}>
                           <Edit2 className="mr-2 h-3 w-3" />
-                          Editar
+                          {t('actions.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDeleteComment(comment.id)}
                           className="text-destructive"
                         >
                           <Trash2 className="mr-2 h-3 w-3" />
-                          Eliminar
+                          {t('actions.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -204,10 +207,10 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
                         onClick={() => handleUpdateComment(comment.id)}
                         disabled={!editContent.trim() || updateComment.isPending}
                       >
-                        {updateComment.isPending ? "Guardando..." : "Guardar"}
+                        {updateComment.isPending ? t('actions.saving') : t('actions.save')}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                        Cancelar
+                        {t('actions.cancel')}
                       </Button>
                     </div>
                   </div>
@@ -222,7 +225,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
         {/* Empty State */}
         {comments.length === 0 && (
           <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
-            No hay comentarios aún. Sé el primero en comentar.
+            {t('empty')}
           </div>
         )}
       </div>
@@ -232,7 +235,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Escribe un comentario..."
+          placeholder={t('placeholder')}
           className="min-h-[100px] resize-none"
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -242,7 +245,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
         />
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            Presiona Cmd/Ctrl + Enter para enviar
+            {t('shortcut')}
           </p>
           <Button
             onClick={handleCreateComment}
@@ -250,7 +253,7 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
             size="sm"
           >
             <Send className="mr-2 h-4 w-4" />
-            {createComment.isPending ? "Enviando..." : "Comentar"}
+            {createComment.isPending ? t('actions.sending') : t('actions.send')}
           </Button>
         </div>
       </div>

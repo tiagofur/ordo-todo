@@ -20,7 +20,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 @Controller('comments')
 @UseGuards(JwtAuthGuard)
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(private readonly commentsService: CommentsService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -29,6 +29,11 @@ export class CommentsController {
     @CurrentUser() user: RequestUser,
   ) {
     return this.commentsService.create(createCommentDto, user.id);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.commentsService.findOne(id);
   }
 
   @Put(':id')

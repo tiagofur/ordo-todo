@@ -15,6 +15,7 @@ import {
 } from "@/data/hooks/use-keyboard-shortcuts.hook";
 import { ConnectionStatus } from "@/components/shared/connection-status";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 
 interface PWAContextType {
   isInstallable: boolean;
@@ -35,14 +36,14 @@ export function PWAProvider({ children }: { children: ReactNode }) {
   // Handle PWA install prompt
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
-      console.log("[PWA] Before install prompt fired");
+      logger.log("[PWA] Before install prompt fired");
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
     };
 
     const handleAppInstalled = () => {
-      console.log("[PWA] App installed");
+      logger.log("[PWA] App installed");
       setIsInstalled(true);
       setIsInstallable(false);
       toast.success("App Installed!", {
@@ -129,7 +130,7 @@ export function PWAProvider({ children }: { children: ReactNode }) {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
 
-    console.log("[PWA] Install outcome:", outcome);
+    logger.log("[PWA] Install outcome:", outcome);
     setDeferredPrompt(null);
     setIsInstallable(false);
 

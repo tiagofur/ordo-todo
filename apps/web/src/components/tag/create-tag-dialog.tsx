@@ -15,14 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-
-const createTagSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido"),
-  color: z.string().optional(),
-  workspaceId: z.string().min(1, "Workspace es requerido"),
-});
-
-type CreateTagForm = z.infer<typeof createTagSchema>;
+import { useTranslations } from "next-intl";
 
 interface CreateTagDialogProps {
   open: boolean;
@@ -45,7 +38,16 @@ const tagColors = [
 ];
 
 export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: CreateTagDialogProps) {
+  const t = useTranslations('CreateTagDialog');
   const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || tagColors[0]);
+
+  const createTagSchema = z.object({
+    name: z.string().min(1, t('form.name.required')),
+    color: z.string().optional(),
+    workspaceId: z.string().min(1, "Workspace es requerido"), // This is internal, maybe no need to translate error
+  });
+
+  type CreateTagForm = z.infer<typeof createTagSchema>;
 
   const {
     register,
@@ -92,23 +94,23 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
     if (tagToEdit) {
       updateTag.mutate({ tagId: tagToEdit.id, data: payload }, {
         onSuccess: () => {
-          toast.success("Etiqueta actualizada");
+          toast.success(t('toast.updated'));
           reset();
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al actualizar etiqueta");
+          toast.error(error.message || t('toast.updateError'));
         }
       });
     } else {
       createTag.mutate(payload, {
         onSuccess: () => {
-          toast.success("Etiqueta creada exitosamente");
+          toast.success(t('toast.created'));
           reset();
           onOpenChange(false);
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al crear etiqueta");
+          toast.error(error.message || t('toast.createError'));
         }
       });
     }
@@ -118,16 +120,16 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
-          <DialogTitle>{tagToEdit ? "Editar Etiqueta" : "Crear Etiqueta"}</DialogTitle>
+          <DialogTitle>{tagToEdit ? t('title.edit') : t('title.create')}</DialogTitle>
           <DialogDescription>
-            {tagToEdit ? "Modifica los detalles de la etiqueta" : "Organiza tus tareas con etiquetas personalizadas"}
+            {tagToEdit ? t('description.edit') : t('description.create')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Color Picker */}
           <div className="space-y-2">
-            <Label>Color</Label>
+            <Label>{t('form.color.label')}</Label>
             <div className="flex flex-wrap gap-2">
               {tagColors.map((color) => (
                 <button
@@ -145,12 +147,12 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
 
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Nombre *</Label>
+            <Label htmlFor="name">{t('form.name.label')}</Label>
             <input
               id="name"
               {...register("name")}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="Ej: Urgente, Personal, Trabajo..."
+              placeholder={t('form.name.placeholder')}
               autoFocus
             />
             {errors.name && (
@@ -160,7 +162,7 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
 
           {/* Preview */}
           <div className="space-y-2">
-            <Label>Vista previa</Label>
+            <Label>{t('form.preview.label')}</Label>
             <div className="flex items-center gap-2">
               <span
                 className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
@@ -169,7 +171,7 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
                   color: selectedColor,
                 }}
               >
-                {watchedName || "Etiqueta"}
+                {watchedName || t('form.preview.default')}
               </span>
             </div>
           </div>
@@ -183,7 +185,7 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
               onClick={() => onOpenChange(false)}
               className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
             >
-              Cancelar
+              {t('actions.cancel')}
             </button>
             <button
               type="submit"
@@ -191,8 +193,8 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {tagToEdit 
-                ? (updateTag.isPending ? "Guardando..." : "Guardar Cambios") 
-                : (createTag.isPending ? "Creando..." : "Crear Etiqueta")
+                ? (updateTag.isPending ? t('actions.saving') : t('actions.save')) 
+                : (createTag.isPending ? t('actions.creating') : t('actions.create'))
               }
             </button>
           </DialogFooter>

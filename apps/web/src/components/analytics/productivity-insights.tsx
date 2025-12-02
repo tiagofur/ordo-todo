@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Brain, Clock, TrendingUp, Lightbulb, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 export function ProductivityInsights() {
+  const t = useTranslations('ProductivityInsights');
   const { data: schedule, isLoading } = useOptimalSchedule({ topN: 5 });
 
   if (isLoading) {
@@ -15,10 +17,10 @@ export function ProductivityInsights() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            Productivity Insights
+            {t('title')}
           </CardTitle>
           <CardDescription>
-            AI-powered recommendations based on your work patterns
+            {t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -39,17 +41,17 @@ export function ProductivityInsights() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            Productivity Insights
+            {t('title')}
           </CardTitle>
           <CardDescription>
-            AI-powered recommendations based on your work patterns
+            {t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Lightbulb className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              Start tracking your work sessions to get personalized productivity insights!
+              {t('empty')}
             </p>
           </div>
         </CardContent>
@@ -74,10 +76,10 @@ export function ProductivityInsights() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Brain className="h-5 w-5" />
-          Productivity Insights
+          {t('title')}
         </CardTitle>
         <CardDescription>
-          AI-powered recommendations based on your work patterns
+          {t('description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -94,10 +96,10 @@ export function ProductivityInsights() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <h4 className="font-semibold text-sm">Your Peak Hours</h4>
+              <h4 className="font-semibold text-sm">{t('peakHours.title')}</h4>
             </div>
             <div className="flex flex-wrap gap-2">
-              {schedule.peakHours.map((hour) => (
+              {schedule.peakHours.map((hour: any) => (
                 <Badge
                   key={hour.hour}
                   variant={getScoreBadgeVariant(hour.score)}
@@ -112,7 +114,7 @@ export function ProductivityInsights() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              Schedule your most important tasks during these hours for optimal productivity.
+              {t('peakHours.description')}
             </p>
           </div>
         )}
@@ -122,10 +124,10 @@ export function ProductivityInsights() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <h4 className="font-semibold text-sm">Your Most Productive Days</h4>
+              <h4 className="font-semibold text-sm">{t('peakDays.title')}</h4>
             </div>
             <div className="flex flex-wrap gap-2">
-              {schedule.peakDays.map((day) => (
+              {schedule.peakDays.map((day: any) => (
                 <Badge
                   key={day.day}
                   variant={getScoreBadgeVariant(day.score)}
@@ -140,7 +142,7 @@ export function ProductivityInsights() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              You tend to be more focused and productive on these days of the week.
+              {t('peakDays.description')}
             </p>
           </div>
         )}
@@ -148,7 +150,7 @@ export function ProductivityInsights() {
         {/* Pro Tip */}
         <div className="border-t pt-4">
           <p className="text-xs text-muted-foreground italic">
-            💡 Tip: The AI learns from your work patterns over time. Keep using the timer to get more accurate insights!
+            {t('tip')}
           </p>
         </div>
       </CardContent>

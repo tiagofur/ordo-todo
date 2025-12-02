@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { useGenerateWeeklyReport } from "@/lib/api-hooks";
+import { useTranslations } from "next-intl";
 
 interface GenerateReportDialogProps {
   onSuccess?: (report: any) => void;
@@ -19,12 +20,13 @@ interface GenerateReportDialogProps {
 }
 
 export function GenerateReportDialog({ onSuccess, trigger }: GenerateReportDialogProps) {
+  const t = useTranslations('GenerateReportDialog');
   const [open, setOpen] = useState(false);
   const generateReport = useGenerateWeeklyReport();
 
   const handleGenerate = async () => {
     try {
-      const result = await generateReport.mutateAsync();
+      const result = await generateReport.mutateAsync(undefined);
       if (onSuccess) {
         onSuccess(result);
       }
@@ -49,7 +51,7 @@ export function GenerateReportDialog({ onSuccess, trigger }: GenerateReportDialo
         {trigger || (
           <Button className="gap-2">
             <Sparkles className="h-4 w-4" />
-            Generar Reporte con IA
+            {t('trigger')}
           </Button>
         )}
       </DialogTrigger>
@@ -57,61 +59,61 @@ export function GenerateReportDialog({ onSuccess, trigger }: GenerateReportDialo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Generar Reporte de Productividad
+            {t('title')}
           </DialogTitle>
           <DialogDescription>
-            La IA analizará tu productividad de la última semana y generará un reporte detallado con insights y recomendaciones.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {!generateReport.isLoading && !generateReport.isSuccess && (
+          {!generateReport.isPending && !generateReport.isSuccess && (
             <>
               <div className="space-y-3 text-sm text-muted-foreground">
-                <p>El reporte incluirá:</p>
+                <p>{t('includes.title')}</p>
                 <ul className="space-y-2 ml-4">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>Análisis de tus métricas semanales</span>
+                    <span>{t('includes.metrics')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>Identificación de fortalezas y áreas de mejora</span>
+                    <span>{t('includes.strengths')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>Recomendaciones personalizadas</span>
+                    <span>{t('includes.recommendations')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>Patrones de productividad detectados</span>
+                    <span>{t('includes.patterns')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>Score de productividad general</span>
+                    <span>{t('includes.score')}</span>
                   </li>
                 </ul>
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={handleClose}>
-                  Cancelar
+                  {t('buttons.cancel')}
                 </Button>
                 <Button onClick={handleGenerate} className="gap-2">
                   <Sparkles className="h-4 w-4" />
-                  Generar Reporte
+                  {t('buttons.generate')}
                 </Button>
               </div>
             </>
           )}
 
-          {generateReport.isLoading && (
+          {generateReport.isPending && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
               <div className="text-center space-y-2">
-                <p className="font-medium">Generando tu reporte...</p>
+                <p className="font-medium">{t('loading.title')}</p>
                 <p className="text-sm text-muted-foreground">
-                  La IA está analizando tus datos de productividad. Esto puede tomar unos segundos.
+                  {t('loading.description')}
                 </p>
               </div>
             </div>
@@ -123,9 +125,9 @@ export function GenerateReportDialog({ onSuccess, trigger }: GenerateReportDialo
                 <CheckCircle2 className="h-10 w-10 text-green-600" />
               </div>
               <div className="text-center space-y-2">
-                <p className="font-medium text-green-600">¡Reporte generado exitosamente!</p>
+                <p className="font-medium text-green-600">{t('success.title')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Tu reporte de productividad está listo.
+                  {t('success.description')}
                 </p>
               </div>
             </div>
@@ -134,14 +136,14 @@ export function GenerateReportDialog({ onSuccess, trigger }: GenerateReportDialo
           {generateReport.isError && (
             <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-800 p-4">
               <p className="text-sm text-red-800 dark:text-red-200">
-                Hubo un error al generar el reporte. Por favor, intenta nuevamente.
+                {t('error')}
               </p>
               <div className="flex justify-end gap-2 mt-4">
                 <Button variant="outline" onClick={handleClose}>
-                  Cerrar
+                  {t('buttons.close')}
                 </Button>
                 <Button onClick={handleGenerate} variant="destructive" className="gap-2">
-                  Reintentar
+                  {t('buttons.retry')}
                 </Button>
               </div>
             </div>

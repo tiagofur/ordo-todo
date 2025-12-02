@@ -18,16 +18,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase, Check, Palette } from "lucide-react";
-
-const createProjectSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido"),
-  description: z.string().optional(),
-  color: z.string().optional(),
-  workspaceId: z.string().min(1, "Workspace es requerido"),
-  workflowId: z.string().optional(),
-});
-
-type CreateProjectForm = z.infer<typeof createProjectSchema>;
+import { useTranslations } from "next-intl";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -46,6 +37,7 @@ const projectColors = [
 ];
 
 export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateProjectDialogProps) {
+  const t = useTranslations('CreateProjectDialog');
   const queryClient = useQueryClient();
   const [selectedColor, setSelectedColor] = useState(projectColors[3]);
 
@@ -53,6 +45,16 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
 
   // Fetch workspaces if not provided (to check if any exist)
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useWorkspaces();
+
+  const createProjectSchema = z.object({
+    name: z.string().min(1, t('validation.nameRequired')),
+    description: z.string().optional(),
+    color: z.string().optional(),
+    workspaceId: z.string().min(1, t('validation.workspaceRequired')),
+    workflowId: z.string().optional(),
+  });
+
+  type CreateProjectForm = z.infer<typeof createProjectSchema>;
 
   const {
     register,
@@ -133,11 +135,11 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
         color: selectedColor,
       });
 
-      toast.success("Proyecto creado exitosamente");
+      toast.success(t('toast.success'));
       reset();
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Error al crear proyecto");
+      toast.error(error?.response?.data?.message || t('toast.error'));
     }
   };
 
@@ -149,22 +151,22 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
         <div className="p-6 space-y-6">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">
-              Crear Proyecto
+              {t('title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Organiza tus tareas en proyectos dentro de un flujo de trabajo
+              {t('description')}
             </DialogDescription>
           </DialogHeader>
 
           {showEmptyState ? (
              <EmptyState
              icon={Briefcase}
-             title="No hay espacios de trabajo"
-             description="Para crear un proyecto, primero necesitas un espacio de trabajo (Workspace)."
-             actionLabel="Crear Workspace"
+             title={t('emptyState.title')}
+             description={t('emptyState.description')}
+             actionLabel={t('emptyState.action')}
              onAction={() => {
                  onOpenChange(false);
-                 toast.info("Por favor crea un workspace desde la barra lateral");
+                 toast.info(t('toast.createWorkspace'));
              }}
            />
           ) : (
@@ -172,7 +174,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
               {/* Color Picker */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Palette className="w-4 h-4" /> Color del Proyecto
+                  <Palette className="w-4 h-4" /> {t('form.color')}
                 </Label>
                 <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
                   {projectColors.map((color) => (
@@ -197,12 +199,12 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
 
               {/* Name */}
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-foreground">Nombre *</Label>
+                <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('form.name')}</Label>
                 <input
                   id="name"
                   {...register("name")}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="Ej: Rediseño Web, Marketing Q4"
+                  placeholder={t('form.namePlaceholder')}
                 />
                 {errors.name && (
                   <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -212,7 +214,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
               {/* Workspace Selection (if not provided) */}
               {!workspaceId && (
                  <div className="space-y-2">
-                 <Label htmlFor="workspaceId" className="text-sm font-medium text-foreground">Workspace *</Label>
+                 <Label htmlFor="workspaceId" className="text-sm font-medium text-foreground">{t('form.workspace')}</Label>
                  <select
                    id="workspaceId"
                    {...register("workspaceId")}
@@ -232,12 +234,12 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium text-foreground">Descripción</Label>
+                <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
                 <textarea
                   id="description"
                   {...register("description")}
                   className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                  placeholder="Descripción opcional del proyecto..."
+                  placeholder={t('form.descriptionPlaceholder')}
                 />
               </div>
 
@@ -250,14 +252,14 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                   onClick={() => onOpenChange(false)}
                   className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Cancelar
+                  {t('buttons.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={createProjectMutation.isPending}
                   className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
                 >
-                  {createProjectMutation.isPending ? "Creando..." : "Crear Proyecto"}
+                  {createProjectMutation.isPending ? t('buttons.creating') : t('buttons.create')}
                 </button>
               </DialogFooter>
             </form>

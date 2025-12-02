@@ -10,13 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TaskDetailPanel } from "./task-detail-panel";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 interface TaskCardProps {
   task: {
@@ -32,16 +33,18 @@ interface TaskCardProps {
   index?: number;
 }
 
-const priorityConfig = {
-  LOW: { label: "Baja", color: "text-gray-500" },
-  MEDIUM: { label: "Media", color: "text-blue-500" },
-  HIGH: { label: "Alta", color: "text-orange-500" },
-  URGENT: { label: "Urgente", color: "text-red-500" },
-};
-
 export function TaskCard({ task, index = 0 }: TaskCardProps) {
+  const t = useTranslations('TaskCard');
   const [showDetail, setShowDetail] = useState(false);
   const isCompleted = task.status === "COMPLETED";
+  
+  const priorityConfig = {
+    LOW: { label: t('priority.LOW'), color: "text-gray-500" },
+    MEDIUM: { label: t('priority.MEDIUM'), color: "text-blue-500" },
+    HIGH: { label: t('priority.HIGH'), color: "text-orange-500" },
+    URGENT: { label: t('priority.URGENT'), color: "text-red-500" },
+  };
+
   const priority = priorityConfig[task.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
   
   // Use project color if available, otherwise fallback to purple
@@ -104,12 +107,12 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
               <DropdownMenuContent align="end" className="w-48">
                  <DropdownMenuItem onClick={(e) => {e.stopPropagation(); setShowDetail(true);}}>
                   <Edit className="mr-2 h-4 w-4" />
-                  Ver/Editar
+                  {t('actions.viewEdit')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* Add delete handler */ }} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Eliminar
+                  {t('actions.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -155,7 +158,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
               </div>
               {isCompleted && (
                  <div className="text-xs font-medium px-2 py-1 rounded-full bg-green-500/10 text-green-500">
-                    Completada
+                    {t('status.completed')}
                  </div>
               )}
             </div>

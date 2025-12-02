@@ -6,6 +6,7 @@ import { CheckCircle2, XCircle, Lightbulb, TrendingUp, Calendar, Sparkles } from
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { FocusScoreGauge } from "@/components/analytics/focus-score-gauge";
+import { useTranslations } from "next-intl";
 
 interface ReportDetailProps {
   report: {
@@ -31,20 +32,23 @@ interface ReportDetailProps {
 }
 
 export function ReportDetail({ report }: ReportDetailProps) {
+  const t = useTranslations('ReportDetail');
+  const tCard = useTranslations('ReportCard'); // Reuse scope labels
+
   const getScopeLabel = (scope: string): string => {
     switch (scope) {
       case "TASK_COMPLETION":
-        return "Tarea Completada";
+        return tCard('scopes.TASK_COMPLETION');
       case "WEEKLY_SCHEDULED":
-        return "Reporte Semanal";
+        return tCard('scopes.WEEKLY_SCHEDULED');
       case "MONTHLY_SCHEDULED":
-        return "Reporte Mensual";
+        return tCard('scopes.MONTHLY_SCHEDULED');
       case "PROJECT_SUMMARY":
-        return "Resumen de Proyecto";
+        return tCard('scopes.PROJECT_SUMMARY');
       case "PERSONAL_ANALYSIS":
-        return "Análisis Personal";
+        return tCard('scopes.PERSONAL_ANALYSIS');
       default:
-        return "Reporte";
+        return tCard('scopes.default');
     }
   };
 
@@ -75,11 +79,11 @@ export function ReportDetail({ report }: ReportDetailProps) {
               </div>
               <CardDescription className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Generado el {formatDate(report.generatedAt)}
+                {t('generatedOn')} {formatDate(report.generatedAt)}
               </CardDescription>
               {report.aiModel && (
                 <Badge variant="outline" className="text-xs">
-                  Powered by {report.aiModel}
+                  {t('poweredBy', { model: report.aiModel })}
                 </Badge>
               )}
             </div>
@@ -87,7 +91,6 @@ export function ReportDetail({ report }: ReportDetailProps) {
               <FocusScoreGauge
                 score={report.productivityScore / 100}
                 label="Score"
-                size="sm"
               />
             </div>
           </div>
@@ -97,7 +100,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
       {/* Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Resumen</CardTitle>
+          <CardTitle className="text-lg">{t('summary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -114,31 +117,31 @@ export function ReportDetail({ report }: ReportDetailProps) {
       {report.metricsSnapshot && Object.keys(report.metricsSnapshot).length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Métricas del Período</CardTitle>
+            <CardTitle className="text-lg">{t('metrics.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {report.metricsSnapshot.tasksCompleted !== undefined && (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Tareas Completadas</p>
+                  <p className="text-sm text-muted-foreground">{t('metrics.tasksCompleted')}</p>
                   <p className="text-2xl font-bold">{report.metricsSnapshot.tasksCompleted}</p>
                 </div>
               )}
               {report.metricsSnapshot.minutesWorked !== undefined && (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Tiempo Trabajado</p>
+                  <p className="text-sm text-muted-foreground">{t('metrics.timeWorked')}</p>
                   <p className="text-2xl font-bold">{formatTime(report.metricsSnapshot.minutesWorked)}</p>
                 </div>
               )}
               {report.metricsSnapshot.pomodorosCompleted !== undefined && (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Pomodoros</p>
+                  <p className="text-sm text-muted-foreground">{t('metrics.pomodoros')}</p>
                   <p className="text-2xl font-bold">{report.metricsSnapshot.pomodorosCompleted}</p>
                 </div>
               )}
               {report.metricsSnapshot.focusScore !== undefined && (
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Focus Score</p>
+                  <p className="text-sm text-muted-foreground">{t('metrics.focusScore')}</p>
                   <p className="text-2xl font-bold">{Math.round(report.metricsSnapshot.focusScore * 100)}%</p>
                 </div>
               )}
@@ -154,7 +157,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
-                Fortalezas
+                {t('strengths')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -176,7 +179,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <XCircle className="h-5 w-5 text-red-600" />
-                Áreas de Mejora
+                {t('weaknesses')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -199,7 +202,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-primary" />
-              Recomendaciones
+              {t('recommendations')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -223,7 +226,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-blue-600" />
-              Patrones Detectados
+              {t('patterns')}
             </CardTitle>
           </CardHeader>
           <CardContent>

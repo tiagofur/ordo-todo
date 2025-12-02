@@ -2,12 +2,13 @@
 
 import { Clock, Play, Pause } from "lucide-react";
 import { useTimer } from "@/components/providers/timer-provider";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export function TimerWidget() {
+  const t = useTranslations('TimerWidget');
   const pathname = usePathname();
   const isActive = pathname === "/timer";
   const { isRunning, timeLeft, formatTime } = useTimer();
@@ -41,7 +42,7 @@ export function TimerWidget() {
               {formatTime(timeLeft)}
             </div>
           ) : (
-            <span>Iniciar timer</span>
+            <span>{t('startTimer')}</span>
           )}
         </div>
       </Link>

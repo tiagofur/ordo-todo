@@ -3,11 +3,8 @@
 import { useState } from "react";
 import { Play, Pause, Square, SkipForward, RefreshCw, Timer } from "lucide-react";
 import { useTimer } from "@/components/providers/timer-provider";
-import { toast } from "sonner";
 import { TaskSelector } from "./task-selector";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 export function PomodoroTimer() {
+  const t = useTranslations('PomodoroTimer');
   const { 
     config, 
     isLoaded,
@@ -41,15 +40,15 @@ export function PomodoroTimer() {
   const [showSwitchDialog, setShowSwitchDialog] = useState(false);
 
   const accentColor = config.defaultMode === "POMODORO" ? "#ef4444" : "#3b82f6";
-  const modeLabel = config.defaultMode === "POMODORO" ? "Pomodoro" : "Tiempo Corrido";
+  const modeLabel = config.defaultMode === "POMODORO" ? t('modes.pomodoro') : t('modes.continuous');
 
   const getModeLabel = () => {
     if (config.defaultMode === "CONTINUOUS") {
-      return "Cronómetro";
+      return t('modes.stopwatch');
     }
-    if (mode === "WORK") return `Pomodoro #${Math.floor((activeSession?.duration ?? 0) / config.workDuration) + 1}`;
-    if (mode === "SHORT_BREAK") return "Descanso Corto";
-    if (mode === "LONG_BREAK") return "Descanso Largo";
+    if (mode === "WORK") return t('modes.pomodoroCount', { count: Math.floor((activeSession?.duration ?? 0) / config.workDuration) + 1 });
+    if (mode === "SHORT_BREAK") return t('modes.shortBreak');
+    if (mode === "LONG_BREAK") return t('modes.longBreak');
     return "";
   };
 
@@ -73,7 +72,7 @@ export function PomodoroTimer() {
         <div className="flex items-center justify-center gap-2 mb-2">
           <Timer className="w-5 h-5" style={{ color: accentColor }} />
           <span className="text-sm font-medium text-muted-foreground">
-            Modo: {modeLabel}
+            {t('mode', { mode: modeLabel })}
           </span>
         </div>
 
@@ -103,7 +102,7 @@ export function PomodoroTimer() {
             animate={{ opacity: 1, scale: 1 }}
             className="mt-3 text-xs text-muted-foreground flex items-center justify-center gap-3"
           >
-            <span>Pausas: {pauseCount}</span>
+            <span>{t('pauses', { count: pauseCount })}</span>
           </motion.div>
         )}
       </div>
@@ -138,7 +137,7 @@ export function PomodoroTimer() {
           </h1>
           {isPaused && (
             <span className="text-sm text-muted-foreground animate-pulse">
-              En pausa
+              {t('paused')}
             </span>
           )}
         </div>
@@ -190,7 +189,7 @@ export function PomodoroTimer() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowSwitchDialog(true)}
               className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground"
-              title="Cambiar de tarea"
+              title={t('switchTask.buttonTitle')}
             >
               <RefreshCw className="h-6 w-6" />
             </motion.button>
@@ -202,10 +201,9 @@ export function PomodoroTimer() {
       <Dialog open={showSwitchDialog} onOpenChange={setShowSwitchDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Cambiar de Tarea</DialogTitle>
+            <DialogTitle>{t('switchTask.title')}</DialogTitle>
             <DialogDescription>
-              El tiempo trabajado en la tarea actual se guardará como completado.
-              Selecciona la nueva tarea para continuar.
+              {t('switchTask.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">

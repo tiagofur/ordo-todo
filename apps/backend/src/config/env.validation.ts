@@ -7,6 +7,7 @@ import {
   Max,
   MinLength,
   validateSync,
+  IsOptional,
 } from 'class-validator';
 
 enum Environment {
@@ -42,6 +43,14 @@ export class EnvironmentVariables {
 
   @IsString()
   CORS_ORIGINS: string;
+
+  @IsString()
+  @IsOptional()
+  GEMINI_API_KEY?: string;
+
+  @IsEnum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'])
+  @IsOptional()
+  LOG_LEVEL?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

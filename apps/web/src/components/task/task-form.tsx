@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function TaskForm({ projectId }: { projectId?: string }) {
+  const t = useTranslations('TaskForm');
   const [title, setTitle] = useState("");
 
   const createTask = useCreateTask();
@@ -15,16 +17,16 @@ export function TaskForm({ projectId }: { projectId?: string }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !projectId) {
-        if (!projectId) toast.error("Project ID is required");
+        if (!projectId) toast.error(t('toast.projectIdRequired'));
         return;
     }
     createTask.mutate({ title, projectId }, {
       onSuccess: () => {
         setTitle("");
-        toast.success("Task created!");
+        toast.success(t('toast.success'));
       },
       onError: (error: any) => {
-        toast.error(`Error: ${error.message}`);
+        toast.error(t('toast.error', { message: error.message }));
       }
     });
   };
@@ -32,18 +34,18 @@ export function TaskForm({ projectId }: { projectId?: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex gap-2 items-end">
       <div className="grid w-full max-w-sm items-center gap-1.5">
-        <Label htmlFor="title">New Task</Label>
+        <Label htmlFor="title">{t('label')}</Label>
         <Input
           type="text"
           id="title"
-          placeholder="What needs to be done?"
+          placeholder={t('placeholder')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={createTask.isPending}
         />
       </div>
       <Button type="submit" disabled={createTask.isPending}>
-        {createTask.isPending ? "Adding..." : "Add"}
+        {createTask.isPending ? t('button.adding') : t('button.add')}
       </Button>
     </form>
   );

@@ -7,6 +7,7 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { WorkspaceSettingsDialog } from "./workspace-settings-dialog";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceInfoBarProps {
   onCreateProject?: () => void;
@@ -14,6 +15,7 @@ interface WorkspaceInfoBarProps {
 }
 
 export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceInfoBarProps) {
+  const t = useTranslations('WorkspaceInfoBar');
   const { selectedWorkspaceId } = useWorkspaceStore();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -104,12 +106,13 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
                   getTypeBadgeColor(workspace.type)
                 )}
               >
-                {workspace.type}
+                {/* @ts-ignore */}
+                {t(`types.${workspace.type}`)}
               </span>
               {workspace.type === "TEAM" && (
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                   <Users className="h-3 w-3" />
-                  Team
+                  {t('team')}
                 </span>
               )}
             </div>
@@ -125,13 +128,13 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
               <div className="flex items-center gap-2 text-muted-foreground">
                 <div className="h-2 w-2 rounded-full bg-primary/50" />
                 <span className="font-medium text-foreground">{projectCount}</span>
-                {projectCount === 1 ? "Proyecto" : "Proyectos"}
+                {t('stats.projects', { count: projectCount })}
               </div>
               
               <div className="flex items-center gap-2 text-muted-foreground">
                 <div className="h-2 w-2 rounded-full bg-orange-500/50" />
                 <span className="font-medium text-foreground">{activeTaskCount}</span>
-                {activeTaskCount === 1 ? "Tarea Activa" : "Tareas Activas"}
+                {t('stats.activeTasks', { count: activeTaskCount })}
               </div>
 
               {taskCount > activeTaskCount && (
@@ -140,7 +143,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
                   <span className="font-medium text-foreground">
                     {taskCount - activeTaskCount}
                   </span>
-                  Completadas
+                  {t('stats.completed')}
                 </div>
               )}
             </div>
@@ -160,7 +163,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
               }}
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Nuevo Proyecto</span>
+              <span className="hidden sm:inline">{t('actions.newProject')}</span>
             </Button>
           )}
 
@@ -172,7 +175,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
               className="gap-2"
             >
               <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Configuración</span>
+              <span className="hidden sm:inline">{t('actions.settings')}</span>
             </Button>
           )}
 

@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class MigrationService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(MigrationService.name);
+
+  constructor(private readonly prisma: PrismaService) { }
 
   async fixCompletedField() {
     try {
-      console.log('🔧 Fixing completed field for existing projects...');
+      this.logger.log('Fixing completed field for existing projects...');
 
       const result = await this.prisma.$executeRaw`
         UPDATE "Project" 
@@ -15,11 +17,11 @@ export class MigrationService {
         WHERE completed IS NULL
       `;
 
-      console.log(`✅ Updated ${result} projects`);
+      this.logger.log(`Updated ${result} projects`);
 
       return { success: true, updated: result };
     } catch (error) {
-      console.error('❌ Error fixing completed field:', error);
+      this.logger.error('Error fixing completed field:', error);
       throw error;
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { toast as sonnerToast } from "sonner";
+import { notify } from "@/lib/notify";
 
 type ToastVariant = "success" | "default" | "error";
 
@@ -12,36 +12,19 @@ function useToast() {
     variant?: ToastVariant;
   }) => {
     const { message, description, variant = "default" } = props;
+    const descString = typeof description === 'string' ? description : undefined;
 
-    const variantStyles = {
-      success: {
-        style: {
-          backgroundColor: "oklch(62.7% 0.194 149.214)",
-          color: "white",
-        },
-        icon: "✔️",
-      },
-      default: {
-        style: {
-          backgroundColor: "oklch(58.8% 0.158 241.966)",
-          color: "white",
-        },
-        icon: "ℹ️",
-      },
-      error: {
-        style: { backgroundColor: "oklch(63.7% 0.237 25.331)", color: "white" },
-        icon: "⚠️",
-      },
-    };
-
-    const { style, icon } = variantStyles[variant];
-
-    sonnerToast(`${icon} ${message}`, {
-      description,
-      style: {
-        ...style,
-      },
-    });
+    switch (variant) {
+      case "success":
+        notify.success(message, descString);
+        break;
+      case "error":
+        notify.error(message, descString);
+        break;
+      default:
+        notify.info(message, descString);
+        break;
+    }
   };
 
   return {

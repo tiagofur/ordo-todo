@@ -18,7 +18,7 @@ interface CreateActivityData {
 export class ActivitiesService {
   private readonly logger = new Logger(ActivitiesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async createActivity(data: CreateActivityData): Promise<void> {
     try {
@@ -107,11 +107,12 @@ export class ActivitiesService {
     });
   }
 
-  async logCommentAdded(taskId: string, userId: string): Promise<void> {
+  async logCommentAdded(taskId: string, userId: string, mentions?: string[]): Promise<void> {
     await this.createActivity({
       taskId,
       userId,
       type: ActivityType.COMMENT_ADDED,
+      metadata: mentions && mentions.length > 0 ? { itemName: mentions.join(', ') } : undefined,
     });
   }
 

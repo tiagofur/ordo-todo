@@ -129,12 +129,17 @@ self.addEventListener("push", (event) => {
     body: data.body || "You have a new notification",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
+    image: data.image, // Support for large images
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
       primaryKey: 1,
+      url: data.url || '/', // Ensure URL is stored in data
       ...data,
     },
+    tag: data.tag || 'ordo-notification', // Group notifications
+    renotify: true, // Vibrate even if tag is same
+    requireInteraction: true, // Keep notification until user interacts
     actions: [
       {
         action: "view",

@@ -4,12 +4,16 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { ActivitiesService } from '../activities/activities.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activitiesService: ActivitiesService,
+  ) { }
 
   async create(createCommentDto: CreateCommentDto, userId: string) {
     const comment = await this.prisma.comment.create({
@@ -29,6 +33,17 @@ export class CommentsService {
         },
       },
     });
+
+    // Detect mentions
+    const mentions = this.detectMentions(createCommentDto.content);
+
+    // Log activity with mentions
+    await this.activitiesService.logCommentAdded(
+      createCommentDto.taskId,
+      userId,
+      mentions.length > 0 ? mentions : undefined,
+    );
+
     return comment;
   }
 
@@ -62,6 +77,10 @@ export class CommentsService {
         },
       },
     });
+
+    // Log activity
+    await this.activitiesService.logCommentEdited(comment.taskId, userId);
+
     return updatedComment;
   }
 
@@ -81,7 +100,33 @@ export class CommentsService {
     await this.prisma.comment.delete({
       where: { id },
     });
+
+    // Log activity
+    await this.activitiesService.logCommentDeleted(comment.taskId, userId);
+
     return { success: true };
+  }
+
+  async findOne(id: string) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    return comment;
   }
 
   async findByTask(taskId: string) {
@@ -102,5 +147,11 @@ export class CommentsService {
       },
     });
     return comments;
+  }
+
+  private detectMentions(content: string): string[] {
+    const mentionRegex = /@(\w+)/g;
+    const matches = content.match(mentionRegex);
+    return matches ? matches.map((m) => m.substring(1)) : [];
   }
 }

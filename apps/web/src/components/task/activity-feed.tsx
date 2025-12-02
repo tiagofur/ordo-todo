@@ -13,9 +13,10 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslations, useLocale } from "next-intl";
 
 interface Activity {
   id: string | number;
@@ -59,77 +60,62 @@ const ACTIVITY_CONFIG = {
   TASK_CREATED: {
     icon: Circle,
     color: "text-blue-500",
-    label: "creó la tarea",
   },
   TASK_UPDATED: {
     icon: Edit,
     color: "text-gray-500",
-    label: "actualizó la tarea",
   },
   TASK_COMPLETED: {
     icon: CheckCircle2,
     color: "text-green-500",
-    label: "completó la tarea",
   },
   TASK_DELETED: {
     icon: Trash2,
     color: "text-red-500",
-    label: "eliminó la tarea",
   },
   COMMENT_ADDED: {
     icon: MessageSquare,
     color: "text-purple-500",
-    label: "agregó un comentario",
   },
   COMMENT_EDITED: {
     icon: Edit,
     color: "text-gray-500",
-    label: "editó un comentario",
   },
   COMMENT_DELETED: {
     icon: Trash2,
     color: "text-red-500",
-    label: "eliminó un comentario",
   },
   ATTACHMENT_ADDED: {
     icon: Upload,
     color: "text-indigo-500",
-    label: "subió un archivo",
   },
   ATTACHMENT_DELETED: {
     icon: Trash2,
     color: "text-red-500",
-    label: "eliminó un archivo",
   },
   SUBTASK_ADDED: {
     icon: Circle,
     color: "text-blue-500",
-    label: "agregó una subtarea",
   },
   SUBTASK_COMPLETED: {
     icon: CheckCircle2,
     color: "text-green-500",
-    label: "completó una subtarea",
   },
   STATUS_CHANGED: {
     icon: Circle,
     color: "text-orange-500",
-    label: "cambió el estado",
   },
   PRIORITY_CHANGED: {
     icon: Flag,
     color: "text-yellow-500",
-    label: "cambió la prioridad",
   },
   ASSIGNEE_CHANGED: {
     icon: User,
     color: "text-cyan-500",
-    label: "cambió el asignado",
   },
   DUE_DATE_CHANGED: {
     icon: Calendar,
     color: "text-pink-500",
-    label: "cambió la fecha de vencimiento",
   },
 };
 
@@ -138,6 +124,9 @@ export function ActivityFeed({
   activities = [], 
   maxItems = 20 
 }: ActivityFeedProps) {
+  const t = useTranslations('ActivityFeed');
+  const locale = useLocale();
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -149,36 +138,39 @@ export function ActivityFeed({
 
   const formatTimestamp = (date: Date | string) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
-    return formatDistanceToNow(dateObj, { addSuffix: true, locale: es });
+    return formatDistanceToNow(dateObj, { addSuffix: true, locale: locale === 'es' ? es : enUS });
   };
 
   const getActivityDescription = (activity: Activity) => {
-    const config = ACTIVITY_CONFIG[activity.type];
-    let description = config.label;
+    // @ts-ignore
+    let description = t(`actions.${activity.type}`);
 
     if (activity.metadata) {
       const { oldValue, newValue, fieldName, itemName } = activity.metadata;
 
       switch (activity.type) {
         case "STATUS_CHANGED":
-          description += ` de "${oldValue}" a "${newValue}"`;
+          description += ` ${t('details.fromTo', { oldValue: String(oldValue || ''), newValue: String(newValue || '') })}`;
           break;
         case "PRIORITY_CHANGED":
-          description += ` de "${oldValue}" a "${newValue}"`;
+          description += ` ${t('details.fromTo', { oldValue: String(oldValue || ''), newValue: String(newValue || '') })}`;
           break;
         case "ASSIGNEE_CHANGED":
-          description += newValue ? ` a ${newValue}` : "";
+          description += newValue ? ` ${t('details.to', { newValue: String(newValue) })}` : "";
           break;
         case "DUE_DATE_CHANGED":
-          description += newValue ? ` a ${newValue}` : " (eliminada)";
+          description += newValue ? ` ${t('details.to', { newValue: String(newValue) })}` : ` ${t('details.removed')}`;
           break;
         case "ATTACHMENT_ADDED":
         case "ATTACHMENT_DELETED":
-          description += itemName ? `: ${itemName}` : "";
+          description += itemName ? t('details.item', { itemName: String(itemName) }) : "";
+          break;
+        case "COMMENT_ADDED":
+          description += itemName ? ` ${t('details.mentioned', { users: String(itemName) })}` : "";
           break;
         case "SUBTASK_ADDED":
         case "SUBTASK_COMPLETED":
-          description += itemName ? `: ${itemName}` : "";
+          description += itemName ? t('details.item', { itemName: String(itemName) }) : "";
           break;
       }
     }
@@ -197,11 +189,11 @@ export function ActivityFeed({
 
       let key: string;
       if (date.toDateString() === today.toDateString()) {
-        key = "Hoy";
+        key = t('dates.today');
       } else if (date.toDateString() === yesterday.toDateString()) {
-        key = "Ayer";
+        key = t('dates.yesterday');
       } else {
-        key = date.toLocaleDateString("es-ES", {
+        key = date.toLocaleDateString(locale === 'es' ? "es-ES" : "en-US", {
           day: "numeric",
           month: "long",
           year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
@@ -220,7 +212,7 @@ export function ActivityFeed({
   if (activities.length === 0) {
     return (
       <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
-        No hay actividad reciente.
+        {t('empty')}
       </div>
     );
   }
@@ -233,11 +225,11 @@ export function ActivityFeed({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          Actividad Reciente ({activities.length})
+          {t('title')} ({activities.length})
         </h3>
         {activities.length > maxItems && (
           <p className="text-xs text-muted-foreground">
-            Mostrando {maxItems} de {activities.length}
+            {t('showing', { count: maxItems, total: activities.length })}
           </p>
         )}
       </div>
@@ -319,7 +311,7 @@ export function ActivityFeed({
       {activities.length > maxItems && (
         <div className="text-center pt-2">
           <button className="text-sm text-primary hover:underline">
-            Ver toda la actividad ({activities.length - maxItems} más)
+            {t('showMore', { count: activities.length - maxItems })}
           </button>
         </div>
       )}

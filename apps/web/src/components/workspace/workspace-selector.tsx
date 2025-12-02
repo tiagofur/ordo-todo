@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceSelectorProps {
   onCreateClick?: () => void;
 }
 
 export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
+  const t = useTranslations('WorkspaceSelector');
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
 
   const { data: workspaces, isLoading } = useWorkspaces();
@@ -57,7 +59,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
         className="flex w-full items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm hover:bg-accent"
       >
         <Plus className="h-4 w-4" />
-        <span>Crear Workspace</span>
+        <span>{t('create')}</span>
       </button>
     );
   }
@@ -74,12 +76,12 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
           >
             {getWorkspaceInitial(selectedWorkspace?.name || "W")}
           </div>
-          <span className="flex-1 truncate text-left">{selectedWorkspace?.name || "Workspace"}</span>
+          <span className="flex-1 truncate text-left">{selectedWorkspace?.name || t('defaultName')}</span>
           <ChevronsUpDown className="h-4 w-4 opacity-50" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
-        <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('label')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {workspaces.map((workspace: any) => (
           <DropdownMenuItem
@@ -102,7 +104,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onCreateClick} className="gap-2">
           <Plus className="h-4 w-4" />
-          <span>Crear Workspace</span>
+          <span>{t('create')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

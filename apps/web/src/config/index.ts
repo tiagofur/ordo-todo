@@ -5,20 +5,22 @@
  * This ensures variables are read at build time and available throughout the app.
  */
 
+import { env } from '@/env';
+
 // API Configuration
 export const API_CONFIG = {
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3101/api/v1',
+    baseURL: env.NEXT_PUBLIC_API_URL,
 } as const;
 
 // Auth Configuration
 export const AUTH_CONFIG = {
-    nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3100',
-    nextAuthSecret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-this-in-production',
+    nextAuthUrl: env.NEXTAUTH_URL || 'http://localhost:3100',
+    nextAuthSecret: env.NEXTAUTH_SECRET || 'your-secret-key-change-this-in-production',
 } as const;
 
 // Database Configuration (server-side only)
 export const DB_CONFIG = {
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl: env.DATABASE_URL,
 } as const;
 
 // Export all configs

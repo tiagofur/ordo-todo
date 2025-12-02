@@ -156,6 +156,36 @@ web/
 - **Implementation Status**: Check `IMPLEMENTATION_STATUS.md`
 - **Technical Design**: Review `TECHNICAL_DESIGN.md`
 - **PRD**: See `PRD.md` for product details
+- **Internationalization**: See `docs/getting-started/internationalization.md` for i18n guide
+
+## Internationalization (i18n) 🌍
+
+Ordo-Todo supports multiple languages out of the box:
+- **English (en)** - Default
+- **Spanish (es)** - Español
+- **Portuguese (pt-BR)** - Português (Brasil)
+
+### Quick i18n Guide
+
+All translations are stored in `apps/web/messages/`:
+```
+messages/
+├── en.json     # English
+├── es.json     # Spanish
+└── pt-br.json  # Portuguese (Brazil)
+```
+
+To add translations to a component:
+```typescript
+import { useTranslations } from 'next-intl';
+
+export function MyComponent() {
+  const t = useTranslations('MyComponent');
+  return <h1>{t('title')}</h1>;
+}
+```
+
+For detailed i18n implementation guide, see: `docs/getting-started/internationalization.md`
 
 ## Ready to Code! 🎨
 
@@ -167,3 +197,4 @@ Start with:
 3. Build dashboard layout
 
 Happy coding! 🚀
+

@@ -1,23 +1,14 @@
 "use client";
-
+ 
 import { useState } from "react";
 import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Download, Briefcase } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
-
-const navigation = [
-  { name: "Hoy", href: "/dashboard", icon: Home, color: "cyan" },
-  { name: "Tareas", href: "/tasks", icon: CheckSquare, color: "purple" },
-  { name: "Proyectos", href: "/projects", icon: FolderKanban, color: "pink" },
-  { name: "Workspaces", href: "/workspaces", icon: Briefcase, color: "orange" },
-  { name: "Etiquetas", href: "/tags", icon: Tags, color: "green" },
-  { name: "Analíticas", href: "/analytics", icon: BarChart3, color: "cyan" },
-];
+import { useTranslations } from "next-intl";
 
 const colorClasses = {
   cyan: "group-hover:bg-cyan-500/10 group-hover:text-cyan-500",
@@ -38,8 +29,18 @@ const activeColorClasses = {
 };
 
 export function Sidebar() {
+  const t = useTranslations('Sidebar');
   const pathname = usePathname();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+
+  const navigation = [
+    { name: t('today'), href: "/dashboard", icon: Home, color: "cyan" },
+    { name: t('tasks'), href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t('projects'), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t('workspaces'), href: "/workspaces", icon: Briefcase, color: "orange" },
+    { name: t('tags'), href: "/tags", icon: Tags, color: "green" },
+    { name: t('analytics'), href: "/analytics", icon: BarChart3, color: "cyan" },
+  ];
 
   return (
     <>
@@ -63,7 +64,7 @@ export function Sidebar() {
               const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
                 <Link
-                  key={item.name}
+                  key={item.href}
                   href={item.href}
                   className={cn(
                     "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
@@ -113,7 +114,7 @@ export function Sidebar() {
                 "h-5 w-5 transition-transform duration-200",
                 pathname === "/settings" || pathname?.startsWith("/settings/") ? "" : "group-hover:scale-110"
               )} />
-              Configuración
+              {t('settings')}
             </Link>
             <InstallPWAButton />
           </div>
@@ -129,6 +130,7 @@ export function Sidebar() {
 }
 
 function InstallPWAButton() {
+  const t = useTranslations('Sidebar');
   const { isInstallable, installPrompt } = usePWA();
 
   if (!isInstallable) return null;
@@ -139,7 +141,7 @@ function InstallPWAButton() {
       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-muted/50 hover:text-foreground"
     >
       <Download className="h-5 w-5" />
-      Instalar App
+      {t('installApp')}
     </button>
   );
 }

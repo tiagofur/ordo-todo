@@ -16,20 +16,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Palette, Check } from "lucide-react";
-
-const updateProjectSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido"),
-  description: z.string().optional(),
-  color: z.string().optional(),
-});
-
-type UpdateProjectForm = z.infer<typeof updateProjectSchema>;
-
-interface ProjectSettingsDialogProps {
-  projectId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import { useTranslations } from "next-intl";
 
 const projectColors = [
   "#EF4444", // red
@@ -41,9 +28,24 @@ const projectColors = [
   "#6B7280", // gray
 ];
 
+interface ProjectSettingsDialogProps {
+  projectId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export function ProjectSettingsDialog({ projectId, open, onOpenChange }: ProjectSettingsDialogProps) {
+  const t = useTranslations('ProjectSettingsDialog');
   const { data: project } = useProject(projectId);
   const [selectedColor, setSelectedColor] = useState(projectColors[3]);
+
+  const updateProjectSchema = z.object({
+    name: z.string().min(1, t('form.name.required')),
+    description: z.string().optional(),
+    color: z.string().optional(),
+  });
+
+  type UpdateProjectForm = z.infer<typeof updateProjectSchema>;
 
   const {
     register,
@@ -78,10 +80,10 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
         },
       });
 
-      toast.success("Proyecto actualizado exitosamente");
+      toast.success(t('toast.updated'));
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Error al actualizar proyecto");
+      toast.error(error?.response?.data?.message || t('toast.updateError'));
     }
   };
 
@@ -91,10 +93,10 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
         <div className="p-6 space-y-6">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">
-              Configuración del Proyecto
+              {t('title')}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Actualiza la información de tu proyecto
+              {t('description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -102,7 +104,7 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
             {/* Color Picker */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <Palette className="w-4 h-4" /> Color del Proyecto
+                <Palette className="w-4 h-4" /> {t('form.color.label')}
               </Label>
               <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
                 {projectColors.map((color) => (
@@ -127,12 +129,12 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
 
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-foreground">Nombre *</Label>
+              <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('form.name.label')}</Label>
               <input
                 id="name"
                 {...register("name")}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Ej: Rediseño Web, Marketing Q4"
+                placeholder={t('form.name.placeholder')}
               />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -141,12 +143,12 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">Descripción</Label>
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description.label')}</Label>
               <textarea
                 id="description"
                 {...register("description")}
                 className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder="Descripción opcional del proyecto..."
+                placeholder={t('form.description.placeholder')}
               />
             </div>
 
@@ -156,14 +158,14 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
                 onClick={() => onOpenChange(false)}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                Cancelar
+                {t('actions.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={updateProjectMutation.isPending}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
               >
-                {updateProjectMutation.isPending ? "Guardando..." : "Guardar Cambios"}
+                {updateProjectMutation.isPending ? t('actions.saving') : t('actions.save')}
               </button>
             </DialogFooter>
           </form>

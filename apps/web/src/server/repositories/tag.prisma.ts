@@ -40,6 +40,17 @@ export class PrismaTagRepository implements TagRepository {
         return tags.map(t => this.toDomain(t));
     }
 
+    async update(tag: Tag): Promise<Tag> {
+        const updated = await this.prisma.tag.update({
+            where: { id: tag.id as string },
+            data: {
+                name: tag.props.name,
+                color: tag.props.color,
+            },
+        });
+        return this.toDomain(updated);
+    }
+
     async delete(id: string): Promise<void> {
         await this.prisma.tag.delete({ where: { id } });
     }

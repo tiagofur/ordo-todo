@@ -4,14 +4,16 @@ import { useDailyMetrics } from "@/lib/api-hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Clock, Target, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 interface DailyMetricsCardProps {
   date?: Date;
 }
 
 export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
+  const t = useTranslations('DailyMetricsCard');
   const dateParam = date ? date.toISOString().split('T')[0] : undefined;
-  const { data: metrics, isLoading } = useDailyMetrics(dateParam ? { date: dateParam } : undefined);
+  const { data: metrics, isLoading } = useDailyMetrics(dateParam ? { startDate: dateParam, endDate: dateParam } : undefined);
 
   const formatTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
@@ -34,13 +36,17 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
     return "text-red-600";
   };
 
+  const formattedDate = date 
+    ? date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
+    : t('today');
+
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Métricas del Día</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <CardDescription>
-            {date ? date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hoy'}
+            {formattedDate}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,9 +66,9 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Métricas del Día</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
         <CardDescription>
-          {date ? date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hoy'}
+          {formattedDate}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -71,7 +77,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4" />
-              <span>Completadas</span>
+              <span>{t('metrics.completed')}</span>
             </div>
             <div className="text-3xl font-bold">
               {metrics?.tasksCompleted || 0}
@@ -85,7 +91,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>Tiempo</span>
+              <span>{t('metrics.time')}</span>
             </div>
             <div className="text-3xl font-bold">
               {formatTime(metrics?.minutesWorked || 0)}
@@ -96,7 +102,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Target className="h-4 w-4" />
-              <span>Pomodoros</span>
+              <span>{t('metrics.pomodoros')}</span>
             </div>
             <div className="text-3xl font-bold">
               {metrics?.pomodorosCompleted || 0}
@@ -107,7 +113,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Zap className="h-4 w-4" />
-              <span>Enfoque</span>
+              <span>{t('metrics.focus')}</span>
             </div>
             <div className={`text-3xl font-bold ${getFocusScoreColor(metrics?.focusScore)}`}>
               {formatFocusScore(metrics?.focusScore)}

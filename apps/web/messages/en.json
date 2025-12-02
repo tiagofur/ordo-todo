@@ -1,0 +1,906 @@
+{
+  "Sidebar": {
+    "today": "Today",
+    "tasks": "Tasks",
+    "projects": "Projects",
+    "workspaces": "Workspaces",
+    "tags": "Tags",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "installApp": "Install App"
+  },
+  "TimerWidget": {
+    "startTimer": "Start timer"
+  },
+  "TopBar": {
+    "searchPlaceholder": "Search tasks, projects...",
+    "myAccount": "My Account",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "Dashboard": {
+    "completed": "Completed",
+    "timeWorked": "Time worked",
+    "productivity": "Productivity",
+    "today": "Today",
+    "todaysTasks": "Today's Tasks",
+    "noTasks": "No tasks for today",
+    "noTasksDescription": "Start by creating your first task to see it here.",
+    "createTask": "Create Task"
+  },
+  "Tasks": {
+    "title": "Tasks",
+    "subtitle": "Organize your day and stay productive.",
+    "newTask": "New Task",
+    "noTasksWithTag": "No tasks with this tag",
+    "allClear": "All clear",
+    "noTasksWithTagDescription": "No tasks found with the tag \"{tagName}\".",
+    "noPendingTasks": "You have no pending tasks. Good job!"
+  },
+  "Projects": {
+    "title": "Projects",
+    "subtitle": "Manage all your projects in one place.",
+    "newProject": "New Project",
+    "selectWorkspace": "Select a Workspace",
+    "selectWorkspaceDescription": "To start, select a workspace from the list to see its projects.",
+    "noProjects": "No projects yet",
+    "noProjectsDescription": "Create your first project to start organizing your tasks.",
+    "createProject": "Create Project"
+  },
+  "Workspaces": {
+    "title": "Workspaces",
+    "subtitle": "Organize your projects and tasks in different workspaces",
+    "newWorkspace": "New Workspace",
+    "noWorkspaces": "You have no workspaces",
+    "noWorkspacesDescription": "Create your first workspace to start organizing your projects and tasks",
+    "createWorkspace": "Create Workspace"
+  },
+  "Tags": {
+    "title": "Tags",
+    "subtitle": "Organize and filter your tasks with custom tags.",
+    "newTag": "New Tag",
+    "confirmDelete": "Are you sure you want to delete this tag?",
+    "tagDeleted": "Tag deleted",
+    "deleteError": "Error deleting tag",
+    "edit": "Edit",
+    "delete": "Delete",
+    "task": "task",
+    "tasks": "tasks",
+    "noTags": "No tags",
+    "noTagsDescription": "Create your first tag to start organizing your tasks.",
+    "createTag": "Create Tag"
+  },
+  "Analytics": {
+    "title": "Analytics",
+    "subtitle": "Visualize your productivity and progress over time",
+    "tabs": {
+      "overview": "Overview",
+      "weekly": "Weekly",
+      "focus": "Focus",
+      "aiInsights": "AI Insights"
+    },
+    "focusScore": {
+      "label": "Today's Focus Score",
+      "description": "Your concentration level for the day",
+      "howToImprove": "How to improve your Focus Score",
+      "tips": {
+        "reduceBreaks": "Reduce the number of breaks during your work sessions",
+        "shortenBreaks": "Shorten the duration of breaks when you take them",
+        "usePomodoro": "Use Pomodoro mode to maintain structured sessions",
+        "eliminateDistractions": "Eliminate distractions before starting the timer"
+      },
+      "whatIs": "What is Focus Score?",
+      "whatIsDescription": "The Focus Score measures your concentration level based on the ratio between your effective work time and the breaks you take. A higher score indicates better ability to maintain focus.",
+      "howCalculated": "How it is calculated",
+      "calculation": "Score = Work Time / Total Time",
+      "penalty": "- Penalty: 2% for each break",
+      "max": "- Maximum: 100% (continuous work)",
+      "interpretation": "Interpretation",
+      "excellent": "Excellent concentration",
+      "moderate": "Moderate concentration",
+      "needsImprovement": "Needs improvement",
+      "noData": "No Focus Score data",
+      "noDataDescription": "Complete a work session with the timer to see your Focus Score"
+    },
+    "weekly": {
+      "summary": "Weekly Summary",
+      "comingSoon": "Coming soon: Detailed weekly statistics, comparison with previous weeks, and trend metrics."
+    },
+    "aiLearning": {
+      "title": "How AI Learning works?",
+      "description": "Ordo's AI system automatically learns from your work patterns every time you complete a session with the timer. You don't need to do anything extra.",
+      "whatAnalyzes": "What does it analyze?",
+      "analyzesList": {
+        "hours": "Time of day when you are most productive",
+        "days": "Days of the week with best performance",
+        "duration": "Average duration of your tasks",
+        "completion": "Session completion rate",
+        "patterns": "Break and concentration patterns"
+      },
+      "whatOffers": "What does it offer?",
+      "offersList": {
+        "recommendations": "Personalized recommendations for optimal schedules",
+        "predictions": "Task duration predictions",
+        "insights": "Insights on your best productivity moments",
+        "visualizations": "Visualizations of your work patterns"
+      },
+      "tip": "💡 The more you use the timer, the more accurate the AI recommendations will be."
+    }
+  },
+  "CreateTaskDialog": {
+    "validation": {
+      "titleRequired": "Title is required",
+      "projectRequired": "Project is required"
+    },
+    "toast": {
+      "success": "Task created successfully",
+      "error": "Error creating task",
+      "aiTitleRequired": "Write a title first to use AI",
+      "aiSuccess": "Description generated with AI"
+    },
+    "ai": {
+      "generatedDescription": "Automatically generated description for: {title}\n\n- Step 1: Research\n- Step 2: Implement\n- Step 3: Test",
+      "generating": "Generating...",
+      "magic": "AI Magic"
+    },
+    "emptyState": {
+      "title": "No projects",
+      "description": "To create a task, you first need a project.",
+      "action": "Create Project"
+    },
+    "title": "New Task",
+    "description": "Create a new task and assign it to a project",
+    "form": {
+      "title": "Title *",
+      "titlePlaceholder": "Ex: Implement authentication",
+      "project": "Project *",
+      "selectProject": "Select a project",
+      "priority": "Priority",
+      "dueDate": "Due Date",
+      "description": "Description",
+      "descriptionPlaceholder": "Additional task details..."
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Task"
+    }
+  },
+  "CreateProjectDialog": {
+    "validation": {
+      "nameRequired": "Name is required",
+      "workspaceRequired": "Workspace is required"
+    },
+    "toast": {
+      "success": "Project created successfully",
+      "error": "Error creating project",
+      "createWorkspace": "Please create a workspace from the sidebar"
+    },
+    "title": "Create Project",
+    "description": "Organize your tasks into projects within a workflow",
+    "emptyState": {
+      "title": "No workspaces",
+      "description": "To create a project, you first need a workspace.",
+      "action": "Create Workspace"
+    },
+    "form": {
+      "color": "Project Color",
+      "name": "Name *",
+      "namePlaceholder": "Ex: Web Redesign, Marketing Q4",
+      "workspace": "Workspace *",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional project description..."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Project"
+    }
+  },
+  "CreateWorkspaceDialog": {
+    "validation": {
+      "nameRequired": "Name is required"
+    },
+    "toast": {
+      "success": "Workspace created successfully",
+      "error": "Error creating workspace"
+    },
+    "title": "Create Workspace",
+    "description": "Organize your tasks in different workspaces",
+    "form": {
+      "type": "Workspace Type",
+      "name": "Name *",
+      "namePlaceholder": "Ex: My Company, Personal, etc.",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional workspace description..."
+    },
+    "types": {
+      "personal": "Personal",
+      "personalDesc": "For your personal tasks",
+      "work": "Work",
+      "workDesc": "For work projects",
+      "team": "Team",
+      "teamDesc": "For team collaboration"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Workspace"
+    }
+  },
+
+  "SubtaskList": {
+    "title": "Subtasks",
+    "empty": "No subtasks. Add one to split this task.",
+    "add": "Add Subtask",
+    "placeholder": "Subtask title...",
+    "nested": "Some subtasks have sub-subtasks",
+    "tooltips": {
+      "drag": "Drag to reorder",
+      "delete": "Delete subtask"
+    },
+    "toast": {
+      "created": "Subtask created",
+      "createError": "Error creating subtask",
+      "completed": "Subtask completed",
+      "completeError": "Error completing subtask",
+      "deleted": "Subtask deleted",
+      "deleteError": "Error deleting subtask"
+    },
+    "confirmDelete": "Are you sure you want to delete this subtask?"
+  },
+  "CommentThread": {
+    "title": "Comments",
+    "empty": "No comments yet. Be the first to comment.",
+    "placeholder": "Write a comment...",
+    "shortcut": "Press Cmd/Ctrl + Enter to send",
+    "edited": "(edited)",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "send": "Comment",
+      "sending": "Sending..."
+    },
+    "toast": {
+      "added": "Comment added",
+      "addError": "Error adding comment",
+      "updated": "Comment updated",
+      "updateError": "Error updating comment",
+      "deleted": "Comment deleted",
+      "deleteError": "Error deleting comment"
+    },
+    "confirmDelete": "Are you sure you want to delete this comment?"
+  },
+  "FileUpload": {
+    "errors": {
+      "tooLarge": "File is too large. Maximum {maxFileSize}MB.",
+      "invalidType": "File type not allowed.",
+      "invalidResponse": "Invalid response from upload server",
+      "unknown": "Unknown error",
+      "uploadError": "Error uploading: {errorMessage}",
+      "networkError": "Network error during upload",
+      "statusError": "Error {status}: {statusText}"
+    },
+    "success": {
+      "uploaded": "{fileName} uploaded successfully"
+    },
+    "info": {
+      "cancelled": "Upload of {fileName} cancelled"
+    },
+    "dropzone": {
+      "dragging": "Drop files here",
+      "idle": "Drag files here or click to select",
+      "maxSize": "Maximum {maxFileSize}MB per file"
+    },
+    "uploading": "Uploading files..."
+  },
+  "AttachmentList": {
+    "title": "Files",
+    "empty": "No attachments yet.",
+    "total": "total",
+    "by": "by",
+    "tooltips": {
+      "preview": "Preview",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "toast": {
+      "downloading": "Downloading {filename}",
+      "deleted": "File deleted",
+      "deleteError": "Error deleting file"
+    },
+    "confirmDelete": "Are you sure you want to delete {filename}?"
+  },
+  "ActivityFeed": {
+    "title": "Recent Activity",
+    "showing": "Showing {count} of {total}",
+    "showMore": "View all activity ({count} more)",
+    "empty": "No recent activity.",
+    "dates": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "actions": {
+      "TASK_CREATED": "created the task",
+      "TASK_UPDATED": "updated the task",
+      "TASK_COMPLETED": "completed the task",
+      "TASK_DELETED": "deleted the task",
+      "COMMENT_ADDED": "added a comment",
+      "COMMENT_EDITED": "edited a comment",
+      "COMMENT_DELETED": "deleted a comment",
+      "ATTACHMENT_ADDED": "uploaded a file",
+      "ATTACHMENT_DELETED": "deleted a file",
+      "SUBTASK_ADDED": "added a subtask",
+      "SUBTASK_COMPLETED": "completed a subtask",
+      "STATUS_CHANGED": "changed the status",
+      "PRIORITY_CHANGED": "changed the priority",
+      "ASSIGNEE_CHANGED": "changed the assignee",
+      "DUE_DATE_CHANGED": "changed the due date"
+    },
+    "details": {
+      "fromTo": "from \"{oldValue}\" to \"{newValue}\"",
+      "to": "to {newValue}",
+      "removed": "(removed)",
+      "item": ": {itemName}",
+      "mentioned": "mentioned {users}"
+    }
+  },
+  "ProjectCard": {
+    "tasks": "{count} tasks",
+    "archived": "Archived",
+    "actions": {
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete"
+    },
+    "toast": {
+      "archived": "Project archived",
+      "unarchived": "Project unarchived",
+      "archiveError": "Error updating project",
+      "deleted": "Project deleted",
+      "deleteError": "Error deleting project"
+    },
+    "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone."
+  },
+  "ProjectSettingsDialog": {
+    "title": "Project Settings",
+    "description": "Update your project information",
+    "form": {
+      "name": {
+        "label": "Name *",
+        "placeholder": "Ex: Web Redesign, Marketing Q4",
+        "required": "Name is required"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Optional project description..."
+      },
+      "color": {
+        "label": "Project Color"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saving": "Saving..."
+    },
+    "toast": {
+      "updated": "Project updated successfully",
+      "updateError": "Error updating project"
+    }
+  },
+  "WorkspaceCard": {
+    "types": {
+      "PERSONAL": "Personal",
+      "WORK": "Work",
+      "TEAM": "Team"
+    },
+    "status": {
+      "active": "Active"
+    },
+    "stats": {
+      "projects": "{count} projects",
+      "tasks": "{count} tasks"
+    },
+    "actions": {
+      "settings": "Settings",
+      "delete": "Delete"
+    },
+    "toast": {
+      "deleted": "Workspace deleted",
+      "deleteError": "Error deleting workspace"
+    },
+    "confirmDelete": "Are you sure you want to delete workspace \"{name}\"?"
+  },
+  "WorkspaceInfoBar": {
+    "types": {
+      "PERSONAL": "Personal",
+      "WORK": "Work",
+      "TEAM": "Team"
+    },
+    "team": "Team",
+    "stats": {
+      "projects": "{count, plural, =1 {Project} other {Projects}}",
+      "activeTasks": "{count, plural, =1 {Active Task} other {Active Tasks}}",
+      "completed": "Completed"
+    },
+    "actions": {
+      "newProject": "New Project",
+      "settings": "Settings"
+    }
+  },
+  "WorkspaceSelector": {
+    "create": "Create Workspace",
+    "label": "Workspaces",
+    "defaultName": "Workspace"
+  },
+  "WorkspaceSettingsDialog": {
+    "title": "Workspace Settings",
+    "description": "Manage your workspace general information.",
+    "form": {
+      "name": {
+        "label": "Workspace Name",
+        "placeholder": "Ex. My Personal Project"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Briefly describe the purpose of this workspace..."
+      },
+      "type": {
+        "label": "Workspace Type",
+        "helper": "The type defines the default color and icon of the workspace.",
+        "options": {
+          "PERSONAL": "Personal",
+          "WORK": "Work",
+          "TEAM": "Team"
+        }
+      }
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "This action cannot be undone.",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "confirm": "Confirm"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saving": "Saving..."
+    },
+    "toast": {
+      "updated": "Workspace updated",
+      "updateError": "Error updating workspace",
+      "deleted": "Workspace deleted",
+      "deleteError": "Error deleting workspace"
+    }
+  },
+  "CreateTagDialog": {
+    "title": {
+      "create": "Create Tag",
+      "edit": "Edit Tag"
+    },
+    "description": {
+      "create": "Organize your tasks with custom tags",
+      "edit": "Modify tag details"
+    },
+    "form": {
+      "name": {
+        "label": "Name *",
+        "placeholder": "Ex: Urgent, Personal, Work...",
+        "required": "Name is required"
+      },
+      "color": {
+        "label": "Color"
+      },
+      "preview": {
+        "label": "Preview",
+        "default": "Tag"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Tag",
+      "creating": "Creating...",
+      "save": "Save Changes",
+      "saving": "Saving..."
+    },
+    "toast": {
+      "created": "Tag created successfully",
+      "createError": "Error creating tag",
+      "updated": "Tag updated",
+      "updateError": "Error updating tag"
+    }
+  },
+  "TagSelector": {
+    "addTag": "Tag",
+    "loading": "Loading...",
+    "noTags": "No tags available",
+    "toast": {
+      "assigned": "Tag assigned",
+      "assignError": "Error assigning tag",
+      "removed": "Tag removed",
+      "removeError": "Error removing tag"
+    }
+  },
+  "PomodoroTimer": {
+    "mode": "Mode: {mode}",
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "continuous": "Continuous",
+      "stopwatch": "Stopwatch",
+      "shortBreak": "Short Break",
+      "longBreak": "Long Break",
+      "pomodoroCount": "Pomodoro #{count}"
+    },
+    "pauses": "Pauses: {count}",
+    "paused": "Paused",
+    "switchTask": {
+      "buttonTitle": "Switch task",
+      "title": "Switch Task",
+      "description": "Time worked on the current task will be saved. Select a new task to continue."
+    }
+  },
+  "TaskSelector": {
+    "placeholder": "Select task to work on...",
+    "searchPlaceholder": "Search task...",
+    "noTasks": "No tasks found.",
+    "groupHeading": "Pending Tasks",
+    "noTaskAssigned": "No task assigned"
+  },
+  "TaskCard": {
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "actions": {
+      "viewEdit": "View/Edit",
+      "delete": "Delete"
+    },
+    "status": {
+      "completed": "Completed"
+    }
+  },
+  "TaskList": {
+    "loading": "Loading tasks...",
+    "error": "Error loading tasks: {message}",
+    "empty": "No tasks yet. Add one above!"
+  },
+  "TaskDetailPanel": {
+    "title": "Task Details",
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "statuses": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "toast": {
+      "updated": "Task updated",
+      "updateError": "Error updating task",
+      "deleted": "Task deleted",
+      "deleteError": "Error deleting task",
+      "statusUpdated": "Status updated",
+      "statusError": "Error updating status",
+      "priorityUpdated": "Priority updated",
+      "priorityError": "Error updating priority",
+      "tagAssigned": "Tag {tagName} assigned",
+      "tagError": "Error assigning tag",
+      "noTaskId": "Error: Task ID not found"
+    },
+    "confirmDelete": "Are you sure you want to delete this task?",
+    "titlePlaceholder": "Task title",
+    "tags": {
+      "none": "No tags",
+      "add": "Add",
+      "available": "Available Tags",
+      "noAvailable": "No tags available",
+      "create": "Create new tag"
+    },
+    "buttons": {
+      "save": "Save",
+      "delete": "Delete Task"
+    },
+    "description": {
+      "label": "DESCRIPTION",
+      "placeholder": "Add a more detailed description...",
+      "empty": "No description provided."
+    },
+    "details": {
+      "title": "Details",
+      "dueDate": "Due Date",
+      "estimation": "Estimation (pomodoros)"
+    },
+    "tabs": {
+      "subtasks": "Subtasks",
+      "comments": "Comments",
+      "attachments": "Attachments",
+      "activity": "Activity"
+    },
+    "footer": {
+      "created": "Created on"
+    }
+  },
+  "TaskFilters": {
+    "label": "Filters",
+    "clear": "Clear",
+    "status": {
+      "label": "Status",
+      "TODO": "To Do",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "priority": {
+      "label": "Priority",
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "tags": {
+      "label": "Tags"
+    }
+  },
+  "TaskForm": {
+    "label": "New Task",
+    "placeholder": "What needs to be done?",
+    "button": {
+      "add": "Add",
+      "adding": "Adding..."
+    },
+    "toast": {
+      "success": "Task created!",
+      "error": "Error: {message}",
+      "projectIdRequired": "Project ID is required"
+    }
+  },
+  "TaskDetailView": {
+    "title": "Task Details",
+    "description": "Manage details and subtasks",
+    "noDate": "No date",
+    "subtasks": {
+      "title": "Subtasks",
+      "empty": "No subtasks"
+    },
+    "time": {
+      "title": "Time",
+      "comingSoon": "Time tracking will be available soon."
+    },
+    "notFound": "Task not found"
+  },
+  "AIAssistantSidebar": {
+    "title": "Ordo AI Copilot",
+    "welcome": "Hi! I'm Ordo AI. How can I help you organize your day?",
+    "thinking": "Thinking...",
+    "placeholder": "Ask AI...",
+    "error": "Failed to get response from AI"
+  },
+  "ReportCard": {
+    "scopes": {
+      "TASK_COMPLETION": "Task Completed",
+      "WEEKLY_SCHEDULED": "Weekly Report",
+      "MONTHLY_SCHEDULED": "Monthly Report",
+      "PROJECT_SUMMARY": "Project Summary",
+      "PERSONAL_ANALYSIS": "Personal Analysis",
+      "default": "Report"
+    },
+    "metrics": {
+      "tasks": "tasks",
+      "hoursWorked": "h worked",
+      "pomodoros": "pomodoros"
+    },
+    "stats": {
+      "strengths": "strengths",
+      "weaknesses": "areas for improvement",
+      "recommendations": "recommendations"
+    }
+  },
+  "ReportDetail": {
+    "generatedOn": "Generated on",
+    "poweredBy": "Powered by {model}",
+    "summary": "Summary",
+    "metrics": {
+      "title": "Period Metrics",
+      "tasksCompleted": "Tasks Completed",
+      "timeWorked": "Time Worked",
+      "pomodoros": "Pomodoros",
+      "focusScore": "Focus Score"
+    },
+    "strengths": "Strengths",
+    "weaknesses": "Areas for Improvement",
+    "recommendations": "Recommendations",
+    "patterns": "Detected Patterns"
+  },
+  "FocusScoreGauge": {
+    "label": "Focus Score",
+    "messages": {
+      "excellent": "Excellent focus",
+      "veryGood": "Very good focus",
+      "good": "Good focus",
+      "moderate": "Moderate focus",
+      "low": "Low focus",
+      "needsImprovement": "Needs improvement"
+    },
+    "description": "Based on work time vs breaks"
+  },
+  "GenerateReportDialog": {
+    "trigger": "Generate Report with AI",
+    "title": "Generate Productivity Report",
+    "description": "AI will analyze your productivity from the last week and generate a detailed report with insights and recommendations.",
+    "includes": {
+      "title": "The report will include:",
+      "metrics": "Analysis of your weekly metrics",
+      "strengths": "Identification of strengths and areas for improvement",
+      "recommendations": "Personalized recommendations",
+      "patterns": "Detected productivity patterns",
+      "score": "Overall productivity score"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "generate": "Generate Report",
+      "close": "Close",
+      "retry": "Retry"
+    },
+    "loading": {
+      "title": "Generating your report...",
+      "description": "AI is analyzing your productivity data. This may take a few seconds."
+    },
+    "success": {
+      "title": "Report generated successfully!",
+      "description": "Your productivity report is ready."
+    },
+    "error": "There was an error generating the report. Please try again."
+  },
+  "DailyMetricsCard": {
+    "title": "Daily Metrics",
+    "today": "Today",
+    "metrics": {
+      "completed": "Completed",
+      "time": "Time",
+      "pomodoros": "Pomodoros",
+      "focus": "Focus"
+    }
+  },
+  "PeakHoursChart": {
+    "title": "Productivity by Hour",
+    "description": "Your productivity score throughout the day",
+    "empty": "No data yet. Start working to see your productivity patterns!",
+    "yAxis": "Productivity Score (%)",
+    "tooltip": "Productivity",
+    "legend": {
+      "high": "High (80-100%)",
+      "good": "Good (60-79%)",
+      "fair": "Fair (40-59%)",
+      "low": "Low (0-39%)"
+    }
+  },
+  "ProductivityInsights": {
+    "title": "Productivity Insights",
+    "description": "Recommendations based on your work patterns",
+    "empty": "Start tracking your work sessions to get personalized productivity insights!",
+    "peakHours": {
+      "title": "Your Peak Hours",
+      "description": "Schedule your most important tasks during these hours for optimal productivity."
+    },
+    "peakDays": {
+      "title": "Your Most Productive Days",
+      "description": "You tend to be more focused and productive on these days of the week."
+    },
+    "tip": "💡 Tip: The AI learns from your work patterns over time. Keep using the timer to get more accurate insights!"
+  },
+  "WeeklyChart": {
+    "title": "Weekly Activity",
+    "description": "Last 7 days",
+    "weekOf": "Week of {date}",
+    "tasks": "Tasks",
+    "minutes": "Minutes",
+    "tasksCompleted": "Tasks Completed",
+    "minutesWorked": "Minutes Worked",
+    "tooltip": {
+      "tasks": "Tasks",
+      "time": "Time"
+    }
+  },
+  "AuthForm": {
+    "welcome": "Welcome to Ordo-Todo!",
+    "subtitle": "Sign in to organize your tasks",
+    "emailLogin": "Sign in with Email",
+    "or": "or",
+    "googleLogin": "Continue with Google",
+    "githubLogin": "Continue with GitHub",
+    "noAccount": "Don't have an account?",
+    "register": "Sign up here",
+    "connecting": "Connecting..."
+  },
+  "Processing": {
+    "text": "Processing..."
+  },
+  "ConfirmDelete": {
+    "title": "Are you sure you want to delete this?",
+    "description": "This action cannot be undone. The data will be permanently removed.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "deleting": "Deleting..."
+  },
+  "ConnectionStatus": {
+    "backOnline": {
+      "title": "Back Online",
+      "description": "Your connection has been restored. Syncing your data..."
+    },
+    "offline": {
+      "title": "You're Offline",
+      "description": "Some features may be limited. Your data will sync when you're back online."
+    }
+  },
+  "PWAInstallButton": {
+    "install": "Install App"
+  },
+  "PWATester": {
+    "pwaStatus": {
+      "title": "PWA Status",
+      "description": "Test Progressive Web App features and installation",
+      "installable": "Installable",
+      "installed": "Installed",
+      "onlineStatus": "Online Status",
+      "online": "Online",
+      "offline": "Offline",
+      "installButton": "Install PWA"
+    },
+    "pushNotifications": {
+      "title": "Push Notifications",
+      "description": "Test browser and service worker notifications",
+      "supported": "Supported",
+      "permission": "Permission",
+      "subscribed": "Subscribed",
+      "requestPermission": "Request Permission",
+      "sendBrowser": "Send Browser Notification",
+      "sendBackground": "Send Background Notification",
+      "granted": "Notification permission granted!",
+      "denied": "Notification permission denied",
+      "testSent": "Test notification sent!",
+      "backgroundSent": "Background notification sent!"
+    },
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts",
+      "description": "Test keyboard shortcuts and custom events",
+      "available": "Available shortcuts:",
+      "newTask": "New Task",
+      "quickTimer": "Quick Timer",
+      "search": "Search",
+      "installPwa": "Install PWA",
+      "triggerNewTask": "Trigger New Task Shortcut"
+    },
+    "yes": "Yes",
+    "no": "No"
+  },
+  "Error": {
+    "title": "Something went wrong!",
+    "description": "An unexpected error occurred. We apologize for the inconvenience.",
+    "retry": "Try again",
+    "home": "Go to Home"
+  },
+  "NotFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "message": "Please check the URL or navigate back to the home page.",
+    "home": "Go to Home",
+    "back": "Go Back"
+  }
+}

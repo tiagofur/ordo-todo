@@ -18,16 +18,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag } from "lucide-react";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
-
-const createTaskSchema = z.object({
-  title: z.string().min(1, "El título es requerido"),
-  description: z.string().optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
-  projectId: z.string().min(1, "Proyecto es requerido"),
-  dueDate: z.string().optional(),
-});
-
-type CreateTaskForm = z.infer<typeof createTaskSchema>;
+import { useTranslations } from "next-intl";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -36,10 +27,21 @@ interface CreateTaskDialogProps {
 }
 
 export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDialogProps) {
+  const t = useTranslations('CreateTaskDialog');
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: projects, isLoading: isLoadingProjects } = useAllProjects();
+
+  const createTaskSchema = z.object({
+    title: z.string().min(1, t('validation.titleRequired')),
+    description: z.string().optional(),
+    priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
+    projectId: z.string().min(1, t('validation.projectRequired')),
+    dueDate: z.string().optional(),
+  });
+
+  type CreateTaskForm = z.infer<typeof createTaskSchema>;
 
   const {
     register,
@@ -66,34 +68,34 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         ...data,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
       });
-      toast.success("Tarea creada exitosamente");
+      toast.success(t('toast.success'));
       reset();
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.message || "Error al crear tarea");
+      toast.error(error?.message || t('toast.error'));
     }
   };
 
   const handleAIMagic = async () => {
     const title = watch("title");
     if (!title) {
-      toast.error("Escribe un título primero para usar la IA");
+      toast.error(t('toast.aiTitleRequired'));
       return;
     }
 
     setIsGenerating(true);
     // Simulate AI delay
     setTimeout(() => {
-      setValue("description", `Descripción generada automáticamente para: ${title}\n\n- Paso 1: Investigar\n- Paso 2: Implementar\n- Paso 3: Probar`);
+      setValue("description", t('ai.generatedDescription', { title }));
       setIsGenerating(false);
-      toast.success("Descripción generada con IA");
+      toast.success(t('toast.aiSuccess'));
     }, 1500);
   };
 
   const priorities = [
-    { value: "LOW", label: "Baja", bg: "bg-blue-500", border: "border-blue-500" },
-    { value: "MEDIUM", label: "Media", bg: "bg-yellow-500", border: "border-yellow-500" },
-    { value: "HIGH", label: "Alta", bg: "bg-red-500", border: "border-red-500" },
+    { value: "LOW", label: t('priorities.low'), bg: "bg-blue-500", border: "border-blue-500" },
+    { value: "MEDIUM", label: t('priorities.medium'), bg: "bg-yellow-500", border: "border-yellow-500" },
+    { value: "HIGH", label: t('priorities.high'), bg: "bg-red-500", border: "border-red-500" },
   ];
 
   const showEmptyState = !projectId && !isLoadingProjects && projects?.length === 0;
@@ -106,9 +108,9 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             <div className="p-6">
               <EmptyState
                 icon={Briefcase}
-                title="No hay proyectos"
-                description="Para crear una tarea, primero necesitas un proyecto."
-                actionLabel="Crear Proyecto"
+                title={t('emptyState.title')}
+                description={t('emptyState.description')}
+                actionLabel={t('emptyState.action')}
                 onAction={() => setShowCreateProject(true)}
               />
             </div>
@@ -132,7 +134,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-semibold text-foreground">
-                Nueva Tarea
+                {t('title')}
               </DialogTitle>
               <button
                 type="button"
@@ -141,24 +143,24 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors duration-200 disabled:opacity-50"
               >
                 <Sparkles className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : "animate-pulse"}`} />
-                {isGenerating ? "Generando..." : "AI Magic"}
+                {isGenerating ? t('ai.generating') : t('ai.magic')}
 
               </button>
             </div>
             <DialogDescription className="text-muted-foreground">
-              Crea una nueva tarea y asígnala a un proyecto
+              {t('description')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-medium text-foreground">Título *</Label>
+              <Label htmlFor="title" className="text-sm font-medium text-foreground">{t('form.title')}</Label>
               <input
                 id="title"
                 {...register("title")}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Ej: Implementar autenticación"
+                placeholder={t('form.titlePlaceholder')}
                 autoFocus
               />
               {errors.title && (
@@ -169,13 +171,13 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             {/* Project Selection (if not provided) */}
             {!projectId && (
               <div className="space-y-2">
-                <Label htmlFor="projectId" className="text-sm font-medium text-foreground">Proyecto *</Label>
+                <Label htmlFor="projectId" className="text-sm font-medium text-foreground">{t('form.project')}</Label>
                 <select
                   id="projectId"
                   {...register("projectId")}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">Selecciona un proyecto</option>
+                  <option value="">{t('form.selectProject')}</option>
                   {projects?.map((project: any) => (
                     <option key={project.id} value={project.id}>
                       {project.name}
@@ -194,7 +196,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             <div className="grid grid-cols-2 gap-4">
               {/* Priority */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-foreground">Prioridad</Label>
+                <Label className="text-sm font-medium text-foreground">{t('form.priority')}</Label>
                 <div className="flex gap-2">
                   {priorities.map((p) => {
                     const isSelected = currentPriority === p.value;
@@ -219,7 +221,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
               {/* Due Date */}
               <div className="space-y-2">
-                <Label htmlFor="dueDate" className="text-sm font-medium text-foreground">Fecha de vencimiento</Label>
+                <Label htmlFor="dueDate" className="text-sm font-medium text-foreground">{t('form.dueDate')}</Label>
                 <div className="relative">
                   <input
                     type="date"
@@ -234,12 +236,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">Descripción</Label>
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
               <textarea
                 id="description"
                 {...register("description")}
                 className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder="Detalles adicionales de la tarea..."
+                placeholder={t('form.descriptionPlaceholder')}
               />
             </div>
 
@@ -249,14 +251,14 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 onClick={() => onOpenChange(false)}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                Cancelar
+                {t('buttons.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={createTaskMutation.isPending}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
               >
-                {createTaskMutation.isPending ? "Creando..." : "Crear Tarea"}
+                {createTaskMutation.isPending ? t('buttons.creating') : t('buttons.create')}
               </button>
             </DialogFooter>
           </form>

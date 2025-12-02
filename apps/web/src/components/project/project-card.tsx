@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 interface ProjectCardProps {
   project: {
@@ -26,6 +27,7 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+  const t = useTranslations('ProjectCard');
   const router = useRouter();
 
   const { data: tasks } = useTasks();
@@ -46,21 +48,21 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
     if (!project.id) return;
     try {
       await archiveProjectMutation.mutateAsync(String(project.id));
-      toast.success(project.archived ? "Proyecto desarchivado" : "Proyecto archivado");
+      toast.success(project.archived ? t('toast.unarchived') : t('toast.archived'));
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Error al actualizar proyecto");
+      toast.error(error?.response?.data?.message || t('toast.archiveError'));
     }
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!project.id) return;
-    if (confirm("¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer.")) {
+    if (confirm(t('confirmDelete'))) {
       try {
         await deleteProjectMutation.mutateAsync(String(project.id));
-        toast.success("Proyecto eliminado");
+        toast.success(t('toast.deleted'));
       } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Error al eliminar proyecto");
+        toast.error(error?.response?.data?.message || t('toast.deleteError'));
       }
     }
   };
@@ -116,12 +118,12 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={handleArchive}>
                 <Archive className="mr-2 h-4 w-4" />
-                {project.archived ? "Desarchivar" : "Archivar"}
+                {project.archived ? t('actions.unarchive') : t('actions.archive')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
                 <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar
+                {t('actions.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -137,13 +139,13 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <CheckSquare className="h-4 w-4" />
-              <span>{totalTasks} tareas</span>
+              <span>{t('tasks', { count: totalTasks })}</span>
             </div>
             {project.archived && (
               <div
                 className="text-xs font-medium px-2 py-1 rounded-full bg-gray-500/10 text-gray-500"
               >
-                Archivado
+                {t('archived')}
               </div>
             )}
           </div>

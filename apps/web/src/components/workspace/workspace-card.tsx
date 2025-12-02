@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { WorkspaceSettingsDialog } from "./workspace-settings-dialog";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceCardProps {
   workspace: {
@@ -29,9 +30,9 @@ interface WorkspaceCardProps {
 }
 
 const typeConfig = {
-  PERSONAL: { label: "Personal", color: "cyan", hexColor: "#06b6d4", icon: Briefcase },
-  WORK: { label: "Trabajo", color: "purple", hexColor: "#a855f7", icon: FolderKanban },
-  TEAM: { label: "Equipo", color: "pink", hexColor: "#ec4899", icon: CheckSquare },
+  PERSONAL: { label: "PERSONAL", color: "cyan", hexColor: "#06b6d4", icon: Briefcase },
+  WORK: { label: "WORK", color: "purple", hexColor: "#a855f7", icon: FolderKanban },
+  TEAM: { label: "TEAM", color: "pink", hexColor: "#ec4899", icon: CheckSquare },
 };
 
 const typeColorClasses = {
@@ -41,6 +42,7 @@ const typeColorClasses = {
 };
 
 export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
+  const t = useTranslations('WorkspaceCard');
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
   
@@ -53,12 +55,12 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`¿Estás seguro de eliminar el workspace "${workspace.name}"?`)) {
+    if (confirm(t('confirmDelete', { name: workspace.name }))) {
       try {
         await deleteWorkspaceMutation.mutateAsync(workspace.id);
-        toast.success("Workspace eliminado");
+        toast.success(t('toast.deleted'));
       } catch (error: any) {
-        toast.error(error?.message || "Error al eliminar workspace");
+        toast.error(error?.message || t('toast.deleteError'));
       }
     }
   };
@@ -114,7 +116,8 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
                       color: typeInfo.hexColor,
                     }}
                   >
-                    {typeInfo.label}
+                    {/* @ts-ignore */}
+                    {t(`types.${typeInfo.label}`)}
                   </span>
                   <div
                     className="text-xs font-medium px-2 py-1 rounded-full"
@@ -123,7 +126,7 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
                       color: workspace.color,
                     }}
                   >
-                    Activo
+                    {t('status.active')}
                   </div>
                 </div>
               </div>
@@ -144,12 +147,12 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={handleSettings}>
                   <SettingsIcon className="mr-2 h-4 w-4" />
-                  Configuración
+                  {t('actions.settings')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Eliminar
+                  {t('actions.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -166,11 +169,11 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <FolderKanban className="h-4 w-4" />
-                <span>0 proyectos</span>
+                <span>{t('stats.projects', { count: 0 })}</span>
               </div>
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <CheckSquare className="h-4 w-4" />
-                <span>0 tareas</span>
+                <span>{t('stats.tasks', { count: 0 })}</span>
               </div>
             </div>
           </div>

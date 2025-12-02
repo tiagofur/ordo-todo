@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { TagBadge } from "./tag-badge";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface TagSelectorProps {
   taskId: string;
@@ -19,6 +20,7 @@ interface TagSelectorProps {
 }
 
 export function TagSelector({ taskId, selectedTags = [], workspaceId = "default", onTagsChange }: TagSelectorProps) {
+  const t = useTranslations('TagSelector');
   const [open, setOpen] = useState(false);
 
   const { data: availableTags, isLoading } = useTags(workspaceId);
@@ -37,21 +39,21 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
     if (isTagSelected(tag.id)) {
       removeTag.mutate({ tagId: String(tag.id), taskId }, {
         onSuccess: () => {
-          toast.success("Etiqueta removida");
+          toast.success(t('toast.removed'));
           onTagsChange?.();
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al remover etiqueta");
+          toast.error(error.message || t('toast.removeError'));
         }
       });
     } else {
       assignTag.mutate({ tagId: String(tag.id), taskId }, {
         onSuccess: () => {
-          toast.success("Etiqueta asignada");
+          toast.success(t('toast.assigned'));
           onTagsChange?.();
         },
         onError: (error: any) => {
-          toast.error(error.message || "Error al asignar etiqueta");
+          toast.error(error.message || t('toast.assignError'));
         }
       });
     }
@@ -67,7 +69,7 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
           removable
           onRemove={() => tag.id && removeTag.mutate({ tagId: String(tag.id), taskId }, {
             onSuccess: () => {
-              toast.success("Etiqueta removida");
+              toast.success(t('toast.removed'));
               onTagsChange?.();
             }
           })}
@@ -79,13 +81,13 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
         <PopoverTrigger asChild>
           <button className="inline-flex items-center gap-1 rounded-full border border-dashed px-2.5 py-0.5 text-xs font-medium hover:bg-accent">
             <Plus className="h-3 w-3" />
-            Etiqueta
+            {t('addTag')}
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-64 p-2" align="start">
           <div className="space-y-1">
             {isLoading ? (
-              <div className="p-2 text-sm text-muted-foreground">Cargando...</div>
+              <div className="p-2 text-sm text-muted-foreground">{t('loading')}</div>
             ) : availableTags && availableTags.length > 0 ? (
               availableTags.map((tag: any) => (
                 <button
@@ -108,7 +110,7 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
               ))
             ) : (
               <div className="p-2 text-sm text-muted-foreground">
-                No hay etiquetas disponibles
+                {t('noTags')}
               </div>
             )}
           </div>

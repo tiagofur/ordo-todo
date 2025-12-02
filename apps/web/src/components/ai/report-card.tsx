@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, TrendingUp, CheckCircle2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useTranslations } from "next-intl";
 
 interface ReportCardProps {
   report: {
@@ -26,20 +27,21 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report, onClick }: ReportCardProps) {
+  const t = useTranslations('ReportCard');
   const getScopeLabel = (scope: string): string => {
     switch (scope) {
       case "TASK_COMPLETION":
-        return "Tarea Completada";
+        return t('scopes.TASK_COMPLETION');
       case "WEEKLY_SCHEDULED":
-        return "Reporte Semanal";
+        return t('scopes.WEEKLY_SCHEDULED');
       case "MONTHLY_SCHEDULED":
-        return "Reporte Mensual";
+        return t('scopes.MONTHLY_SCHEDULED');
       case "PROJECT_SUMMARY":
-        return "Resumen de Proyecto";
+        return t('scopes.PROJECT_SUMMARY');
       case "PERSONAL_ANALYSIS":
-        return "Análisis Personal";
+        return t('scopes.PERSONAL_ANALYSIS');
       default:
-        return "Reporte";
+        return t('scopes.default');
     }
   };
 
@@ -107,30 +109,30 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
           {report.metricsSnapshot.tasksCompleted !== undefined && (
             <div className="flex items-center gap-1">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span>{report.metricsSnapshot.tasksCompleted} tareas</span>
+              <span>{report.metricsSnapshot.tasksCompleted} {t('metrics.tasks')}</span>
             </div>
           )}
           {report.metricsSnapshot.minutesWorked !== undefined && (
             <div className="flex items-center gap-1">
               <TrendingUp className="h-4 w-4 text-blue-600" />
-              <span>{Math.round(report.metricsSnapshot.minutesWorked / 60)}h trabajadas</span>
+              <span>{Math.round(report.metricsSnapshot.minutesWorked / 60)}{t('metrics.hoursWorked')}</span>
             </div>
           )}
           {report.metricsSnapshot.pomodorosCompleted !== undefined && report.metricsSnapshot.pomodorosCompleted > 0 && (
             <div className="flex items-center gap-1">
               <AlertCircle className="h-4 w-4 text-orange-600" />
-              <span>{report.metricsSnapshot.pomodorosCompleted} pomodoros</span>
+              <span>{report.metricsSnapshot.pomodorosCompleted} {t('metrics.pomodoros')}</span>
             </div>
           )}
         </div>
 
         {/* Quick Stats */}
         <div className="flex items-center gap-4 pt-2 border-t text-xs text-muted-foreground">
-          <span>{report.strengths.length} fortalezas</span>
+          <span>{report.strengths.length} {t('stats.strengths')}</span>
           <span>•</span>
-          <span>{report.weaknesses.length} áreas de mejora</span>
+          <span>{report.weaknesses.length} {t('stats.weaknesses')}</span>
           <span>•</span>
-          <span>{report.recommendations.length} recomendaciones</span>
+          <span>{report.recommendations.length} {t('stats.recommendations')}</span>
         </div>
       </CardContent>
     </Card>

@@ -537,7 +537,7 @@ Usuario
 **Backend:**
 
 - Node.js + TypeScript
-- tRPC (type-safe API)
+- REST API (Standard JSON)
 - PostgreSQL (datos relacionales)
 - Redis (cache & real-time)
 - Prisma ORM

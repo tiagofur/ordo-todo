@@ -3,8 +3,10 @@
 import { usePWA } from "@/components/providers/pwa-provider";
 import { Button } from "@/components/ui/button";
 import { Download, Smartphone } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function PWAInstallButton() {
+  const t = useTranslations('PWAInstallButton');
   const { isInstallable, isInstalled, installPrompt } = usePWA();
 
   if (isInstalled) {
@@ -24,7 +26,7 @@ export function PWAInstallButton() {
     >
       <Smartphone className="h-4 w-4" />
       <Download className="h-4 w-4" />
-      Install App
+      {t('install')}
     </Button>
   );
 }

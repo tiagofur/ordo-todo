@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
     try {
-        console.log("Testing Prisma connection...");
+        logger.log("Testing Prisma connection...");
         const userCount = await prisma.user.count();
-        console.log("User count:", userCount);
+        logger.log("User count:", userCount);
         return NextResponse.json({ success: true, userCount });
     } catch (error) {
-        console.error("Prisma test error:", error);
-        console.error("Error details:", error instanceof Error ? error.message : String(error));
-        console.error("Error stack:", error instanceof Error ? error.stack : 'No stack');
+        logger.error("Prisma test error:", error);
+        logger.error("Error details:", error instanceof Error ? error.message : String(error));
+        logger.error("Error stack:", error instanceof Error ? error.stack : 'No stack');
         return NextResponse.json({
             success: false,
             error: error instanceof Error ? error.message : String(error)

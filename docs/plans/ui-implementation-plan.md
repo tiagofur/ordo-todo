@@ -1,7 +1,7 @@
 # Phase 4: Web UI Implementation Plan
 
 ## Objetivo
-Implementar la interfaz de usuario completa para Ordo-Todo, conectando con el backend tRPC ya implementado.
+Implementar la interfaz de usuario completa para Ordo-Todo, conectando con el backend NestJS REST ya implementado.
 
 ## Estructura de Componentes
 
@@ -81,7 +81,7 @@ Implementar la interfaz de usuario completa para Ordo-Todo, conectando con el ba
 2. CreateWorkspaceDialog
 3. ProjectList & ProjectCard
 4. CreateProjectDialog
-5. Conectar con tRPC endpoints
+5. Conectar con REST endpoints
 
 ### Sprint 3: Enhanced Tasks (3-4 días)
 1. TaskDetail view
@@ -107,7 +107,7 @@ Implementar la interfaz de usuario completa para Ordo-Todo, conectando con el ba
 - **UI Components**: Radix UI (ya instalado)
 - **Styling**: Tailwind CSS v4 (ya configurado)
 - **Forms**: React Hook Form + Zod
-- **State**: TanStack Query (vía tRPC)
+- **State**: TanStack Query
 - **Icons**: Lucide React (ya instalado)
 - **Notifications**: Sonner (ya instalado)
 - **Drag & Drop**: @dnd-kit (para Kanban)

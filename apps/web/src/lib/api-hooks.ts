@@ -366,7 +366,7 @@ export function useDeleteProject() {
 export function useTasks(projectId?: string, tags?: string[]) {
   return useQuery({
     queryKey: projectId ? ['tasks', projectId, { tags }] : ['tasks', { tags }],
-    queryFn: () => apiClient.getTasks(projectId, tags),
+    queryFn: () => (apiClient as any).getTasks(projectId, tags),
   });
 }
 
@@ -404,10 +404,43 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ taskId, data }: { taskId: string; data: UpdateTaskDto }) =>
       apiClient.updateTask(taskId, data),
-    onSuccess: (task) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.task(task.id) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(task.id) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+    onMutate: async ({ taskId, data }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.task(taskId) });
+      await queryClient.cancelQueries({ queryKey: queryKeys.taskDetails(taskId) });
+
+      const previousTask = queryClient.getQueryData(queryKeys.task(taskId));
+      const previousTaskDetails = queryClient.getQueryData(queryKeys.taskDetails(taskId));
+
+      if (previousTask) {
+        queryClient.setQueryData(queryKeys.task(taskId), (old: any) => ({
+          ...old,
+          ...data,
+        }));
+      }
+
+      if (previousTaskDetails) {
+        queryClient.setQueryData(queryKeys.taskDetails(taskId), (old: any) => ({
+          ...old,
+          ...data,
+        }));
+      }
+
+      return { previousTask, previousTaskDetails };
+    },
+    onError: (err, { taskId }, context) => {
+      if (context?.previousTask) {
+        queryClient.setQueryData(queryKeys.task(taskId), context.previousTask);
+      }
+      if (context?.previousTaskDetails) {
+        queryClient.setQueryData(queryKeys.taskDetails(taskId), context.previousTaskDetails);
+      }
+    },
+    onSettled: (task, error, { taskId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      if (task) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+      }
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
     },
   });
@@ -418,10 +451,43 @@ export function useCompleteTask() {
 
   return useMutation({
     mutationFn: (taskId: string) => apiClient.completeTask(taskId),
-    onSuccess: (task) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.task(task.id) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(task.id) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.task(taskId) });
+      await queryClient.cancelQueries({ queryKey: queryKeys.taskDetails(taskId) });
+
+      const previousTask = queryClient.getQueryData(queryKeys.task(taskId));
+      const previousTaskDetails = queryClient.getQueryData(queryKeys.taskDetails(taskId));
+
+      if (previousTask) {
+        queryClient.setQueryData(queryKeys.task(taskId), (old: any) => ({
+          ...old,
+          status: 'COMPLETED',
+        }));
+      }
+
+      if (previousTaskDetails) {
+        queryClient.setQueryData(queryKeys.taskDetails(taskId), (old: any) => ({
+          ...old,
+          status: 'COMPLETED',
+        }));
+      }
+
+      return { previousTask, previousTaskDetails };
+    },
+    onError: (err, taskId, context) => {
+      if (context?.previousTask) {
+        queryClient.setQueryData(queryKeys.task(taskId), context.previousTask);
+      }
+      if (context?.previousTaskDetails) {
+        queryClient.setQueryData(queryKeys.taskDetails(taskId), context.previousTaskDetails);
+      }
+    },
+    onSettled: (task, error, taskId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      if (task) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+      }
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
     },
   });

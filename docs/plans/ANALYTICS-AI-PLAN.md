@@ -77,7 +77,7 @@ Sistema completo de seguimiento de tiempo, métricas de productividad y reportes
   - `getWeeklyMetrics(userId, weekStart)`
   - `getMonthlyMetrics(userId, monthStart)`
 
-### 1.3 Backend - Endpoints tRPC
+### 1.3 Backend - Endpoints REST
 **Archivos a crear/modificar**:
 - `apps/web/src/server/api/routers/analytics.ts`
 
@@ -215,7 +215,7 @@ Sistema completo de seguimiento de tiempo, métricas de productividad y reportes
 - [ ] En `stop()`, si wasCompleted=true:
   - Llamar a LearnFromSessionUseCase
   - Actualizar AIProfile del usuario
-- [ ] Crear endpoint tRPC para obtener AIProfile
+- [ ] Crear endpoint REST para obtener AIProfile
 
 ### 3.4 Frontend - Insights de Productividad
 **Archivos a crear**:

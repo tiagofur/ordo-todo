@@ -1,6 +1,8 @@
 import Logo from "../template/logo.component";
+import { useTranslations } from "next-intl";
 
 export default function Processing() {
+  const t = useTranslations('Processing');
   return (
     <div className="h-screen">
       <div
@@ -11,7 +13,7 @@ export default function Processing() {
         "
       >
         <Logo />
-        <span className="font-light text-zinc-500 ml-3">Processing...</span>
+        <span className="font-light text-zinc-500 ml-3">{t('text')}</span>
       </div>
     </div>
   );

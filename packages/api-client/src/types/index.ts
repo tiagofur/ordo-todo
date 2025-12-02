@@ -13,3 +13,4 @@ export * from './timer.types';
 export * from './analytics.types';
 export * from './comment.types';
 export * from './attachment.types';
+export * from './ai.types';

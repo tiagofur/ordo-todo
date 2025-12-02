@@ -5,8 +5,10 @@ import { usePWA } from "@/components/providers/pwa-provider";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Bell, Download, Keyboard, Wifi, WifiOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function PWATester() {
+  const t = useTranslations('PWATester');
   const { isInstallable, isInstalled, installPrompt, pushNotifications } =
     usePWA();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -28,9 +30,9 @@ export function PWATester() {
   const handleRequestPermission = async () => {
     const granted = await pushNotifications.requestPermission();
     if (granted) {
-      toast.success("Notification permission granted!");
+      toast.success(t('pushNotifications.granted'));
     } else {
-      toast.error("Notification permission denied");
+      toast.error(t('pushNotifications.denied'));
     }
   };
 
@@ -41,7 +43,7 @@ export function PWATester() {
       icon: "/icons/icon-192.png",
       tag: "test-notification",
     });
-    toast.success("Test notification sent!");
+    toast.success(t('pushNotifications.testSent'));
   };
 
   const handleSendBackgroundNotification = async () => {
@@ -51,7 +53,7 @@ export function PWATester() {
       icon: "/icons/icon-192.png",
       tag: "background-test",
     });
-    toast.success("Background notification sent!");
+    toast.success(t('pushNotifications.backgroundSent'));
   };
 
   const handleInstallPWA = () => {
@@ -68,31 +70,31 @@ export function PWATester() {
       <div className="border rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Download className="h-5 w-5" />
-          PWA Status
+          {t('pwaStatus.title')}
         </h2>
         <p className="text-muted-foreground mb-4">
-          Test Progressive Web App features and installation
+          {t('pwaStatus.description')}
         </p>
 
         <div className="space-y-3 mb-4">
           <div className="flex items-center justify-between">
-            <span>Installable:</span>
+            <span>{t('pwaStatus.installable')}:</span>
             <span
               className={`px-2 py-1 rounded text-sm ${isInstallable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
             >
-              {isInstallable ? "Yes" : "No"}
+              {isInstallable ? t('yes') : t('no')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span>Installed:</span>
+            <span>{t('pwaStatus.installed')}:</span>
             <span
               className={`px-2 py-1 rounded text-sm ${isInstalled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
             >
-              {isInstalled ? "Yes" : "No"}
+              {isInstalled ? t('yes') : t('no')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span>Online Status:</span>
+            <span>{t('pwaStatus.onlineStatus')}:</span>
             <span
               className={`px-2 py-1 rounded text-sm flex items-center gap-1 ${isOnline ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
             >
@@ -101,7 +103,7 @@ export function PWATester() {
               ) : (
                 <WifiOff className="h-4 w-4" />
               )}
-              {isOnline ? "Online" : "Offline"}
+              {isOnline ? t('pwaStatus.online') : t('pwaStatus.offline')}
             </span>
           </div>
         </div>
@@ -109,7 +111,7 @@ export function PWATester() {
         {isInstallable && (
           <Button onClick={handleInstallPWA} className="w-full">
             <Download className="h-4 w-4 mr-2" />
-            Install PWA
+            {t('pwaStatus.installButton')}
           </Button>
         )}
       </div>
@@ -117,23 +119,23 @@ export function PWATester() {
       <div className="border rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Bell className="h-5 w-5" />
-          Push Notifications
+          {t('pushNotifications.title')}
         </h2>
         <p className="text-muted-foreground mb-4">
-          Test browser and service worker notifications
+          {t('pushNotifications.description')}
         </p>
 
         <div className="space-y-3 mb-4">
           <div className="flex items-center justify-between">
-            <span>Supported:</span>
+            <span>{t('pushNotifications.supported')}:</span>
             <span
               className={`px-2 py-1 rounded text-sm ${pushNotifications.isSupported ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
             >
-              {pushNotifications.isSupported ? "Yes" : "No"}
+              {pushNotifications.isSupported ? t('yes') : t('no')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span>Permission:</span>
+            <span>{t('pushNotifications.permission')}:</span>
             <span
               className={`px-2 py-1 rounded text-sm ${
                 pushNotifications.permission === "granted"
@@ -147,11 +149,11 @@ export function PWATester() {
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span>Subscribed:</span>
+            <span>{t('pushNotifications.subscribed')}:</span>
             <span
               className={`px-2 py-1 rounded text-sm ${pushNotifications.isSubscribed ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
             >
-              {pushNotifications.isSubscribed ? "Yes" : "No"}
+              {pushNotifications.isSubscribed ? t('yes') : t('no')}
             </span>
           </div>
         </div>
@@ -163,7 +165,7 @@ export function PWATester() {
             variant="outline"
             className="w-full"
           >
-            Request Permission
+            {t('pushNotifications.requestPermission')}
           </Button>
 
           <Button
@@ -171,7 +173,7 @@ export function PWATester() {
             disabled={pushNotifications.permission !== "granted"}
             className="w-full"
           >
-            Send Browser Notification
+            {t('pushNotifications.sendBrowser')}
           </Button>
 
           <Button
@@ -180,7 +182,7 @@ export function PWATester() {
             variant="outline"
             className="w-full"
           >
-            Send Background Notification
+            {t('pushNotifications.sendBackground')}
           </Button>
         </div>
       </div>
@@ -188,38 +190,38 @@ export function PWATester() {
       <div className="border rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Keyboard className="h-5 w-5" />
-          Keyboard Shortcuts
+          {t('keyboardShortcuts.title')}
         </h2>
         <p className="text-muted-foreground mb-4">
-          Test keyboard shortcuts and custom events
+          {t('keyboardShortcuts.description')}
         </p>
 
         <div className="text-sm text-muted-foreground mb-4">
-          Available shortcuts:
+          {t('keyboardShortcuts.available')}
           <ul className="mt-2 space-y-1">
             <li>
               •{" "}
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+N</kbd>{" "}
-              - New Task
+              - {t('keyboardShortcuts.newTask')}
             </li>
             <li>
               •{" "}
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs">
                 Ctrl+Shift+T
               </kbd>{" "}
-              - Quick Timer
+              - {t('keyboardShortcuts.quickTimer')}
             </li>
             <li>
               •{" "}
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+K</kbd>{" "}
-              - Search
+              - {t('keyboardShortcuts.search')}
             </li>
             <li>
               •{" "}
               <kbd className="px-1 py-0.5 bg-muted rounded text-xs">
                 Ctrl+Shift+I
               </kbd>{" "}
-              - Install PWA
+              - {t('keyboardShortcuts.installPwa')}
             </li>
           </ul>
         </div>
@@ -229,7 +231,7 @@ export function PWATester() {
           variant="outline"
           className="w-full"
         >
-          Trigger New Task Shortcut
+          {t('keyboardShortcuts.triggerNewTask')}
         </Button>
       </div>
     </div>

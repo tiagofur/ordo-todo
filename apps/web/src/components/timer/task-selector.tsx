@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useTranslations } from "next-intl";
 
 interface TaskSelectorProps {
   selectedTaskId?: string | null;
@@ -26,6 +27,7 @@ interface TaskSelectorProps {
 }
 
 export function TaskSelector({ selectedTaskId, onSelect, className, disabled }: TaskSelectorProps) {
+  const t = useTranslations('TaskSelector');
   const [open, setOpen] = useState(false);
   
   // Fetch pending tasks
@@ -51,17 +53,17 @@ export function TaskSelector({ selectedTaskId, onSelect, className, disabled }: 
           {selectedTask ? (
             <span className="truncate font-medium">{selectedTask.title}</span>
           ) : (
-            <span className="text-muted-foreground">Seleccionar tarea para trabajar...</span>
+            <span className="text-muted-foreground">{t('placeholder')}</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Buscar tarea..." />
+          <CommandInput placeholder={t('searchPlaceholder')} />
           <CommandList>
-            <CommandEmpty>No se encontraron tareas.</CommandEmpty>
-            <CommandGroup heading="Tareas Pendientes">
+            <CommandEmpty>{t('noTasks')}</CommandEmpty>
+            <CommandGroup heading={t('groupHeading')}>
               {/* Option to clear selection */}
               <CommandItem
                 value="no-task"
@@ -77,7 +79,7 @@ export function TaskSelector({ selectedTaskId, onSelect, className, disabled }: 
                     !selectedTaskId ? "opacity-100" : "opacity-0"
                   )}
                 />
-                Sin tarea asignada
+                {t('noTaskAssigned')}
               </CommandItem>
               
               {pendingTasks.map((task: any) => (

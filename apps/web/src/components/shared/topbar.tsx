@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
+import { useTranslations } from "next-intl";
+
 export function TopBar() {
+  const t = useTranslations('TopBar');
   const { user, logout } = useAuth();
 
   return (
@@ -23,7 +26,7 @@ export function TopBar() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
-            placeholder="Buscar tareas, proyectos..."
+            placeholder={t('searchPlaceholder')}
             className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background"
           />
         </div>
@@ -59,13 +62,13 @@ export function TopBar() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configuración</DropdownMenuItem>
+            <DropdownMenuItem>{t('profile')}</DropdownMenuItem>
+            <DropdownMenuItem>{t('settings')}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => logout()}>
-              Cerrar Sesión
+              {t('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
