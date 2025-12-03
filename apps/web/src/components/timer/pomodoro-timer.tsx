@@ -50,9 +50,6 @@ export function PomodoroTimer() {
   const accentColor = MODE_COLORS[mode] || "#ef4444";
   const modeLabel = config.defaultMode === "POMODORO" ? t('modes.pomodoro') : t('modes.continuous');
 
-  // Debug logging
-  console.log('PomodoroTimer - mode:', mode, 'accentColor:', accentColor, 'completedPomodoros:', completedPomodoros);
-
   const getModeLabel = () => {
     if (config.defaultMode === "CONTINUOUS") {
       return t('modes.stopwatch');
@@ -134,14 +131,15 @@ export function PomodoroTimer() {
             cx="160"
             cy="160"
             r="150"
-            stroke="currentColor"
             strokeWidth="10"
             fill="none"
             strokeDasharray={`${2 * Math.PI * 150}`}
-            initial={{ strokeDashoffset: 2 * Math.PI * 150 }}
-            animate={{ strokeDashoffset: `${2 * Math.PI * 150 * (1 - getProgress() / 100)}` }}
+            initial={{ strokeDashoffset: 2 * Math.PI * 150, stroke: MODE_COLORS["WORK"] }}
+            animate={{ 
+              strokeDashoffset: `${2 * Math.PI * 150 * (1 - getProgress() / 100)}`,
+              stroke: accentColor 
+            }}
             transition={{ duration: 1 }}
-            style={{ color: accentColor }}
             strokeLinecap="round"
           />
         </svg>

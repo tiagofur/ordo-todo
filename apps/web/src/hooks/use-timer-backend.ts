@@ -41,6 +41,16 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     const [completedPomodoros, setCompletedPomodoros] = useState(() => {
         if (typeof window !== "undefined") {
             const saved = localStorage.getItem("ordo-completed-pomodoros");
+            const savedDate = localStorage.getItem("ordo-pomodoros-date");
+            const today = new Date().toDateString();
+
+            // Reset counter if it's a new day
+            if (savedDate !== today) {
+                localStorage.setItem("ordo-pomodoros-date", today);
+                localStorage.setItem("ordo-completed-pomodoros", "0");
+                return 0;
+            }
+
             return saved ? parseInt(saved, 10) : 0;
         }
         return 0;
@@ -53,7 +63,9 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     useEffect(() => {
         completedPomodorosRef.current = completedPomodoros;
         if (typeof window !== "undefined") {
+            const today = new Date().toDateString();
             localStorage.setItem("ordo-completed-pomodoros", completedPomodoros.toString());
+            localStorage.setItem("ordo-pomodoros-date", today);
         }
     }, [completedPomodoros]);
     const [localPauseStartTime, setLocalPauseStartTime] = useState<Date | null>(null);
@@ -103,7 +115,6 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 const sessionDuration = getDuration(activeSession.type as TimerMode);
                 const remaining = Math.max(0, sessionDuration - elapsed);
                 setTimeLeft(remaining);
-                console.log('useTimerBackend - activeSession.type:', activeSession.type, 'setting mode to:', activeSession.type as TimerMode);
                 setMode(activeSession.type as TimerMode);
             }
 

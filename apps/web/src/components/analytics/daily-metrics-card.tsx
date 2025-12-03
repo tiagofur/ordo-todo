@@ -1,6 +1,6 @@
 "use client";
 
-import { useDailyMetrics } from "@/lib/api-hooks";
+import { useDailyMetrics, useTimerStats } from "@/lib/api-hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Clock, Target, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,8 +12,23 @@ interface DailyMetricsCardProps {
 
 export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
   const t = useTranslations('DailyMetricsCard');
+  
+  // Get date range for today or specified date
+  const targetDate = date || new Date();
+  const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+  const endOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59);
+  
+  // Use useTimerStats for timer-related data (time worked, pomodoros)
+  const { data: timerStats, isLoading: isLoadingTimer } = useTimerStats({
+    startDate: startOfDay.toISOString(),
+    endDate: endOfDay.toISOString(),
+  });
+  
+  // Use useDailyMetrics for task-related data (tasks completed, focus score)
   const dateParam = date ? date.toISOString().split('T')[0] : undefined;
-  const { data: metrics, isLoading } = useDailyMetrics(dateParam ? { startDate: dateParam, endDate: dateParam } : undefined);
+  const { data: metrics, isLoading: isLoadingMetrics } = useDailyMetrics(dateParam ? { startDate: dateParam, endDate: dateParam } : undefined);
+  
+  const isLoading = isLoadingTimer || isLoadingMetrics;
 
   const formatTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
@@ -94,7 +109,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
               <span>{t('metrics.time')}</span>
             </div>
             <div className="text-3xl font-bold">
-              {formatTime(metrics?.minutesWorked || 0)}
+              {formatTime(timerStats?.totalMinutesWorked || 0)}
             </div>
           </div>
 
@@ -105,7 +120,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
               <span>{t('metrics.pomodoros')}</span>
             </div>
             <div className="text-3xl font-bold">
-              {metrics?.pomodorosCompleted || 0}
+              {timerStats?.pomodorosCompleted || 0}
             </div>
           </div>
 
