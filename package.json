@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
-    "@tabler/icons-vue": "^3.35.0"
+    "@tabler/icons-vue": "^3.35.0",
+    "rxjs": "^7.8.2"
   }
 }

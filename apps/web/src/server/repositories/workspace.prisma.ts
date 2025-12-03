@@ -1,5 +1,5 @@
-import { PrismaClient, Workspace as PrismaWorkspace, WorkspaceType as PrismaWorkspaceType, WorkspaceMember as PrismaWorkspaceMember, MemberRole as PrismaMemberRole } from "@prisma/client";
-import { Workspace, WorkspaceRepository, WorkspaceType, WorkspaceMember, MemberRole } from "@ordo-todo/core";
+import { PrismaClient, Workspace as PrismaWorkspace, WorkspaceType as PrismaWorkspaceType, WorkspaceTier as PrismaWorkspaceTier, WorkspaceMember as PrismaWorkspaceMember, MemberRole as PrismaMemberRole } from "@prisma/client";
+import { Workspace, WorkspaceRepository, WorkspaceType, WorkspaceTier, WorkspaceMember, MemberRole } from "@ordo-todo/core";
 
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
     constructor(private readonly prisma: PrismaClient) { }
@@ -8,11 +8,16 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         return new Workspace({
             id: prismaWorkspace.id,
             name: prismaWorkspace.name,
+            slug: prismaWorkspace.slug,
             description: prismaWorkspace.description ?? undefined,
             type: this.mapTypeToDomain(prismaWorkspace.type),
+            tier: this.mapTierToDomain(prismaWorkspace.tier),
             color: prismaWorkspace.color,
             icon: prismaWorkspace.icon ?? undefined,
             ownerId: prismaWorkspace.ownerId ?? undefined,
+            isArchived: prismaWorkspace.isArchived,
+            isDeleted: prismaWorkspace.isDeleted,
+            deletedAt: prismaWorkspace.deletedAt ?? undefined,
             createdAt: prismaWorkspace.createdAt,
             updatedAt: prismaWorkspace.updatedAt,
         });
@@ -66,15 +71,38 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         }
     }
 
+    private mapTierToDomain(tier: PrismaWorkspaceTier): WorkspaceTier {
+        switch (tier) {
+            case "FREE": return "FREE";
+            case "PRO": return "PRO";
+            case "ENTERPRISE": return "ENTERPRISE";
+            default: return "FREE";
+        }
+    }
+
+    private mapTierToPrisma(tier: WorkspaceTier): PrismaWorkspaceTier {
+        switch (tier) {
+            case "FREE": return "FREE";
+            case "PRO": return "PRO";
+            case "ENTERPRISE": return "ENTERPRISE";
+            default: return "FREE";
+        }
+    }
+
     async create(workspace: Workspace): Promise<Workspace> {
         const data = {
             id: workspace.id as string,
             name: workspace.props.name,
+            slug: workspace.props.slug,
             description: workspace.props.description,
             type: this.mapTypeToPrisma(workspace.props.type),
+            tier: this.mapTierToPrisma(workspace.props.tier),
             color: workspace.props.color,
             icon: workspace.props.icon,
             ownerId: workspace.props.ownerId,
+            isArchived: workspace.props.isArchived,
+            isDeleted: workspace.props.isDeleted,
+            deletedAt: workspace.props.deletedAt,
             updatedAt: workspace.props.updatedAt,
         };
 
@@ -106,6 +134,12 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         return this.toDomain(workspace);
     }
 
+    async findBySlug(slug: string): Promise<Workspace | null> {
+        const workspace = await this.prisma.workspace.findUnique({ where: { slug } });
+        if (!workspace) return null;
+        return this.toDomain(workspace);
+    }
+
     async findByOwnerId(ownerId: string): Promise<Workspace[]> {
         const workspaces = await this.prisma.workspace.findMany({ where: { ownerId } });
         return workspaces.map(w => this.toDomain(w));
@@ -114,11 +148,16 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     async update(workspace: Workspace): Promise<Workspace> {
         const data = {
             name: workspace.props.name,
+            slug: workspace.props.slug,
             description: workspace.props.description,
             type: this.mapTypeToPrisma(workspace.props.type),
+            tier: this.mapTierToPrisma(workspace.props.tier),
             color: workspace.props.color,
             icon: workspace.props.icon,
             ownerId: workspace.props.ownerId,
+            isArchived: workspace.props.isArchived,
+            isDeleted: workspace.props.isDeleted,
+            deletedAt: workspace.props.deletedAt,
             updatedAt: workspace.props.updatedAt,
         };
 

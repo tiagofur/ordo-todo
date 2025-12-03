@@ -3,10 +3,11 @@
 import { AppLayout } from "@/components/shared/app-layout";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 import { Clock } from "lucide-react";
+import { TomatoIcon } from "@/components/ui/custom-icons";
 import { useTimer } from "@/components/providers/timer-provider";
 
 export default function TimerPage() {
-  const { mode } = useTimer();
+  const { mode, config } = useTimer();
 
   const MODE_COLORS = {
     WORK: "#ef4444", // Red
@@ -16,6 +17,7 @@ export default function TimerPage() {
   };
 
   const accentColor = MODE_COLORS[mode] || "#ef4444";
+  const isPomodoro = config.defaultMode === "POMODORO";
 
   return (
     <AppLayout>
@@ -31,9 +33,13 @@ export default function TimerPage() {
                   boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
-                <Clock className="h-6 w-6" />
+                {isPomodoro ? (
+                  <TomatoIcon className="h-6 w-6" />
+                ) : (
+                  <Clock className="h-6 w-6" />
+                )}
               </div>
-              Timer
+              {isPomodoro ? "Pomodoro" : "Timer"}
             </h1>
             <p className="text-muted-foreground mt-2">
               Mantén el foco y rastrea tu tiempo de trabajo.

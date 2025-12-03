@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Pause, Square, SkipForward, RefreshCw, Timer } from "lucide-react";
+import { Play, Pause, Square, SkipForward, RefreshCw } from "lucide-react";
 import { useTimer } from "@/components/providers/timer-provider";
 import { TaskSelector } from "./task-selector";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,7 +48,6 @@ export function PomodoroTimer() {
   };
 
   const accentColor = MODE_COLORS[mode] || "#ef4444";
-  const modeLabel = config.defaultMode === "POMODORO" ? t('modes.pomodoro') : t('modes.continuous');
 
   const getModeLabel = () => {
     if (config.defaultMode === "CONTINUOUS") {
@@ -80,12 +79,7 @@ export function PomodoroTimer() {
     <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8">
       {/* Mode & Settings Info */}
       <div className="text-center w-full max-w-sm">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Timer className="w-5 h-5" style={{ color: accentColor }} />
-          <span className="text-sm font-medium text-muted-foreground">
-            {t('mode', { mode: modeLabel })}
-          </span>
-        </div>
+
 
         <AnimatePresence mode="wait">
           <motion.p

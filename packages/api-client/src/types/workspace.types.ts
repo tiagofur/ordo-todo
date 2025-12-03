@@ -54,3 +54,23 @@ export interface AddMemberDto {
   userId: string;
   role: MemberRole;
 }
+
+export interface WorkspaceInvitation {
+  id: string;
+  workspaceId: string;
+  email: string;
+  role: MemberRole;
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED';
+  expiresAt: Date;
+  invitedById?: string;
+  createdAt: Date;
+}
+
+export interface InviteMemberDto {
+  email: string;
+  role?: MemberRole;
+}
+
+export interface AcceptInvitationDto {
+  token: string;
+}

@@ -17,11 +17,13 @@ import { WorkspacesService } from './workspaces.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
+import { InviteMemberDto } from './dto/invite-member.dto';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 
 @Controller('workspaces')
 @UseGuards(JwtAuthGuard)
 export class WorkspacesController {
-  constructor(private readonly workspacesService: WorkspacesService) {}
+  constructor(private readonly workspacesService: WorkspacesService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -65,6 +67,16 @@ export class WorkspacesController {
     return this.workspacesService.addMember(workspaceId, addMemberDto);
   }
 
+  @Get(':id/members')
+  getMembers(@Param('id') workspaceId: string) {
+    return this.workspacesService.getMembers(workspaceId);
+  }
+
+  @Get(':id/invitations')
+  getInvitations(@Param('id') workspaceId: string) {
+    return this.workspacesService.getInvitations(workspaceId);
+  }
+
   @Delete(':id/members/:userId')
   @HttpCode(HttpStatus.NO_CONTENT)
   removeMember(
@@ -72,5 +84,38 @@ export class WorkspacesController {
     @Param('userId') userId: string,
   ) {
     return this.workspacesService.removeMember(workspaceId, userId);
+  }
+
+  @Post(':id/archive')
+  @HttpCode(HttpStatus.OK)
+  archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.workspacesService.archive(id, user.id);
+  }
+
+  @Post(':id/invite')
+  @HttpCode(HttpStatus.CREATED)
+  inviteMember(
+    @Param('id') workspaceId: string,
+    @Body() inviteMemberDto: InviteMemberDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.workspacesService.inviteMember(
+      workspaceId,
+      user.id,
+      inviteMemberDto.email,
+      inviteMemberDto.role ?? 'MEMBER',
+    );
+  }
+
+  @Post('invitations/accept')
+  @HttpCode(HttpStatus.OK)
+  acceptInvitation(
+    @Body() acceptInvitationDto: AcceptInvitationDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.workspacesService.acceptInvitation(
+      acceptInvitationDto.token,
+      user.id,
+    );
   }
 }

@@ -53,7 +53,7 @@ export class PrismaProductivityReportRepository implements ProductivityReportRep
       productivityScore: report.props.productivityScore,
       metricsSnapshot: report.props.metricsSnapshot as Prisma.InputJsonValue,
       generatedAt: report.props.generatedAt,
-      aiModel: report.props.aiModel,
+      aiModel: report.props.aiModel || 'gemini-1.5-flash',
     };
 
     const saved = await this.prisma.productivityReport.create({ data });

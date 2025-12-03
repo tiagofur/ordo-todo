@@ -482,7 +482,63 @@
       "updateError": "Error al actualizar workspace",
       "deleted": "Workspace eliminado",
       "deleteError": "Error al eliminar workspace"
+    },
+    "tabs": {
+      "general": "General",
+      "members": "Miembros"
     }
+  },
+  "InviteMemberDialog": {
+    "title": "Invitar Miembro",
+    "description": "Invita a un nuevo miembro a este workspace.",
+    "emailLabel": "Correo Electrónico",
+    "roleLabel": "Rol",
+    "rolePlaceholder": "Selecciona un rol",
+    "roles": {
+      "admin": "Admin",
+      "member": "Miembro",
+      "viewer": "Visualizador"
+    },
+    "cancel": "Cancelar",
+    "invite": "Invitar",
+    "success": "Invitación enviada exitosamente",
+    "successWithToken": "Invitación creada (Copia el link abajo)",
+    "error": "Error al enviar invitación",
+    "inviteLink": "Enlace de Invitación (Dev/MVP)",
+    "copied": "Enlace copiado al portapapeles",
+    "done": "Listo",
+    "devTokenNote": "Nota: En producción, esto se enviaría por correo."
+  },
+  "WorkspaceMembersSettings": {
+    "membersTitle": "Miembros del Workspace",
+    "membersDescription": "Gestiona quién tiene acceso a este workspace.",
+    "inviteMember": "Invitar Miembro",
+    "loading": "Cargando miembros...",
+    "user": "Usuario",
+    "role": "Rol",
+    "joined": "Se unió",
+    "unknownUser": "Usuario Desconocido",
+    "remove": "Eliminar",
+    "confirmRemove": "¿Estás seguro de eliminar a este miembro?",
+    "invitationsTitle": "Invitaciones Pendientes",
+    "invitationsDescription": "Invitaciones enviadas que aún no han sido aceptadas.",
+    "email": "Correo",
+    "status": "Estado",
+    "sent": "Enviado"
+  },
+  "AcceptInvitationPage": {
+    "title": "Aceptar Invitación",
+    "description": "Has sido invitado a unirte a un workspace en Ordo Todo.",
+    "missingToken": "Falta el token de invitación.",
+    "confirmText": "¿Quieres aceptar esta invitación y unirte al workspace?",
+    "processing": "Procesando invitación...",
+    "success": "¡Te has unido al workspace exitosamente!",
+    "redirecting": "Redirigiendo a tus workspaces...",
+    "failed": "No se pudo aceptar la invitación",
+    "acceptButton": "Aceptar Invitación",
+    "goToWorkspaces": "Ir a mis Workspaces",
+    "backHome": "Volver al Inicio",
+    "error": "Ocurrió un error inesperado."
   },
   "CreateTagDialog": {
     "title": {

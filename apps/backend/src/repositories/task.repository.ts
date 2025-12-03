@@ -190,7 +190,28 @@ export class PrismaTaskRepository implements TaskRepository {
   }
 
   async update(task: Task): Promise<void> {
-    await this.save(task);
+    const data = {
+      title: task.props.title,
+      description: task.props.description,
+      status: this.mapStatusToPrisma(task.props.status),
+      priority: this.mapPriorityToPrisma(task.props.priority),
+      dueDate: task.props.dueDate,
+      estimatedMinutes: task.props.estimatedTime,
+      projectId: task.props.projectId,
+      creatorId: task.props.creatorId,
+      parentTaskId: task.props.parentTaskId ?? null,
+    };
+
+    console.log(`[PrismaTaskRepository] Updating task ${task.id}`, {
+      originalStatus: task.props.status,
+      mappedStatus: data.status,
+      data
+    });
+
+    await this.prisma.task.update({
+      where: { id: task.id as string },
+      data,
+    });
   }
 
   async delete(id: string): Promise<void> {

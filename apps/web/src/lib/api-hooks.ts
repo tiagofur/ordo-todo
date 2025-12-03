@@ -44,6 +44,8 @@ import type {
   UpdateCommentDto,
   // Attachment
   CreateAttachmentDto,
+  InviteMemberDto,
+  AcceptInvitationDto,
 } from '@ordo-todo/api-client';
 
 // ============ QUERY KEYS ============
@@ -55,6 +57,8 @@ export const queryKeys = {
   // Workspaces
   workspaces: ['workspaces'] as const,
   workspace: (id: string) => ['workspaces', id] as const,
+  workspaceMembers: (id: string) => ['workspaces', id, 'members'] as const,
+  workspaceInvitations: (id: string) => ['workspaces', id, 'invitations'] as const,
 
   // Workflows
   workflows: (workspaceId: string) => ['workflows', workspaceId] as const,
@@ -226,6 +230,46 @@ export function useRemoveWorkspaceMember() {
       apiClient.removeWorkspaceMember(workspaceId, userId),
     onSuccess: (_, { workspaceId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceMembers(workspaceId) });
+    },
+  });
+}
+
+export function useWorkspaceMembers(workspaceId: string) {
+  return useQuery({
+    queryKey: queryKeys.workspaceMembers(workspaceId),
+    queryFn: () => apiClient.getWorkspaceMembers(workspaceId),
+    enabled: !!workspaceId,
+  });
+}
+
+export function useWorkspaceInvitations(workspaceId: string) {
+  return useQuery({
+    queryKey: queryKeys.workspaceInvitations(workspaceId),
+    queryFn: () => apiClient.getWorkspaceInvitations(workspaceId),
+    enabled: !!workspaceId,
+  });
+}
+
+export function useInviteMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: InviteMemberDto }) =>
+      apiClient.inviteWorkspaceMember(workspaceId, data),
+    onSuccess: (_, { workspaceId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceInvitations(workspaceId) });
+    },
+  });
+}
+
+export function useAcceptInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: AcceptInvitationDto) => apiClient.acceptWorkspaceInvitation(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
     },
   });
 }

@@ -114,56 +114,73 @@ export class TasksService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
-    const task = await this.taskRepository.findById(id);
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
+    try {
+      const task = await this.taskRepository.findById(id);
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
 
-    const oldTask = task.props;
-    const updatedTask = task.update(updateTaskDto);
-    await this.taskRepository.save(updatedTask);
+      const oldTask = task.props;
 
-    // Log specific field changes
-    if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {
-      await this.activitiesService.logStatusChanged(
-        id,
-        userId,
-        oldTask.status,
-        updateTaskDto.status,
+      // Remove undefined fields from updateTaskDto to avoid overwriting with undefined
+      const cleanUpdateDto = Object.fromEntries(
+        Object.entries(updateTaskDto).filter(([_, v]) => v !== undefined)
       );
-    }
 
-    if (updateTaskDto.priority && updateTaskDto.priority !== oldTask.priority) {
-      await this.activitiesService.logPriorityChanged(
-        id,
-        userId,
-        oldTask.priority,
-        updateTaskDto.priority,
-      );
-    }
+      const updatedTask = task.update(cleanUpdateDto);
 
-    if (
-      updateTaskDto.dueDate !== undefined &&
-      updateTaskDto.dueDate?.toString() !== oldTask.dueDate?.toString()
-    ) {
-      await this.activitiesService.logDueDateChanged(
-        id,
-        userId,
-        oldTask.dueDate?.toISOString() || null,
-        updateTaskDto.dueDate?.toISOString() || null,
-      );
-    }
+      this.logger.debug(`Updating task ${id} with data: ${JSON.stringify(updateTaskDto)}`);
 
-    // Log general update if other fields changed
-    if (
-      updateTaskDto.title ||
-      updateTaskDto.description ||
-      updateTaskDto.estimatedTime
-    ) {
-      await this.activitiesService.logTaskUpdated(id, userId);
-    }
+      await this.taskRepository.update(updatedTask);
+      this.logger.debug(`Task ${id} updated successfully`);
 
-    return updatedTask.props;
+      // Log specific field changes
+      if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {
+        this.logger.debug(`Logging status change for task ${id}`);
+        await this.activitiesService.logStatusChanged(
+          id,
+          userId,
+          oldTask.status,
+          updateTaskDto.status,
+        );
+      }
+
+      if (updateTaskDto.priority && updateTaskDto.priority !== oldTask.priority) {
+        this.logger.debug(`Logging priority change for task ${id}`);
+        await this.activitiesService.logPriorityChanged(
+          id,
+          userId,
+          oldTask.priority,
+          updateTaskDto.priority,
+        );
+      }
+
+      if (
+        updateTaskDto.dueDate !== undefined &&
+        updateTaskDto.dueDate?.toString() !== oldTask.dueDate?.toString()
+      ) {
+        await this.activitiesService.logDueDateChanged(
+          id,
+          userId,
+          oldTask.dueDate?.toISOString() || null,
+          updateTaskDto.dueDate?.toISOString() || null,
+        );
+      }
+
+      // Log general update if other fields changed
+      if (
+        updateTaskDto.title ||
+        updateTaskDto.description ||
+        updateTaskDto.estimatedTime
+      ) {
+        await this.activitiesService.logTaskUpdated(id, userId);
+      }
+
+      return updatedTask.props;
+    } catch (error) {
+      this.logger.error(`Failed to update task ${id}`, error);
+      throw error;
+    }
   }
 
   async remove(id: string) {

@@ -482,7 +482,63 @@
       "updateError": "Error updating workspace",
       "deleted": "Workspace deleted",
       "deleteError": "Error deleting workspace"
+    },
+    "tabs": {
+      "general": "General",
+      "members": "Members"
     }
+  },
+  "InviteMemberDialog": {
+    "title": "Invite Member",
+    "description": "Invite a new member to this workspace.",
+    "emailLabel": "Email Address",
+    "roleLabel": "Role",
+    "rolePlaceholder": "Select a role",
+    "roles": {
+      "admin": "Admin",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "cancel": "Cancel",
+    "invite": "Invite",
+    "success": "Invitation sent successfully",
+    "successWithToken": "Invitation created (Copy link below)",
+    "error": "Error sending invitation",
+    "inviteLink": "Invitation Link (Dev/MVP)",
+    "copied": "Link copied to clipboard",
+    "done": "Done",
+    "devTokenNote": "Note: In production, this would be sent via email."
+  },
+  "WorkspaceMembersSettings": {
+    "membersTitle": "Workspace Members",
+    "membersDescription": "Manage who has access to this workspace.",
+    "inviteMember": "Invite Member",
+    "loading": "Loading members...",
+    "user": "User",
+    "role": "Role",
+    "joined": "Joined",
+    "unknownUser": "Unknown User",
+    "remove": "Remove",
+    "confirmRemove": "Are you sure you want to remove this member?",
+    "invitationsTitle": "Pending Invitations",
+    "invitationsDescription": "Invitations sent but not yet accepted.",
+    "email": "Email",
+    "status": "Status",
+    "sent": "Sent"
+  },
+  "AcceptInvitationPage": {
+    "title": "Accept Invitation",
+    "description": "You have been invited to join a workspace on Ordo Todo.",
+    "missingToken": "Invitation token is missing.",
+    "confirmText": "Do you want to accept this invitation and join the workspace?",
+    "processing": "Processing invitation...",
+    "success": "You have successfully joined the workspace!",
+    "redirecting": "Redirecting to your workspaces...",
+    "failed": "Could not accept invitation",
+    "acceptButton": "Accept Invitation",
+    "goToWorkspaces": "Go to my Workspaces",
+    "backHome": "Back to Home",
+    "error": "An unexpected error occurred."
   },
   "CreateTagDialog": {
     "title": {

@@ -22,6 +22,8 @@ import type {
   CreateCommentDto,
   UpdateCommentDto,
   CreateAttachmentDto,
+  InviteMemberDto,
+  AcceptInvitationDto,
 } from '@ordo-todo/api-client';
 import { useSyncStore } from '@/stores/sync-store';
 import { PendingActionType } from '@/lib/offline-storage';
@@ -229,6 +231,10 @@ export const apiClient = {
   deleteWorkspace: (id: string) => axiosInstance.delete(`/workspaces/${id}`).then((res) => res.data),
   addWorkspaceMember: (id: string, data: AddMemberDto) => axiosInstance.post(`/workspaces/${id}/members`, data).then((res) => res.data),
   removeWorkspaceMember: (id: string, userId: string) => axiosInstance.delete(`/workspaces/${id}/members/${userId}`).then((res) => res.data),
+  getWorkspaceMembers: (id: string) => axiosInstance.get(`/workspaces/${id}/members`).then((res) => res.data),
+  getWorkspaceInvitations: (id: string) => axiosInstance.get(`/workspaces/${id}/invitations`).then((res) => res.data),
+  inviteWorkspaceMember: (id: string, data: InviteMemberDto) => axiosInstance.post(`/workspaces/${id}/invite`, data).then((res) => res.data),
+  acceptWorkspaceInvitation: (data: AcceptInvitationDto) => axiosInstance.post('/workspaces/invitations/accept', data).then((res) => res.data),
 
   // Workflow
   getWorkflows: (workspaceId: string) => axiosInstance.get('/workflows', { params: { workspaceId } }).then((res) => res.data),

@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private toDomain(prismaUser: PrismaUser): User {
     return new User({
@@ -58,5 +58,11 @@ export class PrismaUserRepository implements UserRepository {
       return domainUser.withoutPassword();
     }
     return domainUser;
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) return null;
+    return this.toDomain(user);
   }
 }

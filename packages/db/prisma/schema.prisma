@@ -32,6 +32,10 @@ model User {
   comments       Comment[]
   attachments    Attachment[]
   activities     Activity[]
+  
+  // Workspace Management
+  sentInvitations WorkspaceInvitation[]
+  auditLogs       WorkspaceAuditLog[]
 
   // AI Data
   aiProfile      AIProfile?
@@ -133,8 +137,10 @@ enum EnergyLevel {
 model Workspace {
   id          String   @id @default(cuid())
   name        String
+  slug        String   @unique // NUEVO: Para URLs amigables
   description String?
   type        WorkspaceType
+  tier        WorkspaceTier @default(FREE) // NUEVO: Preparado para monetización futura
   color       String   @default("#2563EB")
   icon        String?
 
@@ -149,11 +155,91 @@ model Workspace {
   projects    Project[]
   tags        Tag[]
 
+  // NUEVAS RELACIONES
+  settings    WorkspaceSettings?
+  invitations WorkspaceInvitation[]
+  audits      WorkspaceAuditLog[]
+
+  // NUEVO: Estados de ciclo de vida
+  isArchived  Boolean   @default(false)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+
   // Timestamps
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([ownerId])
+  @@index([slug])
+}
+
+enum WorkspaceTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+// NUEVO: Configuraciones específicas del workspace
+model WorkspaceSettings {
+  id            String   @id @default(cuid())
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId   String   @unique
+  
+  defaultView   ViewType?  @default(LIST)
+  defaultDueTime Int?    // minutos desde inicio del día
+  timezone      String?  // ej. "America/Mexico_City"
+  locale        String?  // ej. "es-MX"
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// NUEVO: Gestión de invitaciones
+model WorkspaceInvitation {
+  id           String      @id @default(cuid())
+  workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId  String
+  
+  email        String
+  tokenHash    String      // Hash del token para seguridad
+  role         MemberRole  @default(MEMBER)
+  status       InviteStatus  @default(PENDING)
+  
+  invitedById  String?
+  invitedBy    User?        @relation(fields: [invitedById], references: [id])
+  
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([workspaceId])
+  @@index([email])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+// NUEVO: Logs de auditoría (Importante para planes TEAM/ENTERPRISE)
+model WorkspaceAuditLog {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  actorId      String?   // Usuario que realizó la acción
+  actor        User?     @relation(fields: [actorId], references: [id])
+  
+  action       String    // ej. "MEMBER_INVITED", "PROJECT_DELETED"
+  payload      Json?     // Detalles del cambio
+  
+  createdAt    DateTime  @default(now())
+
+  @@index([workspaceId, createdAt])
 }
 
 enum WorkspaceType {

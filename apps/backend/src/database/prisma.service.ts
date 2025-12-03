@@ -129,4 +129,16 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get activity() {
     return this.prisma.activity;
   }
+
+  get workspaceInvitation() {
+    return this.prisma.workspaceInvitation;
+  }
+
+  get workspaceSettings() {
+    return this.prisma.workspaceSettings;
+  }
+
+  get workspaceAuditLog() {
+    return this.prisma.workspaceAuditLog;
+  }
 }

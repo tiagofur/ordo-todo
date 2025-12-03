@@ -6,12 +6,13 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { TomatoIcon } from "@/components/ui/custom-icons";
 
 export function TimerWidget() {
   const t = useTranslations('TimerWidget');
   const pathname = usePathname();
   const isActive = pathname === "/timer";
-  const { isRunning, timeLeft, formatTime, mode } = useTimer();
+  const { isRunning, timeLeft, formatTime, mode, config } = useTimer();
 
   const getThemeClasses = () => {
     if (!isActive && !isRunning) {
@@ -62,7 +63,7 @@ export function TimerWidget() {
         {isRunning ? (
           <Play className="h-4 w-4" />
         ) : (
-          <Clock className="h-4 w-4" />
+          config.defaultMode === "POMODORO" ? <TomatoIcon className="h-4 w-4" /> : <Clock className="h-4 w-4" />
         )}
         <div className="flex-1">
           {isRunning ? (

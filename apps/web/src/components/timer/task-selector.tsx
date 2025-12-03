@@ -85,11 +85,12 @@ export function TaskSelector({ selectedTaskId, onSelect, className, disabled }: 
               {pendingTasks.map((task: any) => (
                 <CommandItem
                   key={task.id}
-                  value={`${task.title}___${task.id}`}
+                  value={task.id}
                   keywords={[task.title]}
-                  disabled={false}
-                  onSelect={() => {
-                    onSelect(String(task.id));
+                  onSelect={(currentValue) => {
+                    // currentValue will be the task.id (lowercased by cmdk, but ids are usually safe or we can use the closure)
+                    // We use the closure task.id to be safe about casing
+                    onSelect(task.id);
                     setOpen(false);
                   }}
                 >

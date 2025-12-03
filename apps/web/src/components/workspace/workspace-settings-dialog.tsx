@@ -25,6 +25,14 @@ import {
 } from "@/components/ui/select";
 import { useTranslations } from "next-intl";
 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { WorkspaceMembersSettings } from "./workspace-members-settings";
+
 interface WorkspaceSettingsDialogProps {
   workspaceId: string;
   open: boolean;
@@ -38,6 +46,7 @@ export function WorkspaceSettingsDialog({
 }: WorkspaceSettingsDialogProps) {
   const t = useTranslations('WorkspaceSettingsDialog');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
 
   const { data: workspace, isLoading } = useWorkspace(workspaceId);
 
@@ -98,7 +107,7 @@ export function WorkspaceSettingsDialog({
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] gap-0 p-0 overflow-hidden bg-background border-border shadow-lg">
+        <DialogContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden bg-background border-border shadow-lg">
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
@@ -109,9 +118,9 @@ export function WorkspaceSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] gap-0 p-0 overflow-hidden bg-background border-border shadow-2xl">
-        <div className="p-6 pb-0">
-          <DialogHeader className="mb-6">
+      <DialogContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden bg-background border-border shadow-2xl max-h-[85vh] flex flex-col">
+        <div className="p-6 pb-2">
+          <DialogHeader className="mb-4">
             <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">
               {t('title')}
             </DialogTitle>
@@ -120,143 +129,157 @@ export function WorkspaceSettingsDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              {/* Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-semibold text-foreground">
-                  {t('form.name.label')}
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={t('form.name.placeholder')}
-                  required
-                  className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30 font-medium"
-                />
-              </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="general">{t('tabs.general')}</TabsTrigger>
+              <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
+            </TabsList>
+            
+            <div className="overflow-y-auto max-h-[50vh] pr-1">
+              <TabsContent value="general" className="mt-0 space-y-6">
+                <form id="workspace-settings-form" onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-4">
+                    {/* Name */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm font-semibold text-foreground">
+                        {t('form.name.label')}
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder={t('form.name.placeholder')}
+                        required
+                        className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30 font-medium"
+                      />
+                    </div>
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-semibold text-foreground">
-                  {t('form.description.label')}
-                </Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder={t('form.description.placeholder')}
-                  rows={3}
-                  className="bg-muted/30 border-input focus-visible:ring-primary/30 resize-none"
-                />
-              </div>
+                    {/* Description */}
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-sm font-semibold text-foreground">
+                        {t('form.description.label')}
+                      </Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder={t('form.description.placeholder')}
+                        rows={3}
+                        className="bg-muted/30 border-input focus-visible:ring-primary/30 resize-none"
+                      />
+                    </div>
 
-              {/* Type */}
-              <div className="space-y-2">
-                <Label htmlFor="type" className="text-sm font-semibold text-foreground">
-                  {t('form.type.label')}
-                </Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => setFormData({ ...formData, type: value as any })}
-                >
-                  <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PERSONAL">
-                      <span className="flex items-center gap-2">
-                        👤 {t('form.type.options.PERSONAL')}
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="WORK">
-                      <span className="flex items-center gap-2">
-                        💼 {t('form.type.options.WORK')}
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="TEAM">
-                      <span className="flex items-center gap-2">
-                        👥 {t('form.type.options.TEAM')}
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-[0.8rem] text-muted-foreground">
-                  {t('form.type.helper')}
-                </p>
-              </div>
+                    {/* Type */}
+                    <div className="space-y-2">
+                      <Label htmlFor="type" className="text-sm font-semibold text-foreground">
+                        {t('form.type.label')}
+                      </Label>
+                      <Select
+                        value={formData.type}
+                        onValueChange={(value) => setFormData({ ...formData, type: value as any })}
+                      >
+                        <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PERSONAL">
+                            <span className="flex items-center gap-2">
+                              👤 {t('form.type.options.PERSONAL')}
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="WORK">
+                            <span className="flex items-center gap-2">
+                              💼 {t('form.type.options.WORK')}
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="TEAM">
+                            <span className="flex items-center gap-2">
+                              👥 {t('form.type.options.TEAM')}
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[0.8rem] text-muted-foreground">
+                        {t('form.type.helper')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Danger Zone */}
+                  <div className="rounded-lg border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4 mt-8">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-medium text-red-900 dark:text-red-200">{t('dangerZone.title')}</h4>
+                        <p className="text-xs text-red-700 dark:text-red-300/70">
+                          {t('dangerZone.description')}
+                        </p>
+                      </div>
+                      {!showDeleteConfirm ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDelete}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t('dangerZone.delete')}
+                        </Button>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDelete}
+                            disabled={deleteWorkspaceMutation.isPending}
+                          >
+                            {deleteWorkspaceMutation.isPending ? t('dangerZone.deleting') : t('dangerZone.confirm')}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setShowDeleteConfirm(false)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="members" className="mt-0">
+                <WorkspaceMembersSettings workspaceId={workspaceId} />
+              </TabsContent>
             </div>
-
-            <div className="pt-2"></div>
-          </form>
+          </Tabs>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 bg-muted/10 border-t border-border flex flex-col gap-6">
-           {/* Danger Zone */}
-           <div className="rounded-lg border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h4 className="text-sm font-medium text-red-900 dark:text-red-200">{t('dangerZone.title')}</h4>
-                  <p className="text-xs text-red-700 dark:text-red-300/70">
-                    {t('dangerZone.description')}
-                  </p>
-                </div>
-                {!showDeleteConfirm ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    {t('dangerZone.delete')}
-                  </Button>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleDelete}
-                      disabled={deleteWorkspaceMutation.isPending}
-                    >
-                      {deleteWorkspaceMutation.isPending ? t('dangerZone.deleting') : t('dangerZone.confirm')}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setShowDeleteConfirm(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="px-6"
-              >
-                {t('actions.cancel')}
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={updateWorkspaceMutation.isPending}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
-              >
-                <Save className="mr-2 h-4 w-4" />
-                {updateWorkspaceMutation.isPending ? t('actions.saving') : t('actions.save')}
-              </Button>
-            </div>
+        <div className="p-6 bg-muted/10 border-t border-border flex justify-end gap-3 mt-auto">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="px-6"
+          >
+            {t('actions.cancel')}
+          </Button>
+          {activeTab === "general" && (
+            <Button
+              type="submit"
+              form="workspace-settings-form"
+              disabled={updateWorkspaceMutation.isPending}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {updateWorkspaceMutation.isPending ? t('actions.saving') : t('actions.save')}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

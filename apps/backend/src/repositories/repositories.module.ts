@@ -11,6 +11,7 @@ import { PrismaTimerRepository } from './timer.repository';
 import { PrismaAnalyticsRepository } from './analytics.repository';
 import { PrismaAIProfileRepository } from './ai-profile.repository';
 import { PrismaProductivityReportRepository } from './productivity-report.repository';
+import { PrismaWorkspaceInvitationRepository } from './workspace-invitation.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -71,6 +72,12 @@ import { PrismaProductivityReportRepository } from './productivity-report.reposi
         new PrismaProductivityReportRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'WorkspaceInvitationRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaWorkspaceInvitationRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -83,6 +90,7 @@ import { PrismaProductivityReportRepository } from './productivity-report.reposi
     'AnalyticsRepository',
     'AIProfileRepository',
     'ProductivityReportRepository',
+    'WorkspaceInvitationRepository',
   ],
 })
-export class RepositoriesModule {}
+export class RepositoriesModule { }

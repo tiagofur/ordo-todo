@@ -148,11 +148,17 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 setTimeLeft(0);
                 setMode("CONTINUOUS");
             } else {
-                setTimeLeft(getDuration("WORK"));
-                setMode("WORK");
+                // If we are switching from CONTINUOUS to POMODORO, or if we are currently in CONTINUOUS mode
+                // reset to WORK. Otherwise, keep current mode (WORK, SHORT_BREAK, LONG_BREAK) and update duration.
+                if (mode === "CONTINUOUS") {
+                    setTimeLeft(getDuration("WORK"));
+                    setMode("WORK");
+                } else {
+                    setTimeLeft(getDuration(mode));
+                }
             }
         }
-    }, [config, getDuration, activeSession, isRunning, isPaused, type]);
+    }, [config, getDuration, activeSession, isRunning, isPaused, type, mode]);
 
     const start = useCallback(async () => {
         try {

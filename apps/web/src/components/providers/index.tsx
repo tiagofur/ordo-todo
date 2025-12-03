@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { TimerProvider } from "./timer-provider";
+import { TimerSettingsProvider } from "./timer-settings-provider";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -35,10 +36,12 @@ export function Providers({ children }: ProvidersProps) {
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <TimerProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-          </TimerProvider>
+          <TimerSettingsProvider>
+            <TimerProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </TimerProvider>
+          </TimerSettingsProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
