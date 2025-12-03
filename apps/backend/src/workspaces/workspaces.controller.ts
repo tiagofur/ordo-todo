@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -19,6 +20,7 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto';
 
 @Controller('workspaces')
 @UseGuards(JwtAuthGuard)
@@ -116,6 +118,36 @@ export class WorkspacesController {
     return this.workspacesService.acceptInvitation(
       acceptInvitationDto.token,
       user.id,
+    );
+  }
+
+  // ============ WORKSPACE SETTINGS ============
+
+  @Get(':id/settings')
+  getSettings(@Param('id') workspaceId: string) {
+    return this.workspacesService.getSettings(workspaceId);
+  }
+
+  @Put(':id/settings')
+  updateSettings(
+    @Param('id') workspaceId: string,
+    @Body() updateSettingsDto: UpdateWorkspaceSettingsDto,
+  ) {
+    return this.workspacesService.updateSettings(workspaceId, updateSettingsDto);
+  }
+
+  // ============ AUDIT LOGS ============
+
+  @Get(':id/audit-logs')
+  getAuditLogs(
+    @Param('id') workspaceId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.workspacesService.getAuditLogs(
+      workspaceId,
+      limit ? parseInt(limit, 10) : undefined,
+      offset ? parseInt(offset, 10) : undefined,
     );
   }
 }

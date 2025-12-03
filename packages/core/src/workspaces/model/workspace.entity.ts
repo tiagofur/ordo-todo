@@ -20,6 +20,13 @@ export interface WorkspaceProps extends EntityProps {
 
     createdAt?: Date;
     updatedAt?: Date;
+
+    // Stats (Read-only)
+    stats?: {
+        projectCount: number;
+        taskCount: number;
+        memberCount: number;
+    };
 }
 
 export class Workspace extends Entity<WorkspaceProps> {
@@ -71,6 +78,12 @@ export class Workspace extends Entity<WorkspaceProps> {
         return this.clone({
             isArchived: false,
             updatedAt: new Date(),
+        });
+    }
+
+    setStats(stats: { projectCount: number; taskCount: number; memberCount: number }): Workspace {
+        return this.clone({
+            stats,
         });
     }
 }

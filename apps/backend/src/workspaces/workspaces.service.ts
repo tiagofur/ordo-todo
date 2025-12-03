@@ -4,7 +4,12 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import type { WorkspaceRepository, UserRepository } from '@ordo-todo/core';
+import type {
+  WorkspaceRepository,
+  UserRepository,
+  WorkspaceSettingsRepository,
+  WorkspaceAuditLogRepository,
+} from '@ordo-todo/core';
 import {
   CreateWorkspaceUseCase,
   AddMemberToWorkspaceUseCase,
@@ -13,6 +18,10 @@ import {
   ArchiveWorkspaceUseCase,
   InviteMemberUseCase,
   AcceptInvitationUseCase,
+  UpdateWorkspaceSettingsUseCase,
+  GetWorkspaceSettingsUseCase,
+  CreateAuditLogUseCase,
+  GetWorkspaceAuditLogsUseCase,
 } from '@ordo-todo/core';
 import type { WorkspaceInvitationRepository } from '@ordo-todo/core';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
@@ -28,6 +37,10 @@ export class WorkspacesService {
     private readonly invitationRepository: WorkspaceInvitationRepository,
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
+    @Inject('WorkspaceSettingsRepository')
+    private readonly settingsRepository: WorkspaceSettingsRepository,
+    @Inject('WorkspaceAuditLogRepository')
+    private readonly auditLogRepository: WorkspaceAuditLogRepository,
   ) { }
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
@@ -41,15 +54,26 @@ export class WorkspacesService {
       color: createWorkspaceDto.color ?? '#2563EB',
       ownerId: userId,
     });
+
+    // Log workspace creation
+    await this.createAuditLog(workspace.id as string, 'WORKSPACE_CREATED', userId, {
+      name: workspace.props.name,
+      type: workspace.props.type,
+    });
+
     return workspace.props;
   }
 
   async findAll(userId: string) {
-    const workspaces = await this.workspaceRepository.findByOwnerId(userId);
-    // Filter out deleted workspaces (although repository should probably handle this, but for now filtering here is safer)
+    const workspaces = await this.workspaceRepository.findByUserId(userId);
+    // Filter out deleted workspaces (repository already handles this but keeping safe)
     return workspaces
       .filter(w => !w.props.isDeleted)
-      .map((w) => w.props);
+      .map((w) => ({
+        ...w.props,
+        // Ensure stats are passed
+        stats: w.props.stats
+      }));
   }
 
   async findOne(id: string) {
@@ -68,6 +92,12 @@ export class WorkspacesService {
 
     const updatedWorkspace = workspace.update(updateWorkspaceDto);
     await this.workspaceRepository.update(updatedWorkspace);
+
+    // Log workspace update
+    await this.createAuditLog(id, 'WORKSPACE_UPDATED', undefined, {
+      changes: updateWorkspaceDto,
+    });
+
     return updatedWorkspace.props;
   }
 
@@ -78,6 +108,10 @@ export class WorkspacesService {
 
     try {
       await softDeleteUseCase.execute(id, userId);
+
+      // Log workspace deletion
+      await this.createAuditLog(id, 'WORKSPACE_DELETED', userId);
+
       return { success: true };
     } catch (error) {
       if (error.message === 'Workspace not found') {
@@ -97,6 +131,10 @@ export class WorkspacesService {
 
     try {
       const workspace = await archiveUseCase.execute(id, userId);
+
+      // Log workspace archive
+      await this.createAuditLog(id, 'WORKSPACE_ARCHIVED', userId);
+
       return workspace.props;
     } catch (error) {
       if (error.message === 'Workspace not found') {
@@ -118,6 +156,13 @@ export class WorkspacesService {
       addMemberDto.userId,
       addMemberDto.role ?? 'MEMBER',
     );
+
+    // Log member addition
+    await this.createAuditLog(workspaceId, 'MEMBER_ADDED', undefined, {
+      userId: addMemberDto.userId,
+      role: addMemberDto.role ?? 'MEMBER',
+    });
+
     return member.props;
   }
 
@@ -125,6 +170,12 @@ export class WorkspacesService {
     const removeMemberFromWorkspaceUseCase =
       new RemoveMemberFromWorkspaceUseCase(this.workspaceRepository);
     await removeMemberFromWorkspaceUseCase.execute(workspaceId, userId);
+
+    // Log member removal
+    await this.createAuditLog(workspaceId, 'MEMBER_REMOVED', undefined, {
+      userId,
+    });
+
     return { success: true };
   }
 
@@ -136,6 +187,13 @@ export class WorkspacesService {
 
     try {
       const result = await inviteMemberUseCase.execute(workspaceId, email, role, userId);
+
+      // Log member invitation
+      await this.createAuditLog(workspaceId, 'MEMBER_INVITED', userId, {
+        email,
+        role,
+      });
+
       // In a real app, we would send the email here using result.token
       return {
         success: true,
@@ -159,7 +217,19 @@ export class WorkspacesService {
     );
 
     try {
+      // Get invitation first to extract workspaceId for audit log
+      const invitation = await this.invitationRepository.findByToken(token);
+      if (!invitation) {
+        throw new NotFoundException('Invalid invitation token');
+      }
+
+      const workspaceId = invitation.props.workspaceId;
+
       await acceptInvitationUseCase.execute(token, userId);
+
+      // Log invitation acceptance
+      await this.createAuditLog(workspaceId, 'INVITATION_ACCEPTED', userId);
+
       return { success: true, message: 'Invitation accepted' };
     } catch (error) {
       if (error.message === 'Invalid invitation token' || error.message === 'Invitation expired' || error.message === 'Invitation is not pending') {
@@ -187,5 +257,81 @@ export class WorkspacesService {
   async getInvitations(workspaceId: string) {
     const invitations = await this.invitationRepository.findByWorkspaceId(workspaceId);
     return invitations.map(i => i.props);
+  }
+
+  // ============ WORKSPACE SETTINGS ============
+
+  async getSettings(workspaceId: string) {
+    const getSettingsUseCase = new GetWorkspaceSettingsUseCase(
+      this.settingsRepository,
+    );
+
+    const settings = await getSettingsUseCase.execute({ workspaceId });
+    return settings ? settings.props : null;
+  }
+
+  async updateSettings(
+    workspaceId: string,
+    settingsDto: {
+      defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+      defaultDueTime?: number;
+      timezone?: string;
+      locale?: string;
+    },
+  ) {
+    const updateSettingsUseCase = new UpdateWorkspaceSettingsUseCase(
+      this.settingsRepository,
+    );
+
+    const settings = await updateSettingsUseCase.execute({
+      workspaceId,
+      ...settingsDto,
+    });
+
+    // Log the settings update
+    await this.createAuditLog(workspaceId, 'SETTINGS_UPDATED', undefined, {
+      changes: settingsDto,
+    });
+
+    return settings.props;
+  }
+
+  // ============ AUDIT LOGS ============
+
+  async getAuditLogs(workspaceId: string, limit?: number, offset?: number) {
+    const getAuditLogsUseCase = new GetWorkspaceAuditLogsUseCase(
+      this.auditLogRepository,
+    );
+
+    const result = await getAuditLogsUseCase.execute({
+      workspaceId,
+      limit,
+      offset,
+    });
+
+    return {
+      logs: result.logs.map(log => log.props),
+      total: result.total,
+    };
+  }
+
+  async createAuditLog(
+    workspaceId: string,
+    action: string,
+    actorId?: string,
+    payload?: Record<string, any>,
+  ) {
+    const createAuditLogUseCase = new CreateAuditLogUseCase(
+      this.auditLogRepository,
+    );
+
+    const log = await createAuditLogUseCase.execute({
+      workspaceId,
+      actorId,
+      action: action as any, // Type assertion for flexibility
+      payload,
+    });
+
+    return log.props;
   }
 }

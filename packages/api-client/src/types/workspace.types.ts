@@ -15,6 +15,11 @@ export interface Workspace {
   ownerId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  stats?: {
+    projectCount: number;
+    taskCount: number;
+    memberCount: number;
+  };
 }
 
 export interface WorkspaceMember {

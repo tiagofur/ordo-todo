@@ -184,34 +184,91 @@ Esta lista de tareas está organizada para ser implementada secuencialmente.
 - ⚠️ **Pendiente para Producción**: Integración de servicio de email, hashing de tokens.
 - 📚 **Documentación**: Ver `docs/implementation/workspace-invitations-complete.md`
 
-### Fase 4: Configuración y Auditoría (Polish)
-- [ ] **Settings**:
-    - [ ] Endpoint para leer/escribir `WorkspaceSettings`.
-    - [ ] UI de Configuración del Workspace - Pestaña de Configuración adicional (timezone, locale, etc).
-- [ ] **Auditoría**:
-    - [ ] Implementar un `AuditService` o decorador en Backend que registre acciones críticas en `WorkspaceAuditLog`.
-    - [ ] Vista simple de "Activity Log" en la configuración del workspace.
+### Fase 4: Configuración y Auditoría ✅ **COMPLETADO**
+- [x] **Settings**:
+    - [x] Backend - Entidades y Use Cases:
+        - [x] `WorkspaceSettings` entity con defaultView, defaultDueTime, timezone, locale
+        - [x] `WorkspaceSettingsRepository` interface
+        - [x] `UpdateWorkspaceSettingsUseCase` y `GetWorkspaceSettingsUseCase`
+        - [x] `PrismaWorkspaceSettingsRepository` implementación
+    - [x] Backend - API Endpoints:
+        - [x] `GET /workspaces/:id/settings` - Obtener configuración
+        - [x] `PUT /workspaces/:id/settings` - Actualizar configuración
+        - [x] `UpdateWorkspaceSettingsDto` con validación
+    - [x] Frontend - Componentes UI:
+        - [x] `WorkspaceConfigurationSettings` - Formulario de configuración
+        - [x] Selector de vista predeterminada (LIST, KANBAN, CALENDAR, TIMELINE, FOCUS)
+        - [x] Input de hora predeterminada para fechas de vencimiento
+        - [x] Selector de zona horaria
+        - [x] Selector de idioma/región (locale)
+        - [x] Integración con `WorkspaceSettingsDialog` (pestaña "Configuration")
+    - [x] Frontend - Hooks y API:
+        - [x] `useWorkspaceSettings()` hook
+        - [x] `useUpdateWorkspaceSettings()` hook
+        - [x] API client methods
+    - [x] Internacionalización (EN) completa
+- [x] **Auditoría**:
+    - [x] Backend - Entidades y Use Cases:
+        - [x] `WorkspaceAuditLog` entity con workspaceId, actorId, action, payload
+        - [x] `WorkspaceAuditLogRepository` interface con paginación
+        - [x] `CreateAuditLogUseCase` y `GetWorkspaceAuditLogsUseCase`
+        - [x] `PrismaWorkspaceAuditLogRepository` implementación
+    - [x] Backend - API Endpoints:
+        - [x] `GET /workspaces/:id/audit-logs?limit&offset` - Obtener logs paginados
+    - [x] Backend - Integración automática de audit logging en:
+        - [x] `WORKSPACE_CREATED` - Creación de workspace
+        - [x] `WORKSPACE_UPDATED` - Actualización de workspace
+        - [x] `WORKSPACE_DELETED` - Eliminación de workspace
+        - [x] `WORKSPACE_ARCHIVED` - Archivado de workspace
+        - [x] `MEMBER_ADDED` - Agregar miembro
+        - [x] `MEMBER_REMOVED` - Remover miembro
+        - [x] `MEMBER_INVITED` - Invitar miembro
+        - [x] `INVITATION_ACCEPTED` - Aceptar invitación
+        - [x] `SETTINGS_UPDATED` - Actualizar configuración
+    - [x] Frontend - Componentes UI:
+        - [x] `WorkspaceActivityLog` - Vista de historial de actividad
+        - [x] Lista de logs con iconos y colores dinámicos por tipo de acción
+        - [x] Información de actor y timestamp relativo
+        - [x] Visualización de payload de detalles
+        - [x] Paginación (10 items por página)
+        - [x] Empty state y loading state
+        - [x] Integración con `WorkspaceSettingsDialog` (pestaña "Activity")
+    - [x] Frontend - Hooks y API:
+        - [x] `useWorkspaceAuditLogs()` hook con paginación
+        - [x] API client methods
+    - [x] Internacionalización (EN) completa
+
+**Notas de Implementación**:
+- ✅ Sistema completo de configuración por workspace
+- ✅ Audit trail automático para todas las operaciones críticas
+- ✅ UI intuitiva con 4 pestañas: General, Members, Configuration, Activity
+- ✅ Paginación eficiente para logs de auditoría
+- ✅ Iconos y colores para identificación visual de acciones
+- 📚 **Documentación**: Ver resumen de implementación en sesión
 
 ### Fase 5: UI/UX Refinements
 - [ ] **Workspace Selector**: Actualizar para mostrar iconos/colores y agrupar por Personal/Equipos.
-- [ ] **Rutas con Slug**: (Opcional) Migrar rutas del frontend para usar `/:workspaceSlug/...` en lugar de IDs, mejorando la compartibilidad.
+- [ ] **Workspace Dashboard**: Vista general con estadísticas y métricas.
+- [ ] **Rutas con Slug**: (Opcional) Migrar rutas del frontend para usar `/:workspaceSlug/...` en lugar de IDs.
+- [ ] **Mejoras de UX**: Drag & drop, shortcuts de teclado, notificaciones en tiempo real.
 
 ---
 
 ## 4. Estado del Proyecto
 
-### ✅ Completado (60%)
+### ✅ Completado (80%)
 - **Fase 1**: Base de Datos y Core (100%)
 - **Fase 2**: Gestión Avanzada de Workspace (100%)
 - **Fase 3**: Sistema de Invitaciones (100%)
+- **Fase 4**: Configuración y Auditoría (100%) ⭐ **NUEVO**
 
 ### 🚧 En Progreso
 - Ninguno
 
-### 📋 Pendiente (40%)
-- **Fase 4**: Configuración y Auditoría
+### 📋 Pendiente (20%)
 - **Fase 5**: UI/UX Refinements
 
-### 📊 Progreso General: 60% (3/5 fases completadas)
+### 📊 Progreso General: 80% (4/5 fases completadas)
 
-**Última Actualización**: 2 de Diciembre, 2025
+**Última Actualización**: 3 de Diciembre, 2025
+

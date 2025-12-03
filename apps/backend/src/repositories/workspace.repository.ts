@@ -189,6 +189,44 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     return workspaces.map((w) => this.toDomain(w));
   }
 
+  async findByUserId(userId: string): Promise<Workspace[]> {
+    const workspaces = await this.prisma.workspace.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } }
+        ],
+        isDeleted: false,
+      },
+      include: {
+        _count: {
+          select: {
+            projects: true,
+            members: true,
+          }
+        },
+        projects: {
+          select: {
+            _count: {
+              select: { tasks: true }
+            }
+          }
+        }
+      }
+    });
+
+    return workspaces.map((w) => {
+      const domainWorkspace = this.toDomain(w);
+      const taskCount = w.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+
+      return domainWorkspace.setStats({
+        projectCount: w._count.projects,
+        memberCount: w._count.members,
+        taskCount: taskCount,
+      });
+    });
+  }
+
   async update(workspace: Workspace): Promise<Workspace> {
     const data = {
       name: workspace.props.name,

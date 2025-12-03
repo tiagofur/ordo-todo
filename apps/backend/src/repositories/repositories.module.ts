@@ -12,6 +12,8 @@ import { PrismaAnalyticsRepository } from './analytics.repository';
 import { PrismaAIProfileRepository } from './ai-profile.repository';
 import { PrismaProductivityReportRepository } from './productivity-report.repository';
 import { PrismaWorkspaceInvitationRepository } from './workspace-invitation.repository';
+import { PrismaWorkspaceSettingsRepository } from './workspace-settings.repository';
+import { PrismaWorkspaceAuditLogRepository } from './workspace-audit-log.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -78,6 +80,18 @@ import { PrismaWorkspaceInvitationRepository } from './workspace-invitation.repo
         new PrismaWorkspaceInvitationRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'WorkspaceSettingsRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaWorkspaceSettingsRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'WorkspaceAuditLogRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaWorkspaceAuditLogRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -91,6 +105,8 @@ import { PrismaWorkspaceInvitationRepository } from './workspace-invitation.repo
     'AIProfileRepository',
     'ProductivityReportRepository',
     'WorkspaceInvitationRepository',
+    'WorkspaceSettingsRepository',
+    'WorkspaceAuditLogRepository',
   ],
 })
 export class RepositoriesModule { }

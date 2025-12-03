@@ -236,6 +236,19 @@ export const apiClient = {
   inviteWorkspaceMember: (id: string, data: InviteMemberDto) => axiosInstance.post(`/workspaces/${id}/invite`, data).then((res) => res.data),
   acceptWorkspaceInvitation: (data: AcceptInvitationDto) => axiosInstance.post('/workspaces/invitations/accept', data).then((res) => res.data),
 
+  // Workspace Settings
+  getWorkspaceSettings: (id: string) => axiosInstance.get(`/workspaces/${id}/settings`).then((res) => res.data),
+  updateWorkspaceSettings: (id: string, data: {
+    defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+    defaultDueTime?: number;
+    timezone?: string;
+    locale?: string;
+  }) => axiosInstance.put(`/workspaces/${id}/settings`, data).then((res) => res.data),
+
+  // Workspace Audit Logs
+  getWorkspaceAuditLogs: (id: string, params?: { limit?: number; offset?: number }) =>
+    axiosInstance.get(`/workspaces/${id}/audit-logs`, { params }).then((res) => res.data),
+
   // Workflow
   getWorkflows: (workspaceId: string) => axiosInstance.get('/workflows', { params: { workspaceId } }).then((res) => res.data),
   createWorkflow: (data: CreateWorkflowDto) => axiosInstance.post('/workflows', data).then((res) => res.data),

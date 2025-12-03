@@ -32,6 +32,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { WorkspaceMembersSettings } from "./workspace-members-settings";
+import { WorkspaceConfigurationSettings } from "./workspace-configuration-settings";
+import { WorkspaceActivityLog } from "./workspace-activity-log";
 
 interface WorkspaceSettingsDialogProps {
   workspaceId: string;
@@ -130,9 +132,11 @@ export function WorkspaceSettingsDialog({
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-4 mb-4">
               <TabsTrigger value="general">{t('tabs.general')}</TabsTrigger>
               <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
+              <TabsTrigger value="configuration">{t('tabs.configuration')}</TabsTrigger>
+              <TabsTrigger value="activity">{t('tabs.activity')}</TabsTrigger>
             </TabsList>
             
             <div className="overflow-y-auto max-h-[50vh] pr-1">
@@ -254,6 +258,14 @@ export function WorkspaceSettingsDialog({
 
               <TabsContent value="members" className="mt-0">
                 <WorkspaceMembersSettings workspaceId={workspaceId} />
+              </TabsContent>
+
+              <TabsContent value="configuration" className="mt-0">
+                <WorkspaceConfigurationSettings workspaceId={workspaceId} />
+              </TabsContent>
+
+              <TabsContent value="activity" className="mt-0">
+                <WorkspaceActivityLog workspaceId={workspaceId} />
               </TabsContent>
             </div>
           </Tabs>

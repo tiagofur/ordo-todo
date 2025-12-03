@@ -59,6 +59,9 @@ export const queryKeys = {
   workspace: (id: string) => ['workspaces', id] as const,
   workspaceMembers: (id: string) => ['workspaces', id, 'members'] as const,
   workspaceInvitations: (id: string) => ['workspaces', id, 'invitations'] as const,
+  workspaceSettings: (id: string) => ['workspaces', id, 'settings'] as const,
+  workspaceAuditLogs: (id: string, params?: { limit?: number; offset?: number }) =>
+    ['workspaces', id, 'audit-logs', params] as const,
 
   // Workflows
   workflows: (workspaceId: string) => ['workflows', workspaceId] as const,
@@ -271,6 +274,46 @@ export function useAcceptInvitation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
     },
+  });
+}
+
+// ============ WORKSPACE SETTINGS HOOKS ============
+
+export function useWorkspaceSettings(workspaceId: string) {
+  return useQuery({
+    queryKey: queryKeys.workspaceSettings(workspaceId),
+    queryFn: () => apiClient.getWorkspaceSettings(workspaceId),
+    enabled: !!workspaceId,
+  });
+}
+
+export function useUpdateWorkspaceSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceId, data }: {
+      workspaceId: string;
+      data: {
+        defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+        defaultDueTime?: number;
+        timezone?: string;
+        locale?: string;
+      }
+    }) => apiClient.updateWorkspaceSettings(workspaceId, data),
+    onSuccess: (_, { workspaceId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceSettings(workspaceId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
+    },
+  });
+}
+
+// ============ WORKSPACE AUDIT LOGS HOOKS ============
+
+export function useWorkspaceAuditLogs(workspaceId: string, params?: { limit?: number; offset?: number }) {
+  return useQuery({
+    queryKey: queryKeys.workspaceAuditLogs(workspaceId, params),
+    queryFn: () => apiClient.getWorkspaceAuditLogs(workspaceId, params),
+    enabled: !!workspaceId,
   });
 }
 
