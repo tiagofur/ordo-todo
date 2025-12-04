@@ -150,7 +150,13 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(onSubmit)(e);
+            }} 
+            className="space-y-6"
+          >
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title" className="text-sm font-medium text-foreground">{t('form.title')}</Label>
@@ -191,29 +197,56 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             {/* Hidden project ID if provided */}
             {projectId && <input type="hidden" {...register("projectId")} />}
 
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
+              <textarea
+                id="description"
+                {...register("description")}
+                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                placeholder={t('form.descriptionPlaceholder')}
+              />
+            </div>
+
+            {/* Priority */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-foreground">{t('form.priority')}</Label>
+              <div className="flex gap-2">
+                {priorities.map((p) => {
+                  const isSelected = currentPriority === p.value;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setValue("priority", p.value as any)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
+                        isSelected
+                          ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {isSelected && <Flag className="w-3 h-3 fill-current" />}
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
-              {/* Priority */}
+              {/* Estimated Minutes */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-foreground">{t('form.priority')}</Label>
-                <div className="flex gap-2">
-                  {priorities.map((p) => {
-                    const isSelected = currentPriority === p.value;
-                    return (
-                      <button
-                        key={p.value}
-                        type="button"
-                        onClick={() => setValue("priority", p.value as any)}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
-                          isSelected
-                            ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                        }`}
-                      >
-                        {isSelected && <Flag className="w-3 h-3 fill-current" />}
-                        {p.label}
-                      </button>
-                    );
-                  })}
+                <Label htmlFor="estimatedMinutes" className="text-sm font-medium text-foreground">{t('form.estimatedMinutes')}</Label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="estimatedMinutes"
+                    {...register("estimatedMinutes", { valueAsNumber: true })}
+                    min="1"
+                    placeholder="30"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
 
@@ -225,38 +258,24 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                     type="date"
                     id="dueDate"
                     {...register("dueDate")}
+                    autoComplete="off"
+                    onKeyDown={(e) => {
+                      // Prevent Enter key from interfering
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    }}
+                    onFocus={(e) => {
+                      // Prevent auto-opening date picker on focus
+                      e.target.blur();
+                      setTimeout(() => e.target.focus(), 0);
+                    }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
-
-              {/* Estimated Minutes */}
-              <div className="space-y-2">
-                <Label htmlFor="estimatedMinutes" className="text-sm font-medium text-foreground">{t('form.estimatedMinutes')}</Label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    id="estimatedMinutes"
-                    {...register("estimatedMinutes")}
-                    min="0"
-                    placeholder="30"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
-              <textarea
-                id="description"
-                {...register("description")}
-                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder={t('form.descriptionPlaceholder')}
-              />
             </div>
 
             <DialogFooter className="pt-2">

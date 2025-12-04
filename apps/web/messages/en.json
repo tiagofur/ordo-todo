@@ -815,7 +815,13 @@
   "TaskList": {
     "loading": "Loading tasks...",
     "error": "Error loading tasks: {message}",
-    "empty": "No tasks yet. Add one above!"
+    "empty": "No tasks yet. Add one above!",
+    "emptyMyTasks": "No tasks assigned to you yet.",
+    "retry": "Retry",
+    "filters": {
+      "allTasks": "All Tasks",
+      "myTasks": "My Tasks"
+    }
   },
   "TaskDetailPanel": {
     "title": "Task Details",

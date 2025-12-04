@@ -21,6 +21,12 @@ export interface Task {
   actualTime: number | null;
   projectId: string;
   creatorId: string;
+  assigneeId: string | null;
+  assignee?: {
+    id: string;
+    name: string;
+    image?: string;
+  } | null;
   parentTaskId: string | null;
   position: number;
   createdAt: Date;
@@ -67,6 +73,7 @@ export interface UpdateTaskDto {
   priority?: TaskPriority;
   dueDate?: Date | string | null;
   estimatedTime?: number;
+  assigneeId?: string | null;
 }
 
 export interface CreateSubtaskDto {

@@ -3,7 +3,7 @@ description: "Especializado en refactoring: componentización, eliminación de c
 tools: [edit, search, usages, changes]
 ---
 
-# ♻️ PPN Refactoring Expert
+# ♻️ Ordo-Todo Refactoring Expert
 
 Experto en **refactoring** y mejora de código existente.
 
@@ -20,145 +20,103 @@ Experto en **refactoring** y mejora de código existente.
 
 ## 🔄 Refactoring Patterns
 
-### Flutter: Componentización
+### React/Next.js: Componentización
 
-#### ❌ BEFORE: Monolithic Screen (500+ líneas)
+#### ❌ BEFORE: Monolithic Page (500+ líneas)
 
-```dart
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // 100 líneas de header
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage: NetworkImage(user.avatar),
-                  ),
-                  SizedBox(width: 16),
-                  Column(
-                    children: [
-                      Text(user.name, style: TextStyle(fontSize: 24)),
-                      Text(user.email, style: TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            
-            // 200 líneas de stats
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  // Stats duplicados...
-                ],
-              ),
-            ),
-            
-            // 200 líneas más...
-          ],
-        ),
-      ),
-    );
-  }
+```typescript
+function ProfilePage() {
+  const { data: user } = useUser();
+  const { data: tasks } = useTasks();
+  
+  return (
+    <div className="container mx-auto p-4">
+      {/* 100 líneas de header */}
+      <div className="flex items-center gap-4 p-6 bg-card rounded-lg">
+        <img 
+          src={user.avatar} 
+          className="w-20 h-20 rounded-full"
+        />
+        <div>
+          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <p className="text-muted-foreground">{user.email}</p>
+        </div>
+      </div>
+      
+      {/* 200 líneas de stats */}
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        {/* Stats duplicados... */}
+      </div>
+      
+      {/* 200 líneas más... */}
+    </div>
+  );
 }
 ```
 
-#### ✅ AFTER: Componentized (< 150 líneas cada uno)
+#### ✅ AFTER: Componentized (< 100 líneas cada uno)
 
-```dart
-// profile_screen.dart (~100 líneas)
-class ProfileScreen extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
-    
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          ProfileHeader(user: user),
-          ProfileStats(stats: user.stats),
-          ProfileAchievements(achievements: user.achievements),
-          ProfileRecentActivity(activities: user.recentActivities),
-        ],
-      ),
-    );
-  }
+```typescript
+// app/profile/page.tsx (~50 líneas)
+async function ProfilePage() {
+  const user = await getUser();
+  
+  return (
+    <div className="container mx-auto p-4 space-y-6">
+      <ProfileHeader user={user} />
+      <ProfileStats stats={user.stats} />
+      <ProfileActivity activities={user.recentActivities} />
+    </div>
+  );
 }
 
-// widgets/profile_header.dart (~80 líneas)
-class ProfileHeader extends StatelessWidget {
-  final User user;
-  
-  const ProfileHeader({super.key, required this.user});
-  
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return SliverToBoxAdapter(
-      child: ThemedCard(
-        child: Row(
-          children: [
-            UserAvatar(
-              imageUrl: user.avatar,
-              radius: 40,
-            ),
-            SizedBox(width: AppConstants.spacingM),
-            Expanded(
-              child: UserInfo(
-                name: user.name,
-                email: user.email,
-                verified: user.verified,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+// components/profile/profile-header.tsx (~40 líneas)
+interface ProfileHeaderProps {
+  user: User;
 }
 
-// widgets/profile_stats.dart (~60 líneas)
-class ProfileStats extends StatelessWidget {
-  final UserStats stats;
-  
-  const ProfileStats({super.key, required this.stats});
-  
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: ThemedCard(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            StatItem(
-              icon: Icons.timer,
-              value: stats.totalSessions.toString(),
-              label: 'Sessions',
-            ),
-            StatItem(
-              icon: Icons.trending_up,
-              value: stats.streak.toString(),
-              label: 'Day Streak',
-            ),
-            StatItem(
-              icon: Icons.access_time,
-              value: '${stats.totalHours}h',
-              label: 'Total Time',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+export function ProfileHeader({ user }: ProfileHeaderProps) {
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-4">
+        <Avatar className="w-20 h-20">
+          <AvatarImage src={user.avatar} />
+          <AvatarFallback>{user.name[0]}</AvatarFallback>
+        </Avatar>
+        <div>
+          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <p className="text-muted-foreground">{user.email}</p>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// components/profile/profile-stats.tsx (~50 líneas)
+interface ProfileStatsProps {
+  stats: UserStats;
+}
+
+export function ProfileStats({ stats }: ProfileStatsProps) {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <StatCard
+        icon={<Timer className="h-5 w-5" />}
+        value={stats.totalSessions}
+        label="Sessions"
+      />
+      <StatCard
+        icon={<TrendingUp className="h-5 w-5" />}
+        value={stats.streak}
+        label="Day Streak"
+      />
+      <StatCard
+        icon={<Clock className="h-5 w-5" />}
+        value={`${stats.totalHours}h`}
+        label="Total Time"
+      />
+    </div>
+  );
 }
 ```
 
@@ -169,34 +127,29 @@ class ProfileStats extends StatelessWidget {
 ```typescript
 @Controller('tasks')
 export class TasksController {
-  constructor(
-    @InjectRepository(Task) private taskRepo: Repository<Task>,
-    @InjectRepository(Project) private projectRepo: Repository<Project>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @Post()
-  async create(@Req() req: AuthenticatedRequest, @Body() dto: CreateTaskDto) {
+  async create(@CurrentUser() user: RequestUser, @Body() dto: CreateTaskDto) {
     // 50 líneas de validación y lógica de negocio aquí
-    const project = await this.projectRepo.findOne({ where: { id: dto.projectId } });
+    const project = await this.prisma.project.findUnique({ 
+      where: { id: dto.projectId } 
+    });
     if (!project) throw new NotFoundException('Project not found');
     
-    if (project.userId !== req.user.userId) {
+    if (project.userId !== user.id) {
       throw new ForbiddenException('Not your project');
     }
     
-    const task = this.taskRepo.create({
-      ...dto,
-      userId: req.user.userId,
-      status: 'pending',
-      createdAt: new Date(),
+    const task = await this.prisma.task.create({
+      data: {
+        ...dto,
+        userId: user.id,
+        status: 'TODO',
+      },
     });
     
-    await this.taskRepo.save(task);
-    
-    // Enviar notificación
-    // Actualizar analytics
     // Más lógica...
-    
     return task;
   }
 }
@@ -212,45 +165,33 @@ export class TasksController {
 
   @Post()
   @ApiOperation({ summary: 'Create new task' })
-  async create(@Req() req: AuthenticatedRequest, @Body() dto: CreateTaskDto) {
-    return this.tasksService.create(req.user.userId, dto);
+  async create(@CurrentUser() user: RequestUser, @Body() dto: CreateTaskDto) {
+    return this.tasksService.create(user.id, dto);
   }
 }
 
-// tasks.service.ts (~80 líneas)
+// tasks.service.ts (~60 líneas)
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectRepository(Task) private taskRepo: Repository<Task>,
+    private readonly prisma: PrismaService,
     private readonly projectsService: ProjectsService,
-    private readonly notificationsService: NotificationsService,
-    private readonly analyticsService: AnalyticsService,
   ) {}
 
   async create(userId: string, dto: CreateTaskDto): Promise<Task> {
     // Validar permisos
-    await this.projectsService.verifyUserAccess(userId, dto.projectId);
+    if (dto.projectId) {
+      await this.projectsService.verifyUserAccess(userId, dto.projectId);
+    }
     
     // Crear tarea
-    const task = await this.createTask(userId, dto);
-    
-    // Side effects
-    await Promise.all([
-      this.notificationsService.taskCreated(task),
-      this.analyticsService.trackTaskCreation(task),
-    ]);
-    
-    return task;
-  }
-
-  private async createTask(userId: string, dto: CreateTaskDto): Promise<Task> {
-    const task = this.taskRepo.create({
-      ...dto,
-      userId,
-      status: TaskStatus.PENDING,
+    return this.prisma.task.create({
+      data: {
+        ...dto,
+        userId,
+        status: 'TODO',
+      },
     });
-    
-    return this.taskRepo.save(task);
   }
 }
 ```
@@ -259,49 +200,36 @@ export class TasksService {
 
 ### 1. Duplicated Code
 
-```dart
+```typescript
 // ❌ Duplicado
-Container(
-  padding: EdgeInsets.all(16),
-  decoration: BoxDecoration(
-    color: theme.colors.surface,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: Text('Content 1'),
-)
+<div className="p-4 bg-card rounded-lg shadow-sm">
+  <h3 className="font-semibold">Section 1</h3>
+  <p className="text-muted-foreground">Content 1</p>
+</div>
 
-Container(
-  padding: EdgeInsets.all(16),
-  decoration: BoxDecoration(
-    color: theme.colors.surface,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: Text('Content 2'),
-)
+<div className="p-4 bg-card rounded-lg shadow-sm">
+  <h3 className="font-semibold">Section 2</h3>
+  <p className="text-muted-foreground">Content 2</p>
+</div>
 
 // ✅ Componente reutilizable
-class ThemedCard extends StatelessWidget {
-  final Widget child;
-  
-  const ThemedCard({super.key, required this.child});
-  
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: EdgeInsets.all(AppConstants.spacingM),
-      decoration: BoxDecoration(
-        color: theme.componentColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-      ),
-      child: child,
-    );
-  }
+interface SectionCardProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+function SectionCard({ title, children }: SectionCardProps) {
+  return (
+    <Card className="p-4">
+      <h3 className="font-semibold">{title}</h3>
+      <p className="text-muted-foreground">{children}</p>
+    </Card>
+  );
 }
 
 // Uso
-ThemedCard(child: Text('Content 1'))
-ThemedCard(child: Text('Content 2'))
+<SectionCard title="Section 1">Content 1</SectionCard>
+<SectionCard title="Section 2">Content 2</SectionCard>
 ```
 
 ### 2. Magic Numbers/Strings
@@ -332,8 +260,7 @@ setTimeout(() => checkStatus(), STATUS_CHECK_INTERVAL_MS);
 async processPayment(userId: string, amount: number) {
   // Validar usuario
   // Validar monto
-  // Crear intención de pago
-  // Procesar con Stripe
+  // Procesar pago
   // Actualizar subscription
   // Enviar email
   // Log analytics
@@ -343,30 +270,11 @@ async processPayment(userId: string, amount: number) {
 // ✅ Métodos pequeños y enfocados
 async processPayment(userId: string, amount: number) {
   await this.validatePaymentRequest(userId, amount);
-  const paymentIntent = await this.createPaymentIntent(userId, amount);
-  await this.processWithStripe(paymentIntent);
+  const payment = await this.createPayment(userId, amount);
   await this.updateUserSubscription(userId);
-  await this.sendConfirmationEmail(userId, paymentIntent);
-  await this.logPaymentAnalytics(paymentIntent);
+  await this.sendConfirmationEmail(userId, payment);
+  await this.logPaymentAnalytics(payment);
 }
-```
-
-### 4. Hardcoded Values
-
-```dart
-// ❌ Hardcoded
-Container(
-  color: Color(0xFF2196F3),
-  padding: EdgeInsets.all(16),
-  child: Text('Hello', style: TextStyle(fontSize: 18)),
-)
-
-// ✅ Theme system
-Container(
-  color: theme.colorScheme.primary,
-  padding: EdgeInsets.all(AppConstants.spacingM),
-  child: Text('Hello', style: theme.textTheme.titleMedium),
-)
 ```
 
 ## 📋 Refactoring Checklist
@@ -393,98 +301,42 @@ Container(
 - [ ] No breaking changes (o documentados)
 - [ ] Performance igual o mejor
 
-## 🎯 Refactoring Techniques
-
-### Extract Component/Widget
-
-```dart
-// 1. Identificar bloque reutilizable
-// 2. Copiar código a nuevo archivo
-// 3. Parametrizar valores dinámicos
-// 4. Reemplazar duplicados con nuevo componente
-// 5. Validar que funciona igual
-```
-
-### Extract Service/Method
-
-```typescript
-// 1. Identificar lógica cohesiva
-// 2. Crear método privado con lógica
-// 3. Reemplazar código original con llamada
-// 4. Parametrizar dependencias
-// 5. Mover a service si se usa en múltiples lugares
-```
-
-### Introduce Constant
-
-```dart
-// 1. Identificar valor repetido
-// 2. Crear constante con nombre descriptivo
-// 3. Reemplazar todas las ocurrencias
-// 4. Agrupar constantes relacionadas
-```
-
-### Simplify Conditional
-
-```typescript
-// ❌ Complejo
-if (user.isPremium && user.sessionsCompleted > 50 && user.streak > 7) {
-  grantAchievement();
-}
-
-// ✅ Expresivo
-const hasEarnedEliteStatus = 
-  user.isPremium && 
-  user.sessionsCompleted > ELITE_SESSIONS_THRESHOLD &&
-  user.streak > ELITE_STREAK_THRESHOLD;
-
-if (hasEarnedEliteStatus) {
-  grantAchievement();
-}
-```
-
 ## 📐 Architecture Improvements
 
-### Before: Feature Folders Mixing Concerns
+### Before: Mixed Concerns
 
 ```
-lib/
-├── screens/
-│   ├── login_screen.dart
-│   ├── profile_screen.dart
-│   └── tasks_screen.dart
-├── services/
-│   ├── auth_service.dart
-│   └── task_service.dart
-└── widgets/
-    └── random_widgets.dart
+src/
+├── pages/
+│   ├── profile.tsx
+│   ├── tasks.tsx
+│   └── settings.tsx
+├── components/
+│   └── random-components.tsx
+└── utils/
+    └── helpers.ts
 ```
 
 ### After: Feature-First Organization
 
 ```
-lib/
-├── features/
-│   ├── auth/
-│   │   ├── presentation/
-│   │   │   ├── login_screen.dart
-│   │   │   └── widgets/
-│   │   ├── domain/
-│   │   │   └── auth_service.dart
-│   │   └── data/
-│   │       └── auth_repository.dart
-│   ├── tasks/
-│   │   ├── presentation/
-│   │   │   ├── tasks_screen.dart
-│   │   │   └── widgets/
-│   │   ├── domain/
-│   │   │   └── task_service.dart
-│   │   └── data/
-│   └── profile/
-└── core/
-    ├── widgets/
-    ├── theme/
-    └── constants/
+src/
+├── app/                    # Next.js App Router
+│   ├── (dashboard)/
+│   │   ├── profile/
+│   │   ├── tasks/
+│   │   └── settings/
+│   └── api/
+├── components/
+│   ├── ui/                 # Base components (shadcn)
+│   ├── profile/            # Profile-specific
+│   ├── tasks/              # Task-specific
+│   └── shared/             # Shared components
+├── lib/
+│   ├── api-client.ts
+│   ├── api-hooks.ts
+│   └── utils.ts
+└── stores/                 # Zustand stores
 ```
 
 ---

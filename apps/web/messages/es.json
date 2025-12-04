@@ -815,7 +815,13 @@
   "TaskList": {
     "loading": "Cargando tareas...",
     "error": "Error al cargar tareas: {message}",
-    "empty": "No hay tareas aún. ¡Agrega una arriba!"
+    "empty": "No hay tareas aún. ¡Agrega una arriba!",
+    "emptyMyTasks": "No tienes tareas asignadas aún.",
+    "retry": "Reintentar",
+    "filters": {
+      "allTasks": "Todas las Tareas",
+      "myTasks": "Mis Tareas"
+    }
   },
   "TaskDetailPanel": {
     "title": "Detalles de la Tarea",

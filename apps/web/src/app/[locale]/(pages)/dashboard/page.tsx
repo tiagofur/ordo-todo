@@ -13,8 +13,11 @@ import {
   List,
   LayoutGrid,
   ListChecks,
+  Plus,
+  Timer,
+  FolderPlus,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
 import { useTimerStats, useDailyMetrics } from "@/lib/api-hooks";
@@ -23,6 +26,9 @@ import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { UpcomingTasksWidget } from "@/components/dashboard/upcoming-tasks-widget";
 import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
+import { CreateTaskDialog } from "@/components/task/create-task-dialog";
+import { CreateProjectDialog } from "@/components/project/create-project-dialog";
+import { useRouter } from "next/navigation";
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
@@ -30,6 +36,7 @@ type ViewMode = "list" | "grid";
 export default function DashboardPage() {
   const t = useTranslations("Dashboard");
   const format = useFormatter();
+  const router = useRouter();
   const accentColor = "#06b6d4"; // Cyan
 
   // UI State
@@ -37,6 +44,12 @@ export default function DashboardPage() {
   const [showCompleted, setShowCompleted] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  // Quick Actions State
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
+  const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+
 
   // Get today's date range
   const today = new Date();
@@ -401,12 +414,14 @@ export default function DashboardPage() {
                 </button>
               ) : (
                 <button
+                  onClick={() => setShowCreateTaskDialog(true)}
                   style={{
                     backgroundColor: accentColor,
                     boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                   }}
                   className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
                 >
+                  <Plus className="h-4 w-4" />
                   {t("createTask")}
                 </button>
               )}
@@ -442,6 +457,123 @@ export default function DashboardPage() {
         onOpenChange={(open) => {
           if (!open) setSelectedTaskId(null);
         }}
+      />
+
+      {/* Quick Actions FAB */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <AnimatePresence>
+          {showQuickActions && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+                onClick={() => setShowQuickActions(false)}
+              />
+
+              {/* Action buttons */}
+              <div className="absolute bottom-16 right-0 flex flex-col gap-3 items-end">
+                {/* Create Project */}
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0 }}
+                  onClick={() => {
+                    setShowQuickActions(false);
+                    setShowCreateProjectDialog(true);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
+                >
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                    Nuevo Proyecto
+                  </span>
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
+                    style={{ backgroundColor: "#8b5cf6" }}
+                  >
+                    <FolderPlus className="h-5 w-5" />
+                  </div>
+                </motion.button>
+
+                {/* Start Timer */}
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0.05 }}
+                  onClick={() => {
+                    setShowQuickActions(false);
+                    router.push("/timer");
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
+                >
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                    Iniciar Timer
+                  </span>
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
+                    style={{ backgroundColor: "#f59e0b" }}
+                  >
+                    <Timer className="h-5 w-5" />
+                  </div>
+                </motion.button>
+
+                {/* Create Task */}
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0.1 }}
+                  onClick={() => {
+                    setShowQuickActions(false);
+                    setShowCreateTaskDialog(true);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
+                >
+                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                    Nueva Tarea
+                  </span>
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
+                    style={{ backgroundColor: accentColor }}
+                  >
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                </motion.button>
+              </div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Main FAB Button */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowQuickActions(!showQuickActions)}
+          className={cn(
+            "flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg transition-all duration-300",
+            showQuickActions ? "rotate-45" : "rotate-0"
+          )}
+          style={{
+            backgroundColor: accentColor,
+            boxShadow: `0 10px 25px -5px ${accentColor}60, 0 8px 10px -6px ${accentColor}40`,
+          }}
+        >
+          <Plus className="h-7 w-7" />
+        </motion.button>
+      </div>
+
+      {/* Dialogs */}
+      <CreateTaskDialog
+        open={showCreateTaskDialog}
+        onOpenChange={setShowCreateTaskDialog}
+      />
+      <CreateProjectDialog
+        open={showCreateProjectDialog}
+        onOpenChange={setShowCreateProjectDialog}
       />
     </AppLayout>
   );

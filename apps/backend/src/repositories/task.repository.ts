@@ -16,7 +16,7 @@ import { PrismaService } from '../database/prisma.service';
 export class PrismaTaskRepository implements TaskRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  private toDomain(prismaTask: PrismaTask & { subTasks?: PrismaTask[]; project?: any }): Task {
+  private toDomain(prismaTask: PrismaTask & { subTasks?: PrismaTask[]; project?: any; assignee?: any }): Task {
     const taskData: any = {
       id: prismaTask.id,
       title: prismaTask.title,
@@ -26,6 +26,7 @@ export class PrismaTaskRepository implements TaskRepository {
       dueDate: prismaTask.dueDate ?? undefined,
       projectId: prismaTask.projectId,
       creatorId: prismaTask.creatorId,
+      assigneeId: prismaTask.assigneeId ?? undefined,
       parentTaskId: prismaTask.parentTaskId ?? undefined,
       subTasks: prismaTask.subTasks?.map((st) => this.toDomain(st)),
       tags: (prismaTask as any).tags?.map((t: any) => ({
@@ -45,6 +46,15 @@ export class PrismaTaskRepository implements TaskRepository {
         id: (prismaTask as any).project.id,
         name: (prismaTask as any).project.name,
         color: (prismaTask as any).project.color,
+      };
+    }
+
+    // Include assignee information if available
+    if ((prismaTask as any).assignee) {
+      taskData.assignee = {
+        id: (prismaTask as any).assignee.id,
+        name: (prismaTask as any).assignee.name,
+        image: (prismaTask as any).assignee.image,
       };
     }
 
@@ -144,6 +154,13 @@ export class PrismaTaskRepository implements TaskRepository {
             color: true,
           },
         },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
       },
     });
     if (!task) return null;
@@ -184,13 +201,20 @@ export class PrismaTaskRepository implements TaskRepository {
             color: true,
           },
         },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
       },
     });
     return tasks.map((t) => this.toDomain(t));
   }
 
   async update(task: Task): Promise<void> {
-    const data = {
+    const data: any = {
       title: task.props.title,
       description: task.props.description,
       status: this.mapStatusToPrisma(task.props.status),
@@ -201,6 +225,11 @@ export class PrismaTaskRepository implements TaskRepository {
       creatorId: task.props.creatorId,
       parentTaskId: task.props.parentTaskId ?? null,
     };
+
+    // Handle assigneeId - only include if explicitly set (even if null to unassign)
+    if (task.props.assigneeId !== undefined) {
+      data.assigneeId = task.props.assigneeId;
+    }
 
     console.log(`[PrismaTaskRepository] Updating task ${task.id}`, {
       originalStatus: task.props.status,

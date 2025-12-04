@@ -713,7 +713,13 @@
   "TaskList": {
     "loading": "Carregando tarefas...",
     "error": "Erro ao carregar tarefas: {message}",
-    "empty": "Ainda sem tarefas. Adicione uma acima!"
+    "empty": "Ainda sem tarefas. Adicione uma acima!",
+    "emptyMyTasks": "Ainda sem tarefas atribuídas a você.",
+    "retry": "Tentar novamente",
+    "filters": {
+      "allTasks": "Todas as Tarefas",
+      "myTasks": "Minhas Tarefas"
+    }
   },
   "TaskDetailPanel": {
     "title": "Detalhes da Tarefa",

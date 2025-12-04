@@ -38,6 +38,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AssigneeSelector } from "./assignee-selector";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -552,6 +553,15 @@ export function TaskDetailPanel({
                             />
                           </div>
                         </div>
+
+                        <Separator className="my-3" />
+
+                        {/* Assignee Selector */}
+                        <AssigneeSelector
+                          taskId={taskId}
+                          currentAssignee={task?.assignee}
+                          variant="full"
+                        />
 
                       </div>
                     </div>

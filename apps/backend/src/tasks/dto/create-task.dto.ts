@@ -28,4 +28,8 @@ export class CreateTaskDto {
   @IsString()
   @MinLength(1)
   projectId: string;
+
+  @IsString()
+  @IsOptional()
+  assigneeId?: string;
 }

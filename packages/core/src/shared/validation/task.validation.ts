@@ -22,14 +22,18 @@ export const taskBaseSchema = z.object({
         .optional(),
     priority: z.enum(PRIORITY_VALUES),
     status: z.enum(TASK_STATUS_VALUES).optional(),
-    dueDate: z.string().datetime().optional().nullable(),
+    dueDate: z.string().optional().nullable(),
     estimatedMinutes: z
-        .number()
-        .int()
-        .min(TASK_LIMITS.MIN_ESTIMATED_MINUTES)
-        .max(TASK_LIMITS.MAX_ESTIMATED_MINUTES)
+        .union([
+            z.number()
+                .int()
+                .min(TASK_LIMITS.MIN_ESTIMATED_MINUTES)
+                .max(TASK_LIMITS.MAX_ESTIMATED_MINUTES),
+            z.nan(),
+        ])
         .optional()
-        .nullable(),
+        .nullable()
+        .transform((val) => (Number.isNaN(val) ? undefined : val)),
 });
 
 /**

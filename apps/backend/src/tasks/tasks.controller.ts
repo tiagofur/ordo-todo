@@ -60,11 +60,14 @@ export class TasksController {
     @CurrentUser() user: RequestUser,
     @Query('projectId') projectId?: string,
     @Query('tags') tags?: string | string[],
+    @Query('assignedToMe') assignedToMe?: string,
   ) {
     const tagList = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
+    const filterAssignedToMe = assignedToMe === 'true';
     this.logger.debug(`Received tags query param: ${JSON.stringify(tags)}`);
     this.logger.debug(`Processed tagList: ${JSON.stringify(tagList)}`);
-    return this.tasksService.findAll(user.id, projectId, tagList);
+    this.logger.debug(`Filter assignedToMe: ${filterAssignedToMe}`);
+    return this.tasksService.findAll(user.id, projectId, tagList, filterAssignedToMe);
   }
 
   @Get(':id')

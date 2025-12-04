@@ -268,7 +268,8 @@ export const apiClient = {
   deleteProject: (id: string) => axiosInstance.delete(`/projects/${id}`).then((res) => res.data),
 
   // Task
-  getTasks: (projectId?: string) => axiosInstance.get('/tasks', { params: { projectId } }).then((res) => res.data),
+  getTasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) =>
+    axiosInstance.get('/tasks', { params: { projectId, tags, assignedToMe } }).then((res) => res.data),
   getTask: (id: string) => axiosInstance.get(`/tasks/${id}`).then((res) => res.data),
   getTaskDetails: (id: string) => axiosInstance.get(`/tasks/${id}/details`).then((res) => res.data),
   createTask: (data: CreateTaskDto) => axiosInstance.post('/tasks', data).then((res) => res.data),

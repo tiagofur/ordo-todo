@@ -9,6 +9,7 @@ export interface CreateTaskInput {
     dueDate?: Date;
     projectId: string;
     creatorId: string;
+    assigneeId?: string;
     parentTaskId?: string;
 }
 
@@ -27,6 +28,7 @@ export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
             dueDate: input.dueDate,
             projectId: input.projectId,
             creatorId: input.creatorId,
+            assigneeId: input.assigneeId,
             parentTaskId: input.parentTaskId,
         });
 

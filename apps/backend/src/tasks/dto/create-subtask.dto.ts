@@ -16,4 +16,8 @@ export class CreateSubtaskDto {
   @IsString()
   @IsOptional()
   projectId?: string;
+
+  @IsString()
+  @IsOptional()
+  assigneeId?: string;
 }

@@ -465,10 +465,12 @@ export function useDeleteProject() {
 
 // ============ TASK HOOKS ============
 
-export function useTasks(projectId?: string, tags?: string[]) {
+export function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
   return useQuery({
-    queryKey: projectId ? ['tasks', projectId, { tags }] : ['tasks', { tags }],
-    queryFn: () => (apiClient as any).getTasks(projectId, tags),
+    queryKey: projectId
+      ? ['tasks', projectId, { tags, assignedToMe: options?.assignedToMe }]
+      : ['tasks', { tags, assignedToMe: options?.assignedToMe }],
+    queryFn: () => apiClient.getTasks(projectId, tags, options?.assignedToMe),
   });
 }
 

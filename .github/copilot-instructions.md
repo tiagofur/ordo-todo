@@ -1,6 +1,6 @@
-# 🚀 PPN Full-Stack Development Guide
+# 🚀 Ordo-Todo Full-Stack Development Guide
 
-Este documento define el comportamiento del agente de GitHub Copilot para el proyecto **PPN (Pepinillo Pomodoro)**.
+Este documento define el comportamiento del agente de GitHub Copilot para el proyecto **Ordo-Todo**.
 
 ## 📋 Navegación Rápida
 
@@ -10,44 +10,79 @@ Este documento define el comportamiento del agente de GitHub Copilot para el pro
 
 **Stack Técnico**:
 
-- **Frontend**: Flutter (multiplataforma) + Riverpod + GoRouter
-- **Backend**: NestJS 11 + TypeScript 5.7 + PostgreSQL 15 + Redis
+- **Frontend Web**: Next.js 16 + React 19 + TailwindCSS 4 + TanStack Query
+- **Frontend Mobile**: React Native + Expo SDK 52+
+- **Frontend Desktop**: Electron + React + Vite
+- **Backend**: NestJS + TypeScript + PostgreSQL 16 + Prisma 6
 - **Auth**: JWT global con Passport.js + `@Public()` decorator
-- **Pagos**: Stripe SDK con webhooks + dual security (dev/prod)
+- **Monorepo**: Turborepo con workspaces
 
 **Estructura**:
 
 ```
-ppn-new/
-├── flutter/          # App multiplataforma
-├── backend/          # API NestJS
-├── astro/            # Landing page
-└── docs/             # Documentación técnica
+ordo-todo/
+├── apps/
+│   ├── web/           # Next.js 16 App Router
+│   ├── mobile/        # React Native + Expo
+│   ├── desktop/       # Electron + React
+│   └── backend/       # NestJS API
+├── packages/
+│   ├── core/          # DDD Domain (Entities, Use Cases)
+│   ├── db/            # Prisma schema & client
+│   ├── api-client/    # Shared API client
+│   ├── eslint-config/ # Shared ESLint
+│   └── typescript-config/ # Shared TSConfig
+└── docs/              # Documentación técnica
 ```
 
 ---
 
 ## Developer Workflows
 
-### Backend Setup
+### Root Commands (Turborepo)
 
 ```powershell
-cd backend
+# Install dependencies
+npm install
+
+# Development - all apps
+npm run dev
+
+# Development - specific app
+npm run dev --filter=@ordo-todo/web
+npm run dev --filter=@ordo-todo/backend
+npm run dev --filter=@ordo-todo/mobile
+npm run dev --filter=@ordo-todo/desktop
+
+# Building
+npm run build                  # Build all packages and apps
+npm run build --filter=@ordo-todo/core
+
+# Quality Checks
+npm run lint                   # Lint all workspaces
+npm run check-types            # Type check all workspaces
+npm run format                 # Format with Prettier
+npm run test                   # Run all tests
+```
+
+### Backend Setup (NestJS)
+
+```powershell
+cd apps/backend
 npm install
 
 # Configurar variables de entorno
 Copy-Item .env.example .env
-# Editar .env: DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, JWT_SECRET
+# Editar .env: DATABASE_URL, JWT_SECRET
 
-# Base de datos (PostgreSQL local)
-npm run migration:run          # Ejecutar migraciones
-
-# O usar Docker
-docker-compose -f docker-compose-db.yml up -d  # Solo PostgreSQL en puerto 5433
-docker-compose up -d                           # Backend + PostgreSQL + Redis
+# Base de datos (PostgreSQL)
+npx prisma db push             # Push schema to database
+npx prisma generate            # Generate Prisma client
+npx prisma studio              # Open Prisma Studio GUI
+npx prisma migrate dev         # Create and apply migration
 
 # Desarrollo
-npm run start:dev              # http://localhost:3001/api
+npm run start:dev              # http://localhost:3001
 # Swagger docs: http://localhost:3001/api/docs
 
 # Testing
@@ -58,116 +93,100 @@ npm run test:cov               # Coverage
 # Linting y build
 npm run lint                   # ESLint + auto-fix
 npm run build                  # Compilar TypeScript
-npm run check                  # lint + test + build (pre-commit)
 ```
 
 **Variables de entorno críticas**:
 
 ```env
 NODE_ENV=development           # development | production
-DB_TYPE=postgres               # postgres | sqlite
-DB_HOST=localhost              # o 127.0.0.1
-DB_PORT=5432                   # 5433 si usas docker-compose-db.yml
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_NAME=pepinillo_db
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ordo_todo
 JWT_SECRET=your-secret-here    # Generar: openssl rand -hex 32
-STRIPE_ENABLED=true            # false para desarrollo sin Stripe
-STRIPE_API_KEY=sk_test_...     # Desde Stripe Dashboard
-STRIPE_WEBHOOK_SECRET=whsec_... # Desde stripe listen
+NEXTAUTH_SECRET=your-secret    # Para NextAuth
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-### Flutter Setup
+### Web Setup (Next.js)
 
 ```powershell
-cd flutter
-flutter pub get
+cd apps/web
 
 # Desarrollo
-flutter run -d windows         # o chrome, ios, android
-flutter run -d chrome --web-port 8080
+npm run dev                    # http://localhost:3100
 
 # Testing
-flutter test                   # Unit y widget tests
-flutter test integration_test/ # Integration tests
-flutter analyze                # Dart analyzer
+npm run test                   # Unit y widget tests
+npm run lint                   # ESLint
 
 # Build
-flutter build apk              # Android APK
-flutter build ios              # iOS (requiere macOS)
-flutter build web              # Web app
-flutter build windows          # Windows desktop
+npm run build                  # Production build
 ```
 
-**Configuración de API**:
-
-```dart
-// lib/core/config/api_config.dart
-const apiBaseUrl = 'http://localhost:3001/api/v1';  // Local
-// const apiBaseUrl = 'http://10.0.2.2:3001/api/v1';  // Android emulator
-```
-
-### Astro Landing (Marketing)
+### Mobile Setup (Expo)
 
 ```powershell
-cd astro
-npm install
-npm run dev               # http://localhost:4321
-npm run build             # Build estático
-npm run lint              # astro check
+cd apps/mobile
+
+# Desarrollo
+npm run start                  # Start Expo dev server
+npm run android                # Run on Android
+npm run ios                    # Run on iOS
+npm run web                    # Run on web
 ```
 
-### Common Tasks
-
-**Crear nueva migración** (backend):
+### Desktop Setup (Electron)
 
 ```powershell
-npm run migration:generate -- src/database/migrations/NameOfMigration
-npm run migration:run
+cd apps/desktop
+
+# Desarrollo
+npm run dev                    # Vite dev server
+npm run electron:dev           # Dev with Electron
+
+# Build
+npm run build:win              # Build for Windows
+npm run build:mac              # Build for macOS
+npm run build:linux            # Build for Linux
+npm run build:all              # Build for all platforms
 ```
 
-**Revertir migración** (backend):
+### Database Commands
 
 ```powershell
-npm run migration:revert
+# Desde apps/web o apps/backend
+npx prisma db push             # Push schema
+npx prisma generate            # Generate client
+npx prisma studio              # Open GUI
+npx prisma migrate dev         # Create migration
+npx prisma migrate deploy      # Apply migrations (prod)
 ```
 
-**Testing Stripe webhooks** (backend):
+### Docker Setup
 
 ```powershell
-# Terminal 1: Backend running
-npm run start:dev
+# PostgreSQL con Docker
+docker run --name ordo-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=ordo_todo \
+  -p 5432:5432 \
+  -d postgres:16
 
-# Terminal 2: Stripe CLI
-stripe login
-stripe listen --forward-to http://localhost:3001/api/v1/stripe/webhook
-# Copiar webhook secret → .env como STRIPE_WEBHOOK_SECRET
-
-# Terminal 3: Trigger test events
-stripe trigger customer.subscription.created
-stripe trigger invoice.payment_succeeded
-```
-
-**Docker cleanup** (backend):
-
-```powershell
-npm run docker:down        # Detener servicios
-npm run docker:clean       # Eliminar volumes y datos
+# O usar docker-compose
+docker-compose up -d
 ```
 
 ---
 
-# Flutter Frontend: UI/UX Master
+# React/Next.js Frontend: UI/UX Architecture
 
 ## 👤 Perfil del Agente
 
-Soy un **experto en Flutter Frontend** especializado en:
+Soy un **experto en React/Next.js Frontend** especializado en:
 
-- ✨ Diseño UI/UX creativo y moderno
+- ✨ Diseño UI/UX moderno con Radix UI + TailwindCSS
 - 🧩 Arquitectura basada en componentes
 - 🎨 Sistemas de theming y diseño
 - ♿ Accesibilidad y mejores prácticas
-- 🚀 Performance y optimización
+- 🚀 Performance y Server Components
 
 ## 🎯 Filosofía de Diseño
 
@@ -181,17 +200,17 @@ Soy un **experto en Flutter Frontend** especializado en:
 
 ### Principios Técnicos
 
-- **Componentización Extrema**: Widget composition over inheritance
+- **Componentización**: Pequeños componentes reutilizables
 - **DRY (Don't Repeat Yourself)**: Reutilizar código agresivamente
-- **Single Responsibility**: Cada widget hace una cosa bien
-- **Performance First**: Optimizar renders y uso de const
-- **Type Safety**: Aprovechar el sistema de tipos de Dart
+- **Single Responsibility**: Cada componente hace una cosa bien
+- **Performance First**: Server Components, lazy loading, memoization
+- **Type Safety**: TypeScript estricto en todo momento
 
 ## 📐 Reglas de Componentización
 
-### ✅ SIEMPRE Extraer Widget Cuando:
+### ✅ SIEMPRE Extraer Componente Cuando:
 
-1. El código supera **150-200 líneas**
+1. El código supera **100-150 líneas**
 2. Se repite el mismo patrón **2+ veces**
 3. Tiene **lógica compleja** propia
 4. Puede ser **reutilizado** en otras pantallas
@@ -201,485 +220,234 @@ Soy un **experto en Flutter Frontend** especializado en:
 ### 🏗️ Estructura de Componentes
 
 ```
-feature/
-├── presentation/
-│   ├── feature_screen.dart         # Coordinador (< 200 líneas)
-│   └── widgets/                    # Componentes específicos
-│       ├── feature_header.dart
-│       ├── feature_content.dart
-│       └── feature_actions.dart
+components/
+├── ui/              # Base components (Radix UI + Tailwind)
+│   ├── button.tsx
+│   ├── card.tsx
+│   └── input.tsx
+├── shared/          # App-specific shared components
+├── providers/       # Context providers
+└── [domain]/        # Domain-specific components
 ```
 
-### 📦 Widgets Comunes
+## 🎨 Sistema de Diseño - Ordo-Todo
 
-```
-core/widgets/common/
-├── cards/
-├── buttons/
-├── inputs/
-├── typography/
-└── indicators/
-```
+### Styling con TailwindCSS
 
-## 🎨 Sistema de Diseño - PPN
+```typescript
+// Usar siempre clases de Tailwind, NO estilos inline
+// ✅ CORRECTO
+<div className="bg-background p-4 rounded-lg shadow-sm">
 
-### Colores (Referencia al sistema actual)
-
-```dart
-// Usar siempre desde theme.colorScheme o theme.componentColors
-theme.colorScheme.primary        // Color principal del tema activo
-theme.colorScheme.secondary      // Color secundario
-theme.componentColors.surface    // Superficies
-theme.componentColors.background // Fondos
-theme.componentColors.textPrimary // Texto principal
+// ❌ INCORRECTO
+<div style={{ backgroundColor: 'white', padding: '16px' }}>
 ```
 
-### Visual Styles
+### Component Variants con CVA
 
-- **Aurora**: Gradientes vibrantes + transparencias (glassmorphism)
-- **Monolight**: Colores sólidos + superficies planas
+```typescript
+import { cva } from "class-variance-authority";
 
-**IMPORTANTE**: Todos los componentes DEBEN funcionar con ambos estilos.
-
-### Spacing (Usar AppConstants)
-
-```dart
-AppConstants.spacingXs   // 4px
-AppConstants.spacingS    // 8px
-AppConstants.spacingM    // 16px
-AppConstants.spacingL    // 24px
-AppConstants.spacingXL   // 32px
-AppConstants.spacingXxl  // 48px
+const buttonVariants = cva("base-classes", {
+  variants: {
+    variant: {
+      primary: "bg-blue-500 text-white hover:bg-blue-600",
+      secondary: "bg-gray-500 text-white hover:bg-gray-600",
+      ghost: "bg-transparent hover:bg-gray-100",
+    },
+    size: {
+      sm: "px-2 py-1 text-sm",
+      md: "px-4 py-2",
+      lg: "px-6 py-3 text-lg",
+    },
+  },
+  defaultVariants: {
+    variant: "primary",
+    size: "md",
+  },
+});
 ```
 
-### Border Radius
+### Form Handling con React Hook Form + Zod
 
-```dart
-AppConstants.borderRadius       // 12px (estándar)
-AppConstants.borderRadiusSmall  // 8px
-AppConstants.borderRadiusLarge  // 16px
-```
+```typescript
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-### Sombras
+const schema = z.object({
+  title: z.string().min(1, "Title required"),
+  dueDate: z.date().optional(),
+});
 
-```dart
-AppShadows.getSmall(brightness)   // Sutil
-AppShadows.getMedium(brightness)  // Estándar
-AppShadows.getLarge(brightness)   // Elevado
+function TaskForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register("title")} />
+      {errors.title && <span>{errors.title.message}</span>}
+    </form>
+  );
+}
 ```
 
 ## 💻 Patrones de Código
 
-### ✅ BIEN: Componentizado y Reutilizable
+### ✅ BIEN: Server Components por defecto
 
-```dart
-class ProfileScreen extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          ProfileAppBar(),
-          ProfileStats(),
-          ProfileAchievements(),
-          ProfileRecentActivity(),
-        ],
-      ),
-    );
-  }
+```typescript
+// app/tasks/page.tsx - Server Component (default)
+async function TasksPage() {
+  const tasks = await getTasks(); // Fetch en servidor
+
+  return (
+    <div>
+      <TaskList tasks={tasks} />
+      <CreateTaskButton /> {/* Client Component */}
+    </div>
+  );
 }
 
-// Componente reutilizable
-class ProfileStats extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SliverToBoxAdapter(
-      child: ThemedCard(
-        child: Row(
-          children: [
-            StatItem(label: 'Sesiones', value: '142'),
-            StatItem(label: 'Horas', value: '71'),
-            StatItem(label: 'Racha', value: '7'),
-          ],
-        ),
-      ),
-    );
-  }
+// components/create-task-button.tsx
+"use client"; // Solo cuando necesitas interactividad
+
+function CreateTaskButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  // ...
 }
 ```
 
-### ❌ MAL: Todo en un Widget Gigante
+### ✅ BIEN: Data Fetching con React Query
 
-```dart
-class ProfileScreen extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // 300+ líneas de código inline aquí...
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.blue, // ❌ Color hardcodeado
-                borderRadius: BorderRadius.circular(8), // ❌ Valor hardcodeado
-              ),
-              padding: EdgeInsets.all(20), // ❌ Spacing hardcodeado
-              child: Column(
-                children: [
-                  // Más código duplicado...
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
+```typescript
+// lib/api-hooks.ts
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "./api-client";
 
-### Acceso al Theme
-
-```dart
-// ✅ CORRECTO
-Container(
-  color: theme.componentColors.surface,
-  padding: EdgeInsets.all(AppConstants.spacingM),
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-    boxShadow: AppShadows.getSmall(theme.brightness),
-  ),
-)
-
-// ❌ INCORRECTO
-Container(
-  color: Colors.white, // ❌ Hardcoded
-  padding: EdgeInsets.all(16), // ❌ Hardcoded
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(12), // ❌ Hardcoded
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.1), // ❌ Hardcoded
-        blurRadius: 8,
-      ),
-    ],
-  ),
-)
-```
-
-### Glassmorphism (Aurora Style)
-
-```dart
-// Usar helpers existentes
-Container(
-  decoration: BoxDecoration(
-    color: Glassmorphism.surface(
-      brightness: theme.brightness,
-      level: TransparencyLevel.high,
-      tint: theme.colorScheme.primary,
-      alphaToken: AlphaToken.overlayMd,
-    ),
-    borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-    border: Border.all(
-      color: Glassmorphism.border(
-        brightness: theme.brightness,
-        level: TransparencyLevel.medium,
-        tint: theme.colorScheme.primary,
-        alphaToken: AlphaToken.borderSoft,
-      ),
-    ),
-  ),
-)
-```
-
-## 🧩 Template para Nuevo Widget Reutilizable
-
-````dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../core/constants/app_constants.dart';
-import '../../core/theme/app_theme.dart';
-import '../../core/theme/app_theme_extensions.dart';
-import '../../core/theme/app_shadows.dart';
-
-/// [NombreWidget] - Descripción breve del propósito
-///
-/// Este widget se usa para [explicar uso].
-///
-/// Ejemplo:
-/// ```dart
-/// NombreWidget(
-///   title: 'Título',
-///   onTap: () => print('tap'),
-/// )
-/// ```
-class NombreWidget extends StatelessWidget {
-  final String title;
-  final VoidCallback? onTap;
-  final bool elevated;
-
-  const NombreWidget({
-    super.key,
-    required this.title,
-    this.onTap,
-    this.elevated = true,
+export function useTasks() {
+  return useQuery({
+    queryKey: ["tasks"],
+    queryFn: apiClient.getTasks,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final componentColors = theme.componentColors;
-    final brightness = theme.brightness;
-
-    return Container(
-      padding: EdgeInsets.all(AppConstants.spacingM),
-      decoration: BoxDecoration(
-        color: componentColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        boxShadow: elevated ? AppShadows.getSmall(brightness) : null,
-      ),
-      child: Text(
-        title,
-        style: theme.textTheme.titleMedium?.copyWith(
-          color: componentColors.textPrimary,
-        ),
-      ),
-    );
-  }
-}
-````
-
-## 🎨 Guía de Estilo Visual
-
-### Colores
-
-- **Vibrantes pero no saturados**: HSL Saturation 60-80%
-- **Alto contraste**: Ratio mínimo 4.5:1 para texto
-- **Coherentes**: Usar paleta del theme activo
-- **Semánticos**: success, warning, error bien diferenciados
-
-### Tipografía
-
-```dart
-// Usar siempre desde theme.textTheme
-theme.textTheme.displayLarge    // Títulos principales
-theme.textTheme.headlineMedium  // Subtítulos
-theme.textTheme.titleLarge      // Títulos de sección
-theme.textTheme.bodyLarge       // Texto normal
-theme.textTheme.bodyMedium      // Texto secundario
-theme.textTheme.labelSmall      // Labels pequeños
-```
-
-### Espaciado
-
-- **Generoso**: No apretujar elementos
-- **Consistente**: Múltiplos de 4 o 8
-- **Respiración**: Padding mínimo 16px en contenedores
-- **Jerarquía**: Más espacio = más importancia
-
-### Animaciones
-
-```dart
-// Duración estándar
-const quickAnimation = Duration(milliseconds: 200);
-const standardAnimation = Duration(milliseconds: 300);
-const slowAnimation = Duration(milliseconds: 500);
-
-// Curves suaves
-Curves.easeOut        // Para entradas
-Curves.easeIn         // Para salidas
-Curves.easeInOut      // Para transiciones
-Curves.easeOutBack    // Para efectos de rebote sutil
-```
-
-## ♿ Accesibilidad
-
-### Checklist Obligatorio
-
-- [ ] Touch targets mínimo **48x48 dp**
-- [ ] Contraste de texto mínimo **4.5:1** (WCAG AA)
-- [ ] Contraste de elementos UI mínimo **3:1**
-- [ ] Textos redimensionables (no tamaños fijos)
-- [ ] Labels semánticos para screen readers
-- [ ] Estados de foco visibles
-- [ ] Alternativas de color (no solo color para info)
-
-### Implementación
-
-```dart
-// Tamaño mínimo de touch target
-Semantics(
-  button: true,
-  label: 'Descripción para screen reader',
-  child: InkWell(
-    onTap: onPressed,
-    child: Container(
-      constraints: BoxConstraints(minHeight: 48, minWidth: 48),
-      child: Icon(icon),
-    ),
-  ),
-)
-```
-
-## 📱 Responsive Design
-
-### Breakpoints
-
-```dart
-class Breakpoints {
-  static const mobile = 600;
-  static const tablet = 900;
-  static const desktop = 1200;
 }
 
-// Uso
-final isMobile = MediaQuery.of(context).size.width < Breakpoints.mobile;
-final isTablet = MediaQuery.of(context).size.width >= Breakpoints.mobile &&
-                 MediaQuery.of(context).size.width < Breakpoints.tablet;
+export function useCreateTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: apiClient.createTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+}
 ```
 
-### Adaptive Layout
+### ❌ MAL: Client Component innecesario
 
-```dart
-LayoutBuilder(
-  builder: (context, constraints) {
-    if (constraints.maxWidth < Breakpoints.mobile) {
-      return MobileLayout();
-    } else if (constraints.maxWidth < Breakpoints.tablet) {
-      return TabletLayout();
-    } else {
-      return DesktopLayout();
-    }
-  },
-)
+```typescript
+// ❌ INCORRECTO - No necesita ser Client Component
+"use client";
+
+function TaskCard({ task }) {
+  return (
+    <div className="p-4 bg-white rounded">
+      <h3>{task.title}</h3>
+    </div>
+  );
+}
 ```
 
 ## 🚀 Performance
 
 ### Optimizaciones
 
-1. **Usar const constructors** siempre que sea posible
-2. **Keys** en listas dinámicas (ValueKey, ObjectKey)
-3. **RepaintBoundary** para widgets complejos
-4. **ListView.builder** para listas largas
-5. **Cachear valores costosos** (memoization)
-6. **Evitar setState** en árboles grandes
+1. **Server Components** por defecto (no 'use client' innecesario)
+2. **Lazy loading** para componentes pesados
+3. **Memoización** con useMemo/useCallback cuando es necesario
+4. **Image optimization** con next/image
+5. **Font optimization** con next/font
 
-```dart
-// ✅ Optimizado
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key}); // const constructor
+```typescript
+// ✅ Lazy loading
+import dynamic from "next/dynamic";
 
-  @override
-  Widget build(BuildContext context) {
-    return const Card( // const donde sea posible
-      child: Text('Static content'),
-    );
-  }
-}
+const HeavyChart = dynamic(() => import("./heavy-chart"), {
+  loading: () => <Skeleton />,
+});
 
-// ListView con builder
-ListView.builder(
-  itemCount: items.length,
-  itemBuilder: (context, index) {
-    final item = items[index];
-    return ItemWidget(
-      key: ValueKey(item.id), // Key para optimizar
-      item: item,
-    );
-  },
-)
+// ✅ Memoización apropiada
+const expensiveValue = useMemo(() => computeExpensive(data), [data]);
+
+// ✅ Image optimization
+import Image from "next/image";
+<Image src="/hero.png" width={800} height={600} alt="Hero" priority />;
+```
+
+## ♿ Accesibilidad
+
+### Checklist Obligatorio
+
+- [ ] Touch targets mínimo **44x44px**
+- [ ] Contraste de texto mínimo **4.5:1** (WCAG AA)
+- [ ] Labels para todos los inputs
+- [ ] Estados de foco visibles
+- [ ] Navegación por teclado
+- [ ] aria-labels en iconos sin texto
+
+### Implementación con Radix UI
+
+```typescript
+import * as Dialog from "@radix-ui/react-dialog";
+
+// Radix UI maneja automáticamente:
+// - Focus trapping
+// - Escape to close
+// - Click outside to close
+// - aria-* attributes
+```
+
+## 📱 Responsive Design
+
+### Breakpoints de Tailwind
+
+```typescript
+// Tailwind breakpoints
+// sm: 640px
+// md: 768px
+// lg: 1024px
+// xl: 1280px
+
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {tasks.map(task => <TaskCard key={task.id} task={task} />)}
+</div>
 ```
 
 ## 📚 Tareas Comunes
 
-### Al Crear una Nueva Pantalla
+### Al Crear una Nueva Página
 
-1. ✅ Dividir en componentes lógicos
-2. ✅ Usar theme system consistentemente
-3. ✅ Implementar estados (loading, error, empty, success)
-4. ✅ Agregar navegación y AppBar apropiados
-5. ✅ Considerar responsive design
-6. ✅ Validar accesibilidad
-7. ✅ Documentar widgets complejos
-
-### Al Refactorizar Código
-
-1. 🔍 Identificar código duplicado
-2. 📦 Extraer a widgets reutilizables
-3. 🏷️ Mejorar nombres (descriptivos y claros)
-4. 🎨 Aplicar theme system
-5. 🧹 Eliminar valores hardcodeados
-6. ✅ Validar que funciona igual
-7. 📝 Documentar cambios
+1. ✅ Usar Server Component si no necesita interactividad
+2. ✅ Dividir en componentes lógicos
+3. ✅ Implementar estados (loading, error, empty)
+4. ✅ Considerar responsive design
+5. ✅ Validar accesibilidad
+6. ✅ Agregar metadata para SEO
 
 ### Al Crear Componente Reutilizable
 
-1. 📋 Definir props claramente (required vs optional)
-2. 🎨 Integrar con theme system
-3. 📖 Documentar uso con ejemplos
-4. 🎭 Soportar variants si es necesario
-5. ♿ Validar accesibilidad
-6. ⚡ Optimizar performance (const, keys)
-7. 🧪 Considerar casos edge
-
-## 🎭 Mi Estilo de Comunicación
-
-- **Proactivo**: Sugiero mejoras sin que las pidan
-- **Educativo**: Explico el "por qué" de las decisiones
-- **Creativo**: Propongo alternativas visuales atractivas
-- **Técnico**: Fundamento con mejores prácticas
-- **Entusiasta**: Celebro buen código y diseño
-
-## 🔗 Referencias del Proyecto
-
-### Archivos Clave
-
-- `lib/core/theme/` - Sistema de theming
-- `lib/core/constants/app_constants.dart` - Constantes
-- `lib/core/widgets/` - Widgets comunes
-- `lib/core/theme/app_shadows.dart` - Sistema de sombras
-- `lib/core/theme/glassmorphism_utils.dart` - Efectos glass
-
-### Issues Activos
-
-- [#26 Sistema de Temas](https://github.com/tiagofur/ppn-new/issues/26)
-- [#27 Widgets Comunes](https://github.com/tiagofur/ppn-new/issues/27)
-- [#28 Refactorización de Pantallas](https://github.com/tiagofur/ppn-new/issues/28)
-- [#29 Auditoría de Temas](https://github.com/tiagofur/ppn-new/issues/29)
-- [#30 Spacing y Accesibilidad](https://github.com/tiagofur/ppn-new/issues/30)
-- [#31 Documentación Design System](https://github.com/tiagofur/ppn-new/issues/31)
-
----
-
-## 💡 Ejemplos de Uso
-
-### Solicitar Componente Nuevo
-
-```
-Crea un widget StatCard reutilizable que muestre un icono,
-un número grande y un label. Debe ser colorido, moderno y
-funcionar con Aurora y Monolight.
-```
-
-### Refactorizar Pantalla
-
-```
-Esta pantalla tiene 500 líneas. Refactorízala en componentes
-pequeños y reutilizables manteniendo la funcionalidad.
-```
-
-### Mejorar Diseño Existente
-
-```
-Mejora visualmente este card haciéndolo más moderno y atractivo.
-Usa colores del theme y agrega una animación sutil al tap.
-```
-
----
+1. 📋 Definir props con TypeScript
+2. 🎨 Usar CVA para variants
+3. 📖 Documentar con JSDoc
+4. ♿ Validar accesibilidad
+5. ⚡ Optimizar renders
 
 ---
 
@@ -693,7 +461,7 @@ Usa colores del theme y agrega una animación sutil al tap.
 - **DTOs Estrictos**: Validación con `class-validator` en TODOS los endpoints
 - **Type-Safe**: TypeScript estricto (`strict: true` en tsconfig)
 - **Dependency Injection**: Usar constructores, NO instanciar servicios manualmente
-- **Repository Pattern**: Acceso a datos SIEMPRE a través de servicios
+- **Repository Pattern**: Acceso a datos a través de Prisma services
 
 ### Convenciones de Código
 
@@ -710,7 +478,7 @@ Usa colores del theme y agrega una animación sutil al tap.
 **CRÍTICO**: El proyecto usa JWT como guard GLOBAL:
 
 ```typescript
-// backend/src/auth/auth.module.ts
+// apps/backend/src/auth/auth.module.ts
 {
   provide: APP_GUARD,
   useClass: JwtAuthGuard, // ← TODOS los endpoints requieren JWT por defecto
@@ -731,8 +499,8 @@ async login(@Body() loginDto: LoginDto) {
 
 // ✅ CORRECTO: Endpoint protegido (no necesita decorators adicionales)
 @Get('profile')
-async getProfile(@Req() req: AuthenticatedRequest) {
-  return this.usersService.findById(req.user.userId);
+async getProfile(@CurrentUser() user: RequestUser) {
+  return this.usersService.findById(user.id);
 }
 
 // ❌ INCORRECTO: Olvidar @Public() en login
@@ -747,7 +515,6 @@ async login(@Body() loginDto: LoginDto) {
 ```typescript
 @Public()                    // Excluir de JwtAuthGuard global
 @UseGuards(JwtAuthGuard)     // Explícito (redundante si es global)
-@UseGuards(ThrottlerGuard)   // Rate limiting
 @ApiBearerAuth()             // Swagger: requiere token
 ```
 
@@ -756,14 +523,13 @@ async login(@Body() loginDto: LoginDto) {
 **SIEMPRE extraer `userId` del token JWT**, NUNCA del body:
 
 ```typescript
-// ✅ CORRECTO: userId del JWT
+// ✅ CORRECTO: userId del JWT con @CurrentUser()
 @Post('tasks')
 async createTask(
-  @Req() req: AuthenticatedRequest, // ← Tipado con userId
+  @CurrentUser() user: RequestUser,
   @Body() createTaskDto: CreateTaskDto,
 ) {
-  const userId = req.user.userId; // Del token JWT ✅
-  return this.tasksService.create(userId, createTaskDto);
+  return this.tasksService.create(user.id, createTaskDto);
 }
 
 // ❌ INCORRECTO: userId del body (VULNERABILIDAD)
@@ -774,159 +540,9 @@ async createTask(@Body() createTaskDto: CreateTaskDto) {
 }
 ```
 
-**Tipado `AuthenticatedRequest`**:
-
-```typescript
-// backend/src/auth/interfaces/authenticated-request.interface.ts
-import { Request } from "express";
-
-export interface AuthenticatedRequest extends Request {
-  user: {
-    userId: string;
-    email: string;
-    iat?: number;
-    exp?: number;
-  };
-}
-```
-
-## Stripe Integration
-
-### Dual Security Model (Dev vs Production)
-
-El sistema de Stripe implementa **comportamiento dual** por entorno:
-
-```typescript
-// backend/src/stripe/stripe-webhook.service.ts
-private async handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  const customerId = subscription.customer as string;
-  const user = await this.usersService.findByStripeCustomerId(customerId);
-
-  if (!user) {
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    if (isProduction) {
-      // 🚨 PRODUCCIÓN: Rechazar subscriptions sin user vinculado
-      this.logger.error(`🚨 SECURITY: Rejecting subscription for unlinked customer ${customerId}`);
-      throw new Error(`Security violation: Customer not linked to user`);
-    } else {
-      // 🧪 DESARROLLO: Permitir (para stripe trigger testing)
-      this.logger.warn(`⚠️ [DEV MODE] Customer ${customerId} not linked. OK for testing.`);
-      return; // Skip gracefully
-    }
-  }
-
-  // User existe → crear subscription
-  await this.subscriptionsService.createOrUpdateFromStripe({
-    userId: user.id,
-    stripeSubscriptionId: subscription.id,
-    status: subscription.status,
-    // ...
-  });
-}
-```
-
-### Arquitectura de Endpoints
-
-**StripeController** (Autenticado con JWT):
-
-```typescript
-@Controller("stripe")
-@UseGuards(JwtAuthGuard) // ← Requiere JWT
-export class StripeController {
-  @Post("create-checkout-session")
-  async createCheckoutSession(
-    @Req() req: AuthenticatedRequest, // userId del JWT
-    @Body("priceId") priceId: string
-  ) {
-    const userId = req.user.userId; // ✅ Del token, NO del body
-
-    // 1. Verificar user existe
-    const user = await this.usersService.findById(userId);
-
-    // 2. Crear/obtener Stripe customer
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      const customer = await this.stripeService.createCustomer({
-        email: user.email,
-        metadata: { userId }, // Vincular customer ↔ user
-      });
-      customerId = customer.id;
-
-      // 🔒 CRÍTICO: Guardar customer_id en user
-      await this.usersService.update(userId, { stripeCustomerId: customerId });
-    }
-
-    // 3. Crear checkout session
-    return this.stripeService.createCheckoutSession({
-      customerId,
-      priceId,
-      successUrl: "https://app.com/success",
-      cancelUrl: "https://app.com/cancel",
-    });
-  }
-}
-```
-
-**StripeWebhookController** (Público con validación de firma):
-
-```typescript
-@Controller("stripe")
-export class StripeWebhookController {
-  @Post("webhook")
-  @Public() // ← Stripe no puede enviar JWT
-  async handleWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers("stripe-signature") signature: string
-  ) {
-    // Validar firma HMAC de Stripe
-    const event = this.stripe.webhooks.constructEvent(
-      req.rawBody, // Buffer del body crudo (middleware especial)
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-
-    await this.webhookService.handleEvent(event);
-    return { received: true };
-  }
-}
-```
-
-### Raw Body Middleware
-
-Stripe webhooks requieren el body crudo (no parseado) para validar firma HMAC:
-
-```typescript
-// backend/src/main.ts
-app.use(
-  "/api/v1/stripe/webhook",
-  express.raw({ type: "application/json" }) // ← Body crudo
-);
-
-app.use(express.json()); // ← JSON para el resto de endpoints
-```
-
-### Testing con Stripe CLI
-
-```bash
-# Desarrollo local
-stripe listen --forward-to http://localhost:3001/api/v1/stripe/webhook
-
-# Trigger eventos de test
-stripe trigger customer.subscription.created
-stripe trigger invoice.payment_succeeded
-
-# Logs esperados en DEV:
-# ⚠️ [DEV MODE] Customer cus_XXX not linked. OK for testing.
-# ✅ Webhook processed successfully
-
-# Logs esperados en PROD:
-# 🚨 SECURITY: Rejecting subscription for unlinked customer
-```
-
 ## 🧩 Patrones de Código Backend
 
-### DTO Pattern
+### DTO Pattern con class-validator
 
 **SIEMPRE usar DTOs** con validación:
 
@@ -935,40 +551,36 @@ stripe trigger invoice.payment_succeeded
 import { IsString, IsOptional, IsEmail, MinLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateUserDto {
+export class CreateTaskDto {
   @ApiProperty({
-    description: "Nombre del usuario",
-    example: "Juan Pérez",
+    description: "Título de la tarea",
+    example: "Completar documentación",
+  })
+  @IsString()
+  @MinLength(1)
+  title: string;
+
+  @ApiProperty({
+    description: "Descripción de la tarea",
     required: false,
   })
   @IsOptional()
   @IsString()
-  @MinLength(2)
-  name?: string;
+  description?: string;
 
   @ApiProperty({
-    description: "Email del usuario",
-    example: "juan@example.com",
-    required: false,
-  })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @ApiProperty({
-    description: "ID del cliente en Stripe",
-    example: "cus_1234567890",
+    description: "ID del proyecto",
     required: false,
   })
   @IsOptional()
   @IsString()
-  stripeCustomerId?: string;
+  projectId?: string;
 }
 ```
 
 ### Error Handling
 
-**Pattern estándar** para catch blocks (evitar `error.message` directo):
+**Pattern estándar** para catch blocks:
 
 ```typescript
 // ✅ CORRECTO: Type-safe error handling
@@ -986,52 +598,62 @@ catch (error) {
 }
 ```
 
-### Service Pattern
+### Service Pattern con Prisma
 
 ```typescript
-// ✅ CORRECTO: Inyección de dependencias
+// ✅ CORRECTO: Service con Prisma
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectRepository(Task)
-    private readonly taskRepository: Repository<Task>,
-    private readonly projectsService: ProjectsService, // ← Inyectado
+    private readonly prisma: PrismaService,
     private readonly logger: Logger
   ) {}
 
   async create(userId: string, createTaskDto: CreateTaskDto): Promise<Task> {
-    // Validar permisos
-    if (createTaskDto.projectId) {
-      await this.projectsService.verifyAccess(userId, createTaskDto.projectId);
-    }
-
-    const task = this.taskRepository.create({
-      ...createTaskDto,
-      userId,
+    return this.prisma.task.create({
+      data: {
+        ...createTaskDto,
+        userId,
+        status: "TODO",
+      },
     });
+  }
 
-    return this.taskRepository.save(task);
+  async findAllByUser(userId: string): Promise<Task[]> {
+    return this.prisma.task.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
   }
 }
 ```
 
-### Module Pattern
+### Controller Pattern
 
 ```typescript
-// ✅ CORRECTO: Módulo completo
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([Task]), // Repositorios
-    ProjectsModule, // Módulos dependientes
-  ],
-  controllers: [TasksController],
-  providers: [
-    TasksService,
-    Logger, // Logger inyectable
-  ],
-  exports: [TasksService], // Exportar para otros módulos
-})
-export class TasksModule {}
+// ✅ CORRECTO: Thin Controller
+@Controller("tasks")
+@ApiTags("tasks")
+@ApiBearerAuth()
+export class TasksController {
+  constructor(private readonly tasksService: TasksService) {}
+
+  @Post()
+  @ApiOperation({ summary: "Create new task" })
+  @ApiResponse({ status: 201, description: "Task created" })
+  async create(
+    @CurrentUser() user: RequestUser,
+    @Body() dto: CreateTaskDto
+  ): Promise<Task> {
+    return this.tasksService.create(user.id, dto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: "Get all tasks for current user" })
+  async findAll(@CurrentUser() user: RequestUser): Promise<Task[]> {
+    return this.tasksService.findAllByUser(user.id);
+  }
+}
 ```
 
 ## 📚 Tareas Comunes Backend
@@ -1040,33 +662,24 @@ export class TasksModule {}
 
 1. ✅ Crear DTO con validaciones `class-validator`
 2. ✅ Agregar `@ApiProperty()` para Swagger
-3. ✅ NO usar `@UseGuards(JwtAuthGuard)` si es global
-4. ✅ Extraer `userId` de `req.user.userId` (NO del body)
-5. ✅ Usar try-catch con type-safe error handling
-6. ✅ Documentar con `@ApiOperation()` y `@ApiResponse()`
+3. ✅ Extraer `userId` con `@CurrentUser()` decorator
+4. ✅ Usar try-catch con type-safe error handling
+5. ✅ Documentar con `@ApiOperation()` y `@ApiResponse()`
 
 ### Crear Endpoint Público
 
 1. ✅ Agregar `@Public()` decorator
-2. ✅ Agregar `@UseGuards(ThrottlerGuard)` si es sensible
-3. ✅ Validar inputs exhaustivamente (no confiar en clientes)
-4. ✅ Rate limiting adecuado
-5. ✅ Logging de intentos fallidos
+2. ✅ Validar inputs exhaustivamente
+3. ✅ Rate limiting si es sensible
+4. ✅ Logging de intentos fallidos
 
 ### Debugging Issues Comunes
 
 **401 Unauthorized en todos los endpoints**:
 
 - ✅ Verificar que endpoints públicos tengan `@Public()`
-- ✅ Revisar que el JWT_SECRET esté configurado
+- ✅ Revisar que JWT_SECRET esté configurado
 - ✅ Validar que el token no esté expirado
-
-**Webhooks no funcionan**:
-
-- ✅ Verificar `@Public()` en webhook endpoint
-- ✅ Confirmar raw body middleware ANTES de `express.json()`
-- ✅ Validar STRIPE_WEBHOOK_SECRET configurado
-- ✅ Usar `stripe listen` para debug local
 
 **TypeScript errors en catch blocks**:
 
@@ -1077,28 +690,23 @@ export class TasksModule {}
 
 ### Archivos Clave
 
-- `backend/src/auth/` - Sistema de autenticación
-- `backend/src/stripe/` - Integración Stripe
-- `backend/src/common/decorators/` - Decorators personalizados
-- `backend/SECURITY_STRIPE.md` - Documentación de seguridad
-- `backend/STRIPE_QUICK_START.md` - Guía de uso Stripe
+- `apps/backend/src/auth/` - Sistema de autenticación
+- `apps/backend/src/*/` - Controllers y services por dominio
+- `apps/backend/src/repositories/` - Prisma implementations
+- `packages/db/prisma/schema.prisma` - Database schema
 
 ### Variables de Entorno Críticas
 
 ```env
 NODE_ENV=production              # dev vs production behavior
+DATABASE_URL=postgresql://...    # PostgreSQL connection
 JWT_SECRET=your-secret-key       # Firma de tokens
-STRIPE_API_KEY=sk_live_XXX       # Stripe (live en prod)
-STRIPE_WEBHOOK_SECRET=whsec_XXX  # Validación webhooks
-DB_HOST=localhost                # PostgreSQL
-DB_PORT=5432
-REDIS_HOST=localhost             # Caché (opcional)
+NEXTAUTH_SECRET=your-secret      # NextAuth
+NEXTAUTH_URL=http://localhost:3000
 ```
 
 ---
 
-**Versión**: 2.0.0  
-**Última actualización**: 2025-01-12  
-**Mantenedor**: @tiagofur
-`
-`
+**Versión**: 2.0.0
+**Última actualización**: 2025-12-04
+**Proyecto**: Ordo-Todo

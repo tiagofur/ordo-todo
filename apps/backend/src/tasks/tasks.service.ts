@@ -25,6 +25,8 @@ export class TasksService {
     const task = await createTaskUseCase.execute({
       ...createTaskDto,
       creatorId: userId,
+      // Auto-assign to creator if no assignee specified
+      assigneeId: createTaskDto.assigneeId ?? userId,
     });
 
     // Log activity
@@ -91,8 +93,8 @@ export class TasksService {
     return task.props;
   }
 
-  async findAll(userId: string, projectId?: string, tags?: string[]) {
-    this.logger.debug(`Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}`);
+  async findAll(userId: string, projectId?: string, tags?: string[], assignedToMe?: boolean) {
+    this.logger.debug(`Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`);
     const tasks = await this.taskRepository.findByCreatorId(userId, {
       projectId,
       tags,
@@ -100,8 +102,15 @@ export class TasksService {
     this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
     // Filter only main tasks (no parentTaskId)
     // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
-    const filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
-    this.logger.debug(`Filtered to ${filteredTasks.length} main tasks`);
+    let filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
+
+    // Apply "My Tasks" filter - show only tasks assigned to the current user
+    if (assignedToMe) {
+      filteredTasks = filteredTasks.filter((t) => t.props.assigneeId === userId);
+      this.logger.debug(`Filtered to ${filteredTasks.length} tasks assigned to user`);
+    }
+
+    this.logger.debug(`Returning ${filteredTasks.length} main tasks`);
     return filteredTasks.map((t) => t.props);
   }
 
@@ -278,6 +287,8 @@ export class TasksService {
       ...createSubtaskDto,
       projectId: createSubtaskDto.projectId || parentTask.props.projectId,
       creatorId: userId,
+      // Auto-assign to creator if no assignee specified
+      assigneeId: createSubtaskDto.assigneeId ?? userId,
       parentTaskId,
     });
 

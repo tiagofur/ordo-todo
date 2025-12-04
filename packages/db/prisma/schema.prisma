@@ -28,7 +28,8 @@ model User {
 
   // Relationships
   workspaces     WorkspaceMember[]
-  tasks          Task[]
+  createdTasks   Task[] @relation("CreatedTasks")
+  assignedTasks  Task[] @relation("AssignedTasks")
   ownedProjects  Project[]
   comments       Comment[]
   attachments    Attachment[]
@@ -393,10 +394,12 @@ model Task {
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String
 
-  creator     User     @relation(fields: [creatorId], references: [id])
+  creator     User     @relation("CreatedTasks", fields: [creatorId], references: [id])
   creatorId   String
 
-  assignee    String?  // userId
+  // Assignee (optional)
+  assignee    User?    @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  assigneeId  String?
 
   // Hierarchy
   parentTask  Task?    @relation("SubTasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
@@ -432,6 +435,7 @@ model Task {
 
   @@index([projectId])
   @@index([creatorId])
+  @@index([assigneeId])
   @@index([status])
   @@index([dueDate])
   @@index([priority])

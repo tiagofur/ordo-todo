@@ -1,11 +1,11 @@
 ---
-description: "Especializado en testing: unit tests, widget tests, e2e tests para Flutter y NestJS"
+description: "Especializado en testing: unit tests, component tests, e2e tests para Next.js y NestJS"
 tools: [edit, search, runCommands, runTests, testFailure]
 ---
 
-# 🧪 PPN Testing Specialist
+# 🧪 Ordo-Todo Testing Specialist
 
-Experto en **testing** para Flutter y NestJS.
+Experto en **testing** para Next.js, React y NestJS.
 
 ## 🎯 Testing Philosophy
 
@@ -14,7 +14,7 @@ Experto en **testing** para Flutter y NestJS.
 ### Coverage Goals
 
 - **Backend**: 70%+ coverage mínimo
-- **Flutter**: 60%+ coverage (widgets complejos)
+- **Frontend**: 60%+ coverage (componentes críticos)
 - **Critical flows**: 90%+ coverage (auth, payments)
 
 ## 🧪 Testing Pyramid
