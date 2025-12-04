@@ -7,22 +7,22 @@ import {
   Clock,
   Home,
   TrendingUp,
-  Circle,
-  AlertCircle,
-  Flame,
-  Calendar,
   ArrowUpDown,
   Eye,
   EyeOff,
+  List,
+  LayoutGrid,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
 import { useTimerStats, useDailyMetrics } from "@/lib/api-hooks";
 import { useTasks } from "@/lib/api-hooks";
+import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 
 type SortOption = "priority" | "duration" | "created";
+type ViewMode = "list" | "grid";
 
 export default function DashboardPage() {
   const t = useTranslations("Dashboard");
@@ -32,6 +32,7 @@ export default function DashboardPage() {
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
   const [showCompleted, setShowCompleted] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   // Get today's date range
@@ -155,47 +156,6 @@ export default function DashboardPage() {
     (task: any) => task.status === "COMPLETED"
   ).length;
 
-  // Priority colors and icons (matching the app's priority selector)
-  const getPriorityConfig = (priority: string) => {
-    switch (priority) {
-      case "URGENT":
-        return {
-          color: "#ef4444", // Red
-          bgColor: "#ef444420",
-          icon: Flame,
-          label: "Urgente",
-        };
-      case "HIGH":
-        return {
-          color: "#f97316", // Orange
-          bgColor: "#f9731620",
-          icon: AlertCircle,
-          label: "Alta",
-        };
-      case "MEDIUM":
-        return {
-          color: "#3b82f6", // Blue (matching the dropdown)
-          bgColor: "#3b82f620",
-          icon: Circle,
-          label: "Media",
-        };
-      case "LOW":
-        return {
-          color: "#3b82f6", // Blue (matching the dropdown)
-          bgColor: "#3b82f620",
-          icon: Circle,
-          label: "Baja",
-        };
-      default:
-        return {
-          color: "#6b7280",
-          bgColor: "#6b728020",
-          icon: Circle,
-          label: "Normal",
-        };
-    }
-  };
-
   // Use metrics from backend for completed count (accurate tracking)
   const completedToday = dailyMetrics?.tasksCompleted ?? 0;
 
@@ -314,6 +274,34 @@ export default function DashboardPage() {
             <h2 className="text-xl font-semibold">{t("todaysTasks")}</h2>
 
             <div className="flex items-center gap-3">
+              {/* View mode toggle */}
+              <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "p-1.5 transition-all duration-200",
+                    viewMode === "list"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted/50"
+                  )}
+                  title="Vista de lista"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={cn(
+                    "p-1.5 transition-all duration-200",
+                    viewMode === "grid"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted/50"
+                  )}
+                  title="Vista de cuadrícula"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+              </div>
+
               {/* Sort dropdown */}
               <div className="flex items-center gap-2">
                 <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
@@ -396,108 +384,24 @@ export default function DashboardPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-3">
-              {sortedTasks.map((task: any, index: number) => {
-                const isCompleted = task.status === "COMPLETED";
-                const priorityConfig = getPriorityConfig(task.priority);
-                const PriorityIcon = priorityConfig.icon;
-
-                return (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    onClick={() => setSelectedTaskId(task.id)}
-                    className={cn(
-                      "group/task relative flex items-center gap-4 rounded-xl border p-4 transition-all duration-300 cursor-pointer",
-                      isCompleted
-                        ? "border-border/30 bg-muted/30 opacity-60 hover:opacity-80"
-                        : "border-border/50 bg-background hover:border-border hover:shadow-md hover:shadow-black/5"
-                    )}
-                    style={{
-                      borderLeftWidth: isCompleted ? "2px" : "4px",
-                      borderLeftColor: isCompleted
-                        ? "#6b7280"
-                        : priorityConfig.color,
-                    }}
-                  >
-                    {/* Checkbox */}
-                    <div
-                      className={cn(
-                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200",
-                        isCompleted
-                          ? "border-green-500 bg-green-500"
-                          : "border-muted-foreground/40 group-hover/task:border-muted-foreground/60"
-                      )}
-                    >
-                      {isCompleted && (
-                        <CheckCircle2 className="h-4 w-4 text-white" />
-                      )}
-                    </div>
-
-                    {/* Task Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p
-                          className={cn(
-                            "font-medium truncate",
-                            isCompleted
-                              ? "line-through text-muted-foreground"
-                              : "text-foreground"
-                          )}
-                        >
-                          {task.title}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3 mt-1">
-                        {task.project && (
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <span
-                              className="w-2 h-2 rounded-full"
-                              style={{
-                                backgroundColor:
-                                  task.project.color || accentColor,
-                              }}
-                            />
-                            {task.project.name}
-                          </span>
-                        )}
-                        {task.dueDate && !isCompleted && (
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(task.dueDate).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Priority Badge */}
-                    {!isCompleted && (
-                      <div
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium shrink-0"
-                        style={{
-                          backgroundColor: priorityConfig.bgColor,
-                          color: priorityConfig.color,
-                        }}
-                      >
-                        <PriorityIcon className="h-3 w-3" />
-                        <span className="hidden sm:inline">
-                          {priorityConfig.label}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Completed Badge */}
-                    {isCompleted && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-600 shrink-0">
-                        <CheckCircle2 className="h-3 w-3" />
-                        <span className="hidden sm:inline">Completada</span>
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })}
+            <div
+              className={cn(
+                viewMode === "grid"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  : "space-y-2"
+              )}
+            >
+              {sortedTasks.map((task: any, index: number) => (
+                <TaskCardCompact
+                  key={task.id}
+                  task={task}
+                  index={index}
+                  viewMode={viewMode}
+                  showProject={true}
+                  showGradient={true}
+                  onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+                />
+              ))}
             </div>
           )}
         </motion.div>

@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
-import { TaskCard } from "@/components/task/task-card";
+import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { ProjectSettingsDialog } from "@/components/project/project-settings-dialog";
 import { ProjectBoard } from "@/components/project/project-board";
 import { ProjectTimeline } from "@/components/project/project-timeline";
@@ -406,8 +406,15 @@ export default function ProjectDetailPage() {
                   {t("overview.recentTasks")}
                 </h3>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                  {projectTasks.slice(0, 6).map((task: any) => (
-                    <TaskCard key={task.id} task={task} />
+                  {projectTasks.slice(0, 6).map((task: any, index: number) => (
+                    <TaskCardCompact
+                      key={task.id}
+                      task={task}
+                      index={index}
+                      viewMode="grid"
+                      showProject={false}
+                      showGradient={true}
+                    />
                   ))}
                 </div>
               </div>
@@ -493,11 +500,18 @@ export default function ProjectDetailPage() {
                       className={cn(
                         viewMode === "grid"
                           ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                          : "space-y-3"
+                          : "space-y-2"
                       )}
                     >
-                      {todoTasks.map((task: any) => (
-                        <TaskCard key={task.id} task={task} />
+                      {todoTasks.map((task: any, index: number) => (
+                        <TaskCardCompact
+                          key={task.id}
+                          task={task}
+                          index={index}
+                          viewMode={viewMode}
+                          showProject={false}
+                          showGradient={true}
+                        />
                       ))}
                     </div>
                   </div>
@@ -513,11 +527,18 @@ export default function ProjectDetailPage() {
                       className={cn(
                         viewMode === "grid"
                           ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                          : "space-y-3"
+                          : "space-y-2"
                       )}
                     >
-                      {inProgressTasks.map((task: any) => (
-                        <TaskCard key={task.id} task={task} />
+                      {inProgressTasks.map((task: any, index: number) => (
+                        <TaskCardCompact
+                          key={task.id}
+                          task={task}
+                          index={index}
+                          viewMode={viewMode}
+                          showProject={false}
+                          showGradient={true}
+                        />
                       ))}
                     </div>
                   </div>
@@ -533,11 +554,18 @@ export default function ProjectDetailPage() {
                       className={cn(
                         viewMode === "grid"
                           ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                          : "space-y-3"
+                          : "space-y-2"
                       )}
                     >
-                      {completedTasks.map((task: any) => (
-                        <TaskCard key={task.id} task={task} />
+                      {completedTasks.map((task: any, index: number) => (
+                        <TaskCardCompact
+                          key={task.id}
+                          task={task}
+                          index={index}
+                          viewMode={viewMode}
+                          showProject={false}
+                          showGradient={true}
+                        />
                       ))}
                     </div>
                   </div>
