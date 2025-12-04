@@ -16,6 +16,7 @@ import { AIModule } from './ai/ai.module';
 import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { UploadModule } from './upload/upload.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
@@ -40,6 +41,7 @@ import { AppService } from './app.service';
     CommentsModule,
     AttachmentsModule,
     UploadModule,
+    NotificationsModule,
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],

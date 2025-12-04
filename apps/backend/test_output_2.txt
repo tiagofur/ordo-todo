@@ -1,0 +1,152 @@
+
+> @ordo-todo/backend@1.0.0 test:e2e
+> jest --config ./test/jest-e2e.json collaboration
+
+[Nest] 19392  - 04/12/2025, 4:50:13 p.m.   ERROR [ExceptionsHandler] PrismaClientKnownRequestError: 
+Invalid `this.prisma.user.findUnique()` invocation in
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\user.repository.ts:53:41
+
+  50   email: string,
+  51   withPassword?: boolean,
+  52 ): Promise<User | null> {
+ÔåÆ 53   const user = await this.prisma.user.findUnique(
+
+    at $r.handleRequestError (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@prisma\client\src\runtime\RequestHandler.ts:228:13)
+    at $r.handleAndLogRequestError (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+    at $r.request (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at a (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:766:24)
+    at PrismaUserRepository.findByEmail (C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\user.repository.ts:53:18)
+    at j.execute (C:\Users\tfurt\source\repos\ordo-todo\packages\core\dist\index.js:1:30720)
+    at AuthService.register (C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\auth\auth.service.ts:32:7)
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\core\router\router-proxy.js:9:17 {
+  code: 'ECONNREFUSED',
+  meta: {
+    modelName: 'User'
+  },
+  clientVersion: '7.0.1'
+}
+FAIL test/collaboration.e2e-spec.ts
+  ÔùÅ Collaboration API (e2e) ÔÇ║ Comments Flow ÔÇ║ User B should be able to comment on the task
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      41 |             });
+      42 |         userAToken = registerResponseA.body.accessToken;
+    > 43 |         userAId = registerResponseA.body.user.id;
+         |                                               ^
+      44 |
+      45 |         // Create User B
+      46 |         const registerResponseB = await request(app.getHttpServer())
+
+      at Object.<anonymous> (collaboration.e2e-spec.ts:43:47)
+
+  ÔùÅ Collaboration API (e2e) ÔÇ║ Comments Flow ÔÇ║ User A should receive a notification about User B's comment
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      41 |             });
+      42 |         userAToken = registerResponseA.body.accessToken;
+    > 43 |         userAId = registerResponseA.body.user.id;
+         |                                               ^
+      44 |
+      45 |         // Create User B
+      46 |         const registerResponseB = await request(app.getHttpServer())
+
+      at Object.<anonymous> (collaboration.e2e-spec.ts:43:47)
+
+  ÔùÅ Collaboration API (e2e) ÔÇ║ Comments Flow ÔÇ║ User A should be able to reply (comment)
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      41 |             });
+      42 |         userAToken = registerResponseA.body.accessToken;
+    > 43 |         userAId = registerResponseA.body.user.id;
+         |                                               ^
+      44 |
+      45 |         // Create User B
+      46 |         const registerResponseB = await request(app.getHttpServer())
+
+      at Object.<anonymous> (collaboration.e2e-spec.ts:43:47)
+
+  ÔùÅ Collaboration API (e2e) ÔÇ║ Comments Flow ÔÇ║ User B should receive a notification about User A's comment
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      41 |             });
+      42 |         userAToken = registerResponseA.body.accessToken;
+    > 43 |         userAId = registerResponseA.body.user.id;
+         |                                               ^
+      44 |
+      45 |         // Create User B
+      46 |         const registerResponseB = await request(app.getHttpServer())
+
+      at Object.<anonymous> (collaboration.e2e-spec.ts:43:47)
+
+  ÔùÅ Collaboration API (e2e) ÔÇ║ Comments Flow ÔÇ║ User A should be able to mention User B
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      41 |             });
+      42 |         userAToken = registerResponseA.body.accessToken;
+    > 43 |         userAId = registerResponseA.body.user.id;
+         |                                               ^
+      44 |
+      45 |         // Create User B
+      46 |         const registerResponseB = await request(app.getHttpServer())
+
+      at Object.<anonymous> (collaboration.e2e-spec.ts:43:47)
+
+  ÔùÅ Collaboration API (e2e) ÔÇ║ Notifications Flow ÔÇ║ User A should be able to mark all notifications as read
+
+    TypeError: Cannot read properties of undefined (reading 'id')
+
+      41 |             });
+      42 |         userAToken = registerResponseA.body.accessToken;
+    > 43 |         userAId = registerResponseA.body.user.id;
+         |                                               ^
+      44 |
+      45 |         // Create User B
+      46 |         const registerResponseB = await request(app.getHttpServer())
+
+      at Object.<anonymous> (collaboration.e2e-spec.ts:43:47)
+
+
+  ÔùÅ Test suite failed to run
+
+    PrismaClientKnownRequestError: 
+    Invalid `prisma.comment.deleteMany()` invocation in
+    C:\Users\tfurt\source\repos\ordo-todo\apps\backend\test\collaboration.e2e-spec.ts:99:30
+
+      96 
+      97 afterAll(async () => {
+      98     // Cleanup
+    ÔåÆ 99     await prisma.comment.deleteMany(
+
+       97 |     afterAll(async () => {
+       98 |         // Cleanup
+    >  99 |         await prisma.comment.deleteMany({ where: { taskId } });
+          |         ^
+      100 |         await prisma.notification.deleteMany({ where: { OR: [{ userId: userAId }, { userId: userBId }] } });
+      101 |         await prisma.task.deleteMany({ where: { id: taskId } });
+      102 |         await prisma.project.deleteMany({ where: { id: projectId } });
+
+      at $r.handleRequestError (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:228:13)
+      at $r.handleAndLogRequestError (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+      at $r.request (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+      at a (../../../node_modules/@prisma/client/src/runtime/getPrismaClient.ts:766:24)
+      at Object.<anonymous> (collaboration.e2e-spec.ts:99:9)
+
+Test Suites: 1 failed, 1 total
+Tests:       6 failed, 6 total
+Snapshots:   0 total
+Time:        2.091 s
+Ran all test suites matching collaboration.
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error workspace @ordo-todo/backend@1.0.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c jest --config ./test/jest-e2e.json collaboration

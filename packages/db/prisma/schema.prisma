@@ -34,7 +34,8 @@ model User {
   comments       Comment[]
   attachments    Attachment[]
   activities     Activity[]
-  
+  notifications  Notification[]
+
   // Workspace Management
   sentInvitations WorkspaceInvitation[]
   auditLogs       WorkspaceAuditLog[]
@@ -48,6 +49,51 @@ model User {
   updatedAt     DateTime @updatedAt
 
   @@index([email])
+}
+
+// ============ NOTIFICATIONS ============
+
+model Notification {
+  id        String   @id @default(cuid())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  type      NotificationType
+  title     String
+  message   String?
+  
+  // Link to related entity (polymorphic-ish)
+  resourceId   String?
+  resourceType ResourceType?
+  
+  // Metadata for navigation (e.g., workspaceId, projectId)
+  metadata     Json?
+
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  COMMENT_ADDED
+  MENTIONED
+  DUE_DATE_APPROACHING
+  INVITATION_RECEIVED
+  SYSTEM
+}
+
+enum ResourceType {
+  TASK
+  PROJECT
+  WORKSPACE
+  COMMENT
 }
 
 model Account {
@@ -386,6 +432,9 @@ model Task {
   // Time Tracking
   estimatedMinutes Int?
   actualMinutes    Int?     @default(0)
+
+  // Sharing
+  publicToken      String?  @unique
 
   // Organization
   position    Int      @default(0)

@@ -1,0 +1,5 @@
+export { WeeklyChart } from './WeeklyChart'
+export { PeakHoursHeatmap } from './PeakHoursHeatmap'
+export { FocusScoreGauge } from './FocusScoreGauge'
+export { ProductivityInsights, generateInsights } from './ProductivityInsights'
+export { ProjectTimeline } from './ProjectTimeline'

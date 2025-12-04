@@ -250,6 +250,7 @@
     "nested": "Some subtasks have sub-subtasks",
     "tooltips": {
       "drag": "Drag to reorder",
+      "edit": "Edit subtask",
       "delete": "Delete subtask"
     },
     "toast": {
@@ -259,6 +260,8 @@
       "completeError": "Error completing subtask",
       "reopened": "Subtask reopened",
       "reopenError": "Error reopening subtask",
+      "updated": "Subtask updated",
+      "updateError": "Error updating subtask",
       "deleted": "Subtask deleted",
       "deleteError": "Error deleting subtask"
     },
@@ -288,6 +291,12 @@
       "deleteError": "Error deleting comment"
     },
     "confirmDelete": "Are you sure you want to delete this comment?"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "loading": "Loading...",
+    "markAllRead": "Mark all as read"
   },
   "FileUpload": {
     "errors": {
@@ -1271,6 +1280,23 @@
       "title": "No tasks yet",
       "description": "Create your first task to start tracking your work.",
       "action": "Create Task"
+    }
+  },
+  "TaskDetailPanel": {
+    "share": {
+      "title": "Share Task",
+      "description": "Anyone with this link can view this task without logging in."
+    },
+    "toast": {
+      "shareError": "Error generating share link",
+      "linkCopied": "Link copied to clipboard"
+    },
+    "buttons": {
+      "save": "Save Changes",
+      "delete": "Delete Task"
+    },
+    "footer": {
+      "created": "Created on"
     }
   }
 }

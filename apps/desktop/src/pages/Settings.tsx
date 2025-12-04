@@ -1,76 +1,268 @@
 import { useTheme } from "next-themes";
-import { Moon, Sun, Laptop } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Moon, Sun, Laptop, Globe, Bell, Clock, Keyboard } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
+import { PageTransition, SlideIn } from "@/components/motion";
 
 export function Settings() {
   const { setTheme, theme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const currentLang = getCurrentLanguage();
+
+  const handleLanguageChange = (lng: string) => {
+    changeLanguage(lng as any);
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Configuración</h1>
-        <p className="text-muted-foreground">Personaliza tu experiencia</p>
-      </div>
-
-      <div className="rounded-lg border bg-card p-6 space-y-6">
-        <div>
-          <h3 className="text-lg font-medium">Apariencia</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Selecciona el tema de la aplicación
-          </p>
-          
-          <div className="grid grid-cols-3 gap-4 max-w-md">
-            <button
-              onClick={() => setTheme("light")}
-              className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground ${
-                theme === "light" ? "border-primary bg-accent" : "border-muted"
-              }`}
-            >
-              <Sun className="mb-2 h-6 w-6" />
-              <span className="text-sm font-medium">Claro</span>
-            </button>
-            <button
-              onClick={() => setTheme("dark")}
-              className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground ${
-                theme === "dark" ? "border-primary bg-accent" : "border-muted"
-              }`}
-            >
-              <Moon className="mb-2 h-6 w-6" />
-              <span className="text-sm font-medium">Oscuro</span>
-            </button>
-            <button
-              onClick={() => setTheme("system")}
-              className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground ${
-                theme === "system" ? "border-primary bg-accent" : "border-muted"
-              }`}
-            >
-              <Laptop className="mb-2 h-6 w-6" />
-              <span className="text-sm font-medium">Sistema</span>
-            </button>
+    <PageTransition>
+      <div className="space-y-6">
+        <SlideIn direction="top">
+          <div>
+            <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
+            <p className="text-muted-foreground">Personaliza tu experiencia</p>
           </div>
-        </div>
+        </SlideIn>
 
-        <Separator />
+        {/* Appearance */}
+        <SlideIn delay={0.1}>
+          <div className="rounded-lg border bg-card p-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Sun className="h-5 w-5 text-muted-foreground" />
+                {t("settings.appearance")}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {t("settings.theme")}
+              </p>
+              
+              <div className="grid grid-cols-3 gap-4 max-w-md">
+                <button
+                  onClick={() => setTheme("light")}
+                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
+                    theme === "light" ? "border-primary bg-accent" : "border-muted"
+                  }`}
+                >
+                  <Sun className="mb-2 h-6 w-6" />
+                  <span className="text-sm font-medium">{t("settings.themes.light")}</span>
+                </button>
+                <button
+                  onClick={() => setTheme("dark")}
+                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
+                    theme === "dark" ? "border-primary bg-accent" : "border-muted"
+                  }`}
+                >
+                  <Moon className="mb-2 h-6 w-6" />
+                  <span className="text-sm font-medium">{t("settings.themes.dark")}</span>
+                </button>
+                <button
+                  onClick={() => setTheme("system")}
+                  className={`flex flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
+                    theme === "system" ? "border-primary bg-accent" : "border-muted"
+                  }`}
+                >
+                  <Laptop className="mb-2 h-6 w-6" />
+                  <span className="text-sm font-medium">{t("settings.themes.system")}</span>
+                </button>
+              </div>
+            </div>
 
-        <div>
-          <h3 className="text-lg font-medium">Acerca de</h3>
-          <div className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between py-2">
-              <span className="text-muted-foreground">Versión</span>
-              <span className="font-medium">0.1.0</span>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-muted-foreground">Electron</span>
-              <span className="font-medium">33.2.1</span>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-muted-foreground">Desarrollado por</span>
-              <span className="font-medium">Ordo-Todo Team</span>
+            <Separator />
+
+            {/* Language */}
+            <div>
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Globe className="h-5 w-5 text-muted-foreground" />
+                {t("settings.language")}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Selecciona el idioma de la aplicación
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 max-w-md">
+                {supportedLanguages.map((lng) => (
+                  <button
+                    key={lng}
+                    onClick={() => handleLanguageChange(lng)}
+                    className={`flex items-center gap-3 rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground transition-all ${
+                      currentLang === lng ? "border-primary bg-accent" : "border-muted"
+                    }`}
+                  >
+                    <span className="text-2xl">{lng === "es" ? "🇪🇸" : "🇺🇸"}</span>
+                    <span className="text-sm font-medium">{t(`settings.languages.${lng}`)}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </SlideIn>
+
+        {/* Timer Settings */}
+        <SlideIn delay={0.2}>
+          <div className="rounded-lg border bg-card p-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                {t("settings.timer")}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configura los tiempos del pomodoro
+              </p>
+            </div>
+
+            <div className="space-y-6 max-w-md">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>{t("settings.timerSettings.focusDuration")}</Label>
+                  <span className="text-sm text-muted-foreground">25 min</span>
+                </div>
+                <Slider defaultValue={[25]} max={60} min={5} step={5} />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>{t("settings.timerSettings.shortBreakDuration")}</Label>
+                  <span className="text-sm text-muted-foreground">5 min</span>
+                </div>
+                <Slider defaultValue={[5]} max={15} min={1} step={1} />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>{t("settings.timerSettings.longBreakDuration")}</Label>
+                  <span className="text-sm text-muted-foreground">15 min</span>
+                </div>
+                <Slider defaultValue={[15]} max={30} min={5} step={5} />
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>{t("settings.timerSettings.autoStartBreaks")}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Iniciar descanso automáticamente
+                  </p>
+                </div>
+                <Switch />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>{t("settings.timerSettings.autoStartPomodoros")}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Iniciar siguiente pomodoro automáticamente
+                  </p>
+                </div>
+                <Switch />
+              </div>
+            </div>
+          </div>
+        </SlideIn>
+
+        {/* Notifications */}
+        <SlideIn delay={0.3}>
+          <div className="rounded-lg border bg-card p-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Bell className="h-5 w-5 text-muted-foreground" />
+                {t("settings.notifications")}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configura las notificaciones
+              </p>
+            </div>
+
+            <div className="space-y-4 max-w-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>{t("settings.notificationSettings.desktop")}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Mostrar notificaciones de escritorio
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>{t("settings.notificationSettings.sound")}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Reproducir sonido al completar
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>{t("settings.notificationSettings.taskReminders")}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Recordar tareas próximas a vencer
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+            </div>
+          </div>
+        </SlideIn>
+
+        {/* Keyboard Shortcuts */}
+        <SlideIn delay={0.4}>
+          <div className="rounded-lg border bg-card p-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Keyboard className="h-5 w-5 text-muted-foreground" />
+                Atajos de Teclado
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Atajos globales de la aplicación
+              </p>
+            </div>
+
+            <div className="space-y-3 max-w-md">
+              {[
+                { action: "Iniciar/Pausar timer", shortcut: "Ctrl+Shift+P" },
+                { action: "Nueva tarea", shortcut: "Ctrl+N" },
+                { action: "Buscar", shortcut: "Ctrl+K" },
+                { action: "Mostrar/Ocultar app", shortcut: "Ctrl+Shift+O" },
+                { action: "Configuración", shortcut: "Ctrl+," },
+              ].map((item) => (
+                <div key={item.action} className="flex justify-between items-center py-2">
+                  <span className="text-sm">{item.action}</span>
+                  <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">
+                    {item.shortcut}
+                  </kbd>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SlideIn>
+
+        {/* About */}
+        <SlideIn delay={0.5}>
+          <div className="rounded-lg border bg-card p-6 space-y-4">
+            <h3 className="text-lg font-medium">Acerca de</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between py-2">
+                <span className="text-muted-foreground">Versión</span>
+                <span className="font-medium">0.3.0</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-muted-foreground">Electron</span>
+                <span className="font-medium">33.2.1</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-muted-foreground">Desarrollado por</span>
+                <span className="font-medium">Ordo-Todo Team</span>
+              </div>
+            </div>
+          </div>
+        </SlideIn>
       </div>
-    </div>
+    </PageTransition>
   );
 }

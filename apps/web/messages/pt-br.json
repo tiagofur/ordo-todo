@@ -250,6 +250,7 @@
     "nested": "Algumas subtarefas têm sub-subtarefas",
     "tooltips": {
       "drag": "Arraste para reordenar",
+      "edit": "Editar subtarefa",
       "delete": "Excluir subtarefa"
     },
     "toast": {
@@ -259,6 +260,8 @@
       "completeError": "Erro ao concluir subtarefa",
       "reopened": "Subtarefa reaberta",
       "reopenError": "Erro ao reabrir subtarefa",
+      "updated": "Subtarefa atualizada",
+      "updateError": "Erro ao atualizar subtarefa",
       "deleted": "Subtarefa excluída",
       "deleteError": "Erro ao excluir subtarefa"
     },
@@ -288,6 +291,12 @@
       "deleteError": "Erro ao excluir comentário"
     },
     "confirmDelete": "Tem certeza que deseja excluir este comentário?"
+  },
+  "Notifications": {
+    "title": "Notificações",
+    "empty": "Sem notificações",
+    "loading": "Carregando...",
+    "markAllRead": "Marcar todas como lidas"
   },
   "FileUpload": {
     "errors": {
@@ -746,7 +755,9 @@
       "priorityError": "Erro ao atualizar prioridade",
       "tagAssigned": "Tag {tagName} atribuída",
       "tagError": "Erro ao atribuir tag",
-      "noTaskId": "Erro: ID da tarefa não encontrado"
+      "noTaskId": "Erro: ID da tarefa não encontrado",
+      "shareError": "Erro ao gerar link de compartilhamento",
+      "linkCopied": "Link copiado para a área de transferência"
     },
     "confirmDelete": "Tem certeza que deseja excluir esta tarefa?",
     "titlePlaceholder": "Título da tarefa",
@@ -758,7 +769,7 @@
       "create": "Criar nova tag"
     },
     "buttons": {
-      "save": "Salvar",
+      "save": "Salvar Alterações",
       "delete": "Excluir Tarefa"
     },
     "description": {
@@ -779,6 +790,10 @@
     },
     "footer": {
       "created": "Criada em"
+    },
+    "share": {
+      "title": "Compartilhar Tarefa",
+      "description": "Qualquer pessoa com este link pode visualizar esta tarefa sem fazer login."
     }
   },
   "TaskFilters": {

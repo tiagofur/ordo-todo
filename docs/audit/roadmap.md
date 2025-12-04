@@ -50,43 +50,68 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 
 ---
 
-## 📅 Sprint 2: Subtareas (2-3 semanas)
+## 📅 Sprint 2: Subtareas (2-3 semanas) ✅ COMPLETADO
 
 **Objetivo:** Implementar feature core más solicitada.
 
 ### Tareas
 
-- [ ] **Backend Subtareas**
-  - [ ] Endpoints CRUD `/tasks/:id/subtasks`
-  - [ ] Contadores `subtasksCount`, `completedSubtasksCount`
+- [x] **Backend Subtareas**
+  - [x] Endpoints CRUD `/tasks/:id/subtasks` (POST crear)
+  - [x] Service y DTO para subtareas
+  - [x] Contadores `subtasksCompleted` en analytics
   
-- [ ] **Frontend Subtareas**
-  - [ ] Componente `SubtaskList`
-  - [ ] Componente `SubtaskItem` con checkbox
-  - [ ] UI expandir/contraer en TaskCard
-  - [ ] Barra de progreso visual
-
-- [ ] **Tests para Subtareas**
-  - [ ] Unit tests de lógica
-  - [ ] Integration tests de API
+- [x] **Frontend Subtareas**
+  - [x] Componente `SubtaskList` (crear, completar, eliminar)
+  - [x] Checkbox toggle con reopen
+  - [x] Barra de progreso visual en SubtaskList
+  - [x] Barra de progreso en TaskCard (indicador compacto)
+  - [x] Integración en TaskDetailPanel tabs
+  
+- [x] **Tests para Subtareas**
+  - [x] Unit tests de useCreateSubtask hook
+  - [x] Integration tests de API (backend)
 
 ---
 
 ## 📅 Sprint 3: Colaboración (2 semanas)
 
-**Objetivo:** Habilitar trabajo en equipo efectivo.
+**Objetivo:** Habilitar trabajo en equipo efectivo y comunicación.
 
 ### Tareas
 
-- [ ] **Sistema de Comentarios**
-  - [ ] Componente `CommentThread` en TaskDetail
-  - [ ] Real-time updates (opcional: WebSockets)
-  - [ ] Markdown básico en comentarios
+- [x] **Sistema de Notificaciones (Backend)**
+  - [x] Modelo `Notification` en Prisma
+  - [x] Module `Notifications` (Service, Controller)
+  - [x] Lógica para crear notificaciones (asignación, comentarios)
+  - [x] Endpoint para marcar como leídas
 
-- [ ] **Notificaciones**
-  - [ ] Notificación al ser asignado
-  - [ ] Notificación al recibir comentario
-  - [ ] Centro de notificaciones en header
+- [x] **Sistema de Notificaciones (Frontend)**
+  - [x] Componente `NotificationPopover` en TopBar
+  - [x] Store/Context para notificaciones en tiempo real (polling o SSE)
+  - [x] UI de `NotificationItem`
+
+- [ ] **Mejoras en Comentarios**
+  - [x] Soporte para menciones (@usuario) en frontend
+  - [x] Backend parsing de menciones -> Crear Notificación
+  
+- [x] **Compartir Tareas**
+  - [x] Generar link público de tarea (solo lectura)
+  - [x] Vista pública de tarea (sin auth)
+
+- [x] **Tests de Colaboración**
+  - [x] Tests de notificaciones (Unit tests passed, E2E written)
+  - [x] Tests de flujo de comentarios (Unit tests passed, E2E written)
+
+- [x] **Sistema de Comentarios**
+  - [x] Componente `CommentThread` en TaskDetail
+  - [x] Real-time updates (via React Query invalidation)
+  - [x] Markdown básico en comentarios (React Markdown + Typography)
+
+- [x] **Notificaciones**
+  - [x] Notificación al ser asignado (Backend implemented in TasksService)
+  - [x] Notificación al recibir comentario (Backend implemented in CommentsService)
+  - [x] Centro de notificaciones en header (Frontend implemented in TopBar + NotificationPopover)
 
 ---
 
@@ -171,19 +196,32 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 ## 🚀 Próximos Pasos Inmediatos
 
 > **Sprint 1 ✅ Completado** - 4 de Diciembre, 2025
+> **Sprint 2 ✅ Completado** - 4 de Diciembre, 2025
 
-1. **Listo:** Sprint 1 completado con éxito
-   - Tests de hooks (useAuth, useTasks) implementados
-   - Filtro "Mis Tareas" integrado en TaskList
-   - Backend soporta `assignedToMe` query parameter
+### Resumen de Sprints Completados
+
+1. **Sprint 1 - Fundamentos:** ✅
+   - Tests de hooks (useAuth, useTasks)
+   - Filtro "Mis Tareas" en TaskList
+   - Backend `assignedToMe` query parameter
    
-2. **Sprint 2:** Comenzar implementación de Subtareas
-   - Backend: Endpoints CRUD `/tasks/:id/subtasks`
-   - Frontend: Componentes SubtaskList y SubtaskItem
+2. **Sprint 2 - Subtareas:** ✅
+   - Backend: Endpoint POST `/tasks/:id/subtasks`
+   - Frontend: SubtaskList con CRUD completo
+   - TaskCard con barra de progreso de subtareas
+   - Tests de useCreateSubtask hook
    
-3. **Prioritario:** Verificar test coverage actual
+### Siguiente: Sprint 3 - Colaboración
+
+1. **Comentarios mejorados**
+   - Menciones @usuario
+   - Notificaciones en app
+   
+2. **Compartir tareas**
+   - Link público de tarea (solo lectura)
+   - Invitar colaboradores
 
 ---
 
-*Sprint 1 completado. ¿Comenzamos con Sprint 2 (Subtareas)?*
+*¿Comenzamos con Sprint 3 (Colaboración)?*
 

@@ -278,6 +278,10 @@ export const apiClient = {
   deleteTask: (id: string) => axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
   createSubtask: (parentTaskId: string, data: CreateSubtaskDto) => axiosInstance.post(`/tasks/${parentTaskId}/subtasks`, data).then((res) => res.data),
 
+  // Task Sharing
+  generatePublicToken: (taskId: string) => axiosInstance.post(`/tasks/${taskId}/share`).then((res) => res.data),
+  getTaskByPublicToken: (token: string) => axiosInstance.get(`/tasks/share/${token}`).then((res) => res.data),
+
   // Tag
   getTags: (workspaceId: string) => axiosInstance.get('/tags', { params: { workspaceId } }).then((res) => res.data),
   getTaskTags: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/tags`).then((res) => res.data),
@@ -330,4 +334,10 @@ export const apiClient = {
   getTaskAttachments: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/attachments`).then((res) => res.data),
   createAttachment: (data: CreateAttachmentDto) => axiosInstance.post('/attachments', data).then((res) => res.data),
   deleteAttachment: (id: string) => axiosInstance.delete(`/attachments/${id}`).then((res) => res.data),
+
+  // Notifications
+  getNotifications: () => axiosInstance.get('/notifications').then((res) => res.data),
+  getUnreadNotificationsCount: () => axiosInstance.get('/notifications/unread-count').then((res) => res.data),
+  markNotificationAsRead: (id: string) => axiosInstance.patch(`/notifications/${id}/read`).then((res) => res.data),
+  markAllNotificationsAsRead: () => axiosInstance.post('/notifications/mark-all-read').then((res) => res.data),
 };

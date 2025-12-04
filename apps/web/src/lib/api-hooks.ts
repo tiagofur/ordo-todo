@@ -627,6 +627,25 @@ export function useCreateSubtask() {
   });
 }
 
+export function useShareTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.generatePublicToken(taskId),
+    onSuccess: (data, taskId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+    },
+  });
+}
+
+export function usePublicTask(token: string) {
+  return useQuery({
+    queryKey: ['public-task', token],
+    queryFn: () => apiClient.getTaskByPublicToken(token),
+    enabled: !!token,
+  });
+}
+
 // ============ TAG HOOKS ============
 
 export function useTags(workspaceId: string) {
@@ -999,5 +1018,47 @@ export function useDeleteAttachment() {
     },
   });
 }
+
+// ==========================================
+// NOTIFICATIONS
+// ==========================================
+
+export const useNotifications = () => {
+  return useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => apiClient.getNotifications(),
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+};
+
+export const useUnreadNotificationsCount = () => {
+  return useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: () => apiClient.getUnreadNotificationsCount(),
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+};
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiClient.markNotificationAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
+
+export const useMarkAllNotificationsAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.markAllNotificationsAsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
 
 

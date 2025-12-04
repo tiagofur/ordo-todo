@@ -1,0 +1,211 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "projects": "Projects",
+    "timer": "Timer",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "calendar": "Calendar"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back!",
+    "todayFocus": "Today's Focus",
+    "quickActions": "Quick Actions",
+    "recentProjects": "Recent Projects",
+    "upcomingTasks": "Upcoming Tasks",
+    "weeklyProgress": "Weekly Progress",
+    "stats": {
+      "completedToday": "Completed today",
+      "inProgress": "In progress",
+      "overdue": "Overdue",
+      "totalPomodoros": "Total pomodoros"
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "newTask": "New task",
+    "editTask": "Edit task",
+    "deleteTask": "Delete task",
+    "taskName": "Task name",
+    "description": "Description",
+    "dueDate": "Due date",
+    "priority": "Priority",
+    "status": "Status",
+    "project": "Project",
+    "tags": "Tags",
+    "subtasks": "Subtasks",
+    "comments": "Comments",
+    "attachments": "Attachments",
+    "estimatedPomodoros": "Estimated pomodoros",
+    "noTasks": "No tasks",
+    "noTasksDescription": "Create your first task to start being productive",
+    "addSubtask": "Add subtask",
+    "addComment": "Add comment",
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "statuses": {
+      "todo": "To do",
+      "inProgress": "In progress",
+      "inReview": "In review",
+      "completed": "Completed"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "newProject": "New project",
+    "editProject": "Edit project",
+    "deleteProject": "Delete project",
+    "archiveProject": "Archive project",
+    "projectName": "Project name",
+    "description": "Description",
+    "color": "Color",
+    "noProjects": "No projects",
+    "noProjectsDescription": "Create your first project to organize your tasks",
+    "tasksCount": "{{count}} tasks",
+    "completedTasks": "{{count}} completed"
+  },
+  "timer": {
+    "title": "Pomodoro Timer",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "reset": "Reset",
+    "skip": "Skip",
+    "focus": "Focus",
+    "shortBreak": "Short break",
+    "longBreak": "Long break",
+    "session": "Session",
+    "sessions": "Sessions",
+    "selectTask": "Select task",
+    "noTaskSelected": "No task selected",
+    "pomodoroCompleted": "Pomodoro completed!",
+    "breakCompleted": "Break completed!",
+    "keepFocusing": "Keep focusing",
+    "takeBreak": "Take a break"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "weeklyActivity": "Weekly Activity",
+    "peakHours": "Peak Hours",
+    "focusScore": "Focus Score",
+    "insights": "Insights",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "thisMonth": "This month",
+    "pomodoros": "Pomodoros",
+    "tasksCompleted": "Tasks completed",
+    "streak": "Streak",
+    "avgPerDay": "Daily average",
+    "insightMessages": {
+      "peakHour": "Your peak hour is {{hour}}",
+      "streakCongrats": "{{days}} day streak! 🔥",
+      "excellentProductivity": "Excellent productivity",
+      "goodProgress": "Good progress",
+      "needsImprovement": "Needs improvement"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "timer": "Timer",
+    "language": "Language",
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    },
+    "timerSettings": {
+      "focusDuration": "Focus duration",
+      "shortBreakDuration": "Short break duration",
+      "longBreakDuration": "Long break duration",
+      "sessionsBeforeLongBreak": "Sessions before long break",
+      "autoStartBreaks": "Auto-start breaks",
+      "autoStartPomodoros": "Auto-start pomodoros",
+      "sound": "Notification sound"
+    },
+    "notificationSettings": {
+      "desktop": "Desktop notifications",
+      "sound": "Sound",
+      "timerComplete": "Timer complete",
+      "taskReminders": "Task reminders"
+    }
+  },
+  "ai": {
+    "title": "AI Assistant",
+    "generateReport": "Generate report",
+    "weeklyReport": "Weekly Report",
+    "suggestions": "Suggestions",
+    "analyzing": "Analyzing your productivity...",
+    "reportReady": "Your report is ready!",
+    "noDataForReport": "Not enough data to generate a report",
+    "sections": {
+      "summary": "Summary",
+      "achievements": "Achievements",
+      "improvements": "Areas for improvement",
+      "recommendations": "Recommendations"
+    }
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Connection error",
+    "unauthorized": "Unauthorized",
+    "notFound": "Not found",
+    "validation": "Validation error"
+  },
+  "success": {
+    "taskCreated": "Task created",
+    "taskUpdated": "Task updated",
+    "taskDeleted": "Task deleted",
+    "projectCreated": "Project created",
+    "projectUpdated": "Project updated",
+    "projectDeleted": "Project deleted",
+    "settingsSaved": "Settings saved"
+  },
+  "sync": {
+    "offline": "Offline",
+    "offlineDesc": "Changes will sync when online",
+    "syncing": "Syncing...",
+    "syncingDesc": "Syncing your changes",
+    "error": "Sync Error",
+    "errorDesc": "Failed to sync. Click to retry",
+    "pending": "Pending",
+    "pendingDesc": "{{count}} changes pending",
+    "synced": "Synced",
+    "syncedDesc": "Last sync: {{time}}",
+    "unknown": "Unknown",
+    "failedChanges": "{{count}} failed changes",
+    "offlineBanner": "You're offline. Changes will sync when you reconnect.",
+    "pendingChanges": "pending"
+  }
+}

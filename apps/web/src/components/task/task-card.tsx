@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit } from "lucide-react";
+import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo } from "lucide-react";
 import { useCompleteTask, useTaskTags } from "@/lib/api-hooks";
 import {
   DropdownMenu,
@@ -29,6 +29,11 @@ interface TaskCardProps {
     dueDate?: Date | string | null;
     tags?: any[];
     project?: { id: string; name: string; color: string };
+    subTasks?: Array<{
+      id: string | number;
+      title: string;
+      status: string;
+    }>;
   };
   index?: number;
 }
@@ -49,6 +54,12 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
   
   // Use project color if available, otherwise fallback to purple
   const accentColor = task.project?.color || "#8b5cf6"; // Purple fallback
+
+  // Subtask progress calculation
+  const subtasks = task.subTasks || [];
+  const completedSubtasks = subtasks.filter((st) => st.status === "COMPLETED").length;
+  const totalSubtasks = subtasks.length;
+  const subtaskProgress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
@@ -137,9 +148,25 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
           )}
 
           {task.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-6 flex-grow">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-grow">
               {task.description}
             </p>
+          )}
+
+          {/* Subtasks Progress Bar */}
+          {totalSubtasks > 0 && (
+            <div className="flex items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
+              <ListTodo className="h-3.5 w-3.5 text-muted-foreground" />
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-300 ease-out"
+                  style={{ width: `${subtaskProgress}%` }}
+                />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">
+                {completedSubtasks}/{totalSubtasks}
+              </span>
+            </div>
           )}
 
           <div className="mt-auto pt-4 border-t border-dashed border-border/50">
@@ -179,3 +206,4 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
     </>
   );
 }
+

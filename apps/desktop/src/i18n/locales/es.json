@@ -1,0 +1,211 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "close": "Cerrar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana",
+    "week": "Semana",
+    "month": "Mes",
+    "year": "Año"
+  },
+  "nav": {
+    "dashboard": "Inicio",
+    "tasks": "Tareas",
+    "projects": "Proyectos",
+    "timer": "Timer",
+    "analytics": "Analíticas",
+    "settings": "Configuración",
+    "calendar": "Calendario"
+  },
+  "dashboard": {
+    "title": "Panel Principal",
+    "welcome": "¡Bienvenido de nuevo!",
+    "todayFocus": "Enfoque de hoy",
+    "quickActions": "Acciones rápidas",
+    "recentProjects": "Proyectos recientes",
+    "upcomingTasks": "Próximas tareas",
+    "weeklyProgress": "Progreso semanal",
+    "stats": {
+      "completedToday": "Completadas hoy",
+      "inProgress": "En progreso",
+      "overdue": "Vencidas",
+      "totalPomodoros": "Total pomodoros"
+    }
+  },
+  "tasks": {
+    "title": "Tareas",
+    "newTask": "Nueva tarea",
+    "editTask": "Editar tarea",
+    "deleteTask": "Eliminar tarea",
+    "taskName": "Nombre de la tarea",
+    "description": "Descripción",
+    "dueDate": "Fecha de vencimiento",
+    "priority": "Prioridad",
+    "status": "Estado",
+    "project": "Proyecto",
+    "tags": "Etiquetas",
+    "subtasks": "Subtareas",
+    "comments": "Comentarios",
+    "attachments": "Archivos",
+    "estimatedPomodoros": "Pomodoros estimados",
+    "noTasks": "No hay tareas",
+    "noTasksDescription": "Crea tu primera tarea para empezar a ser productivo",
+    "addSubtask": "Añadir subtarea",
+    "addComment": "Añadir comentario",
+    "priorities": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "statuses": {
+      "todo": "Por hacer",
+      "inProgress": "En progreso",
+      "inReview": "En revisión",
+      "completed": "Completada"
+    }
+  },
+  "projects": {
+    "title": "Proyectos",
+    "newProject": "Nuevo proyecto",
+    "editProject": "Editar proyecto",
+    "deleteProject": "Eliminar proyecto",
+    "archiveProject": "Archivar proyecto",
+    "projectName": "Nombre del proyecto",
+    "description": "Descripción",
+    "color": "Color",
+    "noProjects": "No hay proyectos",
+    "noProjectsDescription": "Crea tu primer proyecto para organizar tus tareas",
+    "tasksCount": "{{count}} tareas",
+    "completedTasks": "{{count}} completadas"
+  },
+  "timer": {
+    "title": "Timer Pomodoro",
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "stop": "Detener",
+    "reset": "Reiniciar",
+    "skip": "Saltar",
+    "focus": "Enfoque",
+    "shortBreak": "Descanso corto",
+    "longBreak": "Descanso largo",
+    "session": "Sesión",
+    "sessions": "Sesiones",
+    "selectTask": "Seleccionar tarea",
+    "noTaskSelected": "Sin tarea seleccionada",
+    "pomodoroCompleted": "¡Pomodoro completado!",
+    "breakCompleted": "¡Descanso terminado!",
+    "keepFocusing": "Sigue enfocado",
+    "takeBreak": "Toma un descanso"
+  },
+  "analytics": {
+    "title": "Analíticas",
+    "weeklyActivity": "Actividad semanal",
+    "peakHours": "Horas productivas",
+    "focusScore": "Puntuación de enfoque",
+    "insights": "Insights",
+    "thisWeek": "Esta semana",
+    "lastWeek": "Semana pasada",
+    "thisMonth": "Este mes",
+    "pomodoros": "Pomodoros",
+    "tasksCompleted": "Tareas completadas",
+    "streak": "Racha",
+    "avgPerDay": "Promedio diario",
+    "insightMessages": {
+      "peakHour": "Tu hora pico es {{hour}}",
+      "streakCongrats": "¡{{days}} días de racha! 🔥",
+      "excellentProductivity": "Excelente productividad",
+      "goodProgress": "Buen progreso",
+      "needsImprovement": "Necesita mejorar"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "general": "General",
+    "appearance": "Apariencia",
+    "notifications": "Notificaciones",
+    "timer": "Timer",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themes": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    },
+    "timerSettings": {
+      "focusDuration": "Duración de enfoque",
+      "shortBreakDuration": "Descanso corto",
+      "longBreakDuration": "Descanso largo",
+      "sessionsBeforeLongBreak": "Sesiones antes del descanso largo",
+      "autoStartBreaks": "Iniciar descansos automáticamente",
+      "autoStartPomodoros": "Iniciar pomodoros automáticamente",
+      "sound": "Sonido de notificación"
+    },
+    "notificationSettings": {
+      "desktop": "Notificaciones de escritorio",
+      "sound": "Sonido",
+      "timerComplete": "Timer completado",
+      "taskReminders": "Recordatorios de tareas"
+    }
+  },
+  "ai": {
+    "title": "Asistente IA",
+    "generateReport": "Generar reporte",
+    "weeklyReport": "Reporte semanal",
+    "suggestions": "Sugerencias",
+    "analyzing": "Analizando tu productividad...",
+    "reportReady": "¡Tu reporte está listo!",
+    "noDataForReport": "No hay suficientes datos para generar un reporte",
+    "sections": {
+      "summary": "Resumen",
+      "achievements": "Logros",
+      "improvements": "Áreas de mejora",
+      "recommendations": "Recomendaciones"
+    }
+  },
+  "errors": {
+    "generic": "Ha ocurrido un error",
+    "network": "Error de conexión",
+    "unauthorized": "No autorizado",
+    "notFound": "No encontrado",
+    "validation": "Error de validación"
+  },
+  "success": {
+    "taskCreated": "Tarea creada",
+    "taskUpdated": "Tarea actualizada",
+    "taskDeleted": "Tarea eliminada",
+    "projectCreated": "Proyecto creado",
+    "projectUpdated": "Proyecto actualizado",
+    "projectDeleted": "Proyecto eliminado",
+    "settingsSaved": "Configuración guardada"
+  },
+  "sync": {
+    "offline": "Sin conexión",
+    "offlineDesc": "Los cambios se sincronizarán cuando estés online",
+    "syncing": "Sincronizando...",
+    "syncingDesc": "Sincronizando tus cambios",
+    "error": "Error de sincronización",
+    "errorDesc": "Error al sincronizar. Haz clic para reintentar",
+    "pending": "Pendiente",
+    "pendingDesc": "{{count}} cambios pendientes",
+    "synced": "Sincronizado",
+    "syncedDesc": "Última sincronización: {{time}}",
+    "unknown": "Desconocido",
+    "failedChanges": "{{count}} cambios fallidos",
+    "offlineBanner": "Estás sin conexión. Los cambios se sincronizarán cuando te reconectes.",
+    "pendingChanges": "pendientes"
+  }
+}

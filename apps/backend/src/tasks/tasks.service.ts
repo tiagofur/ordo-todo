@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException, Logger } from '@nestjs/common';
+import * as crypto from 'crypto';
 import type { TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
 import { CreateTaskUseCase, CompleteTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -6,6 +7,8 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, ResourceType } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
@@ -18,6 +21,7 @@ export class TasksService {
     private readonly analyticsRepository: AnalyticsRepository,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
@@ -28,6 +32,18 @@ export class TasksService {
       // Auto-assign to creator if no assignee specified
       assigneeId: createTaskDto.assigneeId ?? userId,
     });
+
+    // Notify Assignee if different from creator
+    if (task.props.assigneeId && task.props.assigneeId !== userId) {
+      await this.notificationsService.create({
+        userId: task.props.assigneeId,
+        type: NotificationType.TASK_ASSIGNED,
+        title: 'Task assigned to you',
+        message: `You were assigned to task "${task.props.title}"`,
+        resourceId: task.id as string,
+        resourceType: ResourceType.TASK,
+      });
+    }
 
     // Log activity
     await this.activitiesService.logTaskCreated(task.id as string, userId);
@@ -181,6 +197,30 @@ export class TasksService {
       await this.taskRepository.update(updatedTask);
       this.logger.debug(`Task ${id} updated successfully`);
 
+      // Notify Assignee if changed
+      if (
+        updateTaskDto.assigneeId &&
+        updateTaskDto.assigneeId !== oldTask.assigneeId &&
+        updateTaskDto.assigneeId !== userId
+      ) {
+        await this.notificationsService.create({
+          userId: updateTaskDto.assigneeId,
+          type: NotificationType.TASK_ASSIGNED,
+          title: 'Task assigned to you',
+          message: `You were assigned to task "${updatedTask.props.title}"`,
+          resourceId: id,
+          resourceType: ResourceType.TASK,
+        });
+
+        // Log activity
+        await this.activitiesService.logAssigneeChanged(
+          id,
+          userId,
+          oldTask.assigneeId || null,
+          updateTaskDto.assigneeId,
+        );
+      }
+
       // Log specific field changes
       if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {
         this.logger.debug(`Logging status change for task ${id}`);
@@ -303,5 +343,56 @@ export class TasksService {
     await this.activitiesService.logTaskCreated(subtask.id as string, userId);
 
     return subtask.props;
+  }
+
+
+  async generatePublicToken(id: string, userId: string) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    // Generate a random token
+    const publicToken = crypto.randomUUID();
+
+    await this.prisma.task.update({
+      where: { id },
+      data: { publicToken },
+    });
+
+    return { publicToken };
+  }
+
+  async findByPublicToken(token: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { publicToken: token },
+      include: {
+        subTasks: true,
+        comments: {
+          include: { author: true },
+          orderBy: { createdAt: 'desc' },
+        },
+        attachments: {
+          include: { uploadedBy: true } as any,
+          orderBy: { uploadedAt: 'desc' },
+        },
+        tags: {
+          include: { tag: true },
+        },
+        creator: { select: { id: true, name: true, image: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        project: { select: { id: true, name: true, color: true } },
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found or link expired');
+    }
+
+    return {
+      ...task,
+      tags: task.tags.map((t) => t.tag),
+      estimatedTime: task.estimatedMinutes,
+    };
   }
 }

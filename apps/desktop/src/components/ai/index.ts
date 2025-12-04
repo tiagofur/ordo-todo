@@ -1,0 +1,1 @@
+export { AIWeeklyReport } from './AIWeeklyReport'

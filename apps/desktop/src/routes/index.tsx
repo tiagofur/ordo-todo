@@ -1,20 +1,31 @@
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
 import {
-  Dashboard,
-  Tasks,
-  Projects,
-  ProjectDetail,
-  Timer,
-  Tags,
-  Settings,
-  Auth,
-} from "../pages";
+  LazyPage,
+  PageLoader,
+  LazyDashboard,
+  LazyTasks,
+  LazyProjects,
+  LazyProjectDetail,
+  LazyTimer,
+  LazyAnalytics,
+  LazyTags,
+  LazySettings,
+  LazyAuth,
+} from "../pages/lazy";
 
+/**
+ * Application routes with code splitting
+ * Pages are lazy-loaded for better initial performance
+ */
 export const router = createHashRouter([
   {
     path: "/auth",
-    element: <Auth />,
+    element: (
+      <LazyPage fallback={<PageLoader message="Loading authentication..." />}>
+        <LazyAuth />
+      </LazyPage>
+    ),
   },
   {
     path: "/",
@@ -26,31 +37,67 @@ export const router = createHashRouter([
       },
       {
         path: "dashboard",
-        element: <Dashboard />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading dashboard..." />}>
+            <LazyDashboard />
+          </LazyPage>
+        ),
       },
       {
         path: "tasks",
-        element: <Tasks />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading tasks..." />}>
+            <LazyTasks />
+          </LazyPage>
+        ),
       },
       {
         path: "projects",
-        element: <Projects />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading projects..." />}>
+            <LazyProjects />
+          </LazyPage>
+        ),
       },
       {
         path: "projects/:projectId",
-        element: <ProjectDetail />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading project..." />}>
+            <LazyProjectDetail />
+          </LazyPage>
+        ),
       },
       {
         path: "timer",
-        element: <Timer />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading timer..." />}>
+            <LazyTimer />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "analytics",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading analytics..." />}>
+            <LazyAnalytics />
+          </LazyPage>
+        ),
       },
       {
         path: "tags",
-        element: <Tags />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading tags..." />}>
+            <LazyTags />
+          </LazyPage>
+        ),
       },
       {
         path: "settings",
-        element: <Settings />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading settings..." />}>
+            <LazySettings />
+          </LazyPage>
+        ),
       },
     ],
   },

@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { TasksService } from './tasks.service';
 import { TagsService } from '../tags/tags.service';
@@ -122,5 +123,16 @@ export class TasksController {
   @Get(':id/attachments')
   findAttachments(@Param('id') taskId: string) {
     return this.attachmentsService.findByTask(taskId);
+  }
+
+  @Post(':id/share')
+  generatePublicToken(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.tasksService.generatePublicToken(id, user.id);
+  }
+
+  @Public()
+  @Get('share/:token')
+  findByPublicToken(@Param('token') token: string) {
+    return this.tasksService.findByPublicToken(token);
   }
 }

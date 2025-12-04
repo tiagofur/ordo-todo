@@ -1,4 +1,4 @@
-# 🖥️ Ordo-Todo Desktop - Plan de Implementación
+# 🖥️ Ordo-Todo Desktop - Plan de Implementación Detallado
 
 **Versión**: 1.0.0  
 **Última actualización**: 2025-12-04  
@@ -6,9 +6,7 @@
 
 ---
 
-## 📊 Resumen Ejecutivo
-
-### Estado Actual Desktop vs Web
+## 📊 Estado Actual Desktop vs Web
 
 | Feature | Web | Desktop | Gap |
 |---------|-----|---------|-----|
@@ -76,11 +74,13 @@
 
 ## 📅 Fases de Desarrollo
 
-### FASE 1: Fundamentos Desktop (2-3 semanas)
+---
+
+## FASE 1: Fundamentos Desktop (2-3 semanas)
 **Prioridad**: 🔴 CRÍTICA  
 **Objetivo**: Establecer arquitectura base y features nativos esenciales
 
-#### 1.1 System Tray + Global Shortcuts (5 días)
+### 1.1 System Tray + Global Shortcuts (5 días)
 
 **Archivos a crear/modificar**:
 
@@ -118,7 +118,7 @@ src/
 
 ```typescript
 // electron/tray.ts
-import { Tray, Menu, nativeImage, app } from 'electron';
+import { Tray, Menu, nativeImage, app, BrowserWindow } from 'electron';
 import path from 'path';
 
 let tray: Tray | null = null;
@@ -180,7 +180,40 @@ export function updateTrayMenu(state: TrayState) {
 }
 ```
 
-#### 1.2 Native Notifications (2 días)
+**Código ejemplo - Global Shortcuts**:
+
+```typescript
+// electron/shortcuts.ts
+import { globalShortcut, BrowserWindow } from 'electron';
+
+interface ShortcutConfig {
+  accelerator: string;
+  action: string;
+}
+
+const defaultShortcuts: ShortcutConfig[] = [
+  { accelerator: 'CmdOrCtrl+Shift+S', action: 'timer:toggle' },
+  { accelerator: 'CmdOrCtrl+Shift+P', action: 'timer:pause' },
+  { accelerator: 'CmdOrCtrl+Shift+N', action: 'task:create' },
+  { accelerator: 'CmdOrCtrl+Shift+T', action: 'window:toggle' },
+];
+
+export function registerGlobalShortcuts(mainWindow: BrowserWindow) {
+  defaultShortcuts.forEach(({ accelerator, action }) => {
+    globalShortcut.register(accelerator, () => {
+      mainWindow.webContents.send('shortcut:triggered', action);
+    });
+  });
+}
+
+export function unregisterAllShortcuts() {
+  globalShortcut.unregisterAll();
+}
+```
+
+---
+
+### 1.2 Native Notifications (2 días)
 
 **Archivos**:
 ```
@@ -206,12 +239,14 @@ src/
 ```typescript
 // electron/notifications.ts
 import { Notification, shell } from 'electron';
+import path from 'path';
 
 interface NotificationOptions {
   title: string;
   body: string;
   silent?: boolean;
   sound?: string;
+  urgency?: 'normal' | 'critical' | 'low';
   onClick?: () => void;
 }
 
@@ -221,6 +256,7 @@ export function showNotification(options: NotificationOptions) {
     body: options.body,
     silent: options.silent ?? false,
     icon: path.join(__dirname, '../build/icon.png'),
+    urgency: options.urgency ?? 'normal',
   });
   
   notification.on('click', () => {
@@ -234,9 +270,32 @@ export function showNotification(options: NotificationOptions) {
     shell.beep();
   }
 }
+
+// Notification types
+export const notifications = {
+  pomodoroComplete: () => showNotification({
+    title: '🍅 Pomodoro Completado',
+    body: '¡Buen trabajo! Es hora de un descanso.',
+    urgency: 'normal',
+  }),
+  
+  breakComplete: () => showNotification({
+    title: '☕ Descanso Terminado',
+    body: 'Es hora de volver al trabajo.',
+    urgency: 'normal',
+  }),
+  
+  taskDue: (taskTitle: string) => showNotification({
+    title: '⏰ Tarea Vencida',
+    body: `La tarea "${taskTitle}" está vencida.`,
+    urgency: 'critical',
+  }),
+};
 ```
 
-#### 1.3 Window State Management (2 días)
+---
+
+### 1.3 Window State Management (2 días)
 
 **Archivos**:
 ```
@@ -256,7 +315,42 @@ src/
 - ✅ Minimizar a tray (opcional)
 - ✅ Always on top (para timer flotante)
 
-#### 1.4 Native Menus (1 día)
+**Código ejemplo**:
+
+```typescript
+// electron/window-state.ts
+import Store from 'electron-store';
+
+interface WindowState {
+  x?: number;
+  y?: number;
+  width: number;
+  height: number;
+  isMaximized: boolean;
+}
+
+const store = new Store<{ windowState: WindowState }>({
+  defaults: {
+    windowState: {
+      width: 1200,
+      height: 800,
+      isMaximized: false,
+    },
+  },
+});
+
+export function getWindowState(): WindowState {
+  return store.get('windowState');
+}
+
+export function saveWindowState(state: WindowState) {
+  store.set('windowState', state);
+}
+```
+
+---
+
+### 1.4 Native Menus (1 día)
 
 **Archivos**:
 ```
@@ -312,11 +406,11 @@ Help
 
 ---
 
-### FASE 2: Dashboard Avanzado (1-2 semanas)
+## FASE 2: Dashboard Avanzado (1-2 semanas)
 **Prioridad**: 🔴 Alta  
 **Objetivo**: Paridad con web dashboard
 
-#### 2.1 Dashboard Widgets (4 días)
+### 2.1 Dashboard Widgets (4 días)
 
 **Componentes a crear**:
 ```
@@ -365,7 +459,7 @@ src/components/dashboard/
 └─────────────────────────────────────────────────────────────┘
 ```
 
-#### 2.2 FAB Quick Actions (2 días)
+### 2.2 FAB Quick Actions (2 días)
 
 **Componentes**:
 ```
@@ -383,11 +477,11 @@ src/components/fab/
 
 ---
 
-### FASE 3: Analytics & Charts (1-2 semanas)
+## FASE 3: Analytics & Charts (1-2 semanas)
 **Prioridad**: 🟡 Media-Alta  
 **Objetivo**: Visualización de productividad
 
-#### 3.1 Integración de Recharts (3 días)
+### 3.1 Integración de Recharts (3 días)
 
 **Dependencias a agregar**:
 ```json
@@ -407,7 +501,7 @@ src/components/analytics/
 └── AnalyticsDashboard.tsx  // 🆕 Vista principal
 ```
 
-#### 3.2 Analytics Page (2 días)
+### 3.2 Analytics Page (2 días)
 
 **Diseño**:
 ```
@@ -439,25 +533,13 @@ src/components/analytics/
 └─────────────────────────────────────────────────────────────┘
 ```
 
-#### 3.3 Hooks de Analytics (2 días)
-
-**Hooks a crear**:
-```
-src/hooks/api/
-└── use-analytics.ts        // ✅ Existe (revisar y expandir)
-
-src/hooks/
-├── use-productivity-stats.ts // 🆕 Cálculos de productividad
-└── use-focus-metrics.ts     // 🆕 Métricas de focus
-```
-
 ---
 
-### FASE 4: Kanban & Project Features (1-2 semanas)
+## FASE 4: Kanban & Project Features (1-2 semanas)
 **Prioridad**: 🟡 Media  
 **Objetivo**: Gestión visual de proyectos
 
-#### 4.1 Kanban Board (5 días)
+### 4.1 Kanban Board (5 días)
 
 **Dependencias**:
 ```json
@@ -478,14 +560,7 @@ src/components/project/
 └── CreateColumnDialog.tsx  // 🆕 Agregar columnas custom
 ```
 
-**Features**:
-- ✅ Drag & drop entre columnas
-- ✅ Reordenar tareas dentro de columna
-- ✅ Columnas por defecto: TODO, IN_PROGRESS, COMPLETED
-- ✅ Vista optimista (update local antes de server)
-- ✅ Animaciones fluidas con dnd-kit
-
-#### 4.2 Project Timeline (2 días)
+### 4.2 Project Timeline (2 días)
 
 **Componentes**:
 ```
@@ -493,10 +568,7 @@ src/components/project/
 └── ProjectTimeline.tsx     // 🆕 Vista cronológica
 ```
 
-**Migración directa desde Web** (adaptar imports):
-- `project-timeline.tsx` → Copiar y adaptar
-
-#### 4.3 Task Detail Panel (3 días)
+### 4.3 Task Detail Panel (3 días)
 
 **Componentes a mejorar**:
 ```
@@ -511,11 +583,11 @@ src/components/task/
 
 ---
 
-### FASE 5: AI Reports (1 semana)
+## FASE 5: AI Reports (1 semana)
 **Prioridad**: 🟡 Media  
 **Objetivo**: Reportes generados con IA
 
-#### 5.1 Report Components (3 días)
+### 5.1 Report Components (3 días)
 
 **Componentes a crear**:
 ```
@@ -526,7 +598,7 @@ src/components/ai/
 └── AIAssistantSidebar.tsx  // 🆕 (Opcional) Chat sidebar
 ```
 
-#### 5.2 Reports Page (2 días)
+### 5.2 Reports Page (2 días)
 
 **Features**:
 - ✅ Generar reporte semanal/mensual
@@ -536,11 +608,11 @@ src/components/ai/
 
 ---
 
-### FASE 6: i18n & Polish (1 semana)
+## FASE 6: i18n & Polish (1 semana)
 **Prioridad**: 🟢 Normal  
 **Objetivo**: Internacionalización y pulido
 
-#### 6.1 Internacionalización (3 días)
+### 6.1 Internacionalización (3 días)
 
 **Dependencias**:
 ```json
@@ -562,7 +634,7 @@ src/
     └── use-translations.ts // 🆕 Hook helper
 ```
 
-#### 6.2 Animaciones con Framer Motion (2 días)
+### 6.2 Animaciones con Framer Motion (2 días)
 
 **Dependencias**:
 ```json
@@ -579,21 +651,13 @@ src/
 - ✅ Timer pulse effect
 - ✅ List item enter/exit
 
-#### 6.3 Polish & Bug Fixes (2 días)
-
-- ✅ Revisar responsive design
-- ✅ Accesibilidad (keyboard navigation)
-- ✅ Performance optimization
-- ✅ Error boundaries
-- ✅ Loading states
-
 ---
 
-### FASE 7: Offline & Sync (2 semanas)
+## FASE 7: Offline & Sync (2 semanas)
 **Prioridad**: 🟢 Normal (pero alta complejidad)  
 **Objetivo**: Funcionamiento sin conexión
 
-#### 7.1 SQLite Local Database (5 días)
+### 7.1 SQLite Local Database (5 días)
 
 **Dependencias**:
 ```json
@@ -614,7 +678,7 @@ electron/
     └── database-handlers.ts // 🆕 Handlers IPC para DB
 ```
 
-#### 7.2 Sync Engine (5 días)
+### 7.2 Sync Engine (5 días)
 
 **Features**:
 - ✅ Detectar cambios locales
@@ -625,11 +689,11 @@ electron/
 
 ---
 
-### FASE 8: Multi-Window & Advanced (1 semana)
+## FASE 8: Multi-Window & Advanced (1 semana)
 **Prioridad**: 🟢 Baja  
 **Objetivo**: Features avanzados de desktop
 
-#### 8.1 Timer Window Flotante (3 días)
+### 8.1 Timer Window Flotante (3 días)
 
 **Archivos**:
 ```
@@ -648,7 +712,7 @@ electron/
 - ✅ Click derecho para opciones
 - ✅ Sincronizada con ventana principal
 
-#### 8.2 Deep Links (2 días)
+### 8.2 Deep Links (2 días)
 
 **Features**:
 - ✅ `ordo://task/123` - Abrir tarea
@@ -690,48 +754,6 @@ Para un MVP funcional, enfocarse en:
 
 ## 🔧 Configuraciones Adicionales
 
-### Vite Config para Electron
-
-```typescript
-// vite.config.ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import electron from 'vite-plugin-electron';
-import renderer from 'vite-plugin-electron-renderer';
-import { resolve } from 'path';
-
-export default defineConfig({
-  plugins: [
-    react(),
-    electron([
-      {
-        entry: 'electron/main.ts',
-        vite: {
-          build: {
-            outDir: 'dist-electron',
-            rollupOptions: {
-              external: ['electron', 'better-sqlite3'],
-            },
-          },
-        },
-      },
-      {
-        entry: 'electron/preload.ts',
-        onstart(options) {
-          options.reload();
-        },
-      },
-    ]),
-    renderer(),
-  ],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-    },
-  },
-});
-```
-
 ### Preload Script Completo
 
 ```typescript
@@ -771,12 +793,6 @@ contextBridge.exposeInMainWorld('electron', {
     onShortcut: (callback: (action: string) => void) => {
       ipcRenderer.on('shortcut:triggered', (_, action) => callback(action));
     },
-  },
-  
-  // Database (for offline)
-  database: {
-    query: (sql: string, params?: any[]) => ipcRenderer.invoke('db:query', sql, params),
-    execute: (sql: string, params?: any[]) => ipcRenderer.invoke('db:execute', sql, params),
   },
   
   // Store (electron-store)

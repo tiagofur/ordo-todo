@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
+import { Plus, GripVertical, Check, X, Trash2, ArrowRight, Pencil } from "lucide-react";
 import { useCreateSubtask, useCompleteTask, useDeleteTask, useUpdateTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,8 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   const t = useTranslations('SubtaskList');
   const [isAdding, setIsAdding] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
 
   // Create subtask mutation
   const createSubtask = useCreateSubtask();
@@ -35,7 +37,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   // Delete subtask mutation
   const deleteSubtask = useDeleteTask();
 
-  // Update subtask mutation (for reopening)
+  // Update subtask mutation (for reopening and editing)
   const updateTask = useUpdateTask();
 
   const handleCreateSubtask = () => {
@@ -98,6 +100,37 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     }
   };
 
+  const handleStartEdit = (subtaskId: string, currentTitle: string) => {
+    setEditingId(subtaskId);
+    setEditingTitle(currentTitle);
+  };
+
+  const handleSaveEdit = (subtaskId: string) => {
+    if (!editingTitle.trim()) {
+      handleCancelEdit();
+      return;
+    }
+
+    updateTask.mutate({
+      taskId: subtaskId,
+      data: { title: editingTitle.trim() }
+    }, {
+      onSuccess: () => {
+        notify.success(t('toast.updated'));
+        setEditingId(null);
+        setEditingTitle("");
+      },
+      onError: (error: any) => {
+        notify.error(error.message || t('toast.updateError'));
+      }
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingTitle("");
+  };
+
   const completedCount = subtasks.filter((st: any) => st.status === "COMPLETED").length;
   const totalCount = subtasks.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
@@ -156,30 +189,77 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
               className="mt-0.5"
             />
 
-            {/* Title */}
+            {/* Title - Editable */}
             <div className="flex-1 min-w-0">
-              <p
-                className={cn(
-                  "text-sm",
-                  subtask.status === "COMPLETED" && "line-through text-muted-foreground"
-                )}
-              >
-                {subtask.title}
-              </p>
+              {editingId === String(subtask.id) ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    className="h-7 text-sm"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSaveEdit(String(subtask.id));
+                      } else if (e.key === "Escape") {
+                        handleCancelEdit();
+                      }
+                    }}
+                  />
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6"
+                    onClick={() => handleSaveEdit(String(subtask.id))}
+                    disabled={updateTask.isPending}
+                  >
+                    <Check className="h-3 w-3 text-green-600" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6"
+                    onClick={handleCancelEdit}
+                  >
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                </div>
+              ) : (
+                <p
+                  className={cn(
+                    "text-sm cursor-text",
+                    subtask.status === "COMPLETED" && "line-through text-muted-foreground"
+                  )}
+                  onDoubleClick={() => handleStartEdit(String(subtask.id), subtask.title)}
+                >
+                  {subtask.title}
+                </p>
+              )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => handleDelete(String(subtask.id))}
-                title={t('tooltips.delete')}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
+            {editingId !== String(subtask.id) && (
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => handleStartEdit(String(subtask.id), subtask.title)}
+                  title={t('tooltips.edit')}
+                >
+                  <Pencil className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => handleDelete(String(subtask.id))}
+                  title={t('tooltips.delete')}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
         ))}
 
@@ -249,3 +329,4 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     </div>
   );
 }
+

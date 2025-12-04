@@ -250,6 +250,7 @@
     "nested": "Algunas subtareas tienen sub-subtareas",
     "tooltips": {
       "drag": "Arrastrar para reordenar",
+      "edit": "Editar subtarea",
       "delete": "Eliminar subtarea"
     },
     "toast": {
@@ -259,6 +260,8 @@
       "completeError": "Error al completar subtarea",
       "reopened": "Subtarea reabierta",
       "reopenError": "Error al reabrir subtarea",
+      "updated": "Subtarea actualizada",
+      "updateError": "Error al actualizar subtarea",
       "deleted": "Subtarea eliminada",
       "deleteError": "Error al eliminar subtarea"
     },
@@ -288,6 +291,12 @@
       "deleteError": "Error al eliminar comentario"
     },
     "confirmDelete": "¿Estás seguro de eliminar este comentario?"
+  },
+  "Notifications": {
+    "title": "Notificaciones",
+    "empty": "No hay notificaciones",
+    "loading": "Cargando...",
+    "markAllRead": "Marcar todas como leídas"
   },
   "FileUpload": {
     "errors": {
