@@ -665,6 +665,7 @@ model DailyMetrics {
   // Tasks
   tasksCreated    Int      @default(0)
   tasksCompleted  Int      @default(0)
+  subtasksCompleted Int    @default(0)  // Track subtasks separately
 
   // Time
   minutesWorked   Int      @default(0)

@@ -134,6 +134,8 @@ ordo-todo/
 | Workspaces      | ✅ Done    | WorkspaceSelector, CreateDialog |
 | Projects        | ✅ Done    | ProjectCard, CreateDialog, ProjectsPage |
 | Tasks           | ✅ Done    | TaskCard, CreateDialog, Filters, TasksPage |
+| Subtasks        | ✅ Done    | SubtaskList (CRUD + Reopen), Progress Bar |
+| Attachments     | ✅ Done    | AttachmentList, FileUpload, Preview Modal |
 | Tags            | ✅ Done    | TagBadge, TagSelector, CreateDialog, TagsPage |
 | Timer           | ✅ Done    | PomodoroTimer (Task Switching, Split Sessions), TimerWidget, Auto-tracking to DailyMetrics |
 | Settings        | ✅ Done    | SettingsPage with Timer config |
@@ -428,6 +430,23 @@ npm run check-types
     - `Project` requires `workflowId` (Database + API)
     - `Task` requires `projectId` (Database + API + UI)
     - UI enforces selection of parent entity during creation.
+
+### Subtasks Reopen Functionality
+
+**Decision**: Implement bidirectional toggle for subtask completion status  
+**Rationale**:
+
+- **User Error Recovery**: Users can undo accidental completions
+- **Flexibility**: Supports iterative workflows where tasks may need rework
+- **Consistency**: Matches behavior of main tasks which can also be reopened
+- **Implementation**:
+    - Modified `SubtaskList` component to detect current status
+    - If `COMPLETED`: uses `useUpdateTask` to change status to `TODO`
+    - If not completed: uses `useCompleteTask` to mark as `COMPLETED`
+    - Added i18n translations for "reopened" messages in 3 languages
+    - Documented in `docs/implementation/subtasks-attachments.md`
+
+**Date**: December 4, 2025
 
 ---
 

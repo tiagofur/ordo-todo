@@ -9,8 +9,11 @@ describe('TagsService', () => {
     const mockTagRepository = {
         findByTaskId: jest.fn(),
         findById: jest.fn(),
-        save: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
         delete: jest.fn(),
+        assignToTask: jest.fn(),
+        removeFromTask: jest.fn(),
     };
 
     const mockPrismaService = {
@@ -126,6 +129,8 @@ describe('TagsService', () => {
             const tagId = 'tag-123';
             const taskId = 'task-123';
 
+            mockTagRepository.findById.mockResolvedValue({ props: { id: tagId } });
+
             const result = await service.assignToTask(tagId, taskId);
 
             expect(result).toEqual({ success: true });
@@ -136,6 +141,8 @@ describe('TagsService', () => {
         it('should remove a tag from a task', async () => {
             const tagId = 'tag-123';
             const taskId = 'task-123';
+
+            mockTagRepository.findById.mockResolvedValue({ props: { id: tagId } });
 
             const result = await service.removeFromTask(tagId, taskId);
 

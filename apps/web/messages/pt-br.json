@@ -158,6 +158,7 @@
       "selectProject": "Selecione um projeto",
       "priority": "Prioridade",
       "dueDate": "Data de Vencimento",
+      "estimatedMinutes": "Minutos Estimados (min)",
       "description": "Descrição",
       "descriptionPlaceholder": "Detalhes adicionais da tarefa..."
     },
@@ -256,6 +257,8 @@
       "createError": "Erro ao criar subtarefa",
       "completed": "Subtarefa concluída",
       "completeError": "Erro ao concluir subtarefa",
+      "reopened": "Subtarefa reaberta",
+      "reopenError": "Erro ao reabrir subtarefa",
       "deleted": "Subtarefa excluída",
       "deleteError": "Erro ao excluir subtarefa"
     },

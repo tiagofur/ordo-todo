@@ -6,6 +6,7 @@ export interface UpdateDailyMetricsInput {
     date: Date;
     tasksCreated?: number;
     tasksCompleted?: number;
+    subtasksCompleted?: number;
     minutesWorked?: number;
     pomodorosCompleted?: number;
     shortBreaksCompleted?: number;
@@ -40,8 +41,22 @@ export class UpdateDailyMetricsUseCase {
         }
 
         if (input.tasksCompleted) {
-            for (let i = 0; i < input.tasksCompleted; i++) {
-                metrics = metrics.incrementTasksCompleted();
+            for (let i = 0; i < Math.abs(input.tasksCompleted); i++) {
+                if (input.tasksCompleted > 0) {
+                    metrics = metrics.incrementTasksCompleted();
+                } else {
+                    metrics = metrics.decrementTasksCompleted();
+                }
+            }
+        }
+
+        if (input.subtasksCompleted) {
+            for (let i = 0; i < Math.abs(input.subtasksCompleted); i++) {
+                if (input.subtasksCompleted > 0) {
+                    metrics = metrics.incrementSubtasksCompleted();
+                } else {
+                    metrics = metrics.decrementSubtasksCompleted();
+                }
             }
         }
 

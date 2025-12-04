@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordo-Todo - Documentación Técnica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --secondary: #10B981;
+            --background: #0F172A;
+            --surface: #1E293B;
+            --surface-light: #334155;
+            --text: #F1F5F9;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --accent: #06B6D4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 3rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--surface);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        main {
+            padding: 3rem 0;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .section h3 {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--surface-light);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(139, 92, 246, 0.3);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin: 0 0 1rem 0;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .card .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .card .badge.success {
+            background: var(--secondary);
+        }
+
+        .card .badge.warning {
+            background: #F59E0B;
+        }
+
+        /* Links */
+        a.btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        a.btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--surface);
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        footer p {
+            color: var(--text-muted);
+        }
+
+        /* Code blocks */
+        code {
+            background: var(--background);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+        }
+
+        pre {
+            background: var(--background);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🎯 Ordo-Todo</h1>
+            <p>Documentación Técnica Completa - Monorepo Multiplataforma</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">🏠 Inicio</a></li>
+                <li><a href="core/index.html">📦 Core Package</a></li>
+                <li><a href="web/index.html">🌐 Web App</a></li>
+                <li><a href="mobile/index.html">📱 Mobile App</a></li>
+                <li><a href="desktop/index.html">💻 Desktop App</a></li>
+                <li><a href="backend/index.html">⚙️ Backend API</a></li>
+                <li><a href="database/index.html">🗄️ Database</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview Section -->
+            <section class="section">
+                <h2>📖 Visión General</h2>
+                <p>Ordo-Todo es una aplicación de gestión de tareas multiplataforma construida con un monorepo Turborepo, siguiendo los principios de <strong>Clean Architecture</strong> y <strong>Domain-Driven Design (DDD)</strong>.</p>
+                
+                <h3>🏗️ Arquitectura del Proyecto</h3>
+                <pre><code>ordo-todo/
+├── apps/
+│   ├── backend/       # NestJS API - 18 módulos
+│   ├── web/           # Next.js 16 - App Router
+│   ├── mobile/        # React Native + Expo
+│   └── desktop/       # Electron
+├── packages/
+│   ├── core/          # DDD Domain Layer - Lógica de negocio compartida
+│   ├── db/            # Prisma + PostgreSQL
+│   ├── api-client/    # Cliente API tipado
+│   └── ...configs
+└── documentation/     # Documentación HTML (este sitio)</code></pre>
+            </section>
+
+            <!-- Applications Grid -->
+            <section class="section">
+                <h2>🚀 Aplicaciones</h2>
+                <div class="cards-grid">
+                    <div class="card" onclick="window.location.href='web/index.html'">
+                        <h3>🌐 Web App</h3>
+                        <p>Aplicación web progresiva (PWA) construida con Next.js 16, React 19 y Tailwind CSS.</p>
+                        <span class="badge success">Producción</span>
+                        <span class="badge">Next.js 16</span>
+                        <a href="web/index.html" class="btn">Ver Documentación →</a>
+                    </div>
+
+                    <div class="card" onclick="window.location.href='mobile/index.html'">
+                        <h3>📱 Mobile App</h3>
+                        <p>Aplicación móvil nativa para iOS y Android con React Native y Expo.</p>
+                        <span class="badge warning">En Desarrollo</span>
+                        <span class="badge">React Native</span>
+                        <a href="mobile/index.html" class="btn">Ver Documentación →</a>
+                    </div>
+
+                    <div class="card" onclick="window.location.href='desktop/index.html'">
+                        <h3>💻 Desktop App</h3>
+                        <p>Aplicación de escritorio multiplataforma con Electron.</p>
+                        <span class="badge warning">En Desarrollo</span>
+                        <span class="badge">Electron</span>
+                        <a href="desktop/index.html" class="btn">Ver Documentación →</a>
+                    </div>
+
+                    <div class="card" onclick="window.location.href='backend/index.html'">
+                        <h3>⚙️ Backend API</h3>
+                        <p>API REST construida con NestJS, siguiendo Clean Architecture.</p>
+                        <span class="badge success">Producción</span>
+                        <span class="badge">NestJS</span>
+                        <a href="backend/index.html" class="btn">Ver Documentación →</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Core Package Section -->
+            <section class="section">
+                <h2>📦 Core Package</h2>
+                <p>El paquete <code>@ordo-todo/core</code> contiene toda la lógica de negocio compartida, validaciones, constantes y utilidades.</p>
+                
+                <h3>✨ Características Principales</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ <strong>Validaciones Compartidas</strong> - Esquemas Zod para todas las entidades</li>
+                    <li>✅ <strong>Constantes</strong> - Colores, prioridades, estados, límites</li>
+                    <li>✅ <strong>Utilidades</strong> - 75+ funciones para fechas, tiempo, strings, cálculos, colores</li>
+                    <li>✅ <strong>Domain Logic</strong> - Use cases y reglas de negocio</li>
+                    <li>✅ <strong>Type Safety</strong> - TypeScript completo con inferencia de tipos</li>
+                </ul>
+
+                <a href="core/index.html" class="btn">Explorar Core Package →</a>
+            </section>
+
+            <!-- Database Section -->
+            <section class="section">
+                <h2>🗄️ Base de Datos</h2>
+                <p>PostgreSQL con Prisma ORM, schema completo con 30+ modelos.</p>
+                
+                <h3>📊 Modelos Principales</h3>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>User & Auth</h3>
+                        <p>Usuarios, sesiones, OAuth providers</p>
+                    </div>
+                    <div class="card">
+                        <h3>Workspaces</h3>
+                        <p>Espacios de trabajo, miembros, invitaciones</p>
+                    </div>
+                    <div class="card">
+                        <h3>Projects & Tasks</h3>
+                        <p>Proyectos, tareas, subtareas, tags</p>
+                    </div>
+                    <div class="card">
+                        <h3>Timer & Analytics</h3>
+                        <p>Pomodoro, métricas, productividad</p>
+                    </div>
+                </div>
+
+                <a href="database/index.html" class="btn">Ver Schema Completo →</a>
+            </section>
+
+            <!-- Quick Start Section -->
+            <section class="section">
+                <h2>🚀 Inicio Rápido</h2>
+                <h3>1. Instalación</h3>
+                <pre><code># Clonar el repositorio
+git clone https://github.com/tu-usuario/ordo-todo.git
+cd ordo-todo
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env</code></pre>
+
+                <h3>2. Configurar Base de Datos</h3>
+                <pre><code># Ejecutar migraciones
+npm run db:migrate
+
+# Generar cliente Prisma
+npm run db:generate
+
+# (Opcional) Seed de datos
+npm run db:seed</code></pre>
+
+                <h3>3. Ejecutar Aplicaciones</h3>
+                <pre><code># Backend
+cd apps/backend
+npm run start:dev
+
+# Web
+cd apps/web
+npm run dev
+
+# Mobile
+cd apps/mobile
+npm run start</code></pre>
+            </section>
+
+            <!-- Tech Stack Section -->
+            <section class="section">
+                <h2>🛠️ Stack Tecnológico</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>Frontend</h3>
+                        <p>Next.js 16, React 19, TypeScript, Tailwind CSS, Radix UI</p>
+                    </div>
+                    <div class="card">
+                        <h3>Backend</h3>
+                        <p>NestJS, TypeScript, Prisma, PostgreSQL, Redis</p>
+                    </div>
+                    <div class="card">
+                        <h3>Mobile</h3>
+                        <p>React Native, Expo, TypeScript</p>
+                    </div>
+                    <div class="card">
+                        <h3>Desktop</h3>
+                        <p>Electron, React, TypeScript</p>
+                    </div>
+                    <div class="card">
+                        <h3>DevOps</h3>
+                        <p>Turborepo, Docker, GitHub Actions</p>
+                    </div>
+                    <div class="card">
+                        <h3>Testing</h3>
+                        <p>Jest, React Testing Library, Playwright</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación generada automáticamente.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Versión: 0.1.0-alpha | Última actualización: Diciembre 2025</p>
+        </div>
+    </footer>
+</body>
+</html>

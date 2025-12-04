@@ -42,6 +42,14 @@ export class TasksService {
   }
 
   async complete(id: string, userId: string) {
+    // Get current task to check if it was already completed
+    const currentTask = await this.taskRepository.findById(id);
+    if (!currentTask) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const wasAlreadyCompleted = currentTask.props.status === 'COMPLETED';
+
     const completeTaskUseCase = new CompleteTaskUseCase(this.taskRepository);
     const task = await completeTaskUseCase.execute({
       taskId: id,
@@ -51,13 +59,25 @@ export class TasksService {
     // Log activity
     await this.activitiesService.logTaskCompleted(id, userId);
 
-    // Update daily metrics - increment tasksCompleted
-    const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
-    await updateMetrics.execute({
-      userId,
-      date: new Date(),
-      tasksCompleted: 1,
-    });
+    // Only update metrics if task wasn't already completed (prevent double counting)
+    if (!wasAlreadyCompleted) {
+      const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+
+      // If subtask, increment subtasksCompleted; otherwise increment tasksCompleted
+      if (task.props.parentTaskId) {
+        await updateMetrics.execute({
+          userId,
+          date: new Date(),
+          subtasksCompleted: 1,
+        });
+      } else {
+        await updateMetrics.execute({
+          userId,
+          date: new Date(),
+          tasksCompleted: 1,
+        });
+      }
+    }
 
     // If subtask, log on parent
     if (task.props.parentTaskId) {
@@ -162,14 +182,41 @@ export class TasksService {
           updateTaskDto.status,
         );
 
-        // If status changed to COMPLETED, update daily metrics
+        const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+        const isSubtask = !!oldTask.parentTaskId;
+
+        // If status changed to COMPLETED from non-COMPLETED, increment metrics
         if (updateTaskDto.status === 'COMPLETED' && oldTask.status !== 'COMPLETED') {
-          const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
-          await updateMetrics.execute({
-            userId,
-            date: new Date(),
-            tasksCompleted: 1,
-          });
+          if (isSubtask) {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              subtasksCompleted: 1,
+            });
+          } else {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              tasksCompleted: 1,
+            });
+          }
+        }
+
+        // If status changed from COMPLETED to non-COMPLETED (reopening), decrement metrics
+        if (oldTask.status === 'COMPLETED' && updateTaskDto.status !== 'COMPLETED') {
+          if (isSubtask) {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              subtasksCompleted: -1,  // Decrement
+            });
+          } else {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              tasksCompleted: -1,  // Decrement
+            });
+          }
         }
       }
 

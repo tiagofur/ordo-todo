@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App - Ordo-Todo Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🌐 Web App</h1>
+            <p>Progressive Web Application - Next.js 16 + React 19</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">🏠 Inicio</a></li>
+                <li><a href="../core/index.html">📦 Core</a></li>
+                <li><a href="index.html" class="active">🌐 Web</a></li>
+                <li><a href="../mobile/index.html">📱 Mobile</a></li>
+                <li><a href="../desktop/index.html">💻 Desktop</a></li>
+                <li><a href="../backend/index.html">⚙️ Backend</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview -->
+            <section class="section">
+                <h2>📖 Descripción General</h2>
+                <p>La aplicación web de Ordo-Todo es una <strong>Progressive Web App (PWA)</strong> construida con las últimas tecnologías de React y Next.js.</p>
+                
+                <h3>🛠️ Stack Tecnológico</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⚛️ <strong>Next.js 16</strong> - App Router, Server Components, Server Actions</li>
+                    <li>⚛️ <strong>React 19</strong> - Hooks, Suspense, Transitions</li>
+                    <li>📘 <strong>TypeScript</strong> - Type safety completo</li>
+                    <li>🎨 <strong>Tailwind CSS</strong> - Utility-first CSS</li>
+                    <li>🎭 <strong>Radix UI</strong> - Componentes accesibles</li>
+                    <li>🔄 <strong>TanStack Query</strong> - Data fetching y caching</li>
+                    <li>📝 <strong>React Hook Form</strong> - Manejo de formularios</li>
+                    <li>✅ <strong>Zod</strong> - Validación de esquemas</li>
+                    <li>🌍 <strong>next-intl</strong> - Internacionalización (es, en, pt-BR)</li>
+                    <li>📦 <strong>@ordo-todo/core</strong> - Lógica de negocio compartida</li>
+                </ul>
+
+                <h3>✨ Características</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ PWA con soporte offline</li>
+                    <li>✅ Dark mode nativo</li>
+                    <li>✅ Responsive design (mobile-first)</li>
+                    <li>✅ Internacionalización (3 idiomas)</li>
+                    <li>✅ Autenticación (Email + OAuth)</li>
+                    <li>✅ Timer Pomodoro con notificaciones</li>
+                    <li>✅ Analytics y métricas de productividad</li>
+                    <li>✅ Kanban boards</li>
+                    <li>✅ Gestión de workspaces y proyectos</li>
+                </ul>
+            </section>
+
+            <!-- Project Structure -->
+            <section class="section">
+                <h2>📁 Estructura del Proyecto</h2>
+                <pre><code>apps/web/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── [locale]/          # Rutas internacionalizadas
+│   │   │   ├── dashboard/     # Dashboard principal
+│   │   │   ├── workspaces/    # Gestión de workspaces
+│   │   │   ├── projects/      # Gestión de proyectos
+│   │   │   ├── tasks/         # Gestión de tareas
+│   │   │   ├── timer/         # Pomodoro Timer
+│   │   │   └── analytics/     # Analytics y métricas
+│   │   └── api/               # API Routes
+│   ├── components/            # Componentes React
+│   │   ├── ui/               # Componentes base (Radix UI)
+│   │   ├── workspace/        # Componentes de workspace
+│   │   ├── project/          # Componentes de proyecto
+│   │   ├── task/             # Componentes de tarea
+│   │   ├── timer/            # Componentes del timer
+│   │   └── analytics/        # Componentes de analytics
+│   ├── hooks/                # Custom React Hooks
+│   ├── lib/                  # Utilidades y configuración
+│   │   ├── api-client.ts    # Cliente API
+│   │   ├── api-hooks.ts     # Hooks de TanStack Query
+│   │   └── notify.tsx       # Sistema de notificaciones
+│   └── messages/             # Traducciones i18n
+│       ├── en.json
+│       ├── es.json
+│       └── pt-br.json
+├── public/                    # Archivos estáticos
+│   ├── manifest.json         # PWA Manifest
+│   └── service-worker.js     # Service Worker
+└── package.json</code></pre>
+            </section>
+
+            <!-- Getting Started -->
+            <section class="section">
+                <h2>🚀 Inicio Rápido</h2>
+                
+                <h3>1. Instalación</h3>
+                <pre><code>cd apps/web
+npm install</code></pre>
+
+                <h3>2. Variables de Entorno</h3>
+                <pre><code># .env.local
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXTAUTH_SECRET=tu-secret-aqui
+NEXTAUTH_URL=http://localhost:3100
+
+# OAuth (opcional)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...</code></pre>
+
+                <h3>3. Ejecutar en Desarrollo</h3>
+                <pre><code>npm run dev</code></pre>
+                <p>La aplicación estará disponible en <code>http://localhost:3100</code></p>
+
+                <h3>4. Build de Producción</h3>
+                <pre><code>npm run build
+npm run start</code></pre>
+            </section>
+
+            <!-- Components -->
+            <section class="section">
+                <h2>🧩 Componentes Principales</h2>
+                
+                <h3>📋 Task Components</h3>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>TaskCard</h3>
+                        <p>Tarjeta de tarea con drag & drop, prioridad, estado y acciones rápidas.</p>
+                        <code>@/components/task/task-card.tsx</code>
+                    </div>
+                    <div class="card">
+                        <h3>TaskList</h3>
+                        <p>Lista de tareas con filtros, ordenamiento y skeleton loaders.</p>
+                        <code>@/components/task/task-list.tsx</code>
+                    </div>
+                    <div class="card">
+                        <h3>CreateTaskDialog</h3>
+                        <p>Modal para crear tareas con validación Zod y generación AI.</p>
+                        <code>@/components/task/create-task-dialog.tsx</code>
+                    </div>
+                    <div class="card">
+                        <h3>TaskDetailDialog</h3>
+                        <p>Vista detallada de tarea con edición inline y comentarios.</p>
+                        <code>@/components/task/task-detail-dialog.tsx</code>
+                    </div>
+                </div>
+
+                <h3>📁 Project Components</h3>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>KanbanBoard</h3>
+                        <p>Tablero Kanban con drag & drop entre columnas.</p>
+                        <code>@/components/project/kanban-board.tsx</code>
+                    </div>
+                    <div class="card">
+                        <h3>ProjectTimeline</h3>
+                        <p>Vista de timeline con fechas y progreso.</p>
+                        <code>@/components/project/project-timeline.tsx</code>
+                    </div>
+                    <div class="card">
+                        <h3>ProjectCard</h3>
+                        <p>Tarjeta de proyecto con estadísticas y progreso.</p>
+                        <code>@/components/project/project-card.tsx</code>
+                    </div>
+                </div>
+
+                <h3>⏱️ Timer Components</h3>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>PomodoroTimer</h3>
+                        <p>Timer principal con modos (Work, Break, Continuous).</p>
+                        <code>@/components/timer/pomodoro-timer.tsx</code>
+                    </div>
+                    <div class="card">
+                        <h3>TimerWidget</h3>
+                        <p>Widget compacto del timer para sidebar.</p>
+                        <code>@/components/timer/timer-widget.tsx</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hooks -->
+            <section class="section">
+                <h2>🪝 Custom Hooks</h2>
+                
+                <h3>API Hooks (TanStack Query)</h3>
+                <pre><code>import {
+  useTasks,
+  useTask,
+  useCreateTask,
+  useUpdateTask,
+  useDeleteTask,
+  useProjects,
+  useWorkspaces,
+  useTimerStats,
+} from '@/lib/api-hooks';
+
+// Ejemplo de uso
+function TaskList() {
+  const { data: tasks, isLoading } = useTasks({ projectId });
+  const createTask = useCreateTask();
+
+  const handleCreate = async (data) => {
+    await createTask.mutateAsync(data);
+  };
+
+  // ...
+}</code></pre>
+
+                <h3>Timer Hooks</h3>
+                <pre><code>import { useTimer, useTimerBackend } from '@/hooks';
+
+function PomodoroTimer() {
+  const {
+    seconds,
+    isRunning,
+    mode,
+    start,
+    pause,
+    reset,
+    switchMode,
+  } = useTimer();
+
+  // ...
+}</code></pre>
+            </section>
+
+            <!-- Using Core Package -->
+            <section class="section">
+                <h2>📦 Usando el Core Package</h2>
+                
+                <h3>Importar Constantes</h3>
+                <pre><code>import {
+  PROJECT_COLORS,
+  TASK_PRIORITIES,
+  TASK_STATUS,
+  TIMER_MODES,
+} from '@ordo-todo/core';
+
+// Usar en componentes
+const color = PROJECT_COLORS[0];
+const priority = TASK_PRIORITIES.HIGH;</code></pre>
+
+                <h3>Importar Validaciones</h3>
+                <pre><code>import { createTaskSchema } from '@ordo-todo/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const form = useForm({
+  resolver: zodResolver(createTaskSchema),
+});</code></pre>
+
+                <h3>Importar Utilidades</h3>
+                <pre><code>import {
+  formatDate,
+  formatRelativeTime,
+  isOverdue,
+  formatDuration,
+  calculateProgress,
+} from '@ordo-todo/core';
+
+// Usar en componentes
+const formattedDate = formatDate(task.dueDate);
+const progress = calculateProgress(completed, total);</code></pre>
+            </section>
+
+            <!-- Internationalization -->
+            <section class="section">
+                <h2>🌍 Internacionalización</h2>
+                <p>La app soporta 3 idiomas: Español (es), Inglés (en) y Portugués Brasileño (pt-BR).</p>
+
+                <h3>Uso en Componentes</h3>
+                <pre><code>import { useTranslations } from 'next-intl';
+
+function MyComponent() {
+  const t = useTranslations('MyComponent');
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{t('title')}&lt;/h1&gt;
+      &lt;p&gt;{t('description')}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+                <h3>Archivos de Traducción</h3>
+                <pre><code>// src/messages/es.json
+{
+  "MyComponent": {
+    "title": "Mi Componente",
+    "description": "Descripción del componente"
+  }
+}</code></pre>
+            </section>
+
+            <!-- PWA Features -->
+            <section class="section">
+                <h2>📱 Características PWA</h2>
+                
+                <h3>✨ Funcionalidades</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ Instalable en dispositivos móviles y desktop</li>
+                    <li>✅ Soporte offline con Service Worker</li>
+                    <li>✅ Sincronización en background</li>
+                    <li>✅ Notificaciones push</li>
+                    <li>✅ Caché de assets y API responses</li>
+                </ul>
+
+                <h3>Manifest</h3>
+                <pre><code>// public/manifest.json
+{
+  "name": "Ordo-Todo",
+  "short_name": "Ordo",
+  "description": "Task Management & Pomodoro Timer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#8B5CF6",
+  "icons": [...]
+}</code></pre>
+            </section>
+
+            <!-- Best Practices -->
+            <section class="section">
+                <h2>💡 Mejores Prácticas</h2>
+                
+                <h3>1. Usar Server Components cuando sea posible</h3>
+                <pre><code>// app/dashboard/page.tsx
+export default async function DashboardPage() {
+  // Fetch data en el servidor
+  const data = await fetchData();
+
+  return &lt;Dashboard data={data} /&gt;;
+}</code></pre>
+
+                <h3>2. Usar el Core Package para lógica compartida</h3>
+                <pre><code>// ❌ No hacer esto
+const projectColors = ["#EF4444", ...];
+
+// ✅ Hacer esto
+import { PROJECT_COLORS } from '@ordo-todo/core';</code></pre>
+
+                <h3>3. Usar TanStack Query para data fetching</h3>
+                <pre><code>// ✅ Usar hooks de api-hooks.ts
+const { data, isLoading } = useTasks();
+
+// ❌ No hacer fetch manual
+const [data, setData] = useState();
+useEffect(() => { fetch(...) }, []);</code></pre>
+
+                <h3>4. Validar con Zod del Core</h3>
+                <pre><code>// ✅ Usar schemas del core
+import { createTaskSchema } from '@ordo-todo/core';
+
+// ❌ No crear schemas inline
+const schema = z.object({ ... });</code></pre>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación de la Web App.</p>
+        </div>
+    </footer>
+</body>
+</html>

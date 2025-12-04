@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Package - Ordo-Todo Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .function-card {
+            background: var(--surface-light);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .function-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .function-card .signature {
+            background: var(--background);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .function-card .description {
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+        }
+
+        .function-card .example {
+            background: var(--background);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .function-card .example-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📦 Core Package</h1>
+            <p>Lógica de Negocio Compartida - @ordo-todo/core</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">🏠 Inicio</a></li>
+                <li><a href="index.html" class="active">📦 Core</a></li>
+                <li><a href="../web/index.html">🌐 Web</a></li>
+                <li><a href="../mobile/index.html">📱 Mobile</a></li>
+                <li><a href="../desktop/index.html">💻 Desktop</a></li>
+                <li><a href="../backend/index.html">⚙️ Backend</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview -->
+            <section class="section">
+                <h2>📖 Descripción General</h2>
+                <p>El paquete <code>@ordo-todo/core</code> es el corazón del monorepo, conteniendo toda la lógica de negocio compartida entre todas las aplicaciones (Web, Mobile, Desktop, Backend).</p>
+                
+                <h3>✨ Características</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted); line-height: 2;">
+                    <li>✅ <strong>Validaciones Compartidas</strong> - Esquemas Zod reutilizables</li>
+                    <li>✅ <strong>Constantes</strong> - Colores, prioridades, estados, límites</li>
+                    <li>✅ <strong>75+ Utilidades</strong> - Funciones para fechas, tiempo, strings, cálculos, colores</li>
+                    <li>✅ <strong>Type Safety</strong> - TypeScript completo con inferencia automática</li>
+                    <li>✅ <strong>Zero Duplication</strong> - Elimina 80%+ de código duplicado</li>
+                </ul>
+
+                <h3>📦 Instalación</h3>
+                <pre><code>// Ya está instalado en el monorepo
+import { /* lo que necesites */ } from '@ordo-todo/core';</code></pre>
+            </section>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('constants')">📌 Constantes</div>
+                <div class="tab" onclick="showTab('utils')">🛠️ Utilidades</div>
+                <div class="tab" onclick="showTab('validation')">✅ Validaciones</div>
+            </div>
+
+            <!-- Constants Tab -->
+            <div id="constants" class="tab-content active">
+                <section class="section">
+                    <h2>📌 Constantes</h2>
+                    
+                    <h3>🎨 Colores</h3>
+                    <div class="function-card">
+                        <h4>PROJECT_COLORS</h4>
+                        <div class="signature">const PROJECT_COLORS: readonly ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899", "#6B7280"]</div>
+                        <div class="description">7 colores predefinidos para proyectos.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo de uso:</div>
+                            <pre><code>import { PROJECT_COLORS } from '@ordo-todo/core';
+
+const projectColor = PROJECT_COLORS[0]; // "#EF4444" (rojo)</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>TAG_COLORS</h4>
+                        <div class="signature">const TAG_COLORS: readonly string[]</div>
+                        <div class="description">10 colores predefinidos para tags.</div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>WORKSPACE_COLORS</h4>
+                        <div class="signature">const WORKSPACE_COLORS: { PERSONAL: "#06B6D4", WORK: "#8B5CF6", TEAM: "#EC4899" }</div>
+                        <div class="description">Colores específicos para cada tipo de workspace.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo de uso:</div>
+                            <pre><code>import { WORKSPACE_COLORS } from '@ordo-todo/core';
+
+const personalColor = WORKSPACE_COLORS.PERSONAL; // "#06B6D4" (cyan)</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>⚡ Prioridades</h3>
+                    <div class="function-card">
+                        <h4>TASK_PRIORITIES</h4>
+                        <div class="signature">const TASK_PRIORITIES: { LOW, MEDIUM, HIGH }</div>
+                        <div class="description">Configuración completa de prioridades con labels, colores y orden.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo de uso:</div>
+                            <pre><code>import { TASK_PRIORITIES, getPriorityColor } from '@ordo-todo/core';
+
+const highPriority = TASK_PRIORITIES.HIGH;
+console.log(highPriority.label); // "High"
+console.log(highPriority.color); // "#EF4444"
+
+const color = getPriorityColor("HIGH"); // "#EF4444"</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>📊 Estados</h3>
+                    <div class="function-card">
+                        <h4>TASK_STATUS</h4>
+                        <div class="signature">const TASK_STATUS: { TODO, IN_PROGRESS, IN_REVIEW, DONE, CANCELLED }</div>
+                        <div class="description">Estados de tareas con labels, colores y orden.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo de uso:</div>
+                            <pre><code>import { TASK_STATUS, isTaskCompleted, isTaskInProgress } from '@ordo-todo/core';
+
+const status = TASK_STATUS.DONE;
+console.log(status.label); // "Done"
+console.log(status.color); // "#10B981"
+
+const completed = isTaskCompleted("DONE"); // true
+const inProgress = isTaskInProgress("IN_PROGRESS"); // true</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>⏱️ Timer (Pomodoro)</h3>
+                    <div class="function-card">
+                        <h4>TIMER_MODES</h4>
+                        <div class="signature">const TIMER_MODES: { WORK, SHORT_BREAK, LONG_BREAK, CONTINUOUS }</div>
+                        <div class="description">Modos del timer con colores y duraciones por defecto.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo de uso:</div>
+                            <pre><code>import { TIMER_MODES, shouldTakeLongBreak } from '@ordo-todo/core';
+
+const workMode = TIMER_MODES.WORK;
+console.log(workMode.color); // "#EF4444"
+console.log(workMode.defaultDuration); // 25 minutos
+
+const needsLongBreak = shouldTakeLongBreak(4); // true (después de 4 pomodoros)</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>📏 Límites</h3>
+                    <div class="function-card">
+                        <h4>TASK_LIMITS</h4>
+                        <div class="signature">const TASK_LIMITS: { TITLE_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, ... }</div>
+                        <div class="description">Límites de validación para tareas.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo de uso:</div>
+                            <pre><code>import { TASK_LIMITS } from '@ordo-todo/core';
+
+if (title.length > TASK_LIMITS.TITLE_MAX_LENGTH) {
+  throw new Error('Título demasiado largo');
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Utils Tab -->
+            <div id="utils" class="tab-content">
+                <section class="section">
+                    <h2>🛠️ Utilidades</h2>
+                    
+                    <h3>📅 Utilidades de Fecha</h3>
+                    <div class="function-card">
+                        <h4>formatDate()</h4>
+                        <div class="signature">formatDate(date: Date | string, locale?: string): string</div>
+                        <div class="description">Formatea una fecha a un string legible.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { formatDate } from '@ordo-todo/core';
+
+formatDate(new Date()); // "December 4, 2025"
+formatDate("2025-12-04", "es-ES"); // "4 de diciembre de 2025"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>formatRelativeTime()</h4>
+                        <div class="signature">formatRelativeTime(date: Date | string, locale?: string): string</div>
+                        <div class="description">Formatea una fecha como tiempo relativo (ej: "hace 2 horas").</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { formatRelativeTime } from '@ordo-todo/core';
+
+formatRelativeTime(task.createdAt); // "2 hours ago"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>isOverdue()</h4>
+                        <div class="signature">isOverdue(dueDate: Date | string | null | undefined): boolean</div>
+                        <div class="description">Verifica si una tarea está vencida.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { isOverdue } from '@ordo-todo/core';
+
+const overdue = isOverdue(task.dueDate); // true/false</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>⏱️ Utilidades de Tiempo</h3>
+                    <div class="function-card">
+                        <h4>formatDuration()</h4>
+                        <div class="signature">formatDuration(minutes: number): string</div>
+                        <div class="description">Formatea minutos a formato legible (ej: "2h 30m").</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { formatDuration } from '@ordo-todo/core';
+
+formatDuration(150); // "2h 30m"
+formatDuration(45);  // "45m"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>formatTimerDisplay()</h4>
+                        <div class="signature">formatTimerDisplay(seconds: number): string</div>
+                        <div class="description">Formatea segundos para display del timer (MM:SS).</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { formatTimerDisplay } from '@ordo-todo/core';
+
+formatTimerDisplay(125); // "02:05"</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>📝 Utilidades de String</h3>
+                    <div class="function-card">
+                        <h4>generateSlug()</h4>
+                        <div class="signature">generateSlug(text: string): string</div>
+                        <div class="description">Genera un slug URL-friendly desde un string.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { generateSlug } from '@ordo-todo/core';
+
+generateSlug("My Project Name"); // "my-project-name"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>truncate()</h4>
+                        <div class="signature">truncate(text: string, maxLength: number, ellipsis?: string): string</div>
+                        <div class="description">Trunca un string a una longitud máxima.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { truncate } from '@ordo-todo/core';
+
+truncate("Long description...", 20); // "Long description..."</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>🧮 Utilidades de Cálculo</h3>
+                    <div class="function-card">
+                        <h4>calculateProgress()</h4>
+                        <div class="signature">calculateProgress(completed: number, total: number): number</div>
+                        <div class="description">Calcula el porcentaje de progreso.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { calculateProgress } from '@ordo-todo/core';
+
+calculateProgress(5, 10); // 50</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>calculateProductivityScore()</h4>
+                        <div class="signature">calculateProductivityScore(completedTasks: number, totalTasks: number, focusMinutes: number, targetFocusMinutes?: number): number</div>
+                        <div class="description">Calcula un score de productividad (0-100).</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { calculateProductivityScore } from '@ordo-todo/core';
+
+const score = calculateProductivityScore(8, 10, 180, 240); // 77</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>🎨 Utilidades de Color</h3>
+                    <div class="function-card">
+                        <h4>hexToRgba()</h4>
+                        <div class="signature">hexToRgba(hexColor: string, alpha?: number): string</div>
+                        <div class="description">Convierte hex a RGBA.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { hexToRgba } from '@ordo-todo/core';
+
+hexToRgba("#EF4444", 0.1); // "rgba(239, 68, 68, 0.1)"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>getContrastColor()</h4>
+                        <div class="signature">getContrastColor(hexColor: string): string</div>
+                        <div class="description">Obtiene el color de contraste (blanco o negro) para un fondo.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo:</div>
+                            <pre><code>import { getContrastColor } from '@ordo-todo/core';
+
+getContrastColor("#EF4444"); // "#FFFFFF"</code></pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Validation Tab -->
+            <div id="validation" class="tab-content">
+                <section class="section">
+                    <h2>✅ Validaciones</h2>
+                    <p>Todos los esquemas de validación están construidos con <strong>Zod</strong> y proporcionan type-safety completo.</p>
+
+                    <h3>📋 Task Validation</h3>
+                    <div class="function-card">
+                        <h4>createTaskSchema</h4>
+                        <div class="signature">const createTaskSchema: ZodObject&lt;...&gt;</div>
+                        <div class="description">Esquema de validación para crear tareas.</div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo en React (Web/Mobile):</div>
+                            <pre><code>import { createTaskSchema } from '@ordo-todo/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+const form = useForm({
+  resolver: zodResolver(createTaskSchema),
+  defaultValues: {
+    title: '',
+    description: '',
+    priority: 'MEDIUM',
+    projectId: '',
+  },
+});</code></pre>
+                        </div>
+                        <div class="example">
+                            <div class="example-title">Ejemplo en Backend:</div>
+                            <pre><code>import { createTaskSchema } from '@ordo-todo/core';
+
+const result = createTaskSchema.safeParse(req.body);
+if (!result.success) {
+  return { errors: result.error.flatten() };
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <h3>📁 Project Validation</h3>
+                    <div class="function-card">
+                        <h4>createProjectSchema</h4>
+                        <div class="signature">const createProjectSchema: ZodObject&lt;...&gt;</div>
+                        <div class="description">Esquema de validación para crear proyectos.</div>
+                    </div>
+
+                    <h3>🏢 Workspace Validation</h3>
+                    <div class="function-card">
+                        <h4>createWorkspaceSchema</h4>
+                        <div class="signature">const createWorkspaceSchema: ZodObject&lt;...&gt;</div>
+                        <div class="description">Esquema de validación para crear workspaces.</div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>inviteMemberSchema</h4>
+                        <div class="signature">const inviteMemberSchema: ZodObject&lt;...&gt;</div>
+                        <div class="description">Esquema de validación para invitar miembros.</div>
+                    </div>
+
+                    <h3>👤 User Validation</h3>
+                    <div class="function-card">
+                        <h4>registerUserSchema</h4>
+                        <div class="signature">const registerUserSchema: ZodObject&lt;...&gt;</div>
+                        <div class="description">Esquema de validación para registro de usuarios.</div>
+                    </div>
+
+                    <div class="function-card">
+                        <h4>loginUserSchema</h4>
+                        <div class="signature">const loginUserSchema: ZodObject&lt;...&gt;</div>
+                        <div class="description">Esquema de validación para login.</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Migration Guide -->
+            <section class="section">
+                <h2>🔄 Guía de Migración</h2>
+                <h3>Antes (Código Duplicado)</h3>
+                <pre><code>// En create-project-dialog.tsx
+const projectColors = ["#EF4444", "#F59E0B", ...];
+
+const createProjectSchema = z.object({
+  name: z.string().min(1, "Required"),
+  // ...
+});</code></pre>
+
+                <h3>Después (Usando Core)</h3>
+                <pre><code>import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/core';
+
+// Usar constantes compartidas
+const colors = PROJECT_COLORS;
+
+// Usar esquema compartido
+const schema = createProjectSchema;</code></pre>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación del Core Package.</p>
+        </div>
+    </footer>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

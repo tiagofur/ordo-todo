@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
-import { useCreateSubtask, useCompleteTask, useDeleteTask } from "@/lib/api-hooks";
+import { useCreateSubtask, useCompleteTask, useDeleteTask, useUpdateTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,9 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   // Delete subtask mutation
   const deleteSubtask = useDeleteTask();
 
+  // Update subtask mutation (for reopening)
+  const updateTask = useUpdateTask();
+
   const handleCreateSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
 
@@ -56,7 +59,21 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
   };
 
   const handleToggleComplete = (subtaskId: string, currentStatus: string) => {
-    if (currentStatus !== "COMPLETED") {
+    if (currentStatus === "COMPLETED") {
+      // Reopen the subtask
+      updateTask.mutate({
+        taskId: subtaskId,
+        data: { status: "TODO" }
+      }, {
+        onSuccess: () => {
+          notify.success(t('toast.reopened'));
+        },
+        onError: (error: any) => {
+          notify.error(error.message || t('toast.reopenError'));
+        }
+      });
+    } else {
+      // Complete the subtask
       completeSubtask.mutate(subtaskId, {
         onSuccess: () => {
           notify.success(t('toast.completed'));

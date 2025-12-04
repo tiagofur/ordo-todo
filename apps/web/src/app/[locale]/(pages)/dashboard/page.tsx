@@ -12,6 +12,7 @@ import {
   EyeOff,
   List,
   LayoutGrid,
+  ListChecks,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,8 @@ import { useTimerStats, useDailyMetrics } from "@/lib/api-hooks";
 import { useTasks } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { UpcomingTasksWidget } from "@/components/dashboard/upcoming-tasks-widget";
+import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
@@ -57,8 +60,7 @@ export default function DashboardPage() {
     endDate: endOfDay.toISOString(),
   });
 
-  // Fetch today's daily metrics (tasksCompleted, tasksCreated, etc.)
-  // API returns array of DailyMetrics, we take the first one for today
+  // Fetch today's daily metrics (tasksCompleted, subtasksCompleted, etc.)
   const { data: dailyMetricsArray } = useDailyMetrics({
     startDate: startOfDay.toISOString(),
     endDate: endOfDay.toISOString(),
@@ -68,10 +70,7 @@ export default function DashboardPage() {
   // Fetch all tasks (we'll filter for today's tasks to display)
   const { data: allTasks = [] } = useTasks();
 
-  // Filter tasks for today view:
-  // 1. Tasks with dueDate = today
-  // 2. Tasks completed today (completedAt = today) OR status is COMPLETED with today's updatedAt
-  // 3. Pending tasks (TODO or IN_PROGRESS) without dueDate or with past dueDate
+  // Filter tasks for today view
   const todaysTasks = allTasks.filter((task: any) => {
     // Check if task has dueDate = today
     if (task.dueDate) {
@@ -81,16 +80,14 @@ export default function DashboardPage() {
       }
     }
 
-    // Check if task was completed today (via completedAt or updatedAt for COMPLETED status)
+    // Check if task was completed today
     if (task.status === "COMPLETED") {
-      // Check completedAt field
       if (task.completedAt) {
         const completedDate = new Date(task.completedAt);
         if (completedDate.toDateString() === today.toDateString()) {
           return true;
         }
       }
-      // Fallback: check updatedAt for recently completed tasks
       if (task.updatedAt) {
         const updatedDate = new Date(task.updatedAt);
         if (updatedDate.toDateString() === today.toDateString()) {
@@ -99,18 +96,27 @@ export default function DashboardPage() {
       }
     }
 
-    // Include pending tasks (TODO or IN_PROGRESS) that are overdue or have no dueDate
+    // Include pending tasks that are overdue or have no dueDate
     if (task.status === "TODO" || task.status === "IN_PROGRESS") {
       if (!task.dueDate) {
-        return true; // No dueDate = show in today
+        return true;
       }
       const dueDate = new Date(task.dueDate);
       if (dueDate < startOfDay) {
-        return true; // Overdue tasks
+        return true;
       }
     }
 
     return false;
+  });
+
+  // Get upcoming tasks (next 7 days, not completed)
+  const upcomingTasks = allTasks.filter((task: any) => {
+    if (task.status === "COMPLETED" || !task.dueDate) return false;
+    const dueDate = new Date(task.dueDate);
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    return dueDate >= startOfDay && dueDate <= sevenDaysFromNow;
   });
 
   // Filter out completed tasks if showCompleted is false
@@ -135,13 +141,11 @@ export default function DashboardPage() {
         return aPriority - bPriority;
       }
       case "duration": {
-        // Shorter tasks first (null = no estimate, goes last)
         const aDuration = a.estimatedTime ?? Infinity;
         const bDuration = b.estimatedTime ?? Infinity;
         return aDuration - bDuration;
       }
       case "created": {
-        // Newest first
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
@@ -156,8 +160,9 @@ export default function DashboardPage() {
     (task: any) => task.status === "COMPLETED"
   ).length;
 
-  // Use metrics from backend for completed count (accurate tracking)
+  // Use metrics from backend
   const completedToday = dailyMetrics?.tasksCompleted ?? 0;
+  const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
   const hoursWorked = stats ? Math.floor(stats.totalMinutesWorked / 60) : 0;
@@ -169,11 +174,15 @@ export default function DashboardPage() {
         ? `${minutesWorked}m`
         : "0m";
 
-  // Calculate productivity (completion rate as percentage)
+  // Calculate productivity
   const productivity =
     stats && stats.totalSessions > 0
       ? `${Math.round(stats.completionRate * 100)}%`
       : "--";
+
+  // Calculate streak (simplified - would need backend support for accurate tracking)
+  const currentStreak = completedToday > 0 ? 1 : 0; // Placeholder
+  const longestStreak = 1; // Placeholder
 
   const statCards = [
     {
@@ -181,6 +190,12 @@ export default function DashboardPage() {
       value: completedToday.toString(),
       icon: CheckCircle2,
       color: accentColor,
+    },
+    {
+      title: "Subtareas",
+      value: subtasksCompletedToday.toString(),
+      icon: ListChecks,
+      color: "#8b5cf6", // Purple
     },
     {
       title: t("timeWorked"),
@@ -226,7 +241,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card, index) => (
             <motion.div
               key={card.title}
@@ -260,6 +275,19 @@ export default function DashboardPage() {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* New Widgets Row */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <ProductivityStreakWidget
+            currentStreak={currentStreak}
+            longestStreak={longestStreak}
+            accentColor={accentColor}
+          />
+          <UpcomingTasksWidget
+            tasks={upcomingTasks}
+            accentColor={accentColor}
+          />
         </div>
 
         {/* Tasks Section */}

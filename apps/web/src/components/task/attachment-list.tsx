@@ -70,8 +70,10 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
   const getFullUrl = (url: string) => {
     // If URL is relative, prepend backend URL
     if (url.startsWith("/")) {
+      // Get backend base URL (without /api/v1)
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3101/api/v1";
-      return apiUrl.replace("/api/v1", "") + url;
+      const backendBaseUrl = apiUrl.replace("/api/v1", "");
+      return backendBaseUrl + url;
     }
     return url;
   };
@@ -239,23 +241,31 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
       </div>
 
       <Dialog open={!!previewAttachment} onOpenChange={(open) => !open && setPreviewAttachment(null)}>
-        <DialogContent className="max-w-4xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none">
+        <DialogContent className="!max-w-none w-screen h-screen p-0 overflow-hidden bg-background/95 backdrop-blur-sm border-none shadow-none">
           <DialogTitle className="sr-only">{previewAttachment?.filename}</DialogTitle>
           {previewAttachment && (
-            <div className="relative w-full h-[80vh] flex items-center justify-center">
-              <img
-                src={getFullUrl(previewAttachment.url)}
-                alt={previewAttachment.filename}
-                className="max-w-full max-h-full object-contain rounded-md shadow-2xl"
-              />
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Close button */}
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute top-4 right-4 rounded-full"
+                className="absolute top-4 right-4 rounded-full z-10 shadow-lg"
                 onClick={() => setPreviewAttachment(null)}
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
+
+              {/* Image - Fill viewport */}
+              <img
+                src={getFullUrl(previewAttachment.url)}
+                alt={previewAttachment.filename}
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+
+              {/* Filename overlay */}
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-6 py-3 rounded-full border shadow-lg z-10">
+                <p className="text-sm font-medium">{previewAttachment.filename}</p>
+              </div>
             </div>
           )}
         </DialogContent>

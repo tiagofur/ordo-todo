@@ -158,6 +158,7 @@
       "selectProject": "Select a project",
       "priority": "Priority",
       "dueDate": "Due Date",
+      "estimatedMinutes": "Estimated Minutes (min)",
       "description": "Description",
       "descriptionPlaceholder": "Additional task details..."
     },
@@ -256,6 +257,8 @@
       "createError": "Error creating subtask",
       "completed": "Subtask completed",
       "completeError": "Error completing subtask",
+      "reopened": "Subtask reopened",
+      "reopenError": "Error reopening subtask",
       "deleted": "Subtask deleted",
       "deleteError": "Error deleting subtask"
     },

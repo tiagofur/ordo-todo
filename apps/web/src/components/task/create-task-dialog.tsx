@@ -16,7 +16,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { notify } from "@/lib/notify";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag } from "lucide-react";
+import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from "lucide-react";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useTranslations } from "next-intl";
 
@@ -39,6 +39,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
     projectId: z.string().min(1, t('validation.projectRequired')),
     dueDate: z.string().optional(),
+    estimatedMinutes: z.coerce.number().min(0).optional(),
   });
 
   type CreateTaskForm = z.infer<typeof createTaskSchema>;
@@ -230,6 +231,22 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Estimated Minutes */}
+              <div className="space-y-2">
+                <Label htmlFor="estimatedMinutes" className="text-sm font-medium text-foreground">{t('form.estimatedMinutes')}</Label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="estimatedMinutes"
+                    {...register("estimatedMinutes")}
+                    min="0"
+                    placeholder="30"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@ export interface DailyMetricsProps extends EntityProps {
     date: Date;
     tasksCreated: number;
     tasksCompleted: number;
+    subtasksCompleted: number;
     minutesWorked: number;
     pomodorosCompleted: number;
     shortBreaksCompleted: number;
@@ -20,6 +21,7 @@ export class DailyMetrics extends Entity<DailyMetricsProps> {
             ...props,
             tasksCreated: props.tasksCreated ?? 0,
             tasksCompleted: props.tasksCompleted ?? 0,
+            subtasksCompleted: props.subtasksCompleted ?? 0,
             minutesWorked: props.minutesWorked ?? 0,
             pomodorosCompleted: props.pomodorosCompleted ?? 0,
             shortBreaksCompleted: props.shortBreaksCompleted ?? 0,
@@ -29,11 +31,12 @@ export class DailyMetrics extends Entity<DailyMetricsProps> {
         });
     }
 
-    static create(props: Omit<DailyMetricsProps, "id" | "createdAt" | "tasksCreated" | "tasksCompleted" | "minutesWorked" | "pomodorosCompleted" | "shortBreaksCompleted" | "longBreaksCompleted" | "breakMinutes">): DailyMetrics {
+    static create(props: Omit<DailyMetricsProps, "id" | "createdAt" | "tasksCreated" | "tasksCompleted" | "subtasksCompleted" | "minutesWorked" | "pomodorosCompleted" | "shortBreaksCompleted" | "longBreaksCompleted" | "breakMinutes">): DailyMetrics {
         return new DailyMetrics({
             ...props,
             tasksCreated: 0,
             tasksCompleted: 0,
+            subtasksCompleted: 0,
             minutesWorked: 0,
             pomodorosCompleted: 0,
             shortBreaksCompleted: 0,
@@ -48,6 +51,18 @@ export class DailyMetrics extends Entity<DailyMetricsProps> {
 
     incrementTasksCompleted(): DailyMetrics {
         return this.clone({ tasksCompleted: this.props.tasksCompleted + 1 });
+    }
+
+    decrementTasksCompleted(): DailyMetrics {
+        return this.clone({ tasksCompleted: Math.max(0, this.props.tasksCompleted - 1) });
+    }
+
+    incrementSubtasksCompleted(): DailyMetrics {
+        return this.clone({ subtasksCompleted: this.props.subtasksCompleted + 1 });
+    }
+
+    decrementSubtasksCompleted(): DailyMetrics {
+        return this.clone({ subtasksCompleted: Math.max(0, this.props.subtasksCompleted - 1) });
     }
 
     addMinutesWorked(minutes: number): DailyMetrics {
