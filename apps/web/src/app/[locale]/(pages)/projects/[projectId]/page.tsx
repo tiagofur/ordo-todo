@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Clock,
+  Paperclip,
 } from "lucide-react";
 import {
   useProject,
@@ -39,6 +40,7 @@ import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { ProjectSettingsDialog } from "@/components/project/project-settings-dialog";
 import { ProjectBoard } from "@/components/project/project-board";
 import { ProjectTimeline } from "@/components/project/project-timeline";
+import { ProjectFiles } from "@/components/project/project-files";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -336,6 +338,10 @@ export default function ProjectDetailPage() {
               <Clock className="w-4 h-4" />
               {t("tabs.timeline")}
             </TabsTrigger>
+            <TabsTrigger value="files" className="gap-2">
+              <Paperclip className="w-4 h-4" />
+              {t("tabs.files")}
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -582,6 +588,11 @@ export default function ProjectDetailPage() {
           {/* Timeline Tab */}
           <TabsContent value="timeline">
             <ProjectTimeline projectId={projectId} />
+          </TabsContent>
+
+          {/* Files Tab */}
+          <TabsContent value="files">
+            <ProjectFiles projectId={projectId} />
           </TabsContent>
         </Tabs>
       </div>

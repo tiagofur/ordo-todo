@@ -332,6 +332,7 @@ export const apiClient = {
 
   // Attachment
   getTaskAttachments: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/attachments`).then((res) => res.data),
+  getProjectAttachments: (projectId: string) => axiosInstance.get(`/attachments/project/${projectId}`).then((res) => res.data),
   createAttachment: (data: CreateAttachmentDto) => axiosInstance.post('/attachments', data).then((res) => res.data),
   deleteAttachment: (id: string) => axiosInstance.delete(`/attachments/${id}`).then((res) => res.data),
 

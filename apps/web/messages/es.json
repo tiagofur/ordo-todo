@@ -1194,6 +1194,7 @@
       "list": "Lista",
       "board": "Tablero",
       "timeline": "Línea de Tiempo",
+      "files": "Archivos",
       "settings": "Configuración"
     },
     "stats": {
@@ -1292,5 +1293,14 @@
       "description": "Crea tu primera tarea para empezar a hacer seguimiento de tu trabajo.",
       "action": "Crear Tarea"
     }
+  },
+  "ProjectFiles": {
+    "empty": "No hay archivos en este proyecto.",
+    "name": "Nombre",
+    "task": "Tarea",
+    "size": "Tamaño",
+    "uploadedBy": "Subido por",
+    "date": "Fecha",
+    "actions": "Acciones"
   }
 }

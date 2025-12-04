@@ -112,6 +112,7 @@ export const queryKeys = {
 
   // Attachments
   taskAttachments: (taskId: string) => ['tasks', taskId, 'attachments'] as const,
+  projectAttachments: (projectId: string) => ['projects', projectId, 'attachments'] as const,
 } as const;
 
 // ============ AUTH HOOKS ============
@@ -1015,7 +1016,16 @@ export function useDeleteAttachment() {
     onSuccess: () => {
       // Invalidate all attachment queries since we don't know which task it belonged to
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
+  });
+}
+
+export function useProjectAttachments(projectId: string) {
+  return useQuery({
+    queryKey: queryKeys.projectAttachments(projectId),
+    queryFn: () => apiClient.getProjectAttachments(projectId),
+    enabled: !!projectId,
   });
 }
 
