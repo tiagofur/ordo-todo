@@ -1,6 +1,7 @@
 "use client";
 
 import { useDailyMetrics, useTimerStats } from "@/lib/api-hooks";
+import { formatDuration } from "@ordo-todo/core";
 import {
   Card,
   CardContent,
@@ -51,14 +52,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
 
   const isLoading = isLoadingTimer || isLoadingMetrics;
 
-  const formatTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h ${mins}m`;
-    }
-    return `${mins}m`;
-  };
+
 
   const formatFocusScore = (score?: number): string => {
     if (!score) return "N/A";
@@ -131,7 +125,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
               <span>{t("metrics.time")}</span>
             </div>
             <div className="text-3xl font-bold">
-              {formatTime(timerStats?.totalMinutesWorked || 0)}
+              {formatDuration(timerStats?.totalMinutesWorked || 0)}
             </div>
           </div>
 

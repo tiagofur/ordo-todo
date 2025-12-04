@@ -26,15 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const projectColors = [
-  "#EF4444", // red
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#3B82F6", // blue
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#6B7280", // gray
-];
+import { PROJECT_COLORS, updateProjectSchema } from "@ordo-todo/core";
 
 interface ProjectSettingsProps {
   project: {
@@ -55,16 +47,14 @@ export function ProjectSettings({
   const t = useTranslations("ProjectSettings");
   const router = useRouter();
   const [selectedColor, setSelectedColor] = useState(
-    project.color || projectColors[3]
+    project.color || PROJECT_COLORS[3]
   );
 
-  const updateProjectSchema = z.object({
+  const formSchema = updateProjectSchema.extend({
     name: z.string().min(1, t("form.name.required")),
-    description: z.string().optional(),
-    color: z.string().optional(),
   });
 
-  type UpdateProjectForm = z.infer<typeof updateProjectSchema>;
+  type UpdateProjectForm = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -72,7 +62,7 @@ export function ProjectSettings({
     reset,
     formState: { errors, isDirty },
   } = useForm<UpdateProjectForm>({
-    resolver: zodResolver(updateProjectSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: project.name,
       description: project.description || "",
@@ -86,7 +76,7 @@ export function ProjectSettings({
       description: project.description || "",
       color: project.color,
     });
-    setSelectedColor(project.color || projectColors[3]);
+    setSelectedColor(project.color || PROJECT_COLORS[3]);
   }, [project, reset]);
 
   const updateProjectMutation = useUpdateProject();
@@ -147,7 +137,7 @@ export function ProjectSettings({
               <Palette className="w-4 h-4" /> {t("form.color.label")}
             </Label>
             <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
-              {projectColors.map((color) => (
+              {PROJECT_COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"

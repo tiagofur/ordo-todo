@@ -114,7 +114,7 @@ export function sanitizeHtml(text: string): string {
         "'": "&#x27;",
         "/": "&#x2F;",
     };
-    return text.replace(/[&<>"'/]/g, (char) => map[char]);
+    return text.replace(/[&<>"'/]/g, (char) => map[char] || char);
 }
 
 /**

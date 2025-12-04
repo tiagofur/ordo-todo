@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { formatTimerDisplay } from "@ordo-todo/core";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { useTimerNotifications } from "./use-timer-notifications";
@@ -73,8 +74,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Refs to hold latest function references to avoid stale closures in setInterval
-    const skipToNextRef = useRef<() => Promise<void>>();
-    const stopRef = useRef<(wasCompleted?: boolean) => Promise<void>>();
+    const skipToNextRef = useRef<(() => Promise<void>) | undefined>(undefined);
+    const stopRef = useRef<((wasCompleted?: boolean) => Promise<void>) | undefined>(undefined);
 
     // Backend hooks
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
@@ -433,9 +434,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     }, [isRunning, isPaused, type, mode]); // Removed skipToNext and stop - using refs instead
 
     const formatTime = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        return formatTimerDisplay(seconds);
     };
 
     const getProgress = (): number => {

@@ -114,12 +114,12 @@ export function isAllowedFileType(mimeType: string): boolean {
     return [
         ...FILE_LIMITS.ALLOWED_IMAGE_TYPES,
         ...FILE_LIMITS.ALLOWED_DOCUMENT_TYPES,
-    ].includes(mimeType);
+    ].includes(mimeType as any);
 }
 
 /**
  * Check if file is an image
  */
 export function isImageFile(mimeType: string): boolean {
-    return FILE_LIMITS.ALLOWED_IMAGE_TYPES.includes(mimeType);
+    return (FILE_LIMITS.ALLOWED_IMAGE_TYPES as readonly string[]).includes(mimeType);
 }

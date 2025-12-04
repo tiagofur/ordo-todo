@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Progress } from "@/components/ui/progress";
+import { calculateProgress } from "@ordo-todo/core";
 
 interface ProjectCardProps {
   project: {
@@ -52,8 +53,7 @@ export function ProjectCard({
   const completedTasks =
     project.completedTasksCount ??
     projectTasks.filter((t: any) => t.status === "DONE").length;
-  const progressPercent =
-    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const progressPercent = calculateProgress(completedTasks, totalTasks);
 
   const archiveProjectMutation = useArchiveProject();
   const deleteProjectMutation = useDeleteProject();

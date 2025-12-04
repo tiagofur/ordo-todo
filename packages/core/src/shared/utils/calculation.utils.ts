@@ -165,16 +165,16 @@ export function calculateStreak(
     today.setHours(0, 0, 0, 0);
 
     // Check if the most recent activity was today or yesterday
-    const mostRecent = new Date(sortedDates[0]);
+    const mostRecent = new Date(sortedDates[0]!);
     mostRecent.setHours(0, 0, 0, 0);
     const daysDiff = Math.floor((today.getTime() - mostRecent.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysDiff > 1) return 0; // Streak broken
 
     for (let i = 1; i < sortedDates.length; i++) {
-        const current = new Date(sortedDates[i]);
+        const current = new Date(sortedDates[i]!);
         current.setHours(0, 0, 0, 0);
-        const previous = new Date(sortedDates[i - 1]);
+        const previous = new Date(sortedDates[i - 1]!);
         previous.setHours(0, 0, 0, 0);
 
         const diff = Math.floor((previous.getTime() - current.getTime()) / (1000 * 60 * 60 * 24));

@@ -85,8 +85,8 @@ export function parseDuration(duration: string): number {
     const hourMatch = duration.match(/(\d+)h/);
     const minMatch = duration.match(/(\d+)m/);
 
-    const hours = hourMatch ? parseInt(hourMatch[1], 10) : 0;
-    const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
+    const hours = hourMatch ? parseInt(hourMatch[1]!, 10) : 0;
+    const minutes = minMatch ? parseInt(minMatch[1]!, 10) : 0;
 
     return hours * 60 + minutes;
 }
@@ -113,12 +113,12 @@ export function formatTimeOfDay(time: string, use24Hour: boolean = false): strin
     const [hours, minutes] = time.split(":").map(Number);
 
     if (use24Hour) {
-        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+        return `${(hours || 0).toString().padStart(2, "0")}:${(minutes || 0).toString().padStart(2, "0")}`;
     }
 
-    const period = hours >= 12 ? "PM" : "AM";
-    const displayHours = hours % 12 || 12;
-    return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+    const period = (hours || 0) >= 12 ? "PM" : "AM";
+    const displayHours = (hours || 0) % 12 || 12;
+    return `${displayHours}:${(minutes || 0).toString().padStart(2, "0")} ${period}`;
 }
 
 /**

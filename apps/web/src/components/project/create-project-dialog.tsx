@@ -28,21 +28,13 @@ import { useTranslations } from "next-intl";
 import { PROJECT_TEMPLATES, ProjectTemplate } from "@/data/project-templates";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+import { PROJECT_COLORS, createProjectSchema } from "@ordo-todo/core";
+
 interface CreateProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workspaceId?: string;
 }
-
-const projectColors = [
-  "#EF4444", // red
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#3B82F6", // blue
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#6B7280", // gray
-];
 
 export function CreateProjectDialog({
   open,
@@ -51,7 +43,7 @@ export function CreateProjectDialog({
 }: CreateProjectDialogProps) {
   const t = useTranslations("CreateProjectDialog");
   const queryClient = useQueryClient();
-  const [selectedColor, setSelectedColor] = useState(projectColors[3]);
+  const [selectedColor, setSelectedColor] = useState<typeof PROJECT_COLORS[number]>(PROJECT_COLORS[3]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<ProjectTemplate | null>(null);
@@ -62,15 +54,13 @@ export function CreateProjectDialog({
   // Fetch workspaces if not provided (to check if any exist)
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useWorkspaces();
 
-  const createProjectSchema = z.object({
+  // Extend core schema with localized error messages
+  const formSchema = createProjectSchema.extend({
     name: z.string().min(1, t("validation.nameRequired")),
-    description: z.string().optional(),
-    color: z.string().optional(),
     workspaceId: z.string().min(1, t("validation.workspaceRequired")),
-    workflowId: z.string().optional(),
   });
 
-  type CreateProjectForm = z.infer<typeof createProjectSchema>;
+  type CreateProjectForm = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -80,10 +70,10 @@ export function CreateProjectDialog({
     watch,
     formState: { errors },
   } = useForm<CreateProjectForm>({
-    resolver: zodResolver(createProjectSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       workspaceId: workspaceId || "",
-      color: projectColors[3],
+      color: PROJECT_COLORS[3],
       workflowId: "",
     },
   });
@@ -125,7 +115,7 @@ export function CreateProjectDialog({
   const handleTemplateSelect = (template: ProjectTemplate) => {
     setValue("name", template.name);
     setValue("description", template.description);
-    setSelectedColor(template.color);
+    setSelectedColor(template.color as typeof PROJECT_COLORS[number]);
     setSelectedTemplate(template);
     setShowTemplates(false);
     toast.success(t("toast.templateSelected", { name: template.name }));
@@ -279,7 +269,7 @@ export function CreateProjectDialog({
                     <Palette className="w-4 h-4" /> {t("form.color")}
                   </Label>
                   <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
-                    {projectColors.map((color) => (
+                    {PROJECT_COLORS.map((color) => (
                       <button
                         key={color}
                         type="button"

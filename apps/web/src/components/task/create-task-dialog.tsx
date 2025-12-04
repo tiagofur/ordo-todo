@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { createTaskSchema } from "@ordo-todo/core";
 import { useCreateTask, useAllProjects } from "@/lib/api-hooks";
 import {
   Dialog,
@@ -33,16 +34,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
   const { data: projects, isLoading: isLoadingProjects } = useAllProjects();
 
-  const createTaskSchema = z.object({
+  const formSchema = createTaskSchema.extend({
     title: z.string().min(1, t('validation.titleRequired')),
-    description: z.string().optional(),
-    priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
     projectId: z.string().min(1, t('validation.projectRequired')),
-    dueDate: z.string().optional(),
-    estimatedMinutes: z.coerce.number().min(0).optional(),
   });
 
-  type CreateTaskForm = z.infer<typeof createTaskSchema>;
+  type CreateTaskForm = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -52,7 +49,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     watch,
     formState: { errors },
   } = useForm<CreateTaskForm>({
-    resolver: zodResolver(createTaskSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       priority: "MEDIUM",
       projectId: projectId || "",

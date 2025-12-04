@@ -1,25 +1,21 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { registerUserSchema } from "@ordo-todo/core";
 
 export async function POST(req: Request) {
     try {
-        const { name, email, password } = await req.json();
+        const body = await req.json();
+        const result = registerUserSchema.safeParse(body);
 
-        // Validar datos
-        if (!name || !email || !password) {
+        if (!result.success) {
             return NextResponse.json(
-                { error: "Todos los campos son requeridos" },
+                { error: result.error.flatten().fieldErrors },
                 { status: 400 }
             );
         }
 
-        if (password.length < 6) {
-            return NextResponse.json(
-                { error: "La contraseña debe tener al menos 6 caracteres" },
-                { status: 400 }
-            );
-        }
+        const { name, email, password } = result.data;
 
         // Verificar si el usuario ya existe
         const existingUser = await prisma.user.findUnique({
