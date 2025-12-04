@@ -179,11 +179,17 @@
     },
     "toast": {
       "success": "Project created successfully",
+      "successWithTasks": "Project created with {count} starter tasks",
+      "templateSelected": "Template \"{name}\" selected",
       "error": "Error creating project",
       "createWorkspace": "Please create a workspace from the sidebar"
     },
     "title": "Create Project",
     "description": "Organize your tasks into projects within a workflow",
+    "templates": {
+      "title": "Select a Template",
+      "tasksCount": "{count} starter tasks"
+    },
     "emptyState": {
       "title": "No workspaces",
       "description": "To create a project, you first need a workspace.",
@@ -356,6 +362,8 @@
   },
   "ProjectCard": {
     "tasks": "{count} tasks",
+    "tasksProgress": "{completed}/{total} tasks",
+    "progress": "Progress",
     "archived": "Archived",
     "actions": {
       "archive": "Archive",
@@ -396,6 +404,64 @@
     "toast": {
       "updated": "Project updated successfully",
       "updateError": "Error updating project"
+    }
+  },
+  "ProjectSettings": {
+    "general": {
+      "title": "General Settings",
+      "description": "Update your project name, description, and color"
+    },
+    "form": {
+      "name": {
+        "label": "Name *",
+        "placeholder": "Ex: Web Redesign, Marketing Q4",
+        "required": "Name is required"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Optional project description..."
+      },
+      "color": {
+        "label": "Project Color"
+      }
+    },
+    "actions": {
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete Project"
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "description": "Irreversible and destructive actions",
+      "archive": {
+        "title": "Archive this project",
+        "description": "Mark this project as archived. It will be hidden from the main view."
+      },
+      "unarchive": {
+        "title": "Unarchive this project",
+        "description": "Restore this project to the active projects list."
+      },
+      "delete": {
+        "title": "Delete this project",
+        "description": "Permanently delete this project and all its tasks. This action cannot be undone."
+      }
+    },
+    "deleteDialog": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the project and all associated tasks.",
+      "cancel": "Cancel",
+      "confirm": "Delete Project"
+    },
+    "toast": {
+      "updated": "Project updated successfully",
+      "updateError": "Error updating project",
+      "archived": "Project archived",
+      "unarchived": "Project restored",
+      "archiveError": "Error archiving project",
+      "deleted": "Project deleted",
+      "deleteError": "Error deleting project"
     }
   },
   "WorkspaceCard": {
@@ -1090,6 +1156,10 @@
   },
   "ProjectDetail": {
     "notFound": "Project not found",
+    "notFoundDescription": "The project you're looking for doesn't exist or was deleted.",
+    "backToWorkspace": "Back to Workspace",
+    "addTask": "New Task",
+    "tasksSection": "Tasks",
     "tabs": {
       "overview": "Overview",
       "list": "List",
@@ -1099,7 +1169,79 @@
     },
     "stats": {
       "totalTasks": "Total Tasks",
-      "completedTasks": "Completed"
+      "completedTasks": "Completed",
+      "task": "task",
+      "tasks": "tasks",
+      "completed": "completed"
+    },
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "badges": {
+      "archived": "Archived",
+      "completed": "Completed"
+    },
+    "menu": {
+      "settings": "Settings",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete",
+      "markComplete": "Mark as completed",
+      "markIncomplete": "Mark as incomplete"
+    },
+    "actions": {
+      "archive": "archive",
+      "unarchive": "unarchive"
+    },
+    "confirmArchive": "Are you sure you want to",
+    "confirmComplete": "Are you sure you want to mark this project as completed?",
+    "confirmUncomplete": "Are you sure you want to mark this project as incomplete?",
+    "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
+    "toast": {
+      "archived": "Project archived successfully",
+      "archiveError": "Error archiving project",
+      "deleted": "Project deleted successfully",
+      "completed": "Project marked as completed",
+      "uncompleted": "Project marked as incomplete",
+      "completeError": "Error updating project status"
+    },
+    "backToProjects": "Back to Projects",
+    "emptyState": {
+      "title": "No tasks yet",
+      "description": "Create your first task to start working on this project.",
+      "archivedDescription": "This project is archived. Unarchive it to add tasks.",
+      "completedDescription": "This project is completed."
+    },
+    "overview": {
+      "progress": "Progress",
+      "recentTasks": "Recent Tasks"
+    },
+    "breadcrumbs": {
+      "projects": "Projects"
+    },
+    "badges": {
+      "archived": "Archived",
+      "completed": "Completed"
+    },
+    "menu": {
+      "settings": "Settings",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete",
+      "markComplete": "Mark as completed",
+      "markIncomplete": "Mark as incomplete"
+    },
+    "confirmComplete": "Are you sure you want to mark this project as completed?",
+    "confirmUncomplete": "Are you sure you want to mark this project as incomplete?",
+    "toast": {
+      "archived": "Project archived successfully",
+      "archiveError": "Error archiving project",
+      "deleted": "Project deleted successfully",
+      "completed": "Project marked as completed",
+      "uncompleted": "Project marked as incomplete",
+      "completeError": "Error updating project status"
     }
   },
   "ProjectBoard": {
@@ -1109,5 +1251,17 @@
       "completed": "Completed"
     },
     "addTask": "Add Task"
+  },
+  "ProjectList": {
+    "columns": {
+      "task": "Task",
+      "dueDate": "Due Date",
+      "priority": "Priority"
+    },
+    "emptyState": {
+      "title": "No tasks yet",
+      "description": "Create your first task to start tracking your work.",
+      "action": "Create Task"
+    }
   }
 }

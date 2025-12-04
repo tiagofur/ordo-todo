@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException, Logger } from '@nestjs/common';
-import type { TaskRepository } from '@ordo-todo/core';
-import { CreateTaskUseCase, CompleteTaskUseCase } from '@ordo-todo/core';
+import type { TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
+import { CreateTaskUseCase, CompleteTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
@@ -14,6 +14,8 @@ export class TasksService {
   constructor(
     @Inject('TaskRepository')
     private readonly taskRepository: TaskRepository,
+    @Inject('AnalyticsRepository')
+    private readonly analyticsRepository: AnalyticsRepository,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
   ) { }
@@ -28,6 +30,14 @@ export class TasksService {
     // Log activity
     await this.activitiesService.logTaskCreated(task.id as string, userId);
 
+    // Update daily metrics - increment tasksCreated
+    const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+    await updateMetrics.execute({
+      userId,
+      date: new Date(),
+      tasksCreated: 1,
+    });
+
     return task.props;
   }
 
@@ -40,6 +50,14 @@ export class TasksService {
 
     // Log activity
     await this.activitiesService.logTaskCompleted(id, userId);
+
+    // Update daily metrics - increment tasksCompleted
+    const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+    await updateMetrics.execute({
+      userId,
+      date: new Date(),
+      tasksCompleted: 1,
+    });
 
     // If subtask, log on parent
     if (task.props.parentTaskId) {
@@ -143,6 +161,16 @@ export class TasksService {
           oldTask.status,
           updateTaskDto.status,
         );
+
+        // If status changed to COMPLETED, update daily metrics
+        if (updateTaskDto.status === 'COMPLETED' && oldTask.status !== 'COMPLETED') {
+          const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+          await updateMetrics.execute({
+            userId,
+            date: new Date(),
+            tasksCompleted: 1,
+          });
+        }
       }
 
       if (updateTaskDto.priority && updateTaskDto.priority !== oldTask.priority) {

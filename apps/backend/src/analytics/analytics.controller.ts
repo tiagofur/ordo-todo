@@ -7,13 +7,23 @@ import { AnalyticsService } from './analytics.service';
 @Controller('analytics')
 @UseGuards(JwtAuthGuard)
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(private readonly analyticsService: AnalyticsService) { }
 
   @Get('daily')
   getDailyMetrics(
     @CurrentUser() user: RequestUser,
     @Query('date') date?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
+    // Support both single date and date range queries
+    // If startDate/endDate provided, use range; otherwise use single date
+    if (startDate) {
+      const start = new Date(startDate);
+      const end = endDate ? new Date(endDate) : start;
+      return this.analyticsService.getDateRangeMetrics(user.id, start, end);
+    }
+
     // Convert string date to Date object if provided
     const parsedDate = date ? new Date(date) : undefined;
     return this.analyticsService.getDailyMetrics(user.id, parsedDate);

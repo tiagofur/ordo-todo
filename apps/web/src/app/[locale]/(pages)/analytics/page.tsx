@@ -9,13 +9,42 @@ import { ProductivityInsights } from "@/components/analytics/productivity-insigh
 import { PeakHoursChart } from "@/components/analytics/peak-hours-chart";
 import { useDailyMetrics } from "@/lib/api-hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, TrendingUp, Target, BarChart3, Brain } from "lucide-react";
+import {
+  CalendarIcon,
+  TrendingUp,
+  Target,
+  BarChart3,
+  Brain,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function AnalyticsPage() {
-  const t = useTranslations('Analytics');
+  const t = useTranslations("Analytics");
   const [selectedDate] = useState<Date>(new Date());
-  const { data: todayMetrics } = useDailyMetrics();
+
+  // Get today's date range for metrics
+  const today = new Date();
+  const startOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const endOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    23,
+    59,
+    59
+  );
+
+  // API returns array, extract first element
+  const { data: todayMetricsArray } = useDailyMetrics({
+    startDate: startOfDay.toISOString(),
+    endDate: endOfDay.toISOString(),
+  });
+  const todayMetrics = todayMetricsArray?.[0];
+
   const accentColor = "#06b6d4"; // Cyan
 
   return (
@@ -34,11 +63,9 @@ export default function AnalyticsPage() {
               >
                 <BarChart3 className="h-6 w-6" />
               </div>
-              {t('title')}
+              {t("title")}
             </h1>
-            <p className="text-muted-foreground mt-2">
-              {t('subtitle')}
-            </p>
+            <p className="text-muted-foreground mt-2">{t("subtitle")}</p>
           </div>
         </div>
 
@@ -47,19 +74,22 @@ export default function AnalyticsPage() {
           <TabsList>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              {t('tabs.overview')}
+              {t("tabs.overview")}
             </TabsTrigger>
             <TabsTrigger value="weekly" className="flex items-center gap-2">
               <CalendarIcon className="h-4 w-4" />
-              {t('tabs.weekly')}
+              {t("tabs.weekly")}
             </TabsTrigger>
             <TabsTrigger value="focus" className="flex items-center gap-2">
               <Target className="h-4 w-4" />
-              {t('tabs.focus')}
+              {t("tabs.focus")}
             </TabsTrigger>
-            <TabsTrigger value="ai-insights" className="flex items-center gap-2">
+            <TabsTrigger
+              value="ai-insights"
+              className="flex items-center gap-2"
+            >
               <Brain className="h-4 w-4" />
-              {t('tabs.aiInsights')}
+              {t("tabs.aiInsights")}
             </TabsTrigger>
           </TabsList>
 
@@ -79,27 +109,29 @@ export default function AnalyticsPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <FocusScoreGauge
                   score={todayMetrics.focusScore}
-                  label={t('focusScore.label')}
-                  description={t('focusScore.description')}
+                  label={t("focusScore.label")}
+                  description={t("focusScore.description")}
                 />
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">{t('focusScore.howToImprove')}</h3>
+                  <h3 className="text-lg font-semibold">
+                    {t("focusScore.howToImprove")}
+                  </h3>
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-primary mt-1">•</span>
-                      <span>{t('focusScore.tips.reduceBreaks')}</span>
+                      <span>{t("focusScore.tips.reduceBreaks")}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-primary mt-1">•</span>
-                      <span>{t('focusScore.tips.shortenBreaks')}</span>
+                      <span>{t("focusScore.tips.shortenBreaks")}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-primary mt-1">•</span>
-                      <span>{t('focusScore.tips.usePomodoro')}</span>
+                      <span>{t("focusScore.tips.usePomodoro")}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-primary mt-1">•</span>
-                      <span>{t('focusScore.tips.eliminateDistractions')}</span>
+                      <span>{t("focusScore.tips.eliminateDistractions")}</span>
                     </li>
                   </ul>
                 </div>
@@ -114,9 +146,11 @@ export default function AnalyticsPage() {
             <div className="grid md:grid-cols-3 gap-6">
               <DailyMetricsCard />
               <div className="md:col-span-2 bg-muted/50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">{t('weekly.summary')}</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  {t("weekly.summary")}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('weekly.comingSoon')}
+                  {t("weekly.comingSoon")}
                 </p>
               </div>
             </div>
@@ -128,46 +162,58 @@ export default function AnalyticsPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <FocusScoreGauge
                   score={todayMetrics.focusScore}
-                  label={t('focusScore.label')}
+                  label={t("focusScore.label")}
                 />
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{t('focusScore.whatIs')}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("focusScore.whatIs")}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      {t('focusScore.whatIsDescription')}
+                      {t("focusScore.whatIsDescription")}
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{t('focusScore.howCalculated')}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("focusScore.howCalculated")}
+                    </h3>
                     <div className="bg-muted rounded-lg p-4 font-mono text-sm">
-                      <div>{t('focusScore.calculation')}</div>
+                      <div>{t("focusScore.calculation")}</div>
                       <div className="mt-2 text-muted-foreground">
-                        {t('focusScore.penalty')}
+                        {t("focusScore.penalty")}
                       </div>
                       <div className="text-muted-foreground">
-                        {t('focusScore.max')}
+                        {t("focusScore.max")}
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{t('focusScore.interpretation')}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("focusScore.interpretation")}
+                    </h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-green-600" />
                         <span className="font-medium">80-100%:</span>
-                        <span className="text-muted-foreground">{t('focusScore.excellent')}</span>
+                        <span className="text-muted-foreground">
+                          {t("focusScore.excellent")}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-yellow-600" />
                         <span className="font-medium">50-79%:</span>
-                        <span className="text-muted-foreground">{t('focusScore.moderate')}</span>
+                        <span className="text-muted-foreground">
+                          {t("focusScore.moderate")}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-600" />
                         <span className="font-medium">0-49%:</span>
-                        <span className="text-muted-foreground">{t('focusScore.needsImprovement')}</span>
+                        <span className="text-muted-foreground">
+                          {t("focusScore.needsImprovement")}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -176,9 +222,11 @@ export default function AnalyticsPage() {
             ) : (
               <div className="text-center py-12">
                 <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('focusScore.noData')}</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {t("focusScore.noData")}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('focusScore.noDataDescription')}
+                  {t("focusScore.noDataDescription")}
                 </p>
               </div>
             )}
@@ -197,34 +245,34 @@ export default function AnalyticsPage() {
               <div className="bg-muted/50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Brain className="h-5 w-5" />
-                  {t('aiLearning.title')}
+                  {t("aiLearning.title")}
                 </h3>
                 <div className="space-y-4 text-sm text-muted-foreground">
-                  <p>
-                    {t('aiLearning.description')}
-                  </p>
+                  <p>{t("aiLearning.description")}</p>
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-foreground">{t('aiLearning.whatAnalyzes')}</h4>
+                    <h4 className="font-semibold text-foreground">
+                      {t("aiLearning.whatAnalyzes")}
+                    </h4>
                     <ul className="space-y-1 ml-4">
-                      <li>• {t('aiLearning.analyzesList.hours')}</li>
-                      <li>• {t('aiLearning.analyzesList.days')}</li>
-                      <li>• {t('aiLearning.analyzesList.duration')}</li>
-                      <li>• {t('aiLearning.analyzesList.completion')}</li>
-                      <li>• {t('aiLearning.analyzesList.patterns')}</li>
+                      <li>• {t("aiLearning.analyzesList.hours")}</li>
+                      <li>• {t("aiLearning.analyzesList.days")}</li>
+                      <li>• {t("aiLearning.analyzesList.duration")}</li>
+                      <li>• {t("aiLearning.analyzesList.completion")}</li>
+                      <li>• {t("aiLearning.analyzesList.patterns")}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-foreground">{t('aiLearning.whatOffers')}</h4>
+                    <h4 className="font-semibold text-foreground">
+                      {t("aiLearning.whatOffers")}
+                    </h4>
                     <ul className="space-y-1 ml-4">
-                      <li>• {t('aiLearning.offersList.recommendations')}</li>
-                      <li>• {t('aiLearning.offersList.predictions')}</li>
-                      <li>• {t('aiLearning.offersList.insights')}</li>
-                      <li>• {t('aiLearning.offersList.visualizations')}</li>
+                      <li>• {t("aiLearning.offersList.recommendations")}</li>
+                      <li>• {t("aiLearning.offersList.predictions")}</li>
+                      <li>• {t("aiLearning.offersList.insights")}</li>
+                      <li>• {t("aiLearning.offersList.visualizations")}</li>
                     </ul>
                   </div>
-                  <p className="italic pt-2 border-t">
-                    {t('aiLearning.tip')}
-                  </p>
+                  <p className="italic pt-2 border-t">{t("aiLearning.tip")}</p>
                 </div>
               </div>
             </div>

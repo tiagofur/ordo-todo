@@ -472,6 +472,12 @@ export function useTasks(projectId?: string, tags?: string[]) {
   });
 }
 
+// Helper to invalidate all task queries
+export const invalidateAllTasks = (queryClient: any) => {
+  // Invalidate all queries that start with 'tasks'
+  queryClient.invalidateQueries({ queryKey: ['tasks'] });
+};
+
 export function useTask(taskId: string) {
   return useQuery({
     queryKey: queryKeys.task(taskId),
@@ -540,10 +546,8 @@ export function useUpdateTask() {
     onSettled: (task, error, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-      if (task) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
+      // Invalidate ALL task queries (with any projectId or tags)
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 }
@@ -587,10 +591,12 @@ export function useCompleteTask() {
     onSettled: (task, error, taskId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-      if (task) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
+      // Invalidate ALL task queries (with any projectId or tags)
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      // Also invalidate analytics/metrics that depend on task completion
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
     },
   });
 }
@@ -726,6 +732,7 @@ export function useStartTimer() {
     mutationFn: (data: StartTimerDto) => apiClient.startTimer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 }
@@ -738,6 +745,10 @@ export function useStopTimer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
     },
   });
 }

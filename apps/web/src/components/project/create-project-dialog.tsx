@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useWorkspaces, useWorkflows, useCreateProject, useCreateWorkflow } from "@/lib/api-hooks";
+import {
+  useWorkspaces,
+  useWorkflows,
+  useCreateProject,
+  useCreateWorkflow,
+  useCreateTask,
+} from "@/lib/api-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
@@ -19,7 +25,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase, Check, Palette, LayoutTemplate } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { PROJECT_TEMPLATES } from "@/data/project-templates";
+import { PROJECT_TEMPLATES, ProjectTemplate } from "@/data/project-templates";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CreateProjectDialogProps {
@@ -38,22 +44,29 @@ const projectColors = [
   "#6B7280", // gray
 ];
 
-export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateProjectDialogProps) {
-  const t = useTranslations('CreateProjectDialog');
+export function CreateProjectDialog({
+  open,
+  onOpenChange,
+  workspaceId,
+}: CreateProjectDialogProps) {
+  const t = useTranslations("CreateProjectDialog");
   const queryClient = useQueryClient();
   const [selectedColor, setSelectedColor] = useState(projectColors[3]);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<ProjectTemplate | null>(null);
 
   const createWorkflowMutation = useCreateWorkflow();
+  const createTaskMutation = useCreateTask();
 
   // Fetch workspaces if not provided (to check if any exist)
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useWorkspaces();
 
   const createProjectSchema = z.object({
-    name: z.string().min(1, t('validation.nameRequired')),
+    name: z.string().min(1, t("validation.nameRequired")),
     description: z.string().optional(),
     color: z.string().optional(),
-    workspaceId: z.string().min(1, t('validation.workspaceRequired')),
+    workspaceId: z.string().min(1, t("validation.workspaceRequired")),
     workflowId: z.string().optional(),
   });
 
@@ -109,12 +122,13 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
 
   const createProjectMutation = useCreateProject();
 
-  const handleTemplateSelect = (template: typeof PROJECT_TEMPLATES[0]) => {
+  const handleTemplateSelect = (template: ProjectTemplate) => {
     setValue("name", template.name);
     setValue("description", template.description);
     setSelectedColor(template.color);
+    setSelectedTemplate(template);
     setShowTemplates(false);
-    toast.success(`Template "${template.name}" selected`);
+    toast.success(t("toast.templateSelected", { name: template.name }));
   };
 
   const onSubmit = async (data: CreateProjectForm) => {
@@ -124,7 +138,9 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
       // If no workflow ID provided (which is expected now as we removed the selector)
       if (!finalWorkflowId || finalWorkflowId === "NEW") {
         // 1. Try to find an existing "General" workflow in the current list
-        const generalWorkflow = workflows?.find((w: any) => w.name === "General");
+        const generalWorkflow = workflows?.find(
+          (w: any) => w.name === "General"
+        );
 
         if (generalWorkflow) {
           finalWorkflowId = String(generalWorkflow.id);
@@ -140,7 +156,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
         }
       }
 
-      await createProjectMutation.mutateAsync({
+      const newProject = await createProjectMutation.mutateAsync({
         ...data,
         workflowId: finalWorkflowId!, // We ensure it's set above
         color: selectedColor,
@@ -148,15 +164,35 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
         // But we could allow user to edit it here if we wanted to add a field for it
       });
 
-      toast.success(t('toast.success'));
+      // Create seed tasks if a template was selected
+      if (selectedTemplate && selectedTemplate.tasks.length > 0) {
+        const taskPromises = selectedTemplate.tasks.map((task) =>
+          createTaskMutation.mutateAsync({
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            projectId: String(newProject.id),
+          })
+        );
+
+        await Promise.all(taskPromises);
+        toast.success(
+          t("toast.successWithTasks", { count: selectedTemplate.tasks.length })
+        );
+      } else {
+        toast.success(t("toast.success"));
+      }
+
       reset();
+      setSelectedTemplate(null);
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || t('toast.error'));
+      toast.error(error?.response?.data?.message || t("toast.error"));
     }
   };
 
-  const showEmptyState = !workspaceId && !isLoadingWorkspaces && workspaces?.length === 0;
+  const showEmptyState =
+    !workspaceId && !isLoadingWorkspaces && workspaces?.length === 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -165,7 +201,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-semibold text-foreground">
-                {t('title')}
+                {t("title")}
               </DialogTitle>
               <button
                 type="button"
@@ -177,26 +213,28 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
               </button>
             </div>
             <DialogDescription className="text-muted-foreground">
-              {t('description')}
+              {t("description")}
             </DialogDescription>
           </DialogHeader>
 
           {showEmptyState ? (
-             <EmptyState
-             icon={Briefcase}
-             title={t('emptyState.title')}
-             description={t('emptyState.description')}
-             actionLabel={t('emptyState.action')}
-             onAction={() => {
-                 onOpenChange(false);
-                 toast.info(t('toast.createWorkspace'));
-             }}
-           />
+            <EmptyState
+              icon={Briefcase}
+              title={t("emptyState.title")}
+              description={t("emptyState.description")}
+              actionLabel={t("emptyState.action")}
+              onAction={() => {
+                onOpenChange(false);
+                toast.info(t("toast.createWorkspace"));
+              }}
+            />
           ) : (
             <>
               {showTemplates && (
                 <div className="bg-muted/30 rounded-lg border border-border p-4 mb-4">
-                  <h4 className="text-sm font-medium mb-3">Select a Template</h4>
+                  <h4 className="text-sm font-medium mb-3">
+                    {t("templates.title")}
+                  </h4>
                   <ScrollArea className="h-[200px] pr-4">
                     <div className="grid grid-cols-2 gap-3">
                       {PROJECT_TEMPLATES.map((template) => (
@@ -206,17 +244,27 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                           className="flex flex-col items-start gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-all text-left group"
                         >
                           <div className="flex items-center gap-2 w-full">
-                            <div 
+                            <div
                               className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
-                              style={{ backgroundColor: `${template.color}20`, color: template.color }}
+                              style={{
+                                backgroundColor: `${template.color}20`,
+                                color: template.color,
+                              }}
                             >
                               <template.icon className="w-4 h-4" />
                             </div>
-                            <span className="font-medium text-sm truncate">{template.name}</span>
+                            <span className="font-medium text-sm truncate">
+                              {template.name}
+                            </span>
                           </div>
                           <p className="text-xs text-muted-foreground line-clamp-2">
                             {template.description}
                           </p>
+                          <div className="text-xs text-primary/70 font-medium">
+                            {t("templates.tasksCount", {
+                              count: template.tasks.length,
+                            })}
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -228,7 +276,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                 {/* Color Picker */}
                 <div className="space-y-3">
                   <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Palette className="w-4 h-4" /> {t('form.color')}
+                    <Palette className="w-4 h-4" /> {t("form.color")}
                   </Label>
                   <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
                     {projectColors.map((color) => (
@@ -237,8 +285,8 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                         type="button"
                         onClick={() => setSelectedColor(color)}
                         className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                          selectedColor === color 
-                            ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110" 
+                          selectedColor === color
+                            ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110"
                             : "hover:opacity-80"
                         }`}
                         style={{ backgroundColor: color }}
@@ -253,52 +301,73 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
 
                 {/* Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('form.name')}</Label>
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    {t("form.name")}
+                  </Label>
                   <input
                     id="name"
                     {...register("name")}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder={t('form.namePlaceholder')}
+                    placeholder={t("form.namePlaceholder")}
                   />
                   {errors.name && (
-                    <p className="text-sm text-red-500">{errors.name.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.name.message}
+                    </p>
                   )}
                 </div>
 
                 {/* Workspace Selection (if not provided) */}
                 {!workspaceId && (
-                   <div className="space-y-2">
-                   <Label htmlFor="workspaceId" className="text-sm font-medium text-foreground">{t('form.workspace')}</Label>
-                   <select
-                     id="workspaceId"
-                     {...register("workspaceId")}
-                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                   >
-                     {workspaces?.map((ws: any) => (
-                       <option key={ws.id} value={ws.id}>
-                         {ws.name}
-                       </option>
-                     ))}
-                   </select>
-                   {errors.workspaceId && (
-                     <p className="text-sm text-red-500">{errors.workspaceId.message}</p>
-                   )}
-                 </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="workspaceId"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("form.workspace")}
+                    </Label>
+                    <select
+                      id="workspaceId"
+                      {...register("workspaceId")}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {workspaces?.map((ws: any) => (
+                        <option key={ws.id} value={ws.id}>
+                          {ws.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.workspaceId && (
+                      <p className="text-sm text-red-500">
+                        {errors.workspaceId.message}
+                      </p>
+                    )}
+                  </div>
                 )}
 
                 {/* Description */}
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
+                  <Label
+                    htmlFor="description"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    {t("form.description")}
+                  </Label>
                   <textarea
                     id="description"
                     {...register("description")}
                     className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                    placeholder={t('form.descriptionPlaceholder')}
+                    placeholder={t("form.descriptionPlaceholder")}
                   />
                 </div>
 
                 {/* Hidden workspace ID if provided */}
-                {workspaceId && <input type="hidden" {...register("workspaceId")} />}
+                {workspaceId && (
+                  <input type="hidden" {...register("workspaceId")} />
+                )}
 
                 <DialogFooter className="pt-2">
                   <button
@@ -306,14 +375,16 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
                     onClick={() => onOpenChange(false)}
                     className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {t('buttons.cancel')}
+                    {t("buttons.cancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={createProjectMutation.isPending}
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
                   >
-                    {createProjectMutation.isPending ? t('buttons.creating') : t('buttons.create')}
+                    {createProjectMutation.isPending
+                      ? t("buttons.creating")
+                      : t("buttons.create")}
                   </button>
                 </DialogFooter>
               </form>

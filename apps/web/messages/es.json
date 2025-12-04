@@ -179,11 +179,17 @@
     },
     "toast": {
       "success": "Proyecto creado exitosamente",
+      "successWithTasks": "Proyecto creado con {count} tareas iniciales",
+      "templateSelected": "Plantilla \"{name}\" seleccionada",
       "error": "Error al crear proyecto",
       "createWorkspace": "Por favor crea un workspace desde la barra lateral"
     },
     "title": "Crear Proyecto",
     "description": "Organiza tus tareas en proyectos dentro de un flujo de trabajo",
+    "templates": {
+      "title": "Seleccionar Plantilla",
+      "tasksCount": "{count} tareas iniciales"
+    },
     "emptyState": {
       "title": "No hay espacios de trabajo",
       "description": "Para crear un proyecto, primero necesitas un espacio de trabajo (Workspace).",
@@ -356,6 +362,8 @@
   },
   "ProjectCard": {
     "tasks": "{count} tareas",
+    "tasksProgress": "{completed}/{total} tareas",
+    "progress": "Progreso",
     "archived": "Archivado",
     "actions": {
       "archive": "Archivar",
@@ -396,6 +404,64 @@
     "toast": {
       "updated": "Proyecto actualizado exitosamente",
       "updateError": "Error al actualizar proyecto"
+    }
+  },
+  "ProjectSettings": {
+    "general": {
+      "title": "Configuración General",
+      "description": "Actualiza el nombre, descripción y color del proyecto"
+    },
+    "form": {
+      "name": {
+        "label": "Nombre *",
+        "placeholder": "Ej: Rediseño Web, Marketing Q4",
+        "required": "El nombre es requerido"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Descripción opcional del proyecto..."
+      },
+      "color": {
+        "label": "Color del Proyecto"
+      }
+    },
+    "actions": {
+      "save": "Guardar Cambios",
+      "saving": "Guardando...",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar Proyecto"
+    },
+    "danger": {
+      "title": "Zona de Peligro",
+      "description": "Acciones irreversibles y destructivas",
+      "archive": {
+        "title": "Archivar este proyecto",
+        "description": "Marca este proyecto como archivado. Se ocultará de la vista principal."
+      },
+      "unarchive": {
+        "title": "Desarchivar este proyecto",
+        "description": "Restaura este proyecto a la lista de proyectos activos."
+      },
+      "delete": {
+        "title": "Eliminar este proyecto",
+        "description": "Elimina permanentemente este proyecto y todas sus tareas. Esta acción no se puede deshacer."
+      }
+    },
+    "deleteDialog": {
+      "title": "¿Estás seguro?",
+      "description": "Esta acción no se puede deshacer. Se eliminará permanentemente el proyecto y todas las tareas asociadas.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar Proyecto"
+    },
+    "toast": {
+      "updated": "Proyecto actualizado exitosamente",
+      "updateError": "Error al actualizar proyecto",
+      "archived": "Proyecto archivado",
+      "unarchived": "Proyecto restaurado",
+      "archiveError": "Error al archivar proyecto",
+      "deleted": "Proyecto eliminado",
+      "deleteError": "Error al eliminar proyecto"
     }
   },
   "WorkspaceCard": {
@@ -441,7 +507,36 @@
   "WorkspaceSelector": {
     "create": "Crear Workspace",
     "label": "Workspaces",
-    "defaultName": "Workspace"
+    "defaultName": "Workspace",
+    "search": "Buscar workspaces...",
+    "noResults": "No se encontraron workspaces",
+    "types": {
+      "personal": "Personal",
+      "work": "Trabajo",
+      "team": "Equipo"
+    },
+    "stats": {
+      "projects": "proyectos",
+      "tasks": "tareas"
+    }
+  },
+  "WorkspaceDashboard": {
+    "notFound": "Workspace no encontrado",
+    "backToWorkspaces": "Volver a Workspaces",
+    "newProject": "Nuevo Proyecto",
+    "settings": "Configuración",
+    "delete": "Eliminar Workspace",
+    "deleteConfirmation": "¿Estás seguro de eliminar este workspace? Esto eliminará todos los proyectos y tareas. Esta acción no se puede deshacer.",
+    "deleteSuccess": "Workspace eliminado exitosamente",
+    "projects": "Proyectos",
+    "recentActivity": "Actividad Reciente",
+    "noActivity": "Sin actividad reciente",
+    "viewAllActivity": "Ver toda la actividad",
+    "stats": {
+      "projects": "Proyectos",
+      "tasks": "Tareas",
+      "members": "Miembros"
+    }
   },
   "WorkspaceSettingsDialog": {
     "title": "Configuración del Workspace",
@@ -485,7 +580,57 @@
     },
     "tabs": {
       "general": "General",
-      "members": "Miembros"
+      "members": "Miembros",
+      "configuration": "Configuración",
+      "activity": "Actividad"
+    }
+  },
+  "WorkspaceActivityLog": {
+    "empty": {
+      "title": "Sin actividad aún",
+      "description": "La actividad de este workspace aparecerá aquí."
+    },
+    "by": "por",
+    "pagination": {
+      "showing": "Mostrando {from}-{to} de {total}",
+      "page": "Página {current} de {total}"
+    }
+  },
+  "WorkspaceConfigurationSettings": {
+    "form": {
+      "defaultView": {
+        "label": "Vista Predeterminada",
+        "helper": "La vista por defecto al abrir proyectos en este workspace.",
+        "options": {
+          "LIST": "Lista",
+          "KANBAN": "Kanban",
+          "CALENDAR": "Calendario",
+          "TIMELINE": "Línea de Tiempo",
+          "FOCUS": "Enfoque"
+        }
+      },
+      "defaultDueTime": {
+        "label": "Hora Predeterminada de Vencimiento",
+        "helper": "Hora por defecto para las fechas de vencimiento (ej. 9:00 AM)."
+      },
+      "timezone": {
+        "label": "Zona Horaria",
+        "placeholder": "Selecciona zona horaria",
+        "helper": "Zona horaria para fechas y horas en este workspace."
+      },
+      "locale": {
+        "label": "Idioma y Región",
+        "placeholder": "Selecciona idioma",
+        "helper": "Idioma y formato regional para este workspace."
+      }
+    },
+    "actions": {
+      "save": "Guardar Configuración",
+      "saving": "Guardando..."
+    },
+    "toast": {
+      "updated": "Configuración actualizada exitosamente",
+      "updateError": "Error al actualizar configuración"
     }
   },
   "InviteMemberDialog": {
@@ -1008,5 +1153,115 @@
     "message": "Por favor verifica la URL o regresa a la página de inicio.",
     "home": "Ir al Inicio",
     "back": "Regresar"
+  },
+  "ProjectDetail": {
+    "notFound": "Proyecto no encontrado",
+    "notFoundDescription": "El proyecto que buscas no existe o fue eliminado.",
+    "backToWorkspace": "Volver al Workspace",
+    "addTask": "Nueva Tarea",
+    "tasksSection": "Tareas",
+    "tabs": {
+      "overview": "Resumen",
+      "list": "Lista",
+      "board": "Tablero",
+      "timeline": "Línea de Tiempo",
+      "settings": "Configuración"
+    },
+    "stats": {
+      "totalTasks": "Tareas Totales",
+      "completedTasks": "Completadas",
+      "task": "tarea",
+      "tasks": "tareas",
+      "completed": "completadas"
+    },
+    "status": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completadas"
+    },
+    "badges": {
+      "archived": "Archivado",
+      "completed": "Completado"
+    },
+    "menu": {
+      "settings": "Configuración",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar",
+      "markComplete": "Marcar como completado",
+      "markIncomplete": "Marcar como no completado"
+    },
+    "actions": {
+      "archive": "archivar",
+      "unarchive": "desarchivar"
+    },
+    "confirmArchive": "¿Estás seguro de que quieres",
+    "confirmComplete": "¿Estás seguro de que quieres marcar este proyecto como completado?",
+    "confirmUncomplete": "¿Estás seguro de que quieres marcar este proyecto como no completado?",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.",
+    "toast": {
+      "archived": "Proyecto archivado exitosamente",
+      "archiveError": "Error al archivar el proyecto",
+      "deleted": "Proyecto eliminado exitosamente",
+      "completed": "Proyecto marcado como completado",
+      "uncompleted": "Proyecto marcado como no completado",
+      "completeError": "Error al actualizar el estado del proyecto"
+    },
+    "backToProjects": "Volver a Proyectos",
+    "emptyState": {
+      "title": "Sin tareas aún",
+      "description": "Crea tu primera tarea para empezar a trabajar en este proyecto.",
+      "archivedDescription": "Este proyecto está archivado. Desarchívalo para agregar tareas.",
+      "completedDescription": "Este proyecto está completado."
+    },
+    "overview": {
+      "progress": "Progreso",
+      "recentTasks": "Tareas Recientes"
+    },
+    "breadcrumbs": {
+      "projects": "Proyectos"
+    },
+    "badges": {
+      "archived": "Archivado",
+      "completed": "Completado"
+    },
+    "menu": {
+      "settings": "Configuración",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar",
+      "markComplete": "Marcar como completado",
+      "markIncomplete": "Marcar como no completado"
+    },
+    "confirmComplete": "¿Estás seguro de que quieres marcar este proyecto como completado?",
+    "confirmUncomplete": "¿Estás seguro de que quieres marcar este proyecto como no completado?",
+    "toast": {
+      "archived": "Proyecto archivado exitosamente",
+      "archiveError": "Error al archivar el proyecto",
+      "deleted": "Proyecto eliminado exitosamente",
+      "completed": "Proyecto marcado como completado",
+      "uncompleted": "Proyecto marcado como no completado",
+      "completeError": "Error al actualizar el estado del proyecto"
+    }
+  },
+  "ProjectBoard": {
+    "columns": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completado"
+    },
+    "addTask": "Agregar Tarea"
+  },
+  "ProjectList": {
+    "columns": {
+      "task": "Tarea",
+      "dueDate": "Fecha Límite",
+      "priority": "Prioridad"
+    },
+    "emptyState": {
+      "title": "Sin tareas aún",
+      "description": "Crea tu primera tarea para empezar a hacer seguimiento de tu trabajo.",
+      "action": "Crear Tarea"
+    }
   }
 }

@@ -27,14 +27,15 @@ interface ProjectBoardProps {
 }
 
 export function ProjectBoard({ projectId }: ProjectBoardProps) {
-  const t = useTranslations('ProjectBoard');
+  const t = useTranslations("ProjectBoard");
   const { data: serverTasks, isLoading } = useTasks(projectId);
   const updateTaskMutation = useUpdateTask();
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
-  
+
   // Local state for optimistic updates
   const [tasks, setTasks] = useState<any[]>([]);
   const [activeTask, setActiveTask] = useState<any | null>(null);
+  const [originalStatus, setOriginalStatus] = useState<string | null>(null);
 
   // Sync server tasks to local state
   useEffect(() => {
@@ -54,15 +55,32 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     })
   );
 
-  const columns = useMemo(() => [
-    { id: "TODO", title: t('columns.todo'), color: "bg-gray-500/10 border-gray-500/20" },
-    { id: "IN_PROGRESS", title: t('columns.inProgress'), color: "bg-blue-500/10 border-blue-500/20" },
-    { id: "COMPLETED", title: t('columns.completed'), color: "bg-green-500/10 border-green-500/20" },
-  ], [t]);
+  const columns = useMemo(
+    () => [
+      {
+        id: "TODO",
+        title: t("columns.todo"),
+        color: "bg-gray-500/10 border-gray-500/20",
+      },
+      {
+        id: "IN_PROGRESS",
+        title: t("columns.inProgress"),
+        color: "bg-blue-500/10 border-blue-500/20",
+      },
+      {
+        id: "COMPLETED",
+        title: t("columns.completed"),
+        color: "bg-green-500/10 border-green-500/20",
+      },
+    ],
+    [t]
+  );
 
   const onDragStart = (event: DragStartEvent) => {
     if (event.active.data.current?.type === "Task") {
-      setActiveTask(event.active.data.current.task);
+      const task = event.active.data.current.task;
+      setActiveTask(task);
+      setOriginalStatus(task.status); // Save original status for comparison in onDragEnd
     }
   };
 
@@ -119,36 +137,26 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   };
 
   const onDragEnd = (event: DragEndEvent) => {
-    setActiveTask(null);
     const { active, over } = event;
-    if (!over) return;
 
-    const activeId = active.id;
-    const overId = over.id;
+    // Get the current task from local state (with updated status from onDragOver)
+    const currentTask = tasks.find((t) => t.id === active.id);
 
-    const activeTask = tasks.find((t) => t.id === activeId);
-    if (!activeTask) return;
-
-    // If dropped over a column directly
-    if (columns.some((col) => col.id === overId)) {
-       if (activeTask.status !== overId) {
-         // Status changed
-         updateTaskMutation.mutate({
-           taskId: activeId as string,
-           data: { status: overId as any }
-         });
-       }
-    } else {
-      // Dropped over another task
-      const overTask = tasks.find((t) => t.id === overId);
-      if (overTask && activeTask.status !== overTask.status) {
-         // Status changed by dropping on a task in another column
-         updateTaskMutation.mutate({
-           taskId: activeId as string,
-           data: { status: overTask.status as any }
-         });
-      }
+    // If status changed from original, persist to server
+    if (
+      currentTask &&
+      originalStatus &&
+      currentTask.status !== originalStatus
+    ) {
+      updateTaskMutation.mutate({
+        taskId: active.id as string,
+        data: { status: currentTask.status as any },
+      });
     }
+
+    // Reset drag state
+    setActiveTask(null);
+    setOriginalStatus(null);
   };
 
   if (isLoading) {
@@ -191,8 +199,8 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
         document.body
       )}
 
-      <CreateTaskDialog 
-        open={isCreateTaskOpen} 
+      <CreateTaskDialog
+        open={isCreateTaskOpen}
         onOpenChange={setIsCreateTaskOpen}
         projectId={projectId}
       />
