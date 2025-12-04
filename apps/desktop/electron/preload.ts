@@ -41,6 +41,51 @@ interface SyncQueueStats {
     total: number
 }
 
+// Timer Window State types
+interface TimerWindowState {
+    timeRemaining: string
+    mode: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'IDLE'
+    isRunning: boolean
+    isPaused: boolean
+    taskTitle: string | null
+    progress: number
+}
+
+// Deep Link types
+interface DeepLinkData {
+    type: 'task' | 'project' | 'workspace' | 'timer' | 'settings' | 'unknown'
+    id?: string
+    action?: string
+    params?: Record<string, string>
+}
+
+// Auto Update types
+type UpdateStatus =
+    | 'idle'
+    | 'checking'
+    | 'available'
+    | 'not-available'
+    | 'downloading'
+    | 'downloaded'
+    | 'error'
+
+interface UpdateState {
+    status: UpdateStatus
+    version?: string
+    releaseNotes?: string
+    progress?: number
+    bytesPerSecond?: number
+    downloadedBytes?: number
+    totalBytes?: number
+    error?: string
+}
+
+// Auto Launch types
+interface AutoLaunchSettings {
+    enabled: boolean
+    minimized: boolean
+}
+
 // Local entity types
 interface LocalTask {
     id: string
@@ -255,6 +300,62 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.on('sync-state-changed', (_event, state) => callback(state))
         },
     },
+
+    // ============================================
+    // Timer Floating Window
+    // ============================================
+    timerWindow: {
+        show: () => ipcRenderer.invoke('timer-window:show'),
+        hide: () => ipcRenderer.invoke('timer-window:hide'),
+        toggle: () => ipcRenderer.invoke('timer-window:toggle'),
+        isVisible: () => ipcRenderer.invoke('timer-window:isVisible'),
+        setPosition: (x: number, y: number) => ipcRenderer.invoke('timer-window:setPosition', x, y),
+        getPosition: () => ipcRenderer.invoke('timer-window:getPosition'),
+        expand: () => ipcRenderer.invoke('timer-window:expand'),
+        sendAction: (action: string) => ipcRenderer.invoke('timer-window:action', action),
+        onStateUpdate: (callback: (state: TimerWindowState) => void) => {
+            ipcRenderer.on('timer-window:state-update', (_event, state) => callback(state))
+        },
+        onAction: (callback: (action: string) => void) => {
+            ipcRenderer.on('timer-window:action', (_event, action) => callback(action))
+        },
+    },
+
+    // ============================================
+    // Deep Links
+    // ============================================
+    deepLinks: {
+        onDeepLink: (callback: (data: DeepLinkData) => void) => {
+            ipcRenderer.on('deep-link', (_event, data) => callback(data))
+        },
+    },
+
+    // ============================================
+    // Auto Updater
+    // ============================================
+    autoUpdater: {
+        check: (silent?: boolean) => ipcRenderer.invoke('auto-update:check', silent),
+        download: () => ipcRenderer.invoke('auto-update:download'),
+        install: () => ipcRenderer.invoke('auto-update:install'),
+        getState: () => ipcRenderer.invoke('auto-update:getState'),
+        getVersion: () => ipcRenderer.invoke('auto-update:getVersion'),
+        onStateChange: (callback: (state: UpdateState) => void) => {
+            ipcRenderer.on('auto-update:state', (_event, state) => callback(state))
+        },
+    },
+
+    // ============================================
+    // Auto Launch
+    // ============================================
+    autoLaunch: {
+        isEnabled: () => ipcRenderer.invoke('auto-launch:isEnabled'),
+        getSettings: () => ipcRenderer.invoke('auto-launch:getSettings'),
+        enable: (minimized?: boolean) => ipcRenderer.invoke('auto-launch:enable', minimized),
+        disable: () => ipcRenderer.invoke('auto-launch:disable'),
+        toggle: () => ipcRenderer.invoke('auto-launch:toggle'),
+        setStartMinimized: (minimized: boolean) => ipcRenderer.invoke('auto-launch:setStartMinimized', minimized),
+        wasStartedAtLogin: () => ipcRenderer.invoke('auto-launch:wasStartedAtLogin'),
+    },
 })
 
 // Declare types for TypeScript
@@ -356,6 +457,46 @@ declare global {
                 force: () => Promise<SyncState>
                 getQueueStats: () => Promise<SyncQueueStats>
                 onStateChanged: (callback: (state: SyncState) => void) => void
+            }
+
+            // Timer Floating Window
+            timerWindow: {
+                show: () => Promise<void>
+                hide: () => Promise<void>
+                toggle: () => Promise<boolean>
+                isVisible: () => Promise<boolean>
+                setPosition: (x: number, y: number) => Promise<void>
+                getPosition: () => Promise<{ x: number; y: number } | null>
+                expand: () => Promise<void>
+                sendAction: (action: string) => Promise<void>
+                onStateUpdate: (callback: (state: TimerWindowState) => void) => void
+                onAction: (callback: (action: string) => void) => void
+            }
+
+            // Deep Links
+            deepLinks: {
+                onDeepLink: (callback: (data: DeepLinkData) => void) => void
+            }
+
+            // Auto Updater
+            autoUpdater: {
+                check: (silent?: boolean) => Promise<UpdateState>
+                download: () => Promise<UpdateState>
+                install: () => Promise<void>
+                getState: () => Promise<UpdateState>
+                getVersion: () => Promise<string>
+                onStateChange: (callback: (state: UpdateState) => void) => void
+            }
+
+            // Auto Launch
+            autoLaunch: {
+                isEnabled: () => Promise<boolean>
+                getSettings: () => Promise<AutoLaunchSettings>
+                enable: (minimized?: boolean) => Promise<boolean>
+                disable: () => Promise<boolean>
+                toggle: () => Promise<boolean>
+                setStartMinimized: (minimized: boolean) => Promise<boolean>
+                wasStartedAtLogin: () => Promise<boolean>
             }
         }
     }

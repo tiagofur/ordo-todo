@@ -5,6 +5,19 @@ import { registerGlobalShortcuts, unregisterAllShortcuts } from './shortcuts'
 import { createApplicationMenu } from './menu'
 import { setupIpcHandlers, cleanupIpcHandlers, getStore } from './ipc-handlers'
 import { getWindowState, trackWindowState } from './window-state'
+import {
+  createTimerWindow,
+  destroyTimerWindow,
+  setupTimerWindowIpcHandlers,
+  cleanupTimerWindowIpcHandlers,
+} from './timer-window'
+import {
+  registerDeepLinkProtocol,
+  processPendingDeepLink,
+  unregisterDeepLinkProtocol,
+} from './deep-links'
+import { initAutoUpdater, cleanupAutoUpdater } from './auto-updater'
+import { initAutoLaunch, cleanupAutoLaunch, wasStartedAtLogin } from './auto-launch'
 
 // Extend App interface for isQuitting flag
 interface ExtendedApp extends Electron.App {
@@ -41,6 +54,9 @@ function getIconPath(): string {
 function createWindow() {
     const windowState = getWindowState()
 
+    // Check if we should start hidden (auto-launch)
+    const startHidden = wasStartedAtLogin()
+
     win = new BrowserWindow({
         icon: getIconPath(),
         width: windowState.width,
@@ -74,6 +90,21 @@ function createWindow() {
 
     // Create system tray
     createTray(win)
+
+    // Create timer floating window
+    createTimerWindow(win)
+
+    // Setup timer window IPC handlers
+    setupTimerWindowIpcHandlers()
+
+    // Register deep link protocol
+    registerDeepLinkProtocol(win)
+
+    // Initialize auto-updater (only in production)
+    initAutoUpdater(win)
+
+    // Initialize auto-launch
+    initAutoLaunch()
 
     // Register global shortcuts
     registerGlobalShortcuts(win)
@@ -117,9 +148,13 @@ function createWindow() {
         const store = getStore()
         const startMinimized = store.get('settings.startMinimized', false)
         
-        if (!startMinimized) {
+        // Don't show if started at login (auto-launch) or if startMinimized is enabled
+        if (!startMinimized && !startHidden) {
             win?.show()
         }
+
+        // Process any pending deep links
+        processPendingDeepLink()
     })
 
     // Open DevTools in development
@@ -141,7 +176,12 @@ app.whenReady().then(createWindow)
 app.on('will-quit', () => {
     unregisterAllShortcuts()
     destroyTray()
+    destroyTimerWindow()
+    cleanupTimerWindowIpcHandlers()
     cleanupIpcHandlers()
+    cleanupAutoUpdater()
+    cleanupAutoLaunch()
+    unregisterDeepLinkProtocol()
 })
 
 // Quit when all windows are closed, except on macOS

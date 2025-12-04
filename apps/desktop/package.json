@@ -1,7 +1,7 @@
 {
   "name": "@ordo-todo/desktop",
-  "version": "0.1.0",
-  "description": "Ordo-Todo Desktop Application - Electron + React",
+  "version": "1.0.0",
+  "description": "Ordo-Todo Desktop Application - Modern Task & Pomodoro Management",
   "author": "Ordo-Todo Team",
   "main": "dist-electron/main.js",
   "homepage": "./",
@@ -47,6 +47,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "electron-store": "^8.1.0",
+    "electron-updater": "^6.6.2",
     "framer-motion": "^12.23.25",
     "i18next": "^25.7.1",
     "i18next-browser-languagedetector": "^8.2.0",

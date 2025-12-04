@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_FILTER } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { RepositoriesModule } from './repositories/repositories.module';
@@ -17,6 +17,7 @@ import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { UploadModule } from './upload/upload.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { GamificationModule } from './gamification/gamification.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
@@ -42,6 +43,7 @@ import { AppService } from './app.service';
     AttachmentsModule,
     UploadModule,
     NotificationsModule,
+    GamificationModule,
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],

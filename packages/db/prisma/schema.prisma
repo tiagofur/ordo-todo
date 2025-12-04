@@ -44,6 +44,11 @@ model User {
   aiProfile      AIProfile?
   productivityReports ProductivityReport[]
 
+  // Gamification
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  achievements  UserAchievement[]
+
   // Timestamps
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -817,4 +822,35 @@ enum SubscriptionStatus {
   PAST_DUE
   TRIALING
   UNPAID
+}
+
+// ============ GAMIFICATION ============
+
+model Achievement {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g. "FIRST_TASK"
+  name        String
+  description String
+  icon        String   // Lucide icon name or emoji
+  xpReward    Int      @default(0)
+  
+  users       UserAchievement[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  achievementId String
+
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+  @@index([userId])
 }

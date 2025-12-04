@@ -36,6 +36,22 @@ export function TopBar() {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+        {/* Level & XP */}
+        <div className="hidden md:flex items-center gap-3 mr-2 px-3 py-1.5 rounded-lg bg-muted/30 border border-border/50">
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-primary">Lvl {(user as any)?.level || 1}</span>
+              <span className="text-[10px] text-muted-foreground">{(user as any)?.xp || 0} XP</span>
+            </div>
+            <div className="w-20 h-1.5 bg-secondary rounded-full overflow-hidden mt-1">
+              <div 
+                className="h-full bg-yellow-500 rounded-full transition-all duration-500" 
+                style={{ width: `${Math.min(100, (((user as any)?.xp || 0) % 100))}%` }} 
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Sync Status */}
         <SyncStatusIndicator size="sm" />
 

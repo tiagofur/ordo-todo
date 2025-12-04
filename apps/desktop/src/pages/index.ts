@@ -3,6 +3,7 @@ export { Tasks } from "./Tasks";
 export { Projects } from "./Projects";
 export { ProjectDetail } from "./ProjectDetail";
 export { Timer } from "./Timer";
+export { TimerFloating } from "./TimerFloating";
 export { Tags } from "./Tags";
 export { Settings } from "./Settings";
 export { Auth } from "./Auth";

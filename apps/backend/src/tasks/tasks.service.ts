@@ -10,6 +10,8 @@ import { ActivitiesService } from '../activities/activities.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType, ResourceType } from '@prisma/client';
 
+import { GamificationService } from '../gamification/gamification.service';
+
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
@@ -22,6 +24,7 @@ export class TasksService {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
+    private readonly gamificationService: GamificationService,
   ) { }
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
@@ -248,6 +251,9 @@ export class TasksService {
               date: new Date(),
               tasksCompleted: 1,
             });
+
+            // Award XP
+            await this.gamificationService.awardTaskCompletion(userId);
           }
         }
 

@@ -8,6 +8,7 @@ import { CommentsModule } from '../comments/comments.module';
 import { AttachmentsModule } from '../attachments/attachments.module';
 import { ActivitiesModule } from '../activities/activities.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { GamificationModule } from '../gamification/gamification.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     forwardRef(() => CommentsModule),
     forwardRef(() => AttachmentsModule),
     NotificationsModule,
+    GamificationModule,
   ],
   controllers: [TasksController],
   providers: [TasksService],

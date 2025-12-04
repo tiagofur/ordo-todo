@@ -12,6 +12,7 @@ import {
   LazyTags,
   LazySettings,
   LazyAuth,
+  LazyTimerFloating,
 } from "../pages/lazy";
 
 /**
@@ -19,6 +20,15 @@ import {
  * Pages are lazy-loaded for better initial performance
  */
 export const router = createHashRouter([
+  // Floating timer window (separate, minimal route)
+  {
+    path: "/timer-floating",
+    element: (
+      <LazyPage fallback={<PageLoader message="Loading timer..." />}>
+        <LazyTimerFloating />
+      </LazyPage>
+    ),
+  },
   {
     path: "/auth",
     element: (

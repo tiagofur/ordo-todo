@@ -1,4 +1,15 @@
 {
+  "Calendar": {
+    "title": "Calendario",
+    "subtitle": "Visualiza y gestiona tus tareas en el tiempo",
+    "today": "Hoy",
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "agenda": "Agenda",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
   "Sidebar": {
     "today": "Hoy",
     "tasks": "Tareas",

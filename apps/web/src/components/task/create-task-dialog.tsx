@@ -20,13 +20,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from "lucide-react";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useTranslations } from "next-intl";
+import { RecurrenceSelector } from "./recurrence-selector";
 
 interface CreateTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId?: string;
 }
-
 export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDialogProps) {
   const t = useTranslations('CreateTaskDialog');
   const [showCreateProject, setShowCreateProject] = useState(false);
@@ -37,6 +37,13 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const formSchema = createTaskSchema.extend({
     title: z.string().min(1, t('validation.titleRequired')),
     projectId: z.string().min(1, t('validation.projectRequired')),
+    recurrence: z.object({
+      pattern: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM']),
+      interval: z.number().optional(),
+      daysOfWeek: z.array(z.number()).optional(),
+      dayOfMonth: z.number().optional(),
+      endDate: z.date().optional(),
+    }).optional(),
   });
 
   type CreateTaskForm = z.infer<typeof formSchema>;
@@ -53,6 +60,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     defaultValues: {
       priority: "MEDIUM",
       projectId: projectId || "",
+      recurrence: undefined,
     },
   });
 
@@ -277,6 +285,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 </div>
               </div>
             </div>
+
+            {/* Recurrence */}
+            <RecurrenceSelector
+              value={watch("recurrence")}
+              onChange={(val) => setValue("recurrence", val)}
+            />
 
             <DialogFooter className="pt-2">
               <button

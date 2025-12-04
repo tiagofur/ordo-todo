@@ -115,21 +115,25 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 
 ---
 
-## 📅 Sprint 4: Visualización (2-3 semanas)
+## 📅 Sprint 4: Productividad y Gamificación (2-3 semanas)
 
-**Objetivo:** Nuevas formas de ver y organizar tareas.
+**Objetivo:** Potenciar la productividad personal y el engagement.
 
 ### Tareas
 
-- [ ] **Vista Calendario**
-  - [ ] Integrar `react-big-calendar` o similar
-  - [ ] Mostrar tareas por `dueDate`
-  - [ ] Drag & drop para cambiar fechas
+- [x] **Pomodoro Timer Avanzado**
+  - [x] Sincronización timer backend-frontend (polling)
+  - [x] Historial de sesiones de foco
+  - [x] Configuración de tiempos (Work/Short/Long)
 
-- [ ] **Recurrencia de Tareas**
-  - [ ] UI selector de patrón (diario, semanal, mensual)
-  - [ ] Job/Worker para crear instancias
-  - [ ] Vista de próximas ocurrencias
+- [x] **Gamificación Básica**
+  - [x] Sistema de puntos (XP) por tareas completadas
+  - [x] Niveles de usuario
+  - [x] Logros básicos (Primer tarea, 10 tareas, etc.)
+
+- [x] **Visualización**
+  - [x] Vista Calendario
+  - [x] Recurrencia de Tareas
 
 ---
 

@@ -86,6 +86,11 @@ export const LazyAuth = lazy(() =>
   import('./Auth').then(module => ({ default: module.Auth }))
 );
 
+// Floating window (separate window context)
+export const LazyTimerFloating = lazy(() => 
+  import('./TimerFloating').then(module => ({ default: module.TimerFloating }))
+);
+
 // ============================================
 // Preload Functions for Route Prefetching
 // ============================================
