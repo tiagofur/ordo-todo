@@ -178,6 +178,17 @@ export function useWorkspace(workspaceId: string) {
   });
 }
 
+export function useWorkspaceBySlug(slug: string) {
+  return useQuery({
+    queryKey: ['workspaces', 'slug', slug],
+    queryFn: () => apiClient.getWorkspaceBySlug(slug),
+    enabled: !!slug,
+  });
+}
+
+// Force recompile
+export const useWorkspaceBySlugTest = () => true;
+
 export function useCreateWorkspace() {
   const queryClient = useQueryClient();
 

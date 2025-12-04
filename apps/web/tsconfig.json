@@ -21,7 +21,9 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "react", "react-dom"]
+    "types": ["node", "react", "react-dom"],
+    "sourceMap": false,
+    "inlineSourceMap": false
   },
   "include": [
     "next-env.d.ts",

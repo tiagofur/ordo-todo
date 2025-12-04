@@ -347,6 +347,15 @@ export class OrdoApiClient {
   }
 
   /**
+   * Get a specific workspace by Slug
+   * GET /workspaces/by-slug/:slug
+   */
+  async getWorkspaceBySlug(slug: string): Promise<WorkspaceWithMembers> {
+    const response = await this.axios.get<WorkspaceWithMembers>(`/workspaces/by-slug/${slug}`);
+    return response.data;
+  }
+
+  /**
    * Update a workspace
    * PUT /workspaces/:id
    */

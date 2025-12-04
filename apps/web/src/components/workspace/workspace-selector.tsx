@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Check, ChevronsUpDown, Plus, Search, Briefcase, User, Users, FolderKanban, ListTodo } from "lucide-react";
 import { useWorkspaces } from "@/lib/api-hooks";
 import { useProjects } from "@/lib/api-hooks";
@@ -29,6 +30,7 @@ interface WorkspaceWithStats {
 }
 
 export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
+  const router = useRouter();
   const t = useTranslations('WorkspaceSelector');
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -198,6 +200,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
                         key={workspace.id}
                         onClick={() => {
                           setSelectedWorkspaceId(workspace.id);
+                          router.push(`/workspaces/${workspace.slug}`);
                           setIsOpen(false);
                         }}
                         className={cn(

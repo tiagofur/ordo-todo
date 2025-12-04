@@ -145,6 +145,19 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         return workspaces.map(w => this.toDomain(w));
     }
 
+    async findByUserId(userId: string): Promise<Workspace[]> {
+        const workspaces = await this.prisma.workspace.findMany({
+            where: {
+                members: {
+                    some: {
+                        userId: userId
+                    }
+                }
+            }
+        });
+        return workspaces.map(w => this.toDomain(w));
+    }
+
     async update(workspace: Workspace): Promise<Workspace> {
         const data = {
             name: workspace.props.name,

@@ -246,11 +246,35 @@ Esta lista de tareas está organizada para ser implementada secuencialmente.
 - ✅ Iconos y colores para identificación visual de acciones
 - 📚 **Documentación**: Ver resumen de implementación en sesión
 
-### Fase 5: UI/UX Refinements
-- [ ] **Workspace Selector**: Actualizar para mostrar iconos/colores y agrupar por Personal/Equipos.
-- [ ] **Workspace Dashboard**: Vista general con estadísticas y métricas.
-- [ ] **Rutas con Slug**: (Opcional) Migrar rutas del frontend para usar `/:workspaceSlug/...` en lugar de IDs.
-- [ ] **Mejoras de UX**: Drag & drop, shortcuts de teclado, notificaciones en tiempo real.
+### Fase 5: UI/UX Refinements (Completed)
+- [x] **Workspace Selector**:
+  - [x] Rediseño visual completo con iconos, colores y badges.
+  - [x] Agrupación por tipo (Personal, Work, Team).
+  - [x] Búsqueda y filtrado en tiempo real.
+  - [x] Estadísticas rápidas (proyectos, tareas) optimizadas en una sola query.
+- [x] **Workspace Dashboard**:
+  - [x] Implementación de `WorkspaceDashboard` como vista principal.
+  - [x] "Stats Cards" para métricas clave (Proyectos, Tareas, Miembros).
+  - [x] "Activity Feed" compacto en barra lateral.
+  - [x] Lista de proyectos con vista de cuadrícula/lista.
+  - [x] Acciones rápidas y navegación mejorada.
+- [ ] **Slug-based Routing**: (Movido a Fase 6)
+  - [ ] Usar slugs en URLs (e.g., `/w/my-team`).
+
+## Fase 6: Future Considerations
+- [x] **Slug-based Routing**:
+  - [x] Migrar rutas del frontend para usar `/:workspaceSlug/...` en lugar de IDs.
+  - [x] Validar unicidad y manejo de conflictos de slugs.
+- [ ] **Billing & Plans**:
+  - [ ] Integración con Stripe para planes Pro/Enterprise.
+  - [ ] Gestión de límites (miembros, proyectos, almacenamiento).
+- [ ] **Advanced Analytics**:
+  - [ ] Gráficas detalladas de productividad y completitud.
+  - [ ] Reportes exportables (PDF/CSV).
+- [ ] **Advanced UX**:
+  - [ ] Drag & drop para reordenar proyectos/tareas.
+  - [ ] Shortcuts de teclado globales.
+  - [ ] Notificaciones en tiempo real (WebSockets).
 
 ---
 

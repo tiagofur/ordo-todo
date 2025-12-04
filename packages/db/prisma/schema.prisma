@@ -29,6 +29,7 @@ model User {
   // Relationships
   workspaces     WorkspaceMember[]
   tasks          Task[]
+  ownedProjects  Project[]
   comments       Comment[]
   attachments    Attachment[]
   activities     Activity[]
@@ -303,9 +304,24 @@ model Workflow {
 model Project {
   id          String   @id @default(cuid())
   name        String
+  slug        String   // Único por workspace
   description String?
+  
+  // Status & Priority
+  status      ProjectStatus @default(ACTIVE)
+  priority    Priority     @default(MEDIUM)
+
+  // Appearance
   color       String   @default("#6B7280")
   icon        String?
+
+  // Dates
+  startDate   DateTime?
+  dueDate     DateTime?
+
+  // Owner
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id])
 
   // Workspace
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -324,15 +340,32 @@ model Project {
   // Content
   tasks       Task[]
 
+  // Metrics (Denormalized)
+  tasksCount        Int          @default(0)
+  completedTasksCount Int        @default(0)
+
+  // Settings (JSON)
+  settings          Json?
+
   // Productivity Reports
   reports ProductivityReport[]
 
   // Timestamps
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
+  @@unique([workspaceId, slug])
   @@index([workspaceId])
   @@index([workflowId])
+  @@index([ownerId])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
 }
 
 model Task {

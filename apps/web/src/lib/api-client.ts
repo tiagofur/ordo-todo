@@ -226,6 +226,7 @@ export const apiClient = {
   // Workspace
   getWorkspaces: () => axiosInstance.get('/workspaces').then((res) => res.data),
   getWorkspace: (id: string) => axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
+  getWorkspaceBySlug: (slug: string) => axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
   createWorkspace: (data: CreateWorkspaceDto) => axiosInstance.post('/workspaces', data).then((res) => res.data),
   updateWorkspace: (id: string, data: UpdateWorkspaceDto) => axiosInstance.put(`/workspaces/${id}`, data).then((res) => res.data),
   deleteWorkspace: (id: string) => axiosInstance.delete(`/workspaces/${id}`).then((res) => res.data),
@@ -259,6 +260,7 @@ export const apiClient = {
   getProjects: (workspaceId: string) => axiosInstance.get('/projects', { params: { workspaceId } }).then((res) => res.data),
   getAllProjects: () => axiosInstance.get('/projects/all').then((res) => res.data),
   getProject: (id: string) => axiosInstance.get(`/projects/${id}`).then((res) => res.data),
+  getProjectBySlug: (workspaceSlug: string, projectSlug: string) => axiosInstance.get(`/projects/by-slug/${workspaceSlug}/${projectSlug}`).then((res) => res.data),
   createProject: (data: CreateProjectDto) => axiosInstance.post('/projects', data).then((res) => res.data),
   updateProject: (id: string, data: UpdateProjectDto) => axiosInstance.put(`/projects/${id}`, data).then((res) => res.data),
   archiveProject: (id: string) => axiosInstance.patch(`/projects/${id}/archive`).then((res) => res.data),

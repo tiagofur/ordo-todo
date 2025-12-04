@@ -438,6 +438,24 @@
       "settings": "Settings"
     }
   },
+  "WorkspaceDashboard": {
+    "notFound": "Workspace not found",
+    "backToWorkspaces": "Back to Workspaces",
+    "newProject": "New Project",
+    "settings": "Settings",
+    "delete": "Delete Workspace",
+    "deleteConfirmation": "Are you sure you want to delete this workspace? This will delete all projects and tasks. This action cannot be undone.",
+    "deleteSuccess": "Workspace deleted successfully",
+    "projects": "Projects",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity",
+    "viewAllActivity": "View all activity",
+    "stats": {
+      "projects": "Projects",
+      "tasks": "Tasks",
+      "members": "Members"
+    }
+  },
   "WorkspaceSelector": {
     "create": "Create Workspace",
     "label": "Workspaces",
@@ -1069,5 +1087,27 @@
     "message": "Please check the URL or navigate back to the home page.",
     "home": "Go to Home",
     "back": "Go Back"
+  },
+  "ProjectDetail": {
+    "notFound": "Project not found",
+    "tabs": {
+      "overview": "Overview",
+      "list": "List",
+      "board": "Board",
+      "timeline": "Timeline",
+      "settings": "Settings"
+    },
+    "stats": {
+      "totalTasks": "Total Tasks",
+      "completedTasks": "Completed"
+    }
+  },
+  "ProjectBoard": {
+    "columns": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "addTask": "Add Task"
   }
 }

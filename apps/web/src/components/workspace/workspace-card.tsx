@@ -20,6 +20,7 @@ import { useTranslations } from "next-intl";
 interface WorkspaceCardProps {
   workspace: {
     id: string;
+    slug: string;
     name: string;
     description?: string | null;
     type: "PERSONAL" | "WORK" | "TEAM";
@@ -50,7 +51,7 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
 
   const handleCardClick = () => {
     // Navigate to workspace detail page
-    router.push(`/workspaces/${workspace.id}`);
+    router.push(`/workspaces/${workspace.slug}`);
   };
 
   const handleDelete = async (e: React.MouseEvent) => {

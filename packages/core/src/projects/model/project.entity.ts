@@ -2,6 +2,7 @@ import { Entity, EntityProps } from "../../shared/entity";
 
 export interface ProjectProps extends EntityProps {
     name: string;
+    slug: string;
     description?: string;
     color: string;
     icon?: string;

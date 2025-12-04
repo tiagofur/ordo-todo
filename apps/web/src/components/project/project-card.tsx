@@ -22,11 +22,13 @@ interface ProjectCardProps {
     description?: string | null;
     color: string;
     archived: boolean;
+    slug?: string;
   };
   index?: number;
+  workspaceSlug?: string;
 }
 
-export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+export function ProjectCard({ project, index = 0, workspaceSlug }: ProjectCardProps) {
   const t = useTranslations('ProjectCard');
   const router = useRouter();
 
@@ -38,8 +40,24 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
   const deleteProjectMutation = useDeleteProject();
 
   const handleCardClick = () => {
-    if (project.id) {
-      router.push(`/projects/${project.id}`);
+    // Assuming workspace slug is available in the URL or context, but for now let's try to construct it
+    // Ideally, the project object should contain the workspace slug or we should get it from params
+    // Since we are in a workspace context usually, we might need to pass workspaceSlug prop to ProjectCard
+    // For now, let's keep using ID if slug is not fully supported in the parent component yet, 
+    // BUT the goal is to use slugs.
+    
+    // If project has a slug and we have a workspace slug...
+    // Let's assume the parent passes workspaceSlug or we can get it from the URL.
+    // Actually, ProjectCard is used in WorkspaceDashboard where we have the workspace object.
+    
+    // I will update the component to accept workspaceSlug as a prop.
+    if (project.slug && workspaceSlug) {
+       router.push(`/workspaces/${workspaceSlug}/projects/${project.slug}`);
+    } else if (project.id) {
+       // Fallback to ID based routing if we haven't migrated everything or if slugs are missing
+       // But wait, the new route is /workspaces/:slug/projects/:slug
+       // The old route was /projects/:id (maybe?)
+       router.push(`/projects/${project.id}`);
     }
   };
 

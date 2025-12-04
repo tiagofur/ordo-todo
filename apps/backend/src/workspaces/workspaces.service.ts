@@ -84,6 +84,14 @@ export class WorkspacesService {
     return workspace.props;
   }
 
+  async findBySlug(slug: string) {
+    const workspace = await this.workspaceRepository.findBySlug(slug);
+    if (!workspace || workspace.props.isDeleted) {
+      throw new NotFoundException('Workspace not found');
+    }
+    return workspace.props;
+  }
+
   async update(id: string, updateWorkspaceDto: UpdateWorkspaceDto) {
     const workspace = await this.workspaceRepository.findById(id);
     if (!workspace || workspace.props.isDeleted) {
