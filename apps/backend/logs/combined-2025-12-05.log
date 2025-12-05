@@ -2705,3 +2705,5 @@
 {"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/templates/:id, PATCH} route","timestamp":"2025-12-05T20:27:51.248Z"}
 {"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/templates/:id, DELETE} route","timestamp":"2025-12-05T20:27:51.249Z"}
 {"context":"NestApplication","level":"info","message":"Nest application successfully started","timestamp":"2025-12-05T20:27:51.390Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T20:30:00.018Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T20:30:00.025Z"}
