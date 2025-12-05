@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target, TrendingUp, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -166,78 +167,204 @@ export function Analytics() {
           </StaggerItem>
         </StaggerList>
 
-        {/* AI Report - New Feature! */}
-        <SlideIn delay={0.2}>
-          <AIWeeklyReport data={aiReportData} />
-        </SlideIn>
+        {/* Tabbed Interface */}
+        <SlideIn delay={0.15}>
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Resumen
+              </TabsTrigger>
+              <TabsTrigger value="weekly" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Semanal
+              </TabsTrigger>
+              <TabsTrigger value="focus" className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Enfoque
+              </TabsTrigger>
+              <TabsTrigger value="ai" className="flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                IA Insights
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Main Grid */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left Column - Charts */}
-          <div className="space-y-6 lg:col-span-2">
-            <SlideIn delay={0.3}>
-              <WeeklyChart data={weeklyData} />
-            </SlideIn>
-            <div className="grid gap-6 md:grid-cols-2">
-                 <SlideIn delay={0.35}>
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6">
+              {/* AI Report */}
+              <AIWeeklyReport data={aiReportData} />
+
+              {/* Main Grid */}
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Left Column - Charts */}
+                <div className="space-y-6 lg:col-span-2">
+                  <WeeklyChart data={weeklyData} />
+                  <div className="grid gap-6 md:grid-cols-2">
                     <ProjectTimeChart data={projectData || []} />
-                 </SlideIn>
-                 <SlideIn delay={0.35}>
                     <TaskStatusChart data={statusData || []} />
-                 </SlideIn>
-            </div>
-            <SlideIn delay={0.4}>
+                  </div>
+                </div>
+
+                {/* Right Column - Score & Insights */}
+                <div className="space-y-6">
+                  <FocusScoreGauge score={focusScore} previousScore={focusScore - 5} />
+                  <ProductivityInsights insights={insights} />
+                </div>
+              </div>
+
+              {/* Summary Cards */}
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-border/50 bg-card p-6">
+                  <h3 className="text-sm text-muted-foreground mb-2">Tiempo Total Enfocado</h3>
+                  <p className="text-3xl font-bold">
+                    {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    ~{Math.round(totalMinutes / 7)}min promedio por día
+                  </p>
+                </div>
+                
+                <div className="rounded-2xl border border-border/50 bg-card p-6">
+                  <h3 className="text-sm text-muted-foreground mb-2">Mejor Día</h3>
+                  <p className="text-3xl font-bold">
+                    {weeklyData.reduce((prev: any, current: any) => (prev.pomodoros > current.pomodoros) ? prev : current, { dayName: '-' }).dayName}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {Math.max(...weeklyData.map((d: any) => d.pomodoros), 0)} pomodoros completados
+                  </p>
+                </div>
+                
+                <div className="rounded-2xl border border-border/50 bg-card p-6">
+                  <h3 className="text-sm text-muted-foreground mb-2">Eficiencia</h3>
+                  <p className="text-3xl font-bold">87%</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Sesiones completadas sin interrupciones
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Weekly Tab */}
+            <TabsContent value="weekly" className="space-y-6">
+              <WeeklyChart data={weeklyData} />
+              <div className="grid gap-6 md:grid-cols-2">
+                <ProjectTimeChart data={projectData || []} />
+                <TaskStatusChart data={statusData || []} />
+              </div>
               <PeakHoursHeatmap data={heatmapData || []} />
-            </SlideIn>
-          </div>
+            </TabsContent>
 
-          {/* Right Column - Score & Insights */}
-          <div className="space-y-6">
-            <SlideIn delay={0.3} direction="right">
-              <FocusScoreGauge score={focusScore} previousScore={focusScore - 5} />
-            </SlideIn>
-            <SlideIn delay={0.4} direction="right">
+            {/* Focus Tab */}
+            <TabsContent value="focus" className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <FocusScoreGauge score={focusScore} previousScore={focusScore - 5} />
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">¿Qué es el Focus Score?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      El Focus Score mide la calidad de tu concentración basado en el tiempo enfocado vs interrupciones.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">¿Cómo se calcula?</h3>
+                    <div className="bg-muted rounded-lg p-4 font-mono text-sm">
+                      <div>Score = (Tiempo Enfocado / Tiempo Total) × 100</div>
+                      <div className="mt-2 text-muted-foreground">
+                        Penalización: -5% por cada interrupción
+                      </div>
+                      <div className="text-muted-foreground">
+                        Máximo: 100%
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Interpretación</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-600" />
+                        <span className="font-medium">80-100%:</span>
+                        <span className="text-muted-foreground">Excelente concentración</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-600" />
+                        <span className="font-medium">50-79%:</span>
+                        <span className="text-muted-foreground">Concentración moderada</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-600" />
+                        <span className="font-medium">0-49%:</span>
+                        <span className="text-muted-foreground">Necesita mejora</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Cómo Mejorar</h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-1">•</span>
+                        <span>Reduce las interrupciones durante sesiones Pomodoro</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-1">•</span>
+                        <span>Acorta los descansos entre sesiones</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-1">•</span>
+                        <span>Usa la técnica Pomodoro consistentemente</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-primary mt-1">•</span>
+                        <span>Elimina distracciones del entorno</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* AI Insights Tab */}
+            <TabsContent value="ai" className="space-y-6">
+              <AIWeeklyReport data={aiReportData} />
               <ProductivityInsights insights={insights} />
-            </SlideIn>
-          </div>
-        </div>
-
-        {/* Summary Cards */}
-        <StaggerList className="grid gap-4 md:grid-cols-3">
-          <StaggerItem>
-            <div className="rounded-2xl border border-border/50 bg-card p-6">
-              <h3 className="text-sm text-muted-foreground mb-2">Tiempo Total Enfocado</h3>
-              <p className="text-3xl font-bold">
-                {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                ~{Math.round(totalMinutes / 7)}min promedio por día
-              </p>
-            </div>
-          </StaggerItem>
-          
-          <StaggerItem>
-            <div className="rounded-2xl border border-border/50 bg-card p-6">
-              <h3 className="text-sm text-muted-foreground mb-2">Mejor Día</h3>
-              <p className="text-3xl font-bold">
-                {weeklyData.reduce((prev: any, current: any) => (prev.pomodoros > current.pomodoros) ? prev : current, { dayName: '-' }).dayName}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {Math.max(...weeklyData.map((d: any) => d.pomodoros), 0)} pomodoros completados
-              </p>
-            </div>
-          </StaggerItem>
-          
-          <StaggerItem>
-            <div className="rounded-2xl border border-border/50 bg-card p-6">
-              <h3 className="text-sm text-muted-foreground mb-2">Eficiencia</h3>
-              <p className="text-3xl font-bold">87%</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Sesiones completadas sin interrupciones
-              </p>
-            </div>
-          </StaggerItem>
-        </StaggerList>
+              
+              {/* AI Learning Info */}
+              <div className="bg-muted/50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  IA de Aprendizaje Continuo
+                </h3>
+                <div className="space-y-4 text-sm text-muted-foreground">
+                  <p>El sistema de IA analiza tu comportamiento para ofrecerte recomendaciones personalizadas.</p>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-foreground">¿Qué analiza?</h4>
+                    <ul className="space-y-1 ml-4">
+                      <li>• Tus horas más productivas</li>
+                      <li>• Los días donde rindes mejor</li>
+                      <li>• La duración óptima de tus sesiones</li>
+                      <li>• Patrones de completitud de tareas</li>
+                      <li>• Tendencias de productividad</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-foreground">¿Qué ofrece?</h4>
+                    <ul className="space-y-1 ml-4">
+                      <li>• Recomendaciones personalizadas</li>
+                      <li>• Predicciones de duración de tareas</li>
+                      <li>• Insights de productividad</li>
+                      <li>• Visualizaciones inteligentes</li>
+                    </ul>
+                  </div>
+                  <p className="italic pt-2 border-t">
+                    💡 Tip: Cuanto más uses la app, mejores serán las recomendaciones de la IA.
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </SlideIn>
       </div>
     </PageTransition>
   );
