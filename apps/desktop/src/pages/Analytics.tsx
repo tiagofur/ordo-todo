@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target, TrendingUp, Brain } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target, TrendingUp, Brain, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
@@ -28,6 +28,9 @@ import {
 export function Analytics() {
   const { t } = useTranslation();
   const [dateRange, setDateRange] = useState("week");
+  
+  // Accent color (matching Web)
+  const accentColor = "#06b6d4"; // Cyan
   
   // Fetch Real Data
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
@@ -88,13 +91,24 @@ export function Analytics() {
   return (
     <PageTransition>
       <div className="space-y-6">
-        {/* Header */}
+        {/* Header - Styled like Web */}
         <SlideIn direction="top">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">{t("analytics.title")}</h1>
-              <p className="text-muted-foreground">
-                Analiza tu productividad y mejora tu rendimiento
+              <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                  style={{
+                    backgroundColor: accentColor,
+                    boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+                  }}
+                >
+                  <BarChart3 className="h-6 w-6" />
+                </div>
+                {t("analytics.title")}
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                {t("analytics.subtitle") || "Analiza tu productividad y mejora tu rendimiento"}
               </p>
             </div>
             

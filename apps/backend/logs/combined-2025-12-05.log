@@ -2707,3 +2707,35 @@
 {"context":"NestApplication","level":"info","message":"Nest application successfully started","timestamp":"2025-12-05T20:27:51.390Z"}
 {"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T20:30:00.018Z"}
 {"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T20:30:00.025Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T20:31:31.469Z\",\"path\":\"/api/v1/tags\",\"message\":[\"property tagId should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T20:31:31.470Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T20:31:32.492Z\",\"path\":\"/api/v1/tags\",\"message\":[\"property tagId should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T20:31:32.493Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T20:40:00.016Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task e232f451-635e-4933-afce-8d6c460e42c7","timestamp":"2025-12-05T20:45:56.911Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T20:50:00.006Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T21:00:00.011Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T21:00:00.015Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T21:10:00.010Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T21:20:00.010Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task e232f451-635e-4933-afce-8d6c460e42c7","timestamp":"2025-12-05T21:21:32.554Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T21:21:49.028Z\",\"path\":\"/api/v1/tasks/e232f451-635e-4933-afce-8d6c460e42c7\",\"message\":[\"status must be one of the following values: \"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T21:21:49.029Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T21:21:50.073Z\",\"path\":\"/api/v1/tasks/e232f451-635e-4933-afce-8d6c460e42c7\",\"message\":[\"status must be one of the following values: \"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T21:21:50.074Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T21:30:00.012Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T21:30:00.017Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T21:40:00.011Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T21:50:00.015Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 25 XP from Pomodoro Completion. Total XP: 175","timestamp":"2025-12-05T21:57:45.253Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 100 XP from Achievement: Enfoque Inicial. Total XP: 275","timestamp":"2025-12-05T21:57:45.275Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 unlocked achievement FIRST_POMODORO","timestamp":"2025-12-05T21:57:45.282Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T21:57:52.907Z\",\"path\":\"/api/v1/tasks\",\"message\":[\"property estimatedMinutes should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T21:57:52.908Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T21:57:53.921Z\",\"path\":\"/api/v1/tasks\",\"message\":[\"property estimatedMinutes should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T21:57:53.921Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T22:00:00.020Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:00:00.025Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T22:00:24.999Z\",\"path\":\"/api/v1/tasks\",\"message\":[\"property estimatedMinutes should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T22:00:25.000Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T22:00:26.030Z\",\"path\":\"/api/v1/tasks\",\"message\":[\"property estimatedMinutes should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T22:00:26.031Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 25 XP from Pomodoro Completion. Total XP: 300","timestamp":"2025-12-05T22:07:19.366Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T22:07:59.634Z\",\"path\":\"/api/v1/tags\",\"message\":[\"property tagId should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T22:07:59.635Z"}
+{"context":"GlobalExceptionFilter","level":"warn","message":"Status: 400 Error: {\"statusCode\":400,\"timestamp\":\"2025-12-05T22:08:00.653Z\",\"path\":\"/api/v1/tags\",\"message\":[\"property tagId should not exist\"],\"error\":\"Bad Request\"}","timestamp":"2025-12-05T22:08:00.653Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: TASK_CREATED on task 4d71b21d-0ce8-4db2-a20c-d5abeddb77e6","timestamp":"2025-12-05T22:09:27.307Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:10:00.014Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 25 XP from Pomodoro Completion. Total XP: 325","timestamp":"2025-12-05T22:13:20.009Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:20:00.014Z"}

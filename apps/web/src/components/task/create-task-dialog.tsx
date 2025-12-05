@@ -69,10 +69,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const createTaskMutation = useCreateTask();
 
   const onSubmit = async (data: CreateTaskForm) => {
+    const { estimatedMinutes, ...taskData } = data;
     try {
       await createTaskMutation.mutateAsync({
-        ...data,
+        ...taskData,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+        estimatedTime: estimatedMinutes ?? undefined,
       });
       notify.success(t('toast.success'));
       reset();

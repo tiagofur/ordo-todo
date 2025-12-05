@@ -10,6 +10,52 @@
     "settings": "Configurações",
     "installApp": "Instalar App"
   },
+  "Settings": {
+    "title": "Configurações",
+    "subtitle": "Personalize a aparência e comportamento do Ordo",
+    "appearance": "Aparência",
+    "theme": "Tema",
+    "selectTheme": "Selecione o tema da interface",
+    "themes": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Sistema"
+    },
+    "language": "Idioma",
+    "selectLanguage": "Idioma da aplicação",
+    "languageDescription": "Selecione o idioma da interface",
+    "timer": "Cronômetro",
+    "defaultMode": "Modo Padrão",
+    "defaultModeDescription": "Escolha como você prefere gerenciar seu tempo por padrão",
+    "focusDuration": "Foco (min)",
+    "shortBreakDuration": "Pausa curta (min)",
+    "longBreakDuration": "Pausa longa (min)",
+    "longBreakInterval": "Intervalo de pausa longa",
+    "longBreakIntervalDescription": "Quantidade de pomodoros antes de uma pausa longa",
+    "autoStartBreaks": "Auto-iniciar pausas",
+    "autoStartBreaksDescription": "Iniciar o cronômetro de pausa automaticamente",
+    "autoStartPomodoros": "Auto-iniciar pomodoros",
+    "autoStartPomodorosDescription": "Iniciar o próximo pomodoro automaticamente",
+    "notificationsAndSound": "Notificações e Som",
+    "notificationsDescription": "Configure os alertas quando uma sessão for concluída",
+    "soundEffects": "Efeitos sonoros",
+    "soundEffectsDescription": "Reproduzir um som ao concluir uma sessão",
+    "browserNotifications": "Notificações do navegador",
+    "browserNotificationsDescription": "Mostrar notificações mesmo com o navegador minimizado",
+    "keyboardShortcuts": "Atalhos de Teclado",
+    "keyboardShortcutsDescription": "Atalhos globais da aplicação",
+    "shortcuts": {
+      "startPause": "Iniciar/Pausar cronômetro",
+      "newTask": "Nova tarefa",
+      "search": "Buscar",
+      "settings": "Configurações",
+      "toggleSidebar": "Mostrar/Ocultar sidebar"
+    },
+    "about": "Sobre",
+    "version": "Versão",
+    "platform": "Plataforma",
+    "developer": "Desenvolvido por"
+  },
   "TimerWidget": {
     "startTimer": "Iniciar cronômetro"
   },
@@ -75,6 +121,11 @@
   "Analytics": {
     "title": "Análises",
     "subtitle": "Visualize sua produtividade e progresso ao longo do tempo",
+    "pomodoros": "Pomodoros",
+    "thisWeek": "esta semana",
+    "tasksCompleted": "Tarefas Concluídas",
+    "streak": "Sequência",
+    "avgPerDay": "Média/dia",
     "tabs": {
       "overview": "Visão Geral",
       "weekly": "Semanal",
@@ -681,6 +732,7 @@
     }
   },
   "PomodoroTimer": {
+    "enterFocusMode": "Entrar no Modo Foco",
     "mode": "Modo: {mode}",
     "modes": {
       "pomodoro": "Pomodoro",
@@ -718,6 +770,8 @@
       "work": "Trabalho",
       "short_break": "Pausa Curta",
       "long_break": "Pausa Longa",
+      "shortBreak": "Pausa Curta",
+      "longBreak": "Pausa Longa",
       "continuous": "Contínuo"
     },
     "sessions": {
@@ -1267,5 +1321,14 @@
       "description": "Crie sua primeira tarefa para começar a acompanhar seu trabalho.",
       "action": "Criar Tarefa"
     }
+  },
+  "FocusMode": {
+    "selectTask": "Selecione uma tarefa para focar",
+    "deepWork": "Trabalho Profundo",
+    "breakTime": "Hora do Descanso",
+    "loading": "Carregando tarefa...",
+    "completeTask": "Concluir Tarefa",
+    "exit": "Sair do Modo Foco"
   }
+
 }

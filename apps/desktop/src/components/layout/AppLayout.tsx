@@ -4,9 +4,13 @@ import { TopBar } from "./TopBar";
 import { useAuth } from "../providers/auth-provider";
 import { useElectron } from "@/hooks/use-electron";
 import { useTimerStore, startTimerInterval, stopTimerInterval } from "@/stores/timer-store";
+import { useUIStore } from "@/stores/ui-store";
 import { useEffect } from "react";
 import { ShortcutsDialog, AboutDialog } from "@/components/dialogs";
 import { FAB } from "@/components/FAB";
+import { CreateTaskDialog } from "@/components/task/create-task-dialog";
+import { CreateProjectDialog } from "@/components/project/create-project-dialog";
+import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { SkipLinks } from "@/components/ui/SkipLinks";
 import { skipLinkTargets } from "@/utils/accessibility";
 
@@ -18,6 +22,17 @@ export function AppLayout() {
   
   // Manage timer interval
   const { isRunning, isPaused } = useTimerStore();
+  
+  // UI Store state for global dialogs
+  const { 
+    createTaskDialogOpen, 
+    closeCreateTaskDialog,
+    createProjectDialogOpen, 
+    closeCreateProjectDialog,
+    taskDetailPanelOpen, 
+    closeTaskDetailPanel, 
+    selectedTaskId 
+  } = useUIStore();
   
   useEffect(() => {
     if (isRunning && !isPaused) {
@@ -71,6 +86,19 @@ export function AppLayout() {
       {/* Global Dialogs */}
       <ShortcutsDialog />
       <AboutDialog />
+      <CreateTaskDialog 
+        open={createTaskDialogOpen} 
+        onOpenChange={(open) => !open && closeCreateTaskDialog()} 
+      />
+      <CreateProjectDialog 
+        open={createProjectDialogOpen} 
+        onOpenChange={(open) => !open && closeCreateProjectDialog()} 
+      />
+      <TaskDetailPanel 
+        taskId={selectedTaskId}
+        open={taskDetailPanelOpen}
+        onOpenChange={(open) => !open && closeTaskDetailPanel()}
+      />
     </>
   );
 }

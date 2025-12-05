@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { 
   Moon, Sun, Laptop, Globe, Bell, Clock, Keyboard, 
-  Monitor, Download, Power, ExternalLink, RefreshCw, Loader2 
+  Monitor, Download, Power, ExternalLink, RefreshCw, Loader2, Settings as SettingsIcon 
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -19,6 +19,9 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { isElectron } = useElectron();
   const currentLang = getCurrentLanguage();
+
+  // Accent color (matching Web)
+  const accentColor = "#06b6d4"; // Cyan
 
   // Desktop-specific state
   const [autoLaunchEnabled, setAutoLaunchEnabled] = useState(false);
@@ -110,10 +113,22 @@ export function Settings() {
   return (
     <PageTransition>
       <div className="space-y-6">
+        {/* Header - Styled like Web */}
         <SlideIn direction="top">
           <div>
-            <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
-            <p className="text-muted-foreground">Personaliza tu experiencia</p>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                style={{
+                  backgroundColor: accentColor,
+                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+                }}
+              >
+                <SettingsIcon className="h-6 w-6" />
+              </div>
+              {t("settings.title")}
+            </h1>
+            <p className="text-muted-foreground mt-2">Personaliza tu experiencia</p>
           </div>
         </SlideIn>
 

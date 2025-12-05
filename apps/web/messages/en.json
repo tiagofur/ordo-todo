@@ -10,6 +10,52 @@
     "settings": "Settings",
     "installApp": "Install App"
   },
+  "Settings": {
+    "title": "Settings",
+    "subtitle": "Customize the appearance and behavior of Ordo",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "selectTheme": "Select the interface theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": "Language",
+    "selectLanguage": "Application Language",
+    "languageDescription": "Select the interface language",
+    "timer": "Timer",
+    "defaultMode": "Default Mode",
+    "defaultModeDescription": "Choose how you prefer to manage your time by default",
+    "focusDuration": "Focus (min)",
+    "shortBreakDuration": "Short Break (min)",
+    "longBreakDuration": "Long Break (min)",
+    "longBreakInterval": "Long Break Interval",
+    "longBreakIntervalDescription": "Number of pomodoros before a long break",
+    "autoStartBreaks": "Auto-start Breaks",
+    "autoStartBreaksDescription": "Automatically start the break timer",
+    "autoStartPomodoros": "Auto-start Pomodoros",
+    "autoStartPomodorosDescription": "Automatically start the next pomodoro",
+    "notificationsAndSound": "Notifications and Sound",
+    "notificationsDescription": "Configure alerts when a session completes",
+    "soundEffects": "Sound Effects",
+    "soundEffectsDescription": "Play a sound when completing a session",
+    "browserNotifications": "Browser Notifications",
+    "browserNotificationsDescription": "Show notifications even with the browser minimized",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "keyboardShortcutsDescription": "Global application shortcuts",
+    "shortcuts": {
+      "startPause": "Start/Pause timer",
+      "newTask": "New task",
+      "search": "Search",
+      "settings": "Settings",
+      "toggleSidebar": "Show/Hide sidebar"
+    },
+    "about": "About",
+    "version": "Version",
+    "platform": "Platform",
+    "developer": "Developed by"
+  },
   "TimerWidget": {
     "startTimer": "Start timer"
   },
@@ -75,6 +121,11 @@
   "Analytics": {
     "title": "Analytics",
     "subtitle": "Visualize your productivity and progress over time",
+    "pomodoros": "Pomodoros",
+    "thisWeek": "this week",
+    "tasksCompleted": "Tasks Completed",
+    "streak": "Streak",
+    "avgPerDay": "Avg/day",
     "tabs": {
       "overview": "Overview",
       "weekly": "Weekly",
@@ -747,6 +798,7 @@
     }
   },
   "PomodoroTimer": {
+    "enterFocusMode": "Enter Focus Mode",
     "mode": "Mode: {mode}",
     "modes": {
       "pomodoro": "Pomodoro",
@@ -784,6 +836,8 @@
       "work": "Work",
       "short_break": "Short Break",
       "long_break": "Long Break",
+      "shortBreak": "Short Break",
+      "longBreak": "Long Break",
       "continuous": "Continuous"
     },
     "sessions": {
@@ -1266,5 +1320,13 @@
       "description": "Create your first task to start tracking your work.",
       "action": "Create Task"
     }
+  },
+  "FocusMode": {
+    "selectTask": "Select a Task to Focus",
+    "deepWork": "Deep Work",
+    "breakTime": "Break Time",
+    "loading": "Loading task...",
+    "completeTask": "Complete Task",
+    "exit": "Exit Focus Mode"
   }
 }

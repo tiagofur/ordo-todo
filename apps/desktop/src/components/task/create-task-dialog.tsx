@@ -185,20 +185,25 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const createTask = useCreateTask();
 
   const onSubmit = async (data: CreateTaskForm) => {
+    const { estimatedMinutes, ...taskData } = data;
     try {
       await createTask.mutateAsync({
-        ...data,
+        ...taskData,
         priority: selectedPriority,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         projectId: data.projectId,
-        estimatedTime: data.estimatedMinutes,
+        // Ensure estimatedTime is an integer if present, or undefined
+        estimatedTime: estimatedMinutes ? Math.round(estimatedMinutes) : undefined,
       });
       toast.success("Tarea creada exitosamente");
       reset();
       setSelectedTemplateId(undefined);
       onOpenChange(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Error al crear tarea");
+    } catch (error: any) {
+      console.error("Failed to create task:", error);
+      // Try to extract backend validation message
+      const message = error.response?.data?.message || error.message || "Error al crear tarea";
+      toast.error(Array.isArray(message) ? message.join(", ") : message);
     }
   };
 

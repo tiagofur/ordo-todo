@@ -58,7 +58,10 @@ export function initDatabase(): Database.Database {
  * Run database migrations
  */
 function runMigrations(database: Database.Database): void {
-  // Check current schema version
+  // First, ensure all tables exist (idempotent with IF NOT EXISTS)
+  database.exec(CREATE_TABLES_SQL);
+
+  // Then check current schema version
   const versionResult = database.prepare(`
     SELECT value FROM sync_metadata WHERE key = 'schema_version'
   `).get() as { value: string } | undefined;
@@ -67,9 +70,6 @@ function runMigrations(database: Database.Database): void {
 
   if (currentVersion < SCHEMA_VERSION) {
     console.log(`[Database] Migrating from version ${currentVersion} to ${SCHEMA_VERSION}`);
-    
-    // Run schema creation (idempotent with IF NOT EXISTS)
-    database.exec(CREATE_TABLES_SQL);
 
     // Update schema version
     database.prepare(`
@@ -458,7 +458,7 @@ export function createPomodoroSession(session: Omit<LocalPomodoroSession, 'id' |
 
 export function getSessionsByWorkspace(workspaceId: string, startDate?: number, endDate?: number): LocalPomodoroSession[] {
   const database = getDatabase();
-  
+
   let query = `SELECT * FROM pomodoro_sessions WHERE workspace_id = ? AND is_deleted = 0`;
   const params: (string | number)[] = [workspaceId];
 
@@ -487,7 +487,7 @@ export function addToSyncQueue(
   payload: unknown
 ): void {
   const database = getDatabase();
-  
+
   // Check if there's already a pending operation for this entity
   const existing = database.prepare(`
     SELECT id, operation FROM sync_queue 

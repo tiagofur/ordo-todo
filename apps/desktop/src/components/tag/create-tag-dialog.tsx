@@ -66,11 +66,10 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
 
   const onSubmit = (data: CreateTagForm) => {
     createTagMutation.mutate({
-      tagId: "new", // Ignored by create
       ...data,
       color: selectedColor,
       // CreateTagDto needs workspaceId, name, color.
-    } as any, {
+    }, {
       onSuccess: () => {
         toast.success("Etiqueta creada exitosamente");
         // Invalidation handled by hook

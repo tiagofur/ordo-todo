@@ -21,6 +21,52 @@
     "settings": "Configuración",
     "installApp": "Instalar App"
   },
+  "Settings": {
+    "title": "Configuración",
+    "subtitle": "Personaliza la apariencia y comportamiento de Ordo",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "selectTheme": "Selecciona el tema de la interfaz",
+    "themes": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
+    "language": "Idioma",
+    "selectLanguage": "Idioma de la aplicación",
+    "languageDescription": "Selecciona el idioma de la interfaz",
+    "timer": "Temporizador",
+    "defaultMode": "Modo Principal",
+    "defaultModeDescription": "Elige cómo prefieres gestionar tu tiempo por defecto",
+    "focusDuration": "Enfoque (min)",
+    "shortBreakDuration": "Descanso corto (min)",
+    "longBreakDuration": "Descanso largo (min)",
+    "longBreakInterval": "Intervalo de descanso largo",
+    "longBreakIntervalDescription": "Cantidad de pomodoros antes de un descanso largo",
+    "autoStartBreaks": "Auto-iniciar descansos",
+    "autoStartBreaksDescription": "Iniciar el temporizador de descanso automáticamente",
+    "autoStartPomodoros": "Auto-iniciar pomodoros",
+    "autoStartPomodorosDescription": "Iniciar el siguiente pomodoro automáticamente",
+    "notificationsAndSound": "Notificaciones y Sonido",
+    "notificationsDescription": "Configura las alertas cuando se complete una sesión",
+    "soundEffects": "Efectos de sonido",
+    "soundEffectsDescription": "Reproducir un sonido al completar una sesión",
+    "browserNotifications": "Notificaciones del navegador",
+    "browserNotificationsDescription": "Mostrar notificaciones incluso con el navegador minimizado",
+    "keyboardShortcuts": "Atajos de Teclado",
+    "keyboardShortcutsDescription": "Atajos globales de la aplicación",
+    "shortcuts": {
+      "startPause": "Iniciar/Pausar timer",
+      "newTask": "Nueva tarea",
+      "search": "Buscar",
+      "settings": "Configuración",
+      "toggleSidebar": "Mostrar/Ocultar sidebar"
+    },
+    "about": "Acerca de",
+    "version": "Versión",
+    "platform": "Plataforma",
+    "developer": "Desarrollado por"
+  },
   "TimerWidget": {
     "startTimer": "Iniciar timer"
   },
@@ -86,6 +132,11 @@
   "Analytics": {
     "title": "Analíticas",
     "subtitle": "Visualiza tu productividad y progreso a lo largo del tiempo",
+    "pomodoros": "Pomodoros",
+    "thisWeek": "esta semana",
+    "tasksCompleted": "Tareas Completadas",
+    "streak": "Racha",
+    "avgPerDay": "Promedio/día",
     "tabs": {
       "overview": "Overview",
       "weekly": "Semanal",
@@ -758,6 +809,7 @@
     }
   },
   "PomodoroTimer": {
+    "enterFocusMode": "Entrar al Modo Enfoque",
     "mode": "Modo: {mode}",
     "modes": {
       "pomodoro": "Pomodoro",
@@ -795,6 +847,8 @@
       "work": "Trabajo",
       "short_break": "Descanso Corto",
       "long_break": "Descanso Largo",
+      "shortBreak": "Descanso Corto",
+      "longBreak": "Descanso Largo",
       "continuous": "Continuo"
     },
     "sessions": {
@@ -1279,6 +1333,15 @@
       "action": "Crear Tarea"
     }
   },
+  "FocusMode": {
+    "selectTask": "Selecciona una tarea para enfocar",
+    "deepWork": "Trabajo Profundo",
+    "breakTime": "Tiempo de Descanso",
+    "loading": "Cargando tarea...",
+    "completeTask": "Completar Tarea",
+    "exit": "Salir del Modo Enfoque"
+  }
+,
   "ProjectFiles": {
     "empty": "No hay archivos en este proyecto.",
     "name": "Nombre",
