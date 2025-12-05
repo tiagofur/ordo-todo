@@ -4,26 +4,33 @@
 **Última actualización**: 2025-12-04  
 **Objetivo**: Paridad de features con Web App + características nativas de desktop
 
+> 📋 **Documentos relacionados**:
+> - [gaps-analysis.md](./gaps-analysis.md) - Análisis detallado de brechas
+> - [migration-steps.md](./migration-steps.md) - Guía de migración Web → Desktop
+> - [roadmap.md](./roadmap.md) - Roadmap actualizado
+> - [sprints/](./sprints/) - Documentos de sprint
+
 ---
 
-## 📊 Estado Actual Desktop vs Web
+## 📊 Estado Actual Desktop vs Web (Actualizado 2025-12-04)
 
-| Feature | Web | Desktop | Gap |
-|---------|-----|---------|-----|
-| Dashboard básico | ✅ | ✅ | - |
-| Dashboard avanzado (widgets, FAB) | ✅ | ❌ | 🔴 Alto |
-| Timer Pomodoro | ✅ | ✅ (básico) | 🟡 Medio |
-| Tasks CRUD | ✅ | ✅ | ✅ |
-| Task Detail Panel | ✅ | ❌ | 🔴 Alto |
-| Kanban Board | ✅ | ❌ | 🔴 Alto |
-| Project Timeline | ✅ | ❌ | 🟡 Medio |
-| Analytics | ✅ | ❌ | 🔴 Alto |
-| AI Reports | ✅ | ❌ | 🟡 Medio |
-| i18n | ✅ | ❌ | 🟡 Medio |
-| System Tray | N/A | ❌ | 🔴 Alto |
-| Global Shortcuts | N/A | ❌ | 🔴 Alto |
-| Native Notifications | N/A | ❌ | 🔴 Alto |
-| Offline Mode | ❌ | ❌ | 🟡 Medio |
+| Feature | Web | Desktop | Gap | Notas |
+|---------|-----|---------|-----|-------|
+| Dashboard básico | ✅ | ✅ | ✅ | |
+| Dashboard widgets | ✅ 2 | ✅ 7 | ✅ | Desktop superior |
+| Timer Pomodoro | ✅ | ✅ | ✅ | Completo |
+| Tasks CRUD | ✅ | ✅ | ✅ | |
+| Task Detail Panel | ✅ 15 | ⚠️ 9 | 🔴 | 5 stubs vacíos |
+| Project Components | ✅ 11 | ⚠️ 2 | 🔴 | Falta Kanban completo |
+| Project Timeline | ✅ | ❌ | 🔴 | Falta migrar |
+| Analytics | ✅ 5 | ✅ 6 | ✅ | Paridad |
+| AI Components | ✅ 4 | ⚠️ 1 | 🟡 | Falta report dialog |
+| Workspace Components | ✅ 11 | ⚠️ 3 | 🟡 | Falta members |
+| i18n | ✅ | ✅ | ✅ | |
+| System Tray | N/A | ✅ | ✅ | Completo |
+| Global Shortcuts | N/A | ✅ | ✅ | Completo |
+| Native Notifications | N/A | ✅ | ✅ | Completo |
+| Offline Mode | ❌ | ✅ | ✅ | Desktop superior |
 
 ---
 
