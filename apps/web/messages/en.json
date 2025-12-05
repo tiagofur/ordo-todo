@@ -857,7 +857,9 @@
       "priorityError": "Error updating priority",
       "tagAssigned": "Tag {tagName} assigned",
       "tagError": "Error assigning tag",
-      "noTaskId": "Error: Task ID not found"
+      "noTaskId": "Error: Task ID not found",
+      "shareError": "Error generating share link",
+      "linkCopied": "Link copied to clipboard"
     },
     "confirmDelete": "Are you sure you want to delete this task?",
     "titlePlaceholder": "Task title",
@@ -869,7 +871,7 @@
       "create": "Create new tag"
     },
     "buttons": {
-      "save": "Save",
+      "save": "Save Changes",
       "delete": "Delete Task"
     },
     "description": {
@@ -890,6 +892,10 @@
     },
     "footer": {
       "created": "Created on"
+    },
+    "share": {
+      "title": "Share Task",
+      "description": "Anyone with this link can view this task without logging in."
     }
   },
   "TaskFilters": {
@@ -1238,28 +1244,6 @@
     },
     "breadcrumbs": {
       "projects": "Projects"
-    },
-    "badges": {
-      "archived": "Archived",
-      "completed": "Completed"
-    },
-    "menu": {
-      "settings": "Settings",
-      "archive": "Archive",
-      "unarchive": "Unarchive",
-      "delete": "Delete",
-      "markComplete": "Mark as completed",
-      "markIncomplete": "Mark as incomplete"
-    },
-    "confirmComplete": "Are you sure you want to mark this project as completed?",
-    "confirmUncomplete": "Are you sure you want to mark this project as incomplete?",
-    "toast": {
-      "archived": "Project archived successfully",
-      "archiveError": "Error archiving project",
-      "deleted": "Project deleted successfully",
-      "completed": "Project marked as completed",
-      "uncompleted": "Project marked as incomplete",
-      "completeError": "Error updating project status"
     }
   },
   "ProjectBoard": {
@@ -1280,23 +1264,6 @@
       "title": "No tasks yet",
       "description": "Create your first task to start tracking your work.",
       "action": "Create Task"
-    }
-  },
-  "TaskDetailPanel": {
-    "share": {
-      "title": "Share Task",
-      "description": "Anyone with this link can view this task without logging in."
-    },
-    "toast": {
-      "shareError": "Error generating share link",
-      "linkCopied": "Link copied to clipboard"
-    },
-    "buttons": {
-      "save": "Save Changes",
-      "delete": "Delete Task"
-    },
-    "footer": {
-      "created": "Created on"
     }
   }
 }

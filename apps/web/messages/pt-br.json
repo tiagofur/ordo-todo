@@ -697,6 +697,42 @@
       "description": "O tempo trabalhado na tarefa atual será salvo. Selecione uma nova tarefa para continuar."
     }
   },
+  "SessionHistory": {
+    "error": "Erro ao carregar histórico de sessões",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "totalTime": "Tempo Total",
+      "focusScore": "Pontuação de Foco",
+      "completionRate": "Conclusão"
+    },
+    "filters": {
+      "title": "Filtros",
+      "type": "Tipo",
+      "allTypes": "Todos os tipos",
+      "status": "Status",
+      "allStatus": "Todas as sessões",
+      "completedOnly": "Apenas concluídas"
+    },
+    "types": {
+      "work": "Trabalho",
+      "short_break": "Pausa Curta",
+      "long_break": "Pausa Longa",
+      "continuous": "Contínuo"
+    },
+    "sessions": {
+      "title": "Histórico de Sessões",
+      "count": "sessões",
+      "empty": "Nenhuma sessão encontrada para os filtros selecionados",
+      "pause": "pausa",
+      "pauses": "pausas"
+    },
+    "pagination": {
+      "showing": "Mostrando {from} a {to} de {total}"
+    },
+    "chart": {
+      "title": "Atividade Diária (Últimos 7 Dias)"
+    }
+  },
   "TaskSelector": {
     "placeholder": "Selecione a tarefa para trabalhar...",
     "searchPlaceholder": "Buscar tarefa...",
@@ -1094,22 +1130,7 @@
       "members": "Membros"
     }
   },
-  "WorkspaceSelector": {
-    "create": "Criar Espaço de Trabalho",
-    "label": "Espaços de Trabalho",
-    "defaultName": "Espaço de Trabalho",
-    "search": "Buscar espaços de trabalho...",
-    "noResults": "Nenhum espaço de trabalho encontrado",
-    "types": {
-      "personal": "Pessoal",
-      "work": "Trabalho",
-      "team": "Equipe"
-    },
-    "stats": {
-      "projects": "projetos",
-      "tasks": "tarefas"
-    }
-  },
+
   "WorkspaceActivityLog": {
     "empty": {
       "title": "Sem atividade ainda",
@@ -1224,28 +1245,6 @@
     },
     "breadcrumbs": {
       "projects": "Projetos"
-    },
-    "badges": {
-      "archived": "Arquivado",
-      "completed": "Concluído"
-    },
-    "menu": {
-      "settings": "Configurações",
-      "archive": "Arquivar",
-      "unarchive": "Desarquivar",
-      "delete": "Excluir",
-      "markComplete": "Marcar como concluído",
-      "markIncomplete": "Marcar como não concluído"
-    },
-    "confirmComplete": "Tem certeza de que deseja marcar este projeto como concluído?",
-    "confirmUncomplete": "Tem certeza de que deseja marcar este projeto como não concluído?",
-    "toast": {
-      "archived": "Projeto arquivado com sucesso",
-      "archiveError": "Erro ao arquivar o projeto",
-      "deleted": "Projeto excluído com sucesso",
-      "completed": "Projeto marcado como concluído",
-      "uncompleted": "Projeto marcado como não concluído",
-      "completeError": "Erro ao atualizar o status do projeto"
     }
   },
   "ProjectBoard": {

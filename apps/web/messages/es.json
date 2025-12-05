@@ -868,7 +868,9 @@
       "priorityError": "Error al actualizar prioridad",
       "tagAssigned": "Etiqueta {tagName} asignada",
       "tagError": "Error al asignar etiqueta",
-      "noTaskId": "Error: No se encontró el ID de la tarea"
+      "noTaskId": "Error: No se encontró el ID de la tarea",
+      "shareError": "Error al generar enlace de compartir",
+      "linkCopied": "Enlace copiado al portapapeles"
     },
     "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
     "titlePlaceholder": "Título de la tarea",
@@ -901,6 +903,10 @@
     },
     "footer": {
       "created": "Creado el"
+    },
+    "share": {
+      "title": "Compartir Tarea",
+      "description": "Cualquiera con este enlace puede ver esta tarea sin iniciar sesión."
     }
   },
   "TaskFilters": {
@@ -1250,28 +1256,6 @@
     },
     "breadcrumbs": {
       "projects": "Proyectos"
-    },
-    "badges": {
-      "archived": "Archivado",
-      "completed": "Completado"
-    },
-    "menu": {
-      "settings": "Configuración",
-      "archive": "Archivar",
-      "unarchive": "Desarchivar",
-      "delete": "Eliminar",
-      "markComplete": "Marcar como completado",
-      "markIncomplete": "Marcar como no completado"
-    },
-    "confirmComplete": "¿Estás seguro de que quieres marcar este proyecto como completado?",
-    "confirmUncomplete": "¿Estás seguro de que quieres marcar este proyecto como no completado?",
-    "toast": {
-      "archived": "Proyecto archivado exitosamente",
-      "archiveError": "Error al archivar el proyecto",
-      "deleted": "Proyecto eliminado exitosamente",
-      "completed": "Proyecto marcado como completado",
-      "uncompleted": "Proyecto marcado como no completado",
-      "completeError": "Error al actualizar el estado del proyecto"
     }
   },
   "ProjectBoard": {

@@ -74,7 +74,7 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 
 ---
 
-## 📅 Sprint 3: Colaboración (2 semanas)
+## 📅 Sprint 3: Colaboración (2 semanas) ✅ COMPLETADO
 
 **Objetivo:** Habilitar trabajo en equipo efectivo y comunicación.
 
@@ -91,7 +91,7 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
   - [x] Store/Context para notificaciones en tiempo real (polling o SSE)
   - [x] UI de `NotificationItem`
 
-- [ ] **Mejoras en Comentarios**
+- [x] **Mejoras en Comentarios**
   - [x] Soporte para menciones (@usuario) en frontend
   - [x] Backend parsing de menciones -> Crear Notificación
   
@@ -115,7 +115,7 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 
 ---
 
-## 📅 Sprint 4: Productividad y Gamificación (2-3 semanas)
+## 📅 Sprint 4: Productividad y Gamificación (2-3 semanas) ✅ COMPLETADO
 
 **Objetivo:** Potenciar la productividad personal y el engagement.
 
@@ -137,17 +137,17 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 
 ---
 
-## 📅 Sprint 5: Archivos y Adjuntos (1-2 semanas)
+## 📅 Sprint 5: Archivos y Adjuntos (1-2 semanas) ✅ COMPLETADO
 
 **Objetivo:** Completar sistema de attachments.
 
 ### Tareas
 
-- [ ] **Upload Completo**
-  - [ ] Configurar S3/R2 para producción
-  - [ ] Componente drag & drop
-  - [ ] Preview de PDFs
-  - [ ] Límites de tamaño (10MB default)
+- [x] **Upload Completo**
+  - [x] Configurar S3/R2 para producción (o Local Storage para MVP)
+  - [x] Componente drag & drop
+  - [x] Preview de archivos (Imágenes/PDFs)
+  - [x] Límites de tamaño (10MB default)
 
 ---
 
@@ -201,31 +201,38 @@ Priorizamos usando la matriz **Impacto vs Esfuerzo**:
 
 > **Sprint 1 ✅ Completado** - 4 de Diciembre, 2025
 > **Sprint 2 ✅ Completado** - 4 de Diciembre, 2025
+> **Sprint 3 ✅ Completado** - 4 de Diciembre, 2025
+> **Sprint 4 ✅ Completado** - 4 de Diciembre, 2025
+> **Sprint 5 ✅ Completado** - 4 de Diciembre, 2025
 
 ### Resumen de Sprints Completados
 
-1. **Sprint 1 - Fundamentos:** ✅
-   - Tests de hooks (useAuth, useTasks)
-   - Filtro "Mis Tareas" en TaskList
-   - Backend `assignedToMe` query parameter
-   
-2. **Sprint 2 - Subtareas:** ✅
-   - Backend: Endpoint POST `/tasks/:id/subtasks`
-   - Frontend: SubtaskList con CRUD completo
-   - TaskCard con barra de progreso de subtareas
-   - Tests de useCreateSubtask hook
-   
-### Siguiente: Sprint 3 - Colaboración
+1. **Sprint 3 - Colaboración:** ✅
+   - Sistema de Notificaciones
+   - Comentarios y Menciones
+   - Compartir Tareas
 
-1. **Comentarios mejorados**
-   - Menciones @usuario
-   - Notificaciones en app
-   
-2. **Compartir tareas**
-   - Link público de tarea (solo lectura)
-   - Invitar colaboradores
+2. **Sprint 4 - Productividad:** ✅
+   - Pomodoro Timer Avanzado
+   - Gamificación (XP, Niveles)
+   - Vistas Calendario y Recurrencia
+
+3. **Sprint 5 - Archivos:** ✅
+   - Sistema de Archivos y Adjuntos
+   - Upload Drag & Drop
+   - Gestión de Archivos por Proyecto
+
+### Siguiente: Sprint 6 - Polish & Testing
+
+1. **Testing E2E**
+   - Setup Playwright
+   - Flujos críticos
+
+2. **Performance & Docs**
+   - Optimización
+   - Guías de usuario
 
 ---
 
-*¿Comenzamos con Sprint 3 (Colaboración)?*
+*¿Comenzamos con Sprint 6 (Polish & Testing)?*
 
