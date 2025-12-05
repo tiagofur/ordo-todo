@@ -11,8 +11,8 @@
 |-----------|-----|---------|--------|
 | **Project Components** | 11 archivos | 2 archivos | 🔴 **9 faltantes** |
 | **Task Detail Components** | 15 archivos | 9 archivos (5 stubs) | 🔴 **Stubs sin implementar** |
-| **Workspace Components** | 11 archivos | 3 archivos | 🟡 **8 faltantes** |
-| **AI Components** | 4 archivos | 1 archivo | 🟡 **3 faltantes** |
+| **Workspace Components** | 11 archivos | 9 archivos | 🟢 **2 faltantes** |
+| **AI Components** | 4 archivos | 4 archivos | ✅ **Completo** |
 | **Dashboard Widgets** | 2 archivos | 7 archivos | ✅ Desktop superior |
 | **Analytics** | 5 archivos | 6 archivos | ✅ Paridad |
 | **Electron Native** | N/A | 12+ archivos | ✅ Completo |
@@ -78,14 +78,14 @@ Los siguientes componentes existen en Desktop pero son **STUBS vacíos**:
 | `create-workspace-dialog.tsx` | ✅ | ✅ | ✅ OK |
 | `workspace-selector.tsx` | ✅ | ✅ | ✅ OK |
 | `workspace-settings-dialog.tsx` | ✅ | ✅ | ✅ OK |
-| `invite-member-dialog.tsx` | ✅ 6,646 bytes | ❌ | 🔴 Crítica |
-| `workspace-members-settings.tsx` | ✅ 7,480 bytes | ❌ | 🔴 Crítica |
-| `workspace-activity-log.tsx` | ✅ 6,329 bytes | ❌ | 🟡 Media |
+| `invite-member-dialog.tsx` | ✅ 6,646 bytes | ✅ Migrado | ✅ OK |
+| `workspace-members-settings.tsx` | ✅ 7,480 bytes | ✅ Migrado | ✅ OK |
+| `workspace-activity-log.tsx` | ✅ 6,329 bytes | ✅ Migrado | ✅ OK |
 | `workspace-dashboard.tsx` | ✅ 14,470 bytes | ❌ | 🟡 Media |
 | `workspace-info-bar.tsx` | ✅ 7,452 bytes | ❌ | 🟢 Baja |
 | `workspace-card.tsx` | ✅ 7,314 bytes | ❌ | 🟢 Baja |
 | `workspace-auto-selector.tsx` | ✅ 1,266 bytes | ❌ | 🟢 Baja |
-| `workspace-configuration-settings.tsx` | ✅ 8,399 bytes | ❌ | 🟡 Media |
+| `workspace-configuration-settings.tsx` | ✅ 8,399 bytes | ✅ Migrado | ✅ OK |
 
 ---
 
@@ -97,9 +97,9 @@ Los siguientes componentes existen en Desktop pero son **STUBS vacíos**:
 | Componente | Web | Desktop | Prioridad |
 |------------|-----|---------|-----------|
 | `AIWeeklyReport.tsx` | ❌ | ✅ 13,499 bytes | ✅ OK |
-| `generate-report-dialog.tsx` | ✅ 5,744 bytes | ❌ | 🟡 Alta |
-| `report-card.tsx` | ✅ 5,544 bytes | ❌ | 🟡 Media |
-| `report-detail.tsx` | ✅ 9,093 bytes | ❌ | 🟡 Media |
+| `generate-report-dialog.tsx` | ✅ 5,744 bytes | ✅ Migrado | ✅ OK |
+| `report-card.tsx` | ✅ 5,544 bytes | ✅ Migrado | ✅ OK |
+| `report-detail.tsx` | ✅ 9,093 bytes | ✅ Migrado | ✅ OK |
 | `ai-assistant-sidebar.tsx` | ✅ 5,000 bytes | ❌ | 🟢 Baja |
 
 ---

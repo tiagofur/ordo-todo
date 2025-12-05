@@ -13,6 +13,8 @@ import {
   LazySettings,
   LazyAuth,
   LazyTimerFloating,
+  LazyCalendar,
+  LazyFocusMode,
 } from "../pages/lazy";
 
 /**
@@ -26,6 +28,14 @@ export const router = createHashRouter([
     element: (
       <LazyPage fallback={<PageLoader message="Loading timer..." />}>
         <LazyTimerFloating />
+      </LazyPage>
+    ),
+  },
+  {
+    path: "/focus",
+    element: (
+      <LazyPage fallback={<PageLoader message="Entering Deep Work..." />}>
+        <LazyFocusMode />
       </LazyPage>
     ),
   },
@@ -50,6 +60,14 @@ export const router = createHashRouter([
         element: (
           <LazyPage fallback={<PageLoader message="Loading dashboard..." />}>
             <LazyDashboard />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "calendar",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading calendar..." />}>
+            <LazyCalendar />
           </LazyPage>
         ),
       },

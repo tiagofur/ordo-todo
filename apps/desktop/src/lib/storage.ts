@@ -1,34 +1,34 @@
-import Store from 'electron-store';
 import type { TokenStorage } from '@ordo-todo/api-client';
-
-const store = new Store();
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
- * Electron Store implementation of TokenStorage
- * Persists authentication tokens across app restarts
+ * Storage implementation of TokenStorage for Desktop Renderer.
+ * Uses localStorage to avoid 'path' module issues in renderer process.
  */
 export class ElectronStoreTokenStorage implements TokenStorage {
   getToken(): string | null {
-    return store.get(TOKEN_KEY, null) as string | null;
+    return localStorage.getItem(TOKEN_KEY);
   }
 
   setToken(token: string): void {
-    store.set(TOKEN_KEY, token);
+    localStorage.setItem(TOKEN_KEY, token);
   }
 
   removeToken(): void {
-    store.delete(TOKEN_KEY);
-    store.delete(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   }
 
   getRefreshToken(): string | null {
-    return store.get(REFRESH_TOKEN_KEY, null) as string | null;
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
   setRefreshToken(token: string): void {
-    store.set(REFRESH_TOKEN_KEY, token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  }
+
+  removeRefreshToken(): void {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
   }
 }

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { FolderKanban, MoreVertical, Archive, Trash2, CheckCircle2, Clock } from "lucide-react";
-import { api } from "@/utils/api";
+import { useDeleteProject, useUpdateProject } from "@/hooks/api/use-projects";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,34 +24,19 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate();
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
 
   // Fetch tasks for this project to show progress
-  const { data: tasks } = api.task.list.useQuery(undefined);
+  // const { data: tasks } = api.task.list.useQuery(undefined);
+  // TODO: Re-implement statistics with proper hooks (need workspaceId)
+  const tasks: any[] = [];
   const projectTasks = tasks?.filter(t => t.projectId === project.id) || [];
   const completedTasks = projectTasks.filter(t => t.status === "COMPLETED").length;
   const totalTasks = projectTasks.length;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  const archiveProject = api.project.archive.useMutation({
-    onSuccess: () => {
-      toast.success("Proyecto archivado");
-      utils.project.list.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al archivar proyecto");
-    },
-  });
-
-  const deleteProject = api.project.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Proyecto eliminado");
-      utils.project.list.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al eliminar proyecto");
-    },
-  });
+  const archiveProjectMutation = useUpdateProject();
+  const deleteProjectMutation = useDeleteProject();
 
   const handleCardClick = () => {
     if (project.id) {
@@ -62,7 +48,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
     e.stopPropagation(); // Prevent card click
     if (!project.id) return;
     if (confirm("¿Estás seguro de archivar este proyecto?")) {
-      archiveProject.mutate({ id: String(project.id) });
+      archiveProjectMutation.mutate({ projectId: String(project.id), data: { archived: !project.archived } as any }, {
+        onSuccess: () => toast.success("Proyecto actualizado"),
+        onError: () => toast.error("Error al actualizar proyecto")
+      });
     }
   };
 
@@ -70,7 +59,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
     e.stopPropagation(); // Prevent card click
     if (!project.id) return;
     if (confirm("¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer.")) {
-      deleteProject.mutate({ id: String(project.id) });
+      deleteProjectMutation.mutate(String(project.id), {
+        onSuccess: () => toast.success("Proyecto eliminado"),
+        onError: () => toast.error("Error al eliminar proyecto")
+      });
     }
   };
 

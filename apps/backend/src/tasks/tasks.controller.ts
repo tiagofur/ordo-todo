@@ -135,4 +135,26 @@ export class TasksController {
   findByPublicToken(@Param('token') token: string) {
     return this.tasksService.findByPublicToken(token);
   }
+
+  // Dependencies Reference
+  @Get(':id/dependencies')
+  getDependencies(@Param('id') id: string) {
+    return this.tasksService.getDependencies(id);
+  }
+
+  @Post(':id/dependencies')
+  addDependency(
+    @Param('id') id: string,
+    @Body('blockingTaskId') blockingTaskId: string
+  ) {
+    return this.tasksService.addDependency(id, blockingTaskId);
+  }
+
+  @Delete(':id/dependencies/:blockingTaskId')
+  removeDependency(
+    @Param('id') id: string,
+    @Param('blockingTaskId') blockingTaskId: string
+  ) {
+    return this.tasksService.removeDependency(id, blockingTaskId);
+  }
 }

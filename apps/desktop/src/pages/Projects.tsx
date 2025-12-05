@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Plus, FolderKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { api } from "@/utils/api";
 import { ProjectCard } from "@/components/project/project-card";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useProjects } from "@/hooks/api/use-projects";
 
 export function Projects() {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: projects, isLoading } = api.project.listAll.useQuery();
+  const { data: projects, isLoading } = useProjects(selectedWorkspaceId || undefined);
 
   return (
     <div className="space-y-6">
@@ -37,7 +37,7 @@ export function Projects() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => (
+          {projects.map((project: any) => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </div>

@@ -6,17 +6,17 @@ import type { CreateProjectDto, UpdateProjectDto } from '@ordo-todo/api-client';
  * Project Management Hooks
  */
 
-export function useProjects(workflowId?: string) {
+export function useProjects(workspaceId?: string) {
   return useQuery({
-    queryKey: ['projects', { workflowId }],
-    queryFn: () => apiClient.getProjects(workflowId),
+    queryKey: ['projects', { workspaceId }],
+    queryFn: () => workspaceId ? apiClient.getProjects(workspaceId) : apiClient.getAllProjects(),
   });
 }
 
 export function useProject(projectId: string) {
   return useQuery({
     queryKey: ['projects', projectId],
-    queryFn: () => apiClient.getProjectById(projectId),
+    queryFn: () => apiClient.getProject(projectId),
     enabled: !!projectId,
   });
 }
@@ -61,17 +61,6 @@ export function useArchiveProject() {
 
   return useMutation({
     mutationFn: (projectId: string) => apiClient.archiveProject(projectId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-    },
-  });
-}
-
-export function useUnarchiveProject() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (projectId: string) => apiClient.unarchiveProject(projectId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },

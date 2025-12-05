@@ -87,6 +87,26 @@
     "tasksCount": "{{count}} tasks",
     "completedTasks": "{{count}} completed"
   },
+  "ProjectBoard": {
+    "columns": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "addTask": "Add task"
+  },
+  "TaskCard": {
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "actions": {
+      "viewEdit": "View/Edit",
+      "delete": "Delete"
+    }
+  },
   "timer": {
     "title": "Pomodoro Timer",
     "start": "Start",
@@ -207,5 +227,255 @@
     "failedChanges": "{{count}} failed changes",
     "offlineBanner": "You're offline. Changes will sync when you reconnect.",
     "pendingChanges": "pending"
+  },
+  "ActivityFeed": {
+    "title": "Activity",
+    "empty": "No recent activity",
+    "showing": "Showing {{count}} of {{total}}",
+    "showMore": "Show {{count}} more",
+    "dates": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "actions": {
+      "TASK_CREATED": "created the task",
+      "TASK_UPDATED": "updated the task",
+      "TASK_COMPLETED": "completed the task",
+      "TASK_DELETED": "deleted the task",
+      "COMMENT_ADDED": "added a comment",
+      "COMMENT_EDITED": "edited a comment",
+      "COMMENT_DELETED": "deleted a comment",
+      "ATTACHMENT_ADDED": "added a file",
+      "ATTACHMENT_DELETED": "deleted a file",
+      "SUBTASK_ADDED": "added a subtask",
+      "SUBTASK_COMPLETED": "completed a subtask",
+      "STATUS_CHANGED": "changed the status",
+      "PRIORITY_CHANGED": "changed the priority",
+      "ASSIGNEE_CHANGED": "changed the assignee",
+      "DUE_DATE_CHANGED": "changed the due date"
+    },
+    "details": {
+      "fromTo": "from {{oldValue}} to {{newValue}}",
+      "to": "to {{newValue}}",
+      "removed": "removed",
+      "item": ": {{itemName}}",
+      "mentioned": "mentioned {{users}}"
+    }
+  },
+  "CommentThread": {
+    "title": "Comments",
+    "empty": "No comments yet. Be the first to comment!",
+    "placeholder": "Write a comment...",
+    "shortcut": "Ctrl/Cmd + Enter to send",
+    "edited": "(edited)",
+    "confirmDelete": "Delete this comment?",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "send": "Send",
+      "sending": "Sending..."
+    },
+    "toast": {
+      "added": "Comment added",
+      "addError": "Error adding comment",
+      "updated": "Comment updated",
+      "updateError": "Error updating comment",
+      "deleted": "Comment deleted",
+      "deleteError": "Error deleting comment"
+    }
+  },
+  "AttachmentList": {
+    "title": "Attachments",
+    "empty": "No attachments",
+    "total": "total",
+    "by": "by",
+    "confirmDelete": "Delete {{filename}}?",
+    "tooltips": {
+      "preview": "Preview",
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "toast": {
+      "downloading": "Downloading {{filename}}...",
+      "deleted": "File deleted",
+      "deleteError": "Error deleting file"
+    }
+  },
+  "FileUpload": {
+    "uploading": "Uploading files",
+    "dropzone": {
+      "idle": "Drag files here or click to select",
+      "dragging": "Drop files here",
+      "maxSize": "Max size: {{maxFileSize}}MB"
+    },
+    "errors": {
+      "tooLarge": "File is too large. Maximum {{maxFileSize}}MB",
+      "invalidType": "File type not allowed",
+      "invalidResponse": "Invalid server response",
+      "unknown": "Unknown error",
+      "uploadError": "Upload error: {{errorMessage}}",
+      "statusError": "Error {{status}}: {{statusText}}",
+      "networkError": "Network error uploading file"
+    },
+    "success": {
+      "uploaded": "{{fileName}} uploaded successfully"
+    },
+    "info": {
+      "cancelled": "Upload of {{fileName}} cancelled"
+    }
+  },
+  "InviteMemberDialog": {
+    "title": "Invite Member",
+    "description": "Invite someone to join your workspace",
+    "emailLabel": "Email",
+    "roleLabel": "Role",
+    "rolePlaceholder": "Select a role",
+    "roles": {
+      "admin": "Administrator",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "cancel": "Cancel",
+    "invite": "Send invitation",
+    "success": "Invitation sent successfully",
+    "successWithToken": "Invitation created. Share the link with the user.",
+    "error": "Error sending invitation",
+    "inviteLink": "Invitation link",
+    "copied": "Link copied to clipboard",
+    "devTokenNote": "Note: In development, share this link manually with the user.",
+    "done": "Done"
+  },
+  "WorkspaceMembersSettings": {
+    "loading": "Loading members...",
+    "membersTitle": "Workspace members",
+    "membersDescription": "Manage who has access to this workspace",
+    "inviteMember": "Invite member",
+    "user": "User",
+    "role": "Role",
+    "joined": "Joined",
+    "email": "Email",
+    "status": "Status",
+    "sent": "Sent",
+    "remove": "Remove",
+    "confirmRemove": "Are you sure you want to remove this member?",
+    "unknownUser": "Unknown user",
+    "noMembers": "No members in this workspace",
+    "invitationsTitle": "Pending invitations",
+    "invitationsDescription": "Invitations that haven't been accepted yet"
+  },
+  "GenerateReportDialog": {
+    "trigger": "Generate Report",
+    "title": "Generate AI Weekly Report",
+    "description": "Our AI assistant will analyze your productivity and generate a personalized report.",
+    "includes": {
+      "title": "The report will include:",
+      "metrics": "Key productivity metrics for the week",
+      "strengths": "Identified strengths in your workflow",
+      "recommendations": "Personalized recommendations for improvement",
+      "patterns": "Detected productivity patterns",
+      "score": "Overall productivity score"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "generate": "Generate Report",
+      "close": "Close",
+      "retry": "Retry"
+    },
+    "loading": {
+      "title": "Generating your report...",
+      "description": "This may take a few seconds while we analyze your data."
+    },
+    "success": {
+      "title": "Report generated successfully!",
+      "description": "Your report is ready to view."
+    },
+    "error": "There was an error generating the report. Please try again."
+  },
+  "ReportCard": {
+    "scopes": {
+      "TASK_COMPLETION": "Task Completion Report",
+      "WEEKLY_SCHEDULED": "Weekly Report",
+      "MONTHLY_SCHEDULED": "Monthly Report",
+      "PROJECT_SUMMARY": "Project Summary",
+      "PERSONAL_ANALYSIS": "Personal Analysis",
+      "default": "Report"
+    },
+    "metrics": {
+      "tasks": "tasks",
+      "hoursWorked": "h worked",
+      "pomodoros": "pomodoros"
+    },
+    "stats": {
+      "strengths": "strengths",
+      "weaknesses": "areas for improvement",
+      "recommendations": "recommendations"
+    }
+  },
+  "ReportDetail": {
+    "generatedOn": "Generated on",
+    "poweredBy": "Powered by {{model}}",
+    "summary": "Summary",
+    "metrics": {
+      "title": "Week Metrics",
+      "tasksCompleted": "Tasks Completed",
+      "timeWorked": "Time Worked",
+      "pomodoros": "Pomodoros",
+      "focusScore": "Focus Score"
+    },
+    "strengths": "Strengths",
+    "weaknesses": "Areas for Improvement",
+    "recommendations": "Recommendations",
+    "patterns": "Detected Patterns"
+  },
+  "WorkspaceConfigurationSettings": {
+    "form": {
+      "defaultView": {
+        "label": "Default View",
+        "helper": "The view that will be shown when opening a project",
+        "options": {
+          "LIST": "List",
+          "KANBAN": "Kanban",
+          "CALENDAR": "Calendar",
+          "TIMELINE": "Timeline",
+          "FOCUS": "Focus"
+        }
+      },
+      "defaultDueTime": {
+        "label": "Default Due Time",
+        "helper": "Default time for due dates of new tasks"
+      },
+      "timezone": {
+        "label": "Timezone",
+        "placeholder": "Select your timezone",
+        "helper": "Timezone used to display dates and times"
+      },
+      "locale": {
+        "label": "Language and Region",
+        "placeholder": "Select your language",
+        "helper": "Language used for the interface and date formatting"
+      }
+    },
+    "actions": {
+      "save": "Save Changes",
+      "saving": "Saving..."
+    },
+    "toast": {
+      "updated": "Settings updated successfully",
+      "updateError": "Error updating settings"
+    }
+  },
+  "WorkspaceActivityLog": {
+    "by": "by",
+    "empty": {
+      "title": "No recent activity",
+      "description": "Actions performed in this workspace will appear here"
+    },
+    "pagination": {
+      "showing": "Showing {{from}} to {{to}} of {{total}}",
+      "page": "Page {{current}} of {{total}}"
+    }
   }
 }

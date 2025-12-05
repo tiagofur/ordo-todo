@@ -1,30 +1,31 @@
 import { useState } from "react";
 import { Plus, Tag as TagIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { api } from "@/utils/api";
 import { TagBadge } from "@/components/tag/tag-badge";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { toast } from "sonner";
+import { useTags, useDeleteTag } from "@/hooks/api/use-tags";
+import { useWorkspaces } from "@/hooks/api/use-workspaces";
 
 export function Tags() {
   const [showCreateTag, setShowCreateTag] = useState(false);
-  const utils = api.useUtils();
-  const { data: tags, isLoading } = api.tag.list.useQuery({ workspaceId: "default" });
+  
+  // TODO: Get actual workspace ID from context
+  const { data: workspaces } = useWorkspaces();
+  const workspaceId = workspaces?.[0]?.id || "default";
 
-  const deleteTag = api.tag.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Etiqueta eliminada");
-      utils.tag.list.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al eliminar etiqueta");
-    },
-  });
+  const { data: tags, isLoading } = useTags(workspaceId);
+  const deleteTagMutation = useDeleteTag();
 
-  const handleDeleteTag = (tagId: string | number) => {
+  const handleDeleteTag = async (tagId: string | number) => {
     if (confirm("¿Estás seguro de eliminar esta etiqueta?")) {
-      deleteTag.mutate({ id: String(tagId) });
+      try {
+        await deleteTagMutation.mutateAsync(String(tagId));
+        toast.success("Etiqueta eliminada");
+      } catch (error: any) {
+        toast.error(error.message || "Error al eliminar etiqueta");
+      }
     }
   };
 
@@ -53,7 +54,7 @@ export function Tags() {
         />
       ) : (
         <div className="flex flex-wrap gap-3">
-          {tags.map((tag) => (
+          {tags.map((tag: any) => (
             <div key={tag.id} className="group relative">
               <TagBadge 
                 tag={tag} 

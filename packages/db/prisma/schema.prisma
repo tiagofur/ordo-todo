@@ -212,6 +212,7 @@ model Workspace {
   settings    WorkspaceSettings?
   invitations WorkspaceInvitation[]
   audits      WorkspaceAuditLog[]
+  taskTemplates TaskTemplate[]
 
   // NUEVO: Estados de ciclo de vida
   isArchived  Boolean   @default(false)
@@ -536,6 +537,33 @@ model Recurrence {
   endDate     DateTime?
 
   createdAt   DateTime @default(now())
+}
+
+model TaskTemplate {
+  id          String   @id @default(cuid())
+  
+  name        String
+  description String?
+  icon        String?  // Lucide icon name
+  
+  // Preset Values
+  titlePattern      String?
+  defaultPriority   Priority @default(MEDIUM)
+  defaultEstimatedMinutes Int?
+  defaultDescription String? @db.Text
+  defaultTags       Json?    // string[]
+  
+  // Owner / Scope
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+  
+  // Metadata
+  isPublic    Boolean   @default(true) // Visible to all workspace members
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([workspaceId])
 }
 
 enum RecurrencePattern {

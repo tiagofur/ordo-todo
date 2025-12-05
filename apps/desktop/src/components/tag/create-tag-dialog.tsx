@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { api } from "@/utils/api";
+import { useCreateTag } from "@/hooks/api/use-tags";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +43,7 @@ const tagColors = [
 ];
 
 export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }: CreateTagDialogProps) {
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
   const [selectedColor, setSelectedColor] = useState(tagColors[0]);
 
   const {
@@ -61,22 +62,22 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
 
   const tagName = watch("name");
 
-  const createTag = api.tag.create.useMutation({
-    onSuccess: () => {
-      toast.success("Etiqueta creada exitosamente");
-      utils.tag.list.invalidate();
-      reset();
-      onOpenChange(false);
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al crear etiqueta");
-    },
-  });
+  const createTagMutation = useCreateTag();
 
   const onSubmit = (data: CreateTagForm) => {
-    createTag.mutate({
+    createTagMutation.mutate({
+      tagId: "new", // Ignored by create
       ...data,
       color: selectedColor,
+      // CreateTagDto needs workspaceId, name, color.
+    } as any, {
+      onSuccess: () => {
+        toast.success("Etiqueta creada exitosamente");
+        // Invalidation handled by hook
+        reset();
+        onOpenChange(false);
+      },
+      onError: (error) => toast.error(error.message || "Error al crear etiqueta")
     });
   };
 
@@ -153,10 +154,10 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
             </button>
             <button
               type="submit"
-              disabled={createTag.isPending}
+              disabled={createTagMutation.isPending}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {createTag.isPending ? "Creando..." : "Crear Etiqueta"}
+              {createTagMutation.isPending ? "Creando..." : "Crear Etiqueta"}
             </button>
           </DialogFooter>
         </form>

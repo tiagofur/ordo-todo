@@ -18,14 +18,17 @@ import { AttachmentsModule } from './attachments/attachments.module';
 import { UploadModule } from './upload/upload.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { GamificationModule } from './gamification/gamification.module';
+import { TemplatesModule } from './templates/templates.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule,
     DatabaseModule,
     RepositoriesModule,
@@ -44,6 +47,7 @@ import { AppService } from './app.service';
     UploadModule,
     NotificationsModule,
     GamificationModule,
+    TemplatesModule,
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],

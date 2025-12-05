@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings } from "lucide-react";
+import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../../lib/utils";
 import { WorkspaceSelector } from "../workspace/WorkspaceSelector";
@@ -9,6 +9,7 @@ import { TimerWidget } from "../timer/TimerWidget";
 const navigation = [
   { name: "Hoy", href: "/dashboard", icon: Home },
   { name: "Tareas", href: "/tasks", icon: CheckSquare },
+  { name: "Calendario", href: "/calendar", icon: Calendar },
   { name: "Proyectos", href: "/projects", icon: FolderKanban },
   { name: "Etiquetas", href: "/tags", icon: Tags },
   { name: "Analíticas", href: "/analytics", icon: BarChart3 },

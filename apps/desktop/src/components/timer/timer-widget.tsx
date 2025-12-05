@@ -1,11 +1,9 @@
 import { Clock, Pause } from "lucide-react";
-import { api } from "@/utils/api";
 import { Link } from "react-router-dom";
+import { useActiveTimeSession } from "@/hooks/api/use-timers";
 
 export function TimerWidget() {
-  const { data: activeSession } = api.timer.active.useQuery(undefined, {
-    refetchInterval: 1000, // Update every second
-  });
+  const { data: activeSession } = useActiveTimeSession();
 
   const formatDuration = (startedAt: Date | string): string => {
     const start = typeof startedAt === "string" ? new Date(startedAt) : startedAt;

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateTask, useProjects } from "@/hooks/api";
+import { useCreateTask, useProjects, useTags, useWorkspaceMembers } from "@/hooks/api";
+import { apiClient } from "@/lib/api-client";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Calendar, Flag, FolderKanban, Plus, Sparkles } from "lucide-react";
+import { Calendar, Flag, FolderKanban, Plus, Sparkles, Clock, Wand2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { Button } from "@/components/ui/button";
 import { useWorkspaceStore } from "@/stores/workspace-store";
+import { parseTaskInput } from "@/utils/smart-capture";
+import { TemplateSelector } from "./template-selector";
+import { TaskTemplate } from "@/hooks/api/use-templates";
 
 const createTaskSchema = z.object({
   title: z.string().min(1, "El título es requerido"),
@@ -23,6 +27,7 @@ const createTaskSchema = z.object({
   projectId: z.string().min(1, "El proyecto es requerido"),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
   dueDate: z.string().optional(),
+  estimatedMinutes: z.coerce.number().optional(),
 });
 
 type CreateTaskForm = z.infer<typeof createTaskSchema>;
@@ -44,16 +49,20 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const { selectedWorkspaceId } = useWorkspaceStore();
   const [selectedPriority, setSelectedPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "URGENT">("MEDIUM");
   const [showCreateProject, setShowCreateProject] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
+  const [isEstimating, setIsEstimating] = useState(false);
 
   // Fetch all projects if no projectId is provided
   const { data: projects, isLoading: isLoadingProjects } = useProjects();
-
+  const { data: tags } = useTags();
+  const { data: members } = useWorkspaceMembers(selectedWorkspaceId || "");
 
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<CreateTaskForm>({
     resolver: zodResolver(createTaskSchema),
@@ -62,6 +71,93 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
       priority: "MEDIUM",
     },
   });
+
+  const handleTemplateSelect = (template: TaskTemplate) => {
+    setSelectedTemplateId(template.id);
+    
+    if (template.titlePattern) {
+        const now = new Date();
+        const title = template.titlePattern
+            .replace('{date}', now.toLocaleDateString())
+            .replace('{time}', now.toLocaleTimeString());
+        setValue("title", title, { shouldDirty: true });
+    }
+    
+    if (template.defaultDescription) {
+        setValue("description", template.defaultDescription, { shouldDirty: true });
+    }
+    
+    if (template.defaultPriority) {
+        setSelectedPriority(template.defaultPriority as any);
+        setValue("priority", template.defaultPriority as any, { shouldDirty: true });
+    }
+    
+    // Also set estimatedMinutes if template has it (assuming template model supports it, irrelevant for now)
+    
+    toast.success(`Plantilla "${template.name}" aplicada`);
+  };
+
+  const handleSmartCapture = () => {
+    const text = getValues("title");
+    if (!text) return;
+
+    const result = parseTaskInput(text, {
+        projects: projects || [],
+        members: members || [],
+        tags: tags || [],
+    });
+
+    if (result.title !== text) {
+        setValue("title", result.title, { shouldDirty: true });
+    }
+
+    if (result.projectId) {
+        setValue("projectId", result.projectId, { shouldDirty: true });
+        toast.success("Proyecto detectado");
+    }
+
+    if (result.priority) {
+        setValue("priority", result.priority, { shouldDirty: true });
+        setSelectedPriority(result.priority);
+        toast.success(`Prioridad ${result.priority} detectada`);
+    }
+
+    if (result.dueDate) {
+        const iso = result.dueDate.toISOString().split('T')[0];
+        setValue("dueDate", iso, { shouldDirty: true });
+        toast.success("Fecha detectada");
+    }
+  };
+
+  const handleAIEstimate = async () => {
+    const { title, description } = getValues();
+    if (!title) {
+        toast.error("Ingresa un título para estimar");
+        return;
+    }
+
+    setIsEstimating(true);
+    try {
+        const result = await apiClient.predictTaskDuration({
+            title,
+            description,
+            priority: selectedPriority
+        });
+
+        if (result && result.estimatedMinutes) {
+            setValue("estimatedMinutes", result.estimatedMinutes, { shouldDirty: true });
+            toast.success(`Estimación: ${result.estimatedMinutes} min`, {
+                description: result.reasoning || "Basado en tareas similares e IA"
+            });
+        } else {
+            toast.info("No se pudo generar una estimación precisa");
+        }
+    } catch (e) {
+        toast.error("Error al conectar con el servicio de IA");
+    } finally {
+        setIsEstimating(false);
+    }
+  };
 
   const createTask = useCreateTask();
 
@@ -72,9 +168,11 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         priority: selectedPriority,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         projectId: data.projectId,
+        estimatedTime: data.estimatedMinutes,
       });
       toast.success("Tarea creada exitosamente");
       reset();
+      setSelectedTemplateId(undefined);
       onOpenChange(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error al crear tarea");
@@ -85,9 +183,6 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     setShowCreateProject(false);
   };
 
-  // If loading projects, show loading state (optional, or just render form with empty list)
-  
-  // If no projects found and not loading, show Empty State
   const showEmptyState = !projectId && !isLoadingProjects && projects?.length === 0;
 
   return (
@@ -102,12 +197,22 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             <EmptyState
               icon={FolderKanban}
               title="No hay proyectos creados"
-              description="Para crear una tarea, primero necesitas crear un proyecto. Los proyectos ayudan a organizar tus tareas."
+              description="Para crear una tarea, primero necesitas crear un proyecto."
               actionLabel="Crear mi primer proyecto"
               onAction={() => setShowCreateProject(true)}
             />
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Template Selector */}
+              <div className="flex justify-end mb-2">
+                 <div className="w-[250px]">
+                    <TemplateSelector 
+                        onSelect={handleTemplateSelect} 
+                        selectedTemplateId={selectedTemplateId} 
+                    />
+                 </div>
+              </div>
+
               {/* Title */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
@@ -117,10 +222,10 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                         variant="ghost" 
                         size="sm" 
                         className="h-6 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                        onClick={() => toast.info("Funcionalidad de IA próximamente")}
+                        onClick={handleSmartCapture}
                     >
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        AI Magic
+                        <Wand2 className="w-3 h-3 mr-1" />
+                        Smart Parse
                     </Button>
                 </div>
                 <input
@@ -146,28 +251,58 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 />
               </div>
 
-              {/* Priority */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Flag className="h-4 w-4" />
-                  Prioridad
-                </Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {priorities.map((priority) => (
-                    <button
-                      key={priority.value}
-                      type="button"
-                      onClick={() => setSelectedPriority(priority.value as any)}
-                      className={`flex items-center justify-center gap-2 rounded-lg border p-2 text-sm transition-colors ${
-                        selectedPriority === priority.value
-                          ? "border-primary bg-primary/5"
-                          : "hover:bg-accent"
-                      }`}
-                    >
-                      <Flag className={`h-4 w-4 ${priority.color}`} />
-                      <span>{priority.label}</span>
-                    </button>
-                  ))}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Priority */}
+                <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                    <Flag className="h-4 w-4" />
+                    Prioridad
+                    </Label>
+                    <div className="grid grid-cols-4 gap-2">
+                    {priorities.map((priority) => (
+                        <button
+                        key={priority.value}
+                        type="button"
+                        onClick={() => setSelectedPriority(priority.value as any)}
+                        className={`flex items-center justify-center gap-2 rounded-lg border p-2 text-sm transition-colors ${
+                            selectedPriority === priority.value
+                            ? "border-primary bg-primary/5"
+                            : "hover:bg-accent"
+                        }`}
+                        title={priority.label}
+                        >
+                        <Flag className={`h-4 w-4 ${priority.color}`} />
+                        </button>
+                    ))}
+                    </div>
+                </div>
+                
+                {/* Estimated Time */}
+                <div className="space-y-2">
+                    <Label htmlFor="estimatedMinutes" className="flex items-center gap-2 justify-between">
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            Estimación (min)
+                        </div>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-5 text-[10px] px-2 text-purple-600"
+                            onClick={handleAIEstimate}
+                            disabled={isEstimating}
+                        >
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            {isEstimating ? "..." : "Auto"}
+                        </Button>
+                    </Label>
+                    <input
+                        id="estimatedMinutes"
+                        type="number"
+                        {...register("estimatedMinutes")}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="30"
+                    />
                 </div>
               </div>
 

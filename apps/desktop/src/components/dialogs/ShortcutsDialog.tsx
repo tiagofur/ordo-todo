@@ -20,6 +20,13 @@ const shortcuts: ShortcutItem[] = [
   { keys: ["Ctrl", "Shift", "S"], description: "Toggle Timer (Global)", category: "Timer" },
   { keys: ["Ctrl", "Shift", "K"], description: "Saltar al siguiente", category: "Timer" },
   
+
+  // Listas
+  { keys: ["j"], description: "Siguiente elemento", category: "Listas" },
+  { keys: ["k"], description: "Elemento anterior", category: "Listas" },
+  { keys: ["x"], description: "Completar tarea seleccionada", category: "Listas" },
+  { keys: ["Enter"], description: "Abrir detalles", category: "Listas" },
+
   // Navigation
   { keys: ["Ctrl", "1"], description: "Ir a Dashboard", category: "Navegación" },
   { keys: ["Ctrl", "2"], description: "Ir a Tareas", category: "Navegación" },

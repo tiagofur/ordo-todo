@@ -246,10 +246,10 @@ Q2 2025 (Abr-Jun)
 
 | Feature | Web | Desktop | Brecha |
 |---------|-----|---------|--------|
-| Project Components | 11 | 2 | 🔴 9 faltantes |
-| Task Detail | 15 | 9 (5 stubs) | 🔴 Stubs vacíos |
-| Workspace Components | 11 | 3 | 🟡 8 faltantes |
-| AI Components | 4 | 1 | 🟡 3 faltantes |
+| Project Components | 11 | 6 | 🟡 5 faltantes |
+| Task Detail | 15 | 13 (1 stubs) | 🟡 Parcial |
+| Workspace Components | 11 | 9 | 🟢 2 faltantes |
+| AI Components | 4 | 4 | ✅ Completado |
 
 ### Features Exclusivos Desktop (Funcionando)
 
@@ -272,13 +272,13 @@ Q2 2025 (Abr-Jun)
 ### Progreso por Milestone
 ```
 Milestone 1 (MVP):       [██████████] 100% ✅
-Milestone 2 (Analytics): [███████░░░]  70% ⚠️
-Milestone 3 (AI):        [██████░░░░]  60% ⚠️
+Milestone 2 (Analytics): [████████░░]  80% ✅
+Milestone 3 (AI):        [██████████] 100% ✅
 Milestone 4 (Offline):   [██████████] 100% ✅
 Milestone 5 (Advanced):  [██████████] 100% ✅
-Milestone 6 (Release):   [██████░░░░]  60% ⏳
+Milestone 6 (Release):   [████████░░]  85% ⏳
 
-Total:                   [████████░░]  82%
+Total:                   [█████████░]  90%
 ```
 
 ### Próximas Tareas (Sprint Actual)
@@ -296,13 +296,17 @@ Total:                   [████████░░]  82%
 - [ ] Implementar `file-upload.tsx`
 
 #### Sprint 3: Workspace Members
-- [ ] Migrar `invite-member-dialog.tsx`
-- [ ] Migrar `workspace-members-settings.tsx`
+- [x] Migrar `invite-member-dialog.tsx`
+- [x] Migrar `workspace-members-settings.tsx`
 
 #### Sprint 4: AI Components
-- [ ] Migrar `generate-report-dialog.tsx`
-- [ ] Migrar `report-card.tsx`
-- [ ] Migrar `report-detail.tsx`
+- [x] Migrar `generate-report-dialog.tsx`
+- [x] Migrar `report-card.tsx`
+- [x] Migrar `report-detail.tsx`
+
+#### Sprint 5: Workspace Settings
+- [x] Migrar `workspace-configuration-settings.tsx`
+- [x] Migrar `workspace-activity-log.tsx`
 
 ### Documentación Relacionada
 - [gaps-analysis.md](./gaps-analysis.md) - Análisis completo de brechas

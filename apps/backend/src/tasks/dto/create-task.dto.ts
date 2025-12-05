@@ -10,6 +10,29 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
+export class CreateRecurrenceDto {
+  @IsEnum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM'])
+  pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
+
+  @IsInt()
+  @IsOptional()
+  interval?: number;
+
+  @IsArray()
+  @IsInt({ each: true })
+  @IsOptional()
+  daysOfWeek?: number[];
+
+  @IsInt()
+  @IsOptional()
+  dayOfMonth?: number;
+
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  endDate?: Date;
+}
+
 export class CreateTaskDto {
   @IsString()
   @MinLength(1)
@@ -36,31 +59,12 @@ export class CreateTaskDto {
   @IsOptional()
   assigneeId?: string;
 
+  @IsInt()
+  @IsOptional()
+  estimatedTime?: number;
+
   @ValidateNested()
   @Type(() => CreateRecurrenceDto)
   @IsOptional()
   recurrence?: CreateRecurrenceDto;
-}
-
-export class CreateRecurrenceDto {
-  @IsEnum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM'])
-  pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
-
-  @IsInt()
-  @IsOptional()
-  interval?: number;
-
-  @IsArray()
-  @IsInt({ each: true })
-  @IsOptional()
-  daysOfWeek?: number[];
-
-  @IsInt()
-  @IsOptional()
-  dayOfMonth?: number;
-
-  @IsDate()
-  @Type(() => Date)
-  @IsOptional()
-  endDate?: Date;
 }

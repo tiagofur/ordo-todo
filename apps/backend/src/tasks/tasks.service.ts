@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, Logger, BadRequestException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import type { TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
 import { CreateTaskUseCase, CompleteTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
@@ -399,6 +399,74 @@ export class TasksService {
       ...task,
       tags: task.tags.map((t) => t.tag),
       estimatedTime: task.estimatedMinutes,
+    };
+  }
+
+  // Dependencies
+  async addDependency(blockedTaskId: string, blockingTaskId: string) {
+    if (blockedTaskId === blockingTaskId) {
+      throw new BadRequestException('Cannot depend on self');
+    }
+
+    // Check if tasks exist
+    const [blocked, blocking] = await Promise.all([
+      this.prisma.task.findUnique({ where: { id: blockedTaskId } }),
+      this.prisma.task.findUnique({ where: { id: blockingTaskId } })
+    ]);
+
+    if (!blocked || !blocking) throw new NotFoundException('Task not found');
+
+    // Check direct circular dependency
+    const reverse = await this.prisma.taskDependency.findUnique({
+      where: {
+        blockingTaskId_blockedTaskId: {
+          blockingTaskId: blockedTaskId,
+          blockedTaskId: blockingTaskId
+        }
+      }
+    });
+
+    if (reverse) throw new BadRequestException('Circular dependency detected');
+
+    return this.prisma.taskDependency.create({
+      data: {
+        blockedTaskId,
+        blockingTaskId
+      }
+    });
+  }
+
+  async removeDependency(blockedTaskId: string, blockingTaskId: string) {
+    // Check if exists first to avoid P2025? Or let it throw/catch.
+    // Prisma delete throws if record not found unless we use deleteMany or check.
+    // We'll trust client pass correct IDs or handle error
+    try {
+      return await this.prisma.taskDependency.delete({
+        where: {
+          blockingTaskId_blockedTaskId: {
+            blockedTaskId,
+            blockingTaskId
+          }
+        }
+      });
+    } catch (e) {
+      throw new NotFoundException('Dependency not found');
+    }
+  }
+
+  async getDependencies(taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        blockedBy: { include: { blockingTask: true } },
+        blocking: { include: { blockedTask: true } }
+      }
+    });
+    if (!task) throw new NotFoundException('Task not found');
+
+    return {
+      blockedBy: task.blockedBy.map(d => d.blockingTask),
+      blocking: task.blocking.map(d => d.blockedTask)
     };
   }
 }

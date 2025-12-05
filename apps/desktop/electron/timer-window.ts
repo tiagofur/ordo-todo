@@ -68,7 +68,7 @@ export function createTimerWindow(parent: BrowserWindow): BrowserWindow {
 
   // Prevent close, just hide
   timerWindow.on('close', (event) => {
-    if (!app.isQuitting) {
+    if (!(app as any).isQuitting) {
       event.preventDefault()
       timerWindow?.hide()
     }

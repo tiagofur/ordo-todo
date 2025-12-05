@@ -480,3 +480,361 @@ Si quieres, en el próximo paso puedo:
 - Generar los controllers y servicios NestJS completos (esqueleto con DTOs y pruebas unitarias básicas).
 
 Dime cuál prefieres y procedo.
+---
+
+---
+
+## 23. Plan de Mejoras y Roadmap de Implementación
+
+**Última actualización:** 2025-12-05
+
+### ⚠️ NOTA IMPORTANTE
+Algunas de las funcionalidades propuestas en este plan **YA ESTÁN IMPLEMENTADAS** en la aplicación actual. Antes de implementar cualquier mejora:
+1. **REVISAR** la implementación existente
+2. **PROPONER** mejoras específicas para aprobación
+3. **ESPERAR APROBACIÓN** antes de realizar cambios
+4. **NO implementar** mejoras por cuenta propia sin consultar
+
+---
+
+### 23.1 Mejoras de Alta Prioridad (Sprint 1-2)
+
+#### 🎯 P1: Captura Inteligente con NLP
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Parseo inteligente de texto al crear tareas.
+Ejemplo: `"Llamar a Juan mañana 3pm #MyProject !high"`
+
+**Implementación realizada:**
+- ✅ Utilidad `parseTaskInput` en `apps/desktop/src/utils/smart-capture.ts`.
+- ✅ Integración con `chrono-node` (ES/EN) para detección de fechas.
+- ✅ Regex para Prioridad (`!high`, `p:1`).
+- ✅ Detección de Proyectos (`#Nombre`) y Miembros (`@Nombre`).
+- ✅ Integración en `CreateTaskDialog` vía botón "AI Magic".
+
+**Archivos creados/modificados:**
+- `apps/desktop/src/utils/smart-capture.ts` (nuevo)
+- `apps/desktop/src/components/task/create-task-dialog.tsx` (modificado)
+
+---
+
+---
+
+#### 📅 P2: Vista de Calendario Completa
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Vista mensual interactiva de tareas.
+
+**Implementación realizada:**
+- ✅ Página `/calendar` con ruta y lazy loading.
+- ✅ Componente `CalendarView` (Grid mensual) usando `date-fns`.
+- ✅ Visualización de tareas en el día correspondiente.
+- ✅ HoverCard para detalles rápidos de tareas.
+- ✅ Enlace en Sidebar.
+
+**Archivos creados/modificados:**
+- `apps/desktop/src/pages/Calendar.tsx` (nueva página)
+- `apps/desktop/src/components/calendar/calendar-view.tsx` (nuevo componente)
+- `apps/desktop/src/components/ui/hover-card.tsx` (nuevo componente UI)
+- `apps/desktop/src/routes/index.tsx` (ruta)
+- `apps/desktop/src/components/layout/Sidebar.tsx` (nav)
+
+---
+
+#### 📋 P3: Templates de Tareas
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Plantillas predefinidas (Bug Report, Weekly Review, etc.)
+
+**Implementación realizada:**
+- ✅ Modelo `TaskTemplate` en Prisma asociado al Workspace
+- ✅ Endpoints Backend (CRUD) en `TemplatesController`
+- ✅ UI `TemplateManager` para crear, editar y eliminar templates
+- ✅ Integración en `CreateTaskDialog` con `TemplateSelector`
+- ✅ Soporte para pre-llenar: Título (con patrones de fecha), Descripción, Prioridad
+
+**Archivos creados/modificados:**
+- `packages/db/prisma/schema.prisma` (modelo)
+- `apps/backend/src/templates/` (módulo completo)
+- `apps/desktop/src/components/templates/` (componentes UI)
+- `apps/desktop/src/hooks/api/use-templates.ts` (hooks)
+- `apps/desktop/src/components/task/create-task-dialog.tsx` (modificado)
+
+---
+
+---
+
+#### ⌨️ P4: Keyboard Shortcuts Mejorados
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Sistema completo de atajos (j/k navigation, x to complete).
+
+**Implementación realizada:**
+- ✅ Hook `useTaskNavigation` para lógica de navegación en listas.
+- ✅ Soporte para teclas `j` (abajo) y `k` (arriba) para navegar.
+- ✅ Soporte para tecla `x` para completar tarea.
+- ✅ Soporte para tecla `Enter` para abrir detalles.
+- ✅ Integración en `TaskList` y `TaskCard` con estilos de foco visual.
+- ✅ Actualización de `ShortcutsDialog`.
+
+**Archivos creados/modificados:**
+- `apps/desktop/src/hooks/use-task-navigation.ts` (nuevo hook)
+- `apps/desktop/src/components/task/task-list.tsx` (integración)
+- `apps/desktop/src/components/task/task-card.tsx` (estilos e interacción)
+- `apps/desktop/src/components/dialogs/ShortcutsDialog.tsx` (doc)
+
+---
+
+#### 💊 P5: Task Health Indicators
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Indicadores visuales del estado de salud (🟢🟡🔴)
+
+**Implementación realizada:**
+- ✅ Función `calculateTaskHealth()` con 6 factores ponderados:
+  - Due Date (25%): Verifica si tiene fecha y no está vencida
+  - Assignee (20%): Verifica si tiene asignado
+  - Estimate (15%): Verifica si tiene estimación de tiempo
+  - Description (10%): Verifica si tiene descripción
+  - Activity (15%): Verifica actividad reciente (< 7 días)
+  - Subtasks (15%): Verifica progreso de subtareas (≥ 50%)
+- ✅ Sistema de scoring 0-100 con estados:
+  - 🟢 Healthy (≥ 70 puntos)
+  - 🟡 At Risk (40-69 puntos)
+  - 🔴 Critical (< 40 puntos o overdue)
+- ✅ Componente `TaskHealthBadge` con tooltip detallado
+- ✅ Integrado en `KanbanTaskCard` y `TaskCard`
+- ✅ Recomendaciones automáticas basadas en factores no cumplidos
+
+**Archivos creados/modificados:**
+- `apps/desktop/src/utils/task-health.ts` (nuevo)
+- `apps/desktop/src/components/task/task-health-badge.tsx` (nuevo)
+- `apps/desktop/src/components/project/kanban-task-card.tsx` (modificado)
+- `apps/desktop/src/components/task/task-card.tsx` (modificado)
+
+---
+
+### 23.2 Mejoras de Funcionalidad Core (Sprint 3-4)
+
+#### 🔗 P6: Dependencias entre Tareas
+#### ⛓️ P6: Dependencias entre Tareas
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Sistema de dependencias (BLOCKS, BLOCKED_BY) para controlar el flujo de trabajo.
+
+**Implementación realizada:**
+- ✅ Modelo `TaskDependency` en Prisma (ya existía).
+- ✅ Backend: Endpoints en `TasksController` para añadir/quitar dependencias.
+- ✅ Lógica en `TasksService`: Prevención de dependencias circulares directas.
+- ✅ Frontend: Hook `useTaskDependencies`.
+- ✅ UI: Pestaña "Bloqueos" en `TaskDetailPanel` con lista de bloqueos y opción para añadir (búsqueda).
+
+**Archivos creados/modificados:**
+- `apps/backend/src/tasks/tasks.service.ts` (lógica)
+- `apps/backend/src/tasks/tasks.controller.ts` (endpoints)
+- `apps/desktop/src/lib/api-client.ts` (métodos)
+- `apps/desktop/src/hooks/api/use-tasks.ts` (hooks)
+- `apps/desktop/src/components/task/dependency-list.tsx` (nuevo componente UI)
+- `apps/desktop/src/components/task/task-detail-panel.tsx` (integración)
+
+---
+
+#### 🧠 P7: Estimaciones Automáticas con IA
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Sugerencias automáticas de duración basadas en tareas similares (Local ML) con fallback a Gemini AI.
+
+**Implementación realizada:**
+- ✅ Documentada estrategia "Local-First AI" en `docs/plans/ai-optimization-strategy.md`.
+- ✅ Backend: `AIService` implementa estrategia Híbrida (Usa heurísticas locales primero, si la confianza es baja, consulta a Gemini).
+- ✅ Backend: `GeminiAIService` añadido método `estimateTaskDuration` con prompt JSON optimizado.
+- ✅ Frontend: Botón "Auto Estimate" en `CreateTaskDialog`.
+- ✅ DTO: Añadido soporte para `estimatedMinutes` en creación de tareas.
+
+**Archivos creados/modificados:**
+- `docs/plans/ai-optimization-strategy.md` (Nuevo)
+- `apps/backend/src/ai/ai.service.ts` (Lógica híbrida)
+- `apps/backend/src/ai/gemini-ai.service.ts` (Integración LLM)
+- `apps/desktop/src/components/task/create-task-dialog.tsx` (UI)
+
+---
+
+#### 🎯 P8: Modo Focus y Deep Work
+**Estado:** ✅ COMPLETADO (2025-12-05)
+
+**Descripción:** Vista minimalista para concentración máxima, sincronizada con el Pomodoro global.
+
+**Implementación realizada:**
+- ✅ Arquitectura: Implementado `TimerContext` para estado global del temporizador.
+- ✅ UI: Página `/focus` con diseño minimalista, ambient lights y controles grandes.
+- ✅ Integración: Refactorizado `PomodoroTimer` para usar el contexto global.
+- ✅ Navegación: Botón maximizar en el widget del timer para entrar al modo focus.
+- ✅ Sincronización: El estado persiste al navegar entre Dashboard, Timer y Focus Mode.
+
+**Archivos creados/modificados:**
+- `apps/desktop/src/contexts/timer-context.tsx` (Nuevo)
+- `apps/desktop/src/pages/FocusMode.tsx` (Nuevo)
+- `apps/desktop/src/components/timer/pomodoro-timer.tsx` (Refactor)
+- `apps/desktop/src/components/providers/index.tsx` (Provider)
+
+---
+
+#### 📊 P9: Dashboard de Productividad Mejorado
+**Estado:** ✅ COMPLETADO
+
+**Descripción:** Implementación de dashboard completo con múltiples visualizaciones de datos reales.
+
+**Implementación realizada:**
+- ✅ Backend: Endpoints `getDashboardStats` (Totales/Tendencias), `getHeatmapData`, `getProjectTimeDistribution` (agregación por proyecto), y `getTaskStatusDistribution`.
+- ✅ Backend: Inyección de `PrismaService` en `AnalyticsService` para consultas de agregación complejas.
+- ✅ Frontend: Hooks React Query para todas las métricas (`useDashboardStats`, `useProjectDistribution`, etc.).
+- ✅ Frontend: Componentes de gráficos implementados (`WeeklyChart`, `PeakHoursHeatmap`, `ProjectTimeChart` (Pie), `TaskStatusChart` (Donut)).
+- ✅ Frontend: Integración completa en `Analytics.tsx` con soporte i18n y transiciones.
+
+**Archivos creados/modificados:**
+- `apps/backend/src/analytics/analytics.service.ts` & `.controller.ts`
+- `apps/desktop/src/components/analytics/DistributionCharts.tsx`
+- `apps/desktop/src/pages/Analytics.tsx`
+- `apps/desktop/src/lib/api-client.ts`
+
+---
+
+#### 🔔 P10: Smart Notifications con ML
+**Estado:** ✅ Notificaciones básicas implementadas
+
+**Descripción:** Predicción de riesgos, sugerencias contextuales, digest inteligente.
+
+**Antes de implementar:** Revisar sistema actual y proponer mejoras.
+
+---
+
+### 23.3 Mejoras de UX/UI (Sprint 5-6)
+
+#### 📱 P11: Offline-First Support
+**Estado:** ⚠️ Crítico para mobile
+
+**Descripción:** Service Workers, IndexedDB, sync queue, conflict resolution.
+
+**Antes de implementar:** Verificar soporte offline y proponer estrategia.
+
+---
+
+#### 🎨 P12: Gestos y Swipe Actions
+**Estado:** ⚠️ Verificar mobile app
+
+**Descripción:** Swipe to complete/snooze, long press, pull to refresh.
+
+**Antes de implementar:** Verificar app mobile y proponer gestos.
+
+---
+
+#### ⏱️ P13: Time Tracking Automático
+**Estado:** ✅ Pomodoro implementado
+
+**Descripción:** Detección de actividad, auto-pause, smart suggestions.
+
+**Antes de implementar:** Revisar timer y proponer auto-tracking.
+
+---
+
+#### 🎤 P14: Voice Input
+**Estado:** ⚠️ Nuevo feature
+
+**Descripción:** Captura de tareas por voz (Web Speech API / Whisper).
+
+**Antes de implementar:** Proponer POC y evaluar precisión.
+
+---
+
+#### 🤝 P15: Collaborative Editing Real-time
+**Estado:** ⚠️ Verificar optimistic locking
+
+**Descripción:** WebSockets, presencia de usuarios, CRDT para merge.
+
+**Antes de implementar:** Revisar concurrencia actual y proponer arquitectura.
+
+---
+
+### 23.4 Features Avanzadas (Roadmap Futuro)
+
+- 🔮 **F1:** Predicciones con ML (probabilidad de atraso, burnout detection)
+- 🌐 **F2:** Integraciones avanzadas (Jira, Asana, GitHub bidireccional)
+- 📈 **F3:** SLA y Escalation Policies
+- 🏪 **F4:** Marketplace de Templates
+
+---
+
+## 24. Matriz de Priorización
+
+| ID | Mejora | Impacto | Esfuerzo | ROI | Sprint |
+|----|--------|---------|----------|-----|--------|
+| P3 | Templates | 🔥 Alto | Bajo | ⭐⭐⭐⭐⭐ | 1 |
+| P4 | Shortcuts | Medio | Bajo | ⭐⭐⭐⭐ | 1 |
+| P5 | Health Indicators | Medio | Bajo | ⭐⭐⭐⭐ | 2 |
+| P1 | NLP Quick Capture | 🔥 Alto | Medio | ⭐⭐⭐⭐⭐ | 1-2 |
+| P8 | Modo Focus | Medio | Bajo | ⭐⭐⭐⭐ | 2 |
+| P2 | Vista Calendario | 🔥 Alto | Alto | ⭐⭐⭐⭐ | 2-3 |
+| P6 | Dependencias | Medio | Medio | ⭐⭐⭐ | 3-4 |
+| P9 | Dashboard Mejorado | Alto | Medio | ⭐⭐⭐⭐ | 3 |
+| P13 | Auto Time Tracking | Medio | Medio | ⭐⭐⭐⭐ | 3 |
+| P7 | IA Estimaciones | Medio | Alto | ⭐⭐⭐ | 4 |
+| P10 | Smart Notifications | Medio | Alto | ⭐⭐⭐ | 4 |
+| P12 | Gestos Mobile | Medio | Medio | ⭐⭐⭐ | 5 |
+| P11 | Offline-First | 🔥 Alto | Alto | ⭐⭐⭐⭐⭐ | 5-6 |
+| P14 | Voice Input | Bajo | Alto | ⭐⭐ | 6+ |
+| P15 | Collaborative Edit | Alto | Alto | ⭐⭐⭐⭐ | 6+ |
+
+---
+
+## 25. Proceso de Implementación
+
+### Workflow para cada mejora:
+
+1. **REVISAR** implementación actual
+   - Buscar código relacionado
+   - Documentar funcionalidad existente
+   - Identificar gaps
+
+2. **PROPONER** mejoras específicas
+   - Diseño técnico detallado
+   - Mockups/wireframes si aplica
+   - Estimación de esfuerzo
+
+3. **ESPERAR APROBACIÓN**
+   - Presentar propuesta
+   - Discutir alternativas
+   - Obtener go/no-go
+
+4. **IMPLEMENTAR** (solo si aprobado)
+   - Desarrollo incremental
+   - Tests unitarios e integración
+   - Documentación
+
+5. **VALIDAR**
+   - Code review
+   - Testing manual
+   - Deploy a staging
+
+---
+
+## 26. Próximos Pasos Sugeridos
+
+### Opción A: Quick Wins (Sprint 1)
+1. **P3: Templates de Tareas** (ROI máximo, esfuerzo bajo)
+2. **P4: Keyboard Shortcuts** (mejora UX inmediata)
+3. **P5: Task Health Indicators** (valor visual alto)
+
+### Opción B: Core Features (Sprint 2-3)
+1. **P1: NLP Quick Capture** (diferenciador clave)
+2. **P2: Vista Calendario** (feature muy solicitada)
+3. **P8: Modo Focus** (complementa Pomodoro existente)
+
+### Opción C: Audit y Mejoras Incrementales
+1. Revisar todas las funcionalidades ya implementadas
+2. Documentar estado actual vs plan
+3. Proponer mejoras específicas por feature
+4. Priorizar según feedback de usuarios
+
+---
+
+**¿Qué opción prefieres para comenzar?** O si tienes otra prioridad específica, podemos ajustar el plan.

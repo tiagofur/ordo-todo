@@ -61,6 +61,10 @@ export const LazyTimer = lazy(() =>
   import('./Timer').then(module => ({ default: module.Timer }))
 );
 
+export const LazyCalendar = lazy(() => 
+  import('./Calendar').then(module => ({ default: module.Calendar }))
+);
+
 // Secondary pages - loaded on demand
 export const LazyProjects = lazy(() => 
   import('./Projects').then(module => ({ default: module.Projects }))
@@ -91,6 +95,8 @@ export const LazyTimerFloating = lazy(() =>
   import('./TimerFloating').then(module => ({ default: module.TimerFloating }))
 );
 
+export const LazyFocusMode = lazy(() => import('./FocusMode'));
+
 // ============================================
 // Preload Functions for Route Prefetching
 // ============================================
@@ -103,6 +109,7 @@ export const preloadPage = {
   dashboard: () => import('./Dashboard'),
   tasks: () => import('./Tasks'),
   timer: () => import('./Timer'),
+  calendar: () => import('./Calendar'),
   projects: () => import('./Projects'),
   projectDetail: () => import('./ProjectDetail'),
   analytics: () => import('./Analytics'),

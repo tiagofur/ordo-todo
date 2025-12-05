@@ -59,4 +59,24 @@ export class AnalyticsController {
       new Date(endDate),
     );
   }
+
+  @Get('dashboard-stats')
+  getDashboardStats(@CurrentUser() user: RequestUser) {
+    return this.analyticsService.getDashboardStats(user.id);
+  }
+
+  @Get('heatmap')
+  getHeatmap(@CurrentUser() user: RequestUser) {
+    return this.analyticsService.getHeatmapData(user.id);
+  }
+
+  @Get('project-distribution')
+  getProjectDistribution(@CurrentUser() user: RequestUser) {
+    return this.analyticsService.getProjectTimeDistribution(user.id);
+  }
+
+  @Get('task-status-distribution')
+  getTaskStatusDistribution(@CurrentUser() user: RequestUser) {
+    return this.analyticsService.getTaskStatusDistribution(user.id);
+  }
 }

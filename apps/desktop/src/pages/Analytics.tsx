@@ -2,55 +2,52 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import {
   WeeklyChart,
   PeakHoursHeatmap,
   FocusScoreGauge,
   ProductivityInsights,
   generateInsights,
+  ProjectTimeChart,
+  TaskStatusChart
 } from "@/components/analytics";
 import { StatsCard } from "@/components/dashboard";
 import { AIWeeklyReport } from "@/components/ai";
 import { PageTransition, SlideIn, StaggerList, StaggerItem } from "@/components/motion";
-
-// Mock data - TODO: integrate with real API
-const generateWeeklyData = () => {
-  const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-  return days.map((dayName, i) => ({
-    date: `2025-12-${(i + 1).toString().padStart(2, "0")}`,
-    dayName,
-    pomodoros: Math.floor(Math.random() * 8) + 2,
-    focusMinutes: Math.floor(Math.random() * 180) + 60,
-    tasksCompleted: Math.floor(Math.random() * 6) + 1,
-  }));
-};
-
-const generateHeatmapData = () => {
-  const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-  return days.map((day) => ({
-    day,
-    hours: Array.from({ length: 24 }, (_, hour) => ({
-      hour,
-      value:
-        hour >= 9 && hour <= 18
-          ? Math.floor(Math.random() * 60) + 20
-          : Math.floor(Math.random() * 20),
-    })),
-  }));
-};
+import { 
+  useDashboardStats, 
+  useWeeklyMetrics, 
+  useHeatmapData,
+  useProjectDistribution,
+  useTaskStatusDistribution
+} from "@/hooks/api/use-analytics";
 
 export function Analytics() {
   const { t } = useTranslation();
   const [dateRange, setDateRange] = useState("week");
   
-  const weeklyData = generateWeeklyData();
-  const heatmapData = generateHeatmapData();
+  // Fetch Real Data
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: weeklyMetrics, isLoading: weeklyLoading } = useWeeklyMetrics();
+  const { data: heatmapData, isLoading: heatmapLoading } = useHeatmapData();
+  const { data: projectData } = useProjectDistribution();
+  const { data: statusData } = useTaskStatusDistribution();
+
+  // Transform Weekly Metrics
+  const weeklyData = weeklyMetrics?.map((m: any) => ({
+    date: new Date(m.date).toISOString().split('T')[0],
+    dayName: format(new Date(m.date), "EEE", { locale: es }),
+    pomodoros: m.pomodorosCount || 0,
+    focusMinutes: m.focusDuration || 0,
+    tasksCompleted: m.tasksCompletedCount || 0,
+  })) || [];
   
-  // Calculate totals
-  const totalPomodoros = weeklyData.reduce((sum, d) => sum + d.pomodoros, 0);
-  const totalTasks = weeklyData.reduce((sum, d) => sum + d.tasksCompleted, 0);
-  const totalMinutes = weeklyData.reduce((sum, d) => sum + d.focusMinutes, 0);
-  const avgPomodoros = Math.round(totalPomodoros / 7);
+  const totalPomodoros = stats?.pomodoros || 0;
+  const totalTasks = stats?.tasks || 0;
+  const totalMinutes = stats?.minutes || 0;
+  const avgPomodoros = stats?.avgPerDay || 0;
   
   // Focus score calculation (simplified)
   const focusScore = Math.min(100, Math.round((totalPomodoros / 35) * 100));
@@ -59,27 +56,33 @@ export function Analytics() {
   const insights = generateInsights({
     completedPomodoros: totalPomodoros,
     completedTasks: totalTasks,
-    avgSessionLength: Math.round(totalMinutes / totalPomodoros),
-    peakHour: 10,
-    currentStreak: 5,
+    avgSessionLength: totalPomodoros > 0 ? Math.round(totalMinutes / totalPomodoros) : 0,
+    peakHour: 10, // TODO: Calc peak hour from Heatmap
+    currentStreak: 5, // TODO: Add streak to API
     longestStreak: 12,
   });
 
   // AI Report data
   const aiReportData = {
     totalPomodoros,
-    totalTasks: totalTasks + 10,
+    totalTasks: totalTasks + 10, // Mock total created?
     completedTasks: totalTasks,
     streak: 5,
     avgPomodorosPerDay: avgPomodoros,
     peakHour: 10,
-    topProject: { name: "Proyecto Alpha", tasks: 12 },
-    weeklyData: weeklyData.map(d => ({
+    topProject: { name: "Proyecto Alpha", tasks: 12 }, // TODO: Fetch top project
+    weeklyData: weeklyData.map((d: any) => ({
       day: d.dayName,
       pomodoros: d.pomodoros,
       tasks: d.tasksCompleted,
     })),
   };
+
+  const isLoading = statsLoading || weeklyLoading || heatmapLoading;
+
+  if (isLoading) {
+      return <div className="flex justify-center items-center min-h-[50vh]">Loading analytics...</div>;
+  }
 
   return (
     <PageTransition>
@@ -120,7 +123,11 @@ export function Analytics() {
               icon={Timer}
               iconColor="text-red-500"
               iconBgColor="bg-red-500/10"
-              trend={{ value: 12, label: "vs semana anterior", isPositive: true }}
+              trend={{ 
+                  value: Math.abs(stats?.trends?.pomodoros || 0), 
+                  label: "vs semana anterior", 
+                  isPositive: (stats?.trends?.pomodoros || 0) >= 0 
+              }}
             />
           </StaggerItem>
           <StaggerItem>
@@ -130,7 +137,11 @@ export function Analytics() {
               icon={CheckCircle2}
               iconColor="text-emerald-500"
               iconBgColor="bg-emerald-500/10"
-              trend={{ value: 8, label: "vs semana anterior", isPositive: true }}
+              trend={{ 
+                  value: Math.abs(stats?.trends?.tasks || 0), 
+                  label: "vs semana anterior", 
+                  isPositive: (stats?.trends?.tasks || 0) >= 0 
+              }}
             />
           </StaggerItem>
           <StaggerItem>
@@ -167,8 +178,16 @@ export function Analytics() {
             <SlideIn delay={0.3}>
               <WeeklyChart data={weeklyData} />
             </SlideIn>
+            <div className="grid gap-6 md:grid-cols-2">
+                 <SlideIn delay={0.35}>
+                    <ProjectTimeChart data={projectData || []} />
+                 </SlideIn>
+                 <SlideIn delay={0.35}>
+                    <TaskStatusChart data={statusData || []} />
+                 </SlideIn>
+            </div>
             <SlideIn delay={0.4}>
-              <PeakHoursHeatmap data={heatmapData} />
+              <PeakHoursHeatmap data={heatmapData || []} />
             </SlideIn>
           </div>
 
@@ -200,9 +219,11 @@ export function Analytics() {
           <StaggerItem>
             <div className="rounded-2xl border border-border/50 bg-card p-6">
               <h3 className="text-sm text-muted-foreground mb-2">Mejor Día</h3>
-              <p className="text-3xl font-bold">Viernes</p>
+              <p className="text-3xl font-bold">
+                {weeklyData.reduce((prev: any, current: any) => (prev.pomodoros > current.pomodoros) ? prev : current, { dayName: '-' }).dayName}
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {Math.max(...weeklyData.map(d => d.pomodoros))} pomodoros completados
+                {Math.max(...weeklyData.map((d: any) => d.pomodoros), 0)} pomodoros completados
               </p>
             </div>
           </StaggerItem>

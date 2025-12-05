@@ -21,9 +21,9 @@ export function Auth() {
 
     try {
       if (isLogin) {
-        await login(email, password);
+        await login({ email, password });
       } else {
-        await signup(email, password, name);
+        await signup({ email, password, name });
       }
       navigate("/dashboard");
     } catch (error) {

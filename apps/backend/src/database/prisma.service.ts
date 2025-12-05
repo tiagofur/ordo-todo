@@ -145,4 +145,16 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get notification() {
     return this.prisma.notification;
   }
+
+  get achievement() {
+    return this.prisma.achievement;
+  }
+
+  get userAchievement() {
+    return this.prisma.userAchievement;
+  }
+
+  get taskTemplate() {
+    return this.prisma.taskTemplate;
+  }
 }

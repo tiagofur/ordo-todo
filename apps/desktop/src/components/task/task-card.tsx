@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CheckCircle2, Circle, Flag, Calendar, MoreVertical, Trash2 } from "lucide-react";
-import { api } from "@/utils/api";
+import { useUpdateTask, useTask } from "@/hooks/api/use-tasks";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { TagSelector } from "@/components/tag/tag-selector";
 import { TaskDetailPanel } from "./task-detail-panel";
+import { TaskHealthBadge } from "./task-health-badge";
 
 interface TaskCardProps {
   task: {
@@ -23,6 +25,8 @@ interface TaskCardProps {
     priority: string;
     dueDate?: Date | string | null;
   };
+  isSelected?: boolean;
+  onOpenDetail?: () => void;
 }
 
 const priorityConfig = {
@@ -32,32 +36,40 @@ const priorityConfig = {
   URGENT: { label: "Urgente", color: "text-red-500", bg: "bg-red-100" },
 };
 
-export function TaskCard({ task }: TaskCardProps) {
-  const utils = api.useUtils();
+export function TaskCard({ task, isSelected, onOpenDetail }: TaskCardProps) {
+  const queryClient = useQueryClient();
   const [showDetail, setShowDetail] = useState(false);
   const isCompleted = task.status === "COMPLETED";
   const priority = priorityConfig[task.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
 
-  // Fetch tags for this task
-  const { data: taskTags } = api.tag.listByTask.useQuery(
-    { taskId: String(task.id) },
-    { enabled: !!task.id }
-  );
+  const handleOpenDetail = () => {
+    if (onOpenDetail) {
+      onOpenDetail();
+    } else {
+      setShowDetail(true);
+    }
+  };
 
-  const completeTask = api.task.complete.useMutation({
-    onSuccess: () => {
-      toast.success("Tarea completada");
-      utils.task.list.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al completar tarea");
-    },
-  });
+  // Fetch tags for this task
+  // Fetch tags for this task using useTask to get fresh data
+  const { data: fullTask } = useTask(String(task.id));
+  const taskTags = (fullTask as any)?.tags || [];
+
+  const updateTaskMutation = useUpdateTask();
 
   const handleToggleComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!task.id) return;
-    completeTask.mutate({ id: String(task.id) });
+    updateTaskMutation.mutate(
+      { taskId: String(task.id), data: { status: (isCompleted ? "TODO" : "DONE") as any } }, 
+      {
+        onSuccess: () => {
+            toast.success(isCompleted ? "Tarea reactivada" : "Tarea completada");
+            // Invalidation is handled by hook usually
+        },
+        onError: (error) => toast.error(error.message || "Error al actualizar tarea")
+      }
+    );
   };
 
   const formatDueDate = (date: Date | string | null | undefined) => {
@@ -75,17 +87,17 @@ export function TaskCard({ task }: TaskCardProps) {
   return (
     <>
       <div 
-        onClick={() => setShowDetail(true)}
+        onClick={handleOpenDetail}
         className={`group rounded-lg border bg-card p-4 transition-all hover:shadow-md cursor-pointer ${
           isCompleted ? "opacity-60" : ""
-        }`}
+        } ${isSelected ? "ring-2 ring-primary border-primary bg-primary/5" : ""}`}
       >
         <div className="flex items-start gap-3">
           {/* Checkbox */}
           <button
             onClick={handleToggleComplete}
             className="mt-0.5 flex-shrink-0 transition-transform hover:scale-110"
-            disabled={completeTask.isPending}
+            disabled={updateTaskMutation.isPending}
           >
             {isCompleted ? (
               <CheckCircle2 className="h-5 w-5 text-primary" />
@@ -113,7 +125,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={(e) => {
                     e.stopPropagation();
-                    setShowDetail(true);
+                    handleOpenDetail();
                   }}>
                     Editar
                   </DropdownMenuItem>
@@ -143,6 +155,9 @@ export function TaskCard({ task }: TaskCardProps) {
                 <span className={priority.color}>{priority.label}</span>
               </div>
 
+              {/* Health Badge */}
+              <TaskHealthBadge task={task} size="sm" showLabel={false} />
+
               {/* Due Date */}
               {task.dueDate && (
                 <div className={`flex items-center gap-1 ${
@@ -160,7 +175,7 @@ export function TaskCard({ task }: TaskCardProps) {
                 <TagSelector
                   taskId={String(task.id)}
                   selectedTags={taskTags || []}
-                  onTagsChange={() => utils.tag.listByTask.invalidate()}
+                  onTagsChange={() => queryClient.invalidateQueries({ queryKey: ['tasks', String(task.id)] })}
                 />
               </div>
             )}
@@ -168,11 +183,13 @@ export function TaskCard({ task }: TaskCardProps) {
         </div>
       </div>
 
-      <TaskDetailPanel 
-        taskId={task.id ? String(task.id) : null} 
-        open={showDetail} 
-        onOpenChange={setShowDetail} 
-      />
+      {!onOpenDetail && (
+        <TaskDetailPanel 
+          taskId={task.id ? String(task.id) : null} 
+          open={showDetail} 
+          onOpenChange={setShowDetail} 
+        />
+      )}
     </>
   );
 }

@@ -21,8 +21,8 @@ export function Dashboard() {
   const { data: tasksData } = useTasks();
   const { data: projectsData } = useProjects();
 
-  const tasks = tasksData?.data ?? [];
-  const projects = projectsData?.data ?? [];
+  const tasks = tasksData ?? [];
+  const projects = projectsData ?? [];
 
   // Calculate stats
   const completedTasks = tasks.filter((t: any) => t.status === "COMPLETED").length;
