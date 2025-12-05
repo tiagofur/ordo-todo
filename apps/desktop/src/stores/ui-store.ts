@@ -5,72 +5,75 @@ export interface UIState {
   // Sidebar
   sidebarCollapsed: boolean
   sidebarWidth: number
-  
+
   // Dialogs
   createTaskDialogOpen: boolean
   createProjectDialogOpen: boolean
+  createWorkspaceDialogOpen: boolean
   settingsDialogOpen: boolean
   shortcutsDialogOpen: boolean
   aboutDialogOpen: boolean
-  
+
   // Panels
   taskDetailPanelOpen: boolean
   selectedTaskId: string | null
-  
+
   // Quick Actions
   quickActionsOpen: boolean
   quickTaskInputOpen: boolean
-  
+
   // View preferences
   tasksViewMode: 'list' | 'grid'
   projectsViewMode: 'list' | 'grid' | 'kanban'
   dashboardLayout: 'compact' | 'expanded'
-  
+
   // Sort preferences
   tasksSortBy: 'priority' | 'dueDate' | 'createdAt' | 'title'
   tasksSortOrder: 'asc' | 'desc'
-  
+
   // Filter preferences
   showCompletedTasks: boolean
-  
+
   // Actions
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
   setSidebarWidth: (width: number) => void
-  
+
   // Dialog actions
   openCreateTaskDialog: () => void
   closeCreateTaskDialog: () => void
   openCreateProjectDialog: () => void
   closeCreateProjectDialog: () => void
+  openCreateWorkspaceDialog: () => void
+  closeCreateWorkspaceDialog: () => void
   openSettingsDialog: () => void
   closeSettingsDialog: () => void
   openShortcutsDialog: () => void
   closeShortcutsDialog: () => void
   openAboutDialog: () => void
   closeAboutDialog: () => void
-  
+
   // Panel actions
   openTaskDetailPanel: (taskId: string) => void
   closeTaskDetailPanel: () => void
-  
+
   // Quick actions
   toggleQuickActions: () => void
   openQuickTaskInput: () => void
   closeQuickTaskInput: () => void
-  
+
   // View actions
   setTasksViewMode: (mode: 'list' | 'grid') => void
   setProjectsViewMode: (mode: 'list' | 'grid' | 'kanban') => void
   setDashboardLayout: (layout: 'compact' | 'expanded') => void
-  
+
   // Sort actions
   setTasksSort: (sortBy: UIState['tasksSortBy'], order?: UIState['tasksSortOrder']) => void
-  
+
   // Filter actions
   toggleShowCompletedTasks: () => void
   setShowCompletedTasks: (show: boolean) => void
-  
+
   // Reset
   resetUI: () => void
 }
@@ -80,6 +83,7 @@ const defaultState = {
   sidebarWidth: 280,
   createTaskDialogOpen: false,
   createProjectDialogOpen: false,
+  createWorkspaceDialogOpen: false,
   settingsDialogOpen: false,
   shortcutsDialogOpen: false,
   aboutDialogOpen: false,
@@ -110,6 +114,8 @@ export const useUIStore = create<UIState>()(
       closeCreateTaskDialog: () => set({ createTaskDialogOpen: false }),
       openCreateProjectDialog: () => set({ createProjectDialogOpen: true }),
       closeCreateProjectDialog: () => set({ createProjectDialogOpen: false }),
+      openCreateWorkspaceDialog: () => set({ createWorkspaceDialogOpen: true }),
+      closeCreateWorkspaceDialog: () => set({ createWorkspaceDialogOpen: false }),
       openSettingsDialog: () => set({ settingsDialogOpen: true }),
       closeSettingsDialog: () => set({ settingsDialogOpen: false }),
       openShortcutsDialog: () => set({ shortcutsDialogOpen: true }),
@@ -118,22 +124,22 @@ export const useUIStore = create<UIState>()(
       closeAboutDialog: () => set({ aboutDialogOpen: false }),
 
       // Panel actions
-      openTaskDetailPanel: (taskId) => set({ 
-        taskDetailPanelOpen: true, 
-        selectedTaskId: taskId 
+      openTaskDetailPanel: (taskId) => set({
+        taskDetailPanelOpen: true,
+        selectedTaskId: taskId
       }),
-      closeTaskDetailPanel: () => set({ 
-        taskDetailPanelOpen: false, 
-        selectedTaskId: null 
+      closeTaskDetailPanel: () => set({
+        taskDetailPanelOpen: false,
+        selectedTaskId: null
       }),
 
       // Quick actions
-      toggleQuickActions: () => set((state) => ({ 
-        quickActionsOpen: !state.quickActionsOpen 
+      toggleQuickActions: () => set((state) => ({
+        quickActionsOpen: !state.quickActionsOpen
       })),
-      openQuickTaskInput: () => set({ 
-        quickTaskInputOpen: true, 
-        quickActionsOpen: false 
+      openQuickTaskInput: () => set({
+        quickTaskInputOpen: true,
+        quickActionsOpen: false
       }),
       closeQuickTaskInput: () => set({ quickTaskInputOpen: false }),
 
@@ -145,14 +151,14 @@ export const useUIStore = create<UIState>()(
       // Sort actions
       setTasksSort: (sortBy, order) => set((state) => ({
         tasksSortBy: sortBy,
-        tasksSortOrder: order ?? (state.tasksSortBy === sortBy 
-          ? (state.tasksSortOrder === 'asc' ? 'desc' : 'asc') 
+        tasksSortOrder: order ?? (state.tasksSortBy === sortBy
+          ? (state.tasksSortOrder === 'asc' ? 'desc' : 'asc')
           : 'asc'),
       })),
 
       // Filter actions
-      toggleShowCompletedTasks: () => set((state) => ({ 
-        showCompletedTasks: !state.showCompletedTasks 
+      toggleShowCompletedTasks: () => set((state) => ({
+        showCompletedTasks: !state.showCompletedTasks
       })),
       setShowCompletedTasks: (show) => set({ showCompletedTasks: show }),
 

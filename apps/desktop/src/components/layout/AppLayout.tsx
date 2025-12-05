@@ -10,6 +10,7 @@ import { ShortcutsDialog, AboutDialog } from "@/components/dialogs";
 import { FAB } from "@/components/FAB";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
+import { CreateWorkspaceDialog } from "@/components/workspace/CreateWorkspaceDialog";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { SkipLinks } from "@/components/ui/SkipLinks";
 import { skipLinkTargets } from "@/utils/accessibility";
@@ -29,6 +30,8 @@ export function AppLayout() {
     closeCreateTaskDialog,
     createProjectDialogOpen, 
     closeCreateProjectDialog,
+    createWorkspaceDialogOpen,
+    closeCreateWorkspaceDialog,
     taskDetailPanelOpen, 
     closeTaskDetailPanel, 
     selectedTaskId 
@@ -93,6 +96,10 @@ export function AppLayout() {
       <CreateProjectDialog 
         open={createProjectDialogOpen} 
         onOpenChange={(open) => !open && closeCreateProjectDialog()} 
+      />
+      <CreateWorkspaceDialog
+        open={createWorkspaceDialogOpen}
+        onOpenChange={(open) => !open && closeCreateWorkspaceDialog()}
       />
       <TaskDetailPanel 
         taskId={selectedTaskId}
