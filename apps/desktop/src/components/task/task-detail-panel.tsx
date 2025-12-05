@@ -10,7 +10,10 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,6 +141,12 @@ export function TaskDetailPanel({
         side="right" 
         className="w-full sm:max-w-xl md:max-w-2xl p-0 gap-0 overflow-hidden flex flex-col bg-background/95 backdrop-blur-sm"
       >
+        <VisuallyHidden>
+          <SheetTitle>Detalles de la tarea: {task?.title || "Cargando..."}</SheetTitle>
+          <SheetDescription>
+            Panel para ver y editar los detalles, subtareas, comentarios y archivos adjuntos de la tarea seleccionada.
+          </SheetDescription>
+        </VisuallyHidden>
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />

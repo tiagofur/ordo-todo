@@ -27,6 +27,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "today": "Today",
     "welcome": "Welcome back!",
     "todayFocus": "Today's Focus",
     "quickActions": "Quick Actions",
@@ -38,6 +39,32 @@
       "inProgress": "In progress",
       "overdue": "Overdue",
       "totalPomodoros": "Total pomodoros"
+    },
+    "subtasks": "Subtasks",
+    "completed": "Completed",
+    "timeWorked": "Time worked",
+    "productivity": "Productivity",
+    "todaysTasks": "Today's tasks",
+    "noTasks": "No tasks for today",
+    "noTasksDescription": "You have no tasks scheduled for today. Create one to get started!",
+    "createTask": "Create Task",
+    "viewList": "List view",
+    "viewGrid": "Grid view",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "priority": "Priority",
+      "duration": "Duration",
+      "created": "Recent"
+    },
+    "showCompleted": "Show completed",
+    "hideCompleted": "Hide completed",
+    "allTasksCompleted": "All tasks completed!",
+    "tasksCompletedToday_one": "You have {{count}} task completed today",
+    "tasksCompletedToday_other": "You have {{count}} tasks completed today",
+    "quickActionButtons": {
+      "newProject": "New Project",
+      "startTimer": "Start Timer",
+      "newTask": "New Task"
     }
   },
   "tasks": {
@@ -75,6 +102,7 @@
   },
   "projects": {
     "title": "Projects",
+    "subtitle": "Manage and organize your projects efficiently",
     "newProject": "New project",
     "editProject": "Edit project",
     "deleteProject": "Delete project",
@@ -107,6 +135,18 @@
       "delete": "Delete"
     }
   },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Visualize and organize your tasks over time"
+  },
+  "workspaces": {
+    "title": "Workspaces",
+    "subtitle": "Manage your workspaces and teams"
+  },
+  "tags": {
+    "title": "Tags",
+    "subtitle": "Organize your tasks with tags"
+  },
   "timer": {
     "title": "Pomodoro Timer",
     "start": "Start",
@@ -129,6 +169,7 @@
   },
   "analytics": {
     "title": "Analytics",
+    "subtitle": "Track your productivity and progress",
     "weeklyActivity": "Weekly Activity",
     "peakHours": "Peak Hours",
     "focusScore": "Focus Score",

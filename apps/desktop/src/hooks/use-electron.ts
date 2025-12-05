@@ -125,6 +125,9 @@ export function useElectron() {
       case 'navigate:analytics':
         navigate('/analytics')
         break
+      case 'navigate:workspaces':
+        navigate('/workspaces')
+        break
       case 'navigate:settings':
         navigate('/settings')
         break
@@ -185,7 +188,7 @@ export function useElectron() {
     if (timerStore.isRunning && !timerStore.isPaused) {
       startTimerInterval()
     }
-    
+
     return () => {
       stopTimerInterval()
     }

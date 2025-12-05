@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouteColor, activeColorClasses } from "@/hooks/use-route-color";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateTask, useProjects, useTags, useWorkspaceMembers } from "@/hooks/api";
@@ -48,6 +50,7 @@ const priorities = [
 
 export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDialogProps) {
   const { selectedWorkspaceId } = useWorkspaceStore();
+  const routeColor = useRouteColor();
   const [selectedPriority, setSelectedPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "URGENT">("MEDIUM");
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
@@ -406,7 +409,10 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 <button
                   type="submit"
                   disabled={createTask.isPending}
-                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                  className={cn(
+                    "rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
+                    activeColorClasses[routeColor]
+                  )}
                 >
                   {createTask.isPending ? "Creando..." : "Crear Tarea"}
                 </button>

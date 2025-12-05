@@ -15,6 +15,8 @@ import {
   LazyTimerFloating,
   LazyCalendar,
   LazyFocusMode,
+  LazyWorkspaces,
+  LazyWorkspaceDetail,
 } from "../pages/lazy";
 
 /**
@@ -108,6 +110,22 @@ export const router = createHashRouter([
         element: (
           <LazyPage fallback={<PageLoader message="Loading analytics..." />}>
             <LazyAnalytics />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "workspaces",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading workspaces..." />}>
+            <LazyWorkspaces />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "workspaces/:workspaceSlug",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading workspace..." />}>
+            <LazyWorkspaceDetail />
           </LazyPage>
         ),
       },

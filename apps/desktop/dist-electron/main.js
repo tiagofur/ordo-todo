@@ -496,6 +496,13 @@ function createApplicationMenu(mainWindow2) {
           }
         },
         {
+          label: "Workspaces",
+          accelerator: "CmdOrCtrl+6",
+          click: () => {
+            mainWindow2.webContents.send("menu-action", "navigate:workspaces");
+          }
+        },
+        {
           label: "Analytics",
           accelerator: "CmdOrCtrl+5",
           click: () => {

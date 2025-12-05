@@ -23,25 +23,55 @@
     "timer": "Timer",
     "analytics": "Analíticas",
     "settings": "Configuración",
-    "calendar": "Calendario"
+    "calendar": "Calendario",
+    "workspaces": "Workspaces",
+    "tags": "Etiquetas"
   },
   "dashboard": {
-    "title": "Panel Principal",
-    "welcome": "¡Bienvenido de nuevo!",
-    "todayFocus": "Enfoque de hoy",
-    "quickActions": "Acciones rápidas",
-    "recentProjects": "Proyectos recientes",
-    "upcomingTasks": "Próximas tareas",
-    "weeklyProgress": "Progreso semanal",
+    "title": "Painel Principal",
+    "today": "Hoje",
+    "welcome": "Bem-vindo de volta!",
+    "todayFocus": "Foco de Hoje",
+    "quickActions": "Ações Rápidas",
+    "recentProjects": "Projetos Recentes",
+    "upcomingTasks": "Próximas Tarefas",
+    "weeklyProgress": "Progresso Semanal",
     "stats": {
-      "completedToday": "Completadas hoy",
-      "inProgress": "En progreso",
-      "overdue": "Vencidas",
-      "totalPomodoros": "Total pomodoros"
+      "completedToday": "Concluídas hoje",
+      "inProgress": "Em andamento",
+      "overdue": "Atrasadas",
+      "totalPomodoros": "Total de pomodoros"
+    },
+    "subtasks": "Subtarefas",
+    "completed": "Concluídas",
+    "timeWorked": "Tempo trabalhado",
+    "productivity": "Produtividade",
+    "todaysTasks": "Tarefas de hoje",
+    "noTasks": "Sem tarefas para hoje",
+    "noTasksDescription": "Você não tem tarefas agendadas para hoje. Crie uma para começar!",
+    "createTask": "Criar Tarefa",
+    "viewList": "Visualização em lista",
+    "viewGrid": "Visualização em grade",
+    "sortBy": "Ordenar por",
+    "sortOptions": {
+      "priority": "Prioridade",
+      "duration": "Duração",
+      "created": "Recentes"
+    },
+    "showCompleted": "Mostrar concluídas",
+    "hideCompleted": "Ocultar concluídas",
+    "allTasksCompleted": "Todas as tarefas concluídas!",
+    "tasksCompletedToday_one": "Você tem {{count}} tarefa concluída hoje",
+    "tasksCompletedToday_other": "Você tem {{count}} tarefas concluídas hoje",
+    "quickActionButtons": {
+      "newProject": "Novo Projeto",
+      "startTimer": "Iniciar Timer",
+      "newTask": "Nova Tarefa"
     }
   },
   "tasks": {
     "title": "Tareas",
+    "subtitle": "Gerencie suas tarefas diárias",
     "newTask": "Nueva tarea",
     "editTask": "Editar tarea",
     "deleteTask": "Eliminar tarea",
@@ -74,7 +104,8 @@
     }
   },
   "projects": {
-    "title": "Proyectos",
+    "title": "Projetos",
+    "subtitle": "Gerencie e organize seus projetos com eficiência",
     "newProject": "Nuevo proyecto",
     "editProject": "Editar proyecto",
     "deleteProject": "Eliminar proyecto",
@@ -86,6 +117,18 @@
     "noProjectsDescription": "Crea tu primer proyecto para organizar tus tareas",
     "tasksCount": "{{count}} tareas",
     "completedTasks": "{{count}} completadas"
+  },
+  "calendar": {
+    "title": "Calendário",
+    "subtitle": "Visualize e organize suas tarefas ao longo do tempo"
+  },
+  "workspaces": {
+    "title": "Workspaces",
+    "subtitle": "Gerencie seus espaços de trabalho e equipes"
+  },
+  "tags": {
+    "title": "Etiquetas",
+    "subtitle": "Organize suas tarefas com etiquetas"
   },
   "timer": {
     "title": "Timer Pomodoro",
@@ -109,6 +152,7 @@
   },
   "analytics": {
     "title": "Analíticas",
+    "subtitle": "Acompanhe sua produtividade e progresso",
     "weeklyActivity": "Actividad semanal",
     "peakHours": "Horas productivas",
     "focusScore": "Puntuación de enfoque",

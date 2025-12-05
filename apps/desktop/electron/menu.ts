@@ -7,29 +7,29 @@ export function createApplicationMenu(mainWindow: BrowserWindow): Menu {
     // App menu (macOS only)
     ...(isMac
       ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: 'about' as const, label: 'Acerca de Ordo-Todo' },
-              { type: 'separator' as const },
-              {
-                label: 'Preferencias...',
-                accelerator: 'CmdOrCtrl+,',
-                click: () => {
-                  mainWindow.webContents.send('menu-action', 'navigate:settings')
-                },
+        {
+          label: app.name,
+          submenu: [
+            { role: 'about' as const, label: 'Acerca de Ordo-Todo' },
+            { type: 'separator' as const },
+            {
+              label: 'Preferencias...',
+              accelerator: 'CmdOrCtrl+,',
+              click: () => {
+                mainWindow.webContents.send('menu-action', 'navigate:settings')
               },
-              { type: 'separator' as const },
-              { role: 'services' as const },
-              { type: 'separator' as const },
-              { role: 'hide' as const, label: 'Ocultar Ordo-Todo' },
-              { role: 'hideOthers' as const },
-              { role: 'unhide' as const },
-              { type: 'separator' as const },
-              { role: 'quit' as const, label: 'Salir de Ordo-Todo' },
-            ],
-          } as Electron.MenuItemConstructorOptions,
-        ]
+            },
+            { type: 'separator' as const },
+            { role: 'services' as const },
+            { type: 'separator' as const },
+            { role: 'hide' as const, label: 'Ocultar Ordo-Todo' },
+            { role: 'hideOthers' as const },
+            { role: 'unhide' as const },
+            { type: 'separator' as const },
+            { role: 'quit' as const, label: 'Salir de Ordo-Todo' },
+          ],
+        } as Electron.MenuItemConstructorOptions,
+      ]
       : []),
 
     // File menu
@@ -82,15 +82,15 @@ export function createApplicationMenu(mainWindow: BrowserWindow): Menu {
         { role: 'paste' as const, label: 'Pegar' },
         ...(isMac
           ? [
-              { role: 'pasteAndMatchStyle' as const, label: 'Pegar y Ajustar Estilo' },
-              { role: 'delete' as const, label: 'Eliminar' },
-              { role: 'selectAll' as const, label: 'Seleccionar Todo' },
-            ]
+            { role: 'pasteAndMatchStyle' as const, label: 'Pegar y Ajustar Estilo' },
+            { role: 'delete' as const, label: 'Eliminar' },
+            { role: 'selectAll' as const, label: 'Seleccionar Todo' },
+          ]
           : [
-              { role: 'delete' as const, label: 'Eliminar' },
-              { type: 'separator' as const },
-              { role: 'selectAll' as const, label: 'Seleccionar Todo' },
-            ]),
+            { role: 'delete' as const, label: 'Eliminar' },
+            { type: 'separator' as const },
+            { role: 'selectAll' as const, label: 'Seleccionar Todo' },
+          ]),
       ],
     },
 
@@ -199,6 +199,13 @@ export function createApplicationMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
+          label: 'Workspaces',
+          accelerator: 'CmdOrCtrl+6',
+          click: () => {
+            mainWindow.webContents.send('menu-action', 'navigate:workspaces')
+          },
+        },
+        {
           label: 'Analytics',
           accelerator: 'CmdOrCtrl+5',
           click: () => {
@@ -224,11 +231,11 @@ export function createApplicationMenu(mainWindow: BrowserWindow): Menu {
         { role: 'zoom' as const, label: 'Zoom' },
         ...(isMac
           ? [
-              { type: 'separator' as const },
-              { role: 'front' as const, label: 'Traer Todo al Frente' },
-              { type: 'separator' as const },
-              { role: 'window' as const },
-            ]
+            { type: 'separator' as const },
+            { role: 'front' as const, label: 'Traer Todo al Frente' },
+            { type: 'separator' as const },
+            { role: 'window' as const },
+          ]
           : [{ role: 'close' as const, label: 'Cerrar' }]),
       ],
     },
@@ -267,13 +274,13 @@ export function createApplicationMenu(mainWindow: BrowserWindow): Menu {
         { type: 'separator' },
         ...(!isMac
           ? [
-              {
-                label: 'Acerca de Ordo-Todo',
-                click: () => {
-                  mainWindow.webContents.send('menu-action', 'help:about')
-                },
+            {
+              label: 'Acerca de Ordo-Todo',
+              click: () => {
+                mainWindow.webContents.send('menu-action', 'help:about')
               },
-            ]
+            },
+          ]
           : []),
       ],
     },

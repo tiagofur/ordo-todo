@@ -23,10 +23,13 @@
     "timer": "Timer",
     "analytics": "Analíticas",
     "settings": "Configuración",
-    "calendar": "Calendario"
+    "calendar": "Calendario",
+    "workspaces": "Workspaces",
+    "tags": "Etiquetas"
   },
   "dashboard": {
     "title": "Panel Principal",
+    "today": "Hoy",
     "welcome": "¡Bienvenido de nuevo!",
     "todayFocus": "Enfoque de hoy",
     "quickActions": "Acciones rápidas",
@@ -38,10 +41,38 @@
       "inProgress": "En progreso",
       "overdue": "Vencidas",
       "totalPomodoros": "Total pomodoros"
+    },
+    "subtasks": "Subtareas",
+    "completed": "Completadas",
+    "timeWorked": "Tiempo trabajado",
+    "productivity": "Productividad",
+    "todaysTasks": "Tareas de hoy",
+    "noTasks": "No hay tareas para hoy",
+    "noTasksDescription": "No tienes tareas programadas para hoy. ¡Crea una para empezar!",
+    "createTask": "Crear Tarea",
+    "viewList": "Vista de lista",
+    "viewGrid": "Vista de cuadrícula",
+    "sortBy": "Ordenar por",
+    "sortOptions": {
+      "priority": "Prioridad",
+      "duration": "Duración",
+      "created": "Recientes"
+    },
+    "showCompleted": "Mostrar completadas",
+    "hideCompleted": "Ocultar completadas",
+    "allTasksCompleted": "¡Todas las tareas completadas!",
+    "tasksCompletedToday": "Tienes {{count}} tareas completadas hoy",
+    "tasksCompletedToday_one": "Tienes {{count}} tarea completada hoy",
+    "tasksCompletedToday_other": "Tienes {{count}} tareas completadas hoy",
+    "quickActionButtons": {
+      "newProject": "Nuevo Proyecto",
+      "startTimer": "Iniciar Timer",
+      "newTask": "Nueva Tarea"
     }
   },
   "tasks": {
     "title": "Tareas",
+    "subtitle": "Gestiona tus tareas diarias",
     "newTask": "Nueva tarea",
     "editTask": "Editar tarea",
     "deleteTask": "Eliminar tarea",
@@ -75,6 +106,7 @@
   },
   "projects": {
     "title": "Proyectos",
+    "subtitle": "Gestiona y organiza tus proyectos eficientemente",
     "newProject": "Nuevo proyecto",
     "editProject": "Editar proyecto",
     "deleteProject": "Eliminar proyecto",
@@ -86,6 +118,18 @@
     "noProjectsDescription": "Crea tu primer proyecto para organizar tus tareas",
     "tasksCount": "{{count}} tareas",
     "completedTasks": "{{count}} completadas"
+  },
+  "calendar": {
+    "title": "Calendario",
+    "subtitle": "Visualiza y organiza tus tareas en el tiempo"
+  },
+  "workspaces": {
+    "title": "Workspaces",
+    "subtitle": "Gestiona tus espacios de trabajo y equipos"
+  },
+  "tags": {
+    "title": "Etiquetas",
+    "subtitle": "Organiza tus tareas con etiquetas"
   },
   "timer": {
     "title": "Timer Pomodoro",
@@ -109,6 +153,7 @@
   },
   "analytics": {
     "title": "Analíticas",
+    "subtitle": "Monitorea tu productividad y progreso",
     "weeklyActivity": "Actividad semanal",
     "peakHours": "Horas productivas",
     "focusScore": "Puntuación de enfoque",

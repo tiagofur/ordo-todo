@@ -40,7 +40,7 @@ type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
 
 export function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   
   // UI State
@@ -235,7 +235,7 @@ export function Dashboard() {
                 {t("dashboard.today")}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {new Date().toLocaleDateString("es-ES", {
+                {new Date().toLocaleDateString(i18n.language, {
                   weekday: "long",
                   year: "numeric",
                   month: "long",
@@ -259,7 +259,7 @@ export function Dashboard() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title="Subtareas"
+              title={t("dashboard.subtasks")}
               value={subtasksCompletedToday}
               icon={ListChecks}
               iconColor="text-violet-500"
@@ -345,7 +345,7 @@ export function Dashboard() {
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted/50"
                     )}
-                    title="Vista de lista"
+                    title={t("dashboard.viewList")}
                   >
                     <List className="h-4 w-4" />
                   </button>
@@ -357,7 +357,7 @@ export function Dashboard() {
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted/50"
                     )}
-                    title="Vista de cuadrícula"
+                    title={t("dashboard.viewGrid")}
                   >
                     <LayoutGrid className="h-4 w-4" />
                   </button>
@@ -371,9 +371,9 @@ export function Dashboard() {
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
                     className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                   >
-                    <option value="priority">Prioridad</option>
-                    <option value="duration">Duración</option>
-                    <option value="created">Recientes</option>
+                    <option value="priority">{t("dashboard.sortOptions.priority")}</option>
+                    <option value="duration">{t("dashboard.sortOptions.duration")}</option>
+                    <option value="created">{t("dashboard.sortOptions.created")}</option>
                   </select>
                 </div>
 
@@ -393,7 +393,7 @@ export function Dashboard() {
                     <EyeOff className="h-4 w-4" />
                   )}
                   <span className="hidden sm:inline">
-                    {showCompleted ? "Ocultar" : "Mostrar"} completadas
+                    {showCompleted ? t("dashboard.hideCompleted") : t("dashboard.showCompleted")}
                   </span>
                   {completedCount > 0 && (
                     <span
@@ -418,12 +418,12 @@ export function Dashboard() {
                   <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
                   <h3 className="mb-2 text-lg font-medium">
                     {!showCompleted && completedCount > 0
-                      ? "Todas las tareas completadas"
+                      ? t("dashboard.allTasksCompleted")
                       : t("dashboard.noTasks")}
                   </h3>
                   <p className="mb-4 text-sm text-muted-foreground">
                     {!showCompleted && completedCount > 0
-                      ? `Tienes ${completedCount} tarea${completedCount > 1 ? "s" : ""} completada${completedCount > 1 ? "s" : ""} hoy`
+                      ? t("dashboard.tasksCompletedToday", { count: completedCount })
                       : t("dashboard.noTasksDescription")}
                   </p>
                   {!showCompleted && completedCount > 0 ? (
@@ -433,7 +433,7 @@ export function Dashboard() {
                       className="flex items-center gap-2"
                     >
                       <Eye className="h-4 w-4" />
-                      Mostrar completadas
+                      {t("dashboard.showCompleted")}
                     </Button>
                   ) : (
                     <Button
@@ -487,7 +487,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    Nuevo Proyecto
+                    {t("dashboard.quickActionButtons.newProject")}
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -506,7 +506,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    Iniciar Timer
+                    {t("dashboard.quickActionButtons.startTimer")}
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -525,7 +525,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    Nueva Tarea
+                    {t("dashboard.quickActionButtons.newTask")}
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Plus, X, ListTodo, FolderKanban, Timer, Tag } from "lucide-react";
+import { Plus, X, ListTodo, FolderKanban, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui-store";
 import { useNavigate } from "react-router-dom";
+import { useRouteColor, activeColorClasses } from "@/hooks/use-route-color";
 
 interface QuickAction {
   id: string;
@@ -17,6 +17,7 @@ export function FAB() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { openCreateTaskDialog, openCreateProjectDialog } = useUIStore();
+  const routeColor = useRouteColor();
 
   const quickActions: QuickAction[] = [
     {
@@ -72,11 +73,11 @@ export function FAB() {
                 {action.label}
               </span>
 
-              {/* Icon Button */}
+              {/* Icon Button using rounded-xl (squared rounded) */}
               <button
                 onClick={action.onClick}
                 className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-full shadow-lg text-white transition-all duration-200",
+                  "flex h-12 w-12 items-center justify-center rounded-xl shadow-lg text-white transition-all duration-200",
                   "hover:scale-110 active:scale-95",
                   action.color
                 )}
@@ -88,13 +89,13 @@ export function FAB() {
         </div>
       )}
 
-      {/* Main FAB Button */}
+      {/* Main FAB Button using rounded-xl (squared rounded) and adaptive color */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all duration-300",
-          "bg-primary text-primary-foreground hover:bg-primary/90",
+          "flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl transition-all duration-300",
           "hover:scale-105 active:scale-95",
+          activeColorClasses[routeColor],
           isOpen && "rotate-45"
         )}
       >

@@ -82,6 +82,14 @@ export const LazyTags = lazy(() =>
   import('./Tags').then(module => ({ default: module.Tags }))
 );
 
+export const LazyWorkspaces = lazy(() => 
+  import('./Workspaces').then(module => ({ default: module.Workspaces }))
+);
+
+export const LazyWorkspaceDetail = lazy(() => 
+  import('./WorkspaceDetail').then(module => ({ default: module.WorkspaceDetail }))
+);
+
 export const LazySettings = lazy(() => 
   import('./Settings').then(module => ({ default: module.Settings }))
 );
