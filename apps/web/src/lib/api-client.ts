@@ -310,6 +310,10 @@ export const apiClient = {
   getWeeklyMetrics: (params?: { weekStart?: string }) => axiosInstance.get('/analytics/weekly', { params }).then((res) => res.data),
   getMonthlyMetrics: (params?: { monthStart?: string }) => axiosInstance.get('/analytics/monthly', { params }).then((res) => res.data),
   getDateRangeMetrics: (startDate: string, endDate: string) => axiosInstance.get('/analytics/range', { params: { startDate, endDate } }).then((res) => res.data),
+  getDashboardStats: () => axiosInstance.get('/analytics/dashboard-stats').then((res) => res.data),
+  getHeatmapData: () => axiosInstance.get('/analytics/heatmap').then((res) => res.data),
+  getProjectDistribution: () => axiosInstance.get('/analytics/project-distribution').then((res) => res.data),
+  getTaskStatusDistribution: () => axiosInstance.get('/analytics/task-status-distribution').then((res) => res.data),
 
   // AI
   getAIProfile: () => axiosInstance.get('/ai/profile').then((res) => res.data),

@@ -96,6 +96,10 @@ export const queryKeys = {
   weeklyMetrics: (params?: { weekStart?: string }) => ['analytics', 'weekly', params] as const,
   monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
   dateRangeMetrics: (startDate: string, endDate: string) => ['analytics', 'range', startDate, endDate] as const,
+  dashboardStats: ['analytics', 'dashboard-stats'] as const,
+  heatmapData: ['analytics', 'heatmap'] as const,
+  projectDistribution: ['analytics', 'project-distribution'] as const,
+  taskStatusDistribution: ['analytics', 'task-status-distribution'] as const,
 
   // AI
   aiProfile: ['ai', 'profile'] as const,
@@ -871,6 +875,34 @@ export function useDateRangeMetrics(startDate: string, endDate: string) {
   return useQuery({
     queryKey: queryKeys.dateRangeMetrics(startDate, endDate),
     queryFn: () => apiClient.getDateRangeMetrics(startDate, endDate),
+  });
+}
+
+export function useDashboardStats() {
+  return useQuery({
+    queryKey: queryKeys.dashboardStats,
+    queryFn: () => apiClient.getDashboardStats(),
+  });
+}
+
+export function useHeatmapData() {
+  return useQuery({
+    queryKey: queryKeys.heatmapData,
+    queryFn: () => apiClient.getHeatmapData(),
+  });
+}
+
+export function useProjectDistribution() {
+  return useQuery({
+    queryKey: queryKeys.projectDistribution,
+    queryFn: () => apiClient.getProjectDistribution(),
+  });
+}
+
+export function useTaskStatusDistribution() {
+  return useQuery({
+    queryKey: queryKeys.taskStatusDistribution,
+    queryFn: () => apiClient.getTaskStatusDistribution(),
   });
 }
 

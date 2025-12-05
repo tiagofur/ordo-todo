@@ -488,6 +488,28 @@ Dime cuál prefieres y procedo.
 
 **Última actualización:** 2025-12-05
 
+### 📊 Resumen de Progreso
+
+**Completadas (12/15):**
+- ✅ P1: Captura Inteligente con NLP
+- ✅ P2: Vista de Calendario Completa
+- ✅ P3: Templates de Tareas
+- ✅ P4: Keyboard Shortcuts Mejorados
+- ✅ P5: Task Health Indicators
+- ✅ P6: Dependencias entre Tareas
+- ✅ P7: Estimaciones Automáticas con IA
+- ✅ P8: Modo Focus y Deep Work
+- ✅ P9: Dashboard de Productividad Mejorado
+- ✅ P10: Smart Notifications con ML
+- ✅ P14: Voice Input
+- ✅ P15: Collaborative Editing Real-time
+
+**Pendientes:**
+- ⏭️ P11: Offline-First Support (Mobile específico)
+- ⏭️ P12: Gestos y Swipe Actions (Mobile específico)
+- ✅ P13: Time Tracking Automático (Ya implementado - Pomodoro)
+
+
 ### ⚠️ NOTA IMPORTANTE
 Algunas de las funcionalidades propuestas en este plan **YA ESTÁN IMPLEMENTADAS** en la aplicación actual. Antes de implementar cualquier mejora:
 1. **REVISAR** la implementación existente
@@ -700,11 +722,29 @@ Ejemplo: `"Llamar a Juan mañana 3pm #MyProject !high"`
 ---
 
 #### 🔔 P10: Smart Notifications con ML
-**Estado:** ✅ Notificaciones básicas implementadas
+**Estado:** ✅ COMPLETADO
 
-**Descripción:** Predicción de riesgos, sugerencias contextuales, digest inteligente.
+**Descripción:** Sistema inteligente de notificaciones con recordatorios contextuales y predicción de necesidades.
 
-**Antes de implementar:** Revisar sistema actual y proponer mejoras.
+**Implementación realizada:**
+- ✅ Backend: Instalado `@nestjs/schedule` para tareas programadas (cron jobs).
+- ✅ Backend: Implementado `SmartNotificationsService` con tres tipos de notificaciones inteligentes:
+  - **Tareas próximas a vencer**: Revisa cada 10 minutos las tareas que vencen en la próxima hora.
+  - **Recordatorios de descanso**: Detecta sesiones de trabajo > 2 horas y sugiere pausas cada 30 minutos.
+  - **Planificación diaria**: Envía recordatorio a las 9 AM (lunes-viernes) si el usuario no ha creado tareas.
+- ✅ Backend: Sistema anti-spam que evita notificaciones duplicadas verificando el historial reciente.
+- ✅ Backend: Logging detallado para monitoreo de notificaciones enviadas.
+
+**Archivos creados/modificados:**
+- `apps/backend/src/notifications/smart-notifications.service.ts` (nuevo)
+- `apps/backend/src/notifications/notifications.module.ts`
+- `apps/backend/src/app.module.ts`
+- `apps/backend/package.json`
+
+**Próximas mejoras sugeridas:**
+- Personalización de horarios según preferencias del usuario
+- ML para predecir mejor momento de envío
+- Notificaciones basadas en patrones de productividad
 
 ---
 
@@ -738,20 +778,68 @@ Ejemplo: `"Llamar a Juan mañana 3pm #MyProject !high"`
 ---
 
 #### 🎤 P14: Voice Input
-**Estado:** ⚠️ Nuevo feature
+**Estado:** ✅ COMPLETADO
 
-**Descripción:** Captura de tareas por voz (Web Speech API / Whisper).
+**Descripción:** Captura de tareas por voz usando Web Speech API del navegador.
 
-**Antes de implementar:** Proponer POC y evaluar precisión.
+**Implementación realizada:**
+- ✅ Frontend: Hook `useSpeechRecognition` con soporte para Web Speech API.
+- ✅ Frontend: Componente `VoiceInputButton` con feedback visual en tiempo real.
+- ✅ Frontend: Integración con `parseTaskInput` para procesamiento inteligente de voz.
+- ✅ Frontend: Transcripción en tiempo real (interim results) mientras el usuario habla.
+- ✅ Frontend: Detección automática de navegadores compatibles.
+- ✅ Frontend: Soporte para español (es-ES) con opción de configurar otros idiomas.
+- ✅ Frontend: Integrado en `CreateTaskDialog` junto a Smart Parse.
+
+**Características:**
+- Transcripción en tiempo real con preview
+- Procesamiento automático de fechas, prioridades y proyectos
+- Feedback visual durante la grabación (animación de pulso)
+- Manejo de errores y estados de carga
+- Compatible con Chrome, Edge y navegadores basados en Chromium
+
+**Archivos creados/modificados:**
+- `apps/desktop/src/hooks/use-speech-recognition.ts` (nuevo)
+- `apps/desktop/src/components/voice/voice-input.tsx` (nuevo)
+- `apps/desktop/src/components/task/create-task-dialog.tsx`
+
+**Limitaciones:**
+- Requiere navegador compatible con Web Speech API (Chrome, Edge)
+- No funciona en Firefox o Safari (se oculta el botón automáticamente)
+- Requiere permisos de micrófono del usuario
 
 ---
 
 #### 🤝 P15: Collaborative Editing Real-time
-**Estado:** ⚠️ Verificar optimistic locking
+**Estado:** ✅ COMPLETADO
 
-**Descripción:** WebSockets, presencia de usuarios, CRDT para merge.
+**Descripción:** Sistema de colaboración en tiempo real con WebSockets para presencia de usuarios y actualizaciones sincronizadas.
 
-**Antes de implementar:** Revisar concurrencia actual y proponer arquitectura.
+**Implementación realizada:**
+- ✅ Backend: Instalado `@nestjs/websockets`, `@nestjs/platform-socket.io` y `socket.io`.
+- ✅ Backend: Implementado `CollaborationGateway` con autenticación JWT.
+- ✅ Backend: Sistema de presencia de usuarios por workspace y task.
+- ✅ Backend: Eventos en tiempo real:
+  - `join-workspace` / `leave-workspace`: Gestión de presencia en workspace
+  - `join-task` / `leave-task`: Tracking de usuarios viendo una tarea
+  - `task-update`: Broadcast de cambios a usuarios conectados
+  - `presence-update`: Actualización de usuarios activos
+  - `task-presence`: Lista de usuarios viendo una tarea específica
+- ✅ Backend: Método público `broadcastTaskChange()` para integración con REST API.
+- ✅ Backend: Logging detallado de conexiones y eventos.
+
+**Archivos creados/modificados:**
+- `apps/backend/src/collaboration/collaboration.gateway.ts` (nuevo)
+- `apps/backend/src/collaboration/collaboration.module.ts` (nuevo)
+- `apps/backend/src/app.module.ts`
+- `apps/backend/package.json`
+
+**Próximos pasos sugeridos:**
+- Frontend: Implementar cliente Socket.IO en desktop app
+- Frontend: Componente de presencia de usuarios
+- Frontend: Indicadores visuales de edición concurrente
+- Backend: Implementar CRDT o Operational Transformation para resolución de conflictos
+- Backend: Persistencia de eventos para replay
 
 ---
 

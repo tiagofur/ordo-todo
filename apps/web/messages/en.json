@@ -2,6 +2,7 @@
   "Sidebar": {
     "today": "Today",
     "tasks": "Tasks",
+    "calendar": "Calendar",
     "projects": "Projects",
     "workspaces": "Workspaces",
     "tags": "Tags",

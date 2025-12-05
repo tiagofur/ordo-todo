@@ -726,7 +726,7 @@ export class OrdoApiClient {
     return response.data;
   }
 
-  // ============ ANALYTICS ENDPOINTS (1) ============
+  // ============ ANALYTICS ENDPOINTS (6) ============
 
   /**
    * Get daily metrics for current user
@@ -736,6 +736,76 @@ export class OrdoApiClient {
     const response = await this.axios.get<DailyMetrics[]>('/analytics/daily', {
       params,
     });
+    return response.data;
+  }
+
+  /**
+   * Get dashboard stats (pomodoros, tasks, minutes, trends)
+   * GET /analytics/dashboard-stats
+   */
+  async getDashboardStats(): Promise<{
+    pomodoros: number;
+    tasks: number;
+    minutes: number;
+    avgPerDay: number;
+    trends: {
+      pomodoros: number;
+      tasks: number;
+      minutes: number;
+    };
+  }> {
+    const response = await this.axios.get('/analytics/dashboard-stats');
+    return response.data;
+  }
+
+  /**
+   * Get weekly metrics
+   * GET /analytics/weekly
+   */
+  async getWeeklyMetrics(): Promise<Array<{
+    date: string;
+    pomodorosCount: number;
+    focusDuration: number;
+    tasksCompletedCount: number;
+  }>> {
+    const response = await this.axios.get('/analytics/weekly');
+    return response.data;
+  }
+
+  /**
+   * Get heatmap data (activity by hour/day)
+   * GET /analytics/heatmap
+   */
+  async getHeatmapData(): Promise<Array<{
+    day: number;
+    hour: number;
+    value: number;
+  }>> {
+    const response = await this.axios.get('/analytics/heatmap');
+    return response.data;
+  }
+
+  /**
+   * Get project time distribution
+   * GET /analytics/project-distribution
+   */
+  async getProjectDistribution(): Promise<Array<{
+    name: string;
+    value: number;
+  }>> {
+    const response = await this.axios.get('/analytics/project-distribution');
+    return response.data;
+  }
+
+  /**
+   * Get task status distribution
+   * GET /analytics/task-status-distribution
+   */
+  async getTaskStatusDistribution(): Promise<Array<{
+    status: string;
+    count: number;
+  }>> {
+    const response = await this.axios.get('/analytics/task-status-distribution');
     return response.data;
   }
 

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
@@ -12,19 +14,31 @@ const STATUS_COLORS: Record<string, string> = {
     'CANCELLED': '#ef4444'
 };
 
-export function ProjectTimeChart({ data, className }: { data: { name: string, value: number }[], className?: string }) {
+interface ProjectTimeChartProps {
+  data: { name: string; value: number }[];
+  className?: string;
+  title?: string;
+  noDataMessage?: string;
+}
+
+export function ProjectTimeChart({ 
+  data, 
+  className,
+  title = "Tiempo por Proyecto",
+  noDataMessage = "No hay datos suficientes"
+}: ProjectTimeChartProps) {
     if (!data || data.length === 0) {
         return (
             <div className={cn("rounded-2xl border border-border/50 bg-card p-6 flex flex-col justify-center items-center h-[360px]", className)}>
-                <h3 className="text-lg font-semibold mb-2">Tiempo por Proyecto</h3>
-                <p className="text-muted-foreground">No hay datos suficientes</p>
+                <h3 className="text-lg font-semibold mb-2">{title}</h3>
+                <p className="text-muted-foreground">{noDataMessage}</p>
             </div>
         );
     }
 
     return (
         <div className={cn("rounded-2xl border border-border/50 bg-card p-6", className)}>
-             <h3 className="text-lg font-semibold mb-6">Tiempo por Proyecto</h3>
+             <h3 className="text-lg font-semibold mb-6">{title}</h3>
              <div className="h-64">
                  <ResponsiveContainer width="100%" height="100%">
                      <PieChart>
@@ -42,7 +56,11 @@ export function ProjectTimeChart({ data, className }: { data: { name: string, va
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                          </Pie>
-                         <Tooltip formatter={(value: number) => [`${value} min`, 'Tiempo']} itemStyle={{ color: 'var(--foreground)' }} contentStyle={{ backgroundColor: 'var(--popover)', borderColor: 'var(--border)' }} />
+                         <Tooltip 
+                           formatter={(value: number) => [`${value} min`, 'Tiempo']} 
+                           itemStyle={{ color: 'var(--foreground)' }} 
+                           contentStyle={{ backgroundColor: 'var(--popover)', borderColor: 'var(--border)' }} 
+                         />
                          <Legend />
                      </PieChart>
                  </ResponsiveContainer>
@@ -51,19 +69,31 @@ export function ProjectTimeChart({ data, className }: { data: { name: string, va
     );
 }
 
-export function TaskStatusChart({ data, className }: { data: { status: string, count: number }[], className?: string }) {
+interface TaskStatusChartProps {
+  data: { status: string; count: number }[];
+  className?: string;
+  title?: string;
+  noDataMessage?: string;
+}
+
+export function TaskStatusChart({ 
+  data, 
+  className,
+  title = "Estado de Tareas",
+  noDataMessage = "No hay tareas"
+}: TaskStatusChartProps) {
     if (!data || data.length === 0) {
         return (
             <div className={cn("rounded-2xl border border-border/50 bg-card p-6 flex flex-col justify-center items-center h-[360px]", className)}>
-                <h3 className="text-lg font-semibold mb-2">Estado de Tareas</h3>
-                <p className="text-muted-foreground">No hay tareas</p>
+                <h3 className="text-lg font-semibold mb-2">{title}</h3>
+                <p className="text-muted-foreground">{noDataMessage}</p>
             </div>
         );
     }
 
     return (
         <div className={cn("rounded-2xl border border-border/50 bg-card p-6", className)}>
-             <h3 className="text-lg font-semibold mb-6">Estado de Tareas</h3>
+             <h3 className="text-lg font-semibold mb-6">{title}</h3>
              <div className="h-64">
                  <ResponsiveContainer width="100%" height="100%">
                      <PieChart>
@@ -81,7 +111,10 @@ export function TaskStatusChart({ data, className }: { data: { status: string, c
                                 <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#8884d8'} />
                             ))}
                          </Pie>
-                         <Tooltip itemStyle={{ color: 'var(--foreground)' }} contentStyle={{ backgroundColor: 'var(--popover)', borderColor: 'var(--border)' }} />
+                         <Tooltip 
+                           itemStyle={{ color: 'var(--foreground)' }} 
+                           contentStyle={{ backgroundColor: 'var(--popover)', borderColor: 'var(--border)' }} 
+                         />
                          <Legend />
                      </PieChart>
                  </ResponsiveContainer>

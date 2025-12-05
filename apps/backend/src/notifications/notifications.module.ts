@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
+import { SmartNotificationsService } from './smart-notifications.service';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
     imports: [DatabaseModule],
     controllers: [NotificationsController],
-    providers: [NotificationsService],
+    providers: [NotificationsService, SmartNotificationsService],
     exports: [NotificationsService],
 })
 export class NotificationsModule { }

@@ -20,6 +20,7 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { parseTaskInput } from "@/utils/smart-capture";
 import { TemplateSelector } from "./template-selector";
 import { TaskTemplate } from "@/hooks/api/use-templates";
+import { VoiceInputButton } from "@/components/voice/voice-input";
 
 const createTaskSchema = z.object({
   title: z.string().min(1, "El título es requerido"),
@@ -159,6 +160,28 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     }
   };
 
+  const handleVoiceTranscript = (parsedData: ReturnType<typeof parseTaskInput>) => {
+    if (parsedData.title) {
+        setValue("title", parsedData.title, { shouldDirty: true });
+    }
+    
+    if (parsedData.projectId) {
+        setValue("projectId", parsedData.projectId, { shouldDirty: true });
+    }
+    
+    if (parsedData.priority) {
+        setValue("priority", parsedData.priority, { shouldDirty: true });
+        setSelectedPriority(parsedData.priority);
+    }
+    
+    if (parsedData.dueDate) {
+        const iso = parsedData.dueDate.toISOString().split('T')[0];
+        setValue("dueDate", iso, { shouldDirty: true });
+    }
+    
+    toast.success("Tarea capturada por voz");
+  };
+
   const createTask = useCreateTask();
 
   const onSubmit = async (data: CreateTaskForm) => {
@@ -217,16 +240,24 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                     <Label htmlFor="title">Título *</Label>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                        onClick={handleSmartCapture}
-                    >
-                        <Wand2 className="w-3 h-3 mr-1" />
-                        Smart Parse
-                    </Button>
+                    <div className="flex gap-2">
+                        <VoiceInputButton 
+                            onTranscript={handleVoiceTranscript}
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 text-xs"
+                        />
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                            onClick={handleSmartCapture}
+                        >
+                            <Wand2 className="w-3 h-3 mr-1" />
+                            Smart Parse
+                        </Button>
+                    </div>
                 </div>
                 <input
                   id="title"
