@@ -6,11 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Ordo-Todo** is a modern task organization platform built with **DDD (Domain-Driven Design) + Clean Architecture** in a **Turborepo monorepo**. The project features:
 
-- **Web app** (Next.js 16 + tRPC)
+- **Web app** (Next.js 16 + REST API)
 - **Mobile app** (React Native + Expo)
 - **Desktop app** (Electron + React)
 - **Shared domain core** (packages/core)
 - **Shared database** (packages/db with Prisma)
+- **Shared UI components** (packages/ui) 🆕
 
 Key features include intelligent AI assistance, advanced Pomodoro timer with task switching, real-time sync, and cross-platform support.
 
@@ -465,11 +466,21 @@ npm run dev
 
 This is a monorepo with workspaces:
 
-- `apps/web` - @ordo-todo/web
-- `apps/mobile` - @ordo-todo/mobile
-- `apps/desktop` - @ordo-todo/desktop
-- `packages/core` - @ordo-todo/core
-- `packages/db` - @ordo-todo/db
+**Applications:**
+- `apps/web` - @ordo-todo/web (Next.js 16)
+- `apps/mobile` - @ordo-todo/mobile (React Native + Expo)
+- `apps/desktop` - @ordo-todo/desktop (Electron)
+- `apps/backend` - @ordo-todo/backend (NestJS REST API)
+
+**Shared Packages:**
+- `packages/core` - @ordo-todo/core (Domain logic, entities, use cases)
+- `packages/db` - @ordo-todo/db (Prisma schema)
+- `packages/ui` - @ordo-todo/ui 🆕 (Shared React components, providers, utilities)
+- `packages/hooks` - @ordo-todo/hooks (React Query hooks factory)
+- `packages/stores` - @ordo-todo/stores (Zustand stores)
+- `packages/api-client` - @ordo-todo/api-client (REST client with types)
+- `packages/i18n` - @ordo-todo/i18n (Translations for 3 languages)
+- `packages/config` - @ordo-todo/config (Shared configurations)
 - `packages/eslint-config` - @ordo-todo/eslint-config
 - `packages/typescript-config` - @ordo-todo/typescript-config
 
