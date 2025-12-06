@@ -79,3 +79,43 @@ export interface InviteMemberDto {
 export interface AcceptInvitationDto {
   token: string;
 }
+
+/**
+ * Workspace settings
+ */
+export interface WorkspaceSettings {
+  id: string;
+  workspaceId: string;
+  defaultView: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+  defaultDueTime: number;
+  timezone: string;
+  locale: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpdateWorkspaceSettingsDto {
+  defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+  defaultDueTime?: number;
+  timezone?: string;
+  locale?: string;
+}
+
+/**
+ * Workspace audit log
+ */
+export interface WorkspaceAuditLog {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details: Record<string, unknown>;
+  createdAt: Date;
+  user?: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
+}

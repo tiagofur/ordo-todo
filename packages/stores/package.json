@@ -1,0 +1,27 @@
+{
+  "name": "@ordo-todo/stores",
+  "version": "1.0.0",
+  "description": "Shared Zustand stores for Ordo-Todo applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "ordo-todo",
+    "stores",
+    "zustand",
+    "typescript"
+  ],
+  "peerDependencies": {
+    "zustand": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "zustand": "^5.0.5",
+    "typescript": "^5.9.3"
+  }
+}

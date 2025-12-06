@@ -1,19 +1,16 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+/**
+ * Workspace Store
+ *
+ * Re-exports the shared workspace store from @ordo-todo/stores.
+ * This ensures consistency across all platforms while maintaining
+ * the same import path for existing code.
+ */
 
-interface WorkspaceStore {
-    selectedWorkspaceId: string | null;
-    setSelectedWorkspaceId: (id: string | null) => void;
-}
+export {
+  useWorkspaceStore,
+  getSelectedWorkspaceId,
+  setSelectedWorkspaceId,
+} from '@ordo-todo/stores';
 
-export const useWorkspaceStore = create<WorkspaceStore>()(
-    persist(
-        (set) => ({
-            selectedWorkspaceId: null,
-            setSelectedWorkspaceId: (id) => set({ selectedWorkspaceId: id }),
-        }),
-        {
-            name: "workspace-storage",
-        }
-    )
-);
+// Also export types for convenience
+export type { WorkspaceStore } from '@ordo-todo/stores';
