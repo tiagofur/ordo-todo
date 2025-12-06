@@ -4,7 +4,7 @@ Complete API reference for the Ordo-Todo backend REST API.
 
 ## Quick Start
 
-**Base URL**: `http://localhost:4000/api`
+**Base URL**: `http://localhost:3101/api`
 
 **Authentication**: All endpoints (except public auth routes) require JWT Bearer token.
 

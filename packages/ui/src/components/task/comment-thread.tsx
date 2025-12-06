@@ -1,25 +1,21 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Send, Edit2, Trash2, MoreVertical } from "lucide-react";
-import { useCreateComment, useUpdateComment, useDeleteComment, useWorkspaceMembers } from "@/lib/api-hooks";
-import { notify } from "@/lib/notify";
-import { cn } from "../../utils/index.js";
-import { Button } from "../ui/button.js";
-import { Textarea } from "../ui/textarea.js";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar.js";
+import { useState } from 'react';
+import { Send, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { Button } from '../ui/button.js';
+import { Textarea } from '../ui/textarea.js';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.js';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu.js";
-import { formatDistanceToNow } from "date-fns";
-import { es, enUS } from "date-fns/locale";
-import { useTranslations, useLocale } from "next-intl";
-import { MentionTextarea } from "../ui/mention-textarea.js";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+} from '../ui/dropdown-menu.js';
+import { formatDistanceToNow } from 'date-fns';
+import { enUS, es } from 'date-fns/locale';
+import { MentionTextarea } from '../ui/mention-textarea.js';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Comment {
   id: string | number;
@@ -34,83 +30,117 @@ interface Comment {
   };
 }
 
+interface MentionUser {
+  id: string;
+  name: string;
+  image?: string;
+}
+
 interface CommentThreadProps {
   taskId: string;
   comments?: Comment[];
   currentUserId?: string;
-  workspaceId?: string;
+  users?: MentionUser[];
+  onCreate?: (content: string) => Promise<void> | void;
+  onUpdate?: (commentId: string, content: string) => Promise<void> | void;
+  onDelete?: (commentId: string) => Promise<void> | void;
+  locale?: string;
+  labels?: {
+    title?: string;
+    edited?: string;
+    placeholder?: string;
+    shortcut?: string;
+    empty?: string;
+    confirmDelete?: string;
+    actions?: {
+      edit?: string;
+      delete?: string;
+      save?: string;
+      saving?: string;
+      cancel?: string;
+      send?: string;
+      sending?: string;
+    };
+  };
 }
 
-export function CommentThread({ taskId, comments = [], currentUserId, workspaceId }: CommentThreadProps) {
-  const t = useTranslations('CommentThread');
-  const locale = useLocale();
-  const [newComment, setNewComment] = useState("");
+const DEFAULT_LABELS = {
+  title: 'Comments',
+  edited: '(edited)',
+  placeholder: 'Write a comment...',
+  shortcut: 'Press Ctrl+Enter to send',
+  empty: 'No comments yet',
+  confirmDelete: 'Are you sure you want to delete this comment?',
+  actions: {
+    edit: 'Edit',
+    delete: 'Delete',
+    save: 'Save',
+    saving: 'Saving...',
+    cancel: 'Cancel',
+    send: 'Send',
+    sending: 'Sending...',
+  },
+};
+
+export function CommentThread({
+  taskId,
+  comments = [],
+  currentUserId,
+  users = [],
+  onCreate,
+  onUpdate,
+  onDelete,
+  locale = 'en',
+  labels = {},
+}: CommentThreadProps) {
+  const t = {
+    ...DEFAULT_LABELS,
+    ...labels,
+    actions: { ...DEFAULT_LABELS.actions, ...labels.actions },
+  };
+
+  const [newComment, setNewComment] = useState('');
   const [editingId, setEditingId] = useState<string | number | null>(null);
-  const [editContent, setEditContent] = useState("");
+  const [editContent, setEditContent] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Create comment mutation
-  const createComment = useCreateComment();
-
-  // Update comment mutation
-  const updateComment = useUpdateComment();
-
-  // Delete comment mutation
-  const deleteComment = useDeleteComment();
-
-  // Fetch workspace members for mentions
-  const { data: members = [] } = useWorkspaceMembers(workspaceId || "");
-  
-  const mentionUsers = members.map((m: any) => ({
-    id: m.user.id,
-    name: m.user.name || m.user.email,
-    image: m.user.image,
-  }));
+  // Helper to wrap promise with loading state
+  const handleAction = async (action: () => Promise<void> | void) => {
+    setIsSubmitting(true);
+    try {
+      await action();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleCreateComment = () => {
-    if (!newComment.trim()) return;
-
-    createComment.mutate({
-      taskId,
-      content: newComment,
-    }, {
-      onSuccess: () => {
-        notify.success(t('toast.added'));
-        setNewComment("");
-      },
-      onError: (error: any) => {
-        notify.error(error.message || t('toast.addError'));
-      }
+    if (!newComment.trim() || !onCreate) return;
+    handleAction(async () => {
+      await onCreate(newComment);
+      setNewComment('');
     });
   };
 
   const handleUpdateComment = (commentId: string | number) => {
-    if (!editContent.trim()) return;
-
-    updateComment.mutate({
-      commentId: String(commentId),
-      data: { content: editContent },
-    }, {
-      onSuccess: () => {
-        notify.success(t('toast.updated'));
-        setEditingId(null);
-        setEditContent("");
-      },
-      onError: (error: any) => {
-        notify.error(error.message || t('toast.updateError'));
-      }
+    if (!editContent.trim() || !onUpdate) return;
+    handleAction(async () => {
+      await onUpdate(String(commentId), editContent);
+      setEditingId(null);
+      setEditContent('');
     });
   };
 
   const handleDeleteComment = (commentId: string | number) => {
-    if (confirm(t('confirmDelete'))) {
-      deleteComment.mutate(String(commentId), {
-        onSuccess: () => {
-          notify.success(t('toast.deleted'));
-        },
-        onError: (error: any) => {
-          notify.error(error.message || t('toast.deleteError'));
-        }
-      });
+    if (!onDelete) return;
+    if (window.confirm(t.confirmDelete)) {
+      // Don't set global submitting for delete, maybe? or yes.
+      // onDelete is usually fast.
+      try {
+         onDelete(String(commentId));
+      } catch(e) { console.error(e); }
     }
   };
 
@@ -121,21 +151,22 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setEditContent("");
+    setEditContent('');
   };
 
   const getInitials = (name: string) => {
     return name
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .slice(0, 2);
   };
 
   const formatTimestamp = (date: Date | string) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return formatDistanceToNow(dateObj, { addSuffix: true, locale: locale === 'es' ? es : enUS });
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const dateLocale = locale === 'es' ? es : enUS;
+    return formatDistanceToNow(dateObj, { addSuffix: true, locale: dateLocale });
   };
 
   return (
@@ -143,7 +174,7 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          {t('title')} {comments.length > 0 && `(${comments.length})`}
+          {t.title} {comments.length > 0 && `(${comments.length})`}
         </h3>
       </div>
 
@@ -175,7 +206,7 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
                     <p className="text-xs text-muted-foreground">
                       {formatTimestamp(comment.createdAt)}
                       {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                        <span className="ml-1">{t('edited')}</span>
+                        <span className="ml-1">{t.edited}</span>
                       )}
                     </p>
                   </div>
@@ -191,21 +222,19 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleStartEdit(comment)}>
                           <Edit2 className="mr-2 h-3 w-3" />
-                          {t('actions.edit')}
+                          {t.actions.edit}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDeleteComment(comment.id)}
                           className="text-destructive"
                         >
                           <Trash2 className="mr-2 h-3 w-3" />
-                          {t('actions.delete')}
+                          {t.actions.delete}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
                 </div>
-
-
 
                 {/* Comment Content */}
                 {isEditing ? (
@@ -220,12 +249,12 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
                       <Button
                         size="sm"
                         onClick={() => handleUpdateComment(comment.id)}
-                        disabled={!editContent.trim() || updateComment.isPending}
+                        disabled={!editContent.trim() || isSubmitting}
                       >
-                        {updateComment.isPending ? t('actions.saving') : t('actions.save')}
+                        {isSubmitting ? t.actions.saving : t.actions.save}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                        {t('actions.cancel')}
+                        {t.actions.cancel}
                       </Button>
                     </div>
                   </div>
@@ -244,7 +273,7 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
         {/* Empty State */}
         {comments.length === 0 && (
           <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
-            {t('empty')}
+            {t.empty}
           </div>
         )}
       </div>
@@ -254,26 +283,26 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
         <MentionTextarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder={t('placeholder')}
+          placeholder={t.placeholder}
           className="min-h-[100px] resize-none"
-          users={mentionUsers}
+          users={users}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
               handleCreateComment();
             }
           }}
         />
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            {t('shortcut')}
+            {t.shortcut}
           </p>
           <Button
             onClick={handleCreateComment}
-            disabled={!newComment.trim() || createComment.isPending}
+            disabled={!newComment.trim() || isSubmitting}
             size="sm"
           >
             <Send className="mr-2 h-4 w-4" />
-            {createComment.isPending ? t('actions.sending') : t('actions.send')}
+            {isSubmitting ? t.actions.sending : t.actions.send}
           </Button>
         </div>
       </div>

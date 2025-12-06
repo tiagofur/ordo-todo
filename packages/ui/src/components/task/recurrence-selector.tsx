@@ -1,18 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select.js";
-import { Label } from "../ui/label.js";
-import { Input } from "../ui/input.js";
-import { Checkbox } from "../ui/checkbox.js";
-import { DatePicker } from "../ui/date-picker.js";
-import { useTranslations } from "next-intl";
+} from '../ui/select.js';
+import { Label } from '../ui/label.js';
+import { Checkbox } from '../ui/checkbox.js';
+import { DatePicker } from '../ui/date-picker.js';
 
 export interface RecurrenceValue {
   pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
@@ -25,15 +23,50 @@ export interface RecurrenceValue {
 interface RecurrenceSelectorProps {
   value?: RecurrenceValue;
   onChange: (value?: RecurrenceValue) => void;
+  labels?: {
+    enable?: string;
+    frequency?: string;
+    daily?: string;
+    weekly?: string;
+    monthly?: string;
+    yearly?: string;
+    weekDays?: string;
+    endDate?: string;
+    daysShort?: string[]; // ['D', 'L', 'M', ...]
+  };
 }
 
-export function RecurrenceSelector({ value, onChange }: RecurrenceSelectorProps) {
-  const t = useTranslations("Tasks"); // Assuming Tasks translations exist
+const DEFAULT_LABELS = {
+  enable: 'Repeat task',
+  frequency: 'Frequency',
+  daily: 'Daily',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+  weekDays: 'Days of week',
+  endDate: 'End date (Optional)',
+  daysShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+};
+
+export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceSelectorProps) {
+  const t = { ...DEFAULT_LABELS, ...labels };
+  
   const [enabled, setEnabled] = useState(!!value);
   const [pattern, setPattern] = useState<RecurrenceValue['pattern']>(value?.pattern || 'DAILY');
   const [interval, setInterval] = useState(value?.interval || 1);
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>(value?.daysOfWeek || []);
   const [endDate, setEndDate] = useState<Date | undefined>(value?.endDate);
+
+  // Sync state with value prop if it changes externally (optional but good practice)
+  useEffect(() => {
+    if (value) {
+      setEnabled(true);
+      setPattern(value.pattern);
+      if (value.interval) setInterval(value.interval);
+      if (value.daysOfWeek) setDaysOfWeek(value.daysOfWeek);
+      if (value.endDate) setEndDate(value.endDate);
+    }
+  }, [value?.pattern]); // Simplified dependency check
 
   useEffect(() => {
     if (enabled) {
@@ -64,13 +97,13 @@ export function RecurrenceSelector({ value, onChange }: RecurrenceSelectorProps)
           checked={enabled}
           onCheckedChange={(checked) => setEnabled(!!checked)}
         />
-        <Label htmlFor="recurrence-enabled">Repetir tarea</Label>
+        <Label htmlFor="recurrence-enabled">{t.enable}</Label>
       </div>
 
       {enabled && (
         <div className="space-y-4 pl-6 border-l-2 border-muted ml-1">
           <div className="grid gap-2">
-            <Label>Frecuencia</Label>
+            <Label>{t.frequency}</Label>
             <Select
               value={pattern}
               onValueChange={(val) => setPattern(val as any)}
@@ -79,19 +112,19 @@ export function RecurrenceSelector({ value, onChange }: RecurrenceSelectorProps)
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="DAILY">Diariamente</SelectItem>
-                <SelectItem value="WEEKLY">Semanalmente</SelectItem>
-                <SelectItem value="MONTHLY">Mensualmente</SelectItem>
-                <SelectItem value="YEARLY">Anualmente</SelectItem>
+                <SelectItem value="DAILY">{t.daily}</SelectItem>
+                <SelectItem value="WEEKLY">{t.weekly}</SelectItem>
+                <SelectItem value="MONTHLY">{t.monthly}</SelectItem>
+                <SelectItem value="YEARLY">{t.yearly}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {pattern === 'WEEKLY' && (
             <div className="grid gap-2">
-              <Label>Días de la semana</Label>
+              <Label>{t.weekDays}</Label>
               <div className="flex gap-2 flex-wrap">
-                {['D', 'L', 'M', 'X', 'J', 'V', 'S'].map((day, index) => (
+                {t.daysShort?.map((day, index) => (
                   <div key={index} className="flex items-center space-x-1">
                     <Checkbox
                       id={`day-${index}`}
@@ -106,7 +139,7 @@ export function RecurrenceSelector({ value, onChange }: RecurrenceSelectorProps)
           )}
 
           <div className="grid gap-2">
-            <Label>Terminar (Opcional)</Label>
+            <Label>{t.endDate}</Label>
             <DatePicker date={endDate} setDate={setEndDate} />
           </div>
         </div>

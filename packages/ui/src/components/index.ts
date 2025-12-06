@@ -26,10 +26,12 @@ export * from './task/index.js';
 export * from './project/index.js';
 export * from './analytics/index.js';
 
+// Phase 3 components
+export * from './tag/index.js';
+
 // Future phases
 // export * from './workspace';
 // export * from './workflow';
-// export * from './tag';
 // export * from './ai';
 // export * from './auth';
 // export * from './layout';

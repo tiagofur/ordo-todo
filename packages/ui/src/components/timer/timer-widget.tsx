@@ -1,51 +1,129 @@
-"use client";
+'use client';
 
-import { Clock, Play, Pause } from "lucide-react";
-import { useTimer } from "@/components/providers/timer-provider";
-import { Link, usePathname } from "@/i18n/navigation";
-import { cn } from "../../utils/index.js";
-import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
-import { TomatoIcon } from "../ui/custom-icons.js";
+import { Clock, Play } from 'lucide-react';
+import { cn } from '../../utils/index.js';
+import { motion } from 'framer-motion';
+import { TomatoIcon } from '../ui/custom-icons.js';
 
-export function TimerWidget() {
-  const t = useTranslations('TimerWidget');
-  const pathname = usePathname();
-  const isActive = pathname === "/timer";
-  const { isRunning, timeLeft, formatTime, mode, config } = useTimer();
+export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CONTINUOUS';
+
+interface TimerWidgetProps {
+  /** Whether timer is currently running */
+  isRunning: boolean;
+  /** Time left in seconds */
+  timeLeft: number;
+  /** Current timer mode */
+  mode: TimerMode;
+  /** Default mode (POMODORO or CONTINUOUS) */
+  defaultMode?: 'POMODORO' | 'CONTINUOUS';
+  /** Whether this widget is currently active/selected */
+  isActive?: boolean;
+  /** Click handler - typically navigates to timer page */
+  onClick?: () => void;
+  /** Link component for navigation (optional) */
+  href?: string;
+  /** Custom labels for i18n */
+  labels?: {
+    startTimer?: string;
+  };
+  className?: string;
+}
+
+/**
+ * Format time from seconds to MM:SS or HH:MM:SS
+ */
+function formatTime(seconds: number): string {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  if (hrs > 0) {
+    return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * TimerWidget - Compact timer display for sidebar/navigation
+ * 
+ * Platform-agnostic component. Navigation and timer state are passed via props.
+ * 
+ * @example
+ * // In web app with router
+ * const { isRunning, timeLeft, mode } = useTimer();
+ * 
+ * <TimerWidget
+ *   isRunning={isRunning}
+ *   timeLeft={timeLeft}
+ *   mode={mode}
+ *   isActive={pathname === '/timer'}
+ *   onClick={() => router.push('/timer')}
+ *   labels={{ startTimer: t('startTimer') }}
+ * />
+ */
+export function TimerWidget({
+  isRunning,
+  timeLeft,
+  mode,
+  defaultMode = 'POMODORO',
+  isActive = false,
+  onClick,
+  labels = {},
+  className = '',
+}: TimerWidgetProps) {
+  const { startTimer = 'Start Timer' } = labels;
 
   const getThemeClasses = () => {
     if (!isActive && !isRunning) {
-      return "text-muted-foreground hover:bg-muted/50 hover:text-foreground";
+      return 'text-muted-foreground hover:bg-muted/50 hover:text-foreground';
     }
 
     const colorKey = {
-      WORK: "red",
-      SHORT_BREAK: "green-light",
-      LONG_BREAK: "green-dark",
-      CONTINUOUS: "blue"
-    }[mode] || "blue";
+      WORK: 'red',
+      SHORT_BREAK: 'green-light',
+      LONG_BREAK: 'green-dark',
+      CONTINUOUS: 'blue',
+    }[mode] || 'blue';
 
     if (isActive) {
       const activeClasses: Record<string, string> = {
-        red: "bg-red-500 text-white shadow-lg shadow-red-500/20",
-        "green-light": "bg-green-400 text-white shadow-lg shadow-green-400/20",
-        "green-dark": "bg-green-800 text-white shadow-lg shadow-green-800/20",
-        blue: "bg-blue-500 text-white shadow-lg shadow-blue-500/20",
+        red: 'bg-red-500 text-white shadow-lg shadow-red-500/20',
+        'green-light': 'bg-green-400 text-white shadow-lg shadow-green-400/20',
+        'green-dark': 'bg-green-800 text-white shadow-lg shadow-green-800/20',
+        blue: 'bg-blue-500 text-white shadow-lg shadow-blue-500/20',
       };
       return activeClasses[colorKey];
     }
 
     // isRunning
     const runningClasses: Record<string, string> = {
-      red: "border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/70",
-      "green-light": "border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900/70",
-      "green-dark": "border border-green-700 bg-green-100 text-green-900 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800/70",
-      blue: "border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900/70",
+      red: 'border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/70',
+      'green-light': 'border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900/70',
+      'green-dark': 'border border-green-700 bg-green-100 text-green-900 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800/70',
+      blue: 'border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900/70',
     };
     return runningClasses[colorKey];
   };
-  
+
+  const content = (
+    <>
+      {isRunning ? (
+        <Play className="h-4 w-4" />
+      ) : defaultMode === 'POMODORO' ? (
+        <TomatoIcon className="h-4 w-4" />
+      ) : (
+        <Clock className="h-4 w-4" />
+      )}
+      <div className="flex-1">
+        {isRunning ? (
+          <div className="font-medium tabular-nums">{formatTime(timeLeft)}</div>
+        ) : (
+          <span>{startTimer}</span>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -53,28 +131,16 @@ export function TimerWidget() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      <Link
-        href="/timer"
+      <button
+        onClick={onClick}
         className={cn(
-          "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-          getThemeClasses()
+          'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 w-full',
+          getThemeClasses(),
+          className
         )}
       >
-        {isRunning ? (
-          <Play className="h-4 w-4" />
-        ) : (
-          config.defaultMode === "POMODORO" ? <TomatoIcon className="h-4 w-4" /> : <Clock className="h-4 w-4" />
-        )}
-        <div className="flex-1">
-          {isRunning ? (
-            <div className="font-medium tabular-nums">
-              {formatTime(timeLeft)}
-            </div>
-          ) : (
-            <span>{t('startTimer')}</span>
-          )}
-        </div>
-      </Link>
+        {content}
+      </button>
     </motion.div>
   );
 }

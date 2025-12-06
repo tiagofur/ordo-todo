@@ -1,24 +1,118 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2 } from "lucide-react";
-import Link from "next/link";
-import { useTimer } from "@/components/providers/timer-provider";
-import { TaskSelector } from "./task-selector.js";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, type ReactNode } from 'react';
+import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog.js";
-import { useTranslations } from "next-intl";
+} from '../ui/dialog.js';
+import type { TimerMode } from './timer-widget.js';
 
-export function PomodoroTimer() {
-  const t = useTranslations('PomodoroTimer');
-  const { 
-    config, 
+export interface TimerState {
+  isLoaded: boolean;
+  isRunning: boolean;
+  isPaused: boolean;
+  timeLeft: number;
+  mode: TimerMode;
+  completedPomodoros: number;
+  pauseCount: number;
+  defaultMode: 'POMODORO' | 'CONTINUOUS';
+  selectedTaskId: string | null;
+  progress: number; // 0-100
+}
+
+export interface TimerActions {
+  start: () => void;
+  pause: () => void;
+  resume: () => void;
+  stop: (completed?: boolean) => void;
+  skipToNext: () => void;
+  switchTask: (taskId: string) => Promise<void>;
+  setSelectedTaskId: (taskId: string | null) => void;
+}
+
+interface PomodoroTimerProps {
+  /** Timer state - typically from useTimer hook */
+  state: TimerState;
+  /** Timer actions - typically from useTimer hook */
+  actions: TimerActions;
+  /** Task selector component - rendered inside timer */
+  TaskSelectorComponent?: ReactNode;
+  /** Click handler for focus mode link */
+  onFocusModeClick?: () => void;
+  /** Custom labels for i18n */
+  labels?: {
+    stopwatch?: string;
+    pomodoroCount?: (count: number) => string;
+    shortBreak?: string;
+    longBreak?: string;
+    paused?: string;
+    pauseCount?: (count: number) => string;
+    switchTaskTitle?: string;
+    switchTaskDescription?: string;
+    switchTaskButtonTitle?: string;
+    enterFocusMode?: string;
+  };
+}
+
+const MODE_COLORS = {
+  WORK: '#ef4444',
+  SHORT_BREAK: '#4ade80',
+  LONG_BREAK: '#15803d',
+  CONTINUOUS: '#3b82f6',
+};
+
+/**
+ * Format time from seconds to MM:SS or HH:MM:SS
+ */
+function formatTime(seconds: number): string {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hrs > 0) {
+    return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * PomodoroTimer - Platform-agnostic timer display with controls
+ * 
+ * All state and actions are passed via props for maximum flexibility.
+ * 
+ * @example
+ * // In web app
+ * const timerContext = useTimer();
+ * 
+ * <PomodoroTimer
+ *   state={{
+ *     isLoaded: timerContext.isLoaded,
+ *     isRunning: timerContext.isRunning,
+ *     // ... other state
+ *   }}
+ *   actions={{
+ *     start: timerContext.start,
+ *     pause: timerContext.pause,
+ *     // ... other actions
+ *   }}
+ *   TaskSelectorComponent={<TaskSelector ... />}
+ *   onFocusModeClick={() => router.push('/focus')}
+ *   labels={{ ... }}
+ * />
+ */
+export function PomodoroTimer({
+  state,
+  actions,
+  TaskSelectorComponent,
+  onFocusModeClick,
+  labels = {},
+}: PomodoroTimerProps) {
+  const {
     isLoaded,
     isRunning,
     isPaused,
@@ -26,69 +120,62 @@ export function PomodoroTimer() {
     mode,
     completedPomodoros,
     pauseCount,
-    start,
-    pause,
-    resume,
-    stop,
-    skipToNext,
-    switchTask,
-    formatTime,
-    getProgress,
-    activeSession,
-    selectedTaskId,
-    setSelectedTaskId
-  } = useTimer();
+    defaultMode,
+    progress,
+  } = state;
+
+  const { start, pause, resume, stop, skipToNext } = actions;
 
   const [showSwitchDialog, setShowSwitchDialog] = useState(false);
 
-  const MODE_COLORS = {
-    WORK: "#ef4444", // Red
-    SHORT_BREAK: "#4ade80", // Light Green (Leaves)
-    LONG_BREAK: "#15803d", // Dark Green (Branches)
-    CONTINUOUS: "#3b82f6", // Blue
-  };
+  const {
+    stopwatch = 'Stopwatch',
+    pomodoroCount = (count: number) => `Pomodoro ${count}`,
+    shortBreak = 'Short Break',
+    longBreak = 'Long Break',
+    paused = 'Paused',
+    pauseCount: pauseCountLabel = (count: number) => `${count} pause${count !== 1 ? 's' : ''}`,
+    switchTaskTitle = 'Switch Task',
+    switchTaskDescription = 'Select a different task to track time against.',
+    switchTaskButtonTitle = 'Switch task',
+    enterFocusMode = 'Enter Focus Mode',
+  } = labels;
 
-  const accentColor = MODE_COLORS[mode] || "#ef4444";
+  const accentColor = MODE_COLORS[mode] || '#ef4444';
 
   const getModeLabel = () => {
-    if (config.defaultMode === "CONTINUOUS") {
-      return t('modes.stopwatch');
-    }
-    if (mode === "WORK") {
-      // Show the current pomodoro being worked on
-      return t('modes.pomodoroCount', { count: completedPomodoros + 1 });
-    }
-    if (mode === "SHORT_BREAK") return t('modes.shortBreak');
-    if (mode === "LONG_BREAK") return t('modes.longBreak');
-    return "";
+    if (defaultMode === 'CONTINUOUS') return stopwatch;
+    if (mode === 'WORK') return pomodoroCount(completedPomodoros + 1);
+    if (mode === 'SHORT_BREAK') return shortBreak;
+    if (mode === 'LONG_BREAK') return longBreak;
+    return '';
   };
 
-  const handleStart = () => {
-    start();
-  };
-
-  const handleSwitchTask = async (newTaskId: string | null) => {
-    if (!newTaskId) return;
-    await switchTask(newTaskId);
-    setSelectedTaskId(newTaskId);
-    setShowSwitchDialog(false);
+  const handlePlayPause = () => {
+    if (isRunning && !isPaused) {
+      pause();
+    } else if (isPaused) {
+      resume();
+    } else {
+      start();
+    }
   };
 
   if (!isLoaded) return null;
 
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8 relative">
-       {/* Focus Mode Link */}
-       <div className="absolute top-0 right-0">
-          <Link href="/focus" title={t('enterFocusMode') || "Enter Focus Mode"}>
+      {/* Focus Mode Link */}
+      {onFocusModeClick && (
+        <div className="absolute top-0 right-0">
+          <button onClick={onFocusModeClick} title={enterFocusMode}>
             <Maximize2 className="w-6 h-6 text-muted-foreground/50 hover:text-foreground transition-colors" />
-          </Link>
-       </div>
+          </button>
+        </div>
+      )}
 
       {/* Mode & Settings Info */}
       <div className="text-center w-full max-w-sm">
-
-
         <AnimatePresence mode="wait">
           <motion.p
             key={mode}
@@ -102,11 +189,7 @@ export function PomodoroTimer() {
           </motion.p>
         </AnimatePresence>
 
-        <TaskSelector 
-            selectedTaskId={selectedTaskId} 
-            onSelect={setSelectedTaskId} 
-            disabled={isRunning && !isPaused}
-        />
+        {TaskSelectorComponent}
 
         {/* Pause Metrics */}
         {isRunning && pauseCount > 0 && (
@@ -115,7 +198,7 @@ export function PomodoroTimer() {
             animate={{ opacity: 1, scale: 1 }}
             className="mt-3 text-xs text-muted-foreground flex items-center justify-center gap-3"
           >
-            <span>{t('pauses', { count: pauseCount })}</span>
+            <span>{pauseCountLabel(pauseCount)}</span>
           </motion.div>
         )}
       </div>
@@ -124,11 +207,19 @@ export function PomodoroTimer() {
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         className="relative"
       >
         <svg className="h-80 w-80 -rotate-90 transform">
-          <circle cx="160" cy="160" r="150" stroke="currentColor" strokeWidth="10" fill="none" className="text-muted/20" />
+          <circle
+            cx="160"
+            cy="160"
+            r="150"
+            stroke="currentColor"
+            strokeWidth="10"
+            fill="none"
+            className="text-muted/20"
+          />
           <motion.circle
             cx="160"
             cy="160"
@@ -136,10 +227,10 @@ export function PomodoroTimer() {
             strokeWidth="10"
             fill="none"
             strokeDasharray={`${2 * Math.PI * 150}`}
-            initial={{ strokeDashoffset: 2 * Math.PI * 150, stroke: MODE_COLORS["WORK"] }}
-            animate={{ 
-              strokeDashoffset: `${2 * Math.PI * 150 * (1 - getProgress() / 100)}`,
-              stroke: accentColor 
+            initial={{ strokeDashoffset: 2 * Math.PI * 150, stroke: MODE_COLORS['WORK'] }}
+            animate={{
+              strokeDashoffset: `${2 * Math.PI * 150 * (1 - progress / 100)}`,
+              stroke: accentColor,
             }}
             transition={{ duration: 1 }}
             strokeLinecap="round"
@@ -150,9 +241,7 @@ export function PomodoroTimer() {
             {formatTime(timeLeft)}
           </h1>
           {isPaused && (
-            <span className="text-sm text-muted-foreground animate-pulse">
-              {t('paused')}
-            </span>
+            <span className="text-sm text-muted-foreground animate-pulse">{paused}</span>
           )}
         </div>
       </motion.div>
@@ -162,15 +251,15 @@ export function PomodoroTimer() {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          onClick={isRunning && !isPaused ? pause : isPaused ? resume : handleStart}
-          disabled={isRunning && !isPaused ? false : false}
-          className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ backgroundColor: accentColor, boxShadow: `0 10px 20px -5px ${accentColor}50`}}
+          onClick={handlePlayPause}
+          className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300"
+          style={{
+            backgroundColor: accentColor,
+            boxShadow: `0 10px 20px -5px ${accentColor}50`,
+          }}
         >
           {isRunning && !isPaused ? (
             <Pause className="h-8 w-8" />
-          ) : isPaused ? (
-            <Play className="h-8 w-8 ml-1" />
           ) : (
             <Play className="h-8 w-8 ml-1" />
           )}
@@ -187,7 +276,7 @@ export function PomodoroTimer() {
               <Square className="h-6 w-6" />
             </motion.button>
 
-            {config.defaultMode === "POMODORO" && (
+            {defaultMode === 'POMODORO' && (
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -203,7 +292,7 @@ export function PomodoroTimer() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowSwitchDialog(true)}
               className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground"
-              title={t('switchTask.buttonTitle')}
+              title={switchTaskButtonTitle}
             >
               <RefreshCw className="h-6 w-6" />
             </motion.button>
@@ -215,17 +304,10 @@ export function PomodoroTimer() {
       <Dialog open={showSwitchDialog} onOpenChange={setShowSwitchDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('switchTask.title')}</DialogTitle>
-            <DialogDescription>
-              {t('switchTask.description')}
-            </DialogDescription>
+            <DialogTitle>{switchTaskTitle}</DialogTitle>
+            <DialogDescription>{switchTaskDescription}</DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <TaskSelector
-              selectedTaskId={null}
-              onSelect={handleSwitchTask}
-            />
-          </div>
+          <div className="py-4">{TaskSelectorComponent}</div>
         </DialogContent>
       </Dialog>
     </div>

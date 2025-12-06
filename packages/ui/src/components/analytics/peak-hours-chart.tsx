@@ -1,25 +1,97 @@
-"use client";
+'use client';
 
-import { useAIProfile } from "@/lib/api-hooks";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card.js";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { Clock } from "lucide-react";
-import { Skeleton } from "../ui/skeleton.js";
-import { useTranslations } from "next-intl";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card.js';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts';
+import { Clock } from 'lucide-react';
+import { Skeleton } from '../ui/skeleton.js';
 
-export function PeakHoursChart() {
-  const t = useTranslations('PeakHoursChart');
-  const { data: profile, isLoading } = useAIProfile();
+export interface PeakHoursData {
+  [hour: string]: number; // hour (0-23) -> score (0-1)
+}
+
+interface PeakHoursChartProps {
+  /** Peak hours data - object with hour keys and score values */
+  peakHours?: PeakHoursData | null;
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Custom labels for i18n */
+  labels?: {
+    title?: string;
+    description?: string;
+    empty?: string;
+    yAxis?: string;
+    tooltip?: string;
+    legendHigh?: string;
+    legendGood?: string;
+    legendFair?: string;
+    legendLow?: string;
+  };
+  className?: string;
+}
+
+function getBarColor(score: number): string {
+  if (score >= 80) return '#22c55e';
+  if (score >= 60) return '#eab308';
+  if (score >= 40) return '#f97316';
+  return '#ef4444';
+}
+
+/**
+ * PeakHoursChart - Platform-agnostic peak productivity hours chart
+ * 
+ * Data fetching handled externally.
+ * 
+ * @example
+ * const { data: profile, isLoading } = useAIProfile();
+ * 
+ * <PeakHoursChart
+ *   peakHours={profile?.peakHours}
+ *   isLoading={isLoading}
+ *   labels={{ title: t('title') }}
+ * />
+ */
+export function PeakHoursChart({
+  peakHours,
+  isLoading = false,
+  labels = {},
+  className = '',
+}: PeakHoursChartProps) {
+  const {
+    title = 'Peak Productivity Hours',
+    description = 'When you work best throughout the day',
+    empty = 'Complete more sessions to see your peak hours',
+    yAxis = 'Productivity %',
+    tooltip = 'Productivity',
+    legendHigh = 'High (80%+)',
+    legendGood = 'Good (60%+)',
+    legendFair = 'Fair (40%+)',
+    legendLow = 'Low',
+  } = labels;
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            {t('title')}
+            {title}
           </CardTitle>
-          <CardDescription>{t('description')}</CardDescription>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
@@ -28,29 +100,26 @@ export function PeakHoursChart() {
     );
   }
 
-  if (!profile || !profile.peakHours || Object.keys(profile.peakHours).length === 0) {
+  if (!peakHours || Object.keys(peakHours).length === 0) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            {t('title')}
+            {title}
           </CardTitle>
-          <CardDescription>{t('description')}</CardDescription>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[300px]">
-            <p className="text-muted-foreground text-sm">
-              {t('empty')}
-            </p>
+            <p className="text-muted-foreground text-sm">{empty}</p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  // Convert peakHours object to array format for recharts
-  const chartData = Object.entries(profile.peakHours)
+  const chartData = Object.entries(peakHours)
     .map(([hour, score]) => {
       const hourNum = parseInt(hour);
       const period = hourNum >= 12 ? 'PM' : 'AM';
@@ -59,26 +128,19 @@ export function PeakHoursChart() {
       return {
         hour: hourNum,
         label: `${displayHour}${period}`,
-        score: typeof score === 'number' ? score * 100 : 0, // Convert to percentage
+        score: typeof score === 'number' ? score * 100 : 0,
       };
     })
     .sort((a, b) => a.hour - b.hour);
 
-  const getBarColor = (score: number): string => {
-    if (score >= 80) return "#22c55e"; // green-500
-    if (score >= 60) return "#eab308"; // yellow-500
-    if (score >= 40) return "#f97316"; // orange-500
-    return "#ef4444"; // red-500
-  };
-
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          {t('title')}
+          {title}
         </CardTitle>
-        <CardDescription>{t('description')}</CardDescription>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -94,7 +156,7 @@ export function PeakHoursChart() {
               tickLine={{ stroke: 'hsl(var(--border))' }}
               domain={[0, 100]}
               label={{
-                value: t('yAxis'),
+                value: yAxis,
                 angle: -90,
                 position: 'insideLeft',
                 style: { fill: 'hsl(var(--muted-foreground))', fontSize: 12 },
@@ -109,7 +171,7 @@ export function PeakHoursChart() {
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-semibold">{data.label}</span>
                         <span className="text-xs text-muted-foreground">
-                          {t('tooltip')}: {Math.round(data.score)}%
+                          {tooltip}: {Math.round(data.score)}%
                         </span>
                       </div>
                     </div>
@@ -129,20 +191,20 @@ export function PeakHoursChart() {
         {/* Legend */}
         <div className="flex items-center justify-center gap-4 mt-4 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded" style={{ backgroundColor: "#22c55e" }} />
-            <span className="text-muted-foreground">{t('legend.high')}</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#22c55e' }} />
+            <span className="text-muted-foreground">{legendHigh}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded" style={{ backgroundColor: "#eab308" }} />
-            <span className="text-muted-foreground">{t('legend.good')}</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#eab308' }} />
+            <span className="text-muted-foreground">{legendGood}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded" style={{ backgroundColor: "#f97316" }} />
-            <span className="text-muted-foreground">{t('legend.fair')}</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#f97316' }} />
+            <span className="text-muted-foreground">{legendFair}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded" style={{ backgroundColor: "#ef4444" }} />
-            <span className="text-muted-foreground">{t('legend.low')}</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#ef4444' }} />
+            <span className="text-muted-foreground">{legendLow}</span>
           </div>
         </div>
       </CardContent>

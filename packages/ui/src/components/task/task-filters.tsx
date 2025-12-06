@@ -1,8 +1,6 @@
-"use client";
+'use client';
 
-import { Filter, X } from "lucide-react";
-import { useTags } from "@/lib/api-hooks";
-import { useWorkspaceStore } from "@/stores/workspace-store";
+import { Filter, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,35 +8,97 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu.js";
-import { useTranslations } from "next-intl";
+} from '../ui/dropdown-menu.js';
 
-interface TaskFiltersProps {
-  filters: {
-    status: string[];
-    priority: string[];
-    tags?: string[];
-  };
-  onFiltersChange: (filters: { status: string[]; priority: string[]; tags?: string[] }) => void;
+export interface TagOption {
+  id: string;
+  name: string;
+  color: string;
 }
 
-export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
-  const t = useTranslations('TaskFilters');
-  const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: tags } = useTags(selectedWorkspaceId || "");
+export interface TaskFiltersState {
+  status: string[];
+  priority: string[];
+  tags?: string[];
+}
+
+interface TaskFiltersProps {
+  /** Current filter state */
+  filters: TaskFiltersState;
+  /** Called when filters change */
+  onFiltersChange: (filters: TaskFiltersState) => void;
+  /** Available tags to filter by */
+  tags?: TagOption[];
+  /** Custom labels for i18n */
+  labels?: {
+    label?: string;
+    clear?: string;
+    statusLabel?: string;
+    statusTodo?: string;
+    statusInProgress?: string;
+    statusCompleted?: string;
+    statusCancelled?: string;
+    priorityLabel?: string;
+    priorityLow?: string;
+    priorityMedium?: string;
+    priorityHigh?: string;
+    priorityUrgent?: string;
+    tagsLabel?: string;
+  };
+  className?: string;
+}
+
+/**
+ * TaskFilters - Platform-agnostic task filtering dropdown
+ * 
+ * Tags passed via props instead of fetched internally.
+ * 
+ * @example
+ * const { data: tags } = useTags(workspaceId);
+ * const [filters, setFilters] = useState({ status: [], priority: [], tags: [] });
+ * 
+ * <TaskFilters
+ *   filters={filters}
+ *   onFiltersChange={setFilters}
+ *   tags={tags}
+ *   labels={{ statusLabel: t('status.label') }}
+ * />
+ */
+export function TaskFilters({
+  filters,
+  onFiltersChange,
+  tags = [],
+  labels = {},
+  className = '',
+}: TaskFiltersProps) {
+  const {
+    label = 'Filters',
+    clear = 'Clear',
+    statusLabel = 'Status',
+    statusTodo = 'To Do',
+    statusInProgress = 'In Progress',
+    statusCompleted = 'Completed',
+    statusCancelled = 'Cancelled',
+    priorityLabel = 'Priority',
+    priorityLow = 'Low',
+    priorityMedium = 'Medium',
+    priorityHigh = 'High',
+    priorityUrgent = 'Urgent',
+    tagsLabel = 'Tags',
+  } = labels;
 
   const statusOptions = [
-    { value: "TODO", label: t('status.TODO') },
-    { value: "IN_PROGRESS", label: t('status.IN_PROGRESS') },
-    { value: "COMPLETED", label: t('status.COMPLETED') },
-    { value: "CANCELLED", label: t('status.CANCELLED') },
+    { value: 'TODO', label: statusTodo },
+    { value: 'IN_PROGRESS', label: statusInProgress },
+    { value: 'COMPLETED', label: statusCompleted },
+    { value: 'CANCELLED', label: statusCancelled },
   ];
 
   const priorityOptions = [
-    { value: "LOW", label: t('priority.LOW') },
-    { value: "MEDIUM", label: t('priority.MEDIUM') },
-    { value: "HIGH", label: t('priority.HIGH') },
-    { value: "URGENT", label: t('priority.URGENT') },
+    { value: 'LOW', label: priorityLow },
+    { value: 'MEDIUM', label: priorityMedium },
+    { value: 'HIGH', label: priorityHigh },
+    { value: 'URGENT', label: priorityUrgent },
   ];
 
   const toggleStatus = (status: string) => {
@@ -67,15 +127,16 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
     onFiltersChange({ status: [], priority: [], tags: [] });
   };
 
-  const hasActiveFilters = filters.status.length > 0 || filters.priority.length > 0 || (filters.tags?.length || 0) > 0;
+  const hasActiveFilters =
+    filters.status.length > 0 || filters.priority.length > 0 || (filters.tags?.length || 0) > 0;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${className}`}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-accent">
             <Filter className="h-4 w-4" />
-            {t('label')}
+            {label}
             {hasActiveFilters && (
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                 {filters.status.length + filters.priority.length + (filters.tags?.length || 0)}
@@ -84,7 +145,7 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel>{t('status.label')}</DropdownMenuLabel>
+          <DropdownMenuLabel>{statusLabel}</DropdownMenuLabel>
           {statusOptions.map((option) => (
             <DropdownMenuCheckboxItem
               key={option.value}
@@ -94,10 +155,10 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
               {option.label}
             </DropdownMenuCheckboxItem>
           ))}
-          
+
           <DropdownMenuSeparator />
-          
-          <DropdownMenuLabel>{t('priority.label')}</DropdownMenuLabel>
+
+          <DropdownMenuLabel>{priorityLabel}</DropdownMenuLabel>
           {priorityOptions.map((option) => (
             <DropdownMenuCheckboxItem
               key={option.value}
@@ -108,21 +169,24 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
             </DropdownMenuCheckboxItem>
           ))}
 
-          <DropdownMenuSeparator />
-
-          <DropdownMenuLabel>{t('tags.label')}</DropdownMenuLabel>
-          {tags?.map((tag: any) => (
-            <DropdownMenuCheckboxItem
-              key={tag.id}
-              checked={filters.tags?.includes(tag.id)}
-              onCheckedChange={() => toggleTag(tag.id)}
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tag.color }} />
-                {tag.name}
-              </div>
-            </DropdownMenuCheckboxItem>
-          ))}
+          {tags.length > 0 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>{tagsLabel}</DropdownMenuLabel>
+              {tags.map((tag) => (
+                <DropdownMenuCheckboxItem
+                  key={tag.id}
+                  checked={filters.tags?.includes(tag.id)}
+                  onCheckedChange={() => toggleTag(tag.id)}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tag.color }} />
+                    {tag.name}
+                  </div>
+                </DropdownMenuCheckboxItem>
+              ))}
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -132,7 +196,7 @@ export function TaskFilters({ filters, onFiltersChange }: TaskFiltersProps) {
           className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <X className="h-4 w-4" />
-          {t('clear')}
+          {clear}
         </button>
       )}
     </div>

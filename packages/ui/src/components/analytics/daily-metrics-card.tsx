@@ -1,84 +1,125 @@
-"use client";
+'use client';
 
-import { useDailyMetrics, useTimerStats } from "@/lib/api-hooks";
-import { formatDuration } from "@ordo-todo/core";
-import { getFocusScoreColor } from "@ordo-todo/ui";
+import { CheckCircle2, Clock, Target, Zap } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card.js";
-import { CheckCircle2, Clock, Target, Zap } from "lucide-react";
-import { Skeleton } from "../ui/skeleton.js";
-import { useTranslations } from "next-intl";
+} from '../ui/card.js';
+import { Skeleton } from '../ui/skeleton.js';
 
-interface DailyMetricsCardProps {
-  date?: Date;
+export interface DailyMetricsData {
+  tasksCompleted?: number;
+  tasksCreated?: number;
+  focusScore?: number; // 0-1
 }
 
-export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
-  const t = useTranslations("DailyMetricsCard");
+export interface TimerStatsData {
+  totalMinutesWorked?: number;
+  pomodorosCompleted?: number;
+}
 
-  // Get date range for today or specified date
-  const targetDate = date || new Date();
-  const startOfDay = new Date(
-    targetDate.getFullYear(),
-    targetDate.getMonth(),
-    targetDate.getDate()
-  );
-  const endOfDay = new Date(
-    targetDate.getFullYear(),
-    targetDate.getMonth(),
-    targetDate.getDate(),
-    23,
-    59,
-    59
-  );
+interface DailyMetricsCardProps {
+  /** Daily metrics data */
+  metrics?: DailyMetricsData | null;
+  /** Timer stats data */
+  timerStats?: TimerStatsData | null;
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Optional date to display */
+  date?: Date;
+  /** Format duration function (minutes to string) */
+  formatDuration?: (minutes: number) => string;
+  /** Get focus score color class */
+  getFocusScoreColorClass?: (score: number) => string;
+  /** Custom labels for i18n */
+  labels?: {
+    title?: string;
+    today?: string;
+    completed?: string;
+    time?: string;
+    pomodoros?: string;
+    focus?: string;
+  };
+  className?: string;
+}
 
-  // Use useTimerStats for timer-related data (time worked, pomodoros)
-  const { data: timerStats, isLoading: isLoadingTimer } = useTimerStats({
-    startDate: startOfDay.toISOString(),
-    endDate: endOfDay.toISOString(),
-  });
+function defaultFormatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+}
 
-  // Use useDailyMetrics for task-related data (tasks completed, focus score)
-  // API returns array of DailyMetrics, we take the first one
-  const { data: metricsArray, isLoading: isLoadingMetrics } = useDailyMetrics({
-    startDate: startOfDay.toISOString(),
-    endDate: endOfDay.toISOString(),
-  });
-  const metrics = metricsArray?.[0];
+function defaultGetFocusScoreColor(score: number): string {
+  if (score >= 80) return 'text-green-600';
+  if (score >= 60) return 'text-yellow-600';
+  if (score >= 40) return 'text-orange-600';
+  return 'text-red-600';
+}
 
-  const isLoading = isLoadingTimer || isLoadingMetrics;
+/**
+ * DailyMetricsCard - Platform-agnostic daily metrics display
+ * 
+ * Data fetching handled externally.
+ * 
+ * @example
+ * const { data: metrics } = useDailyMetrics({ startDate, endDate });
+ * const { data: timerStats } = useTimerStats({ startDate, endDate });
+ * 
+ * <DailyMetricsCard
+ *   metrics={metrics?.[0]}
+ *   timerStats={timerStats}
+ *   isLoading={isLoading}
+ *   formatDuration={formatDuration}
+ *   labels={{ title: t('title') }}
+ * />
+ */
+export function DailyMetricsCard({
+  metrics,
+  timerStats,
+  isLoading = false,
+  date,
+  formatDuration = defaultFormatDuration,
+  getFocusScoreColorClass = defaultGetFocusScoreColor,
+  labels = {},
+  className = '',
+}: DailyMetricsCardProps) {
+  const {
+    title = 'Daily Summary',
+    today = 'Today',
+    completed = 'Completed',
+    time = 'Time',
+    pomodoros = 'Pomodoros',
+    focus = 'Focus',
+  } = labels;
 
   const formatFocusScore = (score?: number): string => {
-    if (!score) return "N/A";
+    if (score === undefined || score === null) return 'N/A';
     return `${Math.round(score * 100)}%`;
   };
 
-  // Use shared getFocusScoreColor from @ordo-todo/ui
-  // Note: metrics.focusScore is 0-1, getFocusScoreColor expects 0-100
   const getFocusScoreTextClass = (score?: number): string => {
-    if (!score) return "text-muted-foreground";
-    return getFocusScoreColor(Math.round(score * 100)).text;
+    if (score === undefined || score === null) return 'text-muted-foreground';
+    return getFocusScoreColorClass(Math.round(score * 100));
   };
 
   const formattedDate = date
-    ? date.toLocaleDateString("es-ES", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+    ? date.toLocaleDateString(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       })
-    : t("today");
+    : today;
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
+          <CardTitle>{title}</CardTitle>
           <CardDescription>{formattedDate}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -96,9 +137,9 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
   }
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>{formattedDate}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -107,7 +148,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4" />
-              <span>{t("metrics.completed")}</span>
+              <span>{completed}</span>
             </div>
             <div className="text-3xl font-bold">
               {metrics?.tasksCompleted || 0}
@@ -121,7 +162,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>{t("metrics.time")}</span>
+              <span>{time}</span>
             </div>
             <div className="text-3xl font-bold">
               {formatDuration(timerStats?.totalMinutesWorked || 0)}
@@ -132,22 +173,18 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Target className="h-4 w-4" />
-              <span>{t("metrics.pomodoros")}</span>
+              <span>{pomodoros}</span>
             </div>
-            <div className="text-3xl font-bold">
-              {timerStats?.pomodorosCompleted || 0}
-            </div>
+            <div className="text-3xl font-bold">{timerStats?.pomodorosCompleted || 0}</div>
           </div>
 
           {/* Focus Score */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Zap className="h-4 w-4" />
-              <span>{t("metrics.focus")}</span>
+              <span>{focus}</span>
             </div>
-            <div
-              className={`text-3xl font-bold ${getFocusScoreTextClass(metrics?.focusScore)}`}
-            >
+            <div className={`text-3xl font-bold ${getFocusScoreTextClass(metrics?.focusScore)}`}>
               {formatFocusScore(metrics?.focusScore)}
             </div>
           </div>

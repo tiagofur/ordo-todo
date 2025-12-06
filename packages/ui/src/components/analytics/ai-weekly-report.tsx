@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { cn } from "../../utils/index.js";
+import { useState } from 'react';
+import { cn } from '../../utils/index.js';
 import {
   Sparkles,
   FileText,
@@ -15,12 +15,11 @@ import {
   ChevronDown,
   ChevronRight,
   Zap,
-} from "lucide-react";
-import { Button } from "../ui/button.js";
-import { Card } from "../ui/card.js";
-import { useTranslations } from "next-intl";
+} from 'lucide-react';
+import { Button } from '../ui/button.js';
+import { Card } from '../ui/card.js';
 
-interface ProductivityData {
+export interface ProductivityData {
   totalPomodoros: number;
   totalTasks: number;
   completedTasks: number;
@@ -34,15 +33,31 @@ interface ProductivityData {
 interface AIReportSection {
   id: string;
   title: string;
-  icon: React.ReactNode;
+  icon: any; // Lucide icon
   content: string[];
-  type: "success" | "info" | "warning" | "tip";
+  type: 'success' | 'info' | 'warning' | 'tip';
 }
 
 interface AIWeeklyReportProps {
   data?: ProductivityData;
   onRefresh?: () => void;
   className?: string;
+  onGenerateReport?: (data: ProductivityData) => Promise<AIReportSection[]>;
+  labels?: {
+    title?: string;
+    subtitle?: string;
+    generate?: string;
+    analyzing?: string;
+    regenerate?: string;
+    export?: string;
+    emptyState?: string;
+    stats?: {
+        pomodoros?: string;
+        tasks?: string;
+        streak?: string;
+        average?: string;
+    };
+  };
 }
 
 const MOCK_DATA: ProductivityData = {
@@ -52,151 +67,113 @@ const MOCK_DATA: ProductivityData = {
   streak: 5,
   avgPomodorosPerDay: 4.5,
   peakHour: 10,
-  topProject: { name: "Proyecto Alpha", tasks: 12 },
+  topProject: { name: 'Proyecto Alpha', tasks: 12 },
   weeklyData: [
-    { day: "Lun", pomodoros: 6, tasks: 5 },
-    { day: "Mar", pomodoros: 8, tasks: 7 },
-    { day: "Mié", pomodoros: 4, tasks: 3 },
-    { day: "Jue", pomodoros: 7, tasks: 6 },
-    { day: "Vie", pomodoros: 5, tasks: 4 },
-    { day: "Sáb", pomodoros: 2, tasks: 2 },
-    { day: "Dom", pomodoros: 0, tasks: 1 },
+    { day: 'Mon', pomodoros: 6, tasks: 5 },
+    { day: 'Tue', pomodoros: 8, tasks: 7 },
+    { day: 'Wed', pomodoros: 4, tasks: 3 },
+    { day: 'Thu', pomodoros: 7, tasks: 6 },
+    { day: 'Fri', pomodoros: 5, tasks: 4 },
+    { day: 'Sat', pomodoros: 2, tasks: 2 },
+    { day: 'Sun', pomodoros: 0, tasks: 1 },
   ],
 };
 
-function generateAIReport(data: ProductivityData): AIReportSection[] {
-  const completionRate = Math.round((data.completedTasks / data.totalTasks) * 100);
-  const sections: AIReportSection[] = [];
-
-  // Summary Section
-  sections.push({
-    id: "summary",
-    title: "Resumen Semanal",
-    icon: <FileText className="h-5 w-5" />,
-    type: "info",
-    content: [
-      `Esta semana completaste ${data.totalPomodoros} pomodoros y ${data.completedTasks} tareas.`,
-      `Tu tasa de completitud fue del ${completionRate}%.`,
-      `Promedio diario: ${data.avgPomodorosPerDay.toFixed(1)} pomodoros.`,
-    ],
-  });
-
-  // Achievements Section
-  const achievements: string[] = [];
-  if (data.streak >= 3) {
-    achievements.push(`🔥 ¡Mantuviste una racha de ${data.streak} días consecutivos!`);
-  }
-  if (completionRate >= 80) {
-    achievements.push(`🎯 Excelente tasa de completitud: ${completionRate}%`);
-  }
-  if (data.totalPomodoros >= 25) {
-    achievements.push(`🍅 ¡Superaste los 25 pomodoros semanales!`);
-  }
-  if (data.topProject) {
-    achievements.push(`⭐ Tu proyecto más activo: "${data.topProject.name}" con ${data.topProject.tasks} tareas`);
-  }
-
-  if (achievements.length > 0) {
-    sections.push({
-      id: "achievements",
-      title: "Logros de la Semana",
-      icon: <Trophy className="h-5 w-5" />,
-      type: "success",
-      content: achievements,
-    });
-  }
-
-  // Areas for Improvement
-  const improvements: string[] = [];
-  if (data.avgPomodorosPerDay < 4) {
-    improvements.push(`Intenta aumentar tu promedio diario de ${data.avgPomodorosPerDay.toFixed(1)} a 4 pomodoros.`);
-  }
-  if (completionRate < 70) {
-    improvements.push(`La tasa de completitud (${completionRate}%) puede mejorar. Divide las tareas grandes.`);
-  }
-  const lowDays = data.weeklyData.filter(d => d.pomodoros < 2);
-  if (lowDays.length > 2) {
-    improvements.push(`${lowDays.length} días con baja actividad. Establece metas diarias mínimas.`);
-  }
-
-  if (improvements.length > 0) {
-    sections.push({
-      id: "improvements",
-      title: "Áreas de Mejora",
-      icon: <Target className="h-5 w-5" />,
-      type: "warning",
-      content: improvements,
-    });
-  }
-
-  // Recommendations
-  const recommendations: string[] = [];
-  recommendations.push(`Tu hora más productiva es las ${data.peakHour}:00. Agenda tareas importantes ahí.`);
-  
-  if (data.streak > 0) {
-    recommendations.push(`Para mantener tu racha, intenta completar al menos 1 pomodoro cada día.`);
-  }
-  
-  const bestDay = data.weeklyData.reduce((a, b) => a.pomodoros > b.pomodoros ? a : b);
-  recommendations.push(`${bestDay.day} fue tu mejor día. Replica esas condiciones.`);
-  
-  recommendations.push(`Considera tomar descansos de 15 minutos cada 4 pomodoros para mantener la energía.`);
-
-  sections.push({
-    id: "recommendations",
-    title: "Recomendaciones",
-    icon: <Lightbulb className="h-5 w-5" />,
-    type: "tip",
-    content: recommendations,
-  });
-
-  return sections;
-}
-
 const sectionColors = {
-  success: "border-l-emerald-500 bg-emerald-500/5",
-  info: "border-l-blue-500 bg-blue-500/5",
-  warning: "border-l-amber-500 bg-amber-500/5",
-  tip: "border-l-purple-500 bg-purple-500/5",
+  success: 'border-l-emerald-500 bg-emerald-500/5',
+  info: 'border-l-blue-500 bg-blue-500/5',
+  warning: 'border-l-amber-500 bg-amber-500/5',
+  tip: 'border-l-purple-500 bg-purple-500/5',
 };
 
 const iconColors = {
-  success: "text-emerald-500",
-  info: "text-blue-500",
-  warning: "text-amber-500",
-  tip: "text-purple-500",
+  success: 'text-emerald-500',
+  info: 'text-blue-500',
+  warning: 'text-amber-500',
+  tip: 'text-purple-500',
 };
 
-export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWeeklyReportProps) {
-  const t = useTranslations("AIReport");
+const DEFAULT_LABELS = {
+  title: 'AI Weekly Report',
+  subtitle: 'Smart productivity analysis',
+  generate: 'Generate Report',
+  analyzing: 'Analyzing your week...',
+  regenerate: 'Regenerate',
+  export: 'Export',
+  emptyState: 'Generate a smart report based on your weekly activity. Includes summary, achievements, areas for improvement, and personalized recommendations.',
+  stats: {
+    pomodoros: 'Pomodoros',
+    tasks: 'Tasks',
+    streak: 'Streak 🔥',
+    average: 'Avg/day',
+  },
+};
+
+export function AIWeeklyReport({
+  data = MOCK_DATA,
+  onRefresh,
+  className,
+  onGenerateReport,
+  labels = {},
+}: AIWeeklyReportProps) {
+  const t = {
+    ...DEFAULT_LABELS,
+    ...labels,
+    stats: { ...DEFAULT_LABELS.stats, ...labels.stats },
+  };
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [report, setReport] = useState<AIReportSection[]>([]);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
 
+  const defaultGenerateReport = async (data: ProductivityData): Promise<AIReportSection[]> => {
+      // Default English generation fallback if onGenerateReport is not provided
+      // In a real app, logic should be passed via onGenerateReport to handle localized strings
+      const completionRate = Math.round((data.completedTasks / (data.totalTasks || 1)) * 100);
+      const sections: AIReportSection[] = [];
+
+      sections.push({
+        id: 'summary',
+        title: 'Weekly Summary',
+        icon: FileText,
+        type: 'info',
+        content: [
+          `You completed ${data.totalPomodoros} pomodoros and ${data.completedTasks} tasks.`,
+          `Completion rate: ${completionRate}%.`,
+          `Daily average: ${data.avgPomodorosPerDay.toFixed(1)} pomodoros.`,
+        ],
+      });
+
+      // Simple implementation for fallback
+      return sections;
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
+
+    // Simulate delay
+    if (!onGenerateReport) await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const generator = onGenerateReport || defaultGenerateReport;
+    const sections = await generator(data);
     
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const sections = generateAIReport(data);
     setReport(sections);
-    setExpandedSections(sections.map(s => s.id)); // Expand all by default
+    setExpandedSections(sections.map((s) => s.id));
     setHasGenerated(true);
     setIsGenerating(false);
   };
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev =>
+    setExpandedSections((prev) =>
       prev.includes(sectionId)
-        ? prev.filter(id => id !== sectionId)
+        ? prev.filter((id) => id !== sectionId)
         : [...prev, sectionId]
     );
   };
 
   return (
-    <Card className={cn("p-6", className)}>
+    <Card className={cn('p-6', className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -204,22 +181,24 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
             <Sparkles className="h-6 w-6 text-purple-500" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Reporte Semanal IA</h2>
+            <h2 className="text-xl font-bold">{t.title}</h2>
             <p className="text-sm text-muted-foreground">
-              Análisis inteligente de tu productividad
+              {t.subtitle}
             </p>
           </div>
         </div>
-        
+
         {hasGenerated && (
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleGenerate}>
-              <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
-              Regenerar
+              <RefreshCw
+                className={cn('h-4 w-4 mr-2', isGenerating && 'animate-spin')}
+              />
+              {t.regenerate}
             </Button>
             <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
-              Exportar
+              {t.export}
             </Button>
             <Button variant="outline" size="sm">
               <Share2 className="h-4 w-4" />
@@ -235,7 +214,7 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
               <div className="p-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 mb-4 animate-spin">
                 <Zap className="h-8 w-8 text-purple-500" />
               </div>
-              <p className="text-lg font-medium mb-2">Analizando tu semana...</p>
+              <p className="text-lg font-medium mb-2">{t.analyzing}</p>
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <div
@@ -252,15 +231,14 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
                 <TrendingUp className="h-8 w-8 text-purple-500/60" />
               </div>
               <p className="text-muted-foreground mb-4 text-center max-w-md">
-                Genera un reporte inteligente basado en tu actividad de la semana.
-                Incluye resumen, logros, áreas de mejora y recomendaciones personalizadas.
+                {t.emptyState}
               </p>
-              <Button 
+              <Button
                 onClick={handleGenerate}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                Generar Reporte
+                {t.generate}
               </Button>
             </>
           )}
@@ -270,20 +248,32 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
           {/* Quick Stats */}
           <div className="grid grid-cols-4 gap-4 mb-6">
             <div className="text-center p-3 rounded-lg bg-muted/50">
-              <p className="text-2xl font-bold text-purple-500">{data.totalPomodoros}</p>
-              <p className="text-xs text-muted-foreground">Pomodoros</p>
+              <p className="text-2xl font-bold text-purple-500">
+                {data.totalPomodoros}
+              </p>
+              <p className="text-xs text-muted-foreground">{t.stats.pomodoros}</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-muted/50">
-              <p className="text-2xl font-bold text-emerald-500">{data.completedTasks}</p>
-              <p className="text-xs text-muted-foreground">Tareas</p>
+              <p className="text-2xl font-bold text-emerald-500">
+                {data.completedTasks}
+              </p>
+              <p className="text-xs text-muted-foreground">{t.stats.tasks}</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-muted/50">
-              <p className="text-2xl font-bold text-amber-500">{data.streak}</p>
-              <p className="text-xs text-muted-foreground">Racha 🔥</p>
+              <p className="text-2xl font-bold text-amber-500">
+                {data.streak}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t.stats.streak}
+              </p>
             </div>
             <div className="text-center p-3 rounded-lg bg-muted/50">
-              <p className="text-2xl font-bold text-blue-500">{data.avgPomodorosPerDay.toFixed(1)}</p>
-              <p className="text-xs text-muted-foreground">Promedio/día</p>
+              <p className="text-2xl font-bold text-blue-500">
+                {data.avgPomodorosPerDay.toFixed(1)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t.stats.average}
+              </p>
             </div>
           </div>
 
@@ -292,7 +282,7 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
             <div
               key={section.id}
               className={cn(
-                "border-l-4 rounded-lg overflow-hidden transition-all",
+                'border-l-4 rounded-lg overflow-hidden transition-all',
                 sectionColors[section.type]
               )}
             >
@@ -301,7 +291,9 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
                 onClick={() => toggleSection(section.id)}
               >
                 <div className="flex items-center gap-3">
-                  <span className={iconColors[section.type]}>{section.icon}</span>
+                  <span className={iconColors[section.type]}>
+                    <section.icon className="h-5 w-5" />
+                  </span>
                   <h3 className="font-semibold">{section.title}</h3>
                 </div>
                 {expandedSections.includes(section.id) ? (
@@ -314,10 +306,7 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
               {expandedSections.includes(section.id) && (
                 <ul className="px-4 pb-4 space-y-2">
                   {section.content.map((item, i) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-2 text-sm"
-                    >
+                    <li key={i} className="flex items-start gap-2 text-sm">
                       <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-current opacity-50 shrink-0" />
                       <span>{item}</span>
                     </li>

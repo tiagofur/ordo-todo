@@ -1,55 +1,88 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card.js";
-import { cn } from "../../utils/index.js";
-import { useTranslations } from "next-intl";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card.js';
+import { cn } from '../../utils/index.js';
 
 interface FocusScoreGaugeProps {
-  score: number; // 0-1
-  label?: string;
-  description?: string;
+  /** Focus score from 0 to 1 */
+  score: number;
+  /** Custom labels for i18n */
+  labels?: {
+    label?: string;
+    description?: string;
+    excellent?: string;
+    veryGood?: string;
+    good?: string;
+    moderate?: string;
+    low?: string;
+    needsImprovement?: string;
+  };
+  className?: string;
 }
 
-export function FocusScoreGauge({ score, label, description }: FocusScoreGaugeProps) {
-  const t = useTranslations('FocusScoreGauge');
+function getColor(score: number): string {
+  if (score >= 0.8) return 'text-green-600';
+  if (score >= 0.5) return 'text-yellow-600';
+  return 'text-red-600';
+}
+
+function getStrokeColor(score: number): string {
+  if (score >= 0.8) return 'stroke-green-600';
+  if (score >= 0.5) return 'stroke-yellow-600';
+  return 'stroke-red-600';
+}
+
+function getBackgroundColor(score: number): string {
+  if (score >= 0.8) return 'bg-green-50 dark:bg-green-950';
+  if (score >= 0.5) return 'bg-yellow-50 dark:bg-yellow-950';
+  return 'bg-red-50 dark:bg-red-950';
+}
+
+/**
+ * FocusScoreGauge - Platform-agnostic circular gauge for focus score
+ * 
+ * @example
+ * <FocusScoreGauge
+ *   score={0.75}
+ *   labels={{ label: t('label'), excellent: t('excellent') }}
+ * />
+ */
+export function FocusScoreGauge({
+  score,
+  labels = {},
+  className = '',
+}: FocusScoreGaugeProps) {
+  const {
+    label = 'Focus Score',
+    description = 'Your concentration level based on work sessions',
+    excellent = 'Excellent!',
+    veryGood = 'Very Good',
+    good = 'Good',
+    moderate = 'Moderate',
+    low = 'Low',
+    needsImprovement = 'Needs Improvement',
+  } = labels;
+
   const percentage = Math.round(score * 100);
 
-  const getColor = (score: number): string => {
-    if (score >= 0.8) return "text-green-600";
-    if (score >= 0.5) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getStrokeColor = (score: number): string => {
-    if (score >= 0.8) return "stroke-green-600";
-    if (score >= 0.5) return "stroke-yellow-600";
-    return "stroke-red-600";
-  };
-
-  const getBackgroundColor = (score: number): string => {
-    if (score >= 0.8) return "bg-green-50 dark:bg-green-950";
-    if (score >= 0.5) return "bg-yellow-50 dark:bg-yellow-950";
-    return "bg-red-50 dark:bg-red-950";
-  };
-
   const getMessage = (score: number): string => {
-    if (score >= 0.9) return t('messages.excellent');
-    if (score >= 0.8) return t('messages.veryGood');
-    if (score >= 0.7) return t('messages.good');
-    if (score >= 0.5) return t('messages.moderate');
-    if (score >= 0.3) return t('messages.low');
-    return t('messages.needsImprovement');
+    if (score >= 0.9) return excellent;
+    if (score >= 0.8) return veryGood;
+    if (score >= 0.7) return good;
+    if (score >= 0.5) return moderate;
+    if (score >= 0.3) return low;
+    return needsImprovement;
   };
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (score * circumference);
+  const strokeDashoffset = circumference - score * circumference;
 
   return (
-    <Card className={cn("transition-colors", getBackgroundColor(score))}>
+    <Card className={cn('transition-colors', getBackgroundColor(score), className)}>
       <CardHeader>
-        <CardTitle>{label || t('label')}</CardTitle>
-        <CardDescription>{description || t('description')}</CardDescription>
+        <CardTitle>{label}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
         {/* Circular Gauge */}
@@ -76,25 +109,19 @@ export function FocusScoreGauge({ score, label, description }: FocusScoreGaugePr
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              className={cn("transition-all duration-1000 ease-out", getStrokeColor(score))}
+              className={cn('transition-all duration-1000 ease-out', getStrokeColor(score))}
             />
           </svg>
           {/* Percentage text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={cn("text-4xl font-bold", getColor(score))}>
-              {percentage}%
-            </span>
+            <span className={cn('text-4xl font-bold', getColor(score))}>{percentage}%</span>
           </div>
         </div>
 
         {/* Message */}
         <div className="text-center">
-          <p className={cn("font-medium", getColor(score))}>
-            {getMessage(score)}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {description || t('description')}
-          </p>
+          <p className={cn('font-medium', getColor(score))}>{getMessage(score)}</p>
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
         </div>
 
         {/* Legend */}

@@ -1,9 +1,8 @@
-"use client";
+'use client';
 
-import { useProjectAttachments } from "@/lib/api-hooks";
-import { format } from "date-fns";
-import { FileIcon, Download, Trash2, ExternalLink } from "lucide-react";
-import { Button } from "../ui/button.js";
+import { format } from 'date-fns';
+import { FileIcon, Download } from 'lucide-react';
+import { Button } from '../ui/button.js';
 import {
   Table,
   TableBody,
@@ -11,91 +10,45 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table.js";
-import { useTranslations } from "next-intl";
-import { Skeleton } from "../ui/skeleton.js";
+} from '../ui/table.js';
+import { Skeleton } from '../ui/skeleton.js';
+
+export interface ProjectAttachment {
+  id: string;
+  filename: string;
+  url: string;
+  filesize: number;
+  uploadedAt: string | Date;
+  uploadedBy?: { name?: string };
+  task?: { title?: string };
+}
 
 interface ProjectFilesProps {
-  projectId: string;
-}
-
-export function ProjectFiles({ projectId }: ProjectFilesProps) {
-  const t = useTranslations('ProjectFiles');
-  const { data: attachments, isLoading } = useProjectAttachments(projectId);
-
-  if (isLoading) {
-    return <FilesSkeleton />;
-  }
-
-  if (!attachments || attachments.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-        <FileIcon className="h-12 w-12 mb-4 opacity-20" />
-        <p>{t('empty')}</p>
-      </div>
-    );
-  }
-
-  const getFullUrl = (url: string) => {
-    if (url.startsWith("/")) {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3101/api/v1";
-      const backendBaseUrl = apiUrl.replace("/api/v1", "");
-      return backendBaseUrl + url;
-    }
-    return url;
+  /** Attachments to display */
+  attachments: ProjectAttachment[];
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Function to transform relative URLs to full URLs */
+  getFullUrl?: (url: string) => string;
+  /** Date locale for formatting */
+  dateLocale?: Locale;
+  /** Custom labels for i18n */
+  labels?: {
+    empty?: string;
+    name?: string;
+    task?: string;
+    size?: string;
+    uploadedBy?: string;
+    date?: string;
+    actions?: string;
+    unknownUser?: string;
   };
-
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t('name')}</TableHead>
-            <TableHead>{t('task')}</TableHead>
-            <TableHead>{t('size')}</TableHead>
-            <TableHead>{t('uploadedBy')}</TableHead>
-            <TableHead>{t('date')}</TableHead>
-            <TableHead className="text-right">{t('actions')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {attachments.map((file: any) => {
-             const fullUrl = getFullUrl(file.url);
-             return (
-            <TableRow key={file.id}>
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  <FileIcon className="h-4 w-4 text-muted-foreground" />
-                  <a 
-                    href={fullUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {file.filename}
-                  </a>
-                </div>
-              </TableCell>
-              <TableCell>{file.task?.title}</TableCell>
-              <TableCell>{formatFileSize(file.filesize)}</TableCell>
-              <TableCell>{file.uploadedBy?.name || 'Unknown'}</TableCell>
-              <TableCell>{format(new Date(file.uploadedAt), 'PP')}</TableCell>
-              <TableCell className="text-right">
-                <Button variant="ghost" size="icon" asChild>
-                  <a href={fullUrl} download target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4" />
-                  </a>
-                </Button>
-              </TableCell>
-            </TableRow>
-          )})}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  className?: string;
 }
 
-function formatFileSize(bytes: number) {
+type Locale = Parameters<typeof format>[2] extends { locale?: infer L } ? L : never;
+
+function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -109,6 +62,112 @@ function FilesSkeleton() {
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
+    </div>
+  );
+}
+
+/**
+ * ProjectFiles - Platform-agnostic project files/attachments list
+ * 
+ * Data fetching handled externally.
+ * 
+ * @example
+ * const { data: attachments, isLoading } = useProjectAttachments(projectId);
+ * 
+ * <ProjectFiles
+ *   attachments={attachments || []}
+ *   isLoading={isLoading}
+ *   getFullUrl={(url) => url.startsWith('/') ? API_URL + url : url}
+ *   labels={{ name: t('name'), empty: t('empty') }}
+ * />
+ */
+export function ProjectFiles({
+  attachments = [],
+  isLoading = false,
+  getFullUrl = (url) => url,
+  dateLocale,
+  labels = {},
+  className = '',
+}: ProjectFilesProps) {
+  const {
+    empty = 'No files uploaded for this project',
+    name = 'Name',
+    task = 'Task',
+    size = 'Size',
+    uploadedBy = 'Uploaded By',
+    date = 'Date',
+    actions = 'Actions',
+    unknownUser = 'Unknown',
+  } = labels;
+
+  if (isLoading) {
+    return <FilesSkeleton />;
+  }
+
+  if (attachments.length === 0) {
+    return (
+      <div
+        className={`flex flex-col items-center justify-center py-12 text-center text-muted-foreground ${className}`}
+      >
+        <FileIcon className="h-12 w-12 mb-4 opacity-20" />
+        <p>{empty}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-md border ${className}`}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{name}</TableHead>
+            <TableHead>{task}</TableHead>
+            <TableHead>{size}</TableHead>
+            <TableHead>{uploadedBy}</TableHead>
+            <TableHead>{date}</TableHead>
+            <TableHead className="text-right">{actions}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {attachments.map((file) => {
+            const fullUrl = getFullUrl(file.url);
+            return (
+              <TableRow key={file.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <FileIcon className="h-4 w-4 text-muted-foreground" />
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {file.filename}
+                    </a>
+                  </div>
+                </TableCell>
+                <TableCell>{file.task?.title}</TableCell>
+                <TableCell>{formatFileSize(file.filesize)}</TableCell>
+                <TableCell>{file.uploadedBy?.name || unknownUser}</TableCell>
+                <TableCell>
+                  {format(
+                    new Date(file.uploadedAt),
+                    'PP',
+                    dateLocale ? { locale: dateLocale } : undefined
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="icon" asChild>
+                    <a href={fullUrl} download target="_blank" rel="noopener noreferrer">
+                      <Download className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

@@ -1,73 +1,158 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo } from "lucide-react";
-import { useCompleteTask, useTaskTags } from "@/lib/api-hooks";
+import { useState, type ReactNode } from 'react';
+import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo } from 'lucide-react';
+import { format } from 'date-fns';
+import { motion } from 'framer-motion';
+import { cn } from '../../utils/index.js';
+import { Badge } from '../ui/badge.js';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu.js";
+} from '../ui/dropdown-menu.js';
 
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { motion } from "framer-motion";
-import { cn } from "../../utils/index.js";
-import { TaskDetailPanel } from "./task-detail-panel.js";
-import { Badge } from "../ui/badge.js";
-import { useTranslations } from "next-intl";
-
-interface TaskCardProps {
-  task: {
-    id?: string | number;
+export interface TaskCardTask {
+  id?: string | number;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority: string;
+  dueDate?: Date | string | null;
+  tags?: Array<{ id: string | number; name: string; color: string }>;
+  project?: { id: string; name: string; color: string };
+  subTasks?: Array<{
+    id: string | number;
     title: string;
-    description?: string | null;
     status: string;
-    priority: string;
-    dueDate?: Date | string | null;
-    tags?: any[];
-    project?: { id: string; name: string; color: string };
-    subTasks?: Array<{
-      id: string | number;
-      title: string;
-      status: string;
-    }>;
-  };
-  index?: number;
+  }>;
 }
 
-export function TaskCard({ task, index = 0 }: TaskCardProps) {
-  const t = useTranslations('TaskCard');
+interface TaskCardProps {
+  task: TaskCardTask;
+  index?: number;
+  /** Called when task card is clicked */
+  onClick?: (task: TaskCardTask) => void;
+  /** Called when edit action is clicked */
+  onEdit?: (task: TaskCardTask) => void;
+  /** Called when delete action is clicked */
+  onDelete?: (task: TaskCardTask) => void;
+  /** Optional detail panel to render when clicked */
+  DetailPanel?: ReactNode;
+  /** Date locale for formatting */
+  dateLocale?: Locale;
+  /** Custom labels for i18n */
+  labels?: {
+    priorityLow?: string;
+    priorityMedium?: string;
+    priorityHigh?: string;
+    priorityUrgent?: string;
+    viewEdit?: string;
+    delete?: string;
+    completed?: string;
+  };
+  className?: string;
+}
+
+type Locale = Parameters<typeof format>[2] extends { locale?: infer L } ? L : never;
+
+const PRIORITY_COLORS: Record<string, string> = {
+  LOW: 'text-gray-500',
+  MEDIUM: 'text-blue-500',
+  HIGH: 'text-orange-500',
+  URGENT: 'text-red-500',
+};
+
+/**
+ * TaskCard - Platform-agnostic task display card
+ * 
+ * Shows task with priority, due date, tags, and subtask progress.
+ * All actions handled via props.
+ * 
+ * @example
+ * <TaskCard
+ *   task={task}
+ *   onClick={(t) => setSelectedTask(t)}
+ *   onEdit={(t) => openEditDialog(t)}
+ *   onDelete={(t) => deleteTask.mutate(t.id)}
+ *   labels={{ priorityHigh: t('priority.high') }}
+ * />
+ */
+export function TaskCard({
+  task,
+  index = 0,
+  onClick,
+  onEdit,
+  onDelete,
+  DetailPanel,
+  dateLocale,
+  labels = {},
+  className = '',
+}: TaskCardProps) {
   const [showDetail, setShowDetail] = useState(false);
-  const isCompleted = task.status === "COMPLETED";
-  
-  const priorityConfig = {
-    LOW: { label: t('priority.LOW'), color: "text-gray-500" },
-    MEDIUM: { label: t('priority.MEDIUM'), color: "text-blue-500" },
-    HIGH: { label: t('priority.HIGH'), color: "text-orange-500" },
-    URGENT: { label: t('priority.URGENT'), color: "text-red-500" },
+
+  const {
+    priorityLow = 'Low',
+    priorityMedium = 'Medium',
+    priorityHigh = 'High',
+    priorityUrgent = 'Urgent',
+    viewEdit = 'View/Edit',
+    delete: deleteLabel = 'Delete',
+    completed = 'Completed',
+  } = labels;
+
+  const priorityLabels: Record<string, string> = {
+    LOW: priorityLow,
+    MEDIUM: priorityMedium,
+    HIGH: priorityHigh,
+    URGENT: priorityUrgent,
   };
 
-  const priority = priorityConfig[task.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
-  
-  // Use project color if available, otherwise fallback to purple
-  const accentColor = task.project?.color || "#8b5cf6"; // Purple fallback
+  const isCompleted = task.status === 'COMPLETED';
+  const priority = {
+    label: priorityLabels[task.priority] || priorityMedium,
+    color: PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.MEDIUM,
+  };
 
-  // Subtask progress calculation
+  const accentColor = task.project?.color || '#8b5cf6';
+
+  // Subtask progress
   const subtasks = task.subTasks || [];
-  const completedSubtasks = subtasks.filter((st) => st.status === "COMPLETED").length;
+  const completedSubtasks = subtasks.filter((st) => st.status === 'COMPLETED').length;
   const totalSubtasks = subtasks.length;
   const subtaskProgress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return format(dateObj, "d MMM", { locale: es });
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return format(dateObj, 'd MMM', dateLocale ? { locale: dateLocale } : undefined);
   };
-  
+
   const isOverdue = !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(task);
+    } else {
+      setShowDetail(true);
+    }
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(task);
+    } else {
+      setShowDetail(true);
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(task);
+  };
 
   return (
     <>
@@ -76,14 +161,15 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.05 }}
         whileHover={{ y: -5, scale: 1.02 }}
-        onClick={() => setShowDetail(true)}
+        onClick={handleCardClick}
         className={cn(
-          "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer",
-          "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20",
-          isCompleted && "opacity-60 grayscale"
+          'group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer',
+          'hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20',
+          isCompleted && 'opacity-60 grayscale',
+          className
         )}
         style={{
-          borderLeftWidth: "4px",
+          borderLeftWidth: '4px',
           borderLeftColor: accentColor,
         }}
       >
@@ -99,7 +185,12 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
               >
                 <CheckSquare className="h-7 w-7" />
               </div>
-              <h3 className={cn("font-bold text-xl leading-tight truncate max-w-[180px]", isCompleted && "line-through")}>
+              <h3
+                className={cn(
+                  'font-bold text-xl leading-tight truncate max-w-[180px]',
+                  isCompleted && 'line-through'
+                )}
+              >
                 {task.title}
               </h3>
             </div>
@@ -108,22 +199,25 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <button
                   className={cn(
-                    "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-                    "rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground"
+                    'opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+                    'rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground'
                   )}
                 >
                   <MoreVertical className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                 <DropdownMenuItem onClick={(e) => {e.stopPropagation(); setShowDetail(true);}}>
+                <DropdownMenuItem onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" />
-                  {t('actions.viewEdit')}
+                  {viewEdit}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* Add delete handler */ }} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
+                <DropdownMenuItem
+                  onClick={handleDelete}
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  {t('actions.delete')}
+                  {deleteLabel}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -131,7 +225,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
 
           {task.tags && task.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-3">
-              {task.tags.map((tag: any) => (
+              {task.tags.map((tag) => (
                 <Badge
                   key={tag.id}
                   variant="secondary"
@@ -158,7 +252,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
             <div className="flex items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
               <ListTodo className="h-3.5 w-3.5 text-muted-foreground" />
               <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-primary transition-all duration-300 ease-out"
                   style={{ width: `${subtaskProgress}%` }}
                 />
@@ -172,21 +266,21 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
           <div className="mt-auto pt-4 border-t border-dashed border-border/50">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3 text-muted-foreground">
-                <div className={cn("flex items-center gap-1.5", priority.color)}>
+                <div className={cn('flex items-center gap-1.5', priority.color)}>
                   <Flag className="h-3.5 w-3.5" />
                   <span>{priority.label}</span>
                 </div>
                 {task.dueDate && (
-                   <div className={cn("flex items-center gap-1.5", isOverdue ? "text-red-500" : "")}>
+                  <div className={cn('flex items-center gap-1.5', isOverdue ? 'text-red-500' : '')}>
                     <Calendar className="h-3.5 w-3.5" />
                     <span>{formatDueDate(task.dueDate)}</span>
                   </div>
                 )}
               </div>
               {isCompleted && (
-                 <div className="text-xs font-medium px-2 py-1 rounded-full bg-green-500/10 text-green-500">
-                    {t('status.completed')}
-                 </div>
+                <div className="text-xs font-medium px-2 py-1 rounded-full bg-green-500/10 text-green-500">
+                  {completed}
+                </div>
               )}
             </div>
           </div>
@@ -198,12 +292,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
         />
       </motion.div>
 
-      <TaskDetailPanel 
-        taskId={task.id ? String(task.id) : null} 
-        open={showDetail} 
-        onOpenChange={setShowDetail} 
-      />
+      {DetailPanel && showDetail && DetailPanel}
     </>
   );
 }
-

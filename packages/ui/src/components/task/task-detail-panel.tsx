@@ -1,306 +1,338 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Share2, Copy, Link as LinkIcon } from "lucide-react";
-import { useTaskDetails, useUpdateTask, useDeleteTask, useCurrentUser, useShareTask } from "@/lib/api-hooks";
-
-
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/api-hooks";
-import { notify } from "@/lib/notify";
-import { cn } from "../../utils/index.js";
+import { useState, useEffect, type ReactNode } from 'react';
+import {
+  X,
+  Save,
+  Trash2,
+  Calendar,
+  Flag,
+  Clock,
+  CheckSquare,
+  MessageSquare,
+  Paperclip,
+  Activity,
+  Layout,
+  Share2,
+  Copy,
+  Link as LinkIcon,
+  Tag as TagIcon,
+  Plus
+} from 'lucide-react';
+import { cn } from '../../utils/index.js';
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
-} from "../ui/sheet.js";
+} from '../ui/sheet.js';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "../ui/dialog.js";
-import { Button } from "../ui/button.js";
-import { Input } from "../ui/input.js";
-import { Label } from "../ui/label.js";
-import { Textarea } from "../ui/textarea.js";
+} from '../ui/dialog.js';
+import { Button } from '../ui/button.js';
+import { Input } from '../ui/input.js';
+import { Label } from '../ui/label.js';
+import { Textarea } from '../ui/textarea.js';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select.js";
-import { Badge } from "../ui/badge.js";
-import { Separator } from "../ui/separator.js";
-import { SubtaskList } from "./subtask-list.js";
-import { CommentThread } from "./comment-thread.js";
-import { FileUpload } from "./file-upload.js";
-import { AttachmentList } from "./attachment-list.js";
-import { ActivityFeed } from "./activity-feed.js";
-import { Tag as TagIcon, Plus } from "lucide-react";
-import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/lib/api-hooks";
-import { useWorkspaceStore } from "@/stores/workspace-store";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover.js";
-import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
-import { useTranslations } from "next-intl";
-import { Skeleton } from "../ui/skeleton.js";
-import { AssigneeSelector } from "./assignee-selector.js";
+} from '../ui/select.js';
+import { Badge } from '../ui/badge.js';
+import { Separator } from '../ui/separator.js';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover.js';
+import { Skeleton } from '../ui/skeleton.js';
+
+// Types
+export interface TaskTag {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface TaskDetailData {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority: string;
+  dueDate?: string | Date | null;
+  estimatedTime?: number | null;
+  createdAt?: string | Date;
+  tags?: TaskTag[];
+  assignee?: any;
+  publicToken?: string | null;
+  subTasks?: any[];
+  comments?: any[];
+  attachments?: any[];
+  activities?: any[];
+}
 
 interface TaskDetailPanelProps {
   taskId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Task Data and State */
+  task?: TaskDetailData;
+  isLoading?: boolean;
+  /** Current User Info */
+  currentUserId?: string;
+  /** Available Tags for assignment */
+  availableTags?: TaskTag[];
+  /** Actions */
+  onUpdate?: (taskId: string, data: any) => Promise<void> | void;
+  onDelete?: (taskId: string) => Promise<void> | void;
+  onAssignTag?: (taskId: string, tagId: string) => Promise<void> | void;
+  onRemoveTag?: (taskId: string, tagId: string) => Promise<void> | void;
+  onShare?: (taskId: string) => Promise<void> | void;
+  /** Render Props for Sub-components to avoid huge dependency tree */
+  renderSubtaskList?: (taskId: string, subtasks: any[]) => ReactNode;
+  renderComments?: (taskId: string) => ReactNode;
+  renderAttachments?: (taskId: string) => ReactNode;
+  renderActivity?: (taskId: string) => ReactNode;
+  renderAssigneeSelector?: (taskId: string, currentAssignee: any) => ReactNode;
+  renderCreateTagDialog?: (open: boolean, onOpenChange: (open: boolean) => void) => ReactNode;
+  
+  /** Labels */
+  labels?: {
+    title?: string;
+    titlePlaceholder?: string;
+    descriptionLabel?: string;
+    descriptionPlaceholder?: string;
+    descriptionEmpty?: string;
+    statusTodo?: string;
+    statusInProgress?: string;
+    statusCompleted?: string;
+    statusCancelled?: string;
+    priorityLow?: string;
+    priorityMedium?: string;
+    priorityHigh?: string;
+    priorityUrgent?: string;
+    dueDate?: string;
+    estimation?: string;
+    detailsTitle?: string;
+    tabsSubtasks?: string;
+    tabsComments?: string;
+    tabsAttachments?: string;
+    tabsActivity?: string;
+    tagsNone?: string;
+    tagsAdd?: string;
+    tagsAvailable?: string;
+    tagsNoAvailable?: string;
+    tagsCreate?: string;
+    btnSave?: string;
+    btnDelete?: string;
+    footerCreated?: string;
+    confirmDelete?: string;
+    toastUpdated?: string;
+    toastDeleted?: string;
+    toastTagAssigned?: (name: string) => string;
+    shareTitle?: string;
+    shareDescription?: string;
+  };
 }
 
-type TabType = "subtasks" | "comments" | "attachments" | "activity";
+const DEFAULT_LABELS = {
+  title: 'Task Details',
+  titlePlaceholder: 'Task Title',
+  descriptionLabel: 'DESCRIPTION',
+  descriptionPlaceholder: 'Add a description...',
+  descriptionEmpty: 'No description provided.',
+  statusTodo: 'To Do',
+  statusInProgress: 'In Progress',
+  statusCompleted: 'Completed',
+  statusCancelled: 'Cancelled',
+  priorityLow: 'Low',
+  priorityMedium: 'Medium',
+  priorityHigh: 'High',
+  priorityUrgent: 'Urgent',
+  dueDate: 'Due Date',
+  estimation: 'Estimated Time (min)',
+  detailsTitle: 'Details',
+  tabsSubtasks: 'Subtasks',
+  tabsComments: 'Comments',
+  tabsAttachments: 'Attachments',
+  tabsActivity: 'Activity',
+  tagsNone: 'No tags',
+  tagsAdd: 'Add Tag',
+  tagsAvailable: 'Available Tags',
+  tagsNoAvailable: 'No tags available',
+  tagsCreate: 'Create New Tag',
+  btnSave: 'Save',
+  btnDelete: 'Delete Task',
+  footerCreated: 'Created on',
+  confirmDelete: 'Are you sure you want to delete this task?',
+  toastUpdated: 'Task updated successfully',
+  toastDeleted: 'Task deleted successfully',
+  toastTagAssigned: (name: string) => `Tag ${name} assigned`,
+  shareTitle: 'Share Task',
+  shareDescription: 'Share this link with others to view this task.',
+};
 
 export function TaskDetailPanel({
   taskId,
   open,
   onOpenChange,
+  task,
+  isLoading = false,
+  availableTags = [],
+  onUpdate,
+  onDelete,
+  onAssignTag,
+  onRemoveTag,
+  onShare,
+  renderSubtaskList,
+  renderComments,
+  renderAttachments,
+  renderActivity,
+  renderAssigneeSelector,
+  renderCreateTagDialog,
+  labels = {},
 }: TaskDetailPanelProps) {
-  const t = useTranslations('TaskDetailPanel');
+  // Merge labels
+  const t = { ...DEFAULT_LABELS, ...labels };
+
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("subtasks");
+  const [activeTab, setActiveTab] = useState<'subtasks' | 'comments' | 'attachments' | 'activity'>('subtasks');
   const [showCreateTagDialog, setShowCreateTagDialog] = useState(false);
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const shareTask = useShareTask();
-  const queryClient = useQueryClient();
-
-  // Drag & Drop State
-  const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-
-  const handleGlobalDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingOver(true);
-  };
-
-  const handleGlobalDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingOver(false);
-  };
-
-  const handleGlobalDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingOver(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setDroppedFiles(Array.from(e.dataTransfer.files));
-      setActiveTab("attachments");
-    }
-  };
-
-  // Fetch task data with all details (comments, attachments, activities)
-  const { data: task, isLoading } = useTaskDetails(taskId as string);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    status: "TODO",
-    priority: "MEDIUM",
-    dueDate: "",
-    estimatedTime: "",
+    title: '',
+    description: '',
+    status: 'TODO',
+    priority: 'MEDIUM',
+    dueDate: '',
+    estimatedTime: '',
   });
 
-  // Update form when task loads
   useEffect(() => {
     if (task) {
       setFormData({
-        title: task.title || "",
-        description: task.description || "",
-        status: task.status || "TODO",
-        priority: task.priority || "MEDIUM",
-        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
-        estimatedTime: task.estimatedTime?.toString() || "",
+        title: task.title || '',
+        description: task.description || '',
+        status: task.status || 'TODO',
+        priority: task.priority || 'MEDIUM',
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] ?? '' : '',
+        estimatedTime: task.estimatedTime?.toString() || '',
       });
     }
   }, [task]);
-
-  // Update task mutation
-  const updateTask = useUpdateTask();
-
-  // Delete task mutation
-  const deleteTask = useDeleteTask();
-
-  // Tag management
-  const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: availableTags } = useTags(selectedWorkspaceId || "");
-  const assignTag = useAssignTagToTask();
-  const removeTag = useRemoveTagFromTask();
-  const { data: currentUser } = useCurrentUser();
-
-  const PRIORITY_CONFIG = {
-    LOW: { label: t('priorities.low'), color: "bg-slate-500", textColor: "text-slate-600", icon: Flag },
-    MEDIUM: { label: t('priorities.medium'), color: "bg-blue-500", textColor: "text-blue-600", icon: Flag },
-    HIGH: { label: t('priorities.high'), color: "bg-orange-500", textColor: "text-orange-600", icon: Flag },
-    URGENT: { label: t('priorities.urgent'), color: "bg-red-500", textColor: "text-red-600", icon: Activity },
-  };
-
-  const STATUS_CONFIG = {
-    TODO: { label: t('statuses.todo'), color: "bg-slate-500", variant: "outline" },
-    IN_PROGRESS: { label: t('statuses.inProgress'), color: "bg-blue-500", variant: "default" },
-    COMPLETED: { label: t('statuses.completed'), color: "bg-green-500", variant: "default" },
-    CANCELLED: { label: t('statuses.cancelled'), color: "bg-red-500", variant: "destructive" },
-  };
-
-  const handleSave = () => {
-    if (!taskId) return;
-
-    updateTask.mutate({
-      taskId,
-      data: {
-        title: formData.title,
-        description: formData.description,
-        status: formData.status as any,
-        priority: formData.priority as any,
-        dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
-        estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
-      }
-    }, {
-      onSuccess: () => {
-        notify.success(t('toast.updated'));
-        setIsEditing(false);
-      },
-      onError: (error: any) => {
-        notify.error(error.message || t('toast.updateError'));
-      }
-    });
-  };
-
-  const handleDelete = () => {
-    if (!taskId) return;
-    if (confirm(t('confirmDelete'))) {
-      deleteTask.mutate(taskId, {
-        onSuccess: () => {
-          notify.success(t('toast.deleted'));
-          onOpenChange(false);
-        },
-        onError: (error: any) => {
-          notify.error(error.message || t('toast.deleteError'));
-        }
-      });
-    }
-  };
 
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleShare = () => {
+  const handleSave = async () => {
+     if (!taskId || !onUpdate) return;
+     setIsUpdating(true);
+     try {
+       await onUpdate(taskId, {
+         title: formData.title,
+         description: formData.description,
+         status: formData.status,
+         priority: formData.priority,
+         dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
+         estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
+       });
+       setIsEditing(false);
+     } catch (err) {
+       console.error(err);
+     } finally {
+       setIsUpdating(false);
+     }
+  };
+
+  const handleDelete = async () => {
+    if (!taskId || !onDelete) return;
+    if (window.confirm(t.confirmDelete)) {
+      await onDelete(taskId);
+      onOpenChange(false);
+    }
+  };
+
+  const handleShare = async () => {
     if (!taskId) return;
     if (task?.publicToken) {
       setShowShareDialog(true);
-    } else {
-      shareTask.mutate(taskId, {
-        onSuccess: () => setShowShareDialog(true),
-        onError: () => notify.error(t('toast.shareError')),
-      });
+    } else if (onShare) {
+      await onShare(taskId);
+      setShowShareDialog(true);
     }
   };
 
   const copyShareLink = () => {
-    const url = `${window.location.origin}/share/task/${task?.publicToken}`;
-    navigator.clipboard.writeText(url);
-    notify.success(t('toast.linkCopied'));
+     const origin = typeof window !== 'undefined' ? window.location.origin : '';
+     const url = `${origin}/share/task/${task?.publicToken}`;
+     navigator.clipboard.writeText(url);
+     // toast logic handled by parent if needed or simple alert, 
+     // but ideally we should have a `onNotify` prop if we want to trigger toasts from here
   };
 
-  if (!taskId) return null;
+  if (!taskId && !open) return null;
 
-  const priorityInfo = PRIORITY_CONFIG[formData.priority as keyof typeof PRIORITY_CONFIG] || PRIORITY_CONFIG.MEDIUM;
-  const statusInfo = STATUS_CONFIG[formData.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.TODO;
-  const PriorityIcon = priorityInfo.icon;
+  const PRIORITY_CONFIG = {
+    LOW: { label: t.priorityLow, color: 'bg-slate-500', textColor: 'text-slate-600', icon: Flag },
+    MEDIUM: { label: t.priorityMedium, color: 'bg-blue-500', textColor: 'text-blue-600', icon: Flag },
+    HIGH: { label: t.priorityHigh, color: 'bg-orange-500', textColor: 'text-orange-600', icon: Flag },
+    URGENT: { label: t.priorityUrgent, color: 'bg-red-500', textColor: 'text-red-600', icon: Activity },
+  };
+
+  const STATUS_CONFIG = {
+    TODO: { label: t.statusTodo, color: 'bg-slate-500' },
+    IN_PROGRESS: { label: t.statusInProgress, color: 'bg-blue-500' },
+    COMPLETED: { label: t.statusCompleted, color: 'bg-green-500' },
+    CANCELLED: { label: t.statusCancelled, color: 'bg-red-500' },
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent 
-        side="right" 
-        className={cn(
-          "w-full sm:max-w-xl md:max-w-2xl p-0 gap-0 overflow-hidden flex flex-col bg-background transition-colors",
-          isDraggingOver && "bg-accent/20"
-        )}
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-xl md:max-w-2xl p-0 gap-0 overflow-hidden flex flex-col bg-background transition-colors"
         hideCloseButton
-        onDragOver={handleGlobalDragOver}
-        onDragLeave={handleGlobalDragLeave}
-        onDrop={handleGlobalDrop}
       >
         <SheetTitle className="sr-only">
-          {task?.title || t('title')}
+          {task?.title || t.title}
         </SheetTitle>
+
         {isLoading ? (
-          <div className="flex flex-col h-full animate-pulse">
-             {/* Header Skeleton */}
-             <div className="px-6 py-5 border-b bg-muted/10 space-y-4">
-               <div className="flex gap-2">
-                 <Skeleton className="h-8 w-24" />
-                 <Skeleton className="h-8 w-24" />
-               </div>
-               <Skeleton className="h-10 w-3/4" />
-               <div className="flex gap-2">
-                 <Skeleton className="h-6 w-16 rounded-full" />
-                 <Skeleton className="h-6 w-16 rounded-full" />
-               </div>
-             </div>
-             
-             {/* Content Skeleton */}
-             <div className="flex-1 p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   <div className="md:col-span-2 space-y-3">
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-32 w-full" />
-                   </div>
-                   <div className="space-y-4">
-                      <Skeleton className="h-40 w-full rounded-xl" />
-                   </div>
-                </div>
-                <Skeleton className="h-px w-full" />
-                <div className="flex gap-2">
-                   <Skeleton className="h-8 w-24" />
-                   <Skeleton className="h-8 w-24" />
-                   <Skeleton className="h-8 w-24" />
-                </div>
-                <Skeleton className="h-64 w-full" />
-             </div>
-          </div>
+           <div className="flex flex-col h-full animate-pulse p-6 space-y-4">
+             <Skeleton className="h-8 w-1/3" />
+             <Skeleton className="h-32 w-full" />
+             <Skeleton className="h-64 w-full" />
+           </div>
         ) : (
           <div className="flex flex-col h-full animate-in fade-in duration-300">
             {/* Header Area */}
             <div className="px-6 py-5 border-b bg-muted/10">
               <div className="flex items-start justify-between gap-6">
                 <div className="flex-1 space-y-4">
-                  {/* Status & Priority Badges */}
+                  {/* Status & Priority */}
                   <div className="flex items-center gap-2">
                     <Select
                       value={formData.status}
-                      onValueChange={(value) => {
-                        handleFieldChange("status", value);
-                        // Auto-save status changes
-                        updateTask.mutate(
-                          { taskId, data: { status: value as any } },
-                          {
-                            onSuccess: () => notify.success(t('toast.statusUpdated')),
-                            onError: (error: any) => {
-                              notify.error(error.message || t('toast.statusError'));
-                              // Revert local change on error
-                              handleFieldChange("status", task?.status || "TODO");
-                            },
-                          }
-                        );
+                      onValueChange={(val) => {
+                         handleFieldChange('status', val);
+                         if(onUpdate && taskId) onUpdate(taskId, { status: val });
                       }}
                     >
-                      <SelectTrigger className={cn("h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
+                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {Object.entries(STATUS_CONFIG).map(([key, config]) => (
                           <SelectItem key={key} value={key}>
                             <div className="flex items-center gap-2">
-                              <div className={cn("w-2 h-2 rounded-full", config.color)} />
+                              <div className={cn('w-2 h-2 rounded-full', config.color)} />
                               {config.label}
                             </div>
                           </SelectItem>
@@ -310,32 +342,21 @@ export function TaskDetailPanel({
 
                     <Select
                       value={formData.priority}
-                      onValueChange={(value) => {
-                        handleFieldChange("priority", value);
-                        // Auto-save priority changes
-                        updateTask.mutate(
-                          { taskId, data: { priority: value as any } },
-                          {
-                            onSuccess: () => notify.success(t('toast.priorityUpdated')),
-                            onError: (error: any) => {
-                              notify.error(error.message || t('toast.priorityError'));
-                              // Revert local change on error
-                              handleFieldChange("priority", task?.priority || "MEDIUM");
-                            },
-                          }
-                        );
+                      onValueChange={(val) => {
+                        handleFieldChange('priority', val);
+                        if(onUpdate && taskId) onUpdate(taskId, { priority: val });
                       }}
                     >
-                      <SelectTrigger className={cn("h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
+                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
                           <SelectItem key={key} value={key}>
-                            <div className="flex items-center gap-2">
-                              <config.icon className={cn("w-3 h-3", config.textColor)} />
-                              {config.label}
-                            </div>
+                             <div className="flex items-center gap-2">
+                               <config.icon className={cn('w-3 h-3', config.textColor)} />
+                               {config.label}
+                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -348,7 +369,7 @@ export function TaskDetailPanel({
                       value={formData.title}
                       onChange={(e) => handleFieldChange("title", e.target.value)}
                       className="text-2xl font-bold h-auto py-2 px-3 -ml-3 bg-transparent border-transparent hover:bg-accent/50 focus:bg-background focus:border-input transition-colors"
-                      placeholder={t('titlePlaceholder')}
+                      placeholder={t.titlePlaceholder}
                       autoFocus
                     />
                   ) : (
@@ -359,12 +380,12 @@ export function TaskDetailPanel({
                       {formData.title}
                     </h2>
                   )}
-
-                  {/* Tags Section - Moved here for better visibility */}
+                  
+                  {/* Tags */}
                   <div className="flex flex-wrap items-center gap-2 -ml-2 px-2">
                     <TagIcon className="w-4 h-4 text-muted-foreground" />
                     {task?.tags && task.tags.length > 0 ? (
-                      task.tags.map((tag: any) => (
+                      task.tags.map((tag) => (
                         <Badge
                           key={tag.id}
                           variant="secondary"
@@ -379,7 +400,7 @@ export function TaskDetailPanel({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              removeTag.mutate({ tagId: tag.id, taskId });
+                              if (taskId && onRemoveTag) onRemoveTag(taskId, tag.id);
                             }}
                             className="hover:bg-background/30 rounded-full p-0.5 transition-colors"
                           >
@@ -388,53 +409,38 @@ export function TaskDetailPanel({
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-xs text-muted-foreground italic">{t('tags.none')}</span>
+                      <span className="text-xs text-muted-foreground italic">{t.tagsNone}</span>
                     )}
+                    
                     <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
                       <PopoverTrigger asChild>
-                        <Button
+                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-7 text-xs gap-1 rounded-full px-2 hover:bg-accent"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          {t('tags.add')}
+                          {t.tagsAdd}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="p-2 w-64" align="start">
-                        <div className="space-y-1">
-                          {/* Available Tags */}
-                          {availableTags && availableTags.length > 0 ? (
-                            <>
-                              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                                {t('tags.available')}
-                              </div>
-                              {availableTags.map((tag: any) => {
-                                const isAssigned = task?.tags?.some((t: any) => t.id === tag.id);
-                                if (isAssigned) return null;
-
-                                return (
+                         <div className="space-y-1">
+                           <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                             {t.tagsAvailable}
+                           </div>
+                           {availableTags.length > 0 ? (
+                             availableTags.map((tag) => {
+                               const isAssigned = task?.tags?.some(t => t.id === tag.id);
+                               if (isAssigned) return null;
+                               return (
                                   <button
                                     key={tag.id}
                                     onClick={(e) => {
                                       e.preventDefault();
-                                      e.stopPropagation();
-                                      if (!taskId) {
-                                        notify.error(t('toast.noTaskId'));
-                                        return;
+                                      if (taskId && onAssignTag) {
+                                        onAssignTag(taskId, tag.id);
+                                        setTagPopoverOpen(false);
                                       }
-                                      assignTag.mutate(
-                                        { tagId: tag.id, taskId },
-                                        {
-                                          onSuccess: () => {
-                                            notify.success(t('toast.tagAssigned', { tagName: tag.name }));
-                                            setTagPopoverOpen(false);
-                                          },
-                                          onError: (error: any) => {
-                                            notify.error(error.message || t('toast.tagError'));
-                                          }
-                                        }
-                                      );
                                     }}
                                     className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                                   >
@@ -444,40 +450,35 @@ export function TaskDetailPanel({
                                     />
                                     <span className="flex-1 text-left">{tag.name}</span>
                                   </button>
-                                );
-                              })}
-                              <Separator className="my-1" />
-                            </>
-                          ) : (
-                            <div className="text-center py-4 text-sm text-muted-foreground">
-                              {t('tags.noAvailable')}
-                            </div>
-                          )}
-
-                          {/* Create New Tag Button */}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setTagPopoverOpen(false);
-                              setShowCreateTagDialog(true);
-                            }}
-                            className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground text-primary transition-colors cursor-pointer font-medium"
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>{t('tags.create')}</span>
-                          </button>
-                        </div>
+                               );
+                             })
+                           ) : (
+                              <div className="text-center py-4 text-sm text-muted-foreground">
+                                {t.tagsNoAvailable}
+                              </div>
+                           )}
+                           <Separator className="my-1" />
+                           <button
+                             onClick={() => {
+                               setTagPopoverOpen(false);
+                               setShowCreateTagDialog(true);
+                             }}
+                             className="w-full flex items-center gap-2 px-2 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground text-primary transition-colors cursor-pointer font-medium"
+                           >
+                             <Plus className="w-4 h-4" />
+                             <span>{t.tagsCreate}</span>
+                           </button>
+                         </div>
                       </PopoverContent>
                     </Popover>
                   </div>
                 </div>
-
+                
                 <div className="flex items-start gap-2 pt-1">
                   {isEditing ? (
-                    <Button size="sm" onClick={handleSave} disabled={updateTask.isPending} className="h-9">
+                    <Button size="sm" onClick={handleSave} disabled={isUpdating} className="h-9">
                       <Save className="w-4 h-4 mr-2" />
-                      {t('buttons.save')}
+                      {t.btnSave}
                     </Button>
                   ) : (
                     <>
@@ -496,243 +497,188 @@ export function TaskDetailPanel({
               </div>
             </div>
 
-            {/* Scrollable Content */}
+            {/* Content */}
             <div className="flex-1 overflow-y-auto">
-              <div className="p-6 space-y-6">
-                {/* Description & Metadata Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Left Column: Description */}
-                  <div className="md:col-span-2 space-y-3 flex flex-col">
-                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {t('description.label')}
-                    </Label>
-                    {isEditing ? (
-                      <Textarea
-                        value={formData.description}
-                        onChange={(e) => handleFieldChange("description", e.target.value)}
-                        placeholder={t('description.placeholder')}
-                        className="flex-1 resize-none text-sm"
-                      />
-                    ) : (
-                      <div 
-                        className={cn(
-                          "prose prose-sm dark:prose-invert max-w-none flex-1 p-4 rounded-lg border-2 border-dashed transition-all",
-                          formData.description 
-                            ? "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/30" 
-                            : "border-border/30 bg-muted/10 hover:border-border/50 hover:bg-muted/20",
-                          "cursor-text"
-                        )}
-                        onClick={() => setIsEditing(true)}
-                      >
-                        {formData.description ? (
-                          <p className="whitespace-pre-wrap text-sm leading-relaxed">{formData.description}</p>
-                        ) : (
-                          <p className="text-muted-foreground italic text-sm">{t('description.empty')}</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column: Properties */}
-                  <div className="space-y-4">
-                    <div className="space-y-4 p-5 rounded-xl bg-gradient-to-br from-muted/40 to-muted/20 border-2 border-border/50 shadow-sm">
-                      <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-                        <div className="w-1 h-4 bg-primary rounded-full" />
-                        {t('details.title')}
-                      </h3>
-                      
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">{t('details.dueDate')}</Label>
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
-                            <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <Input
-                              type="date"
-                              value={formData.dueDate}
-                              onChange={(e) => {
-                                handleFieldChange("dueDate", e.target.value);
-                                if (!isEditing) {
-                                  updateTask.mutate({ 
-                                    taskId, 
-                                    data: { dueDate: e.target.value ? new Date(e.target.value) : undefined }
-                                  });
-                                }
-                              }}
-                              className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
-                            />
-                          </div>
+               <div className="p-6 space-y-6">
+                 {/* Metadata Grid */}
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2 space-y-3 flex flex-col">
+                       <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                         {t.descriptionLabel}
+                       </Label>
+                       {isEditing ? (
+                         <Textarea
+                           value={formData.description}
+                           onChange={(e) => handleFieldChange("description", e.target.value)}
+                           placeholder={t.descriptionPlaceholder}
+                           className="flex-1 resize-none text-sm"
+                         />
+                       ) : (
+                         <div 
+                           className={cn(
+                             "prose prose-sm dark:prose-invert max-w-none flex-1 p-4 rounded-lg border-2 border-dashed transition-all",
+                             formData.description 
+                               ? "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/30" 
+                               : "border-border/30 bg-muted/10 hover:border-border/50 hover:bg-muted/20",
+                             "cursor-text"
+                           )}
+                           onClick={() => setIsEditing(true)}
+                         >
+                           {formData.description ? (
+                             <p className="whitespace-pre-wrap text-sm leading-relaxed">{formData.description}</p>
+                           ) : (
+                             <p className="text-muted-foreground italic text-sm">{t.descriptionEmpty}</p>
+                           )}
+                         </div>
+                       )}
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-4 p-5 rounded-xl bg-gradient-to-br from-muted/40 to-muted/20 border-2 border-border/50 shadow-sm">
+                        <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
+                           <div className="w-1 h-4 bg-primary rounded-full" />
+                           {t.detailsTitle}
+                        </h3>
+                        
+                        <div className="space-y-4">
+                           <div className="space-y-2">
+                             <Label className="text-xs font-medium text-muted-foreground">{t.dueDate}</Label>
+                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                               <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                               <Input
+                                  type="date"
+                                  value={formData.dueDate}
+                                  onChange={(e) => {
+                                     handleFieldChange("dueDate", e.target.value);
+                                     if (!isEditing && taskId && onUpdate) {
+                                       onUpdate(taskId, { dueDate: e.target.value ? new Date(e.target.value) : undefined });
+                                     }
+                                  }}
+                                  className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                               />
+                             </div>
+                           </div>
+                           
+                           <Separator className="my-3" />
+                           
+                           <div className="space-y-2">
+                             <Label className="text-xs font-medium text-muted-foreground">{t.estimation}</Label>
+                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                               <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                               <Input
+                                  type="number"
+                                  value={formData.estimatedTime}
+                                  onChange={(e) => {
+                                     handleFieldChange("estimatedTime", e.target.value);
+                                     if (!isEditing && taskId && onUpdate && e.target.value) {
+                                       onUpdate(taskId, { estimatedTime: parseFloat(e.target.value) });
+                                     }
+                                  }}
+                                  placeholder="0"
+                                  className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                               />
+                             </div>
+                           </div>
+                           
+                           <Separator className="my-3" />
+                           
+                           {renderAssigneeSelector && taskId && renderAssigneeSelector(taskId, task?.assignee)}
                         </div>
-
-                        <Separator className="my-3" />
-
-                        <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">{t('details.estimation')}</Label>
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
-                            <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <Input
-                              type="number"
-                              value={formData.estimatedTime}
-                              onChange={(e) => {
-                                handleFieldChange("estimatedTime", e.target.value);
-                                if (!isEditing && e.target.value) {
-                                  updateTask.mutate({ 
-                                    taskId, 
-                                    data: { estimatedTime: parseFloat(e.target.value) }
-                                  });
-                                }
-                              }}
-                              placeholder="0"
-                              className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
-                            />
-                          </div>
-                        </div>
-
-                        <Separator className="my-3" />
-
-                        {/* Assignee Selector */}
-                        <AssigneeSelector
-                          taskId={taskId}
-                          currentAssignee={task?.assignee}
-                          variant="full"
-                        />
-
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                <Separator className="my-6" />
-
-                {/* Tabs Section */}
-                <div className="space-y-5">
-                  <div className="flex items-center gap-1.5 p-1.5 bg-muted/40 rounded-lg w-fit border border-border/30">
-                    <TabButton 
-                      active={activeTab === "subtasks"} 
-                      onClick={() => setActiveTab("subtasks")}
-                      icon={CheckSquare}
-                      label={t('tabs.subtasks')}
-                      count={task?.subTasks?.length}
-                    />
-                    <TabButton 
-                      active={activeTab === "comments"} 
-                      onClick={() => setActiveTab("comments")}
-                      icon={MessageSquare}
-                      label={t('tabs.comments')}
-                      count={task?.comments?.length}
-                    />
-                    <TabButton 
-                      active={activeTab === "attachments"} 
-                      onClick={() => setActiveTab("attachments")}
-                      icon={Paperclip}
-                      label={t('tabs.attachments')}
-                      count={task?.attachments?.length}
-                    />
-                    <TabButton 
-                      active={activeTab === "activity"} 
-                      onClick={() => setActiveTab("activity")}
-                      icon={Activity}
-                      label={t('tabs.activity')}
-                    />
-                  </div>
-
-                  <div className="min-h-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    {activeTab === "subtasks" && (
-                      <SubtaskList taskId={taskId} subtasks={task?.subTasks || []} />
-                    )}
-                    {activeTab === "comments" && (
-                      <CommentThread 
-                        taskId={taskId} 
-                        comments={(task?.comments || []) as any}
-                        currentUserId={currentUser?.id}
-                        workspaceId={selectedWorkspaceId || undefined}
-                      />
-                    )}
-                    {activeTab === "attachments" && (
-                      <div className="space-y-4">
-                        <FileUpload
-                          taskId={taskId}
-                          filesToUpload={droppedFiles}
-                          onFilesHandled={() => setDroppedFiles([])}
-                          onUploadComplete={() => {
-                            // Invalidate queries to refresh the attachment list
-                            queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-                            queryClient.invalidateQueries({ queryKey: queryKeys.taskAttachments(taskId) });
-                          }}
-                        />
-                        <AttachmentList
-                          taskId={taskId}
-                          attachments={task?.attachments || []}
-                        />
-                      </div>
-                    )}
-                    {activeTab === "activity" && (
-                      <ActivityFeed 
-                        taskId={taskId}
-                        activities={(task?.activities || []) as any}
-                        maxItems={10}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
+                 </div>
+                 
+                 <Separator className="my-6" />
+                 
+                 {/* Tabs */}
+                 <div className="space-y-5">
+                    <div className="flex items-center gap-1.5 p-1.5 bg-muted/40 rounded-lg w-fit border border-border/30">
+                     <TabButton 
+                       active={activeTab === 'subtasks'} 
+                       onClick={() => setActiveTab('subtasks')} 
+                       icon={CheckSquare} 
+                       label={t.tabsSubtasks} 
+                       count={task?.subTasks?.length}
+                     />
+                     <TabButton 
+                       active={activeTab === 'comments'} 
+                       onClick={() => setActiveTab('comments')} 
+                       icon={MessageSquare} 
+                       label={t.tabsComments} 
+                       count={task?.comments?.length}
+                     />
+                     <TabButton 
+                       active={activeTab === 'attachments'} 
+                       onClick={() => setActiveTab('attachments')} 
+                       icon={Paperclip} 
+                       label={t.tabsAttachments} 
+                       count={task?.attachments?.length}
+                     />
+                     <TabButton 
+                       active={activeTab === 'activity'} 
+                       onClick={() => setActiveTab('activity')} 
+                       icon={Activity} 
+                       label={t.tabsActivity} 
+                     />
+                    </div>
+                    
+                    <div className="min-h-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                       {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
+                       {activeTab === 'comments' && taskId && renderComments && renderComments(taskId)}
+                       {activeTab === 'attachments' && taskId && renderAttachments && renderAttachments(taskId)}
+                       {activeTab === 'activity' && taskId && renderActivity && renderActivity(taskId)}
+                    </div>
+                 </div>
+               </div>
             </div>
-
+            
             {/* Footer */}
             <div className="p-5 border-t bg-muted/10 flex justify-between items-center">
               <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                onClick={handleDelete}
+                 variant="ghost"
+                 size="sm"
+                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                 onClick={handleDelete}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t('buttons.delete')}
+                 <Trash2 className="w-4 h-4 mr-2" />
+                 {t.btnDelete}
               </Button>
-              
               <div className="text-xs text-muted-foreground">
-                {t('footer.created')} {task?.createdAt ? new Date(task.createdAt).toLocaleDateString() : "-"}
+                 {t.footerCreated} {task?.createdAt ? new Date(task.createdAt).toLocaleDateString() : '-'}
               </div>
             </div>
           </div>
         )}
       </SheetContent>
-
-      {/* Create Tag Dialog */}
-      <CreateTagDialog
-        open={showCreateTagDialog}
-        onOpenChange={setShowCreateTagDialog}
-        workspaceId={selectedWorkspaceId || undefined}
-      />
-      {/* Share Dialog */}
+      
+      {/* External Dialogs */}
+      {renderCreateTagDialog && renderCreateTagDialog(showCreateTagDialog, setShowCreateTagDialog)}
+      
       <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('share.title')}</DialogTitle>
-            <DialogDescription>
-              {t('share.description')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex items-center space-x-2 mt-4">
-            <div className="grid flex-1 gap-2">
-              <Label htmlFor="link" className="sr-only">
-                Link
-              </Label>
-              <div className="flex items-center gap-2 p-2 rounded-md border bg-muted/50">
-                <LinkIcon className="w-4 h-4 text-muted-foreground" />
-                <input
-                  id="link"
-                  className="flex-1 bg-transparent border-none text-sm focus:outline-none text-muted-foreground"
-                  value={task?.publicToken ? `${typeof window !== 'undefined' ? window.location.origin : ''}/share/task/${task.publicToken}` : ''}
-                  readOnly
-                />
-              </div>
-            </div>
-            <Button size="sm" className="px-3" onClick={copyShareLink}>
-              <span className="sr-only">Copy</span>
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogContent>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle>{t.shareTitle}</DialogTitle>
+             <DialogDescription>{t.shareDescription}</DialogDescription>
+           </DialogHeader>
+           <div className="flex items-center space-x-2 mt-4">
+             <div className="grid flex-1 gap-2">
+               <Label htmlFor="link" className="sr-only">Link</Label>
+               <div className="flex items-center gap-2 p-2 rounded-md border bg-muted/50">
+                 <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                 <input
+                   id="link"
+                   className="flex-1 bg-transparent border-none text-sm focus:outline-none text-muted-foreground"
+                   value={task?.publicToken ? `${typeof window !== 'undefined' ? window.location.origin : ''}/share/task/${task.publicToken}` : ''}
+                   readOnly
+                 />
+               </div>
+             </div>
+             <Button size="sm" className="px-3" onClick={copyShareLink}>
+               <span className="sr-only">Copy</span>
+               <Copy className="h-4 w-4" />
+             </Button>
+           </div>
+         </DialogContent>
       </Dialog>
     </Sheet>
   );

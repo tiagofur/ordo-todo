@@ -1,102 +1,114 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Plus, GripVertical, Check, X, Trash2, ArrowRight, Pencil } from "lucide-react";
-import { useCreateSubtask, useCompleteTask, useDeleteTask, useUpdateTask } from "@/lib/api-hooks";
-import { notify } from "@/lib/notify";
-import { cn } from "../../utils/index.js";
-import { Button } from "../ui/button.js";
-import { Input } from "../ui/input.js";
-import { Checkbox } from "../ui/checkbox.js";
-import { useTranslations } from "next-intl";
+import { useState } from 'react';
+import { Plus, GripVertical, Check, X, Trash2, ArrowRight, Pencil } from 'lucide-react';
+import { cn } from '../../utils/index.js';
+import { Button } from '../ui/button.js';
+import { Input } from '../ui/input.js';
+import { Checkbox } from '../ui/checkbox.js';
 
-interface SubtaskListProps {
-  taskId: string;
-  subtasks?: Array<{
-    id: string | number;
-    title: string;
-    status: string;
-    position?: number;
-    parentTaskId?: string | number | null;
-  }>;
+export interface Subtask {
+  id: string | number;
+  title: string;
+  status: string;
+  position?: number;
+  parentTaskId?: string | number | null;
 }
 
-export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
-  const t = useTranslations('SubtaskList');
+interface SubtaskListProps {
+  /** Subtasks to display */
+  subtasks: Subtask[];
+  /** Whether create operation is pending */
+  isCreating?: boolean;
+  /** Whether update operation is pending */
+  isUpdating?: boolean;
+  /** Called when a subtask should be created */
+  onCreate?: (title: string) => void;
+  /** Called when a subtask status should be toggled */
+  onToggleComplete?: (subtaskId: string, currentStatus: string) => void;
+  /** Called when a subtask should be deleted */
+  onDelete?: (subtaskId: string) => void;
+  /** Called when a subtask should be updated */
+  onUpdate?: (subtaskId: string, title: string) => void;
+  /** Custom labels for i18n */
+  labels?: {
+    title?: string;
+    add?: string;
+    placeholder?: string;
+    empty?: string;
+    nested?: string;
+    confirmDelete?: string;
+    tooltipDrag?: string;
+    tooltipEdit?: string;
+    tooltipDelete?: string;
+  };
+  className?: string;
+}
+
+/**
+ * SubtaskList - Platform-agnostic subtask management component
+ * 
+ * All CRUD operations handled via props.
+ * 
+ * @example
+ * const createSubtask = useCreateSubtask();
+ * const completeTask = useCompleteTask();
+ * 
+ * <SubtaskList
+ *   subtasks={task.subtasks || []}
+ *   isCreating={createSubtask.isPending}
+ *   onCreate={(title) => createSubtask.mutate({ parentTaskId, data: { title } })}
+ *   onToggleComplete={(id, status) => {
+ *     if (status === 'COMPLETED') updateTask.mutate({ taskId: id, data: { status: 'TODO' } });
+ *     else completeTask.mutate(id);
+ *   }}
+ *   onDelete={(id) => deleteTask.mutate(id)}
+ *   onUpdate={(id, title) => updateTask.mutate({ taskId: id, data: { title } })}
+ *   labels={{ title: t('title'), add: t('add') }}
+ * />
+ */
+export function SubtaskList({
+  subtasks = [],
+  isCreating = false,
+  isUpdating = false,
+  onCreate,
+  onToggleComplete,
+  onDelete,
+  onUpdate,
+  labels = {},
+  className = '',
+}: SubtaskListProps) {
   const [isAdding, setIsAdding] = useState(false);
-  const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
+  const [editingTitle, setEditingTitle] = useState('');
 
-  // Create subtask mutation
-  const createSubtask = useCreateSubtask();
-
-  // Complete subtask mutation
-  const completeSubtask = useCompleteTask();
-
-  // Delete subtask mutation
-  const deleteSubtask = useDeleteTask();
-
-  // Update subtask mutation (for reopening and editing)
-  const updateTask = useUpdateTask();
+  const {
+    title = 'Subtasks',
+    add = 'Add Subtask',
+    placeholder = 'Subtask title...',
+    empty = 'No subtasks yet',
+    nested = 'Contains nested subtasks',
+    confirmDelete = 'Are you sure you want to delete this subtask?',
+    tooltipDrag = 'Drag to reorder',
+    tooltipEdit = 'Edit',
+    tooltipDelete = 'Delete',
+  } = labels;
 
   const handleCreateSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
-
-    createSubtask.mutate({
-      parentTaskId: taskId,
-      data: {
-        title: newSubtaskTitle,
-      }
-    }, {
-      onSuccess: () => {
-        notify.success(t('toast.created'));
-        setNewSubtaskTitle("");
-        setIsAdding(false);
-      },
-      onError: (error: any) => {
-        notify.error(error.message || t('toast.createError'));
-      }
-    });
+    onCreate?.(newSubtaskTitle.trim());
+    setNewSubtaskTitle('');
+    setIsAdding(false);
   };
 
   const handleToggleComplete = (subtaskId: string, currentStatus: string) => {
-    if (currentStatus === "COMPLETED") {
-      // Reopen the subtask
-      updateTask.mutate({
-        taskId: subtaskId,
-        data: { status: "TODO" }
-      }, {
-        onSuccess: () => {
-          notify.success(t('toast.reopened'));
-        },
-        onError: (error: any) => {
-          notify.error(error.message || t('toast.reopenError'));
-        }
-      });
-    } else {
-      // Complete the subtask
-      completeSubtask.mutate(subtaskId, {
-        onSuccess: () => {
-          notify.success(t('toast.completed'));
-        },
-        onError: (error: any) => {
-          notify.error(error.message || t('toast.completeError'));
-        }
-      });
-    }
+    onToggleComplete?.(subtaskId, currentStatus);
   };
 
   const handleDelete = (subtaskId: string) => {
-    if (confirm(t('confirmDelete'))) {
-      deleteSubtask.mutate(subtaskId, {
-        onSuccess: () => {
-          notify.success(t('toast.deleted'));
-        },
-        onError: (error: any) => {
-          notify.error(error.message || t('toast.deleteError'));
-        }
-      });
+    if (confirm(confirmDelete)) {
+      onDelete?.(subtaskId);
     }
   };
 
@@ -110,37 +122,26 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
       handleCancelEdit();
       return;
     }
-
-    updateTask.mutate({
-      taskId: subtaskId,
-      data: { title: editingTitle.trim() }
-    }, {
-      onSuccess: () => {
-        notify.success(t('toast.updated'));
-        setEditingId(null);
-        setEditingTitle("");
-      },
-      onError: (error: any) => {
-        notify.error(error.message || t('toast.updateError'));
-      }
-    });
+    onUpdate?.(subtaskId, editingTitle.trim());
+    setEditingId(null);
+    setEditingTitle('');
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setEditingTitle("");
+    setEditingTitle('');
   };
 
-  const completedCount = subtasks.filter((st: any) => st.status === "COMPLETED").length;
+  const completedCount = subtasks.filter((st) => st.status === 'COMPLETED').length;
   const totalCount = subtasks.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
-    <div className="space-y-3">
+    <div className={cn('space-y-3', className)}>
       {/* Header with Progress */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">{t('title')}</h3>
+          <h3 className="text-sm font-semibold">{title}</h3>
           {totalCount > 0 && (
             <span className="text-xs text-muted-foreground">
               {completedCount}/{totalCount}
@@ -156,35 +157,33 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            <span className="text-xs text-muted-foreground">
-              {Math.round(progressPercentage)}%
-            </span>
+            <span className="text-xs text-muted-foreground">{Math.round(progressPercentage)}%</span>
           </div>
         )}
       </div>
 
       {/* Subtasks List */}
       <div className="space-y-2">
-        {subtasks.map((subtask: any) => (
+        {subtasks.map((subtask) => (
           <div
             key={subtask.id}
             className={cn(
-              "group flex items-start gap-2 rounded-lg border p-3 transition-all",
-              "hover:bg-accent/50",
-              subtask.status === "COMPLETED" && "opacity-60"
+              'group flex items-start gap-2 rounded-lg border p-3 transition-all',
+              'hover:bg-accent/50',
+              subtask.status === 'COMPLETED' && 'opacity-60'
             )}
           >
             {/* Drag Handle */}
             <button
               className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing mt-0.5"
-              title={t('tooltips.drag')}
+              title={tooltipDrag}
             >
               <GripVertical className="h-4 w-4 text-muted-foreground" />
             </button>
 
             {/* Checkbox */}
             <Checkbox
-              checked={subtask.status === "COMPLETED"}
+              checked={subtask.status === 'COMPLETED'}
               onCheckedChange={() => handleToggleComplete(String(subtask.id), subtask.status)}
               className="mt-0.5"
             />
@@ -199,9 +198,9 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
                     className="h-7 text-sm"
                     autoFocus
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === 'Enter') {
                         handleSaveEdit(String(subtask.id));
-                      } else if (e.key === "Escape") {
+                      } else if (e.key === 'Escape') {
                         handleCancelEdit();
                       }
                     }}
@@ -211,24 +210,19 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
                     variant="ghost"
                     className="h-6 w-6"
                     onClick={() => handleSaveEdit(String(subtask.id))}
-                    disabled={updateTask.isPending}
+                    disabled={isUpdating}
                   >
                     <Check className="h-3 w-3 text-green-600" />
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-6 w-6"
-                    onClick={handleCancelEdit}
-                  >
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleCancelEdit}>
                     <X className="h-3 w-3 text-muted-foreground" />
                   </Button>
                 </div>
               ) : (
                 <p
                   className={cn(
-                    "text-sm cursor-text",
-                    subtask.status === "COMPLETED" && "line-through text-muted-foreground"
+                    'text-sm cursor-text',
+                    subtask.status === 'COMPLETED' && 'line-through text-muted-foreground'
                   )}
                   onDoubleClick={() => handleStartEdit(String(subtask.id), subtask.title)}
                 >
@@ -245,7 +239,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
                   size="icon"
                   className="h-6 w-6"
                   onClick={() => handleStartEdit(String(subtask.id), subtask.title)}
-                  title={t('tooltips.edit')}
+                  title={tooltipEdit}
                 >
                   <Pencil className="h-3 w-3" />
                 </Button>
@@ -254,7 +248,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
                   size="icon"
                   className="h-6 w-6"
                   onClick={() => handleDelete(String(subtask.id))}
-                  title={t('tooltips.delete')}
+                  title={tooltipDelete}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -265,9 +259,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
 
         {/* Empty State */}
         {subtasks.length === 0 && !isAdding && (
-          <div className="text-center py-6 text-sm text-muted-foreground">
-            {t('empty')}
-          </div>
+          <div className="text-center py-6 text-sm text-muted-foreground">{empty}</div>
         )}
       </div>
 
@@ -277,22 +269,22 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
           <Input
             value={newSubtaskTitle}
             onChange={(e) => setNewSubtaskTitle(e.target.value)}
-            placeholder={t('placeholder')}
+            placeholder={placeholder}
             className="flex-1"
             autoFocus
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === 'Enter') {
                 handleCreateSubtask();
-              } else if (e.key === "Escape") {
+              } else if (e.key === 'Escape') {
                 setIsAdding(false);
-                setNewSubtaskTitle("");
+                setNewSubtaskTitle('');
               }
             }}
           />
           <Button
             size="sm"
             onClick={handleCreateSubtask}
-            disabled={!newSubtaskTitle.trim() || createSubtask.isPending}
+            disabled={!newSubtaskTitle.trim() || isCreating}
           >
             <Check className="h-4 w-4" />
           </Button>
@@ -301,32 +293,26 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
             variant="ghost"
             onClick={() => {
               setIsAdding(false);
-              setNewSubtaskTitle("");
+              setNewSubtaskTitle('');
             }}
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
       ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsAdding(true)}
-          className="w-full"
-        >
+        <Button variant="outline" size="sm" onClick={() => setIsAdding(true)} className="w-full">
           <Plus className="mr-2 h-4 w-4" />
-          {t('add')}
+          {add}
         </Button>
       )}
 
-      {/* Future: Nested Subtasks Indicator */}
-      {subtasks.some((st: any) => st.parentTaskId) && (
+      {/* Nested Subtasks Indicator */}
+      {subtasks.some((st) => st.parentTaskId) && (
         <div className="text-xs text-muted-foreground flex items-center gap-1">
           <ArrowRight className="h-3 w-3" />
-          {t('nested')}
+          {nested}
         </div>
       )}
     </div>
   );
 }
-

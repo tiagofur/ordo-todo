@@ -1,200 +1,165 @@
 # 🚀 Quick Start Guide - Ordo-Todo
 
-## Prerequisites
-- Node.js 18+ installed
-- PostgreSQL database (local or cloud)
-- npm or yarn
+## Pre-requisitos
 
-## Setup in 5 Minutes
+- **Node.js** 18+ instalado
+- **PostgreSQL** (local o cloud)
+- **Docker** (opcional, recomendado para DB)
+- **npm** o **pnpm**
 
-### 1. Navigate to project
-\`\`\`bash
-cd C:\Users\tfurt\source\repos\ordo-todo\web
-\`\`\`
+---
 
-### 2. Install dependencies (if not done)
-\`\`\`bash
+## Setup en 5 Minutos
+
+### 1. Clonar e instalar dependencias
+
+```bash
+git clone https://github.com/tiagofur/ordo-todo.git
+cd ordo-todo
 npm install
-\`\`\`
+```
 
-### 3. Setup PostgreSQL Database
+### 2. Levantar la base de datos
 
-**Option A: Using Docker (Recommended)**
-\`\`\`bash
-docker run --name ordo-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=ordo_todo \
-  -p 5432:5432 \
-  -d postgres:16
-\`\`\`
+**Opción A: Docker (Recomendado)**
+```bash
+docker-compose up -d
+```
 
-**Option B: Using Cloud (Free Tier)**
-- Go to [Supabase](https://supabase.com) or [Neon](https://neon.tech)
-- Create a new project
-- Copy the connection string
+**Opción B: Cloud (Free Tier)**
+- [Supabase](https://supabase.com) o [Neon](https://neon.tech)
+- Crea un proyecto y copia la connection string
 
-### 4. Configure Environment Variables
-The `.env.local` file is already created. Update if needed:
-\`\`\`env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ordo_todo"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="change-this-to-a-random-secret"
-\`\`\`
+### 3. Configurar variables de entorno
 
-### 5. Push Database Schema
-\`\`\`bash
-npm run db:push
-\`\`\`
+```bash
+# Backend
+cp apps/backend/.env.example apps/backend/.env
 
-You should see: ✔ Your database is now in sync with your Prisma schema
+# Base de datos
+cp packages/db/.env.example packages/db/.env
+```
 
-### 6. Generate Prisma Client
-\`\`\`bash
-npm run db:generate
-\`\`\`
+Actualiza `DATABASE_URL` si es necesario:
+```env
+DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:5432/ordo_todo"
+```
 
-### 7. Start Development Server
-\`\`\`bash
+### 4. Preparar la base de datos
+
+```bash
+# Desde la raíz del proyecto
+cd packages/db
+npx prisma generate
+npx prisma db push
+```
+
+### 5. Compilar paquetes compartidos
+
+```bash
+# Desde la raíz
+npm run build --filter=@ordo-todo/core
+npm run build --filter=@ordo-todo/api-client
+```
+
+### 6. Iniciar el proyecto
+
+```bash
+# Opción A: Todo junto (recomendado)
 npm run dev
-\`\`\`
 
-### 8. Open in Browser
-Visit: [http://localhost:3000](http://localhost:3000)
+# Opción B: Servicios individuales
+# Terminal 1: Backend
+cd apps/backend && npm run start:dev
 
-You should see the Ordo-Todo landing page! 🎉
+# Terminal 2: Web
+cd apps/web && npm run dev
 
-## What's Next?
+# Terminal 3: Desktop (opcional)
+cd apps/desktop && npm run dev
+```
 
-### Immediate Next Steps:
-1. Build the login page (`/auth/login`)
-2. Build the signup page (`/auth/signup`)
-3. Create the dashboard layout
-4. Implement task management UI
+### 7. Abrir en el navegador
 
-### Useful Commands
+| App | URL |
+|-----|-----|
+| **Web** | http://localhost:3000 |
+| **Backend API** | http://localhost:3101/api |
+| **Prisma Studio** | `npx prisma studio` (desde packages/db) |
 
-\`\`\`bash
-# Development
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run start        # Start production server
+---
 
-# Database
-npm run db:push      # Push schema changes to DB
-npm run db:generate  # Generate Prisma Client
-npm run db:studio    # Open Prisma Studio (DB GUI)
+## ✅ Verificar Instalación
 
-# Linting
-npm run lint         # Run ESLint
-\`\`\`
+1. **Web App**: Abre http://localhost:3000, debe cargar la landing page
+2. **Backend**: Abre http://localhost:3101/api, debe responder con datos del API
+3. **Base de datos**: Ejecuta `npx prisma studio` y verifica las tablas
 
-### Open Prisma Studio (Database GUI)
-\`\`\`bash
-npm run db:studio
-\`\`\`
-Opens at: [http://localhost:5555](http://localhost:5555)
+---
 
-## Verify Installation
+## 🎯 Próximos Pasos
 
-### Check if everything works:
+1. **Registra una cuenta** en la web app
+2. **Crea un workspace** (Personal o Trabajo)
+3. **Crea un proyecto** dentro del workspace
+4. **Crea tareas** y prueba el timer Pomodoro
 
-1. **Database Connection**
-\`\`\`bash
-npm run db:studio
-\`\`\`
-Should open without errors
+---
 
-2. **Development Server**
-\`\`\`bash
-npm run dev
-\`\`\`
-Should start on port 3000
+## 🔧 Comandos Útiles
 
-3. **NestJS API**
-Visit: http://localhost:3101/api
-Should return the API response or 404 if root is not defined.
+```bash
+# Desarrollo
+npm run dev                    # Todos los servicios
+npm run dev --filter=web       # Solo web
+npm run dev --filter=backend   # Solo backend
 
-## Troubleshooting
+# Base de datos
+cd packages/db
+npx prisma studio              # GUI de base de datos
+npx prisma db push             # Aplicar cambios de schema
+npx prisma generate            # Regenerar cliente
 
-### Port 3000 already in use
-\`\`\`bash
-# Kill process on port 3000
+# Build
+npm run build                  # Build de producción
+
+# Linting & Types
+npm run lint                   # ESLint
+npm run check-types            # TypeScript
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Puerto en uso
+```bash
 npx kill-port 3000
-\`\`\`
+npx kill-port 3101
+```
 
-### Database connection error
-- Check PostgreSQL is running: `docker ps` (if using Docker)
-- Verify DATABASE_URL in `.env.local`
-- Ensure database `ordo_todo` exists
-
-### Prisma errors
-\`\`\`bash
-# Reset Prisma cache
+### Error de Prisma
+```bash
+cd packages/db
 rm -rf node_modules/.prisma
-npm run db:generate
-\`\`\`
-
-## Project Structure Quick Reference
-
-\`\`\`
-web/
-├── src/
-│   ├── app/              # Pages & API routes
-│   │   ├── api/         # API endpoints
-│   │   ├── page.tsx     # Homepage (✅ Done)
-│   │   └── layout.tsx   # Root layout (✅ Done)
-│   ├── components/       # React components (🔜 Build here)
-│   ├── lib/             # Utils & API Client
-│   └── styles/          # CSS
-└── prisma/
-    └── schema.prisma    # Database schema (✅ Done)
-\`\`\`
-
-## Need Help?
-
-- **Documentation**: See `README.md` for detailed info
-- **Implementation Status**: Check `IMPLEMENTATION_STATUS.md`
-- **Technical Design**: Review `TECHNICAL_DESIGN.md`
-- **PRD**: See `PRD.md` for product details
-- **Internationalization**: See `docs/getting-started/internationalization.md` for i18n guide
-
-## Internationalization (i18n) 🌍
-
-Ordo-Todo supports multiple languages out of the box:
-- **English (en)** - Default
-- **Spanish (es)** - Español
-- **Portuguese (pt-BR)** - Português (Brasil)
-
-### Quick i18n Guide
-
-All translations are stored in `apps/web/messages/`:
-```
-messages/
-├── en.json     # English
-├── es.json     # Spanish
-└── pt-br.json  # Portuguese (Brazil)
+npx prisma generate
 ```
 
-To add translations to a component:
-```typescript
-import { useTranslations } from 'next-intl';
-
-export function MyComponent() {
-  const t = useTranslations('MyComponent');
-  return <h1>{t('title')}</h1>;
-}
+### Error de módulos
+```bash
+rm -rf node_modules
+npm install
+npm run build
 ```
 
-For detailed i18n implementation guide, see: `docs/getting-started/internationalization.md`
+---
 
-## Ready to Code! 🎨
+## 📚 Más Documentación
 
-The backend is ready. Now let's build the UI!
+- **[Setup Completo](./SETUP_AND_TESTING.md)** - Guía detallada paso a paso
+- **[Arquitectura](../design/ARCHITECTURE.md)** - Entender la estructura del proyecto
+- **[i18n](./internationalization.md)** - Configurar traducciones
 
-Start with:
-1. Create `/auth/login` page
-2. Create `/auth/signup` page  
-3. Build dashboard layout
+---
 
-Happy coding! 🚀
-
+**¿Problemas?** Revisa [troubleshooting/](../troubleshooting/) o abre un issue en GitHub.

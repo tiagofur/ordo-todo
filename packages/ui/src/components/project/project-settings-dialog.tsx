@@ -1,10 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useUpdateProject, useProject } from "@/lib/api-hooks";
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -12,27 +11,91 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog.js";
-import { Label } from "../ui/label.js";
-import { toast } from "sonner";
-import { Palette, Check } from "lucide-react";
-import { useTranslations } from "next-intl";
+} from '../ui/dialog.js';
+import { Label } from '../ui/label.js';
+import { Palette, Check } from 'lucide-react';
+import { PROJECT_COLORS, updateProjectSchema } from '@ordo-todo/core';
 
-import { PROJECT_COLORS, updateProjectSchema } from "@ordo-todo/core";
-
-interface ProjectSettingsDialogProps {
-  projectId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+export interface ProjectSettingsData {
+  id: string;
+  name: string;
+  description?: string | null;
+  color?: string | null;
 }
 
-export function ProjectSettingsDialog({ projectId, open, onOpenChange }: ProjectSettingsDialogProps) {
-  const t = useTranslations('ProjectSettingsDialog');
-  const { data: project } = useProject(projectId);
-  const [selectedColor, setSelectedColor] = useState<typeof PROJECT_COLORS[number]>(PROJECT_COLORS[3]);
+interface ProjectSettingsDialogProps {
+  /** Project data to edit */
+  project?: ProjectSettingsData | null;
+  /** Whether dialog is open */
+  open: boolean;
+  /** Called when open state changes */
+  onOpenChange: (open: boolean) => void;
+  /** Whether update is pending */
+  isPending?: boolean;
+  /** Called when form is submitted */
+  onSubmit?: (data: { name: string; description?: string; color: string }) => void;
+  /** Custom labels for i18n */
+  labels?: {
+    title?: string;
+    description?: string;
+    colorLabel?: string;
+    nameLabel?: string;
+    namePlaceholder?: string;
+    nameRequired?: string;
+    descriptionLabel?: string;
+    descriptionPlaceholder?: string;
+    cancel?: string;
+    save?: string;
+    saving?: string;
+  };
+}
+
+/**
+ * ProjectSettingsDialog - Platform-agnostic project settings edit dialog
+ * 
+ * Data fetching and mutations handled externally.
+ * 
+ * @example
+ * const { data: project } = useProject(projectId);
+ * const updateProject = useUpdateProject();
+ * 
+ * <ProjectSettingsDialog
+ *   project={project}
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   isPending={updateProject.isPending}
+ *   onSubmit={(data) => updateProject.mutate({ projectId, data })}
+ *   labels={{ title: t('title') }}
+ * />
+ */
+export function ProjectSettingsDialog({
+  project,
+  open,
+  onOpenChange,
+  isPending = false,
+  onSubmit,
+  labels = {},
+}: ProjectSettingsDialogProps) {
+  const {
+    title = 'Project Settings',
+    description = 'Update project name, description and color',
+    colorLabel = 'Color',
+    nameLabel = 'Name',
+    namePlaceholder = 'Project name',
+    nameRequired = 'Name is required',
+    descriptionLabel = 'Description',
+    descriptionPlaceholder = 'Project description (optional)',
+    cancel = 'Cancel',
+    save = 'Save',
+    saving = 'Saving...',
+  } = labels;
+
+  const [selectedColor, setSelectedColor] = useState<(typeof PROJECT_COLORS)[number]>(
+    PROJECT_COLORS[3]
+  );
 
   const formSchema = updateProjectSchema.extend({
-    name: z.string().min(1, t('form.name.required')),
+    name: z.string().min(1, nameRequired),
   });
 
   type UpdateProjectForm = z.infer<typeof formSchema>;
@@ -51,30 +114,20 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
     if (project) {
       reset({
         name: project.name,
-        description: project.description || "",
-        color: project.color,
+        description: project.description || '',
+        color: project.color || undefined,
       });
-      setSelectedColor((project.color || PROJECT_COLORS[3]) as typeof PROJECT_COLORS[number]);
+      setSelectedColor(
+        (project.color || PROJECT_COLORS[3]) as (typeof PROJECT_COLORS)[number]
+      );
     }
   }, [project, reset]);
 
-  const updateProjectMutation = useUpdateProject();
-
-  const onSubmit = async (data: UpdateProjectForm) => {
-    try {
-      await updateProjectMutation.mutateAsync({
-        projectId,
-        data: {
-          ...data,
-          color: selectedColor,
-        },
-      });
-
-      toast.success(t('toast.updated'));
-      onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t('toast.updateError'));
-    }
+  const handleFormSubmit = (data: UpdateProjectForm) => {
+    onSubmit?.({
+      ...data,
+      color: selectedColor,
+    });
   };
 
   return (
@@ -82,19 +135,15 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
       <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
         <div className="p-6 space-y-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-foreground">
-              {t('title')}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              {t('description')}
-            </DialogDescription>
+            <DialogTitle className="text-xl font-semibold text-foreground">{title}</DialogTitle>
+            <DialogDescription className="text-muted-foreground">{description}</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
             {/* Color Picker */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <Palette className="w-4 h-4" /> {t('form.color.label')}
+                <Palette className="w-4 h-4" /> {colorLabel}
               </Label>
               <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
                 {PROJECT_COLORS.map((color) => (
@@ -103,9 +152,9 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
                     type="button"
                     onClick={() => setSelectedColor(color)}
                     className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                      selectedColor === color 
-                        ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110" 
-                        : "hover:opacity-80"
+                      selectedColor === color
+                        ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110'
+                        : 'hover:opacity-80'
                     }`}
                     style={{ backgroundColor: color }}
                   >
@@ -119,26 +168,28 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
 
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('form.name.label')}</Label>
+              <Label htmlFor="name" className="text-sm font-medium text-foreground">
+                {nameLabel}
+              </Label>
               <input
                 id="name"
-                {...register("name")}
+                {...register('name')}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder={t('form.name.placeholder')}
+                placeholder={namePlaceholder}
               />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
+              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description.label')}</Label>
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">
+                {descriptionLabel}
+              </Label>
               <textarea
                 id="description"
-                {...register("description")}
+                {...register('description')}
                 className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder={t('form.description.placeholder')}
+                placeholder={descriptionPlaceholder}
               />
             </div>
 
@@ -148,14 +199,14 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
                 onClick={() => onOpenChange(false)}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                {t('actions.cancel')}
+                {cancel}
               </button>
               <button
                 type="submit"
-                disabled={updateProjectMutation.isPending}
+                disabled={isPending}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
               >
-                {updateProjectMutation.isPending ? t('actions.saving') : t('actions.save')}
+                {isPending ? saving : save}
               </button>
             </DialogFooter>
           </form>

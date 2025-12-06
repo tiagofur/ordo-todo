@@ -1,77 +1,99 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { User, Check, X, UserPlus } from "lucide-react";
-import { cn } from "../../utils/index.js";
-import { useWorkspaceMembers, useUpdateTask } from "@/lib/api-hooks";
-import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useState } from 'react';
+import { User, Check, X, UserPlus } from 'lucide-react';
+import { cn } from '../../utils/index.js';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../ui/popover.js";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar.js";
-import { notify } from "@/lib/notify";
+} from '../ui/popover.js';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.js';
+
+interface Assignee {
+  id: string;
+  name: string;
+  image?: string;
+  email?: string;
+}
+
+interface Member {
+  id: string;
+  role?: string;
+  user: Assignee;
+}
 
 interface AssigneeSelectorProps {
   taskId: string;
-  currentAssignee?: {
-    id: string;
-    name: string;
-    image?: string;
-  } | null;
-  onAssigneeChange?: (assigneeId: string | null) => void;
-  variant?: "compact" | "full";
+  currentAssignee?: Assignee | null;
+  members?: Member[];
+  isLoading?: boolean;
+  onAssign?: (userId: string | null) => Promise<void> | void;
+  variant?: 'compact' | 'full';
+  labels?: {
+    assign?: string;
+    unassign?: string;
+    membersLabel?: string;
+    noMembers?: string;
+    loading?: string;
+    unassigned?: string;
+    assignedTo?: string;
+    selectMember?: string;
+    assignedRemoved?: string; // used for toast but here for labels
+  };
 }
+
+const DEFAULT_LABELS = {
+  assign: 'Assign',
+  unassign: 'Unassign',
+  membersLabel: 'Workspace Members',
+  noMembers: 'No members in this workspace',
+  loading: 'Loading...',
+  unassigned: 'Unassigned - Click to assign',
+  assignedTo: 'Assigned to',
+  selectMember: 'Select Member',
+};
 
 export function AssigneeSelector({
   taskId,
   currentAssignee,
-  onAssigneeChange,
-  variant = "compact",
+  members = [],
+  isLoading = false,
+  onAssign,
+  variant = 'compact',
+  labels = {},
 }: AssigneeSelectorProps) {
+  const t = { ...DEFAULT_LABELS, ...labels };
   const [open, setOpen] = useState(false);
-  const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: members = [], isLoading } = useWorkspaceMembers(
-    selectedWorkspaceId || ""
-  );
-  const updateTask = useUpdateTask();
 
   const handleSelectAssignee = async (userId: string | null) => {
-    try {
-      await updateTask.mutateAsync({
-        taskId,
-        data: { assigneeId: userId },
-      });
-      onAssigneeChange?.(userId);
-      notify.success(userId ? "Tarea asignada" : "Asignación removida");
+    if (onAssign) {
+      await onAssign(userId);
       setOpen(false);
-    } catch (error) {
-      notify.error("Error al asignar la tarea");
     }
   };
 
   const getInitials = (name?: string) => {
-    if (!name) return "?";
+    if (!name) return '?';
     return name
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .slice(0, 2);
   };
 
-  if (variant === "compact") {
+  if (variant === 'compact') {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             className={cn(
-              "flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all duration-200",
-              "hover:bg-muted/80 border border-transparent hover:border-border/50",
+              'flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all duration-200',
+              'hover:bg-muted/80 border border-transparent hover:border-border/50',
               currentAssignee
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                ? 'text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             {currentAssignee ? (
@@ -89,7 +111,7 @@ export function AssigneeSelector({
             ) : (
               <>
                 <UserPlus className="h-4 w-4" />
-                <span>Asignar</span>
+                <span>{t.assign}</span>
               </>
             )}
           </button>
@@ -97,7 +119,7 @@ export function AssigneeSelector({
         <PopoverContent className="w-64 p-2" align="start">
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground px-2 py-1">
-              Miembros del workspace
+              {t.membersLabel}
             </p>
             
             {isLoading ? (
@@ -106,7 +128,7 @@ export function AssigneeSelector({
               </div>
             ) : members.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                No hay miembros en este workspace
+                {t.noMembers}
               </p>
             ) : (
               <div className="space-y-1">
@@ -120,31 +142,31 @@ export function AssigneeSelector({
                       <X className="h-4 w-4" />
                     </div>
                     <span className="text-sm text-muted-foreground group-hover:text-foreground">
-                      Sin asignar
+                      {t.unassign}
                     </span>
                   </button>
                 )}
 
                 {/* Members list */}
-                {members.map((member: any) => (
+                {members.map((member) => (
                   <button
                     key={member.id}
                     onClick={() => handleSelectAssignee(member.user.id)}
                     className={cn(
-                      "w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left",
+                      'w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left',
                       currentAssignee?.id === member.user.id
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-muted/80"
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-muted/80'
                     )}
                   >
                     <Avatar className="h-7 w-7">
                       <AvatarImage src={member.user.image} />
                       <AvatarFallback
                         className={cn(
-                          "text-xs",
+                          'text-xs',
                           currentAssignee?.id === member.user.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
                         )}
                       >
                         {getInitials(member.user.name)}
@@ -178,14 +200,14 @@ export function AssigneeSelector({
     <div className="space-y-2">
       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
         <User className="h-4 w-4" />
-        Asignado a
+        {t.assignedTo}
       </label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             className={cn(
-              "w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-muted/30",
-              "hover:bg-muted/50 hover:border-border transition-all duration-200 text-left"
+              'w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-muted/30',
+              'hover:bg-muted/50 hover:border-border transition-all duration-200 text-left'
             )}
           >
             {currentAssignee ? (
@@ -208,7 +230,7 @@ export function AssigneeSelector({
                   <UserPlus className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  Sin asignar - Click para asignar
+                  {t.unassigned}
                 </span>
               </>
             )}
@@ -217,7 +239,7 @@ export function AssigneeSelector({
         <PopoverContent className="w-72 p-2" align="start">
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground px-2 py-1">
-              Seleccionar miembro
+              {t.selectMember}
             </p>
             
             {isLoading ? (
@@ -226,7 +248,7 @@ export function AssigneeSelector({
               </div>
             ) : members.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
-                No hay miembros en este workspace
+                {t.noMembers}
               </p>
             ) : (
               <div className="space-y-1">
@@ -239,32 +261,32 @@ export function AssigneeSelector({
                       <X className="h-4 w-4" />
                     </div>
                     <span className="text-sm text-destructive">
-                      Remover asignación
+                      {t.unassign}
                     </span>
                   </button>
                 )}
 
                 {currentAssignee && <div className="border-t border-border/50 my-1" />}
 
-                {members.map((member: any) => (
+                {members.map((member) => (
                   <button
                     key={member.id}
                     onClick={() => handleSelectAssignee(member.user.id)}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
+                      'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left',
                       currentAssignee?.id === member.user.id
-                        ? "bg-primary/10"
-                        : "hover:bg-muted/80"
+                        ? 'bg-primary/10'
+                        : 'hover:bg-muted/80'
                     )}
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={member.user.image} />
                       <AvatarFallback
                         className={cn(
-                          "text-xs",
+                          'text-xs',
                           currentAssignee?.id === member.user.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
                         )}
                       >
                         {getInitials(member.user.name)}
@@ -273,8 +295,8 @@ export function AssigneeSelector({
                     <div className="flex-1 min-w-0">
                       <p
                         className={cn(
-                          "text-sm font-medium truncate",
-                          currentAssignee?.id === member.user.id && "text-primary"
+                          'text-sm font-medium truncate',
+                          currentAssignee?.id === member.user.id && 'text-primary'
                         )}
                       >
                         {member.user.name || member.user.email}

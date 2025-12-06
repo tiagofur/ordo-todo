@@ -1,53 +1,102 @@
-"use client";
+'use client';
 
-import { useWeeklyMetrics } from "@/lib/api-hooks";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card.js";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Skeleton } from "../ui/skeleton.js";
-import { useTranslations } from "next-intl";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card.js';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import { Skeleton } from '../ui/skeleton.js';
 
-interface WeeklyChartProps {
-  weekStart?: Date;
+export interface WeeklyMetric {
+  date: string;
+  tasksCompleted: number;
+  minutesWorked: number;
 }
 
-export function WeeklyChart({ weekStart }: WeeklyChartProps) {
-  const t = useTranslations('WeeklyChart');
-  const weekStartParam = weekStart ? weekStart.toISOString().split('T')[0] : undefined;
-  const { data: metrics, isLoading } = useWeeklyMetrics(weekStartParam ? { weekStart: weekStartParam } : undefined);
-
-  const getStartOfWeek = (date: Date = new Date()): Date => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - day;
-    d.setDate(diff);
-    d.setHours(0, 0, 0, 0);
-    return d;
+interface WeeklyChartProps {
+  /** Weekly metrics data */
+  metrics?: WeeklyMetric[];
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Start of the week to display */
+  weekStart?: Date;
+  /** Custom labels for i18n */
+  labels?: {
+    title?: string;
+    description?: string;
+    weekOf?: string;
+    tasks?: string;
+    minutes?: string;
+    tasksCompleted?: string;
+    minutesWorked?: string;
+    tooltipTasks?: string;
+    tooltipTime?: string;
   };
+  /** Locale for date formatting */
+  locale?: string;
+  className?: string;
+}
+
+function getStartOfWeek(date: Date = new Date()): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+/**
+ * WeeklyChart - Platform-agnostic weekly activity chart
+ * 
+ * Data fetching handled externally.
+ * 
+ * @example
+ * const { data: metrics, isLoading } = useWeeklyMetrics({ weekStart });
+ * 
+ * <WeeklyChart
+ *   metrics={metrics}
+ *   isLoading={isLoading}
+ *   weekStart={weekStart}
+ *   labels={{ title: t('title') }}
+ * />
+ */
+export function WeeklyChart({
+  metrics = [],
+  isLoading = false,
+  weekStart,
+  labels = {},
+  locale = 'en-US',
+  className = '',
+}: WeeklyChartProps) {
+  const {
+    title = 'Weekly Activity',
+    description = 'Your productivity this week',
+    weekOf = 'Week of',
+    tasks = 'Tasks',
+    minutes = 'Minutes',
+    tasksCompleted = 'Tasks Completed',
+    minutesWorked = 'Minutes Worked',
+    tooltipTasks = 'Tasks',
+    tooltipTime = 'Time',
+  } = labels;
 
   const formatChartData = () => {
-    if (!metrics || metrics.length === 0) {
-      // Return empty week data
-      const start = weekStart || getStartOfWeek();
-      const emptyData = [];
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(start);
-        date.setDate(date.getDate() + i);
-        emptyData.push({
-          day: date.toLocaleDateString('es-ES', { weekday: 'short' }),
-          tasksCompleted: 0,
-          minutesWorked: 0,
-          date: date.toISOString().split('T')[0],
-        });
-      }
-      return emptyData;
-    }
-
     // Create a map of existing metrics
     const metricsMap = new Map(
-      metrics.map((m: any) => [
-        new Date(m.date).toISOString().split('T')[0],
-        m,
-      ])
+      metrics.map((m) => [new Date(m.date).toISOString().split('T')[0], m])
     );
 
     // Fill in all 7 days of the week
@@ -57,10 +106,10 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
       const date = new Date(start);
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
-      const metric = metricsMap.get(dateStr) as any;
+      const metric = metricsMap.get(dateStr);
 
       chartData.push({
-        day: date.toLocaleDateString('es-ES', { weekday: 'short' }),
+        day: date.toLocaleDateString(locale, { weekday: 'short' }),
         tasksCompleted: metric?.tasksCompleted || 0,
         minutesWorked: metric?.minutesWorked || 0,
         date: dateStr,
@@ -80,11 +129,11 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
           <p className="font-semibold text-sm mb-2">{data.day}</p>
           <div className="space-y-1">
             <p className="text-sm">
-              <span className="text-blue-500">{t('tooltip.tasks')}: </span>
+              <span className="text-blue-500">{tooltipTasks}: </span>
               <span className="font-medium">{data.tasksCompleted}</span>
             </p>
             <p className="text-sm">
-              <span className="text-green-500">{t('tooltip.time')}: </span>
+              <span className="text-green-500">{tooltipTime}: </span>
               <span className="font-medium">
                 {Math.floor(data.minutesWorked / 60)}h {data.minutesWorked % 60}m
               </span>
@@ -98,10 +147,10 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className={className}>
         <CardHeader>
-          <CardTitle>{t('title')}</CardTitle>
-          <CardDescription>{t('description')}</CardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
@@ -111,36 +160,32 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
   }
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
           {weekStart
-            ? t('weekOf', { date: weekStart.toLocaleDateString('es-ES') })
-            : t('description')}
+            ? `${weekOf} ${weekStart.toLocaleDateString(locale)}`
+            : description}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="day"
-              className="text-xs"
-              tick={{ fill: 'currentColor' }}
-            />
+            <XAxis dataKey="day" className="text-xs" tick={{ fill: 'currentColor' }} />
             <YAxis
               yAxisId="left"
               className="text-xs"
               tick={{ fill: 'currentColor' }}
-              label={{ value: t('tasks'), angle: -90, position: 'insideLeft' }}
+              label={{ value: tasks, angle: -90, position: 'insideLeft' }}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
               className="text-xs"
               tick={{ fill: 'currentColor' }}
-              label={{ value: t('minutes'), angle: 90, position: 'insideRight' }}
+              label={{ value: minutes, angle: 90, position: 'insideRight' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
@@ -148,14 +193,14 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
               yAxisId="left"
               dataKey="tasksCompleted"
               fill="hsl(var(--primary))"
-              name={t('tasksCompleted')}
+              name={tasksCompleted}
               radius={[4, 4, 0, 0]}
             />
             <Bar
               yAxisId="right"
               dataKey="minutesWorked"
               fill="hsl(var(--chart-2))"
-              name={t('minutesWorked')}
+              name={minutesWorked}
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

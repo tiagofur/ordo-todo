@@ -1,43 +1,110 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useTask, useCompleteTask } from "@/lib/api-hooks";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from "../ui/sheet.js";
-import { Checkbox } from "../ui/checkbox.js";
-import { Label } from "../ui/label.js";
-import { Separator } from "../ui/separator.js";
-import { Calendar, Flag, Clock } from "lucide-react";
-import { format } from "date-fns";
-import { useTranslations } from "next-intl";
+} from '../ui/sheet.js';
+import { Checkbox } from '../ui/checkbox.js';
+import { Separator } from '../ui/separator.js';
+import { Calendar, Flag, Clock } from 'lucide-react';
+import { format } from 'date-fns';
 
-interface TaskDetailViewProps {
-  taskId: string | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+export interface TaskDetailViewData {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority: string;
+  dueDate?: string | Date | null;
+  subTasks?: Array<{
+    id: string;
+    title: string;
+    status: string;
+  }>;
 }
 
-export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewProps) {
-  const t = useTranslations('TaskDetailView');
-  const { data: task, isLoading } = useTask(taskId as string);
+interface TaskDetailViewProps {
+  /** Task data to display */
+  task?: TaskDetailViewData | null;
+  /** Whether sheet is open */
+  open: boolean;
+  /** Called when open state changes */
+  onOpenChange: (open: boolean) => void;
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Called when task completion is toggled */
+  onComplete?: (taskId: string) => void;
+  /** Date locale for formatting */
+  dateLocale?: Locale;
+  /** Custom labels for i18n */
+  labels?: {
+    title?: string;
+    description?: string;
+    noDate?: string;
+    subtasksTitle?: string;
+    subtasksEmpty?: string;
+    timeTitle?: string;
+    timeComingSoon?: string;
+    notFound?: string;
+  };
+}
 
-  const completeTask = useCompleteTask();
+type Locale = Parameters<typeof format>[2] extends { locale?: infer L } ? L : never;
 
-  if (!taskId) return null;
+const PRIORITY_COLORS: Record<string, string> = {
+  URGENT: 'text-red-500',
+  HIGH: 'text-orange-500',
+  MEDIUM: 'text-blue-500',
+  LOW: 'text-gray-500',
+};
+
+/**
+ * TaskDetailView - Platform-agnostic task detail sheet
+ * 
+ * Data fetching handled externally.
+ * 
+ * @example
+ * const { data: task, isLoading } = useTask(taskId);
+ * const completeTask = useCompleteTask();
+ * 
+ * <TaskDetailView
+ *   task={task}
+ *   open={!!taskId}
+ *   onOpenChange={(open) => !open && setTaskId(null)}
+ *   isLoading={isLoading}
+ *   onComplete={(id) => completeTask.mutate(id)}
+ *   labels={{ title: t('title') }}
+ * />
+ */
+export function TaskDetailView({
+  task,
+  open,
+  onOpenChange,
+  isLoading = false,
+  onComplete,
+  dateLocale,
+  labels = {},
+}: TaskDetailViewProps) {
+  const {
+    title = 'Task Details',
+    description = 'View and manage task information',
+    noDate = 'No due date',
+    subtasksTitle = 'Subtasks',
+    subtasksEmpty = 'No subtasks yet',
+    timeTitle = 'Time Tracking',
+    timeComingSoon = 'Time tracking data will appear here',
+    notFound = 'Task not found',
+  } = labels;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{t('title')}</SheetTitle>
-          <SheetDescription>
-            {t('description')}
-          </SheetDescription>
+          <SheetTitle>{title}</SheetTitle>
+          <SheetDescription>{description}</SheetDescription>
         </SheetHeader>
 
         {isLoading ? (
@@ -50,12 +117,16 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
             {/* Header / Title */}
             <div className="flex items-start gap-4">
               <Checkbox
-                checked={task.status === "COMPLETED"}
-                onCheckedChange={() => completeTask.mutate(task.id as string)}
+                checked={task.status === 'COMPLETED'}
+                onCheckedChange={() => onComplete?.(task.id)}
                 className="mt-1"
               />
               <div className="space-y-1">
-                <h2 className={`text-xl font-semibold ${task.status === "COMPLETED" ? "line-through text-muted-foreground" : ""}`}>
+                <h2
+                  className={`text-xl font-semibold ${
+                    task.status === 'COMPLETED' ? 'line-through text-muted-foreground' : ''
+                  }`}
+                >
                   {task.title}
                 </h2>
                 {task.description && (
@@ -71,17 +142,20 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
             {/* Metadata */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Flag className={`h-4 w-4 ${
-                  task.priority === "URGENT" ? "text-red-500" :
-                  task.priority === "HIGH" ? "text-orange-500" :
-                  task.priority === "MEDIUM" ? "text-blue-500" :
-                  "text-gray-500"
-                }`} />
+                <Flag className={`h-4 w-4 ${PRIORITY_COLORS[task.priority] || 'text-gray-500'}`} />
                 <span>{task.priority}</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>{task.dueDate ? format(new Date(task.dueDate), "PPP") : t('noDate')}</span>
+                <span>
+                  {task.dueDate
+                    ? format(
+                        new Date(task.dueDate),
+                        'PPP',
+                        dateLocale ? { locale: dateLocale } : undefined
+                      )
+                    : noDate}
+                </span>
               </div>
             </div>
 
@@ -90,23 +164,29 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
             {/* Subtasks */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">{t('subtasks.title')}</h3>
-                {/* Add Subtask Button would go here */}
+                <h3 className="font-medium">{subtasksTitle}</h3>
               </div>
-              
+
               {task.subTasks && task.subTasks.length > 0 ? (
                 <div className="space-y-2">
-                  {task.subTasks.map((subtask: any) => (
-                    <div key={subtask.id} className="flex items-center gap-2 rounded-lg border p-2 text-sm">
-                      <Checkbox checked={subtask.status === "COMPLETED"} disabled />
-                      <span className={subtask.status === "COMPLETED" ? "line-through text-muted-foreground" : ""}>
+                  {task.subTasks.map((subtask) => (
+                    <div
+                      key={subtask.id}
+                      className="flex items-center gap-2 rounded-lg border p-2 text-sm"
+                    >
+                      <Checkbox checked={subtask.status === 'COMPLETED'} disabled />
+                      <span
+                        className={
+                          subtask.status === 'COMPLETED' ? 'line-through text-muted-foreground' : ''
+                        }
+                      >
                         {subtask.title}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">{t('subtasks.empty')}</p>
+                <p className="text-sm text-muted-foreground italic">{subtasksEmpty}</p>
               )}
             </div>
 
@@ -114,18 +194,13 @@ export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewPro
             <div className="rounded-lg bg-muted/50 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="h-4 w-4" />
-                <h3 className="font-medium">{t('time.title')}</h3>
+                <h3 className="font-medium">{timeTitle}</h3>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {t('time.comingSoon')}
-              </p>
+              <p className="text-sm text-muted-foreground">{timeComingSoon}</p>
             </div>
-
           </div>
         ) : (
-          <div className="py-8 text-center text-muted-foreground">
-            {t('notFound')}
-          </div>
+          <div className="py-8 text-center text-muted-foreground">{notFound}</div>
         )}
       </SheetContent>
     </Sheet>

@@ -1,10 +1,7 @@
-"use client";
+'use client';
 
-import { useTasks, useUpdateTask } from "@/lib/api-hooks";
-import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
-import { CreateTaskDialog } from "../task/create-task-dialog.js";
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { Loader2 } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -16,21 +13,41 @@ import {
   DragStartEvent,
   DragOverEvent,
   DragEndEvent,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates, arrayMove } from "@dnd-kit/sortable";
-import { BoardColumn } from "./board-column.js";
-import { KanbanTaskCard } from "./kanban-task-card.js";
-import { createPortal } from "react-dom";
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
+import { createPortal } from 'react-dom';
+import { BoardColumn } from './board-column.js';
+import { KanbanTaskCard } from './kanban-task-card.js';
 
 interface ProjectBoardProps {
-  projectId: string;
+  /** Tasks to display */
+  tasks?: any[]; // Using any for flexibility as task structure can vary, ideally use Task interface
+  /** Whether loading */
+  isLoading?: boolean;
+  /** Called when task is moved/updated */
+  onUpdateTask?: (taskId: string, data: any) => void;
+  /** Called when add task button is clicked in a column */
+  onAddTaskClick?: (status: string) => void;
+  /** Custom labels */
+  labels?: {
+    todo?: string;
+    inProgress?: string;
+    completed?: string;
+  };
 }
 
-export function ProjectBoard({ projectId }: ProjectBoardProps) {
-  const t = useTranslations("ProjectBoard");
-  const { data: serverTasks, isLoading } = useTasks(projectId);
-  const updateTaskMutation = useUpdateTask();
-  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+export function ProjectBoard({
+  tasks: serverTasks = [],
+  isLoading = false,
+  onUpdateTask,
+  onAddTaskClick,
+  labels = {},
+}: ProjectBoardProps) {
+  const {
+    todo = 'To Do',
+    inProgress = 'In Progress',
+    completed = 'Completed',
+  } = labels;
 
   // Local state for optimistic updates
   const [tasks, setTasks] = useState<any[]>([]);
@@ -58,26 +75,26 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const columns = useMemo(
     () => [
       {
-        id: "TODO",
-        title: t("columns.todo"),
-        color: "bg-gray-500/10 border-gray-500/20",
+        id: 'TODO',
+        title: todo,
+        color: 'bg-gray-500/10 border-gray-500/20',
       },
       {
-        id: "IN_PROGRESS",
-        title: t("columns.inProgress"),
-        color: "bg-blue-500/10 border-blue-500/20",
+        id: 'IN_PROGRESS',
+        title: inProgress,
+        color: 'bg-blue-500/10 border-blue-500/20',
       },
       {
-        id: "COMPLETED",
-        title: t("columns.completed"),
-        color: "bg-green-500/10 border-green-500/20",
+        id: 'COMPLETED',
+        title: completed,
+        color: 'bg-green-500/10 border-green-500/20',
       },
     ],
-    [t]
+    [todo, inProgress, completed]
   );
 
   const onDragStart = (event: DragStartEvent) => {
-    if (event.active.data.current?.type === "Task") {
+    if (event.active.data.current?.type === 'Task') {
       const task = event.active.data.current.task;
       setActiveTask(task);
       setOriginalStatus(task.status); // Save original status for comparison in onDragEnd
@@ -93,8 +110,8 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
 
     if (activeId === overId) return;
 
-    const isActiveTask = active.data.current?.type === "Task";
-    const isOverTask = over.data.current?.type === "Task";
+    const isActiveTask = active.data.current?.type === 'Task';
+    const isOverTask = over.data.current?.type === 'Task';
 
     if (!isActiveTask) return;
 
@@ -148,10 +165,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
       originalStatus &&
       currentTask.status !== originalStatus
     ) {
-      updateTaskMutation.mutate({
-        taskId: active.id as string,
-        data: { status: currentTask.status as any },
-      });
+      onUpdateTask?.(active.id as string, { status: currentTask.status });
     }
 
     // Reset drag state
@@ -166,6 +180,20 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
       </div>
     );
   }
+
+  // Safe check for document to avoid SSR issues
+  const overlayPortal = typeof document !== 'undefined' 
+    ? createPortal(
+        <DragOverlay>
+          {activeTask && (
+            <div className="w-80 opacity-80 rotate-2 cursor-grabbing">
+              <KanbanTaskCard task={activeTask} />
+            </div>
+          )}
+        </DragOverlay>,
+        document.body
+      )
+    : null;
 
   return (
     <DndContext
@@ -183,27 +211,12 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
             title={column.title}
             color={column.color}
             tasks={tasks.filter((task) => task.status === column.id)}
-            onAddTask={() => setIsCreateTaskOpen(true)}
+            onAddTask={() => onAddTaskClick?.(column.id)}
           />
         ))}
       </div>
 
-      {createPortal(
-        <DragOverlay>
-          {activeTask && (
-            <div className="w-80 opacity-80 rotate-2 cursor-grabbing">
-              <KanbanTaskCard task={activeTask} />
-            </div>
-          )}
-        </DragOverlay>,
-        document.body
-      )}
-
-      <CreateTaskDialog
-        open={isCreateTaskOpen}
-        onOpenChange={setIsCreateTaskOpen}
-        projectId={projectId}
-      />
+      {overlayPortal}
     </DndContext>
   );
 }
