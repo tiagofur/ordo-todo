@@ -2,7 +2,7 @@
  * Utility functions for translation format conversion
  */
 
-import type { Translations, TranslationValue, InterpolationFormat } from './types';
+import type { Translations, TranslationValue, InterpolationFormat } from './types.js';
 
 /**
  * Convert interpolation syntax between next-intl and i18next formats

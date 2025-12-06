@@ -41,16 +41,22 @@ assignees: ''
 
 <!-- Qué partes del código se verán afectadas -->
 
-**Frontend (Flutter):**
-- `lib/features/...`
-- `lib/core/...`
+**Frontend Web (Next.js):**
+- `apps/web/src/...`
+
+**Frontend Mobile (React Native):**
+- `apps/mobile/src/...`
+
+**Frontend Desktop (Electron):**
+- `apps/desktop/src/...`
 
 **Backend (NestJS):**
-- `src/modules/...`
-- `src/common/...`
+- `apps/backend/src/...`
 
-**Database:**
-- `src/database/migrations/...`
+**Shared Packages:**
+- `packages/core/...`
+- `packages/db/...`
+- `packages/api-client/...`
 
 **Docs:**
 - `docs/...`

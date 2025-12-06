@@ -1,6 +1,6 @@
-# 🤖 GitHub Copilot Prompts - PPN
+# 🤖 GitHub Copilot Prompts - Ordo-Todo
 
-Colección de prompts especializados para desarrollo en **Pepinillo Pomodoro (PPN)**.
+Colección de prompts especializados para desarrollo en **Ordo-Todo**.
 
 ## 📚 Prompts Disponibles
 
@@ -8,12 +8,12 @@ Colección de prompts especializados para desarrollo en **Pepinillo Pomodoro (PP
 
 ### 1. **@prompts** - General Assistant ⭐
 **Archivo**: Configurado en `.github/copilot-instructions.md`  
-**Propósito**: Ayudante general del proyecto PPN
+**Propósito**: Ayudante general del proyecto Ordo-Todo
 
 **Conoce**:
-- ✅ Arquitectura completa (Flutter + NestJS + PostgreSQL + Stripe)
-- ✅ Convenciones de código (theme system, DTOs, seguridad)
-- ✅ Estructura del proyecto
+- ✅ Arquitectura completa (Next.js + React Native + Electron + NestJS + PostgreSQL)
+- ✅ Convenciones de código (TailwindCSS, DTOs, seguridad)
+- ✅ Estructura del monorepo Turborepo
 - ✅ Best practices del stack
 
 **Uso**:
@@ -37,7 +37,7 @@ y extraiga userId del JWT
 
 **Uso**:
 ```
-@debug.prompt El endpoint /stripe/webhook retorna 401.
+@debug.prompt El endpoint /auth/login retorna 401.
 Ya agregué @Public() pero sigue fallando. ¿Qué revisar?
 ```
 
@@ -49,8 +49,8 @@ Ya agregué @Public() pero sigue fallando. ¿Qué revisar?
 
 **Especialidades**:
 - ✅ AAA Pattern (Arrange-Act-Assert)
-- ✅ Flutter: widget tests, integration tests
-- ✅ NestJS: unit tests, E2E tests
+- ✅ React: component tests, integration tests
+- ✅ NestJS: unit tests, E2E tests  
 - ✅ Mocks y stubs apropiados
 - ✅ Edge cases y error handling
 
@@ -67,7 +67,7 @@ incluyendo casos edge y error handling
 **Propósito**: Maestro de refactoring
 
 **Técnicas**:
-- ✅ Extract Method/Widget
+- ✅ Extract Component/Hook
 - ✅ Eliminate Duplication
 - ✅ Improve Names
 - ✅ Apply Design Patterns
@@ -75,7 +75,7 @@ incluyendo casos edge y error handling
 
 **Uso**:
 ```
-@refactor.prompt Esta pantalla profile_screen.dart tiene 500 líneas.
+@refactor.prompt Esta página dashboard/page.tsx tiene 500 líneas.
 Divídela en componentes reutilizables manteniendo la funcionalidad.
 ```
 
@@ -86,7 +86,7 @@ Divídela en componentes reutilizables manteniendo la funcionalidad.
 **Propósito**: Mantiene documentación organizada y actualizada
 
 **Reglas**:
-- ✅ Docs en carpetas correctas (backend/, flutter/, etc.)
+- ✅ Docs en carpetas correctas (backend/, web/, etc.)
 - ✅ Nomenclatura kebab-case
 - ✅ Evita duplicación
 - ✅ Archiva obsoletos (NO elimina)
@@ -95,10 +95,10 @@ Divídela en componentes reutilizables manteniendo la funcionalidad.
 **Uso**:
 ```
 @documentation.prompt Documenta el sistema de auth JWT
-en backend/api/authentication.md con ejemplos
+en docs/backend/authentication.md con ejemplos
 
-@documentation.prompt Archiva THEME_AUDIT_REPORT.md
-porque ya está consolidado en flutter/ui/theme-system.md
+@documentation.prompt Actualiza README.md con instrucciones
+para la nueva app desktop
 ```
 
 ---
@@ -108,8 +108,7 @@ porque ya está consolidado en flutter/ui/theme-system.md
 **Propósito**: Elimina warnings, deprecations y malas prácticas
 
 **Detecta y Corrige**:
-- ✅ Print statements → Logger
-- ✅ Console.log → Logger inyectado
+- ✅ console.log → Logger / eliminar
 - ✅ Código deprecated → Versión actual
 - ✅ Imports no usados
 - ✅ Variables no utilizadas
@@ -118,47 +117,34 @@ porque ya está consolidado en flutter/ui/theme-system.md
 
 **Uso**:
 ```
-@cleanup.prompt Busca todos los print() en lib/ y reemplázalos
-con Logger apropiado
+@cleanup.prompt Busca todos los console.log en apps/web/src/ y elimínalos
+o reemplázalos con logger apropiado
 
-@cleanup.prompt Encuentra código deprecated de Flutter 2.x
-y actualiza a Flutter 3.x según migration guide
+@cleanup.prompt Encuentra código deprecated de React 18
+y actualiza a React 19 patterns
 
-@cleanup.prompt Elimina imports no usados y variables sin usar
-en todo el proyecto backend
+@cleanup.prompt Elimina imports no usados en todo el proyecto backend
 ```
 
 ---
 
-### 7. **@guide-sync.prompt** - Guide Sync Specialist 🔄 ✨ NUEVO
+### 7. **@guide-sync.prompt** - Guide Sync Specialist 🔄 ✨
 **Archivo**: `guide-sync.prompt.md`  
-**Propósito**: Sincroniza `docs/` (Markdown) con `guide/` (HTML interactivo)
+**Propósito**: Sincroniza `docs/` (Markdown) con guías interactivas
 
 **Especialidades**:
 - ✅ Audita documentación técnica nueva/actualizada
-- ✅ Identifica contenido relevante para guías visuales
+- ✅ Identifica contenido relevante para guías
 - ✅ Transforma MD → HTML interactivo
-- ✅ Mantiene cross-references bidireccionales
+- ✅ Mantiene cross-references
 - ✅ Genera reportes de sincronización
-
-**Transformaciones**:
-- 📊 Tablas MD → Tablas HTML styled
-- 🎨 Código MD → Code blocks con copy button
-- 🔍 Lists MD → Checklists interactivos
-- 📐 Texto → Diagramas ASCII visuales
 
 **Uso**:
 ```
-@guide-sync.prompt Revisa docs/backend/ y actualiza guide/
-con lo que sea relevante
+@guide-sync.prompt Revisa docs/backend/ y identifica cambios
+que necesitan actualizar la documentación pública
 
-@guide-sync.prompt Crea guide/stripe-integration.html desde
-docs/subscription/stripe-integration.md
-
-@guide-sync.prompt Genera reporte de sincronización docs/ → guide/
-
-@guide-sync.prompt Actualiza guide/authentication.html con cambios
-recientes de docs/backend/api/authentication.md
+@guide-sync.prompt Genera reporte de sincronización docs/ → README
 ```
 
 ---
@@ -212,15 +198,15 @@ graph LR
 
 ## 📊 Matriz de Prompts
 
-| Prompt | Desarrollo | Debugging | Testing | Refactor | Docs | Cleanup | Guide Sync |
-|--------|-----------|-----------|---------|----------|------|---------|------------|
-| `@prompts` | ✅✅✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `@debug.prompt` | ⚪ | ✅✅✅ | ✅ | ⚪ | ⚪ | ⚪ | ⚪ |
-| `@testing.prompt` | ✅ | ✅ | ✅✅✅ | ✅ | ⚪ | ⚪ | ⚪ |
-| `@refactor.prompt` | ⚪ | ⚪ | ✅ | ✅✅✅ | ⚪ | ✅ | ⚪ |
-| `@documentation.prompt` | ✅ | ⚪ | ⚪ | ⚪ | ✅✅✅ | ⚪ | ✅ |
-| `@cleanup.prompt` | ✅ | ⚪ | ⚪ | ✅ | ⚪ | ✅✅✅ | ⚪ |
-| `@guide-sync.prompt` ✨ | ⚪ | ⚪ | ⚪ | ⚪ | ✅ | ⚪ | ✅✅✅ |
+| Prompt | Desarrollo | Debugging | Testing | Refactor | Docs | Cleanup |
+|--------|-----------|-----------|---------|----------|------|---------|
+| `@prompts` | ✅✅✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `@debug.prompt` | ⚪ | ✅✅✅ | ✅ | ⚪ | ⚪ | ⚪ |
+| `@testing.prompt` | ✅ | ✅ | ✅✅✅ | ✅ | ⚪ | ⚪ |
+| `@refactor.prompt` | ⚪ | ⚪ | ✅ | ✅✅✅ | ⚪ | ✅ |
+| `@documentation.prompt` | ✅ | ⚪ | ⚪ | ⚪ | ✅✅✅ | ⚪ |
+| `@cleanup.prompt` | ✅ | ⚪ | ⚪ | ✅ | ⚪ | ✅✅✅ |
+| `@guide-sync.prompt` | ⚪ | ⚪ | ⚪ | ⚪ | ✅ | ⚪ |
 
 **Leyenda**:
 - ✅✅✅ = Uso principal
@@ -262,15 +248,15 @@ Los prompts se detectan automáticamente si:
 
 ```
 ❌ @refactor.prompt Mejora este código
-✅ @refactor.prompt Extrae los widgets duplicados en esta pantalla
-   a componentes reutilizables en lib/core/widgets/
+✅ @refactor.prompt Extrae los componentes duplicados en esta página
+   a componentes reutilizables en src/components/
 ```
 
 ### 2. Proporciona Contexto
 
 ```
 ❌ @cleanup.prompt Limpia el código
-✅ @cleanup.prompt Busca print() en lib/features/auth/ y reemplaza
+✅ @cleanup.prompt Busca console.log en apps/backend/src/ y reemplaza
    con Logger. Mantén solo 1 import de logging por archivo.
 ```
 
@@ -284,10 +270,10 @@ Los prompts se detectan automáticamente si:
 @testing.prompt Crea tests para AuthService
 # [tests generados]
 
-@cleanup.prompt Elimina prints y formatea código
+@cleanup.prompt Elimina console.logs y formatea código
 # [código limpio]
 
-@documentation.prompt Documenta en backend/api/authentication.md
+@documentation.prompt Documenta en docs/backend/authentication.md
 # [documentación creada]
 ```
 
@@ -315,13 +301,13 @@ Bien, pero simplifica más. Usa composition en lugar de inheritance.
 - [refactor.prompt.md](refactor.prompt.md) - Técnicas de refactoring
 - [documentation.prompt.md](documentation.prompt.md) - Sistema de docs
 - [cleanup.prompt.md](cleanup.prompt.md) - Limpieza de código
-- [guide-sync.prompt.md](guide-sync.prompt.md) - Sincronización docs ↔ guide ✨
+- [guide-sync.prompt.md](guide-sync.prompt.md) - Sincronización docs
 
 ### Guías del Proyecto
 
-- [Developer Guide](../../guide/index.html) - Guía interactiva HTML
-- [AI Development Tips](../../guide/ai-tips.html) - Tips avanzados de IA
+- [CLAUDE.md](../../CLAUDE.md) - Guía completa del proyecto
 - [Copilot Instructions](../copilot-instructions.md) - Instrucciones generales
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - Guía de contribución
 
 ### Documentación Oficial
 
@@ -385,7 +371,7 @@ Track tu uso de prompts:
 
 Ideas para futuros prompts especializados:
 
-- [x] `@guide-sync.prompt` - Sincronización docs ↔ guide ✅ **COMPLETADO**
+- [x] `@guide-sync.prompt` - Sincronización docs ✅ **COMPLETADO**
 - [ ] `@performance.prompt` - Optimización de performance
 - [ ] `@security.prompt` - Auditoría de seguridad
 - [ ] `@migration.prompt` - Migraciones de versiones
@@ -394,8 +380,8 @@ Ideas para futuros prompts especializados:
 
 ---
 
-**Versión**: 1.2.0  
-**Última actualización**: 2025-11-14  
-**Changelog**: Agregado `@guide-sync.prompt` para sincronización docs/ ↔ guide/  
+**Versión**: 2.0.0  
+**Última actualización**: 2025-12-06  
+**Proyecto**: Ordo-Todo  
 **Mantenedor**: @tiagofur
 

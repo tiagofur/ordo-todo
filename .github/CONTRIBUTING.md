@@ -1,6 +1,6 @@
-# 🤝 Guía de Contribución - PPN
+# 🤝 Guía de Contribución - Ordo-Todo
 
-¡Gracias por contribuir a **Pepinillo Pomodoro (PPN)**! Esta guía te ayudará a mantener la calidad y consistencia del proyecto.
+¡Gracias por contribuir a **Ordo-Todo**! Esta guía te ayudará a mantener la calidad y consistencia del proyecto.
 
 ## 📋 Tabla de Contenidos
 
@@ -16,40 +16,69 @@
 
 ## 🚀 Stack Tecnológico
 
-- **Frontend**: Flutter 3.24+ (Dart 3.5+)
-- **Backend**: NestJS 11+ (TypeScript 5.7+)
-- **Database**: PostgreSQL 15+
-- **Cache**: Redis
-- **Payments**: Stripe
+- **Frontend Web**: Next.js 16 + React 19 + TailwindCSS 4 + TanStack Query
+- **Frontend Mobile**: React Native + Expo SDK 52+
+- **Frontend Desktop**: Electron + React + Vite
+- **Backend**: NestJS 11+ (TypeScript 5+)
+- **Database**: PostgreSQL 16 + Prisma 6
+- **Cache**: Redis (opcional)
 - **Auth**: JWT con Passport.js
+- **Monorepo**: Turborepo con workspaces
 
 ## 🔧 Setup Inicial
 
-### Backend
+### Requisitos Previos
+
+- Node.js 20+
+- npm 10+
+- PostgreSQL 16 (o Docker)
+- Git
+
+### Instalación
 
 ```bash
-cd backend
+# Clonar repositorio
+git clone https://github.com/tiagofur/ordo-todo.git
+cd ordo-todo
+
+# Instalar dependencias (todas las apps y packages)
 npm install
 
-# Configurar .env (copiar de .env.example)
-cp .env.example .env
+# Configurar variables de entorno
+cp apps/backend/.env.example apps/backend/.env
+# Editar .env con tus valores
 
-# Levantar PostgreSQL
-docker-compose -f docker-compose-db.yml up -d
+# Levantar PostgreSQL con Docker
+docker-compose up -d
 
-# Ejecutar migraciones
-npm run migration:run
+# Generar cliente Prisma y aplicar schema
+cd packages/db
+npx prisma generate
+npx prisma db push
+cd ../..
 
-# Iniciar desarrollo
-npm run start:dev
+# Iniciar desarrollo (todas las apps)
+npm run dev
 ```
 
-### Flutter
+### Desarrollo por App
 
 ```bash
-cd flutter
-flutter pub get
-flutter run -d chrome  # o windows, android, ios
+# Backend (NestJS) - http://localhost:3001
+cd apps/backend
+npm run start:dev
+
+# Web (Next.js) - http://localhost:3100
+cd apps/web
+npm run dev
+
+# Desktop (Electron)
+cd apps/desktop
+npm run dev
+
+# Mobile (Expo)
+cd apps/mobile
+npm run start
 ```
 
 ### Variables de Entorno Requeridas
@@ -57,14 +86,12 @@ flutter run -d chrome  # o windows, android, ios
 ```env
 # Backend (.env)
 NODE_ENV=development
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_NAME=pepinillo_db
-JWT_SECRET=your-secret-here
-STRIPE_API_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ordo_todo
+JWT_SECRET=your-secret-here    # Generar: openssl rand -hex 32
+JWT_REFRESH_SECRET=your-refresh-secret
+
+# Web (.env.local)
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ---
@@ -88,7 +115,7 @@ git checkout -b refactor/area-a-refactorizar
 
 - ✅ Sigue los [Standards de Código](#standards-de-código)
 - ✅ Escribe tests para lógica nueva
-- ✅ Valida con linters (`npm run lint` / `flutter analyze`)
+- ✅ Valida con linters (`npm run lint`)
 - ✅ Prueba manualmente la funcionalidad
 
 ### 3. Commit
@@ -97,7 +124,7 @@ git checkout -b refactor/area-a-refactorizar
 # Commits atómicos y descriptivos
 git commit -m "feat(auth): add password reset endpoint"
 git commit -m "fix(timer): resolve pause button state issue"
-git commit -m "refactor(widgets): extract StatCard component"
+git commit -m "refactor(components): extract StatCard component"
 ```
 
 ### 4. Pull Request
@@ -111,98 +138,93 @@ git commit -m "refactor(widgets): extract StatCard component"
 
 ## 💻 Standards de Código
 
-### Flutter/Dart
+### React/Next.js (Web)
 
 #### ✅ SIEMPRE hacer:
 
-```dart
-// 1. Usar theme system
-final theme = Theme.of(context);
-Container(
-  color: theme.componentColors.surface,
-  padding: EdgeInsets.all(AppConstants.spacingM),
-)
-
-// 2. Componentizar widgets (máx 200 líneas)
-class ProfileScreen extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          ProfileHeader(),
-          ProfileStats(),
-          ProfileActivity(),
-        ],
-      ),
-    );
-  }
+```typescript
+// 1. Server Components por defecto
+async function TasksPage() {
+  const tasks = await getTasks();
+  return <TaskList tasks={tasks} />;
 }
 
-// 3. const constructors
-const Text('Static content')
-const Icon(Icons.star)
+// 2. TailwindCSS para estilos
+<div className="bg-background p-4 rounded-lg shadow-sm">
+  <h2 className="text-xl font-semibold">{title}</h2>
+</div>
 
-// 4. Documentar componentes reutilizables
-/// [StatCard] - Muestra una estadística con icono, valor y label
-///
-/// Ejemplo:
-/// ```dart
-/// StatCard(
-///   icon: Icons.timer,
-///   value: '142',
-///   label: 'Sesiones',
-/// )
-/// ```
-class StatCard extends StatelessWidget { }
+// 3. React Query para server state
+const { data: tasks, isLoading } = useTasks();
+
+// 4. Componentes < 150 líneas
+// Si supera, extraer subcomponentes
+
+// 5. TypeScript estricto
+interface TaskCardProps {
+  task: Task;
+  onComplete: (id: string) => void;
+}
 ```
 
 #### ❌ NUNCA hacer:
 
-```dart
-// 1. Hardcodear colores/spacing
-Container(
-  color: Colors.blue,  // ❌
-  padding: EdgeInsets.all(16),  // ❌
-)
+```typescript
+// 1. 'use client' innecesario
+"use client"; // ❌ Si no necesitas interactividad
 
-// 2. Widgets gigantes
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 500+ líneas aquí ❌
-      ],
-    );
-  }
-}
+// 2. Inline styles
+<div style={{ backgroundColor: 'blue' }}> // ❌
 
-// 3. Duplicar código
-// Si ves el mismo patrón 2+ veces, extráelo a un componente ❌
+// 3. Componentes gigantes (> 150 líneas)
+
+// 4. Duplicar código
+// Si ves el mismo patrón 2+ veces, extráelo
 ```
 
-#### Accesibilidad (Obligatorio)
+### React Native (Mobile)
 
-```dart
-// Touch targets mínimo 48x48dp
-InkWell(
-  onTap: onPressed,
-  child: Container(
-    constraints: BoxConstraints(minHeight: 48, minWidth: 48),
-    child: Icon(icon),
-  ),
-)
+#### ✅ SIEMPRE hacer:
 
-// Semantics para screen readers
-Semantics(
-  button: true,
-  label: 'Eliminar tarea',
-  child: IconButton(onPressed: onDelete, icon: Icon(Icons.delete)),
-)
+```typescript
+// 1. Usar StyleSheet
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    backgroundColor: colors.background,
+  },
+});
+
+// 2. Componentes reutilizables
+<Button variant="primary" onPress={handleSubmit}>
+  Submit
+</Button>
+
+// 3. Expo SDK features
+import * as Haptics from 'expo-haptics';
 ```
 
-### NestJS/TypeScript
+### Electron (Desktop)
+
+#### ✅ SIEMPRE hacer:
+
+```typescript
+// 1. Separar main/renderer process
+// main/index.ts - Node.js environment
+// src/ - React/Vite environment
+
+// 2. IPC communication seguro
+ipcMain.handle('get-tasks', async () => {
+  return await taskService.getAll();
+});
+
+// 3. Preload scripts para APIs expuestas
+contextBridge.exposeInMainWorld('api', {
+  getTasks: () => ipcRenderer.invoke('get-tasks'),
+});
+```
+
+### NestJS/TypeScript (Backend)
 
 #### ✅ SIEMPRE hacer:
 
@@ -210,8 +232,8 @@ Semantics(
 // 1. DTOs con validación
 export class CreateTaskDto {
   @IsString()
-  @MinLength(3)
-  @ApiProperty({ example: 'Completar informe' })
+  @MinLength(1)
+  @ApiProperty({ example: 'Complete documentation' })
   title: string;
 
   @IsOptional()
@@ -222,11 +244,10 @@ export class CreateTaskDto {
 // 2. userId del JWT (NUNCA del body)
 @Post('tasks')
 async createTask(
-  @Req() req: AuthenticatedRequest,
+  @CurrentUser() user: RequestUser,
   @Body() createTaskDto: CreateTaskDto,
 ) {
-  const userId = req.user.userId; // ✅ Del token JWT
-  return this.tasksService.create(userId, createTaskDto);
+  return this.tasksService.create(user.id, createTaskDto);
 }
 
 // 3. @Public() para endpoints públicos
@@ -246,9 +267,8 @@ try {
 }
 
 // 5. Swagger documentation
-@ApiOperation({ summary: 'Crear nueva tarea' })
-@ApiResponse({ status: 201, description: 'Tarea creada' })
-@ApiResponse({ status: 400, description: 'Datos inválidos' })
+@ApiOperation({ summary: 'Create new task' })
+@ApiResponse({ status: 201, description: 'Task created' })
 @Post('tasks')
 async createTask() { }
 ```
@@ -258,70 +278,47 @@ async createTask() { }
 ```typescript
 // 1. userId del body (VULNERABILIDAD)
 @Post('tasks')
-async createTask(@Body() createTaskDto: CreateTaskDto) {
-  const userId = createTaskDto.userId; // ❌ Puede ser falsificado
+async createTask(@Body() dto: CreateTaskDto) {
+  const userId = dto.userId; // ❌ Puede ser falsificado
 }
 
 // 2. Olvidar @Public() en login
 @Post('login')
-async login(@Body() loginDto: LoginDto) {
+async login(@Body() dto: LoginDto) {
   // ❌ Retornará 401 Unauthorized
 }
 
-// 3. Unsafe error handling
-catch (error) {
-  this.logger.error(error.message); // ❌ TypeScript error
-}
+// 3. console.log (usar Logger inyectado)
+console.log('debug'); // ❌
+this.logger.debug('debug'); // ✅
 
 // 4. Hardcodear secrets
 const jwtSecret = 'my-secret-key'; // ❌ Usar .env
 ```
 
-### Database (PostgreSQL + TypeORM)
+### Database (PostgreSQL + Prisma)
 
 #### ✅ SIEMPRE hacer:
 
 ```typescript
-// 1. Migraciones reversibles
-export class CreateTasksTable1234567890 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(new Table({
-      name: 'tasks',
-      columns: [
-        { name: 'id', type: 'uuid', isPrimary: true, default: 'uuid_generate_v4()' },
-        { name: 'title', type: 'varchar', length: '255', isNullable: false },
-        { name: 'user_id', type: 'uuid', isNullable: false },
-      ],
-    }));
+// 1. Migraciones con Prisma
+npx prisma migrate dev --name add_avatar_to_users
 
-    // Índices para queries frecuentes
-    await queryRunner.createIndex('tasks', new TableIndex({
-      name: 'idx_tasks_user_id',
-      columnNames: ['user_id'],
-    }));
+// 2. Índices para queries frecuentes
+@@index([userId])
+@@index([status])
 
-    // Foreign keys
-    await queryRunner.createForeignKey('tasks', new TableForeignKey({
-      columnNames: ['user_id'],
-      referencedTableName: 'users',
-      referencedColumnNames: ['id'],
-      onDelete: 'CASCADE',
-    }));
-  }
+// 3. Transacciones para operaciones críticas
+await prisma.$transaction(async (tx) => {
+  const task = await tx.task.create({ data: taskData });
+  await tx.activity.create({ data: { taskId: task.id, action: 'created' } });
+  return task;
+});
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('tasks');
-  }
-}
-
-// 2. Transacciones para operaciones críticas
-async createTaskWithProject(userId: string, data: CreateTaskDto) {
-  return this.dataSource.transaction(async (manager) => {
-    const project = await manager.save(Project, data.project);
-    const task = await manager.save(Task, { ...data, projectId: project.id, userId });
-    return { project, task };
-  });
-}
+// 4. Select solo campos necesarios
+const users = await prisma.user.findMany({
+  select: { id: true, email: true, name: true },
+});
 ```
 
 ---
@@ -331,6 +328,8 @@ async createTaskWithProject(userId: string, data: CreateTaskDto) {
 ### Backend Tests
 
 ```bash
+cd apps/backend
+
 # Unit tests
 npm run test
 
@@ -343,23 +342,23 @@ npm run test:cov
 
 **Cobertura mínima**: 70%
 
-### Flutter Tests
+### Frontend Tests
 
 ```bash
-# Unit + Widget tests
-flutter test
+# Web
+cd apps/web
+npm run test        # Unit tests
+npm run lint        # ESLint
 
-# Integration tests
-flutter test integration_test/
-
-# Analyzer
-flutter analyze
+# Desktop
+cd apps/desktop
+npm run lint
 ```
 
 **Reglas**:
 - ✅ Tests para toda lógica de negocio
-- ✅ Widget tests para componentes reutilizables
-- ✅ Integration tests para flows críticos (login, checkout)
+- ✅ Component tests para componentes reutilizables
+- ✅ Integration tests para flows críticos (login, task CRUD)
 
 ---
 
@@ -369,19 +368,19 @@ flutter analyze
 
 - [ ] **Código**
   - [ ] Sigue standards de código del proyecto
-  - [ ] Sin valores hardcodeados (colores, spacing, secrets)
-  - [ ] Componentes < 200 líneas (Flutter)
+  - [ ] Sin valores hardcodeados (colores, secrets)
+  - [ ] Componentes < 150 líneas (React/RN)
   - [ ] DTOs validados (Backend)
   
 - [ ] **Testing**
   - [ ] Tests unitarios para lógica nueva
   - [ ] Tests pasan localmente
-  - [ ] `npm run lint` / `flutter analyze` sin errores
+  - [ ] `npm run lint` sin errores
   
 - [ ] **Seguridad**
   - [ ] No expone datos sensibles
-  - [ ] userId del JWT, nunca del body
-  - [ ] @Public() en endpoints públicos
+  - [ ] userId del JWT, nunca del body (Backend)
+  - [ ] @Public() en endpoints públicos (Backend)
   - [ ] Validación de inputs
   
 - [ ] **Documentación**
@@ -390,14 +389,14 @@ flutter analyze
   - [ ] Swagger docs actualizadas (Backend)
   
 - [ ] **Performance**
-  - [ ] Sin queries N+1
+  - [ ] Sin queries N+1 (Backend)
   - [ ] Índices en columnas de búsqueda
-  - [ ] const widgets donde sea posible (Flutter)
+  - [ ] Server Components donde sea posible (Web)
   
 - [ ] **Accesibilidad**
-  - [ ] Touch targets mínimo 48x48dp
+  - [ ] Touch targets mínimo 44x44px (Mobile)
   - [ ] Contraste mínimo 4.5:1
-  - [ ] Semantics labels
+  - [ ] aria-labels en iconos sin texto
 
 ### Tamaño de PR
 
@@ -444,14 +443,14 @@ flutter analyze
 # Features
 git commit -m "feat(auth): add password reset endpoint"
 git commit -m "feat(timer): implement pause functionality"
-git commit -m "feat(widgets): create reusable StatCard component"
+git commit -m "feat(ui): create reusable StatCard component"
 
 # Fixes
-git commit -m "fix(stripe): handle missing customer_id gracefully"
+git commit -m "fix(api): handle missing auth token gracefully"
 git commit -m "fix(timer): resolve state inconsistency on pause"
 
 # Refactoring
-git commit -m "refactor(profile): extract widgets into components"
+git commit -m "refactor(dashboard): extract widgets into components"
 git commit -m "refactor(auth): apply theme system to login screen"
 
 # Docs
@@ -469,10 +468,10 @@ BREAKING CHANGE: Task status now uses 'pending' instead of 'todo'"
 ## 🔗 Referencias
 
 - **Guía completa**: `.github/copilot-instructions.md`
-- **Flutter Expert**: `.github/agents/flutter-ui-ux.md`
+- **React/Next.js Expert**: `.github/agents/react-frontend.md`
 - **NestJS Expert**: `.github/agents/nest-backend.md`
 - **PostgreSQL Expert**: `.github/agents/postgres-db-specialist.md`
-- **Prompts**: `.github/prompts/prompts.prompt.md`
+- **Prompts**: `.github/prompts/README.md`
 
 ---
 
@@ -482,9 +481,8 @@ Si tienes dudas:
 
 1. Consulta la [documentación del proyecto](../docs/)
 2. Revisa los archivos en `.github/`
-3. Usa `@ppnFlutter` o `@ppnBackend` en Copilot Chat
-4. Abre un issue con la etiqueta `question`
+3. Abre un issue con la etiqueta `question`
 
 ---
 
-**¡Gracias por contribuir a PPN!** 🚀
+**¡Gracias por contribuir a Ordo-Todo!** 🚀

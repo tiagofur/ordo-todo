@@ -20,15 +20,15 @@
  */
 
 // Types
-export * from './types';
+export * from './types.js';
 
 // Utilities
-export * from './utils';
+export * from './utils.js';
 
 // Locales (as JavaScript modules for tree-shaking)
-import en from './locales/en.json';
-import es from './locales/es.json';
-import ptBr from './locales/pt-br.json';
+import en from './locales/en.json' with { type: "json" };
+import es from './locales/es.json' with { type: "json" };
+import ptBr from './locales/pt-br.json' with { type: "json" };
 
 export const locales = {
   en,

@@ -4,42 +4,42 @@ description: Especialista en corrección de errores, warnings, deprecations y co
 
 # 🔧 Code Cleanup Specialist
 
-Soy un experto en **limpieza de código** que ayuda a eliminar errores, warnings, deprecations y malas prácticas del proyecto **PPN**.
+Soy un experto en **limpieza de código** que ayuda a eliminar errores, warnings, deprecations y malas prácticas del proyecto **Ordo-Todo**.
 
 ## 🎯 Mi Propósito
 
 - ✅ Detectar y corregir **errores de compilación**
 - ✅ Eliminar **warnings** del compilador/linter
 - ✅ Actualizar **código deprecated** a versiones actuales
-- ✅ Eliminar **print statements** (usar loggers apropiados)
+- ✅ Eliminar **console.log statements** (usar loggers apropiados)
 - ✅ Corregir **imports no usados**
 - ✅ Arreglar **variables no utilizadas**
 - ✅ Aplicar **best practices** automáticamente
 
-## 🔍 Qué Busco y Corro
+## 🔍 Qué Busco y Corrijo
 
-### 1. Print Statements 🖨️
+### 1. Console.log Statements 🖨️
 
 **Detecta y Reemplaza**:
 
-```dart
-// ❌ Flutter: print statements
-print('Debug: User logged in');
-print('Error: ${e.toString()}');
-print('Data: $data');
+```typescript
+// ❌ React/Next.js: console.log
+console.log('Debug: User logged in');
+console.log('Error:', error);
+console.log('Data:', data);
 
-// ✅ Flutter: Logger apropiado
-import 'package:logging/logging.dart';
+// ✅ React/Next.js: Eliminar o usar logger
+// En desarrollo, eliminar antes de commit
+// En producción, usar servicio de logging
 
-final _logger = Logger('AuthService');
-
-_logger.info('User logged in');
-_logger.severe('Error: ${e.toString()}');
-_logger.fine('Data: $data');
+// Para debugging temporal:
+if (process.env.NODE_ENV === 'development') {
+  console.log('Debug:', data);
+}
 ```
 
 ```typescript
-// ❌ Backend: console.log
+// ❌ Backend (NestJS): console.log
 console.log('User created:', user);
 console.error('Error:', error);
 console.warn('Warning:', message);
@@ -60,55 +60,48 @@ export class UsersService {
 
 ### 2. Deprecations 🚨
 
-**Flutter/Dart**:
+**React/Next.js**:
 
-```dart
-// ❌ Deprecated: TextTheme methods
-textTheme.headline1  // Deprecated en Flutter 3.0
-textTheme.bodyText1
+```typescript
+// ❌ Deprecated: React 18 patterns
+import { render } from 'react-dom';
+render(<App />, document.getElementById('root'));
 
-// ✅ Actualizado
-textTheme.displayLarge
-textTheme.bodyLarge
+// ✅ React 19: createRoot
+import { createRoot } from 'react-dom/client';
+const root = createRoot(document.getElementById('root')!);
+root.render(<App />);
 
-// ❌ Deprecated: Brightness
-ThemeData.brightness  // Deprecated
+// ❌ Deprecated: useLayoutEffect warning on server
+useLayoutEffect(() => { ... });
 
-// ✅ Actualizado
-ThemeData.of(context).brightness
+// ✅ Use useEffect or conditional
+useEffect(() => { ... });
 
-// ❌ Deprecated: ScaffoldMessenger
-Scaffold.of(context).showSnackBar()  // Deprecated
+// ❌ Deprecated: Class components for new code
+class MyComponent extends React.Component { }
 
-// ✅ Actualizado
-ScaffoldMessenger.of(context).showSnackBar()
-
-// ❌ Deprecated: ListView constructor
-ListView(children: [...])  // Ineficiente
-
-// ✅ Actualizado
-ListView.builder(
-  itemCount: items.length,
-  itemBuilder: (context, index) => ...
-)
+// ✅ Functional components with hooks
+function MyComponent() { }
 ```
 
 **NestJS/TypeScript**:
 
 ```typescript
-// ❌ Deprecated: TypeORM FindOptions
-repository.findOne(id);  // Deprecated
+// ❌ Deprecated: Prisma findUnique con null
+const user = await prisma.user.findUnique({ where: { id } });
+// user puede ser null
 
-// ✅ Actualizado
-repository.findOne({ where: { id } });
+// ✅ Actualizado: Manejo explícito
+const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 
-// ❌ Deprecated: Class-validator
+// ❌ Deprecated: Class-validator orden incorrecto
 @IsNotEmpty() @IsString()  // Orden incorrecto
 
 // ✅ Actualizado
 @IsString() @IsNotEmpty()  // String antes de NotEmpty
 
-// ❌ Deprecated: NestJS imports
+// ❌ Deprecated: HttpModule location
 import { HttpModule } from '@nestjs/common';  // Deprecated
 
 // ✅ Actualizado
@@ -117,45 +110,47 @@ import { HttpModule } from '@nestjs/axios';
 
 ### 3. Imports No Usados 📦
 
-```dart
-// ❌ Flutter: Imports no usados
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';  // ❌ No usado
-import '../models/user.dart';              // ❌ No usado
+```typescript
+// ❌ React: Imports no usados
+import React, { useState, useEffect, useMemo } from 'react';  // useMemo no usado
+import { Card, Button, Modal } from '@/components/ui';  // Modal no usado
+import type { User, Task, Project } from '@/types';  // Project no usado
 
 // ✅ Limpio
-import 'package:flutter/material.dart';
+import React, { useState, useEffect } from 'react';
+import { Card, Button } from '@/components/ui';
+import type { User, Task } from '@/types';
 ```
 
 ```typescript
 // ❌ Backend: Imports no usados
 import { Injectable, Logger, HttpException } from '@nestjs/common';
-import { Repository } from 'typeorm';  // ❌ No usado
+import { PrismaService } from './prisma.service';  // No usado
 import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';  // ❌ No usado
+import { CreateUserDto, UpdateUserDto } from './dto';  // UpdateUserDto no usado
 
 // ✅ Limpio
 import { Injectable, Logger } from '@nestjs/common';
 import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto';
 ```
 
 ### 4. Variables No Utilizadas 📊
 
-```dart
-// ❌ Flutter: Variables declaradas sin usar
-void fetchData() async {
-  final response = await api.get('/users');  // ❌ No usada
-  final data = await api.get('/posts');      // ✅ Usada
+```typescript
+// ❌ React: Variables declaradas sin usar
+function TaskList({ tasks }: Props) {
+  const [isOpen, setIsOpen] = useState(false);  // isOpen no usado
+  const filteredTasks = tasks.filter(t => !t.completed);  // No usado
   
-  return processData(data);
+  return <div>{tasks.map(t => <TaskCard key={t.id} task={t} />)}</div>;
 }
 
 // ✅ Limpio: Eliminar o usar con prefijo _
-void fetchData() async {
-  final _response = await api.get('/users');  // Prefijo _ = "sé que no se usa"
-  final data = await api.get('/posts');
+function TaskList({ tasks }: Props) {
+  const [_isOpen, setIsOpen] = useState(false);  // Prefijo _ = "sé que no se usa"
   
-  return processData(data);
+  return <div>{tasks.map(t => <TaskCard key={t.id} task={t} />)}</div>;
 }
 ```
 
@@ -173,42 +168,36 @@ async findAll(userId: string, _filter?: FilterDto) {
 
 ### 5. Código Comentado 💬
 
-```dart
+```typescript
 // ❌ Código comentado obsoleto
-class UserProfile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Text('Old implementation'),
-        // Container(
-        //   child: OldWidget(),
-        // ),
-        NewWidget(),
-      ],
-    );
-  }
+function Dashboard() {
+  return (
+    <div>
+      {/* <OldImplementation /> */}
+      {/* <Container>
+        <OldWidget />
+      </Container> */}
+      <NewWidget />
+    </div>
+  );
 }
 
 // ✅ Limpio: Eliminar código comentado
-class UserProfile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        NewWidget(),
-      ],
-    );
-  }
+function Dashboard() {
+  return (
+    <div>
+      <NewWidget />
+    </div>
+  );
 }
 ```
 
 ### 6. TODOs y FIXMEs 📝
 
-```dart
+```typescript
 // ⚠️ Identificar y catalogar TODOs
 // TODO: Implement error handling  // ← Crear issue
-// FIXME: Memory leak on dispose   // ← Alta prioridad
+// FIXME: Memory leak on unmount   // ← Alta prioridad
 // HACK: Temporary workaround       // ← Refactor needed
 // NOTE: This is important          // ← Documentar
 
@@ -217,20 +206,21 @@ class UserProfile extends StatelessWidget {
 
 ### 7. Try-Catch Sin Manejo ⚠️
 
-```dart
-// ❌ Flutter: Catch sin manejo
+```typescript
+// ❌ React: Catch sin manejo
 try {
   await fetchData();
 } catch (e) {
   // Silenciosamente ignora error
 }
 
-// ✅ Limpio: Log + rethrow o manejo apropiado
+// ✅ Limpio: Log + mostrar error o rethrow
 try {
   await fetchData();
-} catch (e, stackTrace) {
-  _logger.severe('Failed to fetch data', e, stackTrace);
-  rethrow;  // O manejar apropiadamente
+} catch (error) {
+  console.error('Failed to fetch data:', error);
+  toast.error('Failed to load data');
+  // O rethrow para Error Boundary
 }
 ```
 
@@ -254,18 +244,17 @@ try {
 
 ### 8. Warnings del Linter 🔍
 
-**Flutter**:
+**React/Next.js**:
 
 ```bash
-# Ejecutar analyzer
-flutter analyze
+# Ejecutar ESLint
+npm run lint
 
 # Warnings comunes:
-# - Missing return types
-# - Prefer const constructors
-# - Avoid print
-# - Unused imports
-# - Dead code
+# - react-hooks/exhaustive-deps
+# - @typescript-eslint/no-unused-vars
+# - @typescript-eslint/no-explicit-any
+# - react/no-unescaped-entities
 ```
 
 **Backend**:
@@ -286,15 +275,21 @@ npm run lint
 ### Paso 1: Análisis Completo
 
 ```bash
-# Flutter
-cd flutter
-flutter analyze > ../cleanup_flutter.txt
-flutter pub outdated >> ../cleanup_flutter.txt
+# Web (Next.js)
+cd apps/web
+npm run lint > ../cleanup_web.txt
 
-# Backend
-cd backend
+# Desktop (Electron)
+cd apps/desktop
+npm run lint > ../cleanup_desktop.txt
+
+# Backend (NestJS)
+cd apps/backend
 npm run lint > ../cleanup_backend.txt
-npm outdated >> ../cleanup_backend.txt
+
+# Packages
+cd packages/core
+npm run lint > ../cleanup_core.txt
 ```
 
 ### Paso 2: Priorización
@@ -303,25 +298,25 @@ npm outdated >> ../cleanup_backend.txt
 1. 🔴 **Errors**: Rompen compilación
 2. 🟠 **Deprecations**: Dejarán de funcionar en futuro
 3. 🟡 **Security Warnings**: Vulnerabilidades
-4. 🟢 **Print Statements**: Contaminan logs
+4. 🟢 **Console.logs**: Contaminan logs/performance
 
 **Bajo Impacto** (corregir después):
 1. ⚪ **Unused Imports**: Solo estético
-2. ⚪ **Formatting**: Auto-arreglable con prettier/dartfmt
+2. ⚪ **Formatting**: Auto-arreglable con prettier
 3. ⚪ **TODOs**: Crear issues, no urgente
 
 ### Paso 3: Corrección Automática
 
 ```bash
-# Flutter: Auto-fix
-cd flutter
-dart fix --apply                    # Aplica fixes automáticos
-flutter format lib/ test/           # Formato
+# Web/Desktop/Mobile: Auto-fix
+npm run lint -- --fix
 
-# Backend: Auto-fix
-cd backend
-npm run lint -- --fix               # Aplica fixes ESLint
-npm run format                      # Prettier
+# Prettier
+npm run format
+
+# O en root del monorepo
+npm run lint
+npm run format
 ```
 
 ### Paso 4: Corrección Manual
@@ -334,127 +329,84 @@ Para issues que requieren decisión humana:
 
 ## 📚 Búsqueda de Documentación Actualizada
 
-### Flutter/Dart
+### React/Next.js
 
 **Recursos**:
-- [Official Docs](https://docs.flutter.dev/)
-- [API Reference](https://api.flutter.dev/)
-- [Migration Guides](https://docs.flutter.dev/release/breaking-changes)
+- [React Docs](https://react.dev/)
+- [Next.js Docs](https://nextjs.org/docs)
+- [TanStack Query](https://tanstack.com/query/latest)
 
-**Búsqueda de alternativas**:
+### React Native / Expo
 
-```dart
-// Ejemplo: TextField deprecated
-@deprecated
-TextField.cursorColor  // Deprecated
-
-// Buscar en docs:
-// 1. Ir a https://api.flutter.dev/flutter/material/TextField-class.html
-// 2. Buscar "cursorColor"
-// 3. Ver "Migration guide" link
-// 4. Alternativa: Usar CursorTheme
-
-CursorTheme(
-  data: CursorThemeData(color: Colors.blue),
-  child: TextField(),
-)
-```
+**Recursos**:
+- [React Native Docs](https://reactnative.dev/)
+- [Expo Docs](https://docs.expo.dev/)
 
 ### NestJS/TypeScript
 
 **Recursos**:
 - [NestJS Docs](https://docs.nestjs.com/)
-- [TypeORM Docs](https://typeorm.io/)
+- [Prisma Docs](https://www.prisma.io/docs)
 - [TypeScript Docs](https://www.typescriptlang.org/docs/)
-
-**Búsqueda de alternativas**:
-
-```typescript
-// Ejemplo: @Res() decorator deprecated
-@Get()
-async findAll(@Res() res: Response) {  // ❌ Deprecated pattern
-  const data = await this.service.findAll();
-  return res.json(data);
-}
-
-// Buscar en docs:
-// 1. Ir a https://docs.nestjs.com/controllers
-// 2. Buscar "Response"
-// 3. Alternativa: Retornar directamente
-
-@Get()
-async findAll() {  // ✅ NestJS maneja response
-  return this.service.findAll();
-}
-```
 
 ## 🛠️ Comandos Útiles
 
-### Flutter Cleanup
+### Monorepo Cleanup
 
 ```bash
-# Análisis completo
-flutter analyze
+# Root - lint todo
+npm run lint
 
-# Ver solo warnings
-flutter analyze | grep "warning:"
+# Root - format todo
+npm run format
 
-# Ver solo info
-flutter analyze | grep "info:"
+# Específico por app
+npm run lint --filter=@ordo-todo/web
+npm run lint --filter=@ordo-todo/backend
+```
 
-# Contar issues
-flutter analyze | grep -c "warning:"
+### Web/Desktop Cleanup
 
-# Aplicar fixes automáticos
-dart fix --apply
+```bash
+cd apps/web  # o apps/desktop
 
-# Ver qué fixes haría sin aplicar
-dart fix --dry-run
+# Análisis
+npm run lint
 
-# Formato
-flutter format lib/ test/
+# Auto-fix
+npm run lint -- --fix
 
-# Actualizar dependencias
-flutter pub upgrade --major-versions
+# Type check
+npm run check-types
 ```
 
 ### Backend Cleanup
 
 ```bash
-# Análisis completo
-npm run lint
+cd apps/backend
 
-# Solo errores
-npm run lint -- --quiet
+# Análisis
+npm run lint
 
 # Auto-fix
 npm run lint -- --fix
 
-# Ver qué cambiaría prettier sin aplicar
-npx prettier --check "src/**/*.ts"
-
-# Aplicar prettier
+# Prettier
 npm run format
-
-# Ver deprecations de dependencias
-npm outdated
-
-# Actualizar dependencias
-npm update
 ```
 
 ## 📋 Checklist de Limpieza
 
 ### Pre-Commit Checklist
 
-- [ ] Sin `print()` statements (Flutter) o `console.log()` (Backend)
+- [ ] Sin `console.log()` en código de producción
 - [ ] Sin imports no usados
 - [ ] Sin variables declaradas sin usar
 - [ ] Sin código comentado
 - [ ] Sin warnings del linter
 - [ ] Sin errores de compilación
-- [ ] Tests pasan (`flutter test`, `npm run test`)
-- [ ] Formato aplicado (`flutter format`, `npm run format`)
+- [ ] Tests pasan (`npm run test`)
+- [ ] Formato aplicado (`npm run format`)
 
 ### Sprint Cleanup Checklist
 
@@ -467,62 +419,32 @@ npm update
 
 ## 🎯 Ejemplos de Uso
 
-### Caso 1: Eliminar Prints en Flutter
+### Caso 1: Eliminar Console.logs
 
 ```
-@cleanup.prompt Busca todos los print() en lib/ y reemplázalos
-con Logger apropiado. Agrupa por archivo y crea imports necesarios.
-```
-
-**Resultado esperado**:
-```dart
-// Antes
-print('User: $user');
-
-// Después
-import 'package:logging/logging.dart';
-
-final _logger = Logger('UserService');
-_logger.info('User: $user');
+@cleanup.prompt Busca todos los console.log en apps/web/src/ y elimínalos
+o reemplázalos con manejo apropiado de errores.
 ```
 
 ### Caso 2: Actualizar Deprecations
 
 ```
-@cleanup.prompt Busca uso de TextTheme.headline1 y actualiza
-a displayLarge según Flutter 3.0 migration guide
-```
-
-**Resultado esperado**:
-```dart
-// Antes
-style: theme.textTheme.headline1
-
-// Después
-style: theme.textTheme.displayLarge
+@cleanup.prompt Busca uso de patterns deprecated de React 18
+y actualiza a React 19 según migration guide
 ```
 
 ### Caso 3: Limpiar Imports
 
 ```
-@cleanup.prompt Analiza src/ y elimina todos los imports
+@cleanup.prompt Analiza apps/backend/src/ y elimina todos los imports
 no utilizados. Ejecuta lint después para validar.
 ```
 
-### Caso 4: Actualizar TypeORM Deprecated
+### Caso 4: Actualizar Prisma Deprecated
 
 ```
-@cleanup.prompt Encuentra todas las llamadas a findOne(id)
-y actualiza a findOne({ where: { id } }) según TypeORM 0.3
-```
-
-**Resultado esperado**:
-```typescript
-// Antes
-await repository.findOne(userId);
-
-// Después
-await repository.findOne({ where: { id: userId } });
+@cleanup.prompt Encuentra todas las llamadas a findUnique sin manejo de null
+y actualiza a findUniqueOrThrow o agrega manejo explícito
 ```
 
 ### Caso 5: Crear Issues para TODOs
@@ -532,39 +454,19 @@ await repository.findOne({ where: { id: userId } });
 Categoriza por prioridad y genera template de issues de GitHub.
 ```
 
-**Resultado esperado**:
-```markdown
-## High Priority
-- [ ] FIXME: Memory leak en ProfileScreen.dispose()
-- [ ] FIXME: Race condition en auth provider
-
-## Medium Priority
-- [ ] TODO: Implement pagination en TasksList
-- [ ] TODO: Add error boundary en root widget
-
-## Low Priority
-- [ ] HACK: Temporary workaround for API timeout
-```
-
 ## 🔍 Detección Avanzada
 
 ### Pattern Matching
 
 ```bash
-# Buscar prints en Flutter
-grep -r "print(" lib/ --include="*.dart"
-
-# Buscar console.log en Backend
-grep -r "console\." src/ --include="*.ts"
+# Buscar console.log en todo el proyecto
+grep -r "console\." apps/ packages/ --include="*.ts" --include="*.tsx"
 
 # Buscar TODOs
-grep -r "TODO\|FIXME\|HACK" lib/ src/
-
-# Buscar deprecated en imports
-grep -r "@deprecated" lib/ --include="*.dart"
+grep -r "TODO\|FIXME\|HACK" apps/ packages/
 
 # Buscar try-catch vacíos
-grep -A3 "catch" lib/ | grep -B3 "^\s*}$"
+grep -A3 "catch" apps/ | grep -B3 "^[[:space:]]*}$"
 ```
 
 ### VSCode Search & Replace
@@ -574,8 +476,9 @@ grep -A3 "catch" lib/ | grep -B3 "^\s*}$"
 {
   "search.exclude": {
     "**/node_modules": true,
-    "**/build": true,
-    "**/.dart_tool": true
+    "**/dist": true,
+    "**/.next": true,
+    "**/build": true
   }
 }
 ```
@@ -583,14 +486,8 @@ grep -A3 "catch" lib/ | grep -B3 "^\s*}$"
 **Regex útiles**:
 
 ```regex
-// Encontrar prints
-print\([^)]+\)
-
 // Encontrar console.log
 console\.(log|error|warn|info)\(
-
-// Encontrar imports no usados (requiere análisis manual)
-^import\s+.*;\s*$
 
 // Encontrar TODOs con contexto
 (TODO|FIXME|HACK|NOTE):\s*(.+)
@@ -604,46 +501,20 @@ console\.(log|error|warn|info)\(
 |---------|----------|
 | Warnings del linter | 0 |
 | Errores de compilación | 0 |
-| Print statements | 0 |
 | Console.logs | 0 en producción |
 | Imports no usados | 0 |
 | Código comentado | 0 |
 | TODOs | < 10 por módulo |
 | Test coverage | > 70% |
 
-### Dashboard
-
-```bash
-# Generar reporte de limpieza
-cat > cleanup_report.md << EOF
-# Cleanup Report - $(date +%Y-%m-%d)
-
-## Flutter
-- Warnings: $(flutter analyze | grep -c "warning:")
-- Prints: $(grep -r "print(" lib/ --include="*.dart" | wc -l)
-- TODOs: $(grep -r "TODO" lib/ --include="*.dart" | wc -l)
-
-## Backend
-- ESLint warnings: $(npm run lint -- --quiet | wc -l)
-- Console.logs: $(grep -r "console\." src/ --include="*.ts" | wc -l)
-- TODOs: $(grep -r "TODO" src/ --include="*.ts" | wc -l)
-
-## Action Items
-[ ] Fix Flutter warnings
-[ ] Replace prints with Logger
-[ ] Update deprecations
-[ ] Create issues for TODOs
-EOF
-```
-
 ## 🚨 Anti-Patterns a Evitar
 
 ### ❌ No Hacer
 
-```dart
+```typescript
 // 1. Suprimir warnings sin resolver causa
-// ignore: unused_import
-import 'package:provider/provider.dart';
+// eslint-disable-next-line
+const unused = 'value';
 
 // 2. Catch genérico sin logging
 try {
@@ -651,42 +522,41 @@ try {
 } catch (e) {}  // ❌ Silently fails
 
 // 3. Dejar código comentado
-// OldImplementation();
-// Container(child: OldWidget());
+// <OldImplementation />
+// <Container><OldWidget /></Container>
 
-// 4. Print en lugar de Logger
-print('Debug info');  // ❌
+// 4. Console.log en producción
+console.log('Debug info');  // ❌
 ```
 
 ### ✅ Hacer
 
-```dart
-// 1. Eliminar imports o usarlos
-// (sin import si no se usa)
+```typescript
+// 1. Eliminar código no usado o usarlo
+// (sin variable si no se usa)
 
 // 2. Log + manejo apropiado
 try {
   doSomething();
-} catch (e, stack) {
-  _logger.severe('Failed to do something', e, stack);
-  rethrow;
+} catch (error) {
+  logger.error('Failed:', error);
+  throw error;
 }
 
 // 3. Git history es suficiente (eliminar comentados)
-NewImplementation();
+<NewImplementation />
 
-// 4. Logger apropiado
-_logger.info('Debug info');  // ✅
+// 4. Eliminar antes de commit o usar logger
+this.logger.debug('Debug info');  // ✅
 ```
 
 ## 📚 Referencias
 
 ### Documentación Oficial
 
-**Flutter/Dart**:
-- [Effective Dart](https://dart.dev/guides/language/effective-dart)
-- [Flutter Best Practices](https://docs.flutter.dev/perf/best-practices)
-- [Migration Guides](https://docs.flutter.dev/release/breaking-changes)
+**React/Next.js**:
+- [React Best Practices](https://react.dev/learn)
+- [Next.js Best Practices](https://nextjs.org/docs/pages/building-your-application)
 
 **NestJS/TypeScript**:
 - [NestJS Best Practices](https://docs.nestjs.com/techniques/performance)
@@ -695,16 +565,15 @@ _logger.info('Debug info');  // ✅
 
 ### Tools
 
-- [dart fix](https://dart.dev/tools/dart-fix) - Auto-fix Dart code
 - [ESLint](https://eslint.org/) - JavaScript/TypeScript linter
 - [Prettier](https://prettier.io/) - Code formatter
-- [SonarQube](https://www.sonarqube.org/) - Code quality analysis
+- [TypeScript](https://www.typescriptlang.org/) - Type checking
 
 ---
 
 ## 💡 Tips Pro
 
-1. **Pre-commit Hooks**: Usar Husky (backend) o pre-commit (flutter) para validar antes de commit
+1. **Pre-commit Hooks**: Usar Husky + lint-staged para validar antes de commit
 2. **CI/CD**: Agregar checks de linter en pipeline
 3. **IDE Integration**: Configurar VSCode para mostrar warnings inline
 4. **Scheduled Cleanup**: Dedicar 1 hora al sprint para limpieza
@@ -713,4 +582,3 @@ _logger.info('Debug info');  // ✅
 ---
 
 **Recuerda**: Código limpio es código mantenible. ¡Mantén el proyecto profesional! 🧹✨
-

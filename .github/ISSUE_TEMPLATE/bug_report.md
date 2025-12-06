@@ -16,21 +16,25 @@ assignees: ''
 
 **Plataforma:**
 - [ ] 🌐 Web (Chrome, Firefox, Safari, Edge)
-- [ ] 🪟 Windows Desktop
-- [ ] 🍎 macOS Desktop
-- [ ] 🤖 Android (versión: )
-- [ ] 📱 iOS (versión: )
-- [ ] 🐧 Linux Desktop
+- [ ] 🪟 Windows Desktop (Electron)
+- [ ] 🍎 macOS Desktop (Electron)
+- [ ] 🐧 Linux Desktop (Electron)
+- [ ] 🤖 Android (React Native)
+- [ ] 📱 iOS (React Native)
 
 **Componente:**
-- [ ] Frontend (Flutter)
+- [ ] Frontend Web (Next.js)
+- [ ] Frontend Mobile (React Native/Expo)
+- [ ] Frontend Desktop (Electron)
 - [ ] Backend (NestJS)
-- [ ] Database (PostgreSQL)
+- [ ] Database (PostgreSQL/Prisma)
 - [ ] Auth (JWT)
-- [ ] Payments (Stripe)
+- [ ] Shared Packages (core, api-client)
 - [ ] Other: 
 
 **Versión de la App:** <!-- ej. v1.2.3 o commit hash -->
+
+**Versión de Node.js:** <!-- ej. v20.10.0 -->
 
 ## 🔄 Pasos para Reproducir
 
@@ -57,18 +61,24 @@ assignees: ''
 
 <!-- Pega logs relevantes, stack traces, mensajes de error -->
 
-```
-Pega logs aquí
-```
-
-**Console Errors (si aplica):**
+**Browser Console (Web):**
 ```javascript
 // Errores de la consola del navegador
 ```
 
-**Backend Logs (si aplica):**
+**Backend Logs (NestJS):**
 ```
 // Logs del servidor NestJS
+```
+
+**React Native / Expo Logs (Mobile):**
+```
+// Logs de Metro bundler o dispositivo
+```
+
+**Electron Logs (Desktop):**
+```
+// Logs del main process o DevTools
 ```
 
 ## 🔍 Contexto Adicional

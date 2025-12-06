@@ -1,6 +1,6 @@
 # 🔧 Cleanup Prompt - Resumen de Implementación
 
-> **Fecha**: 2025-11-14  
+> **Fecha**: 2025-12-06  
 > **Propósito**: Prompt especializado para limpieza de código  
 > **Estado**: ✅ Implementado
 
@@ -8,9 +8,8 @@
 
 ### Antes ❌
 
-- **Print statements** por todo el código (Flutter/Backend)
-- **Console.log** en producción (Backend)
-- **Código deprecated** sin actualizar (Flutter 2.x, TypeORM 0.2)
+- **Console.log statements** por todo el código (Web/Mobile/Backend)
+- **Código deprecated** sin actualizar (React 18.x, Prisma)
 - **Imports no usados** acumulándose
 - **Variables declaradas** sin utilizar
 - **Warnings del linter** ignorados
@@ -19,7 +18,7 @@
 
 ### Ahora ✅
 
-- ✅ **Logger apropiado** en lugar de prints
+- ✅ **Logger apropiado** en lugar de console.logs
 - ✅ **Código actualizado** a versiones actuales
 - ✅ **Imports limpios** (solo los necesarios)
 - ✅ **Cero warnings** del linter
@@ -29,25 +28,25 @@
 ## 📦 Archivo Creado
 
 **Archivo**: `.github/prompts/cleanup.prompt.md`  
-**Líneas**: ~720  
+**Líneas**: ~550  
 **Propósito**: Code Cleanup Specialist
 
 ## 🔍 Capacidades del Prompt
 
-### 1. Detección y Corrección de Print Statements
+### 1. Detección y Corrección de Console.log Statements
 
-**Flutter**:
-```dart
+**React/Next.js/React Native**:
+```typescript
 // ❌ Detecta
-print('Debug: User logged in');
+console.log('Debug: User logged in');
 
-// ✅ Reemplaza con
-import 'package:logging/logging.dart';
-final _logger = Logger('AuthService');
-_logger.info('User logged in');
+// ✅ Eliminar o usar condicionalmente en desarrollo
+if (process.env.NODE_ENV === 'development') {
+  console.log('Debug:', data);
+}
 ```
 
-**Backend**:
+**Backend (NestJS)**:
 ```typescript
 // ❌ Detecta
 console.log('User created:', user);
@@ -59,66 +58,65 @@ this.logger.log('User created:', user.email);
 
 ### 2. Actualización de Deprecations
 
-**Flutter** (2.x → 3.x):
-```dart
-// ❌ Deprecated
-textTheme.headline1
-ThemeData.brightness
-Scaffold.of(context).showSnackBar()
-
-// ✅ Actualizado
-textTheme.displayLarge
-Theme.of(context).brightness
-ScaffoldMessenger.of(context).showSnackBar()
-```
-
-**Backend** (TypeORM 0.2 → 0.3):
+**React 18 → React 19**:
 ```typescript
 // ❌ Deprecated
-repository.findOne(id);
+render(<App />, document.getElementById('root'));
 
 // ✅ Actualizado
-repository.findOne({ where: { id } });
+const root = createRoot(document.getElementById('root')!);
+root.render(<App />);
+```
+
+**Prisma**:
+```typescript
+// ❌ Deprecated pattern
+const user = await prisma.user.findUnique({ where: { id } });
+// user puede ser null
+
+// ✅ Actualizado - manejo explícito
+const user = await prisma.user.findUniqueOrThrow({ where: { id } });
 ```
 
 ### 3. Limpieza de Imports
 
-```dart
+```typescript
 // ❌ Imports no usados
-import 'package:provider/provider.dart';  // No usado
-import 'package:flutter/material.dart';    // Usado
+import { useState, useEffect, useMemo } from 'react';  // useMemo no usado
+import { Card, Button, Modal } from '@/components/ui';  // Modal no usado
 
 // ✅ Limpio
-import 'package:flutter/material.dart';
+import { useState, useEffect } from 'react';
+import { Card, Button } from '@/components/ui';
 ```
 
 ### 4. Variables No Utilizadas
 
-```dart
+```typescript
 // ❌ Variable declarada sin usar
-final response = await api.get('/users');  // No usada
+const response = await api.get('/users');  // No usada
 
 // ✅ Opciones:
 // 1. Eliminar
 // 2. Usar con prefijo _
-final _response = await api.get('/users');
+const _response = await api.get('/users');
 ```
 
 ### 5. Código Comentado
 
-```dart
+```typescript
 // ❌ Código comentado obsoleto
-// Text('Old implementation'),
-// Container(child: OldWidget()),
+// <OldImplementation />
+// <Container><OldWidget /></Container>
 
 // ✅ Eliminar (Git history preserva)
 ```
 
 ### 6. TODOs y FIXMEs
 
-```dart
+```typescript
 // TODO: Implement error handling    // ← Crear issue
-// FIXME: Memory leak on dispose     // ← Alta prioridad
+// FIXME: Memory leak on unmount     // ← Alta prioridad
 // HACK: Temporary workaround         // ← Refactor needed
 
 // ✅ Acción: Catalogar y crear issues en GitHub
@@ -126,7 +124,7 @@ final _response = await api.get('/users');
 
 ### 7. Try-Catch Sin Manejo
 
-```dart
+```typescript
 // ❌ Catch silencioso
 try {
   await fetchData();
@@ -135,9 +133,10 @@ try {
 // ✅ Log + rethrow
 try {
   await fetchData();
-} catch (e, stackTrace) {
-  _logger.severe('Failed to fetch data', e, stackTrace);
-  rethrow;
+} catch (error) {
+  console.error('Failed to fetch data:', error);
+  toast.error('Failed to load data');
+  throw error;
 }
 ```
 
@@ -145,12 +144,13 @@ try {
 
 **Ejecuta y corrige**:
 ```bash
-# Flutter
-flutter analyze
-dart fix --apply
-
-# Backend
+# Monorepo
+npm run lint
 npm run lint -- --fix
+
+# Específico por app
+npm run lint --filter=@ordo-todo/web
+npm run lint --filter=@ordo-todo/backend
 ```
 
 ## 🔄 Workflow de Limpieza
@@ -158,10 +158,12 @@ npm run lint -- --fix
 ### Paso 1: Análisis
 
 ```bash
-# Flutter
-flutter analyze > cleanup_flutter.txt
+# Web (Next.js)
+cd apps/web
+npm run lint > cleanup_web.txt
 
-# Backend
+# Backend (NestJS)
+cd apps/backend
 npm run lint > cleanup_backend.txt
 ```
 
@@ -170,17 +172,13 @@ npm run lint > cleanup_backend.txt
 1. 🔴 **Errors** - Rompen compilación
 2. 🟠 **Deprecations** - Dejarán de funcionar
 3. 🟡 **Security** - Vulnerabilidades
-4. 🟢 **Prints** - Contaminan logs
+4. 🟢 **Console.logs** - Contaminan logs
 5. ⚪ **Formatting** - Estético
 
 ### Paso 3: Corrección Automática
 
 ```bash
-# Flutter
-dart fix --apply
-flutter format lib/ test/
-
-# Backend
+# Monorepo
 npm run lint -- --fix
 npm run format
 ```
@@ -189,141 +187,102 @@ npm run format
 
 ```bash
 # Ejecutar tests
-flutter test
 npm run test
 
 # Verificar cero warnings
-flutter analyze | grep "warning:" | wc -l  # Debe ser 0
-npm run lint -- --quiet                     # Sin output
+npm run lint -- --quiet  # Sin output = limpio
 ```
 
 ## 📚 Búsqueda de Documentación
 
-### Flutter/Dart
+### React/Next.js
 
 **Recursos**:
-- [Official Docs](https://docs.flutter.dev/)
-- [API Reference](https://api.flutter.dev/)
-- [Migration Guides](https://docs.flutter.dev/release/breaking-changes)
+- [React Docs](https://react.dev/)
+- [Next.js Docs](https://nextjs.org/docs)
 
-**Ejemplo búsqueda**:
-```
-1. Ir a https://api.flutter.dev/
-2. Buscar clase/método deprecated
-3. Ver "Migration guide" link
-4. Aplicar alternativa recomendada
-```
+### React Native / Expo
+
+**Recursos**:
+- [React Native Docs](https://reactnative.dev/)
+- [Expo Docs](https://docs.expo.dev/)
 
 ### NestJS/TypeScript
 
 **Recursos**:
 - [NestJS Docs](https://docs.nestjs.com/)
-- [TypeORM Docs](https://typeorm.io/)
+- [Prisma Docs](https://www.prisma.io/docs)
 - [TypeScript Docs](https://www.typescriptlang.org/docs/)
 
 ## 🎯 Ejemplos de Uso
 
-### Caso 1: Eliminar Prints
+### Caso 1: Eliminar Console.logs
 
 ```
-@cleanup.prompt Busca todos los print() en lib/features/auth/
-y reemplázalos con Logger. Agrupa por archivo y crea imports necesarios.
+@cleanup.prompt Busca todos los console.log en apps/web/src/
+y elimínalos o reemplázalos con manejo apropiado.
 ```
 
 **Output esperado**:
 - Lista de archivos modificados
-- Cambios de print → Logger
-- Imports agregados
-- Resumen (ej: "15 prints reemplazados en 5 archivos")
+- Cambios realizados
+- Resumen (ej: "15 console.logs eliminados en 5 archivos")
 
 ### Caso 2: Actualizar Deprecations
 
 ```
-@cleanup.prompt Busca uso de TextTheme.headline1 en lib/
-y actualiza a displayLarge según Flutter 3.0 migration guide
+@cleanup.prompt Busca uso de patterns deprecated de React 18
+y actualiza a React 19 según migration guide
 ```
-
-**Output esperado**:
-- Búsqueda de todos los usos
-- Reemplazo con nueva API
-- Link a migration guide oficial
 
 ### Caso 3: Limpiar Imports
 
 ```
-@cleanup.prompt Analiza lib/ y elimina todos los imports no utilizados.
-Ejecuta dart fix --apply después para validar.
+@cleanup.prompt Analiza apps/backend/src/ y elimina todos los imports no utilizados.
+Ejecuta lint después para validar.
 ```
-
-**Output esperado**:
-- Lista de imports removidos por archivo
-- Comando ejecutado para validar
-- Confirmación de cero warnings
 
 ### Caso 4: Crear Issues para TODOs
 
 ```
-@cleanup.prompt Busca todos los TODO, FIXME, HACK en lib/ y src/.
+@cleanup.prompt Busca todos los TODO, FIXME, HACK en apps/ y packages/.
 Categoriza por prioridad y genera template de issues de GitHub.
-```
-
-**Output esperado**:
-```markdown
-## High Priority
-- [ ] FIXME: Memory leak en ProfileScreen.dispose()
-- [ ] FIXME: Race condition en auth provider
-
-## Medium Priority
-- [ ] TODO: Implement pagination en TasksList
-
-## Low Priority
-- [ ] HACK: Temporary workaround for API timeout
 ```
 
 ## 🛠️ Comandos Útiles
 
-### Flutter
+### Monorepo
 
 ```bash
-# Análisis completo
-flutter analyze
-
-# Auto-fix
-dart fix --apply
-
-# Ver qué cambiaría sin aplicar
-dart fix --dry-run
-
-# Formato
-flutter format lib/ test/
-
-# Actualizar dependencias
-flutter pub upgrade --major-versions
-```
-
-### Backend
-
-```bash
-# Análisis
+# Lint todo
 npm run lint
 
-# Auto-fix
-npm run lint -- --fix
-
-# Prettier
+# Format todo
 npm run format
 
-# Ver deprecations
-npm outdated
+# Específico por app
+npm run lint --filter=@ordo-todo/web
+npm run lint --filter=@ordo-todo/backend
+```
 
-# Actualizar deps
-npm update
+### Por App
+
+```bash
+# Web/Desktop/Mobile
+cd apps/web  # o apps/desktop, apps/mobile
+npm run lint
+npm run lint -- --fix
+
+# Backend
+cd apps/backend
+npm run lint
+npm run lint -- --fix
+npm run format
 ```
 
 ## 📋 Checklist Pre-Commit
 
-- [ ] Sin `print()` statements (Flutter)
-- [ ] Sin `console.log()` (Backend)
+- [ ] Sin `console.log()` en código de producción
 - [ ] Sin imports no usados
 - [ ] Sin variables declaradas sin usar
 - [ ] Sin código comentado
@@ -340,7 +299,6 @@ npm update
 |---------|----------|
 | Warnings del linter | 0 |
 | Errores de compilación | 0 |
-| Print statements | 0 |
 | Console.logs | 0 en producción |
 | Imports no usados | 0 |
 | Código comentado | 0 |
@@ -352,13 +310,12 @@ npm update
 # Generar reporte
 echo "# Cleanup Report - $(date +%Y-%m-%d)" > cleanup_report.md
 echo "" >> cleanup_report.md
-echo "## Flutter" >> cleanup_report.md
-echo "- Warnings: $(flutter analyze | grep -c 'warning:')" >> cleanup_report.md
-echo "- Prints: $(grep -r 'print(' lib/ --include='*.dart' | wc -l)" >> cleanup_report.md
+echo "## Web" >> cleanup_report.md
+echo "- Console.logs: $(grep -r 'console\.' apps/web/src --include='*.ts' --include='*.tsx' | wc -l)" >> cleanup_report.md
 echo "" >> cleanup_report.md
 echo "## Backend" >> cleanup_report.md
-echo "- Warnings: $(npm run lint -- --quiet 2>&1 | wc -l)" >> cleanup_report.md
-echo "- Console.logs: $(grep -r 'console\.' src/ --include='*.ts' | wc -l)" >> cleanup_report.md
+echo "- Warnings: $(npm run lint --filter=@ordo-todo/backend -- --quiet 2>&1 | wc -l)" >> cleanup_report.md
+echo "- Console.logs: $(grep -r 'console\.' apps/backend/src --include='*.ts' | wc -l)" >> cleanup_report.md
 ```
 
 ## 🔗 Integración con Otros Prompts
@@ -385,27 +342,26 @@ graph LR
 
 1. **Prompt**: [cleanup.prompt.md](cleanup.prompt.md)
 2. **Guía de Prompts**: [README.md](README.md)
-3. **Guía Interactiva**: [../../guide/index.html](../../guide/index.html)
-4. **AI Tips**: [../../guide/ai-tips.html](../../guide/ai-tips.html)
+3. **CONTRIBUTING.md**: [../../.github/CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ## 🎉 Beneficios Inmediatos
 
-✅ **Código profesional** - Cero warnings, cero prints  
+✅ **Código profesional** - Cero warnings, cero console.logs  
 ✅ **Mantenible** - Actualizado a versiones actuales  
 ✅ **Trackeable** - TODOs convertidos en issues  
-✅ **Debuggeable** - Logs apropiados en lugar de prints  
+✅ **Debuggeable** - Logs apropiados en lugar de console.logs  
 ✅ **Rápido** - Auto-fix ahorra horas de trabajo manual  
 
 ## 🚀 Próximos Pasos
 
 ### Inmediato
 1. ✅ Probar `@cleanup.prompt` con Copilot
-2. ⏳ Ejecutar primera limpieza en `lib/features/auth/`
+2. ⏳ Ejecutar primera limpieza en `apps/web/src/`
 3. ⏳ Crear issues para TODOs encontrados
 
 ### Corto Plazo
-1. ⏳ Limpiar todos los prints en Flutter
-2. ⏳ Actualizar deprecations de Flutter 2.x
+1. ⏳ Limpiar todos los console.logs en Web
+2. ⏳ Actualizar deprecations de React 18
 3. ⏳ Limpiar console.logs en Backend
 
 ### Mediano Plazo
@@ -415,7 +371,8 @@ graph LR
 
 ---
 
-**Versión**: 1.0.0  
-**Última actualización**: 2025-11-14  
+**Versión**: 2.0.0  
+**Última actualización**: 2025-12-06  
+**Proyecto**: Ordo-Todo  
 **Mantenedor**: @tiagofur
 

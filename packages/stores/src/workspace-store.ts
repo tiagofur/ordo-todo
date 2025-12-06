@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { WorkspaceStore } from './types';
+import type { WorkspaceStore } from './types.js';
 
 /**
  * Shared workspace store for managing the currently selected workspace.

@@ -45,28 +45,54 @@ assignees: ''
 
 ## 🔧 Detalles Técnicos
 
-### Frontend (Flutter)
+### Frontend Web (Next.js)
 
-<!-- Componentes, screens, widgets necesarios -->
+<!-- Páginas, componentes, hooks necesarios -->
 
-- Nuevo screen: `NombreScreen`
-- Widgets: `Widget1`, `Widget2`
-- State management: Provider `nombreProvider`
+- Nueva página: `app/[route]/page.tsx`
+- Componentes: `ComponentA`, `ComponentB`
+- Hooks: `useFeatureHook`
+- State: React Query / Context
+
+### Frontend Mobile (React Native + Expo)
+
+<!-- Screens, componentes, hooks necesarios -->
+
+- Nueva screen: `screens/FeatureScreen.tsx`
+- Componentes: `ComponentA`, `ComponentB`
+- Navigation: Stack/Tab updates
+
+### Frontend Desktop (Electron)
+
+<!-- Consideraciones específicas de desktop -->
+
+- IPC handlers: `feature-action`
+- Window behaviour: Modal/Dialog
+- Offline support: Sí/No
 
 ### Backend (NestJS)
 
 <!-- Endpoints, servicios, entidades necesarias -->
 
-- Nuevo endpoint: `POST /api/v1/recurso`
-- Servicio: `RecursoService`
-- Entity: `Recurso`
+- Nuevo endpoint: `POST /api/v1/resource`
+- Servicio: `ResourceService`
+- DTOs: `CreateResourceDto`, `UpdateResourceDto`
 
-### Database
+### Database (Prisma)
 
 <!-- Nuevas tablas, columnas, relaciones -->
 
-- Nueva tabla: `recursos`
-- Relaciones: `user → recursos (1:N)`
+- Nueva tabla: `resources`
+- Relaciones: `user → resources (1:N)`
+- Índices: `@@index([userId])`
+
+### Shared Packages
+
+<!-- Si afecta packages compartidos -->
+
+- `@ordo-todo/core`: Nuevas entidades/use cases
+- `@ordo-todo/api-client`: Nuevos endpoints
+- `@ordo-todo/ui`: Nuevos componentes
 
 ## 📊 Prioridad e Impacto
 
@@ -86,6 +112,13 @@ assignees: ''
 - [ ] 🟡 Medium (1-3 días)
 - [ ] 🟠 Large (1-2 semanas)
 - [ ] 🔴 Extra Large (> 2 semanas)
+
+**Plataformas Afectadas:**
+- [ ] Web (Next.js)
+- [ ] Mobile (React Native)
+- [ ] Desktop (Electron)
+- [ ] Backend (NestJS)
+- [ ] All platforms
 
 ## 🔀 Alternativas Consideradas
 
@@ -107,7 +140,8 @@ assignees: ''
 - [ ] Funcionalidad implementada según spec
 - [ ] Tests unitarios agregados
 - [ ] Documentación actualizada
-- [ ] Validado con usuarios (si aplica)
+- [ ] Validado en todas las plataformas requeridas
+- [ ] Swagger docs actualizados (Backend)
 
 ## 📚 Referencias
 

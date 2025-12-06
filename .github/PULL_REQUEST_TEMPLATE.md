@@ -40,15 +40,15 @@
 
 - [ ] Sigue los [standards de código](/.github/CONTRIBUTING.md#standards-de-código)
 - [ ] Sin valores hardcodeados (colores, spacing, secrets)
-- [ ] Componentes < 200 líneas (Flutter)
+- [ ] Componentes < 150 líneas (React/React Native)
 - [ ] DTOs validados con `class-validator` (Backend)
 - [ ] userId del JWT, NUNCA del body (Backend)
 
 ### Testing
 
 - [ ] Tests unitarios agregados/actualizados
-- [ ] Tests pasan localmente (`npm run test` / `flutter test`)
-- [ ] Linter pasa sin errores (`npm run lint` / `flutter analyze`)
+- [ ] Tests pasan localmente (`npm run test`)
+- [ ] Linter pasa sin errores (`npm run lint`)
 - [ ] Validado manualmente en desarrollo
 
 ### Seguridad
@@ -63,33 +63,44 @@
 - [ ] Comentarios útiles en código complejo
 - [ ] README actualizado si cambia setup
 - [ ] Swagger docs actualizadas (Backend)
-- [ ] Componentes documentados con ejemplos (Flutter)
+- [ ] Componentes documentados con JSDoc (React)
 
 ### Performance
 
 - [ ] Sin queries N+1 (Backend)
 - [ ] Índices agregados en columnas de búsqueda (Database)
-- [ ] `const` widgets donde sea posible (Flutter)
-- [ ] Sin rebuilds innecesarios (Flutter)
+- [ ] Server Components donde sea posible (Next.js)
+- [ ] Lazy loading para componentes pesados
 
 ### Accesibilidad
 
-- [ ] Touch targets mínimo 48x48dp (Flutter)
-- [ ] Contraste mínimo 4.5:1 (Flutter)
-- [ ] Semantics labels agregados (Flutter)
-- [ ] Probado con TalkBack/VoiceOver (si aplica)
+- [ ] Touch targets mínimo 44x44px (Mobile)
+- [ ] Contraste mínimo 4.5:1
+- [ ] aria-labels en iconos sin texto
+- [ ] Navegación por teclado funcional (Web)
 
-### Flutter Específico
+### Web Específico (Next.js)
 
-- [ ] Usa theme system (`theme.componentColors`, `AppConstants.spacing*`)
-- [ ] NO hardcodea colores (`Colors.blue` ❌ → `theme.colorScheme.primary` ✅)
-- [ ] NO hardcodea spacing (`16` ❌ → `AppConstants.spacingM` ✅)
-- [ ] Widgets reutilizables en `lib/core/widgets/`
-- [ ] Soporta ambos visual styles (Aurora y Monolight)
+- [ ] Usa TailwindCSS (no inline styles)
+- [ ] Server Components por defecto (no 'use client' innecesario)
+- [ ] React Query para server state
+- [ ] Componentes reutilizables en `src/components/`
 
-### Backend Específico
+### Mobile Específico (React Native)
 
-- [ ] Migraciones tienen `up()` y `down()` reversibles
+- [ ] Usa StyleSheet.create()
+- [ ] Soporte para iOS y Android
+- [ ] Expo SDK features cuando es posible
+
+### Desktop Específico (Electron)
+
+- [ ] Separación main/renderer process
+- [ ] IPC communication seguro
+- [ ] Funcionalidad offline si aplica
+
+### Backend Específico (NestJS)
+
+- [ ] Migraciones Prisma creadas si hay cambios de schema
 - [ ] Transacciones en operaciones multi-tabla
 - [ ] Logger inyectado (NO `console.log`)
 - [ ] Type-safe error handling en catch blocks
@@ -114,9 +125,9 @@
 npm run test          # Resultado: ✅ X tests passed
 npm run test:e2e      # Resultado: ✅ X tests passed
 
-# Flutter
-flutter test          # Resultado: ✅ X tests passed
-flutter analyze       # Resultado: ✅ No issues found
+# Web
+npm run lint          # Resultado: ✅ No issues found
+npm run build         # Resultado: ✅ Build successful
 ```
 
 ---
@@ -151,7 +162,7 @@ flutter analyze       # Resultado: ✅ No issues found
 <!-- Áreas específicas donde quieres feedback -->
 
 - [ ] Revisar lógica en `archivo.ts:linea`
-- [ ] Validar diseño de componente `NombreWidget`
+- [ ] Validar diseño de componente `NombreComponente`
 - [ ] Confirmar approach de `funcionalidad X`
 
 ---
@@ -160,9 +171,9 @@ flutter analyze       # Resultado: ✅ No issues found
 
 <!-- Si aplica, instrucciones especiales para deploy -->
 
-- [ ] Requiere correr migraciones (`npm run migration:run`)
+- [ ] Requiere correr migraciones (`npx prisma migrate deploy`)
 - [ ] Requiere nuevas variables de entorno (ver `.env.example`)
-- [ ] Requiere actualizar dependencias (`npm install` / `flutter pub get`)
+- [ ] Requiere actualizar dependencias (`npm install`)
 - [ ] Requiere restart de servicios (Redis, PostgreSQL)
 
 ---

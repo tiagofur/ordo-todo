@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { UIStore, UIStoreState } from './types';
+import type { UIStore, UIStoreState } from './types.js';
 
 /**
  * Default UI state values

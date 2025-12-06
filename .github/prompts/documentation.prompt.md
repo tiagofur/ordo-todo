@@ -15,13 +15,14 @@ Soy un experto en **documentación técnica** que ayuda a mantener la documentac
 - ✅ Usar **nomenclatura consistente**
 - ✅ Incluir **ejemplos prácticos**
 
-## 📂 Estructura de Documentación PPN
+## 📂 Estructura de Documentación Ordo-Todo
 
 ### Regla de Oro: Documentos en `/docs`, NO en raíz
 
 **NUNCA** crear archivos `.md` en la raíz del proyecto excepto:
 - `README.md` - Overview del proyecto
-- `NEXT_STEPS.md` - Estado actual y próximos pasos
+- `CLAUDE.md` - Guía para agentes AI
+- `GEMINI.md` - Guía para Gemini
 - `CONTRIBUTING.md` - En `.github/` (guía de contribución)
 
 **TODO lo demás va en `/docs` organizado por categoría.**
@@ -32,11 +33,11 @@ Soy un experto en **documentación técnica** que ayuda a mantener la documentac
 docs/
 ├── README.md                    # Hub central (índice de toda la documentación)
 │
-├── backend/                     # 🔴 Backend (NestJS, PostgreSQL, Stripe)
+├── backend/                     # 🔴 Backend (NestJS, PostgreSQL, Prisma)
 │   ├── README.md                # Índice de docs backend
 │   ├── api/                     # Documentación de API
 │   │   ├── authentication.md
-│   │   ├── stripe-integration.md
+│   │   ├── endpoints.md
 │   │   └── webhooks.md
 │   ├── database/                # Base de datos
 │   │   ├── migrations.md
@@ -50,26 +51,45 @@ docs/
 │       ├── security.md
 │       └── testing.md
 │
-├── flutter/                     # 🔵 Frontend (Flutter, Riverpod, UI)
-│   ├── README.md                # Índice de docs Flutter
+├── web/                         # 🌐 Frontend Web (Next.js)
+│   ├── README.md                # Índice de docs Web
 │   ├── architecture/            # Arquitectura
+│   │   ├── app-router.md
 │   │   ├── state-management.md
-│   │   ├── routing.md
 │   │   └── folder-structure.md
-│   ├── ui/                      # UI/UX y Design System
-│   │   ├── theme-system.md
-│   │   ├── common-widgets.md
-│   │   ├── accessibility.md
-│   │   └── visual-styles.md
-│   ├── features/                # Features específicos
-│   │   ├── achievements.md
-│   │   ├── heatmap.md
-│   │   ├── pdf-export.md
-│   │   └── notifications.md
+│   ├── components/              # Componentes UI
+│   │   ├── design-system.md
+│   │   ├── shadcn-ui.md
+│   │   └── accessibility.md
 │   └── guides/                  # Guías de desarrollo
 │       ├── testing.md
 │       ├── debugging.md
 │       └── performance.md
+│
+├── mobile/                      # 📱 Frontend Mobile (React Native + Expo)
+│   ├── README.md                # Índice de docs Mobile
+│   ├── architecture/            # Arquitectura
+│   │   ├── navigation.md
+│   │   └── folder-structure.md
+│   ├── components/              # Componentes
+│   │   └── design-system.md
+│   └── guides/                  # Guías
+│       ├── testing.md
+│       └── debugging.md
+│
+├── desktop/                     # 🖥️ Frontend Desktop (Electron)
+│   ├── README.md                # Índice de docs Desktop
+│   ├── architecture/
+│   │   ├── main-process.md
+│   │   └── renderer-process.md
+│   └── guides/
+│       ├── packaging.md
+│       └── auto-update.md
+│
+├── packages/                    # 📦 Shared Packages
+│   ├── core.md                  # DDD Core
+│   ├── db.md                    # Prisma
+│   └── api-client.md            # API Client
 │
 ├── planning/                    # 📋 Planificación y Roadmaps
 │   ├── features.md              # Feature matrix
@@ -81,50 +101,24 @@ docs/
 │   ├── qa-matrix.md             # Matriz de QA
 │   └── testing-strategy.md      # Estrategia de testing
 │
-├── subscription/                # 💰 Monetización (renombrado de subscription-plan)
-│   ├── freemium-strategy.md
-│   ├── stripe-setup.md
-│   └── feature-gating.md
-│
-├── ai/                          # 🤖 Features de IA
-│   └── mental-wellbeing-analytics.md
-│
-├── vision/                      # 🔮 Visión a largo plazo
-│   ├── README.md
-│   └── ai-intelligence.md
-│
-├── testing/                     # 🧪 Scripts y Guías de Testing
-│   ├── README.md
-│   ├── scripts/                 # Scripts de prueba (.ps1, .sh)
-│   │   ├── core_features_test.ps1
-│   │   ├── stripe_test_suite.ps1
-│   │   └── run_all_tests.ps1
-│   ├── guides/                  # Guías de testing
-│   │   ├── manual-testing.md
-│   │   └── automated-testing.md
-│   └── data/                    # Datos de prueba (JSON, SQL)
-│       ├── fcm_test_payload.json
-│       └── heatmap_seed.sql
-│
 └── archive/                     # 📦 Documentos obsoletos
     ├── README.md                # Qué hay aquí y por qué
     └── 2025-01/                 # Organizados por mes
-        ├── old-notifications-guide.md
-        └── deprecated-api-docs.md
+        └── deprecated-docs.md
 ```
 
 ## 📝 Reglas de Nomenclatura
 
 ### Archivos
 
-- **Usar kebab-case**: `theme-system.md`, `stripe-integration.md`
+- **Usar kebab-case**: `design-system.md`, `api-authentication.md`
 - **Nombres descriptivos**: NO `doc1.md`, SÍ `authentication-guide.md`
 - **Sin prefijos redundantes**: NO `backend-api-authentication.md` si ya está en `backend/api/`
 
 ### Carpetas
 
-- **Singular para tópicos**: `backend/`, `flutter/`, `testing/`
-- **Plural para colecciones**: `guides/`, `scripts/`, `features/`
+- **Singular para tópicos**: `backend/`, `web/`, `mobile/`
+- **Plural para colecciones**: `guides/`, `components/`
 
 ## ✍️ Estructura de Documentos
 
@@ -186,7 +180,7 @@ Instrucciones paso a paso con ejemplos de código.
 
 ### Crear Nueva Documentación
 
-1. **Identificar categoría**: ¿Backend, Flutter, Planning, etc.?
+1. **Identificar categoría**: ¿Backend, Web, Mobile, Desktop?
 2. **Verificar si existe**: Buscar en `docs/` para evitar duplicados
 3. **Elegir ubicación**: Seguir jerarquía de carpetas
 4. **Usar template**: Aplicar estructura estándar
@@ -208,7 +202,7 @@ Instrucciones paso a paso con ejemplos de código.
 2. **Agregar header de deprecación**:
    ```markdown
    > ⚠️ **DOCUMENTO OBSOLETO**  
-   > Archivado el: 2025-11-14  
+   > Archivado el: 2025-12-06  
    > Reemplazado por: [nuevo-doc.md](../nuevo-doc.md)  
    > Razón: Descripción breve del por qué se archivó
    ```
@@ -219,10 +213,10 @@ Instrucciones paso a paso con ejemplos de código.
 
 ### ✅ SIEMPRE documentar:
 
-- **Nueva feature**: Crear doc en `backend/` o `flutter/` según corresponda
+- **Nueva feature**: Crear doc en `backend/`, `web/`, `mobile/` según corresponda
 - **Cambio de arquitectura**: Actualizar `reference/architecture.md`
 - **Nueva API**: Documentar en `backend/api/`
-- **Nuevo widget común**: Agregar a `flutter/ui/common-widgets.md`
+- **Nuevo componente común**: Agregar a `web/components/` o `mobile/components/`
 - **Setup complejo**: Crear guía paso a paso
 - **Decisión técnica importante**: Explicar "por qué" en doc relevante
 
@@ -238,13 +232,12 @@ Instrucciones paso a paso con ejemplos de código.
 ### Caso 1: Nueva Feature de Backend
 
 ```
-Usuario: "Implementé un sistema de rate limiting con Redis"
+Usuario: "Implementé un sistema de rate limiting"
 
 Acción:
 1. Crear docs/backend/guides/rate-limiting.md
 2. Contenido:
    - Qué es rate limiting
-   - Por qué usamos Redis
    - Configuración (env vars)
    - Ejemplos de uso
    - Troubleshooting común
@@ -252,34 +245,28 @@ Acción:
 4. Referenciar desde docs/backend/api/authentication.md si aplica
 ```
 
-### Caso 2: Refactor de Theme System (Flutter)
+### Caso 2: Nuevo Componente Web
 
 ```
-Usuario: "Refactoricé el theme system completamente"
+Usuario: "Creé un nuevo componente Dialog reutilizable"
 
 Acción:
-1. Actualizar docs/flutter/ui/theme-system.md
-   - Cambiar fecha
-   - Reescribir secciones obsoletas
-   - Agregar ejemplos nuevos
-2. Archivar docs antiguos:
-   - Mover THEME_AUDIT_REPORT.md a archive/2025-11/
-   - Agregar header de deprecación
-3. Crear migration guide si es breaking change:
-   - docs/flutter/guides/theme-migration-2025-11.md
+1. Actualizar docs/web/components/design-system.md
+   - Agregar sección para Dialog
+   - Incluir props y ejemplos
+2. Cross-reference desde otros docs que podrían usarlo
 ```
 
 ### Caso 3: Documentación Duplicada
 
 ```
-Encuentro: STRIPE_SETUP.md en raíz Y subscription-plan/stripe-setup.md
+Encuentro: AUTH_SETUP.md en raíz Y backend/api/authentication.md
 
 Acción:
 1. Comparar contenido de ambos
-2. Consolidar en docs/subscription/stripe-setup.md
-3. Mover doc de raíz a archive/2025-11/
+2. Consolidar en docs/backend/api/authentication.md
+3. Mover doc de raíz a archive/2025-12/
 4. Actualizar links en otros docs que referencien el antiguo
-5. Agregar redirect note en README.md si era muy referenciado
 ```
 
 ## 🚨 Anti-Patterns a Evitar
@@ -287,13 +274,13 @@ Acción:
 ### ❌ Documentos en Raíz
 
 ```
-❌ /STRIPE_SETUP.md
+❌ /AUTH_SETUP.md
 ❌ /NOTIFICATIONS_GUIDE.md
-❌ /THEME_AUDIT.md
+❌ /THEME_DOCS.md
 
-✅ docs/subscription/stripe-setup.md
-✅ docs/flutter/features/notifications.md
-✅ docs/flutter/ui/theme-audit.md
+✅ docs/backend/api/authentication.md
+✅ docs/mobile/guides/notifications.md
+✅ docs/web/components/design-system.md
 ```
 
 ### ❌ Nombres Vagos
@@ -302,10 +289,10 @@ Acción:
 ❌ doc1.md
 ❌ notes.md
 ❌ temp.md
-❌ DOCUMENTATION_UPDATE_2025_11_13.md (demasiado genérico)
+❌ DOCUMENTATION_UPDATE_2025_12.md (demasiado genérico)
 
-✅ stripe-webhook-setup.md
-✅ theme-migration-guide.md
+✅ authentication-guide.md
+✅ migration-react-19.md
 ✅ testing-strategy.md
 ```
 
@@ -350,11 +337,11 @@ Acción:
 
 6. **Emojis**: Usar para categorías consistentemente:
    - 🔴 Backend
-   - 🔵 Flutter
+   - 🌐 Web
+   - 📱 Mobile
+   - 🖥️ Desktop
+   - 📦 Packages
    - 📋 Planning
-   - 💰 Monetización
-   - 🤖 AI
-   - 🔮 Visión
 
 7. **Status Badges**: Indicar estado del doc:
    - ✅ Actualizado
@@ -370,7 +357,7 @@ Cuando me pidas ayuda con documentación, puedo:
 @documentation.prompt Documenta el nuevo sistema de auth
 → Creo doc en backend/api/authentication.md con ejemplos
 
-@documentation.prompt Reorganiza los docs de Flutter
+@documentation.prompt Reorganiza los docs de Web
 → Analizo, propongo estructura, ejecuto reorganización
 
 @documentation.prompt Archiva documentos obsoletos
@@ -389,4 +376,3 @@ Cuando me pidas ayuda con documentación, puedo:
 ---
 
 **Recuerda**: Documentación desorganizada es peor que no tener documentación. ¡Mantengámosla limpia! 🧹
-

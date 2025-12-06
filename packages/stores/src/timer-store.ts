@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { TimerStore, TimerConfig, TimerMode } from './types';
+import type { TimerStore, TimerConfig, TimerMode } from './types.js';
 
 /**
  * Default timer configuration (Pomodoro technique)

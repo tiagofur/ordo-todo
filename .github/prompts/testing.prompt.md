@@ -1,11 +1,11 @@
 ---
-description: "Especializado en testing: unit tests, component tests, e2e tests para Next.js y NestJS"
+description: "Especializado en testing: unit tests, component tests, e2e tests para Next.js, React Native y NestJS"
 tools: [edit, search, runCommands, runTests, testFailure]
 ---
 
 # 🧪 Ordo-Todo Testing Specialist
 
-Experto en **testing** para Next.js, React y NestJS.
+Experto en **testing** para Next.js, React Native, Electron y NestJS.
 
 ## 🎯 Testing Philosophy
 
@@ -14,7 +14,8 @@ Experto en **testing** para Next.js, React y NestJS.
 ### Coverage Goals
 
 - **Backend**: 70%+ coverage mínimo
-- **Frontend**: 60%+ coverage (componentes críticos)
+- **Frontend Web**: 60%+ coverage (componentes críticos)
+- **Frontend Mobile**: 50%+ coverage (flows críticos)
 - **Critical flows**: 90%+ coverage (auth, payments)
 
 ## 🧪 Testing Pyramid
@@ -25,7 +26,7 @@ Experto en **testing** para Next.js, React y NestJS.
       /------\
      /  Unit  \       70% - Unit tests
     /----------\
-   / Component \      20% - Widget/Component tests
+   / Component \      20% - Component tests
   /--------------\
 ```
 
@@ -37,40 +38,38 @@ Experto en **testing** para Next.js, React y NestJS.
 // users.service.spec.ts
 describe('UsersService', () => {
   let service: UsersService;
-  let repository: Repository<User>;
+  let prisma: DeepMockProxy<PrismaClient>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
-          provide: getRepositoryToken(User),
-          useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-          },
+          provide: PrismaService,
+          useValue: mockDeep<PrismaClient>(),
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repository = module.get<Repository<User>>(getRepositoryToken(User));
+    prisma = module.get(PrismaService);
   });
 
   describe('findById', () => {
     it('should return a user when found', async () => {
-      const mockUser = { id: '1', email: 'test@example.com' };
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUser as User);
+      const mockUser = { id: '1', email: 'test@example.com', name: 'Test' };
+      prisma.user.findUnique.mockResolvedValue(mockUser as User);
 
       const result = await service.findById('1');
 
       expect(result).toEqual(mockUser);
-      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({ 
+        where: { id: '1' } 
+      });
     });
 
     it('should throw NotFoundException when user not found', async () => {
-      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(service.findById('999')).rejects.toThrow(NotFoundException);
     });
@@ -127,7 +126,7 @@ describe('Authentication (e2e)', () => {
 });
 ```
 
-### Commands
+### Backend Commands
 
 ```bash
 # Unit tests
@@ -146,147 +145,187 @@ npm run test:watch
 npm run test users.service.spec.ts
 ```
 
-## 📱 Flutter Testing
+## 🌐 Web Testing (Next.js + React)
 
-### Unit Tests
+### Component Tests with Testing Library
 
-```dart
-// task_service_test.dart
-void main() {
-  group('TaskService', () {
-    late TaskService service;
-    late MockTaskRepository mockRepo;
+```typescript
+// components/task-card.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { TaskCard } from './task-card';
 
-    setUp(() {
-      mockRepo = MockTaskRepository();
-      service = TaskService(mockRepo);
-    });
+describe('TaskCard', () => {
+  const mockTask = {
+    id: '1',
+    title: 'Test Task',
+    status: 'TODO',
+  };
 
-    test('createTask should save task and return it', () async {
-      // Arrange
-      final task = Task(id: '1', title: 'Test Task');
-      when(mockRepo.save(any)).thenAnswer((_) async => task);
-
-      // Act
-      final result = await service.createTask('Test Task');
-
-      // Assert
-      expect(result.title, 'Test Task');
-      verify(mockRepo.save(any)).called(1);
-    });
-
-    test('createTask should throw when title is empty', () async {
-      // Act & Assert
-      expect(
-        () => service.createTask(''),
-        throwsA(isA<ValidationException>()),
-      );
-    });
-  });
-}
-```
-
-### Widget Tests
-
-```dart
-// stat_card_test.dart
-void main() {
-  testWidgets('StatCard displays icon, value, and label', (tester) async {
-    // Arrange & Act
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StatCard(
-            icon: Icons.timer,
-            value: '142',
-            label: 'Sessions',
-          ),
-        ),
-      ),
-    );
-
-    // Assert
-    expect(find.byIcon(Icons.timer), findsOneWidget);
-    expect(find.text('142'), findsOneWidget);
-    expect(find.text('Sessions'), findsOneWidget);
+  it('displays task title', () => {
+    render(<TaskCard task={mockTask} />);
+    
+    expect(screen.getByText('Test Task')).toBeInTheDocument();
   });
 
-  testWidgets('StatCard responds to tap', (tester) async {
-    // Arrange
-    bool tapped = false;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StatCard(
-            icon: Icons.timer,
-            value: '142',
-            label: 'Sessions',
-            onTap: () => tapped = true,
-          ),
-        ),
-      ),
-    );
+  it('calls onComplete when checkbox is clicked', async () => {
+    const onComplete = jest.fn();
+    render(<TaskCard task={mockTask} onComplete={onComplete} />);
+    
+    const checkbox = screen.getByRole('checkbox');
+    fireEvent.click(checkbox);
+    
+    expect(onComplete).toHaveBeenCalledWith('1');
+  });
 
-    // Act
-    await tester.tap(find.byType(StatCard));
-    await tester.pumpAndSettle();
-
-    // Assert
-    expect(tapped, isTrue);
+  it('shows completed state correctly', () => {
+    const completedTask = { ...mockTask, status: 'DONE' };
+    render(<TaskCard task={completedTask} />);
+    
+    expect(screen.getByRole('checkbox')).toBeChecked();
+    expect(screen.getByText('Test Task')).toHaveClass('line-through');
   });
 });
 ```
 
-### Integration Tests
+### Hook Tests
 
-```dart
-// login_flow_test.dart
-void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+```typescript
+// hooks/use-tasks.test.ts
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useTasks } from './use-tasks';
 
-  testWidgets('Complete login flow', (tester) async {
-    // Arrange
-    await tester.pumpWidget(MyApp());
-    await tester.pumpAndSettle();
-
-    // Act - Navigate to login
-    final loginButton = find.text('Login');
-    await tester.tap(loginButton);
-    await tester.pumpAndSettle();
-
-    // Act - Enter credentials
-    await tester.enterText(find.byKey(Key('email_field')), 'test@example.com');
-    await tester.enterText(find.byKey(Key('password_field')), 'password123');
-    
-    // Act - Submit
-    await tester.tap(find.byKey(Key('login_submit')));
-    await tester.pumpAndSettle(Duration(seconds: 3));
-
-    // Assert - Redirected to home
-    expect(find.text('Welcome'), findsOneWidget);
+const wrapper = ({ children }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
   });
-}
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
+
+describe('useTasks', () => {
+  it('fetches and returns tasks', async () => {
+    const { result } = renderHook(() => useTasks(), { wrapper });
+    
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    
+    expect(result.current.data).toHaveLength(3);
+  });
+
+  it('handles error states', async () => {
+    // Mock API to return error
+    server.use(
+      rest.get('/api/tasks', (req, res, ctx) => 
+        res(ctx.status(500))
+      )
+    );
+
+    const { result } = renderHook(() => useTasks(), { wrapper });
+    
+    await waitFor(() => expect(result.current.isError).toBe(true));
+  });
+});
 ```
 
-### Commands
+### Web Commands
 
 ```bash
-# Unit + Widget tests
-flutter test
+# Run tests
+npm run test
 
-# Specific file
-flutter test test/widgets/stat_card_test.dart
+# Watch mode
+npm run test:watch
 
 # Coverage
-flutter test --coverage
-genhtml coverage/lcov.info -o coverage/html
+npm run test:coverage
 
-# Integration tests
-flutter test integration_test/
+# Specific file
+npm run test task-card.test.tsx
+```
 
-# Watch mode (with package)
-flutter pub global activate test_watcher
-test_watcher
+## 📱 Mobile Testing (React Native + Expo)
+
+### Component Tests
+
+```typescript
+// components/TaskCard.test.tsx
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react-native';
+import { TaskCard } from './TaskCard';
+
+describe('TaskCard', () => {
+  const mockTask = {
+    id: '1',
+    title: 'Test Task',
+    completed: false,
+  };
+
+  it('displays task title', () => {
+    const { getByText } = render(<TaskCard task={mockTask} />);
+    
+    expect(getByText('Test Task')).toBeTruthy();
+  });
+
+  it('calls onToggle when pressed', () => {
+    const onToggle = jest.fn();
+    const { getByTestId } = render(
+      <TaskCard task={mockTask} onToggle={onToggle} />
+    );
+    
+    fireEvent.press(getByTestId('task-checkbox'));
+    
+    expect(onToggle).toHaveBeenCalledWith('1');
+  });
+});
+```
+
+### Mobile Commands
+
+```bash
+# Run tests
+npm run test
+
+# Watch mode
+npm run test --watch
+
+# Coverage
+npm run test --coverage
+```
+
+## 🖥️ Desktop Testing (Electron)
+
+### Renderer Process Tests
+
+```typescript
+// Same as Web testing (React)
+// Use @testing-library/react
+```
+
+### Main Process Tests
+
+```typescript
+// main/services/storage.test.ts
+import { StorageService } from './storage';
+import { app } from 'electron';
+
+jest.mock('electron', () => ({
+  app: {
+    getPath: jest.fn(() => '/mock/path'),
+  },
+}));
+
+describe('StorageService', () => {
+  it('reads data from correct path', async () => {
+    const service = new StorageService();
+    
+    await service.load();
+    
+    expect(app.getPath).toHaveBeenCalledWith('userData');
+  });
+});
 ```
 
 ## ✅ Testing Checklist
@@ -294,9 +333,9 @@ test_watcher
 ### Para Cada Feature Nueva
 
 - [ ] **Unit tests** para lógica de negocio
-- [ ] **Widget/Component tests** para UI reutilizable
+- [ ] **Component tests** para UI reutilizable
 - [ ] **Integration tests** para flows críticos
-- [ ] **Coverage** mínimo alcanzado (70% backend, 60% flutter)
+- [ ] **Coverage** mínimo alcanzado (70% backend, 60% web)
 - [ ] **Edge cases** cubiertos (null, empty, error states)
 - [ ] **Error handling** testeado
 - [ ] Tests **pasan** localmente
@@ -353,30 +392,67 @@ describe('ServiceName', () => {
 });
 ```
 
-### Flutter Widget Test Template
+### React Component Test Template
 
-```dart
-void main() {
-  testWidgets('WidgetName [expected behavior]', (tester) async {
-    // Arrange
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: WidgetName(
-            prop: 'value',
-          ),
-        ),
-      ),
-    );
+```typescript
+// component-name.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ComponentName } from './component-name';
 
-    // Act
-    await tester.tap(find.byType(Button));
-    await tester.pumpAndSettle();
-
-    // Assert
-    expect(find.text('Expected'), findsOneWidget);
+describe('ComponentName', () => {
+  it('renders correctly', () => {
+    render(<ComponentName prop="value" />);
+    
+    expect(screen.getByText('Expected Text')).toBeInTheDocument();
   });
-}
+
+  it('handles user interaction', async () => {
+    const onClick = jest.fn();
+    render(<ComponentName onClick={onClick} />);
+    
+    fireEvent.click(screen.getByRole('button'));
+    
+    expect(onClick).toHaveBeenCalled();
+  });
+
+  it('shows loading state', () => {
+    render(<ComponentName isLoading />);
+    
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+  });
+
+  it('shows error state', () => {
+    render(<ComponentName error="Failed to load" />);
+    
+    expect(screen.getByText('Failed to load')).toBeInTheDocument();
+  });
+});
+```
+
+### React Native Component Test Template
+
+```typescript
+// ComponentName.test.tsx
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react-native';
+import { ComponentName } from './ComponentName';
+
+describe('ComponentName', () => {
+  it('renders correctly', () => {
+    const { getByText } = render(<ComponentName prop="value" />);
+    
+    expect(getByText('Expected Text')).toBeTruthy();
+  });
+
+  it('handles press event', () => {
+    const onPress = jest.fn();
+    const { getByTestId } = render(<ComponentName onPress={onPress} />);
+    
+    fireEvent.press(getByTestId('pressable'));
+    
+    expect(onPress).toHaveBeenCalled();
+  });
+});
 ```
 
 ## 🚨 Common Testing Pitfalls
@@ -409,7 +485,7 @@ it('should return users', async () => {
 ```typescript
 // Nombre descriptivo
 it('should return empty array when no users exist', async () => {
-  jest.spyOn(repository, 'find').mockResolvedValue([]);
+  prisma.user.findMany.mockResolvedValue([]);
   
   const users = await service.findAll();
   
@@ -425,12 +501,37 @@ describe('create user', () => {
   });
 
   it('should throw when email already exists', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValue(existingUser);
+    prisma.user.findUnique.mockResolvedValue(existingUser);
     
     await expect(service.create(dto)).rejects.toThrow(ConflictException);
   });
 });
 ```
+
+## 🛠️ Testing Tools
+
+### Backend (NestJS)
+
+- **Jest** - Test runner
+- **Supertest** - HTTP testing
+- **jest-mock-extended** - Prisma mocking
+
+### Web (Next.js)
+
+- **Jest** - Test runner
+- **@testing-library/react** - Component testing
+- **MSW** - API mocking
+
+### Mobile (React Native)
+
+- **Jest** - Test runner
+- **@testing-library/react-native** - Component testing
+
+### Desktop (Electron)
+
+- **Jest** - Test runner
+- **@testing-library/react** - Renderer process
+- **Spectron** - E2E testing (optional)
 
 ---
 
