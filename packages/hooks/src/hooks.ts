@@ -26,6 +26,7 @@ import type {
   UpdateTagDto,
   StartTimerDto,
   StopTimerDto,
+  GetSessionsParams,
   GetDailyMetricsParams,
   CreateCommentDto,
   UpdateCommentDto,
@@ -691,8 +692,11 @@ export function createHooks(config: CreateHooksConfig) {
 
     return useMutation({
       mutationFn: (data: CreateTagDto) => apiClient.createTag(data),
-      onSuccess: (tag) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+      onSuccess: (tag: { workspaceId?: string }) => {
+        if (tag.workspaceId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+        }
+        queryClient.invalidateQueries({ queryKey: ['tags'] });
       },
     });
   }
@@ -701,14 +705,17 @@ export function createHooks(config: CreateHooksConfig) {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: ({ tagId, data }: { tagId: string; data: UpdateTagDto }) => {
+      mutationFn: async ({ tagId, data }: { tagId: string; data: UpdateTagDto }): Promise<{ workspaceId?: string }> => {
         if (!apiClient.updateTag) {
           throw new Error('updateTag not implemented in API client');
         }
-        return apiClient.updateTag(tagId, data);
+        return apiClient.updateTag(tagId, data) as Promise<{ workspaceId?: string }>;
       },
-      onSuccess: (tag: { workspaceId: string }) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+      onSuccess: (tag) => {
+        if (tag.workspaceId) {
+          queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+        }
+        queryClient.invalidateQueries({ queryKey: ['tags'] });
       },
     });
   }
@@ -832,15 +839,7 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
-  function useSessionHistory(params?: {
-    taskId?: string;
-    type?: string;
-    startDate?: string;
-    endDate?: string;
-    page?: number;
-    limit?: number;
-    completedOnly?: boolean;
-  }) {
+  function useSessionHistory(params?: GetSessionsParams) {
     return useQuery({
       queryKey: queryKeys.timerHistory(params),
       queryFn: () => apiClient.getSessionHistory(params),
@@ -871,10 +870,10 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
-  function useWeeklyMetrics(params?: { weekStart?: string }) {
+  function useWeeklyMetrics() {
     return useQuery({
-      queryKey: queryKeys.weeklyMetrics(params),
-      queryFn: () => apiClient.getWeeklyMetrics(params),
+      queryKey: queryKeys.weeklyMetrics(),
+      queryFn: () => apiClient.getWeeklyMetrics(),
     });
   }
 

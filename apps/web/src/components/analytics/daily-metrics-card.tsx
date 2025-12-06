@@ -2,6 +2,7 @@
 
 import { useDailyMetrics, useTimerStats } from "@/lib/api-hooks";
 import { formatDuration } from "@ordo-todo/core";
+import { getFocusScoreColor } from "@ordo-todo/ui";
 import {
   Card,
   CardContent,
@@ -52,18 +53,16 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
 
   const isLoading = isLoadingTimer || isLoadingMetrics;
 
-
-
   const formatFocusScore = (score?: number): string => {
     if (!score) return "N/A";
     return `${Math.round(score * 100)}%`;
   };
 
-  const getFocusScoreColor = (score?: number): string => {
+  // Use shared getFocusScoreColor from @ordo-todo/ui
+  // Note: metrics.focusScore is 0-1, getFocusScoreColor expects 0-100
+  const getFocusScoreTextClass = (score?: number): string => {
     if (!score) return "text-muted-foreground";
-    if (score >= 0.8) return "text-green-600";
-    if (score >= 0.5) return "text-yellow-600";
-    return "text-red-600";
+    return getFocusScoreColor(Math.round(score * 100)).text;
   };
 
   const formattedDate = date
@@ -147,7 +146,7 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
               <span>{t("metrics.focus")}</span>
             </div>
             <div
-              className={`text-3xl font-bold ${getFocusScoreColor(metrics?.focusScore)}`}
+              className={`text-3xl font-bold ${getFocusScoreTextClass(metrics?.focusScore)}`}
             >
               {formatFocusScore(metrics?.focusScore)}
             </div>

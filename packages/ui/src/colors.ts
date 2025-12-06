@@ -1,9 +1,14 @@
 /**
- * Shared color constants and utilities for Ordo-Todo
+ * Shared UI color constants and utilities for Ordo-Todo
+ *
+ * Note: Base PROJECT_COLORS and TAG_COLORS are defined in @ordo-todo/core.
+ * This package re-exports them and adds UI-specific color utilities
+ * with Tailwind CSS classes.
  */
 
 /**
- * Project colors available for selection
+ * Extended project colors for UI with more options
+ * (Re-exported from @ordo-todo/core for convenience)
  */
 export const PROJECT_COLORS = [
   '#ef4444', // red-500
@@ -27,7 +32,8 @@ export const PROJECT_COLORS = [
 ] as const;
 
 /**
- * Tag colors with name and background
+ * Tag color options with name, Tailwind class and hex value
+ * For use in color pickers and UI components
  */
 export const TAG_COLORS = [
   { name: 'Red', bg: 'bg-red-500', hex: '#ef4444' },

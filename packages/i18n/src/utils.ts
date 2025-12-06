@@ -89,16 +89,13 @@ export function flattenKeys(
  */
 export function getByPath(translations: Translations, path: string): string | undefined {
   const keys = path.split('.');
-  let current: TranslationValue = translations;
+  let current: TranslationValue | undefined = translations;
 
   for (const key of keys) {
-    if (typeof current === 'string') {
+    if (typeof current === 'string' || current === undefined) {
       return undefined;
     }
     current = current[key];
-    if (current === undefined) {
-      return undefined;
-    }
   }
 
   return typeof current === 'string' ? current : undefined;

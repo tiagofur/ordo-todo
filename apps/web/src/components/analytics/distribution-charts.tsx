@@ -4,14 +4,15 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { cn } from "@/lib/utils";
+import { STATUS_COLORS } from "@ordo-todo/ui";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+// Chart colors for generic data visualization (projects, etc.)
+const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
-const STATUS_COLORS: Record<string, string> = {
-    'TODO': '#9ca3af',
-    'IN_PROGRESS': '#3b82f6',
-    'COMPLETED': '#22c55e',
-    'CANCELLED': '#ef4444'
+// Helper to get hex color from STATUS_COLORS
+const getStatusHex = (status: string): string => {
+  const statusKey = status as keyof typeof STATUS_COLORS;
+  return STATUS_COLORS[statusKey]?.hex || '#8884d8';
 };
 
 interface ProjectTimeChartProps {
@@ -53,7 +54,7 @@ export function ProjectTimeChart({
                             label={({name, percent}) => `${((percent || 0) * 100).toFixed(0)}%`}
                          >
                             {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                             ))}
                          </Pie>
                          <Tooltip 
@@ -108,7 +109,7 @@ export function TaskStatusChart({
                             paddingAngle={5}
                          >
                             {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#8884d8'} />
+                                <Cell key={`cell-${index}`} fill={getStatusHex(entry.status)} />
                             ))}
                          </Pie>
                          <Tooltip 
