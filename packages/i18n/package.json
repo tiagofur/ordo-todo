@@ -1,0 +1,41 @@
+{
+  "name": "@ordo-todo/i18n",
+  "version": "1.0.0",
+  "description": "Shared internationalization and translations for Ordo-Todo applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "ordo-todo",
+    "i18n",
+    "translations",
+    "typescript"
+  ],
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./locales/en": {
+      "types": "./dist/locales/en.d.ts",
+      "default": "./dist/locales/en.js"
+    },
+    "./locales/es": {
+      "types": "./dist/locales/es.d.ts",
+      "default": "./dist/locales/es.js"
+    },
+    "./locales/pt-br": {
+      "types": "./dist/locales/pt-br.d.ts",
+      "default": "./dist/locales/pt-br.js"
+    }
+  }
+}

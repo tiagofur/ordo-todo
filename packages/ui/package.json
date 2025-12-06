@@ -1,0 +1,28 @@
+{
+  "name": "@ordo-todo/ui",
+  "version": "1.0.0",
+  "description": "Shared UI utilities and constants for Ordo-Todo applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "ordo-todo",
+    "ui",
+    "utilities",
+    "tailwind",
+    "typescript"
+  ],
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "typescript": "^5.9.3"
+  }
+}
