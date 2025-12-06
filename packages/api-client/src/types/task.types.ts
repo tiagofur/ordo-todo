@@ -83,3 +83,20 @@ export interface CreateSubtaskDto {
   dueDate?: Date | string;
   estimatedTime?: number;
 }
+
+/**
+ * Task sharing response
+ */
+export interface TaskShareResponse {
+  publicToken: string;
+  shareUrl: string;
+  expiresAt?: Date;
+}
+
+export interface PublicTaskResponse {
+  task: Task;
+  project: {
+    id: string;
+    name: string;
+  };
+}

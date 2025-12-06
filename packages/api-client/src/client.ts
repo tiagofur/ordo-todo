@@ -17,9 +17,16 @@ import type {
   // Workspace
   Workspace,
   WorkspaceWithMembers,
+  WorkspaceMember,
+  WorkspaceInvitation,
+  WorkspaceSettings,
+  WorkspaceAuditLog,
   CreateWorkspaceDto,
   UpdateWorkspaceDto,
+  UpdateWorkspaceSettingsDto,
   AddMemberDto,
+  InviteMemberDto,
+  AcceptInvitationDto,
   MemberRole,
   // Workflow
   Workflow,
@@ -32,12 +39,15 @@ import type {
   // Task
   Task,
   TaskDetails,
+  TaskShareResponse,
+  PublicTaskResponse,
   CreateTaskDto,
   UpdateTaskDto,
   CreateSubtaskDto,
   // Tag
   Tag,
   CreateTagDto,
+  UpdateTagDto,
   // Timer
   TimeSession,
   StartTimerDto,
@@ -64,6 +74,9 @@ import type {
   PredictDurationResponse,
   WeeklyReportResponse,
   ProductivityReport,
+  // Notifications
+  Notification,
+  UnreadCountResponse,
 } from './types';
 
 /**
@@ -1013,5 +1026,182 @@ export class OrdoApiClient {
    */
   async deleteReport(reportId: string): Promise<void> {
     await this.axios.delete(`/ai/reports/${reportId}`);
+  }
+
+  // ============ EXTENDED WORKSPACE ENDPOINTS ============
+
+  /**
+   * Get workspace members
+   * GET /workspaces/:id/members
+   */
+  async getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {
+    const response = await this.axios.get<WorkspaceMember[]>(`/workspaces/${workspaceId}/members`);
+    return response.data;
+  }
+
+  /**
+   * Get workspace invitations
+   * GET /workspaces/:id/invitations
+   */
+  async getWorkspaceInvitations(workspaceId: string): Promise<WorkspaceInvitation[]> {
+    const response = await this.axios.get<WorkspaceInvitation[]>(`/workspaces/${workspaceId}/invitations`);
+    return response.data;
+  }
+
+  /**
+   * Invite a member to a workspace
+   * POST /workspaces/:id/invite
+   */
+  async inviteWorkspaceMember(workspaceId: string, data: InviteMemberDto): Promise<WorkspaceInvitation> {
+    const response = await this.axios.post<WorkspaceInvitation>(`/workspaces/${workspaceId}/invite`, data);
+    return response.data;
+  }
+
+  /**
+   * Accept a workspace invitation
+   * POST /workspaces/invitations/accept
+   */
+  async acceptWorkspaceInvitation(data: AcceptInvitationDto): Promise<{ success: boolean }> {
+    const response = await this.axios.post<{ success: boolean }>('/workspaces/invitations/accept', data);
+    return response.data;
+  }
+
+  /**
+   * Get workspace settings
+   * GET /workspaces/:id/settings
+   */
+  async getWorkspaceSettings(workspaceId: string): Promise<WorkspaceSettings> {
+    const response = await this.axios.get<WorkspaceSettings>(`/workspaces/${workspaceId}/settings`);
+    return response.data;
+  }
+
+  /**
+   * Update workspace settings
+   * PUT /workspaces/:id/settings
+   */
+  async updateWorkspaceSettings(
+    workspaceId: string,
+    data: UpdateWorkspaceSettingsDto
+  ): Promise<WorkspaceSettings> {
+    const response = await this.axios.put<WorkspaceSettings>(`/workspaces/${workspaceId}/settings`, data);
+    return response.data;
+  }
+
+  /**
+   * Get workspace audit logs
+   * GET /workspaces/:id/audit-logs
+   */
+  async getWorkspaceAuditLogs(
+    workspaceId: string,
+    params?: { limit?: number; offset?: number }
+  ): Promise<WorkspaceAuditLog[]> {
+    const response = await this.axios.get<WorkspaceAuditLog[]>(`/workspaces/${workspaceId}/audit-logs`, {
+      params,
+    });
+    return response.data;
+  }
+
+  // ============ EXTENDED TAG ENDPOINTS ============
+
+  /**
+   * Update a tag
+   * PUT /tags/:id
+   */
+  async updateTag(tagId: string, data: UpdateTagDto): Promise<Tag> {
+    const response = await this.axios.put<Tag>(`/tags/${tagId}`, data);
+    return response.data;
+  }
+
+  // ============ EXTENDED TASK ENDPOINTS ============
+
+  /**
+   * Generate a public sharing token for a task
+   * POST /tasks/:id/share
+   */
+  async generatePublicToken(taskId: string): Promise<TaskShareResponse> {
+    const response = await this.axios.post<TaskShareResponse>(`/tasks/${taskId}/share`);
+    return response.data;
+  }
+
+  /**
+   * Get a task by its public sharing token
+   * GET /tasks/share/:token
+   */
+  async getTaskByPublicToken(token: string): Promise<PublicTaskResponse> {
+    const response = await this.axios.get<PublicTaskResponse>(`/tasks/share/${token}`);
+    return response.data;
+  }
+
+  // ============ EXTENDED ANALYTICS ENDPOINTS ============
+
+  /**
+   * Get monthly metrics
+   * GET /analytics/monthly
+   */
+  async getMonthlyMetrics(params?: { monthStart?: string }): Promise<DailyMetrics[]> {
+    const response = await this.axios.get<DailyMetrics[]>('/analytics/monthly', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get metrics for a date range
+   * GET /analytics/range
+   */
+  async getDateRangeMetrics(startDate: string, endDate: string): Promise<DailyMetrics[]> {
+    const response = await this.axios.get<DailyMetrics[]>('/analytics/range', {
+      params: { startDate, endDate },
+    });
+    return response.data;
+  }
+
+  // ============ EXTENDED ATTACHMENT ENDPOINTS ============
+
+  /**
+   * Get all attachments for a project
+   * GET /attachments/project/:projectId
+   */
+  async getProjectAttachments(projectId: string): Promise<Attachment[]> {
+    const response = await this.axios.get<Attachment[]>(`/attachments/project/${projectId}`);
+    return response.data;
+  }
+
+  // ============ NOTIFICATION ENDPOINTS ============
+
+  /**
+   * Get all notifications for the current user
+   * GET /notifications
+   */
+  async getNotifications(): Promise<Notification[]> {
+    const response = await this.axios.get<Notification[]>('/notifications');
+    return response.data;
+  }
+
+  /**
+   * Get unread notifications count
+   * GET /notifications/unread-count
+   */
+  async getUnreadNotificationsCount(): Promise<UnreadCountResponse> {
+    const response = await this.axios.get<UnreadCountResponse>('/notifications/unread-count');
+    return response.data;
+  }
+
+  /**
+   * Mark a notification as read
+   * PATCH /notifications/:id/read
+   */
+  async markNotificationAsRead(notificationId: string): Promise<Notification> {
+    const response = await this.axios.patch<Notification>(`/notifications/${notificationId}/read`);
+    return response.data;
+  }
+
+  /**
+   * Mark all notifications as read
+   * POST /notifications/mark-all-read
+   */
+  async markAllNotificationsAsRead(): Promise<{ success: boolean }> {
+    const response = await this.axios.post<{ success: boolean }>('/notifications/mark-all-read');
+    return response.data;
   }
 }

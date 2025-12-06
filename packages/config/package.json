@@ -1,0 +1,22 @@
+{
+  "name": "@ordo-todo/config",
+  "version": "1.0.0",
+  "description": "Shared configuration for Ordo-Todo applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "ordo-todo",
+    "config",
+    "typescript"
+  ],
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "typescript": "^5.9.3"
+  }
+}
