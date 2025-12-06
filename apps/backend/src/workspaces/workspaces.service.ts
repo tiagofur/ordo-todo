@@ -45,9 +45,30 @@ export class WorkspacesService {
     private readonly auditLogRepository: WorkspaceAuditLogRepository,
     @Inject('WorkflowRepository')
     private readonly workflowRepository: WorkflowRepository,
+    private readonly prisma: import('../database/prisma.service').PrismaService,
   ) { }
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
+    // Check if user has a username to namespace the workspace
+    const user = await this.userRepository.findById(userId);
+    // If we were enforcing username presence, we would check it here.
+    // For now, workspace creation proceeds. Uniqueness will be checked by DB constraint if ownerId is set.
+
+    // Also check for slug uniqueness per owner manually if needed, or rely on Prisma error
+    if (userId) {
+      const existing = await this.prisma.workspace.findUnique({
+        where: {
+          ownerId_slug: {
+            ownerId: userId,
+            slug: createWorkspaceDto.slug,
+          }
+        }
+      });
+      if (existing) {
+        throw new ForbiddenException('You already have a workspace with this slug');
+      }
+    }
+
     const createWorkspaceUseCase = new CreateWorkspaceUseCase(
       this.workspaceRepository,
     );
@@ -96,6 +117,69 @@ export class WorkspacesService {
       throw new NotFoundException('Workspace not found');
     }
     return workspace.props;
+  }
+
+  async findByUserAndSlug(username: string, slug: string) {
+    // Fetch user by username
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Fetch workspace by ownerId and slug
+    const workspace = await this.prisma.workspace.findUnique({
+      where: {
+        ownerId_slug: {
+          ownerId: user.id,
+          slug,
+        }
+      },
+      include: {
+        _count: {
+          select: {
+            projects: true,
+            members: true,
+          }
+        },
+        projects: {
+          select: {
+            _count: {
+              select: { tasks: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!workspace || workspace.isDeleted) {
+      throw new NotFoundException('Workspace not found');
+    }
+
+    // Format stats manually as in repository (simplified)
+    const taskCount = workspace.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      description: workspace.description,
+      type: workspace.type,
+      tier: workspace.tier,
+      color: workspace.color,
+      icon: workspace.icon,
+      ownerId: workspace.ownerId,
+      isArchived: workspace.isArchived,
+      createdAt: workspace.createdAt,
+      updatedAt: workspace.updatedAt,
+      stats: {
+        projectCount: workspace._count.projects,
+        memberCount: workspace._count.members,
+        taskCount: taskCount,
+      }
+    };
   }
 
   async findBySlug(slug: string) {

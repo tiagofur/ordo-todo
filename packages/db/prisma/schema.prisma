@@ -14,6 +14,7 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
+  username      String?   @unique
   emailVerified DateTime?
   name          String?
   image         String?
@@ -37,6 +38,7 @@ model User {
 
   // Relationships
   workspaces    WorkspaceMember[]
+  ownedWorkspaces Workspace[]     @relation("OwnedWorkspaces")
   createdTasks  Task[]            @relation("CreatedTasks")
   assignedTasks Task[]            @relation("AssignedTasks")
   ownedProjects Project[]
@@ -258,7 +260,7 @@ enum EnergyLevel {
 model Workspace {
   id          String        @id @default(cuid())
   name        String
-  slug        String        @unique // NUEVO: Para URLs amigables
+  slug        String
   description String?
   type        WorkspaceType
   tier        WorkspaceTier @default(FREE) // NUEVO: Preparado para monetización futura
@@ -267,6 +269,7 @@ model Workspace {
 
   // Owner
   ownerId String?
+  owner   User?   @relation("OwnedWorkspaces", fields: [ownerId], references: [id])
 
   // Members
   members WorkspaceMember[]
@@ -293,6 +296,7 @@ model Workspace {
 
   @@index([ownerId])
   @@index([slug])
+  @@unique([ownerId, slug])
 }
 
 enum WorkspaceTier {

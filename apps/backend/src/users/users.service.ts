@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import type { UserRepository } from '@ordo-todo/core';
 import { UserByEmail, ChangeUserName } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
@@ -94,11 +94,25 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    // Check if username is being updated and if it's unique
+    if (updateProfileDto.username) {
+      if (updateProfileDto.username !== user.username) {
+        const existingUser = await this.prisma.user.findUnique({
+          where: { username: updateProfileDto.username },
+        });
+
+        if (existingUser) {
+          throw new BadRequestException('Username already taken');
+        }
+      }
+    }
+
     // Update extended profile fields directly in Prisma
     const updatedUser = await this.prisma.user.update({
       where: { email },
       data: {
         name: updateProfileDto.name,
+        username: updateProfileDto.username,
         phone: updateProfileDto.phone,
         jobTitle: updateProfileDto.jobTitle,
         department: updateProfileDto.department,
@@ -115,6 +129,7 @@ export class UsersService {
         id: updatedUser.id,
         name: updatedUser.name,
         email: updatedUser.email,
+        username: updatedUser.username,
         phone: updatedUser.phone,
         jobTitle: updatedUser.jobTitle,
         department: updatedUser.department,
