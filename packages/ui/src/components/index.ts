@@ -28,12 +28,13 @@ export * from './analytics/index.js';
 
 // Phase 3 components
 export * from './tag/index.js';
+export * from './workspace/index.js';
+export * from './auth/index.js';
+export * from './ai/index.js';
 
 // Future phases
-// export * from './workspace';
 // export * from './workflow';
-// export * from './ai';
-// export * from './auth';
 // export * from './layout';
 // export * from './shared';
 // export * from './voice';
+

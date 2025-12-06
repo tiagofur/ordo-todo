@@ -117,13 +117,13 @@
 
 - [x] **Fase 1:** Migrar 30 componentes UI base ✅
 - [x] **Fase 2:** Migrar componentes dominio (task, project, analytics, timer) ✅
-- [/] **Fase 3:** Migrar workspace, layout, auth, ai
+- [x] **Fase 3:** Migrar workspace, auth, ai ✅ (parcial - layout, shared pendientes)
 - [ ] **Fase 4:** Actualizar imports en apps (web + desktop)
 - [ ] **Fase 5:** Crear @ordo-todo/stores
 - [ ] **Fase 6:** Migrar utilidades
 - [ ] **Fase 7:** Testing con Storybook
 
-> **✅ Logro:** `packages/ui` ahora compila sin errores. Todos los componentes de task, project, analytics y timer usan el patrón props-driven para ser platform-agnostic.
+> **✅ Logro:** `packages/ui` compila sin errores. Componentes workspace, auth y ai migrados a platform-agnostic.
 
 ## 📱 Desktop App - Estado
 
