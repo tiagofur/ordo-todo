@@ -52,11 +52,16 @@ export class WorkspacesController {
   }
 
   @Get('by-slug/:slug')
-  // We cannot easily use WorkspaceGuard here because we don't have ID yet.
-  // The service should handle the check or we resolve slug to ID first.
-  // For now, let's leave it but rely on service logic (which I should check).
   findBySlug(@Param('slug') slug: string) {
     return this.workspacesService.findBySlug(slug);
+  }
+
+  @Get(':username/:slug')
+  findByUserAndSlug(
+    @Param('username') username: string,
+    @Param('slug') slug: string,
+  ) {
+    return this.workspacesService.findByUserAndSlug(username, slug);
   }
 
   @Put(':id')

@@ -9,6 +9,12 @@ export class UpdateProfileDto {
 
   @IsString()
   @IsOptional()
+  @MinLength(3)
+  @MaxLength(30)
+  username?: string;
+
+  @IsString()
+  @IsOptional()
   @MaxLength(20)
   phone?: string;
 

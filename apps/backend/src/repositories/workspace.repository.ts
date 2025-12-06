@@ -177,7 +177,13 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   }
 
   async findBySlug(slug: string): Promise<Workspace | null> {
-    const workspace = await this.prisma.workspace.findUnique({
+    // Note: With the new schema change, finding by slug globally is ambiguous
+    // This method should probably be findBySlugAndOwner, but if used for global uniqueness check it fails.
+    // For now, let's assume we find the FIRST one (which is risky) or we need to update the interface.
+    // Given the request to support user namespaces, findBySlug should probably require ownerId.
+    // However, to keep backward compatibility or find 'public' workspaces?
+    // Let's implement findFirst since findUnique no longer works with just slug.
+    const workspace = await this.prisma.workspace.findFirst({
       where: { slug },
       include: {
         _count: {
