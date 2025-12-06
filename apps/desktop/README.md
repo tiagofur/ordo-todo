@@ -1,226 +1,168 @@
-# Ordo-Todo Desktop App
+# 🖥️ Ordo-Todo Desktop
 
-Aplicación de escritorio para Ordo-Todo construida con Electron + React.
+**Versión 1.0.0** | Aplicación de productividad moderna con gestión de tareas y Pomodoro.
 
-## 🚀 Inicio Rápido
+![Ordo-Todo Desktop](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Electron](https://img.shields.io/badge/electron-39.x-47848F.svg)
+![React](https://img.shields.io/badge/react-19.x-61DAFB.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-### Desde el root del monorepo:
+---
+
+## 📦 Descargas
+
+| Plataforma | Descarga | Tipo |
+|------------|----------|------|
+| **Windows** | [Ordo-Todo-Setup-1.0.0.exe](https://github.com/tiagofur/ordo-todo/releases) | Instalador |
+| **Windows** | [Ordo-Todo-1.0.0-portable.exe](https://github.com/tiagofur/ordo-todo/releases) | Portable |
+| **macOS** | [Ordo-Todo-1.0.0.dmg](https://github.com/tiagofur/ordo-todo/releases) | DMG |
+| **Linux** | [Ordo-Todo-1.0.0.AppImage](https://github.com/tiagofur/ordo-todo/releases) | AppImage |
+| **Linux** | [ordo-todo_1.0.0_amd64.deb](https://github.com/tiagofur/ordo-todo/releases) | DEB |
+| **Linux** | [ordo-todo-1.0.0.x86_64.rpm](https://github.com/tiagofur/ordo-todo/releases) | RPM |
+
+---
+
+## ✨ Características
+
+### 📋 Gestión de Tareas
+- Crear, editar y completar tareas
+- Prioridades (Baja, Media, Alta, Urgente)
+- Estados (Pendiente, En Progreso, Completada)
+- Subtareas, comentarios y adjuntos
+- Organización por proyectos y etiquetas
+
+### ⏱️ Timer Pomodoro
+- Intervalos configurables (25/5/15 min por defecto)
+- Auto-inicio de descansos y pomodoros
+- Notificaciones al completar
+- Timer flotante siempre visible
+
+### 📊 Analytics
+- Gráfico semanal de pomodoros
+- Mapa de calor de horas pico
+- Focus Score (0-100)
+- Insights de productividad
+
+### 🖥️ Funciones Desktop
+- **System Tray**: Controles rápidos desde la bandeja
+- **Atajos Globales**: `Ctrl+Shift+P` para timer, `Ctrl+N` para tarea
+- **Notificaciones Nativas**: Alertas del sistema operativo
+- **Auto-Start**: Iniciar con el sistema
+- **Auto-Update**: Actualizaciones automáticas
+- **Deep Links**: URLs `ordo://` para navegación directa
+
+### 🔄 Modo Offline
+- Base de datos SQLite local
+- Sincronización automática al reconectar
+- Indicador de estado de conexión
+
+### 🌐 Multi-idioma
+- Español
+- English
+
+---
+
+## 🚀 Desarrollo
+
+### Requisitos
+- Node.js 20+
+- npm 10+
+
+### Instalación
 
 ```bash
+# Clonar el repositorio
+git clone https://github.com/tiagofur/ordo-todo.git
+cd ordo-todo
+
 # Instalar dependencias
 npm install
 
-# Ejecutar la app de desktop
-npm run dev:desktop
+# Ejecutar en desarrollo
+npm run dev --filter=@ordo-todo/desktop
 ```
 
-### Desde la carpeta de desktop:
+### Scripts
 
 ```bash
-cd apps/desktop
+# Desarrollo
+npm run dev              # Vite dev server
+npm run electron:dev     # Vite + Electron
 
-# Instalar dependencias
-npm install
+# Build
+npm run build            # Build completo
+npm run build:win        # Windows (NSIS + Portable)
+npm run build:mac        # macOS (DMG)
+npm run build:linux      # Linux (AppImage, DEB, RPM)
+npm run build:all        # Todas las plataformas
 
-# Ejecutar en modo desarrollo
-npm run dev
-
-# En otra terminal, ejecutar Electron
-npm run electron
+# Utilidades
+npm run clean            # Limpiar builds
+npm run generate-icons   # Regenerar iconos
 ```
 
-## 🏗️ Build y Distribución
-
-### Builds Locales
-
-```bash
-# Generar builds para todas las plataformas
-npm run build:all
-
-# Builds específicos por plataforma
-npm run build:win     # Windows (NSIS + Portable)
-npm run build:mac     # macOS (DMG)
-npm run build:linux   # Linux (AppImage + DEB + RPM)
-```
-
-### Archivos Generados
-
-Después del build, encontrarás los instaladores en `dist/`:
-
-- **Windows**: `Ordo-Todo Setup 0.1.0.exe` (instalador) + `Ordo-Todo 0.1.0.exe` (portable)
-- **macOS**: `Ordo-Todo-0.1.0.dmg` (imagen de disco)
-- **Linux**: `Ordo-Todo-0.1.0.AppImage` (AppImage)
-
-### CI/CD Automático
-
-Los builds se ejecutan automáticamente en GitHub Actions cuando:
-
-- Se hace push a la rama `main`
-- Se modifican archivos en `apps/desktop/`
-
-Los releases se crean automáticamente con assets separados por plataforma.
-
-### CI/CD Automático
-
-Los builds se ejecutan automáticamente en GitHub Actions cuando:
-
-- Se hace push a la rama `main`
-- Se modifican archivos en `apps/desktop/`
-
-Los releases se crean automáticamente con assets separados por plataforma.
-
-## 🛠️ Tecnologías
-
-- **Electron 33.2.1** - Framework de escritorio
-- **React 19.2.0** - UI Framework
-- **Vite 6.0.7** - Build tool
-- **Tailwind CSS v4** - Styling
-- **TypeScript 5.9.3** - Type safety
-- **Lucide React** - Iconos
+---
 
 ## 📁 Estructura
 
 ```
 apps/desktop/
-├── electron/
-│   ├── main.ts          # Proceso principal de Electron
-│   └── preload.ts       # APIs seguras para el renderer
-├── src/
-│   ├── components/      # Componentes React
-│   │   ├── TitleBar.tsx # Barra de título personalizada
-│   │   ├── Sidebar.tsx  # Navegación lateral
-│   │   └── MainContent.tsx # Contenido principal
-│   ├── App.tsx          # App principal
-│   ├── App.css          # Estilos globales
-│   ├── index.css        # CSS de Tailwind
-│   ├── main.tsx         # Punto de entrada
-│   └── lib/utils.ts     # Utilidades
-├── build/               # Recursos de build
-│   ├── icon.svg         # Icono fuente
-│   ├── icon.png         # Icono Linux
-│   ├── icon.ico         # Icono Windows
-│   ├── icon.icns        # Icono macOS
-│   └── entitlements.mac.plist # Permisos macOS
-├── scripts/             # Scripts de utilidad
-│   └── generate-icons.js # Generador de iconos
-├── index.html           # HTML base
-├── vite.config.ts       # Configuración de Vite
-├── tailwind.config.js   # Configuración de Tailwind
-├── postcss.config.mjs   # Configuración de PostCSS
-└── package.json         # Dependencias y scripts
+├── build/               # Recursos de distribución
+│   ├── icon.svg         # Ícono fuente
+│   ├── icon.png/ico/icns
+│   └── entitlements.mac.plist
+├── electron/            # Proceso principal
+│   ├── main.ts          # Entry point
+│   ├── preload.ts       # APIs seguras
+│   ├── tray.ts          # System tray
+│   ├── shortcuts.ts     # Atajos globales
+│   ├── notifications.ts # Notificaciones
+│   ├── timer-window.ts  # Ventana flotante
+│   ├── deep-links.ts    # Protocolo ordo://
+│   ├── auto-updater.ts  # Actualizaciones
+│   ├── auto-launch.ts   # Inicio con sistema
+│   └── database/        # SQLite offline
+├── src/                 # Renderer (React)
+│   ├── components/      # Componentes UI
+│   ├── pages/           # Páginas
+│   ├── stores/          # Zustand stores
+│   ├── hooks/           # Custom hooks
+│   ├── i18n/            # Traducciones
+│   └── lib/             # Utilidades
+├── USER_GUIDE.md        # Guía del usuario
+├── CHANGELOG.md         # Historial de cambios
+└── package.json
 ```
 
-## 🎯 Características
+---
 
-### ✅ Implementadas
+## 🛠️ Stack Técnico
 
-- ✅ Interfaz moderna con React + Tailwind
-- ✅ Tema claro/oscuro
-- ✅ Controles de ventana personalizados (minimizar, maximizar, cerrar)
-- ✅ Navegación lateral
-- ✅ Dashboard básico
-- ✅ Single instance (solo una ventana)
-- ✅ DevTools en desarrollo
+| Categoría | Tecnología |
+|-----------|------------|
+| **Runtime** | Electron 39.x |
+| **UI Framework** | React 19.x |
+| **Build Tool** | Vite 7.x |
+| **Language** | TypeScript 5.9 |
+| **State** | Zustand 5.x |
+| **Server State** | TanStack Query 5.x |
+| **Styling** | TailwindCSS 4.x |
+| **Components** | shadcn/ui (Radix) |
+| **Animations** | Framer Motion 11.x |
+| **Charts** | Recharts 2.x |
+| **Database** | better-sqlite3 |
+| **i18n** | i18next |
 
-### 🔄 Próximas
+---
 
-- 🔄 Build pipeline para Windows/macOS/Linux
-- 🔄 Icono de bandeja del sistema
-- 🔄 Notificaciones del sistema
-- 🔄 Atajos de teclado
-- 🔄 Integración con web app (compartir código)
+## 📖 Documentación
 
-## 🔧 Scripts Disponibles
+- [Guía del Usuario](./USER_GUIDE.md)
+- [Changelog](./CHANGELOG.md)
+- [Roadmap](../../docs/desktop/roadmap.md)
 
-```bash
-# Desarrollo
-npm run dev              # Inicia Vite dev server
-npm run electron         # Inicia Electron (espera a Vite)
-npm run electron:dev     # Ejecuta ambos concurrentemente
+---
 
-# Build
-npm run build            # Build para producción
-npm run build:win        # Build para Windows
-npm run build:mac        # Build para macOS
-npm run build:linux      # Build para Linux
+## 📄 Licencia
 
-# Preview
-npm run preview          # Preview del build
-```
-
-## 🏗️ Arquitectura
-
-La app usa una arquitectura moderna con:
-
-1. **Proceso Principal** (`electron/main.ts`): Maneja la ventana, IPC, y APIs del sistema
-2. **Proceso Renderer** (`src/`): React app que corre en la ventana
-3. **Preload Script** (`electron/preload.ts`): Puente seguro entre procesos
-
-### Comunicación entre Procesos
-
-```typescript
-// En el renderer (React)
-window.electronAPI.minimizeWindow();
-window.electronAPI.maximizeWindow();
-window.electronAPI.closeWindow();
-
-// En el main process
-ipcMain.handle("minimize-window", () => {
-  win?.minimize();
-});
-```
-
-## 🎨 UI/UX
-
-- **Diseño**: Inspirado en aplicaciones modernas como VS Code, Slack
-- **Tema**: Soporte completo para modo claro y oscuro
-- **Responsive**: Adaptable a diferentes tamaños de ventana
-- **Accesible**: Navegación por teclado, contraste adecuado
-
-## 📦 Build y Distribución
-
-La app se puede empaquetar para múltiples plataformas usando `electron-builder`:
-
-```bash
-# Windows
-npm run build:win
-
-# macOS
-npm run build:mac
-
-# Linux
-npm run build:linux
-```
-
-Los builds se generan en la carpeta `dist/` con instaladores nativos para cada plataforma.
-
-## 🔍 Desarrollo
-
-### DevTools
-
-- Automáticamente abiertas en modo desarrollo
-- DevTools de Chrome para debugging del renderer
-- Console del main process visible en terminal
-
-### Hot Reload
-
-- Vite proporciona hot reload para cambios en React
-- Electron se recarga automáticamente cuando cambian los archivos del main process
-
-### Debugging
-
-```bash
-# Ver logs del main process
-npm run electron  # Los logs aparecen en la terminal
-
-# Debug del renderer process
-# Abre DevTools con F12 o desde el menú
-```
-
-## 🚀 Próximos Pasos
-
-1. **Integración con Web App**: Compartir componentes y lógica de negocio
-2. **Funcionalidades Específicas**: Notificaciones, shortcuts, tray icon
-3. **Build Pipeline**: CI/CD para releases automáticos
-4. **Testing**: Unit tests y E2E con Playwright
-5. **Optimización**: Bundle splitting, lazy loading, PWA features
+MIT © Ordo-Todo Team

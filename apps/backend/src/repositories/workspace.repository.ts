@@ -177,9 +177,35 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   }
 
   async findBySlug(slug: string): Promise<Workspace | null> {
-    const workspace = await this.prisma.workspace.findUnique({ where: { slug } });
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { slug },
+      include: {
+        _count: {
+          select: {
+            projects: true,
+            members: true,
+          }
+        },
+        projects: {
+          select: {
+            _count: {
+              select: { tasks: true }
+            }
+          }
+        }
+      }
+    });
+
     if (!workspace) return null;
-    return this.toDomain(workspace);
+
+    const domainWorkspace = this.toDomain(workspace);
+    const taskCount = workspace.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+
+    return domainWorkspace.setStats({
+      projectCount: workspace._count.projects,
+      memberCount: workspace._count.members,
+      taskCount: taskCount,
+    });
   }
 
   async findByOwnerId(ownerId: string): Promise<Workspace[]> {

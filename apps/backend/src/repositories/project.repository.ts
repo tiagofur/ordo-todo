@@ -5,12 +5,13 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaProjectRepository implements ProjectRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private toDomain(prismaProject: PrismaProject): Project {
     return new Project({
       id: prismaProject.id,
       name: prismaProject.name,
+      slug: prismaProject.slug,
       description: prismaProject.description ?? undefined,
       color: prismaProject.color,
       icon: prismaProject.icon ?? undefined,
@@ -29,6 +30,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     const data = {
       id: project.id as string,
       name: project.props.name,
+      slug: project.props.slug,
       description: project.props.description,
       color: project.props.color,
       icon: project.props.icon,
@@ -50,6 +52,19 @@ export class PrismaProjectRepository implements ProjectRepository {
 
   async findById(id: string): Promise<Project | null> {
     const project = await this.prisma.project.findUnique({ where: { id } });
+    if (!project) return null;
+    return this.toDomain(project);
+  }
+
+  async findBySlug(slug: string, workspaceId: string): Promise<Project | null> {
+    const project = await this.prisma.project.findUnique({
+      where: {
+        workspaceId_slug: {
+          workspaceId,
+          slug,
+        },
+      },
+    });
     if (!project) return null;
     return this.toDomain(project);
   }
@@ -79,6 +94,7 @@ export class PrismaProjectRepository implements ProjectRepository {
   async update(project: Project): Promise<Project> {
     const data = {
       name: project.props.name,
+      slug: project.props.slug,
       description: project.props.description,
       color: project.props.color,
       icon: project.props.icon,

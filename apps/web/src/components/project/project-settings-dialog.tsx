@@ -18,15 +18,7 @@ import { toast } from "sonner";
 import { Palette, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const projectColors = [
-  "#EF4444", // red
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#3B82F6", // blue
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#6B7280", // gray
-];
+import { PROJECT_COLORS, updateProjectSchema } from "@ordo-todo/core";
 
 interface ProjectSettingsDialogProps {
   projectId: string;
@@ -37,15 +29,13 @@ interface ProjectSettingsDialogProps {
 export function ProjectSettingsDialog({ projectId, open, onOpenChange }: ProjectSettingsDialogProps) {
   const t = useTranslations('ProjectSettingsDialog');
   const { data: project } = useProject(projectId);
-  const [selectedColor, setSelectedColor] = useState(projectColors[3]);
+  const [selectedColor, setSelectedColor] = useState<typeof PROJECT_COLORS[number]>(PROJECT_COLORS[3]);
 
-  const updateProjectSchema = z.object({
+  const formSchema = updateProjectSchema.extend({
     name: z.string().min(1, t('form.name.required')),
-    description: z.string().optional(),
-    color: z.string().optional(),
   });
 
-  type UpdateProjectForm = z.infer<typeof updateProjectSchema>;
+  type UpdateProjectForm = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -53,7 +43,7 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
     reset,
     formState: { errors },
   } = useForm<UpdateProjectForm>({
-    resolver: zodResolver(updateProjectSchema),
+    resolver: zodResolver(formSchema),
   });
 
   // Update form when project data loads
@@ -64,7 +54,7 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
         description: project.description || "",
         color: project.color,
       });
-      setSelectedColor(project.color || projectColors[3]);
+      setSelectedColor((project.color || PROJECT_COLORS[3]) as typeof PROJECT_COLORS[number]);
     }
   }, [project, reset]);
 
@@ -107,7 +97,7 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
                 <Palette className="w-4 h-4" /> {t('form.color.label')}
               </Label>
               <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
-                {projectColors.map((color) => (
+                {PROJECT_COLORS.map((color) => (
                   <button
                     key={color}
                     type="button"

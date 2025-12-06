@@ -8,11 +8,12 @@ import { apiClient } from '@/lib/api-client';
 export function useAttachments(taskId: string) {
   return useQuery({
     queryKey: ['attachments', { taskId }],
-    queryFn: () => apiClient.getAttachments(taskId),
+    queryFn: () => apiClient.getTaskAttachments(taskId),
     enabled: !!taskId,
   });
 }
 
+/*
 export function useAttachment(attachmentId: string) {
   return useQuery({
     queryKey: ['attachments', attachmentId],
@@ -32,6 +33,7 @@ export function useUploadAttachment() {
     },
   });
 }
+*/
 
 export function useDeleteAttachment() {
   const queryClient = useQueryClient();

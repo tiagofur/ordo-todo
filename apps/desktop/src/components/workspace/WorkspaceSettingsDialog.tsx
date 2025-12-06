@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Trash2, Save, X } from "lucide-react";
-import { api } from "@/utils/api";
 import { toast } from "sonner";
+import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/hooks/api/use-workspaces";
 import {
   Dialog,
   DialogContent,
@@ -47,13 +47,11 @@ export function WorkspaceSettingsDialog({
   open,
   onOpenChange,
 }: WorkspaceSettingsDialogProps) {
-  const utils = api.useUtils();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const { data: workspace, isLoading } = api.workspace.getById.useQuery(
-    { id: workspaceId },
-    { enabled: open && !!workspaceId }
-  );
+  const { data: workspace, isLoading } = useWorkspace(workspaceId);
+  const updateWorkspaceMutation = useUpdateWorkspace();
+  const deleteWorkspaceMutation = useDeleteWorkspace();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -67,54 +65,44 @@ export function WorkspaceSettingsDialog({
   useEffect(() => {
     if (workspace) {
       setFormData({
-        name: workspace.name,
-        description: workspace.description || "",
-        type: workspace.type,
-        color: workspace.color || "#2563EB",
-        icon: workspace.icon || "🏠",
+        name: (workspace as any).name || "",
+        description: (workspace as any).description || "",
+        type: (workspace as any).type || "PERSONAL",
+        color: (workspace as any).color || "#2563EB",
+        icon: (workspace as any).icon || "🏠",
       });
     }
   }, [workspace]);
 
-  const updateWorkspace = api.workspace.update.useMutation({
-    onSuccess: () => {
-      toast.success("Workspace actualizado");
-      utils.workspace.list.invalidate();
-      utils.workspace.getById.invalidate({ id: workspaceId });
-      onOpenChange(false);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al actualizar workspace");
-    },
-  });
-
-  const deleteWorkspace = api.workspace.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Workspace eliminado");
-      utils.workspace.list.invalidate();
-      onOpenChange(false);
-      // In desktop app we probably just close the dialog and let the parent handle navigation/state
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al eliminar workspace");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateWorkspace.mutate({
-      id: workspaceId,
-      ...formData,
-      type: formData.type as any,
-    });
+    try {
+      await updateWorkspaceMutation.mutateAsync({
+        workspaceId,
+        data: {
+            ...formData,
+            type: formData.type as any,
+        } as any,
+      });
+      toast.success("Workspace actualizado");
+      onOpenChange(false);
+    } catch (error: any) {
+      toast.error(error.message || "Error al actualizar workspace");
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!showDeleteConfirm) {
       setShowDeleteConfirm(true);
       return;
     }
-    deleteWorkspace.mutate({ id: workspaceId });
+    try {
+      await deleteWorkspaceMutation.mutateAsync(workspaceId);
+      toast.success("Workspace eliminado");
+      onOpenChange(false);
+    } catch (error: any) {
+      toast.error(error.message || "Error al eliminar workspace");
+    }
   };
 
   if (isLoading) {
@@ -243,10 +231,10 @@ export function WorkspaceSettingsDialog({
                     type="button"
                     variant="destructive"
                     onClick={handleDelete}
-                    disabled={deleteWorkspace.isPending}
+                    disabled={deleteWorkspaceMutation.isPending}
                     className="flex-1"
                   >
-                    {deleteWorkspace.isPending ? "Eliminando..." : "Confirmar Eliminación"}
+                    {deleteWorkspaceMutation.isPending ? "Eliminando..." : "Confirmar Eliminación"}
                   </Button>
                   <Button
                     type="button"
@@ -270,11 +258,11 @@ export function WorkspaceSettingsDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={updateWorkspace.isPending}
+                disabled={updateWorkspaceMutation.isPending}
                 style={{ backgroundColor: formData.color, color: "white" }}
               >
                 <Save className="mr-2 h-4 w-4" />
-                {updateWorkspace.isPending ? "Guardando..." : "Guardar Cambios"}
+                {updateWorkspaceMutation.isPending ? "Guardando..." : "Guardar Cambios"}
               </Button>
             </div>
           </DialogFooter>

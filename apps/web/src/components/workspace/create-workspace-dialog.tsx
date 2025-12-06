@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Building2, Home, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { createWorkspaceSchema, WORKSPACE_TYPES } from "@ordo-todo/core";
 
 interface CreateWorkspaceDialogProps {
   open: boolean;
@@ -24,17 +26,15 @@ interface CreateWorkspaceDialogProps {
 }
 
 export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
+  const router = useRouter();
   const t = useTranslations('CreateWorkspaceDialog');
   const [selectedType, setSelectedType] = useState<"PERSONAL" | "WORK" | "TEAM">("PERSONAL");
 
-  const createWorkspaceSchema = z.object({
+  const formSchema = createWorkspaceSchema.extend({
     name: z.string().min(1, t('validation.nameRequired')),
-    description: z.string().optional(),
-    type: z.enum(["PERSONAL", "WORK", "TEAM"]),
-    color: z.string().optional(),
   });
 
-  type CreateWorkspaceForm = z.infer<typeof createWorkspaceSchema>;
+  type CreateWorkspaceForm = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -43,7 +43,7 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
     setValue,
     formState: { errors },
   } = useForm<CreateWorkspaceForm>({
-    resolver: zodResolver(createWorkspaceSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       type: "PERSONAL",
     },
@@ -56,10 +56,11 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
       ...data,
       type: selectedType,
     }, {
-      onSuccess: () => {
+      onSuccess: (workspace) => {
         toast.success(t('toast.success'));
         reset();
         onOpenChange(false);
+        router.push(`/workspaces/${workspace.slug}`);
       },
       onError: (error: any) => {
         toast.error(error.message || t('toast.error'));

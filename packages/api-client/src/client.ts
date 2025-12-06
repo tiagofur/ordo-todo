@@ -10,6 +10,10 @@ import type {
   User,
   UpdateProfileDto,
   UserResponse,
+  UserProfileResponse,
+  UserPreferences,
+  UpdatePreferencesDto,
+  UserIntegration,
   // Workspace
   Workspace,
   WorkspaceWithMembers,
@@ -297,7 +301,7 @@ export class OrdoApiClient {
     }
   }
 
-  // ============ USER ENDPOINTS (2) ============
+  // ============ USER ENDPOINTS (8) ============
 
   /**
    * Get current authenticated user
@@ -309,11 +313,67 @@ export class OrdoApiClient {
   }
 
   /**
+   * Get full user profile with subscription, integrations, and preferences
+   * GET /users/me/profile
+   */
+  async getFullProfile(): Promise<UserProfileResponse> {
+    const response = await this.axios.get<UserProfileResponse>('/users/me/profile');
+    return response.data;
+  }
+
+  /**
    * Update current user profile
    * PUT /users/me
    */
-  async updateProfile(data: UpdateProfileDto): Promise<{ success: boolean }> {
-    const response = await this.axios.put<{ success: boolean }>('/users/me', data);
+  async updateProfile(data: UpdateProfileDto): Promise<{ success: boolean; user: User }> {
+    const response = await this.axios.put<{ success: boolean; user: User }>('/users/me', data);
+    return response.data;
+  }
+
+  /**
+   * Get user preferences
+   * GET /users/me/preferences
+   */
+  async getPreferences(): Promise<UserPreferences | null> {
+    const response = await this.axios.get<UserPreferences | null>('/users/me/preferences');
+    return response.data;
+  }
+
+  /**
+   * Update user preferences (AI and privacy settings)
+   * PATCH /users/me/preferences
+   */
+  async updatePreferences(data: UpdatePreferencesDto): Promise<{ success: boolean; preferences: UserPreferences }> {
+    const response = await this.axios.patch<{ success: boolean; preferences: UserPreferences }>('/users/me/preferences', data);
+    return response.data;
+  }
+
+  /**
+   * Get user integrations
+   * GET /users/me/integrations
+   */
+  async getIntegrations(): Promise<UserIntegration[]> {
+    const response = await this.axios.get<UserIntegration[]>('/users/me/integrations');
+    return response.data;
+  }
+
+  /**
+   * Export user data (GDPR)
+   * POST /users/me/export
+   */
+  async exportData(): Promise<Blob> {
+    const response = await this.axios.post('/users/me/export', null, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  /**
+   * Delete user account
+   * DELETE /users/me
+   */
+  async deleteAccount(): Promise<{ success: boolean; message: string }> {
+    const response = await this.axios.delete<{ success: boolean; message: string }>('/users/me');
     return response.data;
   }
 
@@ -343,6 +403,15 @@ export class OrdoApiClient {
    */
   async getWorkspace(workspaceId: string): Promise<WorkspaceWithMembers> {
     const response = await this.axios.get<WorkspaceWithMembers>(`/workspaces/${workspaceId}`);
+    return response.data;
+  }
+
+  /**
+   * Get a specific workspace by Slug
+   * GET /workspaces/by-slug/:slug
+   */
+  async getWorkspaceBySlug(slug: string): Promise<WorkspaceWithMembers> {
+    const response = await this.axios.get<WorkspaceWithMembers>(`/workspaces/by-slug/${slug}`);
     return response.data;
   }
 
@@ -717,7 +786,7 @@ export class OrdoApiClient {
     return response.data;
   }
 
-  // ============ ANALYTICS ENDPOINTS (1) ============
+  // ============ ANALYTICS ENDPOINTS (6) ============
 
   /**
    * Get daily metrics for current user
@@ -727,6 +796,76 @@ export class OrdoApiClient {
     const response = await this.axios.get<DailyMetrics[]>('/analytics/daily', {
       params,
     });
+    return response.data;
+  }
+
+  /**
+   * Get dashboard stats (pomodoros, tasks, minutes, trends)
+   * GET /analytics/dashboard-stats
+   */
+  async getDashboardStats(): Promise<{
+    pomodoros: number;
+    tasks: number;
+    minutes: number;
+    avgPerDay: number;
+    trends: {
+      pomodoros: number;
+      tasks: number;
+      minutes: number;
+    };
+  }> {
+    const response = await this.axios.get('/analytics/dashboard-stats');
+    return response.data;
+  }
+
+  /**
+   * Get weekly metrics
+   * GET /analytics/weekly
+   */
+  async getWeeklyMetrics(): Promise<Array<{
+    date: string;
+    pomodorosCount: number;
+    focusDuration: number;
+    tasksCompletedCount: number;
+  }>> {
+    const response = await this.axios.get('/analytics/weekly');
+    return response.data;
+  }
+
+  /**
+   * Get heatmap data (activity by hour/day)
+   * GET /analytics/heatmap
+   */
+  async getHeatmapData(): Promise<Array<{
+    day: number;
+    hour: number;
+    value: number;
+  }>> {
+    const response = await this.axios.get('/analytics/heatmap');
+    return response.data;
+  }
+
+  /**
+   * Get project time distribution
+   * GET /analytics/project-distribution
+   */
+  async getProjectDistribution(): Promise<Array<{
+    name: string;
+    value: number;
+  }>> {
+    const response = await this.axios.get('/analytics/project-distribution');
+    return response.data;
+  }
+
+  /**
+   * Get task status distribution
+   * GET /analytics/task-status-distribution
+   */
+  async getTaskStatusDistribution(): Promise<Array<{
+    status: string;
+    count: number;
+  }>> {
+    const response = await this.axios.get('/analytics/task-status-distribution');
     return response.data;
   }
 

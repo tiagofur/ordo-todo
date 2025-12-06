@@ -2,12 +2,59 @@
   "Sidebar": {
     "today": "Today",
     "tasks": "Tasks",
+    "calendar": "Calendar",
     "projects": "Projects",
     "workspaces": "Workspaces",
     "tags": "Tags",
     "analytics": "Analytics",
     "settings": "Settings",
     "installApp": "Install App"
+  },
+  "Settings": {
+    "title": "Settings",
+    "subtitle": "Customize the appearance and behavior of Ordo",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "selectTheme": "Select the interface theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": "Language",
+    "selectLanguage": "Application Language",
+    "languageDescription": "Select the interface language",
+    "timer": "Timer",
+    "defaultMode": "Default Mode",
+    "defaultModeDescription": "Choose how you prefer to manage your time by default",
+    "focusDuration": "Focus (min)",
+    "shortBreakDuration": "Short Break (min)",
+    "longBreakDuration": "Long Break (min)",
+    "longBreakInterval": "Long Break Interval",
+    "longBreakIntervalDescription": "Number of pomodoros before a long break",
+    "autoStartBreaks": "Auto-start Breaks",
+    "autoStartBreaksDescription": "Automatically start the break timer",
+    "autoStartPomodoros": "Auto-start Pomodoros",
+    "autoStartPomodorosDescription": "Automatically start the next pomodoro",
+    "notificationsAndSound": "Notifications and Sound",
+    "notificationsDescription": "Configure alerts when a session completes",
+    "soundEffects": "Sound Effects",
+    "soundEffectsDescription": "Play a sound when completing a session",
+    "browserNotifications": "Browser Notifications",
+    "browserNotificationsDescription": "Show notifications even with the browser minimized",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "keyboardShortcutsDescription": "Global application shortcuts",
+    "shortcuts": {
+      "startPause": "Start/Pause timer",
+      "newTask": "New task",
+      "search": "Search",
+      "settings": "Settings",
+      "toggleSidebar": "Show/Hide sidebar"
+    },
+    "about": "About",
+    "version": "Version",
+    "platform": "Platform",
+    "developer": "Developed by"
   },
   "TimerWidget": {
     "startTimer": "Start timer"
@@ -74,6 +121,11 @@
   "Analytics": {
     "title": "Analytics",
     "subtitle": "Visualize your productivity and progress over time",
+    "pomodoros": "Pomodoros",
+    "thisWeek": "this week",
+    "tasksCompleted": "Tasks Completed",
+    "streak": "Streak",
+    "avgPerDay": "Avg/day",
     "tabs": {
       "overview": "Overview",
       "weekly": "Weekly",
@@ -158,6 +210,7 @@
       "selectProject": "Select a project",
       "priority": "Priority",
       "dueDate": "Due Date",
+      "estimatedMinutes": "Estimated Minutes (min)",
       "description": "Description",
       "descriptionPlaceholder": "Additional task details..."
     },
@@ -179,11 +232,17 @@
     },
     "toast": {
       "success": "Project created successfully",
+      "successWithTasks": "Project created with {count} starter tasks",
+      "templateSelected": "Template \"{name}\" selected",
       "error": "Error creating project",
       "createWorkspace": "Please create a workspace from the sidebar"
     },
     "title": "Create Project",
     "description": "Organize your tasks into projects within a workflow",
+    "templates": {
+      "title": "Select a Template",
+      "tasksCount": "{count} starter tasks"
+    },
     "emptyState": {
       "title": "No workspaces",
       "description": "To create a project, you first need a workspace.",
@@ -243,6 +302,7 @@
     "nested": "Some subtasks have sub-subtasks",
     "tooltips": {
       "drag": "Drag to reorder",
+      "edit": "Edit subtask",
       "delete": "Delete subtask"
     },
     "toast": {
@@ -250,6 +310,10 @@
       "createError": "Error creating subtask",
       "completed": "Subtask completed",
       "completeError": "Error completing subtask",
+      "reopened": "Subtask reopened",
+      "reopenError": "Error reopening subtask",
+      "updated": "Subtask updated",
+      "updateError": "Error updating subtask",
       "deleted": "Subtask deleted",
       "deleteError": "Error deleting subtask"
     },
@@ -279,6 +343,12 @@
       "deleteError": "Error deleting comment"
     },
     "confirmDelete": "Are you sure you want to delete this comment?"
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "loading": "Loading...",
+    "markAllRead": "Mark all as read"
   },
   "FileUpload": {
     "errors": {
@@ -356,6 +426,8 @@
   },
   "ProjectCard": {
     "tasks": "{count} tasks",
+    "tasksProgress": "{completed}/{total} tasks",
+    "progress": "Progress",
     "archived": "Archived",
     "actions": {
       "archive": "Archive",
@@ -398,6 +470,64 @@
       "updateError": "Error updating project"
     }
   },
+  "ProjectSettings": {
+    "general": {
+      "title": "General Settings",
+      "description": "Update your project name, description, and color"
+    },
+    "form": {
+      "name": {
+        "label": "Name *",
+        "placeholder": "Ex: Web Redesign, Marketing Q4",
+        "required": "Name is required"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Optional project description..."
+      },
+      "color": {
+        "label": "Project Color"
+      }
+    },
+    "actions": {
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete Project"
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "description": "Irreversible and destructive actions",
+      "archive": {
+        "title": "Archive this project",
+        "description": "Mark this project as archived. It will be hidden from the main view."
+      },
+      "unarchive": {
+        "title": "Unarchive this project",
+        "description": "Restore this project to the active projects list."
+      },
+      "delete": {
+        "title": "Delete this project",
+        "description": "Permanently delete this project and all its tasks. This action cannot be undone."
+      }
+    },
+    "deleteDialog": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the project and all associated tasks.",
+      "cancel": "Cancel",
+      "confirm": "Delete Project"
+    },
+    "toast": {
+      "updated": "Project updated successfully",
+      "updateError": "Error updating project",
+      "archived": "Project archived",
+      "unarchived": "Project restored",
+      "archiveError": "Error archiving project",
+      "deleted": "Project deleted",
+      "deleteError": "Error deleting project"
+    }
+  },
   "WorkspaceCard": {
     "types": {
       "PERSONAL": "Personal",
@@ -436,6 +566,24 @@
     "actions": {
       "newProject": "New Project",
       "settings": "Settings"
+    }
+  },
+  "WorkspaceDashboard": {
+    "notFound": "Workspace not found",
+    "backToWorkspaces": "Back to Workspaces",
+    "newProject": "New Project",
+    "settings": "Settings",
+    "delete": "Delete Workspace",
+    "deleteConfirmation": "Are you sure you want to delete this workspace? This will delete all projects and tasks. This action cannot be undone.",
+    "deleteSuccess": "Workspace deleted successfully",
+    "projects": "Projects",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity",
+    "viewAllActivity": "View all activity",
+    "stats": {
+      "projects": "Projects",
+      "tasks": "Tasks",
+      "members": "Members"
     }
   },
   "WorkspaceSelector": {
@@ -650,6 +798,7 @@
     }
   },
   "PomodoroTimer": {
+    "enterFocusMode": "Enter Focus Mode",
     "mode": "Mode: {mode}",
     "modes": {
       "pomodoro": "Pomodoro",
@@ -687,6 +836,8 @@
       "work": "Work",
       "short_break": "Short Break",
       "long_break": "Long Break",
+      "shortBreak": "Short Break",
+      "longBreak": "Long Break",
       "continuous": "Continuous"
     },
     "sessions": {
@@ -728,7 +879,13 @@
   "TaskList": {
     "loading": "Loading tasks...",
     "error": "Error loading tasks: {message}",
-    "empty": "No tasks yet. Add one above!"
+    "empty": "No tasks yet. Add one above!",
+    "emptyMyTasks": "No tasks assigned to you yet.",
+    "retry": "Retry",
+    "filters": {
+      "allTasks": "All Tasks",
+      "myTasks": "My Tasks"
+    }
   },
   "TaskDetailPanel": {
     "title": "Task Details",
@@ -755,7 +912,9 @@
       "priorityError": "Error updating priority",
       "tagAssigned": "Tag {tagName} assigned",
       "tagError": "Error assigning tag",
-      "noTaskId": "Error: Task ID not found"
+      "noTaskId": "Error: Task ID not found",
+      "shareError": "Error generating share link",
+      "linkCopied": "Link copied to clipboard"
     },
     "confirmDelete": "Are you sure you want to delete this task?",
     "titlePlaceholder": "Task title",
@@ -767,7 +926,7 @@
       "create": "Create new tag"
     },
     "buttons": {
-      "save": "Save",
+      "save": "Save Changes",
       "delete": "Delete Task"
     },
     "description": {
@@ -788,6 +947,10 @@
     },
     "footer": {
       "created": "Created on"
+    },
+    "share": {
+      "title": "Share Task",
+      "description": "Anyone with this link can view this task without logging in."
     }
   },
   "TaskFilters": {
@@ -1069,5 +1232,101 @@
     "message": "Please check the URL or navigate back to the home page.",
     "home": "Go to Home",
     "back": "Go Back"
+  },
+  "ProjectDetail": {
+    "notFound": "Project not found",
+    "notFoundDescription": "The project you're looking for doesn't exist or was deleted.",
+    "backToWorkspace": "Back to Workspace",
+    "addTask": "New Task",
+    "tasksSection": "Tasks",
+    "tabs": {
+      "overview": "Overview",
+      "list": "List",
+      "board": "Board",
+      "timeline": "Timeline",
+      "settings": "Settings"
+    },
+    "stats": {
+      "totalTasks": "Total Tasks",
+      "completedTasks": "Completed",
+      "task": "task",
+      "tasks": "tasks",
+      "completed": "completed"
+    },
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "badges": {
+      "archived": "Archived",
+      "completed": "Completed"
+    },
+    "menu": {
+      "settings": "Settings",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete",
+      "markComplete": "Mark as completed",
+      "markIncomplete": "Mark as incomplete"
+    },
+    "actions": {
+      "archive": "archive",
+      "unarchive": "unarchive"
+    },
+    "confirmArchive": "Are you sure you want to",
+    "confirmComplete": "Are you sure you want to mark this project as completed?",
+    "confirmUncomplete": "Are you sure you want to mark this project as incomplete?",
+    "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
+    "toast": {
+      "archived": "Project archived successfully",
+      "archiveError": "Error archiving project",
+      "deleted": "Project deleted successfully",
+      "completed": "Project marked as completed",
+      "uncompleted": "Project marked as incomplete",
+      "completeError": "Error updating project status"
+    },
+    "backToProjects": "Back to Projects",
+    "emptyState": {
+      "title": "No tasks yet",
+      "description": "Create your first task to start working on this project.",
+      "archivedDescription": "This project is archived. Unarchive it to add tasks.",
+      "completedDescription": "This project is completed."
+    },
+    "overview": {
+      "progress": "Progress",
+      "recentTasks": "Recent Tasks"
+    },
+    "breadcrumbs": {
+      "projects": "Projects"
+    }
+  },
+  "ProjectBoard": {
+    "columns": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "addTask": "Add Task"
+  },
+  "ProjectList": {
+    "columns": {
+      "task": "Task",
+      "dueDate": "Due Date",
+      "priority": "Priority"
+    },
+    "emptyState": {
+      "title": "No tasks yet",
+      "description": "Create your first task to start tracking your work.",
+      "action": "Create Task"
+    }
+  },
+  "FocusMode": {
+    "selectTask": "Select a Task to Focus",
+    "deepWork": "Deep Work",
+    "breakTime": "Break Time",
+    "loading": "Loading task...",
+    "completeTask": "Complete Task",
+    "exit": "Exit Focus Mode"
   }
 }

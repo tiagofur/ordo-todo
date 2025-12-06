@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App - Ordo-Todo Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📱 Mobile App</h1>
+            <p>React Native + Expo - iOS & Android</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">🏠 Inicio</a></li>
+                <li><a href="../core/index.html">📦 Core</a></li>
+                <li><a href="../web/index.html">🌐 Web</a></li>
+                <li><a href="index.html" class="active">📱 Mobile</a></li>
+                <li><a href="../desktop/index.html">💻 Desktop</a></li>
+                <li><a href="../backend/index.html">⚙️ Backend</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview -->
+            <section class="section">
+                <h2>📖 Descripción General</h2>
+                <p>La aplicación móvil de Ordo-Todo está construida con <strong>React Native</strong> y <strong>Expo</strong>, compartiendo la misma lógica de negocio que la Web App gracias al <code>@ordo-todo/core</code> package.</p>
+                
+                <div class="card" style="background: #F59E0B20; border-color: #F59E0B;">
+                    <h3>⚠️ Estado Actual</h3>
+                    <p><span class="badge warning">En Desarrollo</span></p>
+                    <p>La app móvil está en fase de desarrollo activo. La estructura base está lista y puede aprovechar todo el código del Core Package.</p>
+                </div>
+
+                <h3>🛠️ Stack Tecnológico</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⚛️ <strong>React Native</strong> - Framework móvil multiplataforma</li>
+                    <li>📦 <strong>Expo</strong> - Toolchain y SDK</li>
+                    <li>📘 <strong>TypeScript</strong> - Type safety completo</li>
+                    <li>🎨 <strong>NativeWind</strong> - Tailwind CSS para React Native</li>
+                    <li>🔄 <strong>TanStack Query</strong> - Data fetching y caching</li>
+                    <li>🗺️ <strong>React Navigation</strong> - Navegación nativa</li>
+                    <li>💾 <strong>AsyncStorage</strong> - Almacenamiento local</li>
+                    <li>📦 <strong>@ordo-todo/core</strong> - Lógica de negocio compartida</li>
+                </ul>
+            </section>
+
+            <!-- Project Structure -->
+            <section class="section">
+                <h2>📁 Estructura del Proyecto</h2>
+                <pre><code>apps/mobile/
+├── src/
+│   ├── screens/              # Pantallas de la app
+│   │   ├── Auth/            # Login, Register
+│   │   ├── Dashboard/       # Dashboard principal
+│   │   ├── Workspaces/      # Gestión de workspaces
+│   │   ├── Projects/        # Gestión de proyectos
+│   │   ├── Tasks/           # Gestión de tareas
+│   │   ├── Timer/           # Pomodoro Timer
+│   │   └── Analytics/       # Analytics y métricas
+│   ├── components/          # Componentes reutilizables
+│   │   ├── ui/             # Componentes base
+│   │   ├── workspace/      # Componentes de workspace
+│   │   ├── project/        # Componentes de proyecto
+│   │   ├── task/           # Componentes de tarea
+│   │   └── timer/          # Componentes del timer
+│   ├── navigation/          # Configuración de navegación
+│   ├── hooks/              # Custom React Hooks
+│   ├── services/           # API client y servicios
+│   ├── store/              # State management
+│   └── utils/              # Utilidades
+├── app.json                # Configuración de Expo
+└── package.json</code></pre>
+            </section>
+
+            <!-- Getting Started -->
+            <section class="section">
+                <h2>🚀 Inicio Rápido</h2>
+                
+                <h3>1. Instalación</h3>
+                <pre><code>cd apps/mobile
+npm install</code></pre>
+
+                <h3>2. Configurar Variables de Entorno</h3>
+                <pre><code># .env
+API_URL=http://localhost:3001
+# Para desarrollo en dispositivo físico, usa la IP de tu máquina
+# API_URL=http://192.168.1.100:3001</code></pre>
+
+                <h3>3. Ejecutar en Desarrollo</h3>
+                <pre><code># Iniciar Expo
+npm run start
+
+# Ejecutar en iOS (requiere Mac)
+npm run ios
+
+# Ejecutar en Android
+npm run android
+
+# Ejecutar en Web (para testing)
+npm run web</code></pre>
+
+                <h3>4. Build de Producción</h3>
+                <pre><code># Build para iOS
+eas build --platform ios
+
+# Build para Android
+eas build --platform android</code></pre>
+            </section>
+
+            <!-- Features -->
+            <section class="section">
+                <h2>✨ Características Planificadas</h2>
+                
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>🔐 Autenticación</h3>
+                        <p>Login con email/password y OAuth (Google, GitHub)</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>📋 Gestión de Tareas</h3>
+                        <p>Crear, editar, completar tareas con prioridades y estados</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>⏱️ Timer Pomodoro</h3>
+                        <p>Timer con notificaciones nativas y vibración</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>📊 Analytics</h3>
+                        <p>Métricas de productividad y gráficos</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>💾 Modo Offline</h3>
+                        <p>Sincronización automática cuando hay conexión</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>🔔 Notificaciones Push</h3>
+                        <p>Recordatorios de tareas y timer</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Using Core Package -->
+            <section class="section">
+                <h2>📦 Usando el Core Package</h2>
+                <p>La app móvil puede aprovechar <strong>todo el código del Core Package</strong> sin modificaciones:</p>
+
+                <h3>✅ Validaciones</h3>
+                <pre><code>import { createTaskSchema } from '@ordo-todo/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+function CreateTaskScreen() {
+  const form = useForm({
+    resolver: zodResolver(createTaskSchema),
+  });
+
+  // Misma validación que en Web!
+}</code></pre>
+
+                <h3>✅ Constantes</h3>
+                <pre><code>import {
+  PROJECT_COLORS,
+  TASK_PRIORITIES,
+  TIMER_MODES,
+} from '@ordo-todo/core';
+
+// Usar en componentes nativos
+const color = PROJECT_COLORS[0];
+const priority = TASK_PRIORITIES.HIGH;</code></pre>
+
+                <h3>✅ Utilidades</h3>
+                <pre><code>import {
+  formatDate,
+  formatDuration,
+  calculateProgress,
+  isOverdue,
+} from '@ordo-todo/core';
+
+// Mismas funciones que en Web!
+const formattedDate = formatDate(task.dueDate);
+const progress = calculateProgress(completed, total);</code></pre>
+            </section>
+
+            <!-- Native Features -->
+            <section class="section">
+                <h2>📱 Características Nativas</h2>
+                
+                <h3>🔔 Notificaciones Locales</h3>
+                <pre><code>import * as Notifications from 'expo-notifications';
+
+// Configurar notificación del timer
+await Notifications.scheduleNotificationAsync({
+  content: {
+    title: "Pomodoro Completado!",
+    body: "Tiempo de tomar un descanso",
+    sound: true,
+    vibrate: [0, 250, 250, 250],
+  },
+  trigger: null, // Inmediato
+});</code></pre>
+
+                <h3>💾 Almacenamiento Local</h3>
+                <pre><code>import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Guardar configuración del timer
+await AsyncStorage.setItem('timerSettings', JSON.stringify(settings));
+
+// Recuperar configuración
+const settings = JSON.parse(await AsyncStorage.getItem('timerSettings'));</code></pre>
+
+                <h3>📳 Vibración</h3>
+                <pre><code>import { Vibration } from 'react-native';
+
+// Vibrar cuando el timer termina
+Vibration.vibrate([0, 500, 200, 500]);</code></pre>
+            </section>
+
+            <!-- Development Guide -->
+            <section class="section">
+                <h2>🛠️ Guía de Desarrollo</h2>
+                
+                <h3>1. Crear una Nueva Pantalla</h3>
+                <pre><code>// src/screens/Tasks/TaskListScreen.tsx
+import { View, FlatList } from 'react-native';
+import { useTasks } from '@/services/api';
+import { TaskCard } from '@/components/task';
+
+export function TaskListScreen({ route }) {
+  const { projectId } = route.params;
+  const { data: tasks, isLoading } = useTasks({ projectId });
+
+  return (
+    &lt;View&gt;
+      &lt;FlatList
+        data={tasks}
+        renderItem={({ item }) =&gt; &lt;TaskCard task={item} /&gt;}
+        keyExtractor={(item) =&gt; item.id}
+      /&gt;
+    &lt;/View&gt;
+  );
+}</code></pre>
+
+                <h3>2. Agregar Navegación</h3>
+                <pre><code>// src/navigation/AppNavigator.tsx
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+export function AppNavigator() {
+  return (
+    &lt;Stack.Navigator&gt;
+      &lt;Stack.Screen name="Dashboard" component={DashboardScreen} /&gt;
+      &lt;Stack.Screen name="TaskList" component={TaskListScreen} /&gt;
+      &lt;Stack.Screen name="TaskDetail" component={TaskDetailScreen} /&gt;
+    &lt;/Stack.Navigator&gt;
+  );
+}</code></pre>
+
+                <h3>3. Usar el API Client</h3>
+                <pre><code>// src/services/api.ts
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiClient } from '@ordo-todo/api-client';
+
+export function useTasks(params) {
+  return useQuery({
+    queryKey: ['tasks', params],
+    queryFn: () => apiClient.tasks.getAll(params),
+  });
+}
+
+export function useCreateTask() {
+  return useMutation({
+    mutationFn: (data) => apiClient.tasks.create(data),
+  });
+}</code></pre>
+            </section>
+
+            <!-- Best Practices -->
+            <section class="section">
+                <h2>💡 Mejores Prácticas</h2>
+                
+                <h3>1. Reutilizar lógica del Core</h3>
+                <pre><code>// ✅ Usar validaciones del core
+import { createTaskSchema } from '@ordo-todo/core';
+
+// ✅ Usar constantes del core
+import { TASK_PRIORITIES } from '@ordo-todo/core';
+
+// ✅ Usar utilidades del core
+import { formatDate, calculateProgress } from '@ordo-todo/core';</code></pre>
+
+                <h3>2. Optimizar para Performance</h3>
+                <pre><code>// ✅ Usar FlatList para listas largas
+&lt;FlatList data={tasks} ... /&gt;
+
+// ✅ Usar React.memo para componentes pesados
+export const TaskCard = React.memo(({ task }) =&gt; { ... });
+
+// ✅ Usar useMemo para cálculos costosos
+const sortedTasks = useMemo(() =&gt; sortTasks(tasks), [tasks]);</code></pre>
+
+                <h3>3. Manejar Estados de Carga</h3>
+                <pre><code>function TaskListScreen() {
+  const { data, isLoading, error } = useTasks();
+
+  if (isLoading) return &lt;LoadingSpinner /&gt;;
+  if (error) return &lt;ErrorMessage error={error} /&gt;;
+  
+  return &lt;TaskList tasks={data} /&gt;;
+}</code></pre>
+            </section>
+
+            <!-- Roadmap -->
+            <section class="section">
+                <h2>🗺️ Roadmap</h2>
+                
+                <h3>Fase 1: MVP (4-6 semanas)</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ Estructura base del proyecto</li>
+                    <li>⏳ Autenticación (Login/Register)</li>
+                    <li>⏳ Gestión de tareas básica</li>
+                    <li>⏳ Timer Pomodoro</li>
+                    <li>⏳ Navegación principal</li>
+                </ul>
+
+                <h3>Fase 2: Características Avanzadas (4-6 semanas)</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⏳ Workspaces y Projects</li>
+                    <li>⏳ Analytics y métricas</li>
+                    <li>⏳ Notificaciones push</li>
+                    <li>⏳ Modo offline</li>
+                    <li>⏳ Sincronización en background</li>
+                </ul>
+
+                <h3>Fase 3: Pulido y Optimización (2-3 semanas)</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⏳ Animaciones y transiciones</li>
+                    <li>⏳ Optimización de performance</li>
+                    <li>⏳ Testing E2E</li>
+                    <li>⏳ Preparación para stores (App Store, Play Store)</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación de la Mobile App.</p>
+        </div>
+    </footer>
+</body>
+</html>

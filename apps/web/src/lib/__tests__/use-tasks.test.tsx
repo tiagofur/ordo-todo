@@ -1,0 +1,284 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, waitFor, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useTasks, useCreateTask, useUpdateTask, useCompleteTask, useDeleteTask } from '../api-hooks';
+import type { ReactNode } from 'react';
+
+// Mock the API client
+vi.mock('../api-client', () => ({
+  apiClient: {
+    getTasks: vi.fn(),
+    createTask: vi.fn(),
+    updateTask: vi.fn(),
+    completeTask: vi.fn(),
+    deleteTask: vi.fn(),
+  },
+}));
+
+describe('Task Hooks', () => {
+  let queryClient: QueryClient;
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+        mutations: {
+          retry: false,
+        },
+      },
+    });
+    vi.clearAllMocks();
+  });
+
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+
+  describe('useTasks', () => {
+    it('should return tasks data when query succeeds', async () => {
+      const mockTasks = [
+        { id: '1', title: 'Task 1', status: 'TODO', projectId: 'project-1' },
+        { id: '2', title: 'Task 2', status: 'IN_PROGRESS', projectId: 'project-1' },
+      ];
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked((apiClient as any).getTasks).mockResolvedValue(mockTasks);
+
+      const { result } = renderHook(() => useTasks('project-1'), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(result.current.data).toEqual(mockTasks);
+    });
+
+    it('should handle loading state', () => {
+      const { result } = renderHook(() => useTasks('project-1'), { wrapper });
+
+      expect(result.current.isLoading).toBe(true);
+      expect(result.current.data).toBeUndefined();
+    });
+
+    it('should handle error state', async () => {
+      const { apiClient } = await import('../api-client');
+      vi.mocked((apiClient as any).getTasks).mockRejectedValue(new Error('API Error'));
+
+      const { result } = renderHook(() => useTasks('project-1'), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toBeDefined();
+    });
+
+    it('should filter tasks by tags', async () => {
+      const mockTasks = [
+        { id: '1', title: 'Task 1', status: 'TODO', tags: ['urgent'] },
+      ];
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked((apiClient as any).getTasks).mockResolvedValue(mockTasks);
+
+      const { result } = renderHook(() => useTasks('project-1', ['urgent']), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect((apiClient as any).getTasks).toHaveBeenCalledWith('project-1', ['urgent'], undefined);
+    });
+
+    it('should call getTasks without projectId when not provided', async () => {
+      const mockTasks = [
+        { id: '1', title: 'Task 1', status: 'TODO' },
+      ];
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked((apiClient as any).getTasks).mockResolvedValue(mockTasks);
+
+      const { result } = renderHook(() => useTasks(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect((apiClient as any).getTasks).toHaveBeenCalledWith(undefined, undefined, undefined);
+    });
+  });
+
+  describe('useCreateTask', () => {
+    it('should create a task successfully', async () => {
+      const newTask = {
+        title: 'New Task',
+        projectId: 'project-1',
+      };
+
+      const createdTask = {
+        id: '3',
+        ...newTask,
+        status: 'TODO',
+        createdAt: new Date().toISOString(),
+      };
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked(apiClient.createTask).mockResolvedValue(createdTask as any);
+
+      const { result } = renderHook(() => useCreateTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync(newTask as any);
+      });
+
+      expect(apiClient.createTask).toHaveBeenCalledWith(newTask);
+    });
+
+    it('should invalidate tasks queries on success', async () => {
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const createdTask = {
+        id: '3',
+        title: 'New Task',
+        projectId: 'project-1',
+        status: 'TODO',
+      };
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked(apiClient.createTask).mockResolvedValue(createdTask as any);
+
+      const { result } = renderHook(() => useCreateTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({ title: 'New Task', projectId: 'project-1' } as any);
+      });
+
+      expect(invalidateSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('useCompleteTask', () => {
+    it('should complete a task successfully', async () => {
+      const completedTask = {
+        id: '1',
+        title: 'Task 1',
+        status: 'COMPLETED',
+      };
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked(apiClient.completeTask).mockResolvedValue(completedTask as any);
+
+      const { result } = renderHook(() => useCompleteTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync('1');
+      });
+
+      expect(apiClient.completeTask).toHaveBeenCalledWith('1');
+    });
+
+    it('should use optimistic updates', async () => {
+      const { apiClient } = await import('../api-client');
+      
+      // Create a delay to test optimistic updates
+      let resolvePromise: (value: any) => void;
+      const promise = new Promise(resolve => { resolvePromise = resolve; });
+      vi.mocked(apiClient.completeTask).mockReturnValue(promise as Promise<any>);
+
+      const { result } = renderHook(() => useCompleteTask(), { wrapper });
+
+      // Start the mutation without awaiting
+      act(() => {
+        result.current.mutate('1');
+      });
+
+      // Wait for the isPending state to update
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(true);
+      });
+
+      // Resolve the promise to clean up
+      resolvePromise!({ id: '1', status: 'COMPLETED' });
+    });
+  });
+
+  describe('useDeleteTask', () => {
+    it('should delete a task successfully', async () => {
+      const { apiClient } = await import('../api-client');
+      vi.mocked(apiClient.deleteTask).mockResolvedValue(undefined as any);
+
+      const { result } = renderHook(() => useDeleteTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync('1');
+      });
+
+      expect(apiClient.deleteTask).toHaveBeenCalledWith('1');
+    });
+
+    it('should invalidate tasks queries after deletion', async () => {
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked(apiClient.deleteTask).mockResolvedValue(undefined as any);
+
+      const { result } = renderHook(() => useDeleteTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync('1');
+      });
+
+      expect(invalidateSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('useUpdateTask', () => {
+    it('should update a task successfully', async () => {
+      const updatedTask = {
+        id: '1',
+        title: 'Updated Task',
+        status: 'IN_PROGRESS',
+      };
+
+      const { apiClient } = await import('../api-client');
+      vi.mocked(apiClient.updateTask).mockResolvedValue(updatedTask as any);
+
+      const { result } = renderHook(() => useUpdateTask(), { wrapper });
+
+      await act(async () => {
+        await result.current.mutateAsync({
+          taskId: '1',
+          data: { title: 'Updated Task' },
+        });
+      });
+
+      expect(apiClient.updateTask).toHaveBeenCalledWith('1', { title: 'Updated Task' });
+    });
+
+    it('should handle optimistic updates for task data', async () => {
+      const { apiClient } = await import('../api-client');
+      
+      let resolvePromise: (value: any) => void;
+      const promise = new Promise(resolve => { resolvePromise = resolve; });
+      vi.mocked(apiClient.updateTask).mockReturnValue(promise as Promise<any>);
+
+      const { result } = renderHook(() => useUpdateTask(), { wrapper });
+
+      act(() => {
+        result.current.mutate({
+          taskId: '1',
+          data: { title: 'Updated Task' },
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(true);
+      });
+
+      // Resolve the promise to clean up
+      resolvePromise!({ id: '1', title: 'Updated Task' });
+    });
+  });
+});

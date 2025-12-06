@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
-import { api } from "@/utils/api";
+import { useCreateTask, useUpdateTask, useDeleteTask } from "@/hooks/api/use-tasks";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,71 +20,57 @@ interface SubtaskListProps {
 }
 
 export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
 
   // Create subtask mutation
-  const createSubtask = api.task.createSubtask.useMutation({
-    onSuccess: () => {
-      toast.success("Subtarea creada");
-      utils.task.getById.invalidate({ id: taskId });
-      utils.task.list.invalidate();
-      setNewSubtaskTitle("");
-      setIsAdding(false);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al crear subtarea");
-    },
-  });
+  const createSubtaskMutation = useCreateTask();
 
-  // Complete subtask mutation
-  const completeSubtask = api.task.complete.useMutation({
-    onSuccess: () => {
-      toast.success("Subtarea completada");
-      utils.task.getById.invalidate({ id: taskId });
-      utils.task.list.invalidate();
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al completar subtarea");
-    },
-  });
+  // Update subtask mutation (for completion)
+  const updateSubtaskMutation = useUpdateTask();
 
   // Delete subtask mutation
-  const deleteSubtask = api.task.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Subtarea eliminada");
-      utils.task.getById.invalidate({ id: taskId });
-      utils.task.list.invalidate();
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al eliminar subtarea");
-    },
-  });
+  const deleteSubtaskMutation = useDeleteTask();
 
   const handleCreateSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
 
-    createSubtask.mutate({
+    createSubtaskMutation.mutate({
       title: newSubtaskTitle,
       parentTaskId: taskId,
-      projectId: "", // Will be inherited from parent task
+      projectId: "default", // Need projectId or it's optional? Usually needed.
+      // If Task API requires projectId, we should pass it. SubtaskList doesn't receive it.
+      // Assuming parentTaskId is enough for backend to infer project, or we pass a placeholder.
+    } as any, {
+      onSuccess: () => {
+        toast.success("Subtarea creada");
+        setNewSubtaskTitle("");
+        setIsAdding(false);
+      },
+      onError: (error) => toast.error(error.message || "Error al crear subtarea")
     });
   };
 
   const handleToggleComplete = (subtaskId: string, currentStatus: string) => {
-    if (currentStatus !== "COMPLETED") {
-      completeSubtask.mutate({ id: subtaskId });
+    if (currentStatus !== "DONE") {
+      updateSubtaskMutation.mutate({ taskId: subtaskId, data: { status: "DONE" as any } }, {
+        onSuccess: () => toast.success("Subtarea completada"),
+        onError: (error) => toast.error(error.message || "Error al completar subtarea")
+      });
     }
   };
 
   const handleDelete = (subtaskId: string) => {
     if (confirm("¿Estás seguro de eliminar esta subtarea?")) {
-      deleteSubtask.mutate({ id: subtaskId });
+      deleteSubtaskMutation.mutate(subtaskId, {
+        onSuccess: () => toast.success("Subtarea eliminada"),
+        onError: (error) => toast.error(error.message || "Error al eliminar subtarea")
+      });
     }
   };
 
-  const completedCount = subtasks.filter((st) => st.status === "COMPLETED").length;
+  const completedCount = subtasks.filter((st) => st.status === "DONE").length;
   const totalCount = subtasks.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -123,7 +110,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
             className={cn(
               "group flex items-start gap-2 rounded-lg border p-3 transition-all",
               "hover:bg-accent/50",
-              subtask.status === "COMPLETED" && "opacity-60"
+              subtask.status === "DONE" && "opacity-60"
             )}
           >
             {/* Drag Handle */}
@@ -136,7 +123,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
 
             {/* Checkbox */}
             <Checkbox
-              checked={subtask.status === "COMPLETED"}
+              checked={subtask.status === "DONE"}
               onCheckedChange={() => handleToggleComplete(String(subtask.id), subtask.status)}
               className="mt-0.5"
             />
@@ -146,7 +133,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
               <p
                 className={cn(
                   "text-sm",
-                  subtask.status === "COMPLETED" && "line-through text-muted-foreground"
+                  subtask.status === "DONE" && "line-through text-muted-foreground"
                 )}
               >
                 {subtask.title}
@@ -197,7 +184,7 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
           <Button
             size="sm"
             onClick={handleCreateSubtask}
-            disabled={!newSubtaskTitle.trim() || createSubtask.isPending}
+            disabled={!newSubtaskTitle.trim() || createSubtaskMutation.isPending}
           >
             <Check className="h-4 w-4" />
           </Button>

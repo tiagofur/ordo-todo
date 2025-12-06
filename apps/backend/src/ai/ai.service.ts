@@ -24,7 +24,7 @@ export class AIService {
     @Inject('TimerRepository')
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
-  ) {}
+  ) { }
 
   async getProfile(userId: string) {
     const profile = await this.aiProfileRepository.findByUserId(userId);
@@ -47,13 +47,39 @@ export class AIService {
     priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
   ) {
     const useCase = new PredictTaskDurationUseCase(this.aiProfileRepository);
-    return await useCase.execute({
+    const localPrediction = await useCase.execute({
       userId,
       taskTitle,
       taskDescription,
       category,
       priority,
     });
+
+    // HYBRID STRATEGY (Local First -> Gemini Fallback)
+    // If local confidence is LOW and we have meaningful input, try Gemini to get a better estimate.
+    if (localPrediction.confidence === 'LOW' && taskTitle) {
+      const geminiPrediction = await this.geminiService.estimateTaskDuration(
+        taskTitle,
+        taskDescription,
+        localPrediction.estimatedMinutes
+      );
+
+      // If Gemini provides a result, use it.
+      // We assume Gemini result structure might be slightly different or we just map it.
+      if (geminiPrediction.confidence !== 'LOW') {
+        return {
+          estimatedMinutes: geminiPrediction.estimatedMinutes,
+          confidence: geminiPrediction.confidence as any,
+          reasoning: `🤖 ${geminiPrediction.reasoning}`,
+          source: 'AI'
+        };
+      }
+    }
+
+    return {
+      ...localPrediction,
+      source: 'Local'
+    };
   }
 
   async generateWeeklyReport(userId: string, weekStart?: Date) {

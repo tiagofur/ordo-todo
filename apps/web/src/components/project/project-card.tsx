@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FolderKanban, MoreVertical, Archive, Trash2, CheckSquare } from "lucide-react";
+import {
+  FolderKanban,
+  MoreVertical,
+  Archive,
+  Trash2,
+  CheckSquare,
+} from "lucide-react";
 import { useTasks, useArchiveProject, useDeleteProject } from "@/lib/api-hooks";
 import {
   DropdownMenu,
@@ -14,6 +20,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { Progress } from "@/components/ui/progress";
+import { calculateProgress } from "@ordo-todo/core";
 
 interface ProjectCardProps {
   project: {
@@ -22,23 +30,52 @@ interface ProjectCardProps {
     description?: string | null;
     color: string;
     archived: boolean;
+    slug?: string;
+    tasksCount?: number;
+    completedTasksCount?: number;
   };
   index?: number;
+  workspaceSlug?: string;
 }
 
-export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
-  const t = useTranslations('ProjectCard');
+export function ProjectCard({
+  project,
+  index = 0,
+  workspaceSlug,
+}: ProjectCardProps) {
+  const t = useTranslations("ProjectCard");
   const router = useRouter();
 
   const { data: tasks } = useTasks();
-  const projectTasks = tasks?.filter((t: any) => String(t.projectId) === String(project.id)) || [];
-  const totalTasks = projectTasks.length;
+  const projectTasks =
+    tasks?.filter((t: any) => String(t.projectId) === String(project.id)) || [];
+  const totalTasks = project.tasksCount ?? projectTasks.length;
+  const completedTasks =
+    project.completedTasksCount ??
+    projectTasks.filter((t: any) => t.status === "DONE").length;
+  const progressPercent = calculateProgress(completedTasks, totalTasks);
 
   const archiveProjectMutation = useArchiveProject();
   const deleteProjectMutation = useDeleteProject();
 
   const handleCardClick = () => {
-    if (project.id) {
+    // Assuming workspace slug is available in the URL or context, but for now let's try to construct it
+    // Ideally, the project object should contain the workspace slug or we should get it from params
+    // Since we are in a workspace context usually, we might need to pass workspaceSlug prop to ProjectCard
+    // For now, let's keep using ID if slug is not fully supported in the parent component yet,
+    // BUT the goal is to use slugs.
+
+    // If project has a slug and we have a workspace slug...
+    // Let's assume the parent passes workspaceSlug or we can get it from the URL.
+    // Actually, ProjectCard is used in WorkspaceDashboard where we have the workspace object.
+
+    // I will update the component to accept workspaceSlug as a prop.
+    if (project.slug && workspaceSlug) {
+      router.push(`/workspaces/${workspaceSlug}/projects/${project.slug}`);
+    } else if (project.id) {
+      // Fallback to ID based routing if we haven't migrated everything or if slugs are missing
+      // But wait, the new route is /workspaces/:slug/projects/:slug
+      // The old route was /projects/:id (maybe?)
       router.push(`/projects/${project.id}`);
     }
   };
@@ -48,21 +85,23 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
     if (!project.id) return;
     try {
       await archiveProjectMutation.mutateAsync(String(project.id));
-      toast.success(project.archived ? t('toast.unarchived') : t('toast.archived'));
+      toast.success(
+        project.archived ? t("toast.unarchived") : t("toast.archived")
+      );
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || t('toast.archiveError'));
+      toast.error(error?.response?.data?.message || t("toast.archiveError"));
     }
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!project.id) return;
-    if (confirm(t('confirmDelete'))) {
+    if (confirm(t("confirmDelete"))) {
       try {
         await deleteProjectMutation.mutateAsync(String(project.id));
-        toast.success(t('toast.deleted'));
+        toast.success(t("toast.deleted"));
       } catch (error: any) {
-        toast.error(error?.response?.data?.message || t('toast.deleteError'));
+        toast.error(error?.response?.data?.message || t("toast.deleteError"));
       }
     }
   };
@@ -118,34 +157,67 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={handleArchive}>
                 <Archive className="mr-2 h-4 w-4" />
-                {project.archived ? t('actions.unarchive') : t('actions.archive')}
+                {project.archived
+                  ? t("actions.unarchive")
+                  : t("actions.archive")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
+              <DropdownMenuItem
+                onClick={handleDelete}
+                className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t('actions.delete')}
+                {t("actions.delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         {project.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-6 flex-grow">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-6 grow">
             {project.description}
           </p>
         )}
 
-        <div className="mt-auto pt-4 border-t border-dashed border-border/50">
+        <div className="mt-auto pt-4 border-t border-dashed border-border/50 space-y-3">
+          {/* Progress Bar */}
+          {totalTasks > 0 && (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{t("progress")}</span>
+                <span
+                  className="font-medium"
+                  style={{ color: project.color || "#ec4899" }}
+                >
+                  {progressPercent}%
+                </span>
+              </div>
+              <Progress
+                value={progressPercent}
+                className="h-1.5"
+                style={
+                  {
+                    // @ts-ignore - CSS variable for custom color
+                    "--progress-foreground": project.color || "#ec4899",
+                  } as React.CSSProperties
+                }
+              />
+            </div>
+          )}
+
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <CheckSquare className="h-4 w-4" />
-              <span>{t('tasks', { count: totalTasks })}</span>
+              <span>
+                {t("tasksProgress", {
+                  completed: completedTasks,
+                  total: totalTasks,
+                })}
+              </span>
             </div>
             {project.archived && (
-              <div
-                className="text-xs font-medium px-2 py-1 rounded-full bg-gray-500/10 text-gray-500"
-              >
-                {t('archived')}
+              <div className="text-xs font-medium px-2 py-1 rounded-full bg-gray-500/10 text-gray-500">
+                {t("archived")}
               </div>
             )}
           </div>

@@ -9,6 +9,7 @@ import type {
   UserRepository,
   WorkspaceSettingsRepository,
   WorkspaceAuditLogRepository,
+  WorkflowRepository,
 } from '@ordo-todo/core';
 import {
   CreateWorkspaceUseCase,
@@ -22,6 +23,7 @@ import {
   GetWorkspaceSettingsUseCase,
   CreateAuditLogUseCase,
   GetWorkspaceAuditLogsUseCase,
+  CreateWorkflowUseCase,
 } from '@ordo-todo/core';
 import type { WorkspaceInvitationRepository } from '@ordo-todo/core';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
@@ -41,6 +43,8 @@ export class WorkspacesService {
     private readonly settingsRepository: WorkspaceSettingsRepository,
     @Inject('WorkspaceAuditLogRepository')
     private readonly auditLogRepository: WorkspaceAuditLogRepository,
+    @Inject('WorkflowRepository')
+    private readonly workflowRepository: WorkflowRepository,
   ) { }
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
@@ -53,6 +57,16 @@ export class WorkspacesService {
       tier: 'FREE',
       color: createWorkspaceDto.color ?? '#2563EB',
       ownerId: userId,
+    });
+
+    // Create default workflow
+    const createWorkflowUseCase = new CreateWorkflowUseCase(
+      this.workflowRepository,
+    );
+    await createWorkflowUseCase.execute({
+      name: 'General',
+      workspaceId: workspace.id as string,
+      description: 'Default workflow for general projects',
     });
 
     // Log workspace creation
@@ -78,6 +92,14 @@ export class WorkspacesService {
 
   async findOne(id: string) {
     const workspace = await this.workspaceRepository.findById(id);
+    if (!workspace || workspace.props.isDeleted) {
+      throw new NotFoundException('Workspace not found');
+    }
+    return workspace.props;
+  }
+
+  async findBySlug(slug: string) {
+    const workspace = await this.workspaceRepository.findBySlug(slug);
     if (!workspace || workspace.props.isDeleted) {
       throw new NotFoundException('Workspace not found');
     }

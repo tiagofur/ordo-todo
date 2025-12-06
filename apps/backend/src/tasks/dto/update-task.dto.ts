@@ -32,4 +32,8 @@ export class UpdateTaskDto {
   @IsNumber()
   @IsOptional()
   estimatedTime?: number;
+
+  @IsString()
+  @IsOptional()
+  assigneeId?: string | null;
 }

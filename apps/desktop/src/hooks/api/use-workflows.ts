@@ -6,13 +6,15 @@ import type { CreateWorkflowDto, UpdateWorkflowDto } from '@ordo-todo/api-client
  * Workflow Management Hooks
  */
 
-export function useWorkflows(workspaceId?: string) {
+export function useWorkflows(workspaceId: string) {
   return useQuery({
     queryKey: ['workflows', { workspaceId }],
     queryFn: () => apiClient.getWorkflows(workspaceId),
+    enabled: !!workspaceId,
   });
 }
 
+/*
 export function useWorkflow(workflowId: string) {
   return useQuery({
     queryKey: ['workflows', workflowId],
@@ -20,6 +22,7 @@ export function useWorkflow(workflowId: string) {
     enabled: !!workflowId,
   });
 }
+*/
 
 export function useCreateWorkflow() {
   const queryClient = useQueryClient();

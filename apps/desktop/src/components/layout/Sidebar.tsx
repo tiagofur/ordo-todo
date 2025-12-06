@@ -1,53 +1,83 @@
 import { useState } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings } from "lucide-react";
+import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "../../lib/utils";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "../workspace/WorkspaceSelector";
 import { CreateWorkspaceDialog } from "../workspace/CreateWorkspaceDialog";
 import { TimerWidget } from "../timer/TimerWidget";
 
-const navigation = [
-  { name: "Hoy", href: "/dashboard", icon: Home },
-  { name: "Tareas", href: "/tasks", icon: CheckSquare },
-  { name: "Proyectos", href: "/projects", icon: FolderKanban },
-  { name: "Etiquetas", href: "/tags", icon: Tags },
-  { name: "Analíticas", href: "/analytics", icon: BarChart3 },
-];
+const colorClasses = {
+  cyan: "group-hover:bg-cyan-500/10 group-hover:text-cyan-500",
+  purple: "group-hover:bg-purple-500/10 group-hover:text-purple-500",
+  pink: "group-hover:bg-pink-500/10 group-hover:text-pink-500",
+  orange: "group-hover:bg-orange-500/10 group-hover:text-orange-500",
+  green: "group-hover:bg-green-500/10 group-hover:text-green-500",
+  blue: "group-hover:bg-blue-500/10 group-hover:text-blue-500",
+};
+
+const activeColorClasses = {
+  cyan: "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20",
+  purple: "bg-purple-500 text-white shadow-lg shadow-purple-500/20",
+  pink: "bg-pink-500 text-white shadow-lg shadow-pink-500/20",
+  orange: "bg-orange-500 text-white shadow-lg shadow-orange-500/20",
+  green: "bg-green-500 text-white shadow-lg shadow-green-500/20",
+  blue: "bg-blue-500 text-white shadow-lg shadow-blue-500/20",
+};
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
 
+  const navigation = [
+    { name: t("nav.dashboard") || "Inicio", href: "/dashboard", icon: Home, color: "cyan" },
+    { name: t("nav.tasks") || "Tareas", href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t("nav.calendar") || "Calendario", href: "/calendar", icon: Calendar, color: "blue" },
+    { name: t("nav.projects") || "Proyectos", href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: "Workspaces", href: "/workspaces", icon: Briefcase, color: "orange" }, // Pending translation
+    { name: "Tags", href: "/tags", icon: Tags, color: "green" }, // Pending translation
+    { name: t("nav.analytics") || "Analíticas", href: "/analytics", icon: BarChart3, color: "cyan" },
+  ];
+
   return (
     <>
-      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-background">
+      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-background">
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center border-b px-6">
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <CheckSquare className="h-5 w-5" />
+          <div className="flex h-16 items-center border-b border-border/50 px-6">
+            <Link to="/dashboard" className="flex items-center gap-3 group">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/20 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                <CheckSquare className="h-6 w-6" />
               </div>
-              <span className="text-xl font-bold">Ordo</span>
+              <span className="text-2xl font-bold text-foreground">
+                Ordo
+              </span>
             </Link>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
+              const isActive = location.pathname === item.href || location.pathname?.startsWith(`${item.href}/`);
               return (
                 <Link
-                  key={item.name}
+                  key={item.href}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? activeColorClasses[item.color as keyof typeof activeColorClasses]
+                      : cn(
+                          "text-muted-foreground hover:text-foreground",
+                          colorClasses[item.color as keyof typeof colorClasses]
+                        )
                   )}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className={cn(
+                    "h-5 w-5 transition-transform duration-200",
+                    isActive ? "" : "group-hover:scale-110"
+                  )} />
                   {item.name}
                 </Link>
               );
@@ -55,28 +85,34 @@ export function Sidebar() {
           </nav>
 
           {/* Timer Widget */}
-          <div className="border-t p-3">
+          <div className="border-t border-border/50 p-3">
             <TimerWidget />
           </div>
 
           {/* Workspace Selector */}
-          <div className="border-t p-3">
+          <div className="border-t border-border/50 p-3">
             <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
           </div>
 
           {/* Settings */}
-          <div className="border-t p-3 space-y-1">
+          <div className="border-t border-border/50 p-3 space-y-1">
             <Link
               to="/settings"
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                location.pathname === "/settings"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                location.pathname === "/settings" || location.pathname?.startsWith("/settings/")
+                  ? activeColorClasses.blue
+                  : cn(
+                      "text-muted-foreground hover:text-foreground",
+                      colorClasses.blue
+                    )
               )}
             >
-              <Settings className="h-5 w-5" />
-              Configuración
+              <Settings className={cn(
+                "h-5 w-5 transition-transform duration-200",
+                location.pathname === "/settings" || location.pathname?.startsWith("/settings/") ? "" : "group-hover:scale-110"
+              )} />
+              {t("nav.settings") || "Configuración"}
             </Link>
           </div>
         </div>

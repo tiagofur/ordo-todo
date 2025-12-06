@@ -22,11 +22,23 @@ export class ProjectsService {
     const createProjectUseCase = new CreateProjectUseCase(
       this.projectRepository,
     );
+
+    // Generate slug if not provided
+    const slug = createProjectDto.slug || this.generateSlug(createProjectDto.name);
+
     const project = await createProjectUseCase.execute({
       ...createProjectDto,
+      slug,
       color: createProjectDto.color ?? '#6B7280',
     });
     return project.props;
+  }
+
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/ /g, '-')
+      .replace(/[^\w-]+/g, '');
   }
 
   async findAll(workspaceId: string) {
@@ -42,6 +54,11 @@ export class ProjectsService {
 
   async findOne(id: string) {
     const project = await this.projectRepository.findById(id);
+    return project?.props;
+  }
+
+  async findBySlug(slug: string, workspaceId: string) {
+    const project = await this.projectRepository.findBySlug(slug, workspaceId);
     return project?.props;
   }
 

@@ -11,6 +11,13 @@ export default defineConfig({
             main: {
                 // Shortcut of `build.lib.entry`
                 entry: 'electron/main.ts',
+                vite: {
+                    build: {
+                        rollupOptions: {
+                            external: ['better-sqlite3'],
+                        },
+                    },
+                },
             },
             preload: {
                 // Shortcut of `build.rollupOptions.input`
@@ -29,6 +36,14 @@ export default defineConfig({
         outDir: 'dist',
         assetsDir: 'assets',
         emptyOutDir: true,
+        commonjsOptions: {
+            // Transform CommonJS modules to ESM
+            include: [/packages\/api-client/, /node_modules/],
+            transformMixedEsModules: true,
+        },
+    },
+    optimizeDeps: {
+        include: ['@ordo-todo/api-client'],
     },
     base: './',
 })

@@ -47,7 +47,7 @@ export function FileUpload({
   const t = useTranslations('FileUpload');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<
-    Array<{ name: string; progress: number; error?: string }>
+    Array<{ id: string; name: string; progress: number; error?: string }>
   >([]);
 
 
@@ -101,8 +101,11 @@ export function FileUpload({
       return;
     }
 
-    // Add to uploading files
-    setUploadingFiles((prev) => [...prev, { name: file.name, progress: 0 }]);
+    // Generate unique ID for this upload
+    const uploadId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Add to uploading files with unique ID
+    setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
 
     // Create FormData
     const formData = new FormData();
@@ -116,7 +119,7 @@ export function FileUpload({
       if (e.lengthComputable) {
         const progress = Math.round((e.loaded / e.total) * 100);
         setUploadingFiles((prev) =>
-          prev.map((f) => (f.name === file.name ? { ...f, progress } : f))
+          prev.map((f) => (f.id === uploadId ? { ...f, progress } : f))
         );
       }
     });
@@ -133,7 +136,7 @@ export function FileUpload({
 
           // Backend already created the attachment record
           toast.success(t('success.uploaded', { fileName: file.name }));
-          setUploadingFiles((prev) => prev.filter((f) => f.name !== file.name));
+          setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
           onUploadComplete?.();
         } catch (err) {
           console.error("Upload error:", err);
@@ -141,7 +144,7 @@ export function FileUpload({
           toast.error(t('errors.uploadError', { errorMessage }));
           setUploadingFiles((prev) =>
             prev.map((f) =>
-              f.name === file.name ? { ...f, error: errorMessage } : f
+              f.id === uploadId ? { ...f, error: errorMessage } : f
             )
           );
         }
@@ -163,7 +166,7 @@ export function FileUpload({
         toast.error(errorMessage);
         setUploadingFiles((prev) =>
           prev.map((f) =>
-            f.name === file.name ? { ...f, error: errorMessage } : f
+            f.id === uploadId ? { ...f, error: errorMessage } : f
           )
         );
       }
@@ -175,7 +178,7 @@ export function FileUpload({
       toast.error(errorMessage);
       setUploadingFiles((prev) =>
         prev.map((f) =>
-          f.name === file.name ? { ...f, error: errorMessage } : f
+          f.id === uploadId ? { ...f, error: errorMessage } : f
         )
       );
     });
@@ -231,8 +234,9 @@ export function FileUpload({
     e.target.value = ""; // Reset input
   };
 
-  const cancelUpload = (fileName: string) => {
-    setUploadingFiles((prev) => prev.filter((f) => f.name !== fileName));
+  const cancelUpload = (uploadId: string) => {
+    const fileName = uploadingFiles.find(f => f.id === uploadId)?.name || 'file';
+    setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
     toast.info(t('info.cancelled', { fileName }));
   };
 
@@ -240,9 +244,6 @@ export function FileUpload({
     <div className="space-y-4">
       {/* Drop Zone */}
       <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
         className={cn(
           "relative rounded-lg border-2 border-dashed transition-all",
           "hover:border-primary/50 hover:bg-accent/50",
@@ -297,7 +298,7 @@ export function FileUpload({
 
             return (
               <div
-                key={file.name}
+                key={file.id}
                 className="flex items-center gap-3 rounded-lg border p-3"
               >
                 <FileIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -323,7 +324,7 @@ export function FileUpload({
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6 shrink-0"
-                  onClick={() => cancelUpload(file.name)}
+                  onClick={() => cancelUpload(file.id)}
                 >
                   <X className="h-3 w-3" />
                 </Button>

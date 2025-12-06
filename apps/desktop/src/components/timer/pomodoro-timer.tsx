@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Play,
   Pause,
@@ -7,66 +6,22 @@ import {
   Coffee,
   Zap,
   CheckSquare,
+  Maximize2,
 } from "lucide-react";
-import { useTimer, TimerType, TimerMode, SessionData } from "@/hooks/use-timer";
-import { api } from "@/utils/api";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { useTimerContext } from "@/contexts/timer-context";
+import { TimerMode, TimerType } from "@/hooks/use-timer";
 import { TaskSelector } from "./task-selector";
 
 interface PomodoroTimerProps {
-  taskId?: string;
+  taskId?: string; // Kept for interface compatibility but context takes precedence usually
   timerType?: TimerType;
 }
-
-const DEFAULT_CONFIG = {
-  workDuration: 25,
-  shortBreakDuration: 5,
-  longBreakDuration: 15,
-  pomodorosUntilLongBreak: 4,
-};
 
 export function PomodoroTimer({
   taskId: initialTaskId,
   timerType = "POMODORO",
 }: PomodoroTimerProps) {
-  const [config] = useState(DEFAULT_CONFIG);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(
-    initialTaskId || null
-  );
-  const utils = api.useUtils();
-
-  const startTimer = api.timer.start.useMutation({
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al iniciar timer");
-    },
-  });
-
-  const stopTimer = api.timer.stop.useMutation({
-    onSuccess: () => {
-      utils.timer.active.invalidate();
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al guardar sesión");
-    },
-  });
-
-  const completeTask = api.task.complete.useMutation({
-    onSuccess: () => {
-      toast.success("Tarea completada");
-      utils.task.list.invalidate();
-    },
-  });
-
-  // This function is called when a session (or split part) ends
-  const handleSessionComplete = async (data: SessionData) => {
-    // Only save if we have a task selected
-    if (selectedTaskId) {
-      await stopTimer.mutateAsync({
-        wasCompleted: data.wasCompleted,
-      });
-    }
-  };
-
   const {
     isRunning,
     isPaused,
@@ -77,63 +32,15 @@ export function PomodoroTimer({
     start,
     pause,
     stop,
-    split,
     skipToNext,
     formatTime,
     getProgress,
-  } = useTimer({
-    type: timerType,
-    config,
-    onSessionComplete: handleSessionComplete,
-  });
+    selectedTaskId,
+    toggleTaskSelection,
+    completeTask,
+  } = useTimerContext();
 
-  const handleStart = async () => {
-    if (!isRunning && !isPaused && selectedTaskId) {
-      await startTimer.mutateAsync({
-        taskId: selectedTaskId,
-        type: mode,
-      });
-    }
-    start();
-  };
-
-  const handleStop = () => {
-    stop(false);
-  };
-
-  const handleTaskSelect = async (newTaskId: string | null) => {
-    if (isRunning && !isPaused) {
-      // If timer is running, split the session
-      split();
-
-      // If we have a new task, start a new session immediately
-      if (newTaskId) {
-        await startTimer.mutateAsync({
-          taskId: newTaskId,
-          type: mode,
-        });
-      }
-    }
-
-    setSelectedTaskId(newTaskId);
-  };
-
-  const handleCompleteTask = async () => {
-    if (selectedTaskId) {
-      // Complete the task in backend
-      await completeTask.mutateAsync({ id: selectedTaskId });
-
-      // Split the timer session (log time for this task)
-      if (isRunning) {
-        split();
-      }
-
-      // Clear selection but keep timer running
-      setSelectedTaskId(null);
-      toast.success("Tarea completada! Selecciona otra para continuar.");
-    }
-  };
-
+  // Mode helpers
   const getModeColor = (mode: TimerMode): string => {
     switch (mode) {
       case "WORK":
@@ -170,6 +77,12 @@ export function PomodoroTimer({
     <div className="w-full max-w-md mx-auto">
       <div className="rounded-2xl border bg-card p-8 shadow-lg">
         {/* Mode Indicator */}
+        <div className="absolute top-4 right-4">
+             <Link to="/focus" title="Enter Focus Mode">
+                  <Maximize2 className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+             </Link>
+        </div>
+
         <div className="mb-6 flex items-center justify-center gap-2">
           <div
             className={`flex items-center gap-2 rounded-full ${getModeColor(mode)} px-4 py-2 text-white`}
@@ -184,12 +97,12 @@ export function PomodoroTimer({
           <div className="flex gap-2">
             <TaskSelector
               selectedTaskId={selectedTaskId}
-              onSelect={handleTaskSelect}
+              onSelect={toggleTaskSelection}
               className="flex-1"
             />
             {selectedTaskId && (
               <button
-                onClick={handleCompleteTask}
+                onClick={completeTask}
                 className="flex items-center justify-center rounded-lg border border-green-500 bg-green-100 px-3 text-green-700 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
                 title="Completar tarea y seguir trabajando"
               >
@@ -251,8 +164,7 @@ export function PomodoroTimer({
         <div className="flex items-center justify-center gap-3">
           {!isRunning && !isPaused ? (
             <button
-              onClick={handleStart}
-              disabled={startTimer.isPending}
+              onClick={() => start()}
               className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 disabled:opacity-50"
             >
               <Play className="h-6 w-6 ml-1" />
@@ -266,7 +178,7 @@ export function PomodoroTimer({
                 <Pause className="h-5 w-5" />
               </button>
               <button
-                onClick={handleStop}
+                onClick={() => stop()}
                 className="flex h-12 w-12 items-center justify-center rounded-full border-2 transition-transform hover:scale-110"
               >
                 <Square className="h-5 w-5" />

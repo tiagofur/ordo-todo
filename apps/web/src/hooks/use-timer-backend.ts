@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { formatTimerDisplay } from "@ordo-todo/core";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { useTimerNotifications } from "./use-timer-notifications";
@@ -71,6 +72,10 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     const [localPauseStartTime, setLocalPauseStartTime] = useState<Date | null>(null);
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Refs to hold latest function references to avoid stale closures in setInterval
+    const skipToNextRef = useRef<(() => Promise<void>) | undefined>(undefined);
+    const stopRef = useRef<((wasCompleted?: boolean) => Promise<void>) | undefined>(undefined);
 
     // Backend hooks
     const { data: activeSession, refetch: refetchActiveSession } = useActiveTimer();
@@ -379,6 +384,15 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         }
     }, [mode, type, switchTaskMutation, refetchActiveSession]);
 
+    // Keep refs updated with latest function references
+    useEffect(() => {
+        skipToNextRef.current = skipToNext;
+    }, [skipToNext]);
+
+    useEffect(() => {
+        stopRef.current = stop;
+    }, [stop]);
+
     // Timer countdown/countup effect
     useEffect(() => {
         if (isRunning && !isPaused && !isTransitioningRef.current) {
@@ -390,14 +404,13 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
 
                     if (prev <= 1) {
                         // Timer completed - trigger transition
-                        // Don't call skipToNext here directly, schedule it outside setState
-                        // to avoid calling async functions inside setState callback
+                        // Use refs to get latest function references and avoid stale closures
                         setTimeout(() => {
                             if (!isTransitioningRef.current) {
                                 if (type === "POMODORO") {
-                                    skipToNext();
+                                    skipToNextRef.current?.();
                                 } else {
-                                    stop(true);
+                                    stopRef.current?.(true);
                                 }
                             }
                         }, 0);
@@ -418,12 +431,10 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 clearInterval(intervalRef.current);
             }
         };
-    }, [isRunning, isPaused, type, mode, skipToNext, stop]);
+    }, [isRunning, isPaused, type, mode]); // Removed skipToNext and stop - using refs instead
 
     const formatTime = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        return formatTimerDisplay(seconds);
     };
 
     const getProgress = (): number => {

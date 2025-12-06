@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useCurrentUser, useLogin, useRegister, useLogout } from "@/hooks/api";
+import { useCurrentUser, useLogin, useRegister, useLogout } from "@/hooks/api/use-auth";
 import type { User, LoginDto, RegisterDto } from "@ordo-todo/api-client";
 
 interface AuthContextType {
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <AuthContext.Provider
       value={{
-        user: user || null,
+        user: (user as any) || null,
         isLoading,
         isAuthenticated: !!user,
         login,

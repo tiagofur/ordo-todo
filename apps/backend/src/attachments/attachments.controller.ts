@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   Delete,
   Body,
   Param,
@@ -24,6 +25,11 @@ import { CreateAttachmentDto } from './dto/create-attachment.dto';
 @UseGuards(JwtAuthGuard)
 export class AttachmentsController {
   constructor(private readonly attachmentsService: AttachmentsService) { }
+
+  @Get('project/:projectId')
+  findByProject(@Param('projectId') projectId: string) {
+    return this.attachmentsService.findByProject(projectId);
+  }
 
   @Post('upload')
   @HttpCode(HttpStatus.CREATED)

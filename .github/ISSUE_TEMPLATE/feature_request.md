@@ -1,0 +1,124 @@
+---
+name: ✨ Feature Request
+about: Propón una nueva funcionalidad o mejora
+title: '[FEATURE] '
+labels: ['enhancement', 'needs-discussion']
+assignees: ''
+---
+
+## ✨ Descripción de la Feature
+
+<!-- Describe la funcionalidad que propones en 2-3 oraciones -->
+
+## 🎯 Problema que Resuelve
+
+<!-- ¿Qué problema o necesidad aborda esta feature? -->
+
+**User Story:**
+> Como [tipo de usuario],  
+> Quiero [realizar acción],  
+> Para [lograr beneficio]
+
+## 💡 Solución Propuesta
+
+<!-- Describe cómo funcionaría la feature -->
+
+### UI/UX (si aplica)
+
+<!-- Wireframes, mockups, o descripción de la interfaz -->
+
+### Flujo de Usuario
+
+1. Usuario hace X
+2. Sistema responde con Y
+3. Usuario ve Z
+
+## 🎨 Diseño Visual
+
+<!-- Si tienes ideas de diseño, agrégalas aquí -->
+
+**Mockups/Wireframes:**
+<!-- Adjunta imágenes o links a Figma/sketch -->
+
+**Inspiración:**
+<!-- Links a apps/sites con funcionalidad similar -->
+
+## 🔧 Detalles Técnicos
+
+### Frontend (Flutter)
+
+<!-- Componentes, screens, widgets necesarios -->
+
+- Nuevo screen: `NombreScreen`
+- Widgets: `Widget1`, `Widget2`
+- State management: Provider `nombreProvider`
+
+### Backend (NestJS)
+
+<!-- Endpoints, servicios, entidades necesarias -->
+
+- Nuevo endpoint: `POST /api/v1/recurso`
+- Servicio: `RecursoService`
+- Entity: `Recurso`
+
+### Database
+
+<!-- Nuevas tablas, columnas, relaciones -->
+
+- Nueva tabla: `recursos`
+- Relaciones: `user → recursos (1:N)`
+
+## 📊 Prioridad e Impacto
+
+**Prioridad:**
+- [ ] 🔴 Critical (blocker para release)
+- [ ] 🟠 High (muy solicitado por usuarios)
+- [ ] 🟡 Medium (nice to have)
+- [ ] 🟢 Low (futuro lejano)
+
+**Impacto:**
+- [ ] 🚀 Alto (afecta a todos los usuarios)
+- [ ] 📊 Medio (afecta a segmento específico)
+- [ ] 🎯 Bajo (feature de nicho)
+
+**Esfuerzo Estimado:**
+- [ ] 🟢 Small (< 1 día)
+- [ ] 🟡 Medium (1-3 días)
+- [ ] 🟠 Large (1-2 semanas)
+- [ ] 🔴 Extra Large (> 2 semanas)
+
+## 🔀 Alternativas Consideradas
+
+<!-- ¿Evaluaste otras soluciones? ¿Por qué esta es mejor? -->
+
+## ⚠️ Riesgos y Consideraciones
+
+<!-- Posibles problemas, breaking changes, dependencias -->
+
+- **Breaking changes:** Sí/No
+- **Requiere migración de datos:** Sí/No
+- **Afecta performance:** Sí/No
+- **Requiere nuevas dependencias:** Sí/No
+
+## 🧪 Criterios de Aceptación
+
+<!-- ¿Cómo sabremos que la feature está completa? -->
+
+- [ ] Funcionalidad implementada según spec
+- [ ] Tests unitarios agregados
+- [ ] Documentación actualizada
+- [ ] Validado con usuarios (si aplica)
+
+## 📚 Referencias
+
+<!-- Links a docs, issues relacionados, PRs, etc. -->
+
+- Related to #
+- Depends on #
+- Documentation: [link]
+
+---
+
+## 💬 Discusión
+
+<!-- Espacio para discutir la propuesta antes de implementar -->

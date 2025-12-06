@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
-import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout } from "lucide-react";
-import { api } from "@/utils/api";
+import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Link2 } from "lucide-react";
+import { 
+  useTaskDetails, 
+  useUpdateTask, 
+  useDeleteTask 
+} from "@/hooks/api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +31,8 @@ import { CommentThread } from "./comment-thread";
 import { FileUpload } from "./file-upload";
 import { AttachmentList } from "./attachment-list";
 import { ActivityFeed } from "./activity-feed";
+import { DependencyList } from "./dependency-list";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -45,22 +54,21 @@ const STATUS_CONFIG = {
   CANCELLED: { label: "Cancelada", color: "bg-red-500", variant: "destructive" },
 };
 
-type TabType = "subtasks" | "comments" | "attachments" | "activity";
+type TabType = "subtasks" | "comments" | "attachments" | "activity" | "dependencies";
 
 export function TaskDetailPanel({
   taskId,
   open,
   onOpenChange,
 }: TaskDetailPanelProps) {
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("subtasks");
   
   // Fetch task data
-  const { data: task, isLoading } = api.task.getById.useQuery(
-    { id: taskId as string },
-    { enabled: !!taskId && open }
-  );
+  const { data: task, isLoading } = useTaskDetails(taskId || "");
+  const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -86,49 +94,38 @@ export function TaskDetailPanel({
     }
   }, [task]);
 
-  // Update task mutation
-  const updateTask = api.task.update.useMutation({
-    onSuccess: () => {
-      toast.success("Tarea actualizada");
-      utils.task.list.invalidate();
-      utils.task.getById.invalidate({ id: taskId as string });
-      setIsEditing(false);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al actualizar tarea");
-    },
-  });
-
-  // Delete task mutation
-  const deleteTask = api.task.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Tarea eliminada");
-      utils.task.list.invalidate();
-      onOpenChange(false);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al eliminar tarea");
-    },
-  });
-
   const handleSave = () => {
     if (!taskId) return;
 
     updateTask.mutate({
-      id: taskId,
-      title: formData.title,
-      description: formData.description,
-      status: formData.status as any,
-      priority: formData.priority as any,
-      dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
-      estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
+      taskId,
+      data: {
+        title: formData.title,
+        description: formData.description,
+        status: formData.status as any,
+        priority: formData.priority as any,
+        dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
+        estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
+      }
+    }, {
+        onSuccess: () => {
+             toast.success("Tarea actualizada");
+             setIsEditing(false);
+        },
+        onError: (err) => toast.error("Error al actualizar")
     });
   };
 
   const handleDelete = () => {
     if (!taskId) return;
     if (confirm("¿Estás seguro de eliminar esta tarea?")) {
-      deleteTask.mutate({ id: taskId });
+      deleteTask.mutate(taskId, {
+          onSuccess: () => {
+              toast.success("Tarea eliminada");
+              onOpenChange(false);
+          },
+          onError: () => toast.error("Error al eliminar")
+      });
     }
   };
 
@@ -138,16 +135,18 @@ export function TaskDetailPanel({
 
   if (!taskId) return null;
 
-  const priorityInfo = PRIORITY_CONFIG[formData.priority as keyof typeof PRIORITY_CONFIG] || PRIORITY_CONFIG.MEDIUM;
-  // const statusInfo = STATUS_CONFIG[formData.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.TODO;
-  // const PriorityIcon = priorityInfo.icon;
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side="right" 
         className="w-full sm:max-w-xl md:max-w-2xl p-0 gap-0 overflow-hidden flex flex-col bg-background/95 backdrop-blur-sm"
       >
+        <VisuallyHidden>
+          <SheetTitle>Detalles de la tarea: {task?.title || "Cargando..."}</SheetTitle>
+          <SheetDescription>
+            Panel para ver y editar los detalles, subtareas, comentarios y archivos adjuntos de la tarea seleccionada.
+          </SheetDescription>
+        </VisuallyHidden>
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -164,8 +163,7 @@ export function TaskDetailPanel({
                       value={formData.status}
                       onValueChange={(value) => {
                         handleFieldChange("status", value);
-                        // Auto-save status changes
-                        updateTask.mutate({ id: taskId, status: value as any });
+                        updateTask.mutate({ taskId, data: { status: value as any } });
                       }}
                     >
                       <SelectTrigger className={cn("h-7 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
@@ -187,8 +185,7 @@ export function TaskDetailPanel({
                       value={formData.priority}
                       onValueChange={(value) => {
                         handleFieldChange("priority", value);
-                        // Auto-save priority changes
-                        updateTask.mutate({ id: taskId, priority: value as any });
+                        updateTask.mutate({ taskId, data: { priority: value as any } });
                       }}
                     >
                       <SelectTrigger className={cn("h-7 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
@@ -291,8 +288,8 @@ export function TaskDetailPanel({
                               handleFieldChange("dueDate", e.target.value);
                               if (!isEditing) {
                                 updateTask.mutate({ 
-                                  id: taskId, 
-                                  dueDate: e.target.value ? new Date(e.target.value) : undefined 
+                                  taskId, 
+                                  data: { dueDate: e.target.value ? new Date(e.target.value) : undefined }
                                 });
                               }
                             }}
@@ -312,8 +309,8 @@ export function TaskDetailPanel({
                               handleFieldChange("estimatedTime", e.target.value);
                               if (!isEditing && e.target.value) {
                                 updateTask.mutate({ 
-                                  id: taskId, 
-                                  estimatedTime: parseFloat(e.target.value) 
+                                  taskId, 
+                                  data: { estimatedTime: parseFloat(e.target.value) }
                                 });
                               }
                             }}
@@ -330,13 +327,20 @@ export function TaskDetailPanel({
 
                 {/* Tabs Section */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg w-fit">
+                  <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg w-fit overflow-x-auto max-w-full">
                     <TabButton 
                       active={activeTab === "subtasks"} 
                       onClick={() => setActiveTab("subtasks")}
                       icon={CheckSquare}
                       label="Subtareas"
                       count={task?.subTasks?.length}
+                    />
+                    <TabButton 
+                      active={activeTab === "dependencies"} 
+                      onClick={() => setActiveTab("dependencies")}
+                      icon={Link2}
+                      label="Bloqueos"
+                      // count={...} // Need dependencies count
                     />
                     <TabButton 
                       active={activeTab === "comments"} 
@@ -364,6 +368,9 @@ export function TaskDetailPanel({
                     {activeTab === "subtasks" && (
                       <SubtaskList taskId={taskId} subtasks={task?.subTasks || []} />
                     )}
+                    {activeTab === "dependencies" && (
+                      <DependencyList taskId={taskId} projectId={task?.projectId} />
+                    )}
                     {activeTab === "comments" && (
                       <CommentThread 
                         taskId={taskId} 
@@ -375,7 +382,7 @@ export function TaskDetailPanel({
                       <div className="space-y-4">
                         <FileUpload 
                           taskId={taskId}
-                          onUploadComplete={() => utils.task.getById.invalidate({ id: taskId })}
+                          onUploadComplete={() => queryClient.invalidateQueries({ queryKey: ['tasks', taskId] })}
                         />
                         <AttachmentList 
                           taskId={taskId}
@@ -435,7 +442,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+        "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap",
         active 
           ? "bg-background text-foreground shadow-sm" 
           : "text-muted-foreground hover:bg-background/50 hover:text-foreground"

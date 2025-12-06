@@ -2,9 +2,11 @@
 
 import { AppLayout } from "@/components/shared/app-layout";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
+import { SessionHistory } from "@/components/timer/session-history";
 import { Clock } from "lucide-react";
 import { TomatoIcon } from "@/components/ui/custom-icons";
 import { useTimer } from "@/components/providers/timer-provider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TimerPage() {
   const { mode, config } = useTimer();
@@ -47,10 +49,22 @@ export default function TimerPage() {
           </div>
         </div>
 
-        {/* Timer */}
-        <div className="flex justify-center py-8">
-          <PomodoroTimer />
-        </div>
+        <Tabs defaultValue="timer" className="w-full">
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="timer">Temporizador</TabsTrigger>
+            <TabsTrigger value="history">Historial</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="timer" className="mt-6">
+            <div className="flex justify-center py-8">
+              <PomodoroTimer />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="history" className="mt-6">
+            <SessionHistory />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );

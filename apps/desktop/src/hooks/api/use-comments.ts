@@ -9,11 +9,12 @@ import type { CreateCommentDto, UpdateCommentDto } from '@ordo-todo/api-client';
 export function useComments(taskId: string) {
   return useQuery({
     queryKey: ['comments', { taskId }],
-    queryFn: () => apiClient.getComments(taskId),
+    queryFn: () => apiClient.getTaskComments(taskId),
     enabled: !!taskId,
   });
 }
 
+/*
 export function useComment(commentId: string) {
   return useQuery({
     queryKey: ['comments', commentId],
@@ -21,6 +22,7 @@ export function useComment(commentId: string) {
     enabled: !!commentId,
   });
 }
+*/
 
 export function useCreateComment() {
   const queryClient = useQueryClient();

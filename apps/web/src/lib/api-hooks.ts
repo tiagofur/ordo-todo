@@ -53,6 +53,9 @@ import type {
 export const queryKeys = {
   // Auth & User
   currentUser: ['user', 'current'] as const,
+  userProfile: ['user', 'profile'] as const,
+  userPreferences: ['user', 'preferences'] as const,
+  userIntegrations: ['user', 'integrations'] as const,
 
   // Workspaces
   workspaces: ['workspaces'] as const,
@@ -96,6 +99,10 @@ export const queryKeys = {
   weeklyMetrics: (params?: { weekStart?: string }) => ['analytics', 'weekly', params] as const,
   monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
   dateRangeMetrics: (startDate: string, endDate: string) => ['analytics', 'range', startDate, endDate] as const,
+  dashboardStats: ['analytics', 'dashboard-stats'] as const,
+  heatmapData: ['analytics', 'heatmap'] as const,
+  projectDistribution: ['analytics', 'project-distribution'] as const,
+  taskStatusDistribution: ['analytics', 'task-status-distribution'] as const,
 
   // AI
   aiProfile: ['ai', 'profile'] as const,
@@ -112,6 +119,7 @@ export const queryKeys = {
 
   // Attachments
   taskAttachments: (taskId: string) => ['tasks', taskId, 'attachments'] as const,
+  projectAttachments: (projectId: string) => ['projects', projectId, 'attachments'] as const,
 } as const;
 
 // ============ AUTH HOOKS ============
@@ -157,6 +165,72 @@ export function useUpdateProfile() {
     mutationFn: (data: UpdateProfileDto) => apiClient.updateProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+}
+
+export function useFullProfile() {
+  return useQuery({
+    queryKey: queryKeys.userProfile,
+    queryFn: () => apiClient.getFullProfile(),
+    retry: false,
+  });
+}
+
+export function useUserPreferences() {
+  return useQuery({
+    queryKey: queryKeys.userPreferences,
+    queryFn: () => apiClient.getPreferences(),
+    retry: false,
+  });
+}
+
+export function useUpdatePreferences() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Parameters<typeof apiClient.updatePreferences>[0]) =>
+      apiClient.updatePreferences(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.userPreferences });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+}
+
+export function useUserIntegrations() {
+  return useQuery({
+    queryKey: queryKeys.userIntegrations,
+    queryFn: () => apiClient.getIntegrations(),
+    retry: false,
+  });
+}
+
+export function useExportData() {
+  return useMutation({
+    mutationFn: () => apiClient.exportData(),
+    onSuccess: (blob) => {
+      // Trigger download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ordo-todo-export-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.deleteAccount(),
+    onSuccess: () => {
+      queryClient.clear();
     },
   });
 }
@@ -177,6 +251,17 @@ export function useWorkspace(workspaceId: string) {
     enabled: !!workspaceId,
   });
 }
+
+export function useWorkspaceBySlug(slug: string) {
+  return useQuery({
+    queryKey: ['workspaces', 'slug', slug],
+    queryFn: () => apiClient.getWorkspaceBySlug(slug),
+    enabled: !!slug,
+  });
+}
+
+// Force recompile
+export const useWorkspaceBySlugTest = () => true;
 
 export function useCreateWorkspace() {
   const queryClient = useQueryClient();
@@ -454,12 +539,20 @@ export function useDeleteProject() {
 
 // ============ TASK HOOKS ============
 
-export function useTasks(projectId?: string, tags?: string[]) {
+export function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
   return useQuery({
-    queryKey: projectId ? ['tasks', projectId, { tags }] : ['tasks', { tags }],
-    queryFn: () => (apiClient as any).getTasks(projectId, tags),
+    queryKey: projectId
+      ? ['tasks', projectId, { tags, assignedToMe: options?.assignedToMe }]
+      : ['tasks', { tags, assignedToMe: options?.assignedToMe }],
+    queryFn: () => apiClient.getTasks(projectId, tags, options?.assignedToMe),
   });
 }
+
+// Helper to invalidate all task queries
+export const invalidateAllTasks = (queryClient: any) => {
+  // Invalidate all queries that start with 'tasks'
+  queryClient.invalidateQueries({ queryKey: ['tasks'] });
+};
 
 export function useTask(taskId: string) {
   return useQuery({
@@ -529,10 +622,8 @@ export function useUpdateTask() {
     onSettled: (task, error, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-      if (task) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
+      // Invalidate ALL task queries (with any projectId or tags)
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 }
@@ -576,10 +667,12 @@ export function useCompleteTask() {
     onSettled: (task, error, taskId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-      if (task) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
+      // Invalidate ALL task queries (with any projectId or tags)
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      // Also invalidate analytics/metrics that depend on task completion
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
     },
   });
 }
@@ -605,6 +698,25 @@ export function useCreateSubtask() {
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(parentTaskId) });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
+  });
+}
+
+export function useShareTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.generatePublicToken(taskId),
+    onSuccess: (data, taskId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+    },
+  });
+}
+
+export function usePublicTask(token: string) {
+  return useQuery({
+    queryKey: ['public-task', token],
+    queryFn: () => apiClient.getTaskByPublicToken(token),
+    enabled: !!token,
   });
 }
 
@@ -715,6 +827,7 @@ export function useStartTimer() {
     mutationFn: (data: StartTimerDto) => apiClient.startTimer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
   });
 }
@@ -727,6 +840,10 @@ export function useStopTimer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
+      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
     },
   });
 }
@@ -827,6 +944,34 @@ export function useDateRangeMetrics(startDate: string, endDate: string) {
   return useQuery({
     queryKey: queryKeys.dateRangeMetrics(startDate, endDate),
     queryFn: () => apiClient.getDateRangeMetrics(startDate, endDate),
+  });
+}
+
+export function useDashboardStats() {
+  return useQuery({
+    queryKey: queryKeys.dashboardStats,
+    queryFn: () => apiClient.getDashboardStats(),
+  });
+}
+
+export function useHeatmapData() {
+  return useQuery({
+    queryKey: queryKeys.heatmapData,
+    queryFn: () => apiClient.getHeatmapData(),
+  });
+}
+
+export function useProjectDistribution() {
+  return useQuery({
+    queryKey: queryKeys.projectDistribution,
+    queryFn: () => apiClient.getProjectDistribution(),
+  });
+}
+
+export function useTaskStatusDistribution() {
+  return useQuery({
+    queryKey: queryKeys.taskStatusDistribution,
+    queryFn: () => apiClient.getTaskStatusDistribution(),
   });
 }
 
@@ -972,8 +1117,59 @@ export function useDeleteAttachment() {
     onSuccess: () => {
       // Invalidate all attachment queries since we don't know which task it belonged to
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });
 }
+
+export function useProjectAttachments(projectId: string) {
+  return useQuery({
+    queryKey: queryKeys.projectAttachments(projectId),
+    queryFn: () => apiClient.getProjectAttachments(projectId),
+    enabled: !!projectId,
+  });
+}
+
+// ==========================================
+// NOTIFICATIONS
+// ==========================================
+
+export const useNotifications = () => {
+  return useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => apiClient.getNotifications(),
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+};
+
+export const useUnreadNotificationsCount = () => {
+  return useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: () => apiClient.getUnreadNotificationsCount(),
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+};
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiClient.markNotificationAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
+
+export const useMarkAllNotificationsAsRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.markAllNotificationsAsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
 
 

@@ -1,20 +1,53 @@
 import { createHashRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
 import {
-  Dashboard,
-  Tasks,
-  Projects,
-  ProjectDetail,
-  Timer,
-  Tags,
-  Settings,
-  Auth,
-} from "../pages";
+  LazyPage,
+  PageLoader,
+  LazyDashboard,
+  LazyTasks,
+  LazyProjects,
+  LazyProjectDetail,
+  LazyTimer,
+  LazyAnalytics,
+  LazyTags,
+  LazySettings,
+  LazyAuth,
+  LazyTimerFloating,
+  LazyCalendar,
+  LazyFocusMode,
+  LazyWorkspaces,
+  LazyWorkspaceDetail,
+} from "../pages/lazy";
 
+/**
+ * Application routes with code splitting
+ * Pages are lazy-loaded for better initial performance
+ */
 export const router = createHashRouter([
+  // Floating timer window (separate, minimal route)
+  {
+    path: "/timer-floating",
+    element: (
+      <LazyPage fallback={<PageLoader message="Loading timer..." />}>
+        <LazyTimerFloating />
+      </LazyPage>
+    ),
+  },
+  {
+    path: "/focus",
+    element: (
+      <LazyPage fallback={<PageLoader message="Entering Deep Work..." />}>
+        <LazyFocusMode />
+      </LazyPage>
+    ),
+  },
   {
     path: "/auth",
-    element: <Auth />,
+    element: (
+      <LazyPage fallback={<PageLoader message="Loading authentication..." />}>
+        <LazyAuth />
+      </LazyPage>
+    ),
   },
   {
     path: "/",
@@ -26,31 +59,91 @@ export const router = createHashRouter([
       },
       {
         path: "dashboard",
-        element: <Dashboard />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading dashboard..." />}>
+            <LazyDashboard />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "calendar",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading calendar..." />}>
+            <LazyCalendar />
+          </LazyPage>
+        ),
       },
       {
         path: "tasks",
-        element: <Tasks />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading tasks..." />}>
+            <LazyTasks />
+          </LazyPage>
+        ),
       },
       {
         path: "projects",
-        element: <Projects />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading projects..." />}>
+            <LazyProjects />
+          </LazyPage>
+        ),
       },
       {
         path: "projects/:projectId",
-        element: <ProjectDetail />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading project..." />}>
+            <LazyProjectDetail />
+          </LazyPage>
+        ),
       },
       {
         path: "timer",
-        element: <Timer />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading timer..." />}>
+            <LazyTimer />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "analytics",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading analytics..." />}>
+            <LazyAnalytics />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "workspaces",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading workspaces..." />}>
+            <LazyWorkspaces />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "workspaces/:workspaceSlug",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading workspace..." />}>
+            <LazyWorkspaceDetail />
+          </LazyPage>
+        ),
       },
       {
         path: "tags",
-        element: <Tags />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading tags..." />}>
+            <LazyTags />
+          </LazyPage>
+        ),
       },
       {
         path: "settings",
-        element: <Settings />,
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading settings..." />}>
+            <LazySettings />
+          </LazyPage>
+        ),
       },
     ],
   },

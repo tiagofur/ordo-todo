@@ -16,6 +16,11 @@ describe('TasksService', () => {
         delete: jest.fn(),
     };
 
+    const mockAnalyticsRepository = {
+        findByDate: jest.fn(),
+        save: jest.fn(),
+    };
+
     const mockPrismaService = {
         task: {
             findUnique: jest.fn(),
@@ -41,6 +46,10 @@ describe('TasksService', () => {
                 {
                     provide: 'TaskRepository',
                     useValue: mockTaskRepository,
+                },
+                {
+                    provide: 'AnalyticsRepository',
+                    useValue: mockAnalyticsRepository,
                 },
                 {
                     provide: PrismaService,

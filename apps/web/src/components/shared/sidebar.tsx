@@ -1,7 +1,7 @@
 "use client";
  
 import { useState } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Download, Briefcase } from "lucide-react";
+import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Download, Briefcase, Calendar } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
@@ -36,6 +36,7 @@ export function Sidebar() {
   const navigation = [
     { name: t('today'), href: "/dashboard", icon: Home, color: "cyan" },
     { name: t('tasks'), href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t('calendar'), href: "/calendar", icon: Calendar, color: "blue" },
     { name: t('projects'), href: "/projects", icon: FolderKanban, color: "pink" },
     { name: t('workspaces'), href: "/workspaces", icon: Briefcase, color: "orange" },
     { name: t('tags'), href: "/tags", icon: Tags, color: "green" },

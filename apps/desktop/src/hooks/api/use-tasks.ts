@@ -16,7 +16,15 @@ export function useTasks(projectId?: string) {
 export function useTask(taskId: string) {
   return useQuery({
     queryKey: ['tasks', taskId],
-    queryFn: () => apiClient.getTaskById(taskId),
+    queryFn: () => apiClient.getTask(taskId),
+    enabled: !!taskId,
+  });
+}
+
+export function useTaskDetails(taskId: string) {
+  return useQuery({
+    queryKey: ['tasks', taskId, 'details'],
+    queryFn: () => apiClient.getTaskDetails(taskId),
     enabled: !!taskId,
   });
 }
@@ -67,6 +75,7 @@ export function useCompleteTask() {
   });
 }
 
+/* 
 export function useReactivateTask() {
   const queryClient = useQueryClient();
 
@@ -86,10 +95,36 @@ export function useSubtasks(parentTaskId: string) {
   });
 }
 
+*/
 export function useTaskDependencies(taskId: string) {
   return useQuery({
     queryKey: ['tasks', taskId, 'dependencies'],
     queryFn: () => apiClient.getTaskDependencies(taskId),
     enabled: !!taskId,
+  });
+}
+
+export function useAddDependency() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ blockedTaskId, blockingTaskId }: { blockedTaskId: string, blockingTaskId: string }) =>
+      apiClient.addTaskDependency(blockedTaskId, blockingTaskId),
+    onSuccess: (_, { blockedTaskId }) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', blockedTaskId, 'dependencies'] });
+      // Maybe invalidate task details too if we show blocked status there
+      queryClient.invalidateQueries({ queryKey: ['tasks', blockedTaskId] });
+    }
+  });
+}
+
+export function useRemoveDependency() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ blockedTaskId, blockingTaskId }: { blockedTaskId: string, blockingTaskId: string }) =>
+      apiClient.removeTaskDependency(blockedTaskId, blockingTaskId),
+    onSuccess: (_, { blockedTaskId }) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', blockedTaskId, 'dependencies'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', blockedTaskId] });
+    }
   });
 }

@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { TasksService } from './tasks.service';
 import { TagsService } from '../tags/tags.service';
@@ -60,11 +61,14 @@ export class TasksController {
     @CurrentUser() user: RequestUser,
     @Query('projectId') projectId?: string,
     @Query('tags') tags?: string | string[],
+    @Query('assignedToMe') assignedToMe?: string,
   ) {
     const tagList = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
+    const filterAssignedToMe = assignedToMe === 'true';
     this.logger.debug(`Received tags query param: ${JSON.stringify(tags)}`);
     this.logger.debug(`Processed tagList: ${JSON.stringify(tagList)}`);
-    return this.tasksService.findAll(user.id, projectId, tagList);
+    this.logger.debug(`Filter assignedToMe: ${filterAssignedToMe}`);
+    return this.tasksService.findAll(user.id, projectId, tagList, filterAssignedToMe);
   }
 
   @Get(':id')
@@ -119,5 +123,38 @@ export class TasksController {
   @Get(':id/attachments')
   findAttachments(@Param('id') taskId: string) {
     return this.attachmentsService.findByTask(taskId);
+  }
+
+  @Post(':id/share')
+  generatePublicToken(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.tasksService.generatePublicToken(id, user.id);
+  }
+
+  @Public()
+  @Get('share/:token')
+  findByPublicToken(@Param('token') token: string) {
+    return this.tasksService.findByPublicToken(token);
+  }
+
+  // Dependencies Reference
+  @Get(':id/dependencies')
+  getDependencies(@Param('id') id: string) {
+    return this.tasksService.getDependencies(id);
+  }
+
+  @Post(':id/dependencies')
+  addDependency(
+    @Param('id') id: string,
+    @Body('blockingTaskId') blockingTaskId: string
+  ) {
+    return this.tasksService.addDependency(id, blockingTaskId);
+  }
+
+  @Delete(':id/dependencies/:blockingTaskId')
+  removeDependency(
+    @Param('id') id: string,
+    @Param('blockingTaskId') blockingTaskId: string
+  ) {
+    return this.tasksService.removeDependency(id, blockingTaskId);
   }
 }

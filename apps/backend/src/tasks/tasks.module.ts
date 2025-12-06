@@ -7,6 +7,8 @@ import { TagsModule } from '../tags/tags.module';
 import { CommentsModule } from '../comments/comments.module';
 import { AttachmentsModule } from '../attachments/attachments.module';
 import { ActivitiesModule } from '../activities/activities.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { GamificationModule } from '../gamification/gamification.module';
 
 @Module({
   imports: [
@@ -16,9 +18,11 @@ import { ActivitiesModule } from '../activities/activities.module';
     forwardRef(() => TagsModule),
     forwardRef(() => CommentsModule),
     forwardRef(() => AttachmentsModule),
+    NotificationsModule,
+    GamificationModule,
   ],
   controllers: [TasksController],
   providers: [TasksService],
   exports: [TasksService],
 })
-export class TasksModule {}
+export class TasksModule { }

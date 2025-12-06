@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
-import { api } from "@/utils/api";
+import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/hooks/api/use-tags";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Popover,
   PopoverContent,
@@ -18,31 +19,13 @@ interface TagSelectorProps {
 
 export function TagSelector({ taskId, selectedTags = [], workspaceId = "default", onTagsChange }: TagSelectorProps) {
   const [open, setOpen] = useState(false);
-  const utils = api.useUtils();
+  const queryClient = useQueryClient();
 
-  const { data: availableTags, isLoading } = api.tag.list.useQuery({ workspaceId });
+  const { data: availableTags, isLoading } = useTags(workspaceId);
 
-  const assignTag = api.tag.assignToTask.useMutation({
-    onSuccess: () => {
-      toast.success("Etiqueta asignada");
-      utils.tag.listByTask.invalidate();
-      onTagsChange?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al asignar etiqueta");
-    },
-  });
+  const assignTagMutation = useAssignTagToTask();
 
-  const removeTag = api.tag.removeFromTask.useMutation({
-    onSuccess: () => {
-      toast.success("Etiqueta removida");
-      utils.tag.listByTask.invalidate();
-      onTagsChange?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Error al remover etiqueta");
-    },
-  });
+  const removeTagMutation = useRemoveTagFromTask();
 
   const isTagSelected = (tagId: string | number | undefined) => {
     return selectedTags.some((t) => t.id === tagId);
@@ -52,9 +35,15 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
     if (!tag.id) return;
 
     if (isTagSelected(tag.id)) {
-      removeTag.mutate({ tagId: String(tag.id), taskId });
+      removeTagMutation.mutate({ tagId: String(tag.id), taskId }, {
+        onSuccess: () => { toast.success("Etiqueta removida"); onTagsChange?.(); },
+        onError: () => toast.error("Error al remover etiqueta")
+      });
     } else {
-      assignTag.mutate({ tagId: String(tag.id), taskId });
+      assignTagMutation.mutate({ tagId: String(tag.id), taskId }, {
+        onSuccess: () => { toast.success("Etiqueta asignada"); onTagsChange?.(); },
+        onError: () => toast.error("Error al asignar etiqueta")
+      });
     }
   };
 
@@ -66,7 +55,9 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
           key={tag.id}
           tag={tag}
           removable
-          onRemove={() => tag.id && removeTag.mutate({ tagId: String(tag.id), taskId })}
+          onRemove={() => tag.id && removeTagMutation.mutate({ tagId: String(tag.id), taskId }, { 
+            onSuccess: () => onTagsChange?.() 
+          })}
         />
       ))}
 
@@ -87,7 +78,7 @@ export function TagSelector({ taskId, selectedTags = [], workspaceId = "default"
                 <button
                   key={tag.id}
                   onClick={() => handleToggleTag(tag)}
-                  disabled={assignTag.isPending || removeTag.isPending}
+                  disabled={assignTagMutation.isPending || removeTagMutation.isPending}
                   className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-accent disabled:opacity-50"
                 >
                   <span

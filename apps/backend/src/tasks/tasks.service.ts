@@ -1,11 +1,16 @@
-import { Injectable, Inject, NotFoundException, Logger } from '@nestjs/common';
-import type { TaskRepository } from '@ordo-todo/core';
-import { CreateTaskUseCase, CompleteTaskUseCase } from '@ordo-todo/core';
+import { Injectable, Inject, NotFoundException, Logger, BadRequestException } from '@nestjs/common';
+import * as crypto from 'crypto';
+import type { TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
+import { CreateTaskUseCase, CompleteTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, ResourceType } from '@prisma/client';
+
+import { GamificationService } from '../gamification/gamification.service';
 
 @Injectable()
 export class TasksService {
@@ -14,8 +19,12 @@ export class TasksService {
   constructor(
     @Inject('TaskRepository')
     private readonly taskRepository: TaskRepository,
+    @Inject('AnalyticsRepository')
+    private readonly analyticsRepository: AnalyticsRepository,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
+    private readonly notificationsService: NotificationsService,
+    private readonly gamificationService: GamificationService,
   ) { }
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
@@ -23,15 +32,45 @@ export class TasksService {
     const task = await createTaskUseCase.execute({
       ...createTaskDto,
       creatorId: userId,
+      // Auto-assign to creator if no assignee specified
+      assigneeId: createTaskDto.assigneeId ?? userId,
     });
+
+    // Notify Assignee if different from creator
+    if (task.props.assigneeId && task.props.assigneeId !== userId) {
+      await this.notificationsService.create({
+        userId: task.props.assigneeId,
+        type: NotificationType.TASK_ASSIGNED,
+        title: 'Task assigned to you',
+        message: `You were assigned to task "${task.props.title}"`,
+        resourceId: task.id as string,
+        resourceType: ResourceType.TASK,
+      });
+    }
 
     // Log activity
     await this.activitiesService.logTaskCreated(task.id as string, userId);
+
+    // Update daily metrics - increment tasksCreated
+    const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+    await updateMetrics.execute({
+      userId,
+      date: new Date(),
+      tasksCreated: 1,
+    });
 
     return task.props;
   }
 
   async complete(id: string, userId: string) {
+    // Get current task to check if it was already completed
+    const currentTask = await this.taskRepository.findById(id);
+    if (!currentTask) {
+      throw new NotFoundException('Task not found');
+    }
+
+    const wasAlreadyCompleted = currentTask.props.status === 'COMPLETED';
+
     const completeTaskUseCase = new CompleteTaskUseCase(this.taskRepository);
     const task = await completeTaskUseCase.execute({
       taskId: id,
@@ -40,6 +79,26 @@ export class TasksService {
 
     // Log activity
     await this.activitiesService.logTaskCompleted(id, userId);
+
+    // Only update metrics if task wasn't already completed (prevent double counting)
+    if (!wasAlreadyCompleted) {
+      const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+
+      // If subtask, increment subtasksCompleted; otherwise increment tasksCompleted
+      if (task.props.parentTaskId) {
+        await updateMetrics.execute({
+          userId,
+          date: new Date(),
+          subtasksCompleted: 1,
+        });
+      } else {
+        await updateMetrics.execute({
+          userId,
+          date: new Date(),
+          tasksCompleted: 1,
+        });
+      }
+    }
 
     // If subtask, log on parent
     if (task.props.parentTaskId) {
@@ -53,8 +112,8 @@ export class TasksService {
     return task.props;
   }
 
-  async findAll(userId: string, projectId?: string, tags?: string[]) {
-    this.logger.debug(`Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}`);
+  async findAll(userId: string, projectId?: string, tags?: string[], assignedToMe?: boolean) {
+    this.logger.debug(`Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`);
     const tasks = await this.taskRepository.findByCreatorId(userId, {
       projectId,
       tags,
@@ -62,8 +121,15 @@ export class TasksService {
     this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
     // Filter only main tasks (no parentTaskId)
     // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
-    const filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
-    this.logger.debug(`Filtered to ${filteredTasks.length} main tasks`);
+    let filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
+
+    // Apply "My Tasks" filter - show only tasks assigned to the current user
+    if (assignedToMe) {
+      filteredTasks = filteredTasks.filter((t) => t.props.assigneeId === userId);
+      this.logger.debug(`Filtered to ${filteredTasks.length} tasks assigned to user`);
+    }
+
+    this.logger.debug(`Returning ${filteredTasks.length} main tasks`);
     return filteredTasks.map((t) => t.props);
   }
 
@@ -134,6 +200,30 @@ export class TasksService {
       await this.taskRepository.update(updatedTask);
       this.logger.debug(`Task ${id} updated successfully`);
 
+      // Notify Assignee if changed
+      if (
+        updateTaskDto.assigneeId &&
+        updateTaskDto.assigneeId !== oldTask.assigneeId &&
+        updateTaskDto.assigneeId !== userId
+      ) {
+        await this.notificationsService.create({
+          userId: updateTaskDto.assigneeId,
+          type: NotificationType.TASK_ASSIGNED,
+          title: 'Task assigned to you',
+          message: `You were assigned to task "${updatedTask.props.title}"`,
+          resourceId: id,
+          resourceType: ResourceType.TASK,
+        });
+
+        // Log activity
+        await this.activitiesService.logAssigneeChanged(
+          id,
+          userId,
+          oldTask.assigneeId || null,
+          updateTaskDto.assigneeId,
+        );
+      }
+
       // Log specific field changes
       if (updateTaskDto.status && updateTaskDto.status !== oldTask.status) {
         this.logger.debug(`Logging status change for task ${id}`);
@@ -143,6 +233,46 @@ export class TasksService {
           oldTask.status,
           updateTaskDto.status,
         );
+
+        const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+        const isSubtask = !!oldTask.parentTaskId;
+
+        // If status changed to COMPLETED from non-COMPLETED, increment metrics
+        if (updateTaskDto.status === 'COMPLETED' && oldTask.status !== 'COMPLETED') {
+          if (isSubtask) {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              subtasksCompleted: 1,
+            });
+          } else {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              tasksCompleted: 1,
+            });
+
+            // Award XP
+            await this.gamificationService.awardTaskCompletion(userId);
+          }
+        }
+
+        // If status changed from COMPLETED to non-COMPLETED (reopening), decrement metrics
+        if (oldTask.status === 'COMPLETED' && updateTaskDto.status !== 'COMPLETED') {
+          if (isSubtask) {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              subtasksCompleted: -1,  // Decrement
+            });
+          } else {
+            await updateMetrics.execute({
+              userId,
+              date: new Date(),
+              tasksCompleted: -1,  // Decrement
+            });
+          }
+        }
       }
 
       if (updateTaskDto.priority && updateTaskDto.priority !== oldTask.priority) {
@@ -203,6 +333,8 @@ export class TasksService {
       ...createSubtaskDto,
       projectId: createSubtaskDto.projectId || parentTask.props.projectId,
       creatorId: userId,
+      // Auto-assign to creator if no assignee specified
+      assigneeId: createSubtaskDto.assigneeId ?? userId,
       parentTaskId,
     });
 
@@ -217,5 +349,124 @@ export class TasksService {
     await this.activitiesService.logTaskCreated(subtask.id as string, userId);
 
     return subtask.props;
+  }
+
+
+  async generatePublicToken(id: string, userId: string) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    // Generate a random token
+    const publicToken = crypto.randomUUID();
+
+    await this.prisma.task.update({
+      where: { id },
+      data: { publicToken },
+    });
+
+    return { publicToken };
+  }
+
+  async findByPublicToken(token: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { publicToken: token },
+      include: {
+        subTasks: true,
+        comments: {
+          include: { author: true },
+          orderBy: { createdAt: 'desc' },
+        },
+        attachments: {
+          include: { uploadedBy: true } as any,
+          orderBy: { uploadedAt: 'desc' },
+        },
+        tags: {
+          include: { tag: true },
+        },
+        creator: { select: { id: true, name: true, image: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        project: { select: { id: true, name: true, color: true } },
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task not found or link expired');
+    }
+
+    return {
+      ...task,
+      tags: task.tags.map((t) => t.tag),
+      estimatedTime: task.estimatedMinutes,
+    };
+  }
+
+  // Dependencies
+  async addDependency(blockedTaskId: string, blockingTaskId: string) {
+    if (blockedTaskId === blockingTaskId) {
+      throw new BadRequestException('Cannot depend on self');
+    }
+
+    // Check if tasks exist
+    const [blocked, blocking] = await Promise.all([
+      this.prisma.task.findUnique({ where: { id: blockedTaskId } }),
+      this.prisma.task.findUnique({ where: { id: blockingTaskId } })
+    ]);
+
+    if (!blocked || !blocking) throw new NotFoundException('Task not found');
+
+    // Check direct circular dependency
+    const reverse = await this.prisma.taskDependency.findUnique({
+      where: {
+        blockingTaskId_blockedTaskId: {
+          blockingTaskId: blockedTaskId,
+          blockedTaskId: blockingTaskId
+        }
+      }
+    });
+
+    if (reverse) throw new BadRequestException('Circular dependency detected');
+
+    return this.prisma.taskDependency.create({
+      data: {
+        blockedTaskId,
+        blockingTaskId
+      }
+    });
+  }
+
+  async removeDependency(blockedTaskId: string, blockingTaskId: string) {
+    // Check if exists first to avoid P2025? Or let it throw/catch.
+    // Prisma delete throws if record not found unless we use deleteMany or check.
+    // We'll trust client pass correct IDs or handle error
+    try {
+      return await this.prisma.taskDependency.delete({
+        where: {
+          blockingTaskId_blockedTaskId: {
+            blockedTaskId,
+            blockingTaskId
+          }
+        }
+      });
+    } catch (e) {
+      throw new NotFoundException('Dependency not found');
+    }
+  }
+
+  async getDependencies(taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        blockedBy: { include: { blockingTask: true } },
+        blocking: { include: { blockedTask: true } }
+      }
+    });
+    if (!task) throw new NotFoundException('Task not found');
+
+    return {
+      blockedBy: task.blockedBy.map(d => d.blockingTask),
+      blocking: task.blocking.map(d => d.blockedTask)
+    };
   }
 }

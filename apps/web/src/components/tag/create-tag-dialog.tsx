@@ -24,30 +24,17 @@ interface CreateTagDialogProps {
   tagToEdit?: { id: string; name: string; color?: string; workspaceId: string };
 }
 
-const tagColors = [
-  "#EF4444", // red
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#3B82F6", // blue
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#6366F1", // indigo
-  "#14B8A6", // teal
-  "#F97316", // orange
-  "#84CC16", // lime
-];
+import { TAG_COLORS, createTagSchema } from "@ordo-todo/core";
 
 export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: CreateTagDialogProps) {
   const t = useTranslations('CreateTagDialog');
-  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || tagColors[0]);
+  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || TAG_COLORS[0]);
 
-  const createTagSchema = z.object({
+  const formSchema = createTagSchema.extend({
     name: z.string().min(1, t('form.name.required')),
-    color: z.string().optional(),
-    workspaceId: z.string().min(1, "Workspace es requerido"), // This is internal, maybe no need to translate error
   });
 
-  type CreateTagForm = z.infer<typeof createTagSchema>;
+  type CreateTagForm = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -57,11 +44,11 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
     watch,
     formState: { errors },
   } = useForm<CreateTagForm>({
-    resolver: zodResolver(createTagSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: tagToEdit?.name || "",
       workspaceId: workspaceId || tagToEdit?.workspaceId,
-      color: tagToEdit?.color || tagColors[0],
+      color: tagToEdit?.color || TAG_COLORS[0],
     },
   });
 
@@ -72,12 +59,12 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
     if (tagToEdit) {
       setValue("name", tagToEdit.name);
       setValue("workspaceId", tagToEdit.workspaceId);
-      setSelectedColor(tagToEdit.color || tagColors[0]);
+      setSelectedColor(tagToEdit.color || TAG_COLORS[0]);
     } else if (workspaceId) {
       setValue("workspaceId", workspaceId);
       if (!open) {
-        reset({ name: "", workspaceId, color: tagColors[0] });
-        setSelectedColor(tagColors[0]);
+        reset({ name: "", workspaceId, color: TAG_COLORS[0] });
+        setSelectedColor(TAG_COLORS[0]);
       }
     }
   }, [workspaceId, tagToEdit, setValue, reset, open]);
@@ -131,7 +118,7 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
           <div className="space-y-2">
             <Label>{t('form.color.label')}</Label>
             <div className="flex flex-wrap gap-2">
-              {tagColors.map((color) => (
+              {TAG_COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"

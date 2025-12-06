@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend API - Ordo-Todo Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>⚙️ Backend API</h1>
+            <p>NestJS REST API - Clean Architecture</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">🏠 Inicio</a></li>
+                <li><a href="../core/index.html">📦 Core</a></li>
+                <li><a href="../web/index.html">🌐 Web</a></li>
+                <li><a href="../mobile/index.html">📱 Mobile</a></li>
+                <li><a href="../desktop/index.html">💻 Desktop</a></li>
+                <li><a href="index.html" class="active">⚙️ Backend</a></li>
+                <li><a href="../database/index.html">🗄️ Database</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview -->
+            <section class="section">
+                <h2>📖 Descripción General</h2>
+                <p>El Backend de Ordo-Todo es una API REST construida con <strong>NestJS</strong>, siguiendo los principios de <strong>Clean Architecture</strong> y <strong>Domain-Driven Design (DDD)</strong>.</p>
+                
+                <h3>🛠️ Stack Tecnológico</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>🚀 <strong>NestJS</strong> - Framework Node.js progresivo</li>
+                    <li>📘 <strong>TypeScript</strong> - Type safety completo</li>
+                    <li>🗄️ <strong>Prisma</strong> - ORM type-safe</li>
+                    <li>🐘 <strong>PostgreSQL</strong> - Base de datos relacional</li>
+                    <li>🔐 <strong>Passport.js</strong> - Autenticación</li>
+                    <li>✅ <strong>class-validator</strong> - Validación de DTOs</li>
+                    <li>📦 <strong>@ordo-todo/core</strong> - Lógica de negocio compartida</li>
+                    <li>🔄 <strong>RxJS</strong> - Programación reactiva</li>
+                </ul>
+
+                <h3>✨ Características</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ API REST completa</li>
+                    <li>✅ Autenticación JWT</li>
+                    <li>✅ Autorización basada en roles</li>
+                    <li>✅ Validación de requests</li>
+                    <li>✅ Manejo de errores centralizado</li>
+                    <li>✅ Logging estructurado</li>
+                    <li>✅ CORS configurado</li>
+                    <li>✅ Rate limiting</li>
+                    <li>✅ Swagger documentation</li>
+                </ul>
+            </section>
+
+            <!-- Project Structure -->
+            <section class="section">
+                <h2>📁 Estructura del Proyecto</h2>
+                <pre><code>apps/backend/
+├── src/
+│   ├── main.ts                 # Entry point
+│   ├── app.module.ts           # Módulo raíz
+│   │
+│   ├── modules/                # Módulos de dominio
+│   │   ├── auth/              # Autenticación
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.module.ts
+│   │   │   ├── dto/
+│   │   │   ├── guards/
+│   │   │   └── strategies/
+│   │   │
+│   │   ├── users/             # Usuarios
+│   │   ├── workspaces/        # Workspaces
+│   │   ├── projects/          # Proyectos
+│   │   ├── tasks/             # Tareas
+│   │   ├── tags/              # Tags
+│   │   ├── timer/             # Pomodoro Timer
+│   │   ├── analytics/         # Analytics
+│   │   └── comments/          # Comentarios
+│   │
+│   ├── common/                 # Código compartido
+│   │   ├── decorators/        # Decoradores custom
+│   │   ├── filters/           # Exception filters
+│   │   ├── guards/            # Guards globales
+│   │   ├── interceptors/      # Interceptors
+│   │   ├── pipes/             # Validation pipes
+│   │   └── middleware/        # Middleware
+│   │
+│   ├── config/                 # Configuración
+│   │   ├── database.config.ts
+│   │   ├── auth.config.ts
+│   │   └── app.config.ts
+│   │
+│   └── repositories/           # Repositorios Prisma
+│       ├── users.repository.ts
+│       ├── tasks.repository.ts
+│       └── ...
+│
+├── prisma/                     # Prisma schema
+│   ├── schema.prisma
+│   └── migrations/
+│
+└── test/                       # Tests E2E
+    └── app.e2e-spec.ts</code></pre>
+            </section>
+
+            <!-- Getting Started -->
+            <section class="section">
+                <h2>🚀 Inicio Rápido</h2>
+                
+                <h3>1. Instalación</h3>
+                <pre><code>cd apps/backend
+npm install</code></pre>
+
+                <h3>2. Variables de Entorno</h3>
+                <pre><code># .env
+DATABASE_URL="postgresql://user:password@localhost:5432/ordo_todo"
+JWT_SECRET="tu-secret-super-seguro"
+JWT_EXPIRES_IN="7d"
+
+# OAuth (opcional)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+
+# Redis (opcional)
+REDIS_URL="redis://localhost:6379"</code></pre>
+
+                <h3>3. Configurar Base de Datos</h3>
+                <pre><code># Generar cliente Prisma
+npx prisma generate
+
+# Ejecutar migraciones
+npx prisma migrate dev
+
+# (Opcional) Seed de datos
+npx prisma db seed</code></pre>
+
+                <h3>4. Ejecutar en Desarrollo</h3>
+                <pre><code>npm run start:dev</code></pre>
+                <p>La API estará disponible en <code>http://localhost:3001</code></p>
+                <p>Swagger docs en <code>http://localhost:3001/api</code></p>
+
+                <h3>5. Build de Producción</h3>
+                <pre><code>npm run build
+npm run start:prod</code></pre>
+            </section>
+
+            <!-- Modules -->
+            <section class="section">
+                <h2>📦 Módulos Principales</h2>
+                
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>🔐 Auth</h3>
+                        <p>Autenticación y autorización con JWT y OAuth</p>
+                        <code>/auth/login</code><br>
+                        <code>/auth/register</code><br>
+                        <code>/auth/google</code>
+                    </div>
+                    <div class="card">
+                        <h3>👤 Users</h3>
+                        <p>Gestión de usuarios y perfiles</p>
+                        <code>/users</code><br>
+                        <code>/users/:id</code><br>
+                        <code>/users/me</code>
+                    </div>
+                    <div class="card">
+                        <h3>🏢 Workspaces</h3>
+                        <p>Espacios de trabajo y miembros</p>
+                        <code>/workspaces</code><br>
+                        <code>/workspaces/:id/members</code><br>
+                        <code>/workspaces/:id/invite</code>
+                    </div>
+                    <div class="card">
+                        <h3>📁 Projects</h3>
+                        <p>Proyectos y configuración</p>
+                        <code>/projects</code><br>
+                        <code>/projects/:id</code><br>
+                        <code>/projects/:id/archive</code>
+                    </div>
+                    <div class="card">
+                        <h3>📋 Tasks</h3>
+                        <p>Tareas, subtareas y estados</p>
+                        <code>/tasks</code><br>
+                        <code>/tasks/:id</code><br>
+                        <code>/tasks/:id/complete</code>
+                    </div>
+                    <div class="card">
+                        <h3>🏷️ Tags</h3>
+                        <p>Etiquetas y categorización</p>
+                        <code>/tags</code><br>
+                        <code>/tags/:id</code><br>
+                        <code>/tasks/:id/tags</code>
+                    </div>
+                    <div class="card">
+                        <h3>⏱️ Timer</h3>
+                        <p>Pomodoro timer y sesiones</p>
+                        <code>/timer/sessions</code><br>
+                        <code>/timer/stats</code><br>
+                        <code>/timer/start</code>
+                    </div>
+                    <div class="card">
+                        <h3>📊 Analytics</h3>
+                        <p>Métricas y productividad</p>
+                        <code>/analytics/daily</code><br>
+                        <code>/analytics/weekly</code><br>
+                        <code>/analytics/productivity</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Examples -->
+            <section class="section">
+                <h2>🔌 Ejemplos de API</h2>
+                
+                <h3>Autenticación</h3>
+                <div class="function-card">
+                    <h4>POST /auth/register</h4>
+                    <div class="description">Registrar un nuevo usuario</div>
+                    <div class="example">
+                        <div class="example-title">Request:</div>
+                        <pre><code>POST /auth/register
+Content-Type: application/json
+
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "password123"
+}</code></pre>
+                    </div>
+                    <div class="example">
+                        <div class="example-title">Response:</div>
+                        <pre><code>{
+  "user": {
+    "id": "uuid",
+    "name": "Juan Pérez",
+    "email": "juan@example.com"
+  },
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="function-card">
+                    <h4>POST /auth/login</h4>
+                    <div class="description">Iniciar sesión</div>
+                    <div class="example">
+                        <div class="example-title">Request:</div>
+                        <pre><code>POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "juan@example.com",
+  "password": "password123"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Tareas</h3>
+                <div class="function-card">
+                    <h4>GET /tasks</h4>
+                    <div class="description">Obtener todas las tareas (con filtros)</div>
+                    <div class="example">
+                        <div class="example-title">Request:</div>
+                        <pre><code>GET /tasks?projectId=uuid&status=TODO&priority=HIGH
+Authorization: Bearer {token}</code></pre>
+                    </div>
+                    <div class="example">
+                        <div class="example-title">Response:</div>
+                        <pre><code>{
+  "tasks": [
+    {
+      "id": "uuid",
+      "title": "Implementar feature X",
+      "description": "...",
+      "status": "TODO",
+      "priority": "HIGH",
+      "projectId": "uuid",
+      "createdAt": "2025-12-04T10:00:00Z"
+    }
+  ],
+  "total": 1
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="function-card">
+                    <h4>POST /tasks</h4>
+                    <div class="description">Crear una nueva tarea</div>
+                    <div class="example">
+                        <div class="example-title">Request:</div>
+                        <pre><code>POST /tasks
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Nueva tarea",
+  "description": "Descripción de la tarea",
+  "priority": "MEDIUM",
+  "projectId": "uuid",
+  "dueDate": "2025-12-10T00:00:00Z"
+}</code></pre>
+                    </div>
+                </div>
+
+                <h3>Analytics</h3>
+                <div class="function-card">
+                    <h4>GET /analytics/daily</h4>
+                    <div class="description">Obtener métricas del día</div>
+                    <div class="example">
+                        <div class="example-title">Request:</div>
+                        <pre><code>GET /analytics/daily?date=2025-12-04
+Authorization: Bearer {token}</code></pre>
+                    </div>
+                    <div class="example">
+                        <div class="example-title">Response:</div>
+                        <pre><code>{
+  "date": "2025-12-04",
+  "completedTasks": 5,
+  "totalMinutesWorked": 180,
+  "completedPomodoros": 7,
+  "productivityScore": 85
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Using Core Package -->
+            <section class="section">
+                <h2>📦 Usando el Core Package</h2>
+                
+                <h3>Validación con Zod</h3>
+                <pre><code>import { createTaskSchema } from '@ordo-todo/core';
+import { BadRequestException } from '@nestjs/common';
+
+@Post()
+async create(@Body() body: unknown) {
+  // Validar con Zod del Core
+  const result = createTaskSchema.safeParse(body);
+  
+  if (!result.success) {
+    throw new BadRequestException(result.error.flatten());
+  }
+  
+  return this.tasksService.create(result.data);
+}</code></pre>
+
+                <h3>Crear un Pipe de Validación Global</h3>
+                <pre><code>// src/common/pipes/zod-validation.pipe.ts
+import { PipeTransform, BadRequestException } from '@nestjs/common';
+import { ZodSchema } from 'zod';
+
+export class ZodValidationPipe implements PipeTransform {
+  constructor(private schema: ZodSchema) {}
+
+  transform(value: unknown) {
+    const result = this.schema.safeParse(value);
+    
+    if (!result.success) {
+      throw new BadRequestException({
+        message: 'Validation failed',
+        errors: result.error.flatten(),
+      });
+    }
+    
+    return result.data;
+  }
+}
+
+// Usar en controllers
+import { createTaskSchema } from '@ordo-todo/core';
+
+@Post()
+async create(
+  @Body(new ZodValidationPipe(createTaskSchema)) createTaskDto
+) {
+  return this.tasksService.create(createTaskDto);
+}</code></pre>
+
+                <h3>Usar Constantes del Core</h3>
+                <pre><code>import { TASK_LIMITS, TASK_STATUS } from '@ordo-todo/core';
+
+@Injectable()
+export class TasksService {
+  async create(data: CreateTaskDto) {
+    // Validar límites
+    if (data.title.length > TASK_LIMITS.TITLE_MAX_LENGTH) {
+      throw new BadRequestException('Title too long');
+    }
+    
+    // Usar estados del Core
+    const task = await this.prisma.task.create({
+      data: {
+        ...data,
+        status: TASK_STATUS.TODO.value,
+      },
+    });
+    
+    return task;
+  }
+}</code></pre>
+
+                <h3>Usar Utilidades del Core</h3>
+                <pre><code>import { calculateProgress, formatDate } from '@ordo-todo/core';
+
+@Injectable()
+export class AnalyticsService {
+  async getDailyStats(userId: string, date: Date) {
+    const tasks = await this.getTasks(userId, date);
+    const completed = tasks.filter(t => t.status === 'DONE').length;
+    
+    return {
+      date: formatDate(date),
+      completedTasks: completed,
+      totalTasks: tasks.length,
+      progress: calculateProgress(completed, tasks.length),
+    };
+  }
+}</code></pre>
+            </section>
+
+            <!-- Architecture -->
+            <section class="section">
+                <h2>🏗️ Arquitectura</h2>
+                
+                <h3>Clean Architecture Layers</h3>
+                <pre><code>┌─────────────────────────────────────┐
+│         Controllers (API)           │  ← HTTP Layer
+├─────────────────────────────────────┤
+│         Services (Use Cases)        │  ← Application Layer
+├─────────────────────────────────────┤
+│    Repositories (Data Access)       │  ← Infrastructure Layer
+├─────────────────────────────────────┤
+│      Prisma Client (ORM)            │  ← Data Layer
+├─────────────────────────────────────┤
+│         PostgreSQL                  │  ← Database
+└─────────────────────────────────────┘
+
+         ↑ Dependency Flow ↑
+    (Inner layers don't know about outer layers)</code></pre>
+
+                <h3>Flujo de una Request</h3>
+                <pre><code>1. Client → HTTP Request
+2. Controller → Recibe request, valida con Pipe
+3. Guard → Verifica autenticación y autorización
+4. Service → Ejecuta lógica de negocio
+5. Repository → Accede a la base de datos
+6. Prisma → Ejecuta query SQL
+7. PostgreSQL → Retorna datos
+8. Service → Procesa y formatea respuesta
+9. Controller → Retorna HTTP Response
+10. Client ← Recibe respuesta</code></pre>
+            </section>
+
+            <!-- Guards and Middleware -->
+            <section class="section">
+                <h2>🛡️ Guards y Middleware</h2>
+                
+                <h3>JWT Auth Guard</h3>
+                <pre><code>import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+
+@Controller('tasks')
+@UseGuards(JwtAuthGuard)  // Proteger todo el controller
+export class TasksController {
+  @Get()
+  findAll(@Request() req) {
+    const userId = req.user.id;
+    return this.tasksService.findAll(userId);
+  }
+}</code></pre>
+
+                <h3>Roles Guard</h3>
+                <pre><code>import { Roles } from '@/common/decorators/roles.decorator';
+import { RolesGuard } from '@/common/guards/roles.guard';
+
+@Controller('workspaces')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class WorkspacesController {
+  @Post(':id/members')
+  @Roles('ADMIN', 'OWNER')  // Solo admins y owners
+  async inviteMember(@Param('id') id: string, @Body() dto) {
+    return this.workspacesService.inviteMember(id, dto);
+  }
+}</code></pre>
+
+                <h3>Logging Interceptor</h3>
+                <pre><code>@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const request = context.switchToHttp().getRequest();
+    const { method, url } = request;
+    const now = Date.now();
+
+    return next.handle().pipe(
+      tap(() => {
+        const responseTime = Date.now() - now;
+        console.log(`${method} ${url} - ${responseTime}ms`);
+      }),
+    );
+  }
+}</code></pre>
+            </section>
+
+            <!-- Error Handling -->
+            <section class="section">
+                <h2>⚠️ Manejo de Errores</h2>
+                
+                <h3>Exception Filter Global</h3>
+                <pre><code>@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
+
+    const status = exception instanceof HttpException
+      ? exception.getStatus()
+      : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const message = exception instanceof HttpException
+      ? exception.message
+      : 'Internal server error';
+
+    response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      message,
+    });
+  }
+}</code></pre>
+
+                <h3>Custom Exceptions</h3>
+                <pre><code>export class TaskNotFoundException extends NotFoundException {
+  constructor(taskId: string) {
+    super(`Task with ID ${taskId} not found`);
+  }
+}
+
+export class UnauthorizedWorkspaceException extends ForbiddenException {
+  constructor() {
+    super('You do not have access to this workspace');
+  }
+}
+
+// Usar en services
+throw new TaskNotFoundException(id);</code></pre>
+            </section>
+
+            <!-- Testing -->
+            <section class="section">
+                <h2>🧪 Testing</h2>
+                
+                <h3>Unit Tests</h3>
+                <pre><code>describe('TasksService', () => {
+  let service: TasksService;
+  let prisma: PrismaService;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [TasksService, PrismaService],
+    }).compile();
+
+    service = module.get<TasksService>(TasksService);
+    prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  it('should create a task', async () => {
+    const dto = { title: 'Test', projectId: 'uuid' };
+    const result = await service.create(dto);
+    
+    expect(result).toBeDefined();
+    expect(result.title).toBe('Test');
+  });
+});</code></pre>
+
+                <h3>E2E Tests</h3>
+                <pre><code>describe('Tasks (e2e)', () => {
+  let app: INestApplication;
+  let token: string;
+
+  beforeAll(async () => {
+    const moduleFixture = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+
+    // Login to get token
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'test@test.com', password: 'password' });
+    
+    token = response.body.access_token;
+  });
+
+  it('/tasks (POST)', () => {
+    return request(app.getHttpServer())
+      .post('/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Test Task', projectId: 'uuid' })
+      .expect(201);
+  });
+});</code></pre>
+            </section>
+
+            <!-- Best Practices -->
+            <section class="section">
+                <h2>💡 Mejores Prácticas</h2>
+                
+                <h3>1. Usar DTOs con Validación</h3>
+                <pre><code>// ✅ Usar schemas del Core
+import { createTaskSchema } from '@ordo-todo/core';
+
+// ✅ O crear DTOs con class-validator
+export class CreateTaskDto {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsEnum(['LOW', 'MEDIUM', 'HIGH'])
+  priority: string;
+}</code></pre>
+
+                <h3>2. Inyección de Dependencias</h3>
+                <pre><code>// ✅ Usar constructor injection
+@Injectable()
+export class TasksService {
+  constructor(
+    private prisma: PrismaService,
+    private analyticsService: AnalyticsService,
+  ) {}
+}</code></pre>
+
+                <h3>3. Manejo de Transacciones</h3>
+                <pre><code>// ✅ Usar transacciones para operaciones múltiples
+async createTaskWithTags(data: CreateTaskDto, tagIds: string[]) {
+  return this.prisma.$transaction(async (tx) => {
+    const task = await tx.task.create({ data });
+    
+    await tx.taskTag.createMany({
+      data: tagIds.map(tagId => ({ taskId: task.id, tagId })),
+    });
+    
+    return task;
+  });
+}</code></pre>
+
+                <h3>4. Logging Estructurado</h3>
+                <pre><code>// ✅ Usar Logger de NestJS
+@Injectable()
+export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
+  async create(data: CreateTaskDto) {
+    this.logger.log(`Creating task: ${data.title}`);
+    // ...
+  }
+}</code></pre>
+            </section>
+
+            <!-- Deployment -->
+            <section class="section">
+                <h2>🚀 Deployment</h2>
+                
+                <h3>Docker</h3>
+                <pre><code># Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npx prisma generate
+RUN npm run build
+
+EXPOSE 3001
+
+CMD ["npm", "run", "start:prod"]</code></pre>
+
+                <h3>Docker Compose</h3>
+                <pre><code># docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/ordo_todo
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ordo_todo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:</code></pre>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación del Backend API.</p>
+        </div>
+    </footer>
+</body>
+</html>

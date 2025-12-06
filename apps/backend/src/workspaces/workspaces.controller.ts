@@ -46,6 +46,11 @@ export class WorkspacesController {
     return this.workspacesService.findOne(id);
   }
 
+  @Get('by-slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.workspacesService.findBySlug(slug);
+  }
+
   @Put(':id')
   update(
     @Param('id') id: string,

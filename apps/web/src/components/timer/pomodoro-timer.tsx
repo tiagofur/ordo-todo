@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Pause, Square, SkipForward, RefreshCw } from "lucide-react";
+import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2 } from "lucide-react";
+import Link from "next/link";
 import { useTimer } from "@/components/providers/timer-provider";
 import { TaskSelector } from "./task-selector";
 import { motion, AnimatePresence } from "framer-motion";
@@ -76,7 +77,14 @@ export function PomodoroTimer() {
   if (!isLoaded) return null;
 
   return (
-    <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8">
+    <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-8 relative">
+       {/* Focus Mode Link */}
+       <div className="absolute top-0 right-0">
+          <Link href="/focus" title={t('enterFocusMode') || "Enter Focus Mode"}>
+            <Maximize2 className="w-6 h-6 text-muted-foreground/50 hover:text-foreground transition-colors" />
+          </Link>
+       </div>
+
       {/* Mode & Settings Info */}
       <div className="text-center w-full max-w-sm">
 

@@ -34,12 +34,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useInviteMember } from "@/lib/api-hooks";
 
-const inviteSchema = z.object({
-  email: z.string().email(),
-  role: z.enum(["ADMIN", "MEMBER", "VIEWER"]),
-});
+import { inviteMemberSchema } from "@ordo-todo/core";
 
-type InviteFormValues = z.infer<typeof inviteSchema>;
+// We can extend or use the schema directly. Since the core schema has generic messages,
+// we might want to override them or just use them.
+// For now, let's use the core schema directly but we can wrap it if needed.
+const formSchema = inviteMemberSchema;
+
+type InviteFormValues = z.infer<typeof formSchema>;
 
 interface InviteMemberDialogProps {
   workspaceId: string;
@@ -58,7 +60,7 @@ export function InviteMemberDialog({
   const [copied, setCopied] = useState(false);
 
   const form = useForm<InviteFormValues>({
-    resolver: zodResolver(inviteSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       role: "MEMBER",

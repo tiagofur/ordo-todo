@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { formatTimerDisplay } from "@ordo-todo/core";
 
 export type TimerMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK";
 export type TimerType = "POMODORO" | "CONTINUOUS";
@@ -191,9 +192,7 @@ export function useTimer({ type, config, onSessionComplete }: UseTimerProps) {
     }, [isRunning, isPaused, type, skipToNext, stop]);
 
     const formatTime = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        return formatTimerDisplay(seconds);
     };
 
     const getProgress = (): number => {

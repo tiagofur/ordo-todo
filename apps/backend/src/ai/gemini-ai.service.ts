@@ -94,12 +94,12 @@ Context:
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
 ${sessions
-  .slice(0, 10)
-  .map(
-    (s: any, i: number) =>
-      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
-  )
-  .join('\n')}
+          .slice(0, 10)
+          .map(
+            (s: any, i: number) =>
+              `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+          )
+          .join('\n')}
 `;
     }
 
@@ -142,6 +142,49 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
         return 'Last 30 days';
       default:
         return 'Unknown';
+    }
+  }
+
+  async estimateTaskDuration(taskTitle: string, taskDescription?: string, avgDuration = 30): Promise<{ estimatedMinutes: number; confidence: string; reasoning: string }> {
+    if (!this.model) {
+      return {
+        estimatedMinutes: avgDuration,
+        confidence: 'LOW',
+        reasoning: 'Estimación basada en promedio histórico (Modo Offline).'
+      };
+    }
+
+    try {
+      const prompt = `
+        Actúa como un experto Project Manager. Estima la duración en minutos para la siguiente tarea:
+        Título: "${taskTitle}"
+        ${taskDescription ? `Descripción: "${taskDescription}"` : ''}
+        
+        Duración promedio de tareas de este usuario: ${avgDuration} minutos.
+        
+        Responde SOLO con un objeto JSON: { "estimatedMinutes": number, "confidence": "LOW" | "MEDIUM" | "HIGH", "reasoning": "Breve explicación en español" }
+        `;
+
+      const result = await this.model.generateContent(prompt);
+      const text = result.response.text();
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[0]);
+        return {
+          estimatedMinutes: data.estimatedMinutes || avgDuration,
+          confidence: data.confidence || 'LOW',
+          reasoning: data.reasoning || 'Estimación automática generada por IA.'
+        };
+      }
+      throw new Error("Invalid format");
+    } catch (e) {
+      this.logger.error("Failed to estimate duration", e);
+      return {
+        estimatedMinutes: avgDuration,
+        confidence: 'LOW',
+        reasoning: 'Fallo en servicio de IA, usando promedio histórico.'
+      };
     }
   }
 

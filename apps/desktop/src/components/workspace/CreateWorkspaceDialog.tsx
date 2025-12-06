@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { api } from "@/utils/api";
+import { useCreateWorkspace } from "@/hooks/api/use-workspaces";
 import {
   Dialog,
   DialogContent,
@@ -26,11 +26,12 @@ type CreateWorkspaceForm = z.infer<typeof createWorkspaceSchema>;
 interface CreateWorkspaceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  workspaceId?: string; // Prop was unused in original likely, but kept for compatibility if needed
 }
 
 export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
-  const utils = api.useUtils();
   const [selectedType, setSelectedType] = useState<"PERSONAL" | "WORK" | "TEAM">("PERSONAL");
+  const createWorkspaceMutation = useCreateWorkspace();
 
   const {
     register,
@@ -45,23 +46,18 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
     },
   });
 
-  const createWorkspace = api.workspace.create.useMutation({
-    onSuccess: () => {
+  const onSubmit = async (data: CreateWorkspaceForm) => {
+    try {
+      await createWorkspaceMutation.mutateAsync({
+        ...data,
+        type: selectedType,
+      });
       toast.success("Workspace creado exitosamente");
-      utils.workspace.list.invalidate();
       reset();
       onOpenChange(false);
-    },
-    onError: (error) => {
+    } catch (error: any) {
       toast.error(error.message || "Error al crear workspace");
-    },
-  });
-
-  const onSubmit = (data: CreateWorkspaceForm) => {
-    createWorkspace.mutate({
-      ...data,
-      type: selectedType,
-    });
+    }
   };
 
   const workspaceTypes = [
@@ -159,10 +155,10 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
             </button>
             <button
               type="submit"
-              disabled={createWorkspace.isPending}
+              disabled={createWorkspaceMutation.isPending}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {createWorkspace.isPending ? "Creando..." : "Crear Workspace"}
+              {createWorkspaceMutation.isPending ? "Creando..." : "Crear Workspace"}
             </button>
           </DialogFooter>
         </form>

@@ -8,6 +8,7 @@ export class PrismaProjectRepository implements ProjectRepository {
         return new Project({
             id: prismaProject.id,
             name: prismaProject.name,
+            slug: prismaProject.slug,
             description: prismaProject.description ?? undefined,
             color: prismaProject.color,
             icon: prismaProject.icon ?? undefined,
@@ -26,6 +27,7 @@ export class PrismaProjectRepository implements ProjectRepository {
         const data = {
             id: project.id as string,
             name: project.props.name,
+            slug: project.props.slug,
             description: project.props.description ?? null,
             color: project.props.color,
             icon: project.props.icon ?? null,
@@ -51,6 +53,18 @@ export class PrismaProjectRepository implements ProjectRepository {
         return this.toDomain(project);
     }
 
+    async findBySlug(slug: string, workspaceId: string): Promise<Project | null> {
+        const project = await this.prisma.project.findUnique({
+            where: {
+                workspaceId_slug: {
+                    workspaceId,
+                    slug,
+                },
+            },
+        });
+        return project ? this.toDomain(project) : null;
+    }
+
     async findByWorkspaceId(workspaceId: string): Promise<Project[]> {
         const projects = await this.prisma.project.findMany({ where: { workspaceId } });
         return projects.map(p => this.toDomain(p));
@@ -74,6 +88,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     async update(project: Project): Promise<Project> {
         const data = {
             name: project.props.name,
+            slug: project.props.slug,
             description: project.props.description ?? null,
             color: project.props.color,
             icon: project.props.icon ?? null,

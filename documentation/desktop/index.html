@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop App - Ordo-Todo Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>💻 Desktop App</h1>
+            <p>Electron - Windows, macOS & Linux</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">🏠 Inicio</a></li>
+                <li><a href="../core/index.html">📦 Core</a></li>
+                <li><a href="../web/index.html">🌐 Web</a></li>
+                <li><a href="../mobile/index.html">📱 Mobile</a></li>
+                <li><a href="index.html" class="active">💻 Desktop</a></li>
+                <li><a href="../backend/index.html">⚙️ Backend</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview -->
+            <section class="section">
+                <h2>📖 Descripción General</h2>
+                <p>La aplicación de escritorio de Ordo-Todo está construida con <strong>Electron</strong>, permitiendo ejecutar la misma aplicación web en Windows, macOS y Linux con características nativas del sistema operativo.</p>
+                
+                <div class="card" style="background: #F59E0B20; border-color: #F59E0B;">
+                    <h3>⚠️ Estado Actual</h3>
+                    <p><span class="badge warning">En Desarrollo</span></p>
+                    <p>La app de escritorio está en fase de desarrollo activo. Puede reutilizar todo el código de la Web App y el Core Package.</p>
+                </div>
+
+                <h3>🛠️ Stack Tecnológico</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⚡ <strong>Electron</strong> - Framework para apps de escritorio</li>
+                    <li>⚛️ <strong>React</strong> - UI framework</li>
+                    <li>📘 <strong>TypeScript</strong> - Type safety completo</li>
+                    <li>🎨 <strong>Tailwind CSS</strong> - Estilos</li>
+                    <li>⚙️ <strong>Electron Builder</strong> - Empaquetado y distribución</li>
+                    <li>📦 <strong>@ordo-todo/core</strong> - Lógica de negocio compartida</li>
+                </ul>
+
+                <h3>✨ Ventajas sobre la Web App</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ Acceso al sistema de archivos</li>
+                    <li>✅ Notificaciones nativas del SO</li>
+                    <li>✅ Tray icon con quick actions</li>
+                    <li>✅ Atajos de teclado globales</li>
+                    <li>✅ Auto-actualización</li>
+                    <li>✅ Mejor integración con el SO</li>
+                </ul>
+            </section>
+
+            <!-- Project Structure -->
+            <section class="section">
+                <h2>📁 Estructura del Proyecto</h2>
+                <pre><code>apps/desktop/
+├── src/
+│   ├── main/                # Proceso principal de Electron
+│   │   ├── index.ts        # Entry point
+│   │   ├── window.ts       # Gestión de ventanas
+│   │   ├── tray.ts         # Tray icon
+│   │   └── ipc.ts          # IPC handlers
+│   ├── renderer/            # Proceso renderer (React)
+│   │   ├── App.tsx         # Componente principal
+│   │   ├── components/     # Componentes React
+│   │   ├── hooks/          # Custom hooks
+│   │   └── pages/          # Páginas/vistas
+│   └── preload/            # Preload scripts
+│       └── index.ts        # API expuesta al renderer
+├── electron-builder.yml    # Configuración de build
+└── package.json</code></pre>
+            </section>
+
+            <!-- Getting Started -->
+            <section class="section">
+                <h2>🚀 Inicio Rápido</h2>
+                
+                <h3>1. Instalación</h3>
+                <pre><code>cd apps/desktop
+npm install</code></pre>
+
+                <h3>2. Configurar Variables de Entorno</h3>
+                <pre><code># .env
+API_URL=http://localhost:3001</code></pre>
+
+                <h3>3. Ejecutar en Desarrollo</h3>
+                <pre><code>npm run dev</code></pre>
+
+                <h3>4. Build de Producción</h3>
+                <pre><code># Build para el SO actual
+npm run build
+
+# Build para Windows
+npm run build:win
+
+# Build para macOS
+npm run build:mac
+
+# Build para Linux
+npm run build:linux</code></pre>
+            </section>
+
+            <!-- Features -->
+            <section class="section">
+                <h2>✨ Características Planificadas</h2>
+                
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>🔔 Tray Icon</h3>
+                        <p>Icono en la bandeja del sistema con quick actions y estado del timer</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>⌨️ Atajos Globales</h3>
+                        <p>Atajos de teclado que funcionan incluso cuando la app está minimizada</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>🔔 Notificaciones Nativas</h3>
+                        <p>Notificaciones del sistema operativo para timer y recordatorios</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>🔄 Auto-actualización</h3>
+                        <p>Actualizaciones automáticas en segundo plano</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>📁 Exportar/Importar</h3>
+                        <p>Exportar tareas a archivos locales (JSON, CSV)</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                    <div class="card">
+                        <h3>🎨 Temas Personalizados</h3>
+                        <p>Soporte para temas del sistema operativo</p>
+                        <span class="badge warning">Pendiente</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Using Core Package -->
+            <section class="section">
+                <h2>📦 Usando el Core Package</h2>
+                <p>La app de escritorio puede aprovechar <strong>todo el código del Core Package y de la Web App</strong>:</p>
+
+                <h3>✅ Reutilizar Componentes de Web</h3>
+                <pre><code>// Importar componentes directamente de la Web App
+import { TaskCard, TaskList } from '@web/components/task';
+import { PomodoroTimer } from '@web/components/timer';
+
+// Usar en la app de escritorio
+function DesktopApp() {
+  return (
+    &lt;div&gt;
+      &lt;PomodoroTimer /&gt;
+      &lt;TaskList /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+                <h3>✅ Usar Core Package</h3>
+                <pre><code>import {
+  createTaskSchema,
+  PROJECT_COLORS,
+  formatDate,
+  calculateProgress,
+} from '@ordo-todo/core';
+
+// Misma lógica que en Web y Mobile!</code></pre>
+            </section>
+
+            <!-- Electron Features -->
+            <section class="section">
+                <h2>⚡ Características de Electron</h2>
+                
+                <h3>🔔 Tray Icon con Menú</h3>
+                <pre><code>// src/main/tray.ts
+import { Tray, Menu } from 'electron';
+
+export function createTray() {
+  const tray = new Tray('path/to/icon.png');
+  
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Mostrar', click: () => showWindow() },
+    { label: 'Iniciar Timer', click: () => startTimer() },
+    { label: 'Pausar Timer', click: () => pauseTimer() },
+    { type: 'separator' },
+    { label: 'Salir', click: () => app.quit() }
+  ]);
+  
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip('Ordo-Todo - Timer: 25:00');
+  
+  return tray;
+}</code></pre>
+
+                <h3>⌨️ Atajos de Teclado Globales</h3>
+                <pre><code>// src/main/shortcuts.ts
+import { globalShortcut } from 'electron';
+
+export function registerShortcuts() {
+  // Mostrar/ocultar ventana
+  globalShortcut.register('CommandOrControl+Shift+O', () => {
+    toggleWindow();
+  });
+  
+  // Iniciar/pausar timer
+  globalShortcut.register('CommandOrControl+Shift+Space', () => {
+    toggleTimer();
+  });
+  
+  // Crear tarea rápida
+  globalShortcut.register('CommandOrControl+Shift+N', () => {
+    showQuickTaskDialog();
+  });
+}</code></pre>
+
+                <h3>🔔 Notificaciones Nativas</h3>
+                <pre><code>// src/main/notifications.ts
+import { Notification } from 'electron';
+
+export function showNotification(title: string, body: string) {
+  new Notification({
+    title,
+    body,
+    icon: 'path/to/icon.png',
+    sound: true,
+  }).show();
+}
+
+// Usar cuando el timer termina
+showNotification(
+  'Pomodoro Completado!',
+  'Tiempo de tomar un descanso de 5 minutos'
+);</code></pre>
+
+                <h3>📁 Acceso al Sistema de Archivos</h3>
+                <pre><code>// src/main/file-system.ts
+import { dialog } from 'electron';
+import fs from 'fs';
+
+export async function exportTasks(tasks) {
+  const { filePath } = await dialog.showSaveDialog({
+    title: 'Exportar Tareas',
+    defaultPath: 'tasks.json',
+    filters: [
+      { name: 'JSON', extensions: ['json'] },
+      { name: 'CSV', extensions: ['csv'] }
+    ]
+  });
+  
+  if (filePath) {
+    fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
+  }
+}</code></pre>
+
+                <h3>🔄 Auto-actualización</h3>
+                <pre><code>// src/main/updater.ts
+import { autoUpdater } from 'electron-updater';
+
+export function setupAutoUpdater() {
+  // Verificar actualizaciones al iniciar
+  autoUpdater.checkForUpdatesAndNotify();
+  
+  // Verificar cada 4 horas
+  setInterval(() => {
+    autoUpdater.checkForUpdatesAndNotify();
+  }, 4 * 60 * 60 * 1000);
+  
+  autoUpdater.on('update-downloaded', () => {
+    showNotification(
+      'Actualización Disponible',
+      'Se instalará al reiniciar la aplicación'
+    );
+  });
+}</code></pre>
+            </section>
+
+            <!-- IPC Communication -->
+            <section class="section">
+                <h2>🔌 Comunicación IPC</h2>
+                <p>Electron usa IPC (Inter-Process Communication) para comunicar el proceso principal con el renderer.</p>
+
+                <h3>Main Process (Backend)</h3>
+                <pre><code>// src/main/ipc.ts
+import { ipcMain } from 'electron';
+
+// Registrar handlers
+ipcMain.handle('timer:start', async () => {
+  // Iniciar timer
+  return { success: true };
+});
+
+ipcMain.handle('timer:pause', async () => {
+  // Pausar timer
+  return { success: true };
+});
+
+ipcMain.handle('tasks:export', async (event, tasks) => {
+  return await exportTasks(tasks);
+});</code></pre>
+
+                <h3>Preload Script (Bridge)</h3>
+                <pre><code>// src/preload/index.ts
+import { contextBridge, ipcRenderer } from 'electron';
+
+contextBridge.exposeInMainWorld('electron', {
+  timer: {
+    start: () => ipcRenderer.invoke('timer:start'),
+    pause: () => ipcRenderer.invoke('timer:pause'),
+  },
+  tasks: {
+    export: (tasks) => ipcRenderer.invoke('tasks:export', tasks),
+  },
+});</code></pre>
+
+                <h3>Renderer Process (Frontend)</h3>
+                <pre><code>// src/renderer/hooks/useElectron.ts
+declare global {
+  interface Window {
+    electron: {
+      timer: {
+        start: () => Promise&lt;any&gt;;
+        pause: () => Promise&lt;any&gt;;
+      };
+      tasks: {
+        export: (tasks: any[]) => Promise&lt;void&gt;;
+      };
+    };
+  }
+}
+
+export function useElectron() {
+  return window.electron;
+}
+
+// Usar en componentes
+function TimerControls() {
+  const electron = useElectron();
+  
+  const handleStart = async () => {
+    await electron.timer.start();
+  };
+  
+  return &lt;button onClick={handleStart}&gt;Start&lt;/button&gt;;
+}</code></pre>
+            </section>
+
+            <!-- Best Practices -->
+            <section class="section">
+                <h2>💡 Mejores Prácticas</h2>
+                
+                <h3>1. Seguridad</h3>
+                <pre><code>// ✅ Usar contextBridge en preload
+contextBridge.exposeInMainWorld('api', { ... });
+
+// ✅ Deshabilitar nodeIntegration
+webPreferences: {
+  nodeIntegration: false,
+  contextIsolation: true,
+  preload: path.join(__dirname, 'preload.js')
+}</code></pre>
+
+                <h3>2. Performance</h3>
+                <pre><code>// ✅ Lazy load de ventanas
+let settingsWindow = null;
+
+function showSettings() {
+  if (!settingsWindow) {
+    settingsWindow = new BrowserWindow({ ... });
+  }
+  settingsWindow.show();
+}
+
+// ✅ Usar IPC asíncrono
+ipcMain.handle('heavy-task', async () => {
+  return await performHeavyTask();
+});</code></pre>
+
+                <h3>3. Reutilizar Código</h3>
+                <pre><code>// ✅ Importar de la Web App
+import { TaskList } from '@web/components/task';
+
+// ✅ Usar Core Package
+import { createTaskSchema } from '@ordo-todo/core';
+
+// ✅ Compartir API client
+import { apiClient } from '@ordo-todo/api-client';</code></pre>
+            </section>
+
+            <!-- Roadmap -->
+            <section class="section">
+                <h2>🗺️ Roadmap</h2>
+                
+                <h3>Fase 1: MVP (3-4 semanas)</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ Estructura base del proyecto</li>
+                    <li>⏳ Ventana principal con la Web App embebida</li>
+                    <li>⏳ Tray icon básico</li>
+                    <li>⏳ Notificaciones nativas</li>
+                    <li>⏳ Atajos de teclado globales</li>
+                </ul>
+
+                <h3>Fase 2: Características Avanzadas (3-4 semanas)</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⏳ Auto-actualización</li>
+                    <li>⏳ Exportar/importar datos</li>
+                    <li>⏳ Integración con sistema operativo</li>
+                    <li>⏳ Configuración avanzada</li>
+                </ul>
+
+                <h3>Fase 3: Distribución (2 semanas)</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>⏳ Firma de código (Windows, macOS)</li>
+                    <li>⏳ Instaladores para cada plataforma</li>
+                    <li>⏳ Publicación en Microsoft Store / Mac App Store</li>
+                    <li>⏳ Documentación de instalación</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación de la Desktop App.</p>
+        </div>
+    </footer>
+</body>
+</html>

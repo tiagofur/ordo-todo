@@ -12,11 +12,13 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { ProjectsService } from './projects.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -25,7 +27,10 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 export class ProjectsController {
   private readonly logger = new Logger(ProjectsController.name);
 
-  constructor(private readonly projectsService: ProjectsService) { }
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly workspacesService: WorkspacesService,
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -46,6 +51,18 @@ export class ProjectsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.projectsService.findOne(id);
+  }
+
+  @Get('by-slug/:workspaceSlug/:projectSlug')
+  async findBySlug(
+    @Param('workspaceSlug') workspaceSlug: string,
+    @Param('projectSlug') projectSlug: string,
+  ) {
+    const workspace = await this.workspacesService.findBySlug(workspaceSlug);
+    if (!workspace) {
+      throw new NotFoundException('Workspace not found');
+    }
+    return this.projectsService.findBySlug(projectSlug, workspace.id as string);
   }
 
   @Put(':id')

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Send, Edit2, Trash2, MoreVertical } from "lucide-react";
-import { useCreateComment, useUpdateComment, useDeleteComment } from "@/lib/api-hooks";
+import { useCreateComment, useUpdateComment, useDeleteComment, useWorkspaceMembers } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,9 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
+import { MentionTextarea } from "@/components/ui/mention-textarea";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Comment {
   id: string | number;
@@ -35,9 +38,10 @@ interface CommentThreadProps {
   taskId: string;
   comments?: Comment[];
   currentUserId?: string;
+  workspaceId?: string;
 }
 
-export function CommentThread({ taskId, comments = [], currentUserId }: CommentThreadProps) {
+export function CommentThread({ taskId, comments = [], currentUserId, workspaceId }: CommentThreadProps) {
   const t = useTranslations('CommentThread');
   const locale = useLocale();
   const [newComment, setNewComment] = useState("");
@@ -52,6 +56,15 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
 
   // Delete comment mutation
   const deleteComment = useDeleteComment();
+
+  // Fetch workspace members for mentions
+  const { data: members = [] } = useWorkspaceMembers(workspaceId || "");
+  
+  const mentionUsers = members.map((m: any) => ({
+    id: m.user.id,
+    name: m.user.name || m.user.email,
+    image: m.user.image,
+  }));
 
   const handleCreateComment = () => {
     if (!newComment.trim()) return;
@@ -192,6 +205,8 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
                   )}
                 </div>
 
+
+
                 {/* Comment Content */}
                 {isEditing ? (
                   <div className="space-y-2">
@@ -215,7 +230,11 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm whitespace-pre-wrap break-words">{comment.content}</p>
+                  <div className="text-sm prose prose-sm dark:prose-invert max-w-none break-words [&>p]:mb-0 [&>p]:mt-0">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {comment.content}
+                    </ReactMarkdown>
+                  </div>
                 )}
               </div>
             </div>
@@ -232,11 +251,12 @@ export function CommentThread({ taskId, comments = [], currentUserId }: CommentT
 
       {/* New Comment Form */}
       <div className="space-y-2">
-        <Textarea
+        <MentionTextarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder={t('placeholder')}
           className="min-h-[100px] resize-none"
+          users={mentionUsers}
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
               handleCreateComment();

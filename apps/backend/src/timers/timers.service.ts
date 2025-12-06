@@ -28,6 +28,8 @@ import {
   TaskTimeResponse,
 } from './dto/timer-stats.dto';
 
+import { GamificationService } from '../gamification/gamification.service';
+
 @Injectable()
 export class TimersService {
   constructor(
@@ -39,7 +41,8 @@ export class TimersService {
     private readonly analyticsRepository: AnalyticsRepository,
     @Inject('AIProfileRepository')
     private readonly aiProfileRepository: AIProfileRepository,
-  ) {}
+    private readonly gamificationService: GamificationService,
+  ) { }
 
   async start(startTimerDto: StartTimerDto, userId: string) {
     const startTimerUseCase = new StartTimerUseCase(
@@ -100,6 +103,11 @@ export class TimersService {
         } catch (error) {
           // Don't fail the entire stop operation if learning fails
           console.error('Failed to learn from session:', error);
+        }
+
+        // Award XP for Pomodoro
+        if (sessionType === 'WORK' && session.props.wasCompleted) {
+          await this.gamificationService.awardPomodoroCompletion(userId);
         }
       } else if (
         sessionType === 'SHORT_BREAK' ||
@@ -262,9 +270,9 @@ export class TimersService {
     const avgSessionDuration =
       stats.totalSessions > 0
         ? Math.round(
-            (stats.totalMinutesWorked + stats.totalBreakMinutes) /
-              stats.totalSessions,
-          )
+          (stats.totalMinutesWorked + stats.totalBreakMinutes) /
+          stats.totalSessions,
+        )
         : 0;
 
     const avgPausesPerSession =
@@ -277,17 +285,17 @@ export class TimersService {
     const avgFocusScore =
       totalWorkSeconds > 0
         ? Math.round(
-            (1 -
-              stats.totalPauseSeconds /
-                (totalWorkSeconds + stats.totalPauseSeconds)) *
-              100,
-          )
+          (1 -
+            stats.totalPauseSeconds /
+            (totalWorkSeconds + stats.totalPauseSeconds)) *
+          100,
+        )
         : 0;
 
     const completionRate =
       stats.totalSessions > 0
         ? Math.round((stats.completedSessions / stats.totalSessions) * 100) /
-          100
+        100
         : 0;
 
     // Get daily breakdown for last 7 days

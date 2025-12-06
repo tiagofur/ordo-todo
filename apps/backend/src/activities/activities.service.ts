@@ -183,4 +183,22 @@ export class ActivitiesService {
       metadata: { itemName: subtaskTitle },
     });
   }
+
+  async logAssigneeChanged(
+    taskId: string,
+    userId: string,
+    oldValue: string | null,
+    newValue: string | null,
+  ): Promise<void> {
+    await this.createActivity({
+      taskId,
+      userId,
+      type: ActivityType.ASSIGNEE_CHANGED,
+      metadata: {
+        oldValue: oldValue || 'unassigned',
+        newValue: newValue || 'unassigned',
+        fieldName: 'assignee',
+      },
+    });
+  }
 }

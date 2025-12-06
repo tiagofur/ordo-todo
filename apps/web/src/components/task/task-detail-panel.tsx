@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout } from "lucide-react";
-import { useTaskDetails, useUpdateTask, useDeleteTask } from "@/lib/api-hooks";
+import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Share2, Copy, Link as LinkIcon } from "lucide-react";
+import { useTaskDetails, useUpdateTask, useDeleteTask, useCurrentUser, useShareTask } from "@/lib/api-hooks";
+
+
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
@@ -13,6 +15,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +47,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AssigneeSelector } from "./assignee-selector";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -57,6 +67,8 @@ export function TaskDetailPanel({
   const [activeTab, setActiveTab] = useState<TabType>("subtasks");
   const [showCreateTagDialog, setShowCreateTagDialog] = useState(false);
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const shareTask = useShareTask();
   const queryClient = useQueryClient();
 
   // Drag & Drop State
@@ -121,6 +133,7 @@ export function TaskDetailPanel({
   const { data: availableTags } = useTags(selectedWorkspaceId || "");
   const assignTag = useAssignTagToTask();
   const removeTag = useRemoveTagFromTask();
+  const { data: currentUser } = useCurrentUser();
 
   const PRIORITY_CONFIG = {
     LOW: { label: t('priorities.low'), color: "bg-slate-500", textColor: "text-slate-600", icon: Flag },
@@ -177,6 +190,24 @@ export function TaskDetailPanel({
 
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleShare = () => {
+    if (!taskId) return;
+    if (task?.publicToken) {
+      setShowShareDialog(true);
+    } else {
+      shareTask.mutate(taskId, {
+        onSuccess: () => setShowShareDialog(true),
+        onError: () => notify.error(t('toast.shareError')),
+      });
+    }
+  };
+
+  const copyShareLink = () => {
+    const url = `${window.location.origin}/share/task/${task?.publicToken}`;
+    navigator.clipboard.writeText(url);
+    notify.success(t('toast.linkCopied'));
   };
 
   if (!taskId) return null;
@@ -453,6 +484,9 @@ export function TaskDetailPanel({
                       <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="h-9 w-9">
                         <Layout className="w-4 h-4 text-muted-foreground" />
                       </Button>
+                      <Button variant="ghost" size="icon" onClick={handleShare} className="h-9 w-9">
+                        <Share2 className="w-4 h-4 text-muted-foreground" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="h-9 w-9">
                         <X className="w-4 h-4 text-muted-foreground" />
                       </Button>
@@ -553,6 +587,15 @@ export function TaskDetailPanel({
                           </div>
                         </div>
 
+                        <Separator className="my-3" />
+
+                        {/* Assignee Selector */}
+                        <AssigneeSelector
+                          taskId={taskId}
+                          currentAssignee={task?.assignee}
+                          variant="full"
+                        />
+
                       </div>
                     </div>
                   </div>
@@ -600,7 +643,8 @@ export function TaskDetailPanel({
                       <CommentThread 
                         taskId={taskId} 
                         comments={(task?.comments || []) as any}
-                        currentUserId={task?.creatorId}
+                        currentUserId={currentUser?.id}
+                        workspaceId={selectedWorkspaceId || undefined}
                       />
                     )}
                     {activeTab === "attachments" && (
@@ -659,6 +703,37 @@ export function TaskDetailPanel({
         onOpenChange={setShowCreateTagDialog}
         workspaceId={selectedWorkspaceId || undefined}
       />
+      {/* Share Dialog */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('share.title')}</DialogTitle>
+            <DialogDescription>
+              {t('share.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 mt-4">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="link" className="sr-only">
+                Link
+              </Label>
+              <div className="flex items-center gap-2 p-2 rounded-md border bg-muted/50">
+                <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                <input
+                  id="link"
+                  className="flex-1 bg-transparent border-none text-sm focus:outline-none text-muted-foreground"
+                  value={task?.publicToken ? `${typeof window !== 'undefined' ? window.location.origin : ''}/share/task/${task.publicToken}` : ''}
+                  readOnly
+                />
+              </div>
+            </div>
+            <Button size="sm" className="px-3" onClick={copyShareLink}>
+              <span className="sr-only">Copy</span>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }

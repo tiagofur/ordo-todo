@@ -141,4 +141,24 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get workspaceAuditLog() {
     return this.prisma.workspaceAuditLog;
   }
+
+  get notification() {
+    return this.prisma.notification;
+  }
+
+  get achievement() {
+    return this.prisma.achievement;
+  }
+
+  get userAchievement() {
+    return this.prisma.userAchievement;
+  }
+
+  get taskTemplate() {
+    return this.prisma.taskTemplate;
+  }
+
+  get userIntegration() {
+    return this.prisma.userIntegration;
+  }
 }

@@ -1,0 +1,6 @@
+export { StatsCard } from './StatsCard'
+export { ProductivityStreakWidget } from './ProductivityStreakWidget'
+export { UpcomingTasksWidget } from './UpcomingTasksWidget'
+export { TimerWidget } from './TimerWidget'
+export { WeeklyActivityWidget } from './WeeklyActivityWidget'
+export { ActiveProjectsWidget } from './ActiveProjectsWidget'

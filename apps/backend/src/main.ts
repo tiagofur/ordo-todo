@@ -16,7 +16,8 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
 
   // Serve static files from uploads directory
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  // Use process.cwd() to get the project root, works in both dev and prod
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
   });
 
@@ -54,3 +55,4 @@ async function bootstrap() {
   );
 }
 bootstrap();
+// CORS updated

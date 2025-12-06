@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database - Ordo-Todo Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🗄️ Database</h1>
+            <p>PostgreSQL + Prisma ORM</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">🏠 Inicio</a></li>
+                <li><a href="../core/index.html">📦 Core</a></li>
+                <li><a href="../web/index.html">🌐 Web</a></li>
+                <li><a href="../mobile/index.html">📱 Mobile</a></li>
+                <li><a href="../desktop/index.html">💻 Desktop</a></li>
+                <li><a href="../backend/index.html">⚙️ Backend</a></li>
+                <li><a href="index.html" class="active">🗄️ Database</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Overview -->
+            <section class="section">
+                <h2>📖 Descripción General</h2>
+                <p>Ordo-Todo usa <strong>PostgreSQL 16</strong> como base de datos principal y <strong>Prisma</strong> como ORM type-safe para interactuar con ella.</p>
+                
+                <h3>🛠️ Stack</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>🐘 <strong>PostgreSQL 16</strong> - Base de datos relacional</li>
+                    <li>⚡ <strong>Prisma 6</strong> - ORM type-safe con generación de tipos</li>
+                    <li>🔄 <strong>Prisma Migrate</strong> - Sistema de migraciones</li>
+                    <li>🎨 <strong>Prisma Studio</strong> - GUI para explorar datos</li>
+                    <li>📊 <strong>Prisma Client</strong> - Cliente auto-generado</li>
+                </ul>
+
+                <h3>✨ Características</h3>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li>✅ Type-safety completo</li>
+                    <li>✅ Auto-completion en el IDE</li>
+                    <li>✅ Migraciones versionadas</li>
+                    <li>✅ Relaciones type-safe</li>
+                    <li>✅ Queries optimizadas</li>
+                    <li>✅ Transacciones</li>
+                    <li>✅ Soft deletes</li>
+                    <li>✅ Timestamps automáticos</li>
+                </ul>
+            </section>
+
+            <!-- Schema Overview -->
+            <section class="section">
+                <h2>📊 Schema Overview</h2>
+                <p>El schema de Prisma define <strong>30+ modelos</strong> organizados por dominios:</p>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>👤 Users & Auth</h3>
+                        <p>User, Account, Session, VerificationToken</p>
+                        <span class="badge success">4 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>🏢 Workspaces</h3>
+                        <p>Workspace, WorkspaceMember, WorkspaceInvitation</p>
+                        <span class="badge success">3 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>📁 Projects</h3>
+                        <p>Project, ProjectMember, ProjectTemplate</p>
+                        <span class="badge success">3 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>📋 Tasks</h3>
+                        <p>Task, TaskTag, Subtask, TaskDependency</p>
+                        <span class="badge success">4 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>🏷️ Tags</h3>
+                        <p>Tag, TaskTag</p>
+                        <span class="badge success">2 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>⏱️ Timer</h3>
+                        <p>TimerSession, PomodoroStats</p>
+                        <span class="badge success">2 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>💬 Comments</h3>
+                        <p>Comment, CommentReaction</p>
+                        <span class="badge success">2 modelos</span>
+                    </div>
+                    <div class="card">
+                        <h3>📎 Attachments</h3>
+                        <p>Attachment</p>
+                        <span class="badge success">1 modelo</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Core Models -->
+            <section class="section">
+                <h2>📋 Modelos Principales</h2>
+                
+                <h3>👤 User</h3>
+                <pre><code>model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  workspaces    WorkspaceMember[]
+  projects      ProjectMember[]
+  tasks         Task[]
+  comments      Comment[]
+  timerSessions TimerSession[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("users")
+}</code></pre>
+
+                <h3>🏢 Workspace</h3>
+                <pre><code>model Workspace {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  type        WorkspaceType  // PERSONAL, WORK, TEAM
+  color       String?
+  icon        String?
+  
+  // Relations
+  members     WorkspaceMember[]
+  projects    Project[]
+  tags        Tag[]
+  invitations WorkspaceInvitation[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("workspaces")
+}
+
+enum WorkspaceType {
+  PERSONAL
+  WORK
+  TEAM
+}</code></pre>
+
+                <h3>📁 Project</h3>
+                <pre><code>model Project {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String
+  description String?
+  color       String?
+  icon        String?
+  status      ProjectStatus  // ACTIVE, ARCHIVED, ON_HOLD
+  
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  
+  // Relations
+  members     ProjectMember[]
+  tasks       Task[]
+  
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([workspaceId, slug])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  ON_HOLD
+}</code></pre>
+
+                <h3>📋 Task</h3>
+                <pre><code>model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus    // TODO, IN_PROGRESS, IN_REVIEW, DONE, CANCELLED
+  priority    TaskPriority  // LOW, MEDIUM, HIGH
+  
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  
+  assigneeId  String?
+  assignee    User?    @relation(fields: [assigneeId], references: [id])
+  
+  // Relations
+  tags        TaskTag[]
+  subtasks    Subtask[]
+  comments    Comment[]
+  attachments Attachment[]
+  dependencies TaskDependency[] @relation("DependentTask")
+  dependents   TaskDependency[] @relation("BlockingTask")
+  timerSessions TimerSession[]
+  
+  dueDate     DateTime?
+  completedAt DateTime?
+  estimatedMinutes Int?
+  actualMinutes    Int?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}</code></pre>
+
+                <h3>⏱️ TimerSession</h3>
+                <pre><code>model TimerSession {
+  id          String   @id @default(uuid())
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id])
+  
+  mode        TimerMode  // WORK, SHORT_BREAK, LONG_BREAK, CONTINUOUS
+  duration    Int        // Duración en segundos
+  startedAt   DateTime
+  endedAt     DateTime?
+  completed   Boolean    @default(false)
+  
+  createdAt   DateTime   @default(now())
+  
+  @@map("timer_sessions")
+}
+
+enum TimerMode {
+  WORK
+  SHORT_BREAK
+  LONG_BREAK
+  CONTINUOUS
+}</code></pre>
+            </section>
+
+            <!-- Prisma Setup -->
+            <section class="section">
+                <h2>🚀 Setup de Prisma</h2>
+                
+                <h3>1. Instalación</h3>
+                <pre><code>npm install prisma --save-dev
+npm install @prisma/client</code></pre>
+
+                <h3>2. Inicializar Prisma</h3>
+                <pre><code>npx prisma init</code></pre>
+                <p>Esto crea:</p>
+                <ul style="margin-left: 2rem; color: var(--text-muted);">
+                    <li><code>prisma/schema.prisma</code> - Schema de la base de datos</li>
+                    <li><code>.env</code> - Variables de entorno</li>
+                </ul>
+
+                <h3>3. Configurar DATABASE_URL</h3>
+                <pre><code># .env
+DATABASE_URL="postgresql://user:password@localhost:5432/ordo_todo"</code></pre>
+
+                <h3>4. Generar Cliente</h3>
+                <pre><code>npx prisma generate</code></pre>
+                <p>Genera el cliente de Prisma con tipos TypeScript automáticos.</p>
+
+                <h3>5. Crear y Aplicar Migraciones</h3>
+                <pre><code># Crear migración
+npx prisma migrate dev --name init
+
+# Aplicar migraciones en producción
+npx prisma migrate deploy</code></pre>
+
+                <h3>6. Abrir Prisma Studio</h3>
+                <pre><code>npx prisma studio</code></pre>
+                <p>Abre una GUI en <code>http://localhost:5555</code> para explorar y editar datos.</p>
+            </section>
+
+            <!-- Using Prisma -->
+            <section class="section">
+                <h2>💻 Usando Prisma</h2>
+                
+                <h3>Configurar Prisma Service (NestJS)</h3>
+                <pre><code>// src/prisma/prisma.service.ts
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+@Injectable()
+export class PrismaService extends PrismaClient implements OnModuleInit {
+  async onModuleInit() {
+    await this.$connect();
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
+}</code></pre>
+
+                <h3>Queries Básicas</h3>
+                <pre><code>// Crear
+const task = await prisma.task.create({
+  data: {
+    title: 'Nueva tarea',
+    status: 'TODO',
+    priority: 'MEDIUM',
+    projectId: 'uuid',
+  },
+});
+
+// Leer
+const tasks = await prisma.task.findMany({
+  where: { projectId: 'uuid' },
+  include: { tags: true, assignee: true },
+});
+
+// Actualizar
+const updated = await prisma.task.update({
+  where: { id: 'uuid' },
+  data: { status: 'DONE', completedAt: new Date() },
+});
+
+// Eliminar
+await prisma.task.delete({
+  where: { id: 'uuid' },
+});</code></pre>
+
+                <h3>Queries Avanzadas</h3>
+                <pre><code>// Filtros complejos
+const tasks = await prisma.task.findMany({
+  where: {
+    AND: [
+      { projectId: 'uuid' },
+      { status: { in: ['TODO', 'IN_PROGRESS'] } },
+      { priority: 'HIGH' },
+      {
+        OR: [
+          { dueDate: { lte: new Date() } },
+          { dueDate: null },
+        ],
+      },
+    ],
+  },
+  orderBy: [
+    { priority: 'desc' },
+    { createdAt: 'asc' },
+  ],
+  take: 10,
+  skip: 0,
+});
+
+// Agregaciones
+const stats = await prisma.task.groupBy({
+  by: ['status'],
+  _count: true,
+  where: { projectId: 'uuid' },
+});
+
+// Resultado: [
+//   { status: 'TODO', _count: 5 },
+//   { status: 'DONE', _count: 10 },
+// ]</code></pre>
+
+                <h3>Relaciones</h3>
+                <pre><code>// Include (eager loading)
+const task = await prisma.task.findUnique({
+  where: { id: 'uuid' },
+  include: {
+    project: true,
+    assignee: true,
+    tags: {
+      include: {
+        tag: true,
+      },
+    },
+    comments: {
+      include: {
+        author: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    },
+  },
+});
+
+// Select (solo campos específicos)
+const tasks = await prisma.task.findMany({
+  select: {
+    id: true,
+    title: true,
+    status: true,
+    project: {
+      select: {
+        name: true,
+        color: true,
+      },
+    },
+  },
+});</code></pre>
+
+                <h3>Transacciones</h3>
+                <pre><code>// Transacción simple
+await prisma.$transaction([
+  prisma.task.create({ data: taskData }),
+  prisma.timerSession.create({ data: sessionData }),
+]);
+
+// Transacción interactiva
+await prisma.$transaction(async (tx) => {
+  // Crear tarea
+  const task = await tx.task.create({ data: taskData });
+  
+  // Crear tags
+  await tx.taskTag.createMany({
+    data: tagIds.map(tagId => ({
+      taskId: task.id,
+      tagId,
+    })),
+  });
+  
+  // Actualizar estadísticas del proyecto
+  await tx.project.update({
+    where: { id: task.projectId },
+    data: {
+      // ... actualizar contadores
+    },
+  });
+  
+  return task;
+});</code></pre>
+
+                <h3>Raw Queries</h3>
+                <pre><code>// Para queries muy complejas
+const result = await prisma.$queryRaw`
+  SELECT 
+    p.name as project_name,
+    COUNT(t.id) as total_tasks,
+    COUNT(CASE WHEN t.status = 'DONE' THEN 1 END) as completed_tasks
+  FROM projects p
+  LEFT JOIN tasks t ON t.project_id = p.id
+  WHERE p.workspace_id = ${workspaceId}
+  GROUP BY p.id, p.name
+`;</code></pre>
+            </section>
+
+            <!-- Migrations -->
+            <section class="section">
+                <h2>🔄 Migraciones</h2>
+                
+                <h3>Crear una Migración</h3>
+                <pre><code># 1. Modificar schema.prisma
+# 2. Crear migración
+npx prisma migrate dev --name add_task_recurrence
+
+# Esto:
+# - Crea SQL migration en prisma/migrations/
+# - Aplica la migración a la DB
+# - Regenera el cliente Prisma</code></pre>
+
+                <h3>Aplicar Migraciones en Producción</h3>
+                <pre><code># No usar migrate dev en producción!
+# Usar migrate deploy:
+npx prisma migrate deploy</code></pre>
+
+                <h3>Reset de Base de Datos</h3>
+                <pre><code># ⚠️ CUIDADO: Elimina todos los datos
+npx prisma migrate reset
+
+# Esto:
+# - Elimina la base de datos
+# - Crea una nueva
+# - Aplica todas las migraciones
+# - Ejecuta seed (si existe)</code></pre>
+
+                <h3>Seed de Datos</h3>
+                <pre><code>// prisma/seed.ts
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  // Crear usuario de prueba
+  const user = await prisma.user.create({
+    data: {
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'hashed_password',
+    },
+  });
+
+  // Crear workspace
+  const workspace = await prisma.workspace.create({
+    data: {
+      name: 'My Workspace',
+      slug: 'my-workspace',
+      type: 'PERSONAL',
+      members: {
+        create: {
+          userId: user.id,
+          role: 'OWNER',
+        },
+      },
+    },
+  });
+
+  console.log({ user, workspace });
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
+
+// package.json
+{
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}
+
+// Ejecutar seed
+npx prisma db seed</code></pre>
+            </section>
+
+            <!-- Schema Best Practices -->
+            <section class="section">
+                <h2>💡 Mejores Prácticas</h2>
+                
+                <h3>1. Usar UUIDs para IDs</h3>
+                <pre><code>model Task {
+  id String @id @default(uuid())
+  // ...
+}</code></pre>
+
+                <h3>2. Timestamps Automáticos</h3>
+                <pre><code>model Task {
+  // ...
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}</code></pre>
+
+                <h3>3. Índices para Performance</h3>
+                <pre><code>model Task {
+  // ...
+  projectId String
+  status    TaskStatus
+  
+  @@index([projectId])
+  @@index([status])
+  @@index([projectId, status])  // Índice compuesto
+}</code></pre>
+
+                <h3>4. Unique Constraints</h3>
+                <pre><code>model User {
+  email String @unique
+  // ...
+}
+
+model Project {
+  workspaceId String
+  slug        String
+  
+  @@unique([workspaceId, slug])
+}</code></pre>
+
+                <h3>5. Soft Deletes</h3>
+                <pre><code>model Task {
+  // ...
+  deletedAt DateTime?
+  
+  @@map("tasks")
+}
+
+// Query excluyendo eliminados
+const tasks = await prisma.task.findMany({
+  where: { deletedAt: null },
+});</code></pre>
+
+                <h3>6. Enums para Valores Fijos</h3>
+                <pre><code>enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+model Task {
+  status TaskStatus @default(TODO)
+}</code></pre>
+            </section>
+
+            <!-- Performance -->
+            <section class="section">
+                <h2>⚡ Optimización de Performance</h2>
+                
+                <h3>1. Select Solo lo Necesario</h3>
+                <pre><code>// ❌ Malo - trae todos los campos
+const tasks = await prisma.task.findMany();
+
+// ✅ Bueno - solo campos necesarios
+const tasks = await prisma.task.findMany({
+  select: {
+    id: true,
+    title: true,
+    status: true,
+  },
+});</code></pre>
+
+                <h3>2. Paginación</h3>
+                <pre><code>const page = 1;
+const pageSize = 20;
+
+const tasks = await prisma.task.findMany({
+  skip: (page - 1) * pageSize,
+  take: pageSize,
+});
+
+const total = await prisma.task.count();</code></pre>
+
+                <h3>3. Batch Operations</h3>
+                <pre><code>// ❌ Malo - múltiples queries
+for (const task of tasks) {
+  await prisma.task.update({
+    where: { id: task.id },
+    data: { status: 'DONE' },
+  });
+}
+
+// ✅ Bueno - una sola query
+await prisma.task.updateMany({
+  where: { id: { in: taskIds } },
+  data: { status: 'DONE' },
+});</code></pre>
+
+                <h3>4. Connection Pooling</h3>
+                <pre><code>// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  
+  // Configurar pool
+  connectionLimit = 10
+}</code></pre>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section class="section">
+                <h2>🔧 Troubleshooting</h2>
+                
+                <h3>Regenerar Cliente</h3>
+                <pre><code>npx prisma generate</code></pre>
+
+                <h3>Ver Estado de Migraciones</h3>
+                <pre><code>npx prisma migrate status</code></pre>
+
+                <h3>Resolver Conflictos de Migraciones</h3>
+                <pre><code># Marcar migración como aplicada sin ejecutarla
+npx prisma migrate resolve --applied "migration_name"
+
+# Marcar como revertida
+npx prisma migrate resolve --rolled-back "migration_name"</code></pre>
+
+                <h3>Validar Schema</h3>
+                <pre><code>npx prisma validate</code></pre>
+
+                <h3>Formatear Schema</h3>
+                <pre><code>npx prisma format</code></pre>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ordo-Todo. Documentación de Database.</p>
+        </div>
+    </footer>
+</body>
+</html>

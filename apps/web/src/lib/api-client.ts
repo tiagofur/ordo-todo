@@ -221,11 +221,18 @@ export const apiClient = {
 
   // User
   getCurrentUser: () => axiosInstance.get('/users/me').then((res) => res.data),
+  getFullProfile: () => axiosInstance.get('/users/me/profile').then((res) => res.data),
   updateProfile: (data: UpdateProfileDto) => axiosInstance.put('/users/me', data).then((res) => res.data),
+  getPreferences: () => axiosInstance.get('/users/me/preferences').then((res) => res.data),
+  updatePreferences: (data: any) => axiosInstance.patch('/users/me/preferences', data).then((res) => res.data),
+  getIntegrations: () => axiosInstance.get('/users/me/integrations').then((res) => res.data),
+  exportData: () => axiosInstance.post('/users/me/export', null, { responseType: 'blob' }).then((res) => res.data),
+  deleteAccount: () => axiosInstance.delete('/users/me').then((res) => res.data),
 
   // Workspace
   getWorkspaces: () => axiosInstance.get('/workspaces').then((res) => res.data),
   getWorkspace: (id: string) => axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
+  getWorkspaceBySlug: (slug: string) => axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
   createWorkspace: (data: CreateWorkspaceDto) => axiosInstance.post('/workspaces', data).then((res) => res.data),
   updateWorkspace: (id: string, data: UpdateWorkspaceDto) => axiosInstance.put(`/workspaces/${id}`, data).then((res) => res.data),
   deleteWorkspace: (id: string) => axiosInstance.delete(`/workspaces/${id}`).then((res) => res.data),
@@ -259,6 +266,7 @@ export const apiClient = {
   getProjects: (workspaceId: string) => axiosInstance.get('/projects', { params: { workspaceId } }).then((res) => res.data),
   getAllProjects: () => axiosInstance.get('/projects/all').then((res) => res.data),
   getProject: (id: string) => axiosInstance.get(`/projects/${id}`).then((res) => res.data),
+  getProjectBySlug: (workspaceSlug: string, projectSlug: string) => axiosInstance.get(`/projects/by-slug/${workspaceSlug}/${projectSlug}`).then((res) => res.data),
   createProject: (data: CreateProjectDto) => axiosInstance.post('/projects', data).then((res) => res.data),
   updateProject: (id: string, data: UpdateProjectDto) => axiosInstance.put(`/projects/${id}`, data).then((res) => res.data),
   archiveProject: (id: string) => axiosInstance.patch(`/projects/${id}/archive`).then((res) => res.data),
@@ -266,7 +274,8 @@ export const apiClient = {
   deleteProject: (id: string) => axiosInstance.delete(`/projects/${id}`).then((res) => res.data),
 
   // Task
-  getTasks: (projectId?: string) => axiosInstance.get('/tasks', { params: { projectId } }).then((res) => res.data),
+  getTasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) =>
+    axiosInstance.get('/tasks', { params: { projectId, tags, assignedToMe } }).then((res) => res.data),
   getTask: (id: string) => axiosInstance.get(`/tasks/${id}`).then((res) => res.data),
   getTaskDetails: (id: string) => axiosInstance.get(`/tasks/${id}/details`).then((res) => res.data),
   createTask: (data: CreateTaskDto) => axiosInstance.post('/tasks', data).then((res) => res.data),
@@ -274,6 +283,10 @@ export const apiClient = {
   completeTask: (id: string) => axiosInstance.patch(`/tasks/${id}/complete`).then((res) => res.data),
   deleteTask: (id: string) => axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
   createSubtask: (parentTaskId: string, data: CreateSubtaskDto) => axiosInstance.post(`/tasks/${parentTaskId}/subtasks`, data).then((res) => res.data),
+
+  // Task Sharing
+  generatePublicToken: (taskId: string) => axiosInstance.post(`/tasks/${taskId}/share`).then((res) => res.data),
+  getTaskByPublicToken: (token: string) => axiosInstance.get(`/tasks/share/${token}`).then((res) => res.data),
 
   // Tag
   getTags: (workspaceId: string) => axiosInstance.get('/tags', { params: { workspaceId } }).then((res) => res.data),
@@ -303,6 +316,10 @@ export const apiClient = {
   getWeeklyMetrics: (params?: { weekStart?: string }) => axiosInstance.get('/analytics/weekly', { params }).then((res) => res.data),
   getMonthlyMetrics: (params?: { monthStart?: string }) => axiosInstance.get('/analytics/monthly', { params }).then((res) => res.data),
   getDateRangeMetrics: (startDate: string, endDate: string) => axiosInstance.get('/analytics/range', { params: { startDate, endDate } }).then((res) => res.data),
+  getDashboardStats: () => axiosInstance.get('/analytics/dashboard-stats').then((res) => res.data),
+  getHeatmapData: () => axiosInstance.get('/analytics/heatmap').then((res) => res.data),
+  getProjectDistribution: () => axiosInstance.get('/analytics/project-distribution').then((res) => res.data),
+  getTaskStatusDistribution: () => axiosInstance.get('/analytics/task-status-distribution').then((res) => res.data),
 
   // AI
   getAIProfile: () => axiosInstance.get('/ai/profile').then((res) => res.data),
@@ -325,6 +342,13 @@ export const apiClient = {
 
   // Attachment
   getTaskAttachments: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/attachments`).then((res) => res.data),
+  getProjectAttachments: (projectId: string) => axiosInstance.get(`/attachments/project/${projectId}`).then((res) => res.data),
   createAttachment: (data: CreateAttachmentDto) => axiosInstance.post('/attachments', data).then((res) => res.data),
   deleteAttachment: (id: string) => axiosInstance.delete(`/attachments/${id}`).then((res) => res.data),
+
+  // Notifications
+  getNotifications: () => axiosInstance.get('/notifications').then((res) => res.data),
+  getUnreadNotificationsCount: () => axiosInstance.get('/notifications/unread-count').then((res) => res.data),
+  markNotificationAsRead: (id: string) => axiosInstance.patch(`/notifications/${id}/read`).then((res) => res.data),
+  markAllNotificationsAsRead: () => axiosInstance.post('/notifications/mark-all-read').then((res) => res.data),
 };

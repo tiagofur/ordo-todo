@@ -139,7 +139,7 @@ npx prisma generate
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000)
+Visit [http://localhost:3100](http://localhost:3100)
 
 ---
 
@@ -176,15 +176,57 @@ npx prisma studio       # Open DB GUI
 
 ## 📚 Documentation
 
+### 🌐 Interactive HTML Documentation
+Comprehensive, interactive documentation with examples and best practices:
+
+- **[📖 Main Documentation](./documentation/index.html)** - Start here!
+- **[📦 Core Package](./documentation/core/index.html)** - Shared business logic, constants, utilities, and validations
+- **[🌐 Web App](./documentation/web/index.html)** - Next.js application guide
+- **[📱 Mobile App](./documentation/mobile/index.html)** - React Native + Expo guide
+- **[💻 Desktop App](./documentation/desktop/index.html)** - Electron application guide
+
+### 📝 Development Guides
+
 | Document | Description |
 |----------|-------------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | DDD + Clean Architecture details |
-| [PRD.md](./PRD.md) | Product requirements |
-| [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md) | Technical specifications |
-| [WIREFRAMES.md](./WIREFRAMES.md) | UI/UX designs |
-| [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) | Current progress |
-| [QUICKSTART.md](./QUICKSTART.md) | Quick start guide |
-| [internationalization.md](./docs/getting-started/internationalization.md) | i18n implementation guide |
+| [🔄 MIGRATION_GUIDE.md](./docs/MIGRATION_GUIDE.md) | **How to apply Core Package changes to all apps** |
+| [🏗️ ARCHITECTURE.md](./docs/design/ARCHITECTURE.md) | DDD + Clean Architecture details |
+| [📋 PRD.md](./docs/design/PRD.md) | Product requirements |
+| [🔧 TECHNICAL_DESIGN.md](./docs/design/TECHNICAL_DESIGN.md) | Technical specifications |
+| [🎨 WIREFRAMES.md](./docs/design/WIREFRAMES.md) | UI/UX designs |
+| [📊 IMPLEMENTATION_STATUS.md](./docs/status/IMPLEMENTATION_STATUS.md) | Current progress |
+| [🚀 QUICKSTART.md](./docs/getting-started/QUICKSTART.md) | Quick start guide |
+| [🌍 internationalization.md](./docs/getting-started/internationalization.md) | i18n implementation guide |
+
+### 📦 Core Package Documentation
+
+The `@ordo-todo/core` package contains all shared business logic:
+
+- ✅ **Validation Schemas** - Zod schemas for all entities
+- ✅ **Constants** - Colors, priorities, statuses, limits (75+ constants)
+- ✅ **Utilities** - 75+ functions for dates, time, strings, calculations, colors
+- ✅ **Domain Logic** - Use cases and business rules
+- ✅ **Type Safety** - Full TypeScript support with auto-completion
+
+**Quick Example:**
+```typescript
+import {
+  createTaskSchema,
+  PROJECT_COLORS,
+  formatDate,
+  calculateProgress,
+} from '@ordo-todo/core';
+
+// Use in any app (Web, Mobile, Desktop, Backend)
+const form = useForm({ resolver: zodResolver(createTaskSchema) });
+const color = PROJECT_COLORS[0];
+const formattedDate = formatDate(task.dueDate);
+const progress = calculateProgress(completed, total);
+```
+
+See [Core Package Documentation](./documentation/core/index.html) for complete API reference.
+
+
 
 ---
 

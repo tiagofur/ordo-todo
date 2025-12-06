@@ -11,13 +11,24 @@ export interface TaskProps extends EntityProps {
     dueDate?: Date;
     projectId: string;
     creatorId: string;
+    assigneeId?: string | null;
     parentTaskId?: string;
     subTasks?: Task[];
     estimatedTime?: number;
     tags?: any[]; // Using any[] to avoid circular dependency for now, or import Tag
     project?: { id: string; name: string; color: string }; // Project information for display
+    assignee?: { id: string; name: string; image?: string }; // Assignee information for display
     createdAt?: Date;
     updatedAt?: Date;
+    recurrence?: RecurrenceProps;
+}
+
+export interface RecurrenceProps {
+    pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
+    interval?: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+    endDate?: Date;
 }
 
 export class Task extends Entity<TaskProps> {
