@@ -35,13 +35,13 @@ export type ApiClient = OrdoApiClient | {
   removeWorkspaceMember: OrdoApiClient['removeWorkspaceMember'];
 
   // Extended workspace methods (optional)
-  getWorkspaceMembers?: (id: string) => Promise<unknown>;
-  getWorkspaceInvitations?: (id: string) => Promise<unknown>;
-  inviteWorkspaceMember?: (id: string, data: unknown) => Promise<unknown>;
-  acceptWorkspaceInvitation?: (data: unknown) => Promise<unknown>;
-  getWorkspaceSettings?: (id: string) => Promise<unknown>;
-  updateWorkspaceSettings?: (id: string, data: unknown) => Promise<unknown>;
-  getWorkspaceAuditLogs?: (id: string, params?: unknown) => Promise<unknown>;
+  getWorkspaceMembers?: OrdoApiClient['getWorkspaceMembers'];
+  getWorkspaceInvitations?: OrdoApiClient['getWorkspaceInvitations'];
+  inviteWorkspaceMember?: OrdoApiClient['inviteWorkspaceMember'];
+  acceptWorkspaceInvitation?: OrdoApiClient['acceptWorkspaceInvitation'];
+  getWorkspaceSettings?: OrdoApiClient['getWorkspaceSettings'];
+  updateWorkspaceSettings?: OrdoApiClient['updateWorkspaceSettings'];
+  getWorkspaceAuditLogs?: OrdoApiClient['getWorkspaceAuditLogs'];
 
   // Workflow
   getWorkflows: OrdoApiClient['getWorkflows'];

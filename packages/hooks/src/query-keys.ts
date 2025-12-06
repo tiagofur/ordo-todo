@@ -5,7 +5,7 @@
  * and to make cache invalidation easier to manage.
  */
 
-import type { GetDailyMetricsParams } from '@ordo-todo/api-client';
+import type { GetDailyMetricsParams, GetSessionsParams } from '@ordo-todo/api-client';
 
 export const queryKeys = {
   // ============ Auth & User ============
@@ -43,22 +43,14 @@ export const queryKeys = {
 
   // ============ Timer ============
   activeTimer: ['timer', 'active'] as const,
-  timerHistory: (params?: {
-    taskId?: string;
-    type?: string;
-    startDate?: string;
-    endDate?: string;
-    page?: number;
-    limit?: number;
-    completedOnly?: boolean;
-  }) => ['timer', 'history', params] as const,
+  timerHistory: (params?: GetSessionsParams) => ['timer', 'history', params] as const,
   timerStats: (params?: { startDate?: string; endDate?: string }) =>
     ['timer', 'stats', params] as const,
   taskTimeSessions: (taskId: string) => ['timer', 'task', taskId] as const,
 
   // ============ Analytics ============
   dailyMetrics: (params?: GetDailyMetricsParams) => ['analytics', 'daily', params] as const,
-  weeklyMetrics: (params?: { weekStart?: string }) => ['analytics', 'weekly', params] as const,
+  weeklyMetrics: () => ['analytics', 'weekly'] as const,
   monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
   dateRangeMetrics: (startDate: string, endDate: string) =>
     ['analytics', 'range', startDate, endDate] as const,
