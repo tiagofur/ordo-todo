@@ -2,9 +2,8 @@
  * Shared store types for Ordo-Todo applications
  */
 
-/**
- * Workspace store state and actions
- */
+// ============ WORKSPACE STORE ============
+
 export interface WorkspaceStoreState {
   selectedWorkspaceId: string | null;
 }
@@ -15,28 +14,135 @@ export interface WorkspaceStoreActions {
 
 export type WorkspaceStore = WorkspaceStoreState & WorkspaceStoreActions;
 
-/**
- * UI store state and actions
- */
+// ============ UI STORE ============
+
 export interface UIStoreState {
+  // Sidebar
   sidebarCollapsed: boolean;
-  theme: 'light' | 'dark' | 'system';
-  commandPaletteOpen: boolean;
+  sidebarWidth: number;
+
+  // Dialogs
+  createTaskDialogOpen: boolean;
+  createProjectDialogOpen: boolean;
+  createWorkspaceDialogOpen: boolean;
+  settingsDialogOpen: boolean;
+  shortcutsDialogOpen: boolean;
+  aboutDialogOpen: boolean;
+
+  // Panels
+  taskDetailPanelOpen: boolean;
+  selectedTaskId: string | null;
+
+  // Quick Actions
+  quickActionsOpen: boolean;
+  quickTaskInputOpen: boolean;
+
+  // View preferences
+  tasksViewMode: 'list' | 'grid';
+  projectsViewMode: 'list' | 'grid' | 'kanban';
+  dashboardLayout: 'compact' | 'expanded';
+
+  // Sort preferences
+  tasksSortBy: 'priority' | 'dueDate' | 'createdAt' | 'title';
+  tasksSortOrder: 'asc' | 'desc';
+
+  // Filter preferences
+  showCompletedTasks: boolean;
 }
 
 export interface UIStoreActions {
+  // Sidebar actions
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
-  toggleCommandPalette: () => void;
-  setCommandPaletteOpen: (open: boolean) => void;
+  setSidebarWidth: (width: number) => void;
+
+  // Dialog actions
+  openCreateTaskDialog: () => void;
+  closeCreateTaskDialog: () => void;
+  openCreateProjectDialog: () => void;
+  closeCreateProjectDialog: () => void;
+  openCreateWorkspaceDialog: () => void;
+  closeCreateWorkspaceDialog: () => void;
+  openSettingsDialog: () => void;
+  closeSettingsDialog: () => void;
+  openShortcutsDialog: () => void;
+  closeShortcutsDialog: () => void;
+  openAboutDialog: () => void;
+  closeAboutDialog: () => void;
+
+  // Panel actions
+  openTaskDetailPanel: (taskId: string) => void;
+  closeTaskDetailPanel: () => void;
+
+  // Quick actions
+  toggleQuickActions: () => void;
+  openQuickTaskInput: () => void;
+  closeQuickTaskInput: () => void;
+
+  // View actions
+  setTasksViewMode: (mode: 'list' | 'grid') => void;
+  setProjectsViewMode: (mode: 'list' | 'grid' | 'kanban') => void;
+  setDashboardLayout: (layout: 'compact' | 'expanded') => void;
+
+  // Sort actions
+  setTasksSort: (sortBy: UIStoreState['tasksSortBy'], order?: UIStoreState['tasksSortOrder']) => void;
+
+  // Filter actions
+  toggleShowCompletedTasks: () => void;
+  setShowCompletedTasks: (show: boolean) => void;
+
+  // Reset
+  resetUI: () => void;
 }
 
 export type UIStore = UIStoreState & UIStoreActions;
 
-/**
- * Sync status for offline-first functionality
- */
+// ============ TIMER STORE ============
+
+export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'IDLE';
+
+export interface TimerConfig {
+  workDuration: number; // in minutes
+  shortBreakDuration: number;
+  longBreakDuration: number;
+  pomodorosUntilLongBreak: number;
+  autoStartBreaks: boolean;
+  autoStartPomodoros: boolean;
+  soundEnabled: boolean;
+  notificationsEnabled: boolean;
+}
+
+export interface TimerStoreState {
+  mode: TimerMode;
+  isRunning: boolean;
+  isPaused: boolean;
+  timeLeft: number; // in seconds
+  completedPomodoros: number;
+  pauseCount: number;
+  selectedTaskId: string | null;
+  selectedTaskTitle: string | null;
+  config: TimerConfig;
+}
+
+export interface TimerStoreActions {
+  start: () => void;
+  pause: () => void;
+  resume: () => void;
+  stop: () => void;
+  skip: () => void;
+  reset: () => void;
+  tick: () => void;
+  setMode: (mode: TimerMode) => void;
+  setSelectedTask: (taskId: string | null, taskTitle: string | null) => void;
+  updateConfig: (config: Partial<TimerConfig>) => void;
+  getTimeFormatted: () => string;
+  getProgress: () => number;
+}
+
+export type TimerStore = TimerStoreState & TimerStoreActions;
+
+// ============ SYNC STORE ============
+
 export type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline';
 
 export interface PendingAction {
@@ -53,25 +159,23 @@ export interface PendingAction {
 
 export interface SyncStoreState {
   status: SyncStatus;
-  pendingActions: PendingAction[];
-  lastSyncAt: number | null;
+  isOnline: boolean;
+  pendingCount: number;
+  lastSyncTime: number | null;
   error: string | null;
+  isSyncing: boolean;
+  currentAction: string | null;
+  syncProgress: number;
 }
 
 export interface SyncStoreActions {
   setStatus: (status: SyncStatus) => void;
-  queueAction: (
-    type: string,
-    url: string,
-    method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-    data: Record<string, unknown>,
-    entityType: 'task' | 'project' | 'comment' | 'timer',
-    entityId?: string
-  ) => Promise<string>;
-  removeAction: (actionId: string) => void;
-  clearPendingActions: () => void;
-  setLastSyncAt: (timestamp: number) => void;
+  setOnline: (online: boolean) => void;
+  setPendingCount: (count: number) => void;
+  setLastSyncTime: (time: number | null) => void;
   setError: (error: string | null) => void;
+  setSyncing: (syncing: boolean, currentAction?: string) => void;
+  setSyncProgress: (progress: number) => void;
 }
 
 export type SyncStore = SyncStoreState & SyncStoreActions;

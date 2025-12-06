@@ -6,4 +6,6 @@
  */
 
 export * from './workspace-store';
+export * from './ui-store';
+export * from './timer-store';
 export * from './types';

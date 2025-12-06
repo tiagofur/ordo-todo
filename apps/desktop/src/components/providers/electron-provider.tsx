@@ -1,7 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useElectron } from '@/hooks/use-electron'
-import { useTimerStore, startTimerInterval, stopTimerInterval } from '@/stores/timer-store'
+import {
+  useTimerStore,
+  startTimerInterval,
+  stopTimerInterval,
+  initializeDesktopTimerCallbacks,
+} from '@/stores/timer-store'
 
 interface ElectronProviderProps {
   children: React.ReactNode
@@ -103,6 +108,13 @@ export function ElectronProvider({ children }: ElectronProviderProps) {
       window.electronAPI?.removeAllListeners('deep-link')
     }
   }, [isElectron, start])
+
+  // Initialize Electron-specific timer callbacks (tray updates, notifications)
+  useEffect(() => {
+    if (isElectron) {
+      initializeDesktopTimerCallbacks()
+    }
+  }, [isElectron])
 
   // Log platform info in development
   useEffect(() => {
