@@ -1,35 +1,26 @@
 /**
  * Shared UI Package for Ordo-Todo
  *
- * This package provides shared UI utilities, colors, and constants
+ * This package provides shared UI components, utilities, colors, and constants
  * that can be used across web, mobile, and desktop applications.
  *
  * @example
  * ```tsx
- * import { cn, PROJECT_COLORS, PRIORITY_COLORS } from '@ordo-todo/ui';
+ * import { cn, PROJECT_COLORS, Button, Input } from '@ordo-todo/ui';
  *
- * function Button({ className, variant }) {
+ * function MyForm() {
  *   return (
- *     <button className={cn(
- *       'px-4 py-2 rounded',
- *       variant === 'primary' && 'bg-blue-500 text-white',
- *       className
- *     )}>
- *       Click me
- *     </button>
+ *     <div>
+ *       <Input placeholder="Enter text" />
+ *       <Button variant="primary">Submit</Button>
+ *     </div>
  *   );
  * }
  * ```
  */
 
-// Utilities
-export { cn } from './utils';
+// Utilities and Colors
+export * from './utils/index.js';
 
-// Colors
-export {
-  PROJECT_COLORS,
-  TAG_COLORS,
-  PRIORITY_COLORS,
-  STATUS_COLORS,
-  getFocusScoreColor,
-} from './colors';
+// Components (Base UI + Domain-specific)
+export * from './components/index.js';
