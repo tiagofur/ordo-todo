@@ -27,6 +27,8 @@
     "@ordo-todo/api-client": "*",
     "@ordo-todo/config": "*",
     "@ordo-todo/core": "*",
+    "@ordo-todo/i18n": "*",
+    "@ordo-todo/ui": "*",
     "@ordo-todo/db": "^0.1.0",
     "@ordo-todo/hooks": "*",
     "@ordo-todo/stores": "*",

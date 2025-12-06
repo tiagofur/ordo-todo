@@ -1,6 +1,7 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+/**
+ * UI utilities for Web App
+ *
+ * Re-exports from @ordo-todo/ui for cross-platform consistency.
+ */
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+export { cn } from '@ordo-todo/ui';
