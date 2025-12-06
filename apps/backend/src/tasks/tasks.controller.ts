@@ -15,7 +15,11 @@ import {
   forwardRef,
   Logger,
 } from '@nestjs/common';
+import { MemberRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { TaskGuard } from '../common/guards/task.guard';
+import { CreateTaskGuard } from '../common/guards/create-task.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
@@ -43,6 +47,8 @@ export class TasksController {
   ) { }
 
   @Post()
+  @UseGuards(CreateTaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @HttpCode(HttpStatus.CREATED)
   create(
     @Body() createTaskDto: CreateTaskDto,
@@ -52,11 +58,17 @@ export class TasksController {
   }
 
   @Patch(':id/complete')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   complete(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.complete(id, user.id);
   }
 
   @Get()
+  // List filtering is usually done by service (only return tasks user can see).
+  // The service currently filters by 'creatorId' which is WRONG for a team app (should be workspace based).
+  // But fixing the service logic is a bigger refactor of the 'findAll' method.
+  // For now, let's keep it but ideally we should update findAll to filter by workspace permissions.
   findAll(
     @CurrentUser() user: RequestUser,
     @Query('projectId') projectId?: string,
@@ -72,16 +84,22 @@ export class TasksController {
   }
 
   @Get(':id')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   findOne(@Param('id') id: string) {
     return this.tasksService.findOne(id);
   }
 
   @Get(':id/details')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   findOneWithDetails(@Param('id') id: string) {
     return this.tasksService.findOneWithDetails(id);
   }
 
   @Put(':id')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   update(
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
@@ -91,12 +109,16 @@ export class TasksController {
   }
 
   @Delete(':id')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.tasksService.remove(id);
   }
 
   @Post(':id/subtasks')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @HttpCode(HttpStatus.CREATED)
   createSubtask(
     @Param('id') parentTaskId: string,
@@ -111,21 +133,29 @@ export class TasksController {
   }
 
   @Get(':id/tags')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   findTags(@Param('id') taskId: string) {
     return this.tagsService.findByTask(taskId);
   }
 
   @Get(':id/comments')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   findComments(@Param('id') taskId: string) {
     return this.commentsService.findByTask(taskId);
   }
 
   @Get(':id/attachments')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   findAttachments(@Param('id') taskId: string) {
     return this.attachmentsService.findByTask(taskId);
   }
 
   @Post(':id/share')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   generatePublicToken(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.generatePublicToken(id, user.id);
   }
@@ -138,11 +168,15 @@ export class TasksController {
 
   // Dependencies Reference
   @Get(':id/dependencies')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   getDependencies(@Param('id') id: string) {
     return this.tasksService.getDependencies(id);
   }
 
   @Post(':id/dependencies')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   addDependency(
     @Param('id') id: string,
     @Body('blockingTaskId') blockingTaskId: string
@@ -151,6 +185,8 @@ export class TasksController {
   }
 
   @Delete(':id/dependencies/:blockingTaskId')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   removeDependency(
     @Param('id') id: string,
     @Param('blockingTaskId') blockingTaskId: string

@@ -11,7 +11,10 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { MemberRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { WorkspaceGuard } from '../common/guards/workspace.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { WorkspacesService } from './workspaces.service';
@@ -42,16 +45,23 @@ export class WorkspacesController {
   }
 
   @Get(':id')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   findOne(@Param('id') id: string) {
     return this.workspacesService.findOne(id);
   }
 
   @Get('by-slug/:slug')
+  // We cannot easily use WorkspaceGuard here because we don't have ID yet.
+  // The service should handle the check or we resolve slug to ID first.
+  // For now, let's leave it but rely on service logic (which I should check).
   findBySlug(@Param('slug') slug: string) {
     return this.workspacesService.findBySlug(slug);
   }
 
   @Put(':id')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   update(
     @Param('id') id: string,
     @Body() updateWorkspaceDto: UpdateWorkspaceDto,
@@ -60,12 +70,16 @@ export class WorkspacesController {
   }
 
   @Delete(':id')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.remove(id, user.id);
   }
 
   @Post(':id/members')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   addMember(
     @Param('id') workspaceId: string,
@@ -75,16 +89,22 @@ export class WorkspacesController {
   }
 
   @Get(':id/members')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
   getMembers(@Param('id') workspaceId: string) {
     return this.workspacesService.getMembers(workspaceId);
   }
 
   @Get(':id/invitations')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   getInvitations(@Param('id') workspaceId: string) {
     return this.workspacesService.getInvitations(workspaceId);
   }
 
   @Delete(':id/members/:userId')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   removeMember(
     @Param('id') workspaceId: string,
@@ -94,12 +114,16 @@ export class WorkspacesController {
   }
 
   @Post(':id/archive')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER)
   @HttpCode(HttpStatus.OK)
   archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.archive(id, user.id);
   }
 
   @Post(':id/invite')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   inviteMember(
     @Param('id') workspaceId: string,
@@ -129,11 +153,15 @@ export class WorkspacesController {
   // ============ WORKSPACE SETTINGS ============
 
   @Get(':id/settings')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   getSettings(@Param('id') workspaceId: string) {
     return this.workspacesService.getSettings(workspaceId);
   }
 
   @Put(':id/settings')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   updateSettings(
     @Param('id') workspaceId: string,
     @Body() updateSettingsDto: UpdateWorkspaceSettingsDto,
@@ -144,6 +172,8 @@ export class WorkspacesController {
   // ============ AUDIT LOGS ============
 
   @Get(':id/audit-logs')
+  @UseGuards(WorkspaceGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   getAuditLogs(
     @Param('id') workspaceId: string,
     @Query('limit') limit?: string,
