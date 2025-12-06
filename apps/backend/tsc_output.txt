@@ -1,0 +1,36 @@
+test/tasks.e2e-spec.ts(27,40): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(39,41): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(50,39): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(81,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(100,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(110,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(125,36): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(136,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(147,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(164,36): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(175,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(186,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(197,36): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(208,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(227,36): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(238,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(252,36): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.
+test/tasks.e2e-spec.ts(263,20): error TS2349: This expression is not callable.
+  Type '{ default: SuperTestStatic; Test: typeof Test; agent: typeof TestAgent & ((app?: App | undefined, options?: AgentOptions | undefined) => TestAgent<...>); }' has no call signatures.

@@ -221,7 +221,13 @@ export const apiClient = {
 
   // User
   getCurrentUser: () => axiosInstance.get('/users/me').then((res) => res.data),
+  getFullProfile: () => axiosInstance.get('/users/me/profile').then((res) => res.data),
   updateProfile: (data: UpdateProfileDto) => axiosInstance.put('/users/me', data).then((res) => res.data),
+  getPreferences: () => axiosInstance.get('/users/me/preferences').then((res) => res.data),
+  updatePreferences: (data: any) => axiosInstance.patch('/users/me/preferences', data).then((res) => res.data),
+  getIntegrations: () => axiosInstance.get('/users/me/integrations').then((res) => res.data),
+  exportData: () => axiosInstance.post('/users/me/export', null, { responseType: 'blob' }).then((res) => res.data),
+  deleteAccount: () => axiosInstance.delete('/users/me').then((res) => res.data),
 
   // Workspace
   getWorkspaces: () => axiosInstance.get('/workspaces').then((res) => res.data),

@@ -2739,3 +2739,33 @@
 {"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:10:00.014Z"}
 {"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 25 XP from Pomodoro Completion. Total XP: 325","timestamp":"2025-12-05T22:13:20.009Z"}
 {"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:20:00.014Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 25 XP from Pomodoro Completion. Total XP: 350","timestamp":"2025-12-05T22:24:11.973Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: TASK_CREATED on task f1dbf989-757b-4107-91dc-81afd31df4d6","timestamp":"2025-12-05T22:25:49.510Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: TASK_CREATED on task 7bb2ef33-7177-4383-836b-2d616d170820","timestamp":"2025-12-05T22:26:20.534Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task 4d71b21d-0ce8-4db2-a20c-d5abeddb77e6","timestamp":"2025-12-05T22:27:01.703Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T22:30:00.016Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:30:00.025Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task e232f451-635e-4933-afce-8d6c460e42c7","timestamp":"2025-12-05T22:32:09.481Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task f1dbf989-757b-4107-91dc-81afd31df4d6","timestamp":"2025-12-05T22:38:15.959Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task 7bb2ef33-7177-4383-836b-2d616d170820","timestamp":"2025-12-05T22:39:11.570Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: PRIORITY_CHANGED on task 4d71b21d-0ce8-4db2-a20c-d5abeddb77e6","timestamp":"2025-12-05T22:39:31.879Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:40:00.014Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task f1dbf989-757b-4107-91dc-81afd31df4d6","timestamp":"2025-12-05T22:40:07.443Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task 7bb2ef33-7177-4383-836b-2d616d170820","timestamp":"2025-12-05T22:40:10.614Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task 4d71b21d-0ce8-4db2-a20c-d5abeddb77e6","timestamp":"2025-12-05T22:40:14.840Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task 4d71b21d-0ce8-4db2-a20c-d5abeddb77e6","timestamp":"2025-12-05T22:40:59.270Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T22:50:00.009Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task e232f451-635e-4933-afce-8d6c460e42c7","timestamp":"2025-12-05T22:52:16.859Z"}
+{"context":"ActivitiesService","level":"info","message":"Activity: STATUS_CHANGED on task e232f451-635e-4933-afce-8d6c460e42c7","timestamp":"2025-12-05T22:52:21.928Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 gained 50 XP from Task Completion. Total XP: 400","timestamp":"2025-12-05T22:52:21.945Z"}
+{"context":"GamificationService","level":"info","message":"User 532f6600-7091-4db0-a4cf-9b0147750995 leveled up to 3!","timestamp":"2025-12-05T22:52:21.946Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T23:00:00.008Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T23:00:00.011Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T23:10:00.002Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T23:20:00.008Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-05T23:30:00.018Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T23:30:00.021Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T23:40:00.013Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-05T23:50:00.011Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-06T00:00:00.021Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-06T00:00:00.035Z"}

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { CalendarView } from "@/components/calendar/calendar-view";
+import { TaskCalendar } from "@/components/calendar/task-calendar";
 import { PageTransition, SlideIn } from "@/components/motion";
 
 export function Calendar() {
@@ -37,7 +37,7 @@ export function Calendar() {
 
         {/* Calendar Container */}
         <div className="flex-1 min-h-0 border rounded-xl bg-card shadow-sm overflow-hidden">
-          <CalendarView />
+          <TaskCalendar />
         </div>
       </div>
     </PageTransition>

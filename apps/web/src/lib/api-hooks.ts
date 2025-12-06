@@ -53,6 +53,9 @@ import type {
 export const queryKeys = {
   // Auth & User
   currentUser: ['user', 'current'] as const,
+  userProfile: ['user', 'profile'] as const,
+  userPreferences: ['user', 'preferences'] as const,
+  userIntegrations: ['user', 'integrations'] as const,
 
   // Workspaces
   workspaces: ['workspaces'] as const,
@@ -162,6 +165,72 @@ export function useUpdateProfile() {
     mutationFn: (data: UpdateProfileDto) => apiClient.updateProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+}
+
+export function useFullProfile() {
+  return useQuery({
+    queryKey: queryKeys.userProfile,
+    queryFn: () => apiClient.getFullProfile(),
+    retry: false,
+  });
+}
+
+export function useUserPreferences() {
+  return useQuery({
+    queryKey: queryKeys.userPreferences,
+    queryFn: () => apiClient.getPreferences(),
+    retry: false,
+  });
+}
+
+export function useUpdatePreferences() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Parameters<typeof apiClient.updatePreferences>[0]) =>
+      apiClient.updatePreferences(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.userPreferences });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+    },
+  });
+}
+
+export function useUserIntegrations() {
+  return useQuery({
+    queryKey: queryKeys.userIntegrations,
+    queryFn: () => apiClient.getIntegrations(),
+    retry: false,
+  });
+}
+
+export function useExportData() {
+  return useMutation({
+    mutationFn: () => apiClient.exportData(),
+    onSuccess: (blob) => {
+      // Trigger download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ordo-todo-export-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.deleteAccount(),
+    onSuccess: () => {
+      queryClient.clear();
     },
   });
 }

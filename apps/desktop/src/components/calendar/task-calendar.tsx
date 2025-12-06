@@ -5,17 +5,18 @@ import { Calendar, dateFnsLocalizer, Views, View } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import { format, parse, startOfWeek, getDay, addHours, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
-import { useTranslations } from "next-intl";
-import { useTasks, useUpdateTask } from "@/lib/api-hooks";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+import { useTranslation } from "react-i18next";
+import { useTasks } from "@/hooks/api/use-tasks";
+import { useUpdateTask } from "@/hooks/api/use-tasks";
 import { Task } from "@ordo-todo/api-client";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
-// Setup localizer
+// Setup the localizer for react-big-calendar
 const locales = {
   es: es,
 };
@@ -41,8 +42,7 @@ const DnDCalendar = withDragAndDrop<TaskEvent>(Calendar);
 
 // Custom Toolbar Component
 const CustomToolbar = (toolbar: any) => {
-  const t = useTranslations("Calendar");
-  const tCommon = useTranslations("common"); // Check if common namespace is available or use keys directly
+  const { t } = useTranslation();
   
   const goToBack = () => {
     toolbar.onNavigate('PREV');
@@ -74,7 +74,7 @@ const CustomToolbar = (toolbar: any) => {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={goToCurrent} className="h-7 px-3 text-xs font-medium rounded-sm hover:bg-background hover:shadow-sm">
-            {t('today')}
+            {t('calendar.today') || 'Today'}
           </Button>
           <Button variant="ghost" size="icon" onClick={goToNext} className="h-7 w-7 rounded-sm hover:bg-background hover:shadow-sm">
             <ChevronRight className="h-4 w-4" />
@@ -92,7 +92,7 @@ const CustomToolbar = (toolbar: any) => {
             toolbar.view === 'month' ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          {t('month')}
+          {t('common.month') || 'Month'}
         </Button>
         <Button
           variant="ghost"
@@ -103,7 +103,7 @@ const CustomToolbar = (toolbar: any) => {
             toolbar.view === 'week' ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          {t('week')}
+          {t('common.week') || 'Week'}
         </Button>
          <Button
           variant="ghost"
@@ -114,7 +114,7 @@ const CustomToolbar = (toolbar: any) => {
             toolbar.view === 'day' ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          {t('day')}
+          {t('common.today') || 'Day'}
         </Button>
       </div>
     </div>
@@ -125,6 +125,17 @@ const CustomToolbar = (toolbar: any) => {
 const CustomEvent = ({ event }: { event: TaskEvent }) => {
   const task = event.resource;
   
+  // Priority colors
+  const getPriorityColor = (priority: string) => {
+    switch(priority) {
+      case 'URGENT': return 'bg-red-500';
+      case 'HIGH': return 'bg-orange-500';
+      case 'MEDIUM': return 'bg-yellow-500';
+      case 'LOW': return 'bg-blue-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
   return (
     <div className={cn(
        "h-full w-full px-2 py-1 rounded-md border-l-4 overflow-hidden text-xs transition-all hover:brightness-95",
@@ -141,30 +152,30 @@ const CustomEvent = ({ event }: { event: TaskEvent }) => {
     }}
     >
       <div className="font-medium truncate">{event.title}</div>
+      {/* Show time if not month view or if it's explicitly set? BigCalendar handles this layout mostly */}
     </div>
   );
 };
 
+
 export function TaskCalendar() {
-  const t = useTranslations("Calendar");
-  const tCommon = useTranslations("common");
-  const router = useRouter();
+  const { t } = useTranslation();
   const { data: tasks, isLoading } = useTasks();
-  const updateTaskMutation = useUpdateTask();
+  const updateTaskMutation = useUpdateTask(); // Desktop api hook might differ slightly from web wrapper, verify if useUpdateTask is exported or if I need useTask mutation
   const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
   const events = useMemo(() => {
     if (!tasks) return [];
     return tasks
-      .filter((task: Task) => task.dueDate)
-      .map((task: Task) => {
+      .filter((task) => task.dueDate)
+      .map((task) => {
         const dueDate = new Date(task.dueDate!);
-        
+        // Default logic: assume 1 hour duration for visualization
         let start = dueDate;
         let end = addHours(dueDate, 1);
-        
-        // Validation
+
+        // Check for validity
         if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
         if (end < start) end = addHours(start, 1);
 
@@ -195,10 +206,14 @@ export function TaskCalendar() {
     }
   };
 
-  const handleSelectEvent = (event: TaskEvent) => {
-      // Navigate to task details or open modal
-      // For now, let's just log or maybe navigate if we had a route
-      // router.push(`/tasks/${event.id}`);
+  const dayPropGetter = (date: Date) => {
+    const isToday = isSameDay(date, new Date());
+    return {
+        className: cn(
+            "bg-background",
+            isToday && "bg-accent/5"
+        )
+    };
   };
 
   if (isLoading) {
@@ -206,14 +221,14 @@ export function TaskCalendar() {
         <div className="h-full flex items-center justify-center text-muted-foreground p-8">
             <div className="flex flex-col items-center gap-2">
                 <Clock className="w-8 h-8 animate-pulse" />
-                <span>{tCommon('loading') || 'Loading...'}</span>
+                <span>{t('common.loading') || 'Loading...'}</span>
             </div>
         </div>
       );
   }
 
   return (
-    <div className="h-[calc(100vh-200px)] bg-background/50 backdrop-blur-sm calendar-wrapper text-foreground p-4">
+    <div className="h-full bg-background/50 backdrop-blur-sm calendar-wrapper text-foreground">
       <style>{`
         .rbc-calendar { font-family: inherit; }
         .rbc-header { padding: 12px 4px; font-weight: 500; font-size: 0.875rem; text-transform: uppercase; color: hsl(var(--muted-foreground)); border-bottom: 1px solid hsl(var(--border)) !important; }
@@ -245,16 +260,15 @@ export function TaskCalendar() {
             event: CustomEvent
         }}
         messages={{
-            next: t("next"),
-            previous: t("previous"),
-            today: t("today"),
-            month: t("month"),
-            week: t("week"),
-            day: t("day"),
-            agenda: t("agenda"),
+            next: t("common.next") || "Next",
+            previous: t("common.previous") || "Previous",
+            today: t("common.today") || "Today",
+            month: t("common.month") || "Month",
+            week: t("common.week") || "Week",
+            day: t("common.day") || "Day",
+            agenda: t("common.agenda") || "Agenda",
         }}
         onEventDrop={onEventDrop}
-        onSelectEvent={handleSelectEvent}
         resizable
         selectable
       />

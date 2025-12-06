@@ -157,4 +157,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get taskTemplate() {
     return this.prisma.taskTemplate;
   }
+
+  get userIntegration() {
+    return this.prisma.userIntegration;
+  }
 }

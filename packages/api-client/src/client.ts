@@ -10,6 +10,10 @@ import type {
   User,
   UpdateProfileDto,
   UserResponse,
+  UserProfileResponse,
+  UserPreferences,
+  UpdatePreferencesDto,
+  UserIntegration,
   // Workspace
   Workspace,
   WorkspaceWithMembers,
@@ -297,7 +301,7 @@ export class OrdoApiClient {
     }
   }
 
-  // ============ USER ENDPOINTS (2) ============
+  // ============ USER ENDPOINTS (8) ============
 
   /**
    * Get current authenticated user
@@ -309,11 +313,67 @@ export class OrdoApiClient {
   }
 
   /**
+   * Get full user profile with subscription, integrations, and preferences
+   * GET /users/me/profile
+   */
+  async getFullProfile(): Promise<UserProfileResponse> {
+    const response = await this.axios.get<UserProfileResponse>('/users/me/profile');
+    return response.data;
+  }
+
+  /**
    * Update current user profile
    * PUT /users/me
    */
-  async updateProfile(data: UpdateProfileDto): Promise<{ success: boolean }> {
-    const response = await this.axios.put<{ success: boolean }>('/users/me', data);
+  async updateProfile(data: UpdateProfileDto): Promise<{ success: boolean; user: User }> {
+    const response = await this.axios.put<{ success: boolean; user: User }>('/users/me', data);
+    return response.data;
+  }
+
+  /**
+   * Get user preferences
+   * GET /users/me/preferences
+   */
+  async getPreferences(): Promise<UserPreferences | null> {
+    const response = await this.axios.get<UserPreferences | null>('/users/me/preferences');
+    return response.data;
+  }
+
+  /**
+   * Update user preferences (AI and privacy settings)
+   * PATCH /users/me/preferences
+   */
+  async updatePreferences(data: UpdatePreferencesDto): Promise<{ success: boolean; preferences: UserPreferences }> {
+    const response = await this.axios.patch<{ success: boolean; preferences: UserPreferences }>('/users/me/preferences', data);
+    return response.data;
+  }
+
+  /**
+   * Get user integrations
+   * GET /users/me/integrations
+   */
+  async getIntegrations(): Promise<UserIntegration[]> {
+    const response = await this.axios.get<UserIntegration[]>('/users/me/integrations');
+    return response.data;
+  }
+
+  /**
+   * Export user data (GDPR)
+   * POST /users/me/export
+   */
+  async exportData(): Promise<Blob> {
+    const response = await this.axios.post('/users/me/export', null, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  /**
+   * Delete user account
+   * DELETE /users/me
+   */
+  async deleteAccount(): Promise<{ success: boolean; message: string }> {
+    const response = await this.axios.delete<{ success: boolean; message: string }>('/users/me');
     return response.data;
   }
 
