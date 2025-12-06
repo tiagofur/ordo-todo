@@ -20,14 +20,16 @@
 // Base UI Components
 export * from './ui/index.js';
 
-// Domain-specific components will be added in future phases
-// export * from './timer';
-// export * from './task';
-// export * from './project';
+// Domain-specific components (Phase 2)
+export * from './timer/index.js';
+export * from './task/index.js';
+export * from './project/index.js';
+export * from './analytics/index.js';
+
+// Future phases
 // export * from './workspace';
 // export * from './workflow';
 // export * from './tag';
-// export * from './analytics';
 // export * from './ai';
 // export * from './auth';
 // export * from './layout';
