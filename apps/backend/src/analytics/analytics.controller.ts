@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
@@ -78,5 +78,23 @@ export class AnalyticsController {
   @Get('task-status-distribution')
   getTaskStatusDistribution(@CurrentUser() user: RequestUser) {
     return this.analyticsService.getTaskStatusDistribution(user.id);
+  }
+
+  @Get('streak')
+  getProductivityStreak(@CurrentUser() user: RequestUser) {
+    return this.analyticsService.getProductivityStreak(user.id);
+  }
+
+  @Get('team/:workspaceId')
+  getTeamMetrics(
+    @Param('workspaceId') workspaceId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.analyticsService.getTeamMetrics(
+      workspaceId,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+    );
   }
 }

@@ -29,6 +29,7 @@ import type { WorkspaceInvitationRepository } from '@ordo-todo/core';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class WorkspacesService {
@@ -45,7 +46,7 @@ export class WorkspacesService {
     private readonly auditLogRepository: WorkspaceAuditLogRepository,
     @Inject('WorkflowRepository')
     private readonly workflowRepository: WorkflowRepository,
-    private readonly prisma: import('../database/prisma.service').PrismaService,
+    private readonly prisma: PrismaService,
   ) { }
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {

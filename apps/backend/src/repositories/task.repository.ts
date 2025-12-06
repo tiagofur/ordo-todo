@@ -272,12 +272,6 @@ export class PrismaTaskRepository implements TaskRepository {
       data.assigneeId = task.props.assigneeId;
     }
 
-    console.log(`[PrismaTaskRepository] Updating task ${task.id}`, {
-      originalStatus: task.props.status,
-      mappedStatus: data.status,
-      data
-    });
-
     await this.prisma.task.update({
       where: { id: task.id as string },
       data: {

@@ -171,6 +171,140 @@ export class AnalyticsService {
     return tasks.map(t => ({ status: t.status, count: t._count.id }));
   }
 
+  // ============ TEAM REPORTS (FOR MANAGERS) ============
+
+  /**
+   * Get aggregate team metrics for a workspace
+   * Only accessible by ADMIN/OWNER roles
+   */
+  async getTeamMetrics(workspaceId: string, startDate?: Date, endDate?: Date) {
+    const start = startDate || this.getStartOfWeek(new Date());
+    const end = endDate || new Date();
+
+    // Get all workspace members
+    const members = await this.prisma.workspaceMember.findMany({
+      where: { workspaceId },
+      include: { user: { select: { id: true, name: true, email: true, image: true } } },
+    });
+
+    const memberIds = members.map((m) => m.userId);
+
+    // Get aggregate metrics for all members
+    const allMetrics = await this.prisma.dailyMetrics.findMany({
+      where: {
+        userId: { in: memberIds },
+        date: { gte: start, lte: end },
+      },
+    });
+
+    // Calculate team totals
+    const teamTotals = {
+      totalTasksCompleted: allMetrics.reduce((sum, m) => sum + m.tasksCompleted, 0),
+      totalMinutesWorked: allMetrics.reduce((sum, m) => sum + m.minutesWorked, 0),
+      totalPomodoros: allMetrics.reduce((sum, m) => sum + m.pomodorosCompleted, 0),
+      avgFocusScore: allMetrics.length > 0
+        ? allMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) / allMetrics.length
+        : 0,
+      activeMembersCount: new Set(allMetrics.map((m) => m.userId)).size,
+    };
+
+    // Calculate per-member breakdown
+    const memberBreakdown = members.map((member) => {
+      const memberMetrics = allMetrics.filter((m) => m.userId === member.userId);
+      return {
+        user: member.user,
+        role: member.role,
+        tasksCompleted: memberMetrics.reduce((sum, m) => sum + m.tasksCompleted, 0),
+        minutesWorked: memberMetrics.reduce((sum, m) => sum + m.minutesWorked, 0),
+        pomodorosCompleted: memberMetrics.reduce((sum, m) => sum + m.pomodorosCompleted, 0),
+        avgFocusScore: memberMetrics.length > 0
+          ? memberMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) / memberMetrics.length
+          : 0,
+        activeDays: memberMetrics.filter((m) => m.minutesWorked > 0).length,
+      };
+    });
+
+    // Sort by productivity (tasks completed)
+    memberBreakdown.sort((a, b) => b.tasksCompleted - a.tasksCompleted);
+
+    return {
+      period: { start, end },
+      teamTotals,
+      memberBreakdown,
+      topPerformers: memberBreakdown.slice(0, 3),
+    };
+  }
+
+  // ============ PRODUCTIVITY STREAK ============
+
+  /**
+   * Get current productivity streak for a user
+   */
+  async getProductivityStreak(userId: string) {
+    const metrics = await this.prisma.dailyMetrics.findMany({
+      where: { userId },
+      orderBy: { date: 'desc' },
+      take: 90, // Last 90 days
+    });
+
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    let lastDate: Date | null = null;
+
+    for (const metric of metrics) {
+      const isProductive = metric.tasksCompleted > 0 || metric.minutesWorked > 30;
+
+      if (isProductive) {
+        if (lastDate === null) {
+          // First productive day
+          tempStreak = 1;
+          currentStreak = 1;
+        } else {
+          const dayDiff = Math.floor(
+            (lastDate.getTime() - metric.date.getTime()) / (1000 * 60 * 60 * 24)
+          );
+
+          if (dayDiff === 1) {
+            // Consecutive day
+            tempStreak++;
+            if (currentStreak === tempStreak - 1) {
+              currentStreak = tempStreak;
+            }
+          } else {
+            // Gap in streak
+            tempStreak = 1;
+          }
+        }
+
+        longestStreak = Math.max(longestStreak, tempStreak);
+        lastDate = metric.date;
+      } else {
+        if (tempStreak > 0 && currentStreak === tempStreak) {
+          // Current streak was broken
+          currentStreak = 0;
+        }
+        tempStreak = 0;
+      }
+    }
+
+    // Calculate average daily productivity
+    const productiveDays = metrics.filter(
+      (m) => m.tasksCompleted > 0 || m.minutesWorked > 30
+    ).length;
+    const avgDailyTasks = productiveDays > 0
+      ? metrics.reduce((sum, m) => sum + m.tasksCompleted, 0) / productiveDays
+      : 0;
+
+    return {
+      currentStreak,
+      longestStreak,
+      productiveDaysLast90: productiveDays,
+      avgDailyTasks: Math.round(avgDailyTasks * 10) / 10,
+      streakStatus: currentStreak >= 7 ? 'excellent' : currentStreak >= 3 ? 'good' : 'building',
+    };
+  }
+
   private getStartOfWeek(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
