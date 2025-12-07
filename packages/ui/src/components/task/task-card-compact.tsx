@@ -354,7 +354,7 @@ export function TaskCardCompact({
             e.stopPropagation();
             if (task.id) onDelete?.(String(task.id));
           }}
-          className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+          className="text-destructive focus:text-destructive focus:bg-destructive/10"
         >
           <Trash2 className="mr-2 h-4 w-4" />
           {deleteLabel}
@@ -415,7 +415,7 @@ export function TaskCardCompact({
                   className={cn(
                     'flex items-center gap-1.5 text-sm',
                     isOverdue
-                      ? 'text-red-500 font-medium'
+                      ? 'text-destructive font-medium'
                       : 'text-muted-foreground'
                   )}
                 >
@@ -575,7 +575,7 @@ export function TaskCardCompact({
                 <span
                   className={cn(
                     'flex items-center gap-1',
-                    isOverdue ? 'text-red-500 font-medium' : ''
+                    isOverdue ? 'text-destructive font-medium' : ''
                   )}
                 >
                   <Calendar className="h-3.5 w-3.5" />
