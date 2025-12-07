@@ -264,9 +264,10 @@ export const useTimerStore = create<TimerStore>()(
     }),
     {
       name: 'ordo-timer-store',
+      // Only persist config - completedPomodoros should reset per session
+      // The actual count is tracked in the backend via DailyMetrics
       partialize: (state) => ({
         config: state.config,
-        completedPomodoros: state.completedPomodoros,
       }),
     }
   )

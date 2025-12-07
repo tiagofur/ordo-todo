@@ -72,6 +72,24 @@ export function useTimer({
   const sessionStartRef = useRef<Date | null>(null);
   const pauseStartRef = useRef<Date | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -204,13 +222,19 @@ export function useTimer({
         setTimeLeft((prev) => {
           if (prev <= 1) {
             // Timer completed - schedule transition outside setState
-            setTimeout(() => {
-              if (!isTransitioningRef.current) {
-                if (type === 'POMODORO') {
-                  skipToNext();
-                } else {
-                  stop(true);
-                }
+            // Clear any existing timeout to prevent race conditions
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+            timeoutRef.current = setTimeout(() => {
+              // Check if component is still mounted and not already transitioning
+              if (!isMountedRef.current || isTransitioningRef.current) {
+                return;
+              }
+              if (type === 'POMODORO') {
+                skipToNext();
+              } else {
+                stop(true);
               }
             }, 0);
             return 0;
@@ -228,6 +252,11 @@ export function useTimer({
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
   }, [isRunning, isPaused, type, skipToNext, stop]);

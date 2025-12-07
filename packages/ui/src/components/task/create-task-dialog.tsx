@@ -14,6 +14,9 @@ import {
   DialogTitle,
 } from '../ui/dialog.js';
 import { Label } from '../ui/label.js';
+import { Input } from '../ui/input.js';
+import { Textarea } from '../ui/textarea.js';
+import { Button } from '../ui/button.js';
 import { EmptyState } from '../ui/empty-state.js';
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
 import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector.js';
@@ -253,14 +256,13 @@ export function CreateTaskDialog({
               <Label htmlFor="title" className="text-sm font-medium text-foreground">
                 {t.formTitle}
               </Label>
-              <input
+              <Input
                 id="title"
                 {...register('title')}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder={t.formTitlePlaceholder}
                 autoFocus
               />
-              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
+              {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
             </div>
 
             {/* Project Selection (if not provided) */}
@@ -295,10 +297,10 @@ export function CreateTaskDialog({
               <Label htmlFor="description" className="text-sm font-medium text-foreground">
                 {t.formDescription}
               </Label>
-              <textarea
+              <Textarea
                 id="description"
                 {...register('description')}
-                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                className="min-h-[100px] resize-none"
                 placeholder={t.formDescriptionPlaceholder}
               />
             </div>
@@ -335,13 +337,13 @@ export function CreateTaskDialog({
                   {t.formEstimatedMinutes}
                 </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="number"
                     id="estimatedMinutes"
                     {...register('estimatedMinutes', { valueAsNumber: true })}
-                    min="1"
+                    min={1}
                     placeholder="30"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pr-10"
                   />
                   <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -353,22 +355,18 @@ export function CreateTaskDialog({
                   {t.formDueDate}
                 </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="date"
                     id="dueDate"
                     {...register('dueDate')}
                     autoComplete="off"
+                    className="pr-10"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
                       }
                     }}
-                    onFocus={(e) => {
-                      e.target.blur();
-                      setTimeout(() => e.target.focus(), 0);
-                    }}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -382,20 +380,19 @@ export function CreateTaskDialog({
             />
 
             <DialogFooter className="pt-2">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t.buttons.cancel}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
               >
                 {isPending ? t.buttons.creating : t.buttons.create}
-              </button>
+              </Button>
             </DialogFooter>
           </form>
         </div>
