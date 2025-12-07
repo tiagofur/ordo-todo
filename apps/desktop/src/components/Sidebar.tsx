@@ -1,49 +1,51 @@
-import { Home, CheckSquare, Calendar, Settings, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Home,
+  CheckSquare,
+  FolderKanban,
+  Tags,
+  BarChart3,
+  Briefcase,
+  Calendar,
+} from "lucide-react";
+import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
+import { useTranslation } from "react-i18next";
+import { TimerWidget } from "./timer/TimerWidget";
+import { WorkspaceSelector } from "./workspace/WorkspaceSelector";
 
 interface SidebarProps {
   className?: string;
 }
 
-const menuItems = [
-  { icon: Home, label: "Dashboard", href: "/" },
-  { icon: CheckSquare, label: "Tasks", href: "/tasks" },
-  { icon: Calendar, label: "Calendar", href: "/calendar" },
-  { icon: User, label: "Profile", href: "/profile" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-];
-
 export default function Sidebar({ className }: SidebarProps) {
-  return (
-    <div
-      className={cn(
-        "w-64 bg-card border-r border-border flex flex-col",
-        className
-      )}
-    >
-      {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.href}>
-              <a
-                href={item.href}
-                className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
-              >
-                <item.icon size={18} />
-                <span>{item.label}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+  const { t } = useTranslation();
+  const location = useLocation();
 
-      {/* Footer */}
-      <div className="p-4 border-t border-border">
-        <div className="text-xs text-muted-foreground">
-          Ordo-Todo Desktop v0.1.0
-        </div>
-      </div>
-    </div>
+  const navItems: NavItem[] = [
+    { name: t("sidebar.today", "Today"), href: "/", icon: Home, color: "cyan" },
+    { name: t("sidebar.tasks", "Tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t("sidebar.calendar", "Calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+    { name: t("sidebar.projects", "Projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("sidebar.workspaces", "Workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
+    { name: t("sidebar.tags", "Tags"), href: "/tags", icon: Tags, color: "green" },
+    { name: t("sidebar.analytics", "Analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
+  ];
+
+  return (
+    <SidebarUI
+      pathname={location.pathname}
+      navItems={navItems}
+      renderLink={({ href, className, children }) => (
+        <Link to={href} className={className}>
+          {children}
+        </Link>
+      )}
+      renderTimerWidget={() => <TimerWidget />}
+      renderWorkspaceSelector={() => <WorkspaceSelector />}
+      labels={{
+        appName: "Ordo",
+        settings: t("sidebar.settings", "Settings"),
+      }}
+    />
   );
 }

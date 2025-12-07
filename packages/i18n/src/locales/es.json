@@ -539,6 +539,76 @@
       "deleteError": "Error al eliminar proyecto"
     }
   },
+  "Breadcrumbs": {
+    "home": "Inicio"
+  },
+  "ProjectDetail": {
+    "notFound": "Proyecto no encontrado",
+    "notFoundDescription": "El proyecto que buscas no existe o fue eliminado.",
+    "backToProjects": "Volver a Proyectos",
+    "addTask": "Nueva Tarea",
+    "tasksSection": "Tareas del Proyecto",
+    "breadcrumbs": {
+      "projects": "Proyectos"
+    },
+    "badges": {
+      "archived": "Archivado",
+      "completed": "Completado"
+    },
+    "stats": {
+      "task": "tarea",
+      "tasks": "tareas",
+      "totalTasks": "Total de Tareas",
+      "completedTasks": "Completadas",
+      "completed": "completadas"
+    },
+    "status": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completadas"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "list": "Lista",
+      "board": "Tablero",
+      "timeline": "Línea de Tiempo",
+      "files": "Archivos"
+    },
+    "overview": {
+      "progress": "Progreso",
+      "recentTasks": "Tareas Recientes"
+    },
+    "actions": {
+      "archive": "archivar",
+      "unarchive": "desarchivar"
+    },
+    "menu": {
+      "settings": "Configuración",
+      "markComplete": "Marcar como Completado",
+      "markIncomplete": "Marcar como Incompleto",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar"
+    },
+    "emptyState": {
+      "title": "No hay tareas",
+      "description": "Este proyecto no tiene tareas aún. Crea la primera para comenzar.",
+      "archivedDescription": "Este proyecto está archivado y no tiene tareas.",
+      "completedDescription": "Este proyecto está completado y no tiene tareas pendientes."
+    },
+    "confirmArchive": "¿Estás seguro de que deseas",
+    "confirmComplete": "¿Marcar este proyecto como completado?",
+    "confirmUncomplete": "¿Marcar este proyecto como incompleto?",
+    "confirmDelete": "¿Eliminar este proyecto? Esta acción no se puede deshacer.",
+    "toast": {
+      "archived": "Proyecto archivado",
+      "archiveError": "Error al archivar proyecto",
+      "completed": "Proyecto completado",
+      "uncompleted": "Proyecto marcado como incompleto",
+      "completeError": "Error al completar proyecto",
+      "deleted": "Proyecto eliminado"
+    }
+  },
   "WorkspaceCard": {
     "types": {
       "PERSONAL": "Personal",
@@ -1243,75 +1313,6 @@
     "message": "Por favor verifica la URL o regresa a la página de inicio.",
     "home": "Ir al Inicio",
     "back": "Regresar"
-  },
-  "ProjectDetail": {
-    "notFound": "Proyecto no encontrado",
-    "notFoundDescription": "El proyecto que buscas no existe o fue eliminado.",
-    "backToWorkspace": "Volver al Workspace",
-    "addTask": "Nueva Tarea",
-    "tasksSection": "Tareas",
-    "tabs": {
-      "overview": "Resumen",
-      "list": "Lista",
-      "board": "Tablero",
-      "timeline": "Línea de Tiempo",
-      "files": "Archivos",
-      "settings": "Configuración"
-    },
-    "stats": {
-      "totalTasks": "Tareas Totales",
-      "completedTasks": "Completadas",
-      "task": "tarea",
-      "tasks": "tareas",
-      "completed": "completadas"
-    },
-    "status": {
-      "todo": "Por Hacer",
-      "inProgress": "En Progreso",
-      "completed": "Completadas"
-    },
-    "badges": {
-      "archived": "Archivado",
-      "completed": "Completado"
-    },
-    "menu": {
-      "settings": "Configuración",
-      "archive": "Archivar",
-      "unarchive": "Desarchivar",
-      "delete": "Eliminar",
-      "markComplete": "Marcar como completado",
-      "markIncomplete": "Marcar como no completado"
-    },
-    "actions": {
-      "archive": "archivar",
-      "unarchive": "desarchivar"
-    },
-    "confirmArchive": "¿Estás seguro de que quieres",
-    "confirmComplete": "¿Estás seguro de que quieres marcar este proyecto como completado?",
-    "confirmUncomplete": "¿Estás seguro de que quieres marcar este proyecto como no completado?",
-    "confirmDelete": "¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.",
-    "toast": {
-      "archived": "Proyecto archivado exitosamente",
-      "archiveError": "Error al archivar el proyecto",
-      "deleted": "Proyecto eliminado exitosamente",
-      "completed": "Proyecto marcado como completado",
-      "uncompleted": "Proyecto marcado como no completado",
-      "completeError": "Error al actualizar el estado del proyecto"
-    },
-    "backToProjects": "Volver a Proyectos",
-    "emptyState": {
-      "title": "Sin tareas aún",
-      "description": "Crea tu primera tarea para empezar a trabajar en este proyecto.",
-      "archivedDescription": "Este proyecto está archivado. Desarchívalo para agregar tareas.",
-      "completedDescription": "Este proyecto está completado."
-    },
-    "overview": {
-      "progress": "Progreso",
-      "recentTasks": "Tareas Recientes"
-    },
-    "breadcrumbs": {
-      "projects": "Proyectos"
-    }
   },
   "ProjectBoard": {
     "columns": {

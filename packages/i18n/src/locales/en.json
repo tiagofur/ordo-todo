@@ -528,6 +528,76 @@
       "deleteError": "Error deleting project"
     }
   },
+  "Breadcrumbs": {
+    "home": "Home"
+  },
+  "ProjectDetail": {
+    "notFound": "Project not found",
+    "notFoundDescription": "The project you're looking for doesn't exist or was deleted.",
+    "backToProjects": "Back to Projects",
+    "addTask": "New Task",
+    "tasksSection": "Project Tasks",
+    "breadcrumbs": {
+      "projects": "Projects"
+    },
+    "badges": {
+      "archived": "Archived",
+      "completed": "Completed"
+    },
+    "stats": {
+      "task": "task",
+      "tasks": "tasks",
+      "totalTasks": "Total Tasks",
+      "completedTasks": "Completed",
+      "completed": "completed"
+    },
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "list": "List",
+      "board": "Board",
+      "timeline": "Timeline",
+      "files": "Files"
+    },
+    "overview": {
+      "progress": "Progress",
+      "recentTasks": "Recent Tasks"
+    },
+    "actions": {
+      "archive": "archive",
+      "unarchive": "unarchive"
+    },
+    "menu": {
+      "settings": "Settings",
+      "markComplete": "Mark as Complete",
+      "markIncomplete": "Mark as Incomplete",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "delete": "Delete"
+    },
+    "emptyState": {
+      "title": "No tasks",
+      "description": "This project has no tasks yet. Create the first one to get started.",
+      "archivedDescription": "This project is archived and has no tasks.",
+      "completedDescription": "This project is completed and has no pending tasks."
+    },
+    "confirmArchive": "Are you sure you want to",
+    "confirmComplete": "Mark this project as complete?",
+    "confirmUncomplete": "Mark this project as incomplete?",
+    "confirmDelete": "Delete this project? This action cannot be undone.",
+    "toast": {
+      "archived": "Project archived",
+      "archiveError": "Error archiving project",
+      "completed": "Project completed",
+      "uncompleted": "Project marked as incomplete",
+      "completeError": "Error completing project",
+      "deleted": "Project deleted"
+    }
+  },
   "WorkspaceCard": {
     "types": {
       "PERSONAL": "Personal",
@@ -1232,74 +1302,6 @@
     "message": "Please check the URL or navigate back to the home page.",
     "home": "Go to Home",
     "back": "Go Back"
-  },
-  "ProjectDetail": {
-    "notFound": "Project not found",
-    "notFoundDescription": "The project you're looking for doesn't exist or was deleted.",
-    "backToWorkspace": "Back to Workspace",
-    "addTask": "New Task",
-    "tasksSection": "Tasks",
-    "tabs": {
-      "overview": "Overview",
-      "list": "List",
-      "board": "Board",
-      "timeline": "Timeline",
-      "settings": "Settings"
-    },
-    "stats": {
-      "totalTasks": "Total Tasks",
-      "completedTasks": "Completed",
-      "task": "task",
-      "tasks": "tasks",
-      "completed": "completed"
-    },
-    "status": {
-      "todo": "To Do",
-      "inProgress": "In Progress",
-      "completed": "Completed"
-    },
-    "badges": {
-      "archived": "Archived",
-      "completed": "Completed"
-    },
-    "menu": {
-      "settings": "Settings",
-      "archive": "Archive",
-      "unarchive": "Unarchive",
-      "delete": "Delete",
-      "markComplete": "Mark as completed",
-      "markIncomplete": "Mark as incomplete"
-    },
-    "actions": {
-      "archive": "archive",
-      "unarchive": "unarchive"
-    },
-    "confirmArchive": "Are you sure you want to",
-    "confirmComplete": "Are you sure you want to mark this project as completed?",
-    "confirmUncomplete": "Are you sure you want to mark this project as incomplete?",
-    "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
-    "toast": {
-      "archived": "Project archived successfully",
-      "archiveError": "Error archiving project",
-      "deleted": "Project deleted successfully",
-      "completed": "Project marked as completed",
-      "uncompleted": "Project marked as incomplete",
-      "completeError": "Error updating project status"
-    },
-    "backToProjects": "Back to Projects",
-    "emptyState": {
-      "title": "No tasks yet",
-      "description": "Create your first task to start working on this project.",
-      "archivedDescription": "This project is archived. Unarchive it to add tasks.",
-      "completedDescription": "This project is completed."
-    },
-    "overview": {
-      "progress": "Progress",
-      "recentTasks": "Recent Tasks"
-    },
-    "breadcrumbs": {
-      "projects": "Projects"
-    }
   },
   "ProjectBoard": {
     "columns": {

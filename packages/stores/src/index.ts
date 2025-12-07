@@ -8,4 +8,6 @@
 export * from './workspace-store.js';
 export * from './ui-store.js';
 export * from './timer-store.js';
+export * from './sync-store.js';
 export * from './types.js';
+

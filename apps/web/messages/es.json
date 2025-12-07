@@ -1350,5 +1350,8 @@
     "uploadedBy": "Subido por",
     "date": "Fecha",
     "actions": "Acciones"
+  },
+  "Breadcrumbs": {
+    "home": "Inicio"
   }
 }

@@ -43,3 +43,6 @@ yarn-error.log*
 # Uploads (keep directory structure but ignore uploaded files)
 apps/backend/uploads/*
 !apps/backend/uploads/.gitkeep
+
+*storybook.log
+storybook-static

@@ -72,6 +72,7 @@ function SheetContent({
           className
         )}
         {...props}
+        style={{ backgroundColor: 'var(--background, hsl(0 0% 100%))', color: 'var(--foreground, hsl(240 10% 3.9%))' }}
       >
         {children}
         {!hideCloseButton && (

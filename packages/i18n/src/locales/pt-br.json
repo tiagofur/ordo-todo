@@ -528,6 +528,76 @@
       "deleteError": "Erro ao excluir projeto"
     }
   },
+  "Breadcrumbs": {
+    "home": "Início"
+  },
+  "ProjectDetail": {
+    "notFound": "Projeto não encontrado",
+    "notFoundDescription": "O projeto que você procura não existe ou foi excluído.",
+    "backToProjects": "Voltar para Projetos",
+    "addTask": "Nova Tarefa",
+    "tasksSection": "Tarefas do Projeto",
+    "breadcrumbs": {
+      "projects": "Projetos"
+    },
+    "badges": {
+      "archived": "Arquivado",
+      "completed": "Concluído"
+    },
+    "stats": {
+      "task": "tarefa",
+      "tasks": "tarefas",
+      "totalTasks": "Total de Tarefas",
+      "completedTasks": "Concluídas",
+      "completed": "concluídas"
+    },
+    "status": {
+      "todo": "A Fazer",
+      "inProgress": "Em Progresso",
+      "completed": "Concluídas"
+    },
+    "tabs": {
+      "overview": "Visão Geral",
+      "list": "Lista",
+      "board": "Quadro",
+      "timeline": "Linha do Tempo",
+      "files": "Arquivos"
+    },
+    "overview": {
+      "progress": "Progresso",
+      "recentTasks": "Tarefas Recentes"
+    },
+    "actions": {
+      "archive": "arquivar",
+      "unarchive": "desarquivar"
+    },
+    "menu": {
+      "settings": "Configurações",
+      "markComplete": "Marcar como Concluído",
+      "markIncomplete": "Marcar como Incompleto",
+      "archive": "Arquivar",
+      "unarchive": "Desarquivar",
+      "delete": "Excluir"
+    },
+    "emptyState": {
+      "title": "Sem tarefas",
+      "description": "Este projeto ainda não tem tarefas. Crie a primeira para começar.",
+      "archivedDescription": "Este projeto está arquivado e não tem tarefas.",
+      "completedDescription": "Este projeto está concluído e não tem tarefas pendentes."
+    },
+    "confirmArchive": "Tem certeza de que deseja",
+    "confirmComplete": "Marcar este projeto como concluído?",
+    "confirmUncomplete": "Marcar este projeto como incompleto?",
+    "confirmDelete": "Excluir este projeto? Esta ação não pode ser desfeita.",
+    "toast": {
+      "archived": "Projeto arquivado",
+      "archiveError": "Erro ao arquivar projeto",
+      "completed": "Projeto concluído",
+      "uncompleted": "Projeto marcado como incompleto",
+      "completeError": "Erro ao concluir projeto",
+      "deleted": "Projeto excluído"
+    }
+  },
   "WorkspaceCard": {
     "types": {
       "PERSONAL": "Pessoal",
@@ -1232,74 +1302,6 @@
     "toast": {
       "updated": "Configurações atualizadas com sucesso",
       "updateError": "Erro ao atualizar configurações"
-    }
-  },
-  "ProjectDetail": {
-    "notFound": "Projeto não encontrado",
-    "notFoundDescription": "O projeto que você está procurando não existe ou foi excluído.",
-    "backToWorkspace": "Voltar ao Workspace",
-    "addTask": "Nova Tarefa",
-    "tasksSection": "Tarefas",
-    "tabs": {
-      "overview": "Visão Geral",
-      "list": "Lista",
-      "board": "Quadro",
-      "timeline": "Linha do Tempo",
-      "settings": "Configurações"
-    },
-    "stats": {
-      "totalTasks": "Total de Tarefas",
-      "completedTasks": "Concluídas",
-      "task": "tarefa",
-      "tasks": "tarefas",
-      "completed": "concluídas"
-    },
-    "status": {
-      "todo": "A Fazer",
-      "inProgress": "Em Progresso",
-      "completed": "Concluídas"
-    },
-    "badges": {
-      "archived": "Arquivado",
-      "completed": "Concluído"
-    },
-    "menu": {
-      "settings": "Configurações",
-      "archive": "Arquivar",
-      "unarchive": "Desarquivar",
-      "delete": "Excluir",
-      "markComplete": "Marcar como concluído",
-      "markIncomplete": "Marcar como não concluído"
-    },
-    "actions": {
-      "archive": "arquivar",
-      "unarchive": "desarquivar"
-    },
-    "confirmArchive": "Tem certeza de que deseja",
-    "confirmComplete": "Tem certeza de que deseja marcar este projeto como concluído?",
-    "confirmUncomplete": "Tem certeza de que deseja marcar este projeto como não concluído?",
-    "confirmDelete": "Tem certeza de que deseja excluir este projeto? Esta ação não pode ser desfeita.",
-    "toast": {
-      "archived": "Projeto arquivado com sucesso",
-      "archiveError": "Erro ao arquivar o projeto",
-      "deleted": "Projeto excluído com sucesso",
-      "completed": "Projeto marcado como concluído",
-      "uncompleted": "Projeto marcado como não concluído",
-      "completeError": "Erro ao atualizar o status do projeto"
-    },
-    "backToProjects": "Voltar aos Projetos",
-    "emptyState": {
-      "title": "Nenhuma tarefa ainda",
-      "description": "Crie sua primeira tarefa para começar a trabalhar neste projeto.",
-      "archivedDescription": "Este projeto está arquivado. Desarquive-o para adicionar tarefas.",
-      "completedDescription": "Este projeto está concluído."
-    },
-    "overview": {
-      "progress": "Progresso",
-      "recentTasks": "Tarefas Recentes"
-    },
-    "breadcrumbs": {
-      "projects": "Projetos"
     }
   },
   "ProjectBoard": {

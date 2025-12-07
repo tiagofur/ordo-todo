@@ -1,0 +1,32 @@
+/**
+ * Ordo-Todo Shared Styles
+ * 
+ * This is the main entry point for shared styles.
+ * Import this file in your app's main CSS file after Tailwind.
+ * 
+ * Usage in apps/web/src/app/globals.css:
+ * ```css
+ * @import "tailwindcss";
+ * @import "@ordo-todo/styles";
+ * ```
+ * 
+ * Or import individual parts:
+ * ```css
+ * @import "@ordo-todo/styles/variables";
+ * @import "@ordo-todo/styles/theme";
+ * @import "@ordo-todo/styles/base";
+ * @import "@ordo-todo/styles/components";
+ * ```
+ */
+
+/* CSS Variables (light & dark themes) */
+@import "./variables.css";
+
+/* Tailwind v4 @theme inline mappings */
+@import "./theme.css";
+
+/* Base styles */
+@import "./base.css";
+
+/* Component utilities */
+@import "./components.css";

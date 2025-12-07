@@ -1328,5 +1328,8 @@
     "loading": "Loading task...",
     "completeTask": "Complete Task",
     "exit": "Exit Focus Mode"
+  },
+  "Breadcrumbs": {
+    "home": "Home"
   }
 }

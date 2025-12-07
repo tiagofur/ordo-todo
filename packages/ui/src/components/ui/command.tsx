@@ -18,6 +18,7 @@ const Command = React.forwardRef<
       "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
       className
     )}
+    style={{ backgroundColor: 'var(--popover, hsl(0 0% 100%))', color: 'var(--popover-foreground, hsl(240 10% 3.9%))' }}
     {...props}
   />
 ))
