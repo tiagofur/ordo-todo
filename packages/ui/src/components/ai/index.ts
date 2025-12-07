@@ -5,3 +5,5 @@
  */
 
 export * from './generate-report-dialog.js';
+export * from './report-card.js';
+

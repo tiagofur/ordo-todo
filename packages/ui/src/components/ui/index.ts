@@ -35,3 +35,5 @@ export * from "./switch.js";
 export * from "./table.js";
 export * from "./tabs.js";
 export * from "./textarea.js";
+export * from "./tooltip.js";
+

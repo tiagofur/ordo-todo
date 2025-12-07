@@ -7,14 +7,13 @@
  * - task: Task management components
  * - project: Project and Kanban components
  * - workspace: Workspace management
- * - workflow: Workflow organization
+ * - dashboard: Dashboard widgets
  * - tag: Tag/label components
  * - analytics: Charts and metrics
  * - ai: AI assistant components
  * - auth: Authentication
  * - layout: App layout components
  * - shared: Shared utilities
- * - voice: Voice input
  */
 
 // Base UI Components
@@ -31,10 +30,7 @@ export * from './tag/index.js';
 export * from './workspace/index.js';
 export * from './auth/index.js';
 export * from './ai/index.js';
-
-// Future phases
-// export * from './workflow';
-// export * from './layout';
-// export * from './shared';
-// export * from './voice';
+export * from './layout/index.js';
+export * from './shared/index.js';
+export * from './dashboard/index.js';
 

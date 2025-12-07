@@ -102,28 +102,30 @@
 
 | Categoría | Migrados | Pendientes | Estado |
 |-----------|----------|------------|--------|
-| **UI Base** | 30 | 0 | ✅ Completo |
+| **UI Base** | 31 | 0 | ✅ Completo (+tooltip) |
 | **Timer** | 4 | 0 | ✅ Completo (props-driven) |
 | **Task** | 15 | 0 | ✅ Completo (props-driven) |
 | **Project** | 11 | 0 | ✅ Completo (props-driven) |
 | **Analytics** | 7 | 0 | ✅ Completo (props-driven) |
 | **Tag** | 3 | 0 | ✅ Completo |
-| **Workspace** | 0 | 11 | 🔴 Pendiente (Fase 3) |
-| **Layout** | 0 | 4 | 🔴 Pendiente (Fase 3) |
-| **Auth** | 0 | 2 | 🔴 Pendiente (Fase 3) |
-| **AI** | 0 | 5 | 🔴 Pendiente (Fase 3) |
+| **Workspace** | 3 | 0 | ✅ Completo (props-driven) |
+| **Auth** | 1 | 0 | ✅ Completo (props-driven) |
+| **AI** | 2 | 0 | ✅ Completo (+report-card) |
+| **Layout** | 2 | 0 | ✅ Completo (props-driven) |
+| **Shared** | 6 | 0 | ✅ Completo (+dialogs, sync) |
+| **Dashboard** | 5 | 0 | ✅ Completo (NEW from desktop) |
 
 ### Fases del Proceso
 
 - [x] **Fase 1:** Migrar 30 componentes UI base ✅
 - [x] **Fase 2:** Migrar componentes dominio (task, project, analytics, timer) ✅
-- [x] **Fase 3:** Migrar workspace, auth, ai ✅ (parcial - layout, shared pendientes)
+- [x] **Fase 3:** Migrar workspace, auth, ai, layout, shared, dashboard ✅ (incluyendo componentes de desktop)
 - [ ] **Fase 4:** Actualizar imports en apps (web + desktop)
 - [ ] **Fase 5:** Crear @ordo-todo/stores
 - [ ] **Fase 6:** Migrar utilidades
 - [ ] **Fase 7:** Testing con Storybook
 
-> **✅ Logro:** `packages/ui` compila sin errores. Componentes workspace, auth y ai migrados a platform-agnostic.
+> **✅ Logros:** `packages/ui` compila sin errores. **90+ componentes** migrados a platform-agnostic con patrón props-driven. Incluye componentes únicos de desktop (dashboard widgets, sync indicator, dialogs).
 
 ## 📱 Desktop App - Estado
 

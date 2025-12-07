@@ -1,0 +1,155 @@
+'use client';
+
+import { type ReactNode } from 'react';
+import { Search, Sparkles } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu.js';
+import { Button } from '../ui/button.js';
+
+interface TopBarUser {
+  name?: string | null;
+  email?: string | null;
+  level?: number;
+  xp?: number;
+  image?: string | null;
+}
+
+interface TopBarProps {
+  user?: TopBarUser | null;
+  onLogout?: () => void;
+  onSearchChange?: (query: string) => void;
+  onAICopilotClick?: () => void;
+  onProfileClick?: () => void;
+  onSettingsClick?: () => void;
+  /** Notifications component */
+  renderNotifications?: () => ReactNode;
+  /** Sync status indicator component */
+  renderSyncStatus?: () => ReactNode;
+  labels?: {
+    searchPlaceholder?: string;
+    myAccount?: string;
+    profile?: string;
+    settings?: string;
+    logout?: string;
+    aiCopilot?: string;
+    level?: string;
+  };
+}
+
+const DEFAULT_LABELS = {
+  searchPlaceholder: 'Search tasks, projects...',
+  myAccount: 'My Account',
+  profile: 'Profile',
+  settings: 'Settings',
+  logout: 'Log out',
+  aiCopilot: 'Ordo AI Copilot',
+  level: 'Lvl',
+};
+
+export function TopBar({
+  user,
+  onLogout,
+  onSearchChange,
+  onAICopilotClick,
+  onProfileClick,
+  onSettingsClick,
+  renderNotifications,
+  renderSyncStatus,
+  labels = {},
+}: TopBarProps) {
+  const t = { ...DEFAULT_LABELS, ...labels };
+
+  const userInitial = user?.name?.[0]?.toUpperCase() || 'U';
+  const userName = user?.name || 'User';
+  const userLevel = user?.level ?? 1;
+  const userXp = user?.xp ?? 0;
+  const xpProgress = Math.min(100, userXp % 100);
+
+  return (
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background px-6">
+      {/* Search */}
+      <div className="flex flex-1 items-center gap-2">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="search"
+            placeholder={t.searchPlaceholder}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background"
+          />
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        {/* Level & XP */}
+        <div className="hidden md:flex items-center gap-3 mr-2 px-3 py-1.5 rounded-lg bg-muted/30 border border-border/50">
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-primary">
+                {t.level} {userLevel}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {userXp} XP
+              </span>
+            </div>
+            <div className="w-20 h-1.5 bg-secondary rounded-full overflow-hidden mt-1">
+              <div
+                className="h-full bg-yellow-500 rounded-full transition-all duration-500"
+                style={{ width: `${xpProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Sync Status */}
+        {renderSyncStatus?.()}
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20 h-10 w-10 rounded-xl"
+          title={t.aiCopilot}
+          onClick={onAICopilotClick}
+        >
+          <Sparkles className="h-5 w-5" />
+        </Button>
+
+        {/* Notifications */}
+        {renderNotifications?.()}
+
+        {/* User Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex h-10 items-center gap-2 rounded-xl px-3 transition-all duration-200 hover:bg-muted/50">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+                {userInitial}
+              </div>
+              <span className="hidden text-sm font-medium md:inline-block">
+                {userName}
+              </span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>{t.myAccount}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onProfileClick}>
+              {t.profile}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onSettingsClick}>
+              {t.settings}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onLogout}>{t.logout}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
