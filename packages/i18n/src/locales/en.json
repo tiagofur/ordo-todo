@@ -1,4 +1,15 @@
 {
+  "Calendar": {
+    "title": "Calendar",
+    "subtitle": "View and manage your tasks over time",
+    "today": "Today",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "previous": "Previous",
+    "next": "Next"
+  },
   "Sidebar": {
     "today": "Today",
     "tasks": "Tasks",
@@ -1330,5 +1341,14 @@
     "loading": "Loading task...",
     "completeTask": "Complete Task",
     "exit": "Exit Focus Mode"
+  },
+  "ProjectFiles": {
+    "empty": "No files in this project.",
+    "name": "Name",
+    "task": "Task",
+    "size": "Size",
+    "uploadedBy": "Uploaded By",
+    "date": "Date",
+    "actions": "Actions"
   }
 }

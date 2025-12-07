@@ -35,7 +35,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
+
+  /* Ring offset - CRITICAL for form focus states */
+  --color-ring-offset-background: var(--background);
+
   /* Chart Colors */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
