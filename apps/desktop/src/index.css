@@ -5,16 +5,15 @@
  */
 
 @import "tailwindcss";
-@plugin "tailwindcss-animate";
-
-/* Configure dark mode variant */
-@custom-variant dark (&:is(.dark *));
-
-/* Import shared styles from @ordo-todo/styles */
 @import "@ordo-todo/styles/src/variables.css";
 @import "@ordo-todo/styles/src/theme.css";
 @import "@ordo-todo/styles/src/base.css";
 @import "@ordo-todo/styles/src/components.css";
+
+@plugin "tailwindcss-animate";
+
+/* Configure dark mode variant */
+@custom-variant dark (&:is(.dark *));
 
 /* Desktop-specific overrides or additions can go here */
 /* Example: Electron-specific styles, native menu integrations, etc. */
