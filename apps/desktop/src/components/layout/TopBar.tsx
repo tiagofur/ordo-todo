@@ -1,4 +1,6 @@
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search, User, Settings, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../providers/auth-provider";
 import {
   DropdownMenu,
@@ -10,6 +12,7 @@ import {
 } from "../ui/dropdown-menu";
 
 export function TopBar() {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
 
   return (
@@ -20,7 +23,7 @@ export function TopBar() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
-            placeholder="Buscar tareas, proyectos..."
+            placeholder={t("TopBar.searchPlaceholder")}
             className="h-10 w-full rounded-lg border bg-background pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
@@ -47,13 +50,24 @@ export function TopBar() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("TopBar.myAccount")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            <DropdownMenuItem>Configuración</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                <User className="h-4 w-4" />
+                {t("TopBar.profile")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
+                <Settings className="h-4 w-4" />
+                {t("TopBar.settings")}
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}>
-              Cerrar Sesión
+            <DropdownMenuItem onClick={logout} className="flex items-center gap-2 cursor-pointer">
+              <LogOut className="h-4 w-4" />
+              {t("TopBar.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -61,3 +75,4 @@ export function TopBar() {
     </header>
   );
 }
+

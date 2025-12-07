@@ -1351,5 +1351,189 @@
     "uploadedBy": "Enviado por",
     "date": "Data",
     "actions": "Ações"
+  },
+  "Profile": {
+    "title": "Configurações de Perfil",
+    "tabs": {
+      "profile": "Perfil",
+      "ai": "IA",
+      "security": "Segurança",
+      "privacy": "Privacidade",
+      "integrations": "Integrações",
+      "subscription": "Assinatura",
+      "account": "Conta"
+    },
+    "profile": {
+      "title": "Informações do Perfil",
+      "description": "Atualize suas informações pessoais e preferências",
+      "avatar": {
+        "change": "Alterar Avatar",
+        "hint": "JPG, PNG ou GIF. Máx 2MB."
+      },
+      "form": {
+        "name": "Nome Completo",
+        "namePlaceholder": "João Silva",
+        "email": "Email",
+        "emailHint": "O email não pode ser alterado",
+        "phone": "Telefone",
+        "phonePlaceholder": "+55 11 9999-9999",
+        "jobTitle": "Cargo",
+        "jobTitlePlaceholder": "Gerente de Produto",
+        "department": "Departamento",
+        "departmentPlaceholder": "Engenharia",
+        "timezone": "Fuso Horário",
+        "timezonePlaceholder": "Selecione o fuso horário",
+        "bio": "Biografia",
+        "bioPlaceholder": "Conte um pouco sobre você..."
+      },
+      "save": "Salvar Alterações",
+      "saving": "Salvando..."
+    },
+    "ai": {
+      "title": "IA e Produtividade",
+      "description": "Configure como a IA ajuda você a ser mais produtivo",
+      "enableAI": "Habilitar Recursos de IA",
+      "enableAIDescription": "Permitir que a IA analise suas tarefas e forneça sugestões",
+      "suggestions": {
+        "title": "Sugestões de IA",
+        "durations": "Sugerir durações de tarefas",
+        "priorities": "Sugerir prioridades",
+        "scheduling": "Sugerir agendamento ideal",
+        "weeklyReports": "Relatórios semanais de produtividade com IA"
+      },
+      "aggressiveness": {
+        "title": "Agressividade da IA",
+        "description": "Com que frequência a IA deve sugerir mudanças",
+        "conservative": "Conservador",
+        "proactive": "Proativo"
+      },
+      "energy": {
+        "title": "Perfil de Energia",
+        "description": "A IA usa isso para agendar tarefas exigentes durante seus horários de pico",
+        "morning": "Energia Matinal",
+        "afternoon": "Energia à Tarde",
+        "evening": "Energia à Noite",
+        "levels": {
+          "low": "Baixa",
+          "medium": "Média",
+          "high": "Alta"
+        }
+      },
+      "save": "Salvar Preferências de IA",
+      "saving": "Salvando..."
+    },
+    "security": {
+      "title": "Segurança",
+      "description": "Gerencie as configurações de segurança da sua conta",
+      "password": {
+        "title": "Senha",
+        "lastChanged": "Última alteração: {time}",
+        "change": "Alterar Senha"
+      },
+      "twoFactor": {
+        "title": "Autenticação de Dois Fatores",
+        "description": "Adicione uma camada extra de segurança à sua conta",
+        "comingSoon": "Em Breve"
+      },
+      "connectedAccounts": {
+        "title": "Contas Conectadas",
+        "connected": "Conectada"
+      },
+      "activeSessions": {
+        "title": "Sessões Ativas",
+        "currentSession": "Sessão Atual",
+        "thisDevice": "Este dispositivo",
+        "active": "Ativa"
+      }
+    },
+    "privacy": {
+      "title": "Privacidade e Dados",
+      "description": "Controle como seus dados são usados e compartilhados",
+      "dataSharing": {
+        "title": "Compartilhamento de Dados",
+        "analytics": "Compartilhar análises de uso",
+        "analyticsDescription": "Ajude a melhorar o Ordo-Todo com dados anônimos de uso",
+        "activityStatus": "Mostrar status de atividade",
+        "activityStatusDescription": "Permitir que colegas vejam quando você está trabalhando em tarefas"
+      },
+      "emailNotifications": {
+        "title": "Notificações por Email",
+        "taskReminders": "Lembretes de tarefas por email",
+        "weeklyDigest": "Resumo semanal de produtividade",
+        "marketing": "Atualizações de marketing e produto"
+      },
+      "save": "Salvar Configurações de Privacidade",
+      "saving": "Salvando..."
+    },
+    "integrations": {
+      "title": "Integrações",
+      "description": "Conecte com serviços de terceiros",
+      "connect": "Conectar",
+      "comingSoon": "Em Breve",
+      "providers": {
+        "googleCalendar": {
+          "name": "Google Calendar",
+          "description": "Sincronize tarefas com datas de vencimento para seu calendário"
+        },
+        "slack": {
+          "name": "Slack",
+          "description": "Crie tarefas a partir de mensagens do Slack, receba notificações"
+        },
+        "github": {
+          "name": "GitHub",
+          "description": "Sincronize issues e pull requests"
+        }
+      }
+    },
+    "subscription": {
+      "title": "Assinatura e Faturamento",
+      "description": "Gerencie sua assinatura e detalhes de faturamento",
+      "currentPlan": "Plano Atual",
+      "upgrade": "Atualizar para Pro",
+      "features": {
+        "unlimitedTasks": "Tarefas ilimitadas",
+        "workspaces": "{count} espaços de trabalho",
+        "basicAI": "Sugestões básicas de IA",
+        "advancedAnalytics": "Análises avançadas",
+        "teamCollaboration": "Colaboração em equipe"
+      },
+      "billingHistory": {
+        "title": "Histórico de Faturamento",
+        "empty": "Nenhum histórico de faturamento disponível"
+      }
+    },
+    "account": {
+      "title": "Configurações da Conta",
+      "description": "Gerencie os dados e configurações da sua conta",
+      "export": {
+        "title": "Exportar Seus Dados",
+        "description": "Baixe todos os seus dados incluindo tarefas, projetos, sessões de tempo e configurações em formato JSON",
+        "button": "Solicitar Exportação",
+        "exporting": "Exportando..."
+      },
+      "delete": {
+        "title": "Excluir Conta",
+        "description": "Exclua permanentemente sua conta e todos os dados associados. Esta ação não pode ser desfeita.",
+        "button": "Excluir Conta",
+        "deleting": "Excluindo...",
+        "dialog": {
+          "title": "Excluir Conta",
+          "description": "Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta e removerá todos os seus dados dos nossos servidores.",
+          "cancel": "Cancelar",
+          "confirm": "Excluir Conta"
+        }
+      }
+    },
+    "toast": {
+      "profileUpdated": "Perfil atualizado com sucesso!",
+      "profileError": "Falha ao atualizar perfil",
+      "aiUpdated": "Preferências de IA atualizadas com sucesso!",
+      "aiError": "Falha ao atualizar preferências de IA",
+      "privacyUpdated": "Configurações de privacidade atualizadas com sucesso!",
+      "privacyError": "Falha ao atualizar configurações de privacidade",
+      "exportStarted": "Exportação de dados iniciada! O download começará em breve.",
+      "exportError": "Falha ao exportar dados",
+      "deleteError": "Falha ao excluir conta"
+    }
   }
 }

@@ -94,6 +94,10 @@ export const LazySettings = lazy(() =>
   import('./Settings').then(module => ({ default: module.Settings }))
 );
 
+export const LazyProfile = lazy(() => 
+  import('./Profile').then(module => ({ default: module.Profile }))
+);
+
 export const LazyAuth = lazy(() => 
   import('./Auth').then(module => ({ default: module.Auth }))
 );
@@ -123,6 +127,7 @@ export const preloadPage = {
   analytics: () => import('./Analytics'),
   tags: () => import('./Tags'),
   settings: () => import('./Settings'),
+  profile: () => import('./Profile'),
   auth: () => import('./Auth'),
 };
 

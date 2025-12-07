@@ -11,6 +11,7 @@ import {
   LazyAnalytics,
   LazyTags,
   LazySettings,
+  LazyProfile,
   LazyAuth,
   LazyTimerFloating,
   LazyCalendar,
@@ -142,6 +143,14 @@ export const router = createHashRouter([
         element: (
           <LazyPage fallback={<PageLoader message="Loading settings..." />}>
             <LazySettings />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading profile..." />}>
+            <LazyProfile />
           </LazyPage>
         ),
       },

@@ -1350,5 +1350,189 @@
     "uploadedBy": "Uploaded By",
     "date": "Date",
     "actions": "Actions"
+  },
+  "Profile": {
+    "title": "Profile Settings",
+    "tabs": {
+      "profile": "Profile",
+      "ai": "AI",
+      "security": "Security",
+      "privacy": "Privacy",
+      "integrations": "Integrations",
+      "subscription": "Subscription",
+      "account": "Account"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "description": "Update your personal information and preferences",
+      "avatar": {
+        "change": "Change Avatar",
+        "hint": "JPG, PNG or GIF. Max 2MB."
+      },
+      "form": {
+        "name": "Full Name",
+        "namePlaceholder": "John Doe",
+        "email": "Email",
+        "emailHint": "Email cannot be changed",
+        "phone": "Phone",
+        "phonePlaceholder": "+1 555 0123",
+        "jobTitle": "Job Title",
+        "jobTitlePlaceholder": "Product Manager",
+        "department": "Department",
+        "departmentPlaceholder": "Engineering",
+        "timezone": "Timezone",
+        "timezonePlaceholder": "Select timezone",
+        "bio": "Bio",
+        "bioPlaceholder": "Tell us a bit about yourself..."
+      },
+      "save": "Save Changes",
+      "saving": "Saving..."
+    },
+    "ai": {
+      "title": "AI & Productivity",
+      "description": "Configure how AI helps you be more productive",
+      "enableAI": "Enable AI Features",
+      "enableAIDescription": "Allow AI to analyze your tasks and provide suggestions",
+      "suggestions": {
+        "title": "AI Suggestions",
+        "durations": "Suggest task durations",
+        "priorities": "Suggest priorities",
+        "scheduling": "Suggest optimal scheduling",
+        "weeklyReports": "Weekly AI productivity reports"
+      },
+      "aggressiveness": {
+        "title": "AI Aggressiveness",
+        "description": "How often AI should suggest changes",
+        "conservative": "Conservative",
+        "proactive": "Proactive"
+      },
+      "energy": {
+        "title": "Energy Profile",
+        "description": "AI uses this to schedule demanding tasks during your peak hours",
+        "morning": "Morning Energy",
+        "afternoon": "Afternoon Energy",
+        "evening": "Evening Energy",
+        "levels": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        }
+      },
+      "save": "Save AI Preferences",
+      "saving": "Saving..."
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your account security settings",
+      "password": {
+        "title": "Password",
+        "lastChanged": "Last changed: {time}",
+        "change": "Change Password"
+      },
+      "twoFactor": {
+        "title": "Two-Factor Authentication",
+        "description": "Add an extra layer of security to your account",
+        "comingSoon": "Coming Soon"
+      },
+      "connectedAccounts": {
+        "title": "Connected Accounts",
+        "connected": "Connected"
+      },
+      "activeSessions": {
+        "title": "Active Sessions",
+        "currentSession": "Current Session",
+        "thisDevice": "This device",
+        "active": "Active"
+      }
+    },
+    "privacy": {
+      "title": "Privacy & Data",
+      "description": "Control how your data is used and shared",
+      "dataSharing": {
+        "title": "Data Sharing",
+        "analytics": "Share usage analytics",
+        "analyticsDescription": "Help improve Ordo-Todo with anonymous usage data",
+        "activityStatus": "Show activity status",
+        "activityStatusDescription": "Let teammates see when you are working on tasks"
+      },
+      "emailNotifications": {
+        "title": "Email Notifications",
+        "taskReminders": "Task reminder emails",
+        "weeklyDigest": "Weekly productivity digest",
+        "marketing": "Marketing and product updates"
+      },
+      "save": "Save Privacy Settings",
+      "saving": "Saving..."
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect with third-party services",
+      "connect": "Connect",
+      "comingSoon": "Coming Soon",
+      "providers": {
+        "googleCalendar": {
+          "name": "Google Calendar",
+          "description": "Sync tasks with due dates to your calendar"
+        },
+        "slack": {
+          "name": "Slack",
+          "description": "Create tasks from Slack messages, get notifications"
+        },
+        "github": {
+          "name": "GitHub",
+          "description": "Sync issues and pull requests"
+        }
+      }
+    },
+    "subscription": {
+      "title": "Subscription & Billing",
+      "description": "Manage your subscription and billing details",
+      "currentPlan": "Current Plan",
+      "upgrade": "Upgrade to Pro",
+      "features": {
+        "unlimitedTasks": "Unlimited tasks",
+        "workspaces": "{count} workspaces",
+        "basicAI": "Basic AI suggestions",
+        "advancedAnalytics": "Advanced analytics",
+        "teamCollaboration": "Team collaboration"
+      },
+      "billingHistory": {
+        "title": "Billing History",
+        "empty": "No billing history available"
+      }
+    },
+    "account": {
+      "title": "Account Settings",
+      "description": "Manage your account data and settings",
+      "export": {
+        "title": "Export Your Data",
+        "description": "Download all your data including tasks, projects, time sessions, and settings in JSON format",
+        "button": "Request Export",
+        "exporting": "Exporting..."
+      },
+      "delete": {
+        "title": "Delete Account",
+        "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+        "button": "Delete Account",
+        "deleting": "Deleting...",
+        "dialog": {
+          "title": "Delete Account",
+          "description": "This action cannot be undone. This will permanently delete your account and remove all your data from our servers.",
+          "cancel": "Cancel",
+          "confirm": "Delete Account"
+        }
+      }
+    },
+    "toast": {
+      "profileUpdated": "Profile updated successfully!",
+      "profileError": "Failed to update profile",
+      "aiUpdated": "AI preferences updated successfully!",
+      "aiError": "Failed to update AI preferences",
+      "privacyUpdated": "Privacy preferences updated successfully!",
+      "privacyError": "Failed to update privacy preferences",
+      "exportStarted": "Data export started! The download will begin shortly.",
+      "exportError": "Failed to export data",
+      "deleteError": "Failed to delete account"
+    }
   }
 }
