@@ -1,4 +1,15 @@
 {
+  "Calendar": {
+    "title": "Calendário",
+    "subtitle": "Visualize e gerencie suas tarefas ao longo do tempo",
+    "today": "Hoje",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia",
+    "agenda": "Agenda",
+    "previous": "Anterior",
+    "next": "Próximo"
+  },
   "Sidebar": {
     "today": "Hoje",
     "tasks": "Tarefas",
@@ -1331,6 +1342,14 @@
     "loading": "Carregando tarefa...",
     "completeTask": "Concluir Tarefa",
     "exit": "Sair do Modo Foco"
+  },
+  "ProjectFiles": {
+    "empty": "Não há arquivos neste projeto.",
+    "name": "Nome",
+    "task": "Tarefa",
+    "size": "Tamanho",
+    "uploadedBy": "Enviado por",
+    "date": "Data",
+    "actions": "Ações"
   }
-
 }
