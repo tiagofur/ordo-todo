@@ -4,7 +4,10 @@
       "Bash(do sed -i 's|@/components/ui/|./|g' \"$file\")",
       "Bash(do sed -i 's|from \"\"../../utils\"\"|from \"\"../../utils/index.js\"\"|g' \"$file\")",
       "Bash(do sed -i -E 's|from \"\"\\./([a-z-]+)\"\"|from \"\"./\\1.js\"\"|g' \"$file\")",
-      "Bash(do sed -i 's|@/components/ui/|../ui/|g' \"$file\")"
+      "Bash(do sed -i 's|@/components/ui/|../ui/|g' \"$file\")",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

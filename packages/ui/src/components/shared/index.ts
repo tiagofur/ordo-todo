@@ -10,4 +10,5 @@ export * from './loading.js';
 export * from './about-dialog.js';
 export * from './shortcuts-dialog.js';
 export * from './sync-status-indicator.js';
+export * from './profile-tabs.js';
 
