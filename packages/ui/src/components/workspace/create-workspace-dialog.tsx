@@ -13,6 +13,9 @@ import {
   DialogTitle,
 } from '../ui/dialog.js';
 import { Label } from '../ui/label.js';
+import { Input } from '../ui/input.js';
+import { Textarea } from '../ui/textarea.js';
+import { Button } from '../ui/button.js';
 import { Building2, Home, Users } from 'lucide-react';
 import { createWorkspaceSchema } from '@ordo-todo/core';
 
@@ -241,14 +244,13 @@ export function CreateWorkspaceDialog({
               <Label htmlFor="name" className="text-sm font-medium text-foreground">
                 {t.form.name}
               </Label>
-              <input
+              <Input
                 id="name"
                 {...register('name')}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder={t.form.namePlaceholder}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
+                <p className="text-sm text-destructive">{errors.name.message}</p>
               )}
             </div>
 
@@ -260,29 +262,28 @@ export function CreateWorkspaceDialog({
               >
                 {t.form.description}
               </Label>
-              <textarea
+              <Textarea
                 id="description"
                 {...register('description')}
-                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 placeholder={t.form.descriptionPlaceholder}
+                className="min-h-[100px] resize-none"
               />
             </div>
 
             <DialogFooter className="pt-2">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t.buttons.cancel}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex items-center justify-center rounded-md text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl h-10 px-6 py-2"
               >
                 {isPending ? t.buttons.creating : t.buttons.create}
-              </button>
+              </Button>
             </DialogFooter>
           </form>
         </div>

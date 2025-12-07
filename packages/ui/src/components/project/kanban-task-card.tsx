@@ -89,7 +89,7 @@ export function KanbanTaskCard({ task, index = 0 }: KanbanTaskCardProps) {
                 {t('actions.viewEdit')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* Add delete handler */ }} className="text-red-600">
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* Add delete handler */ }} className="text-destructive focus:text-destructive">
                 <Trash2 className="mr-2 h-3.5 w-3.5" />
                 {t('actions.delete')}
               </DropdownMenuItem>

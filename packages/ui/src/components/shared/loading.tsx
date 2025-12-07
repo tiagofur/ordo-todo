@@ -25,7 +25,7 @@ export function LoadingOverlay({
         className="
           flex flex-col justify-center items-center
           absolute top-0 left-0 w-full h-full gap-4
-          bg-black/90 text-center z-50
+          bg-background/95 text-center z-50
         "
       >
         {renderLogo ? (
@@ -33,7 +33,7 @@ export function LoadingOverlay({
         ) : (
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         )}
-        <span className="font-light text-zinc-500">{text}</span>
+        <span className="font-light text-muted-foreground">{text}</span>
       </div>
     </div>
   );

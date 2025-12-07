@@ -214,7 +214,7 @@ export function TaskCard({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleDelete}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   {deleteLabel}

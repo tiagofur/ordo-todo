@@ -213,7 +213,7 @@ export function SyncStatusIndicator({
               {statusInfo.description}
             </p>
             {failedChanges > 0 && (
-              <p className="text-xs text-red-500">
+              <p className="text-xs text-destructive">
                 {t.failedChanges(failedChanges)}
               </p>
             )}
