@@ -13,6 +13,9 @@ import {
   DialogTitle,
 } from '../ui/dialog.js';
 import { Label } from '../ui/label.js';
+import { Input } from '../ui/input.js';
+import { Textarea } from '../ui/textarea.js';
+import { Button } from '../ui/button.js';
 import { EmptyState } from '../ui/empty-state.js';
 import { ScrollArea } from '../ui/scroll-area.js';
 import { Briefcase, Check, Palette, LayoutTemplate } from 'lucide-react';
@@ -337,14 +340,13 @@ export function CreateProjectDialog({
                   <Label htmlFor="name" className="text-sm font-medium text-foreground">
                     {nameLabel}
                   </Label>
-                  <input
+                  <Input
                     id="name"
                     {...register('name')}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder={namePlaceholder}
                   />
                   {errors.name && (
-                    <p className="text-sm text-red-500">{errors.name.message}</p>
+                    <p className="text-sm text-destructive">{errors.name.message}</p>
                   )}
                 </div>
 
@@ -366,7 +368,7 @@ export function CreateProjectDialog({
                       ))}
                     </select>
                     {errors.workspaceId && (
-                      <p className="text-sm text-red-500">{errors.workspaceId.message}</p>
+                      <p className="text-sm text-destructive">{errors.workspaceId.message}</p>
                     )}
                   </div>
                 )}
@@ -376,11 +378,11 @@ export function CreateProjectDialog({
                   <Label htmlFor="description" className="text-sm font-medium text-foreground">
                     {descriptionLabel}
                   </Label>
-                  <textarea
+                  <Textarea
                     id="description"
                     {...register('description')}
-                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                     placeholder={descriptionPlaceholder}
+                    className="min-h-[100px] resize-none"
                   />
                 </div>
 
@@ -388,20 +390,19 @@ export function CreateProjectDialog({
                 {workspaceId && <input type="hidden" {...register('workspaceId')} />}
 
                 <DialogFooter className="pt-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => onOpenChange(false)}
-                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {cancel}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={isPending}
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
                   >
                     {isPending ? creating : create}
-                  </button>
+                  </Button>
                 </DialogFooter>
               </form>
             </>

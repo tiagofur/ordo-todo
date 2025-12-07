@@ -396,7 +396,7 @@ export function SessionHistory({
                           {session.wasCompleted ? (
                             <CheckCircle2 className="h-4 w-4 text-green-500" />
                           ) : session.wasInterrupted ? (
-                            <XCircle className="h-4 w-4 text-red-500" />
+                            <XCircle className="h-4 w-4 text-destructive" />
                           ) : null}
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
