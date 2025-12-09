@@ -5,6 +5,7 @@ import { useSessionHistory, useTimerStats } from "@/lib/api-hooks";
 import { subDays } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
+import { type TimeSession } from "@ordo-todo/api-client";
 import { 
   SessionHistory as SessionHistoryUI, 
   type SessionHistoryFilters,
@@ -44,7 +45,7 @@ export function SessionHistory() {
 
   // Map API response to component types
   const mappedHistoryData: SessionHistoryData | undefined = historyData ? {
-    sessions: historyData.sessions.map(session => ({
+    sessions: historyData.sessions.map((session: TimeSession) => ({
       id: session.id,
       type: session.type,
       startedAt: session.startedAt,

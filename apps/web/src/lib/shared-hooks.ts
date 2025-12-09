@@ -22,7 +22,9 @@
 'use client';
 
 import { createHooks, queryKeys, type ApiClient } from '@ordo-todo/hooks';
+import { UseQueryResult } from '@tanstack/react-query';
 import { apiClient } from './api-client';
+import type { GetSessionsParams, PaginatedSessionsResponse, GetDailyMetricsParams } from '@ordo-todo/api-client';
 
 // Re-export query keys for direct use
 export { queryKeys };
@@ -118,8 +120,8 @@ export function useStopTimer() { return getHooks().useStopTimer(); }
 export function usePauseTimer() { return getHooks().usePauseTimer(); }
 export function useResumeTimer() { return getHooks().useResumeTimer(); }
 export function useSwitchTask() { return getHooks().useSwitchTask(); }
-export function useSessionHistory(params?: { page?: number; limit?: number; startDate?: string; endDate?: string; type?: string; completedOnly?: boolean }) {
-  return getHooks().useSessionHistory(params);
+export function useSessionHistory(params?: GetSessionsParams): UseQueryResult<PaginatedSessionsResponse, Error> {
+  return getHooks().useSessionHistory(params) as UseQueryResult<PaginatedSessionsResponse, Error>;
 }
 export function useTimerStats(params?: { startDate?: string; endDate?: string }) {
   return getHooks().useTimerStats(params);
@@ -127,7 +129,7 @@ export function useTimerStats(params?: { startDate?: string; endDate?: string })
 export function useTaskTimeSessions(taskId: string) { return getHooks().useTaskTimeSessions(taskId); }
 
 // Analytics
-export function useDailyMetrics(params?: { date?: string }) { return getHooks().useDailyMetrics(params); }
+export function useDailyMetrics(params?: GetDailyMetricsParams) { return getHooks().useDailyMetrics(params); }
 export function useWeeklyMetrics() { return getHooks().useWeeklyMetrics(); }
 export function useMonthlyMetrics() { return getHooks().useMonthlyMetrics(); }
 export function useDateRangeMetrics(startDate: string, endDate: string) {
@@ -160,13 +162,13 @@ export function useDeleteAttachment() { return getHooks().useDeleteAttachment();
 export function useProjectAttachments(projectId: string) { return getHooks().useProjectAttachments(projectId); }
 
 // Notifications
-export function useNotifications(options?: { limit?: number }) { return getHooks().useNotifications(options); }
+export function useNotifications() { return getHooks().useNotifications(); }
 export function useUnreadNotificationsCount() { return getHooks().useUnreadNotificationsCount(); }
 export function useMarkNotificationAsRead() { return getHooks().useMarkNotificationAsRead(); }
 export function useMarkAllNotificationsAsRead() { return getHooks().useMarkAllNotificationsAsRead(); }
 
 // Utilities
-export function invalidateAllTasks() { return getHooks().invalidateAllTasks(); }
+export function invalidateAllTasks(queryClient: any) { return getHooks().invalidateAllTasks(queryClient); }
 
 // Export the lazy getter for dynamic access
 export { getHooks as hooks };

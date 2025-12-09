@@ -21,8 +21,8 @@ export function TopBar() {
         xp: (user as any)?.xp,
       }}
       onLogout={logout}
-      onProfileClick={() => router.push("/settings/profile")}
-      onSettingsClick={() => router.push("/settings")}
+      onProfileClick={() => router.push("/profile")}
+      onSettingsClick={() => router.push("/profile")}
       onAICopilotClick={() => {
         // TODO: Open AI Copilot
       }}
