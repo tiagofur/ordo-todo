@@ -31,6 +31,8 @@ export interface Task {
   position: number;
   createdAt: Date;
   updatedAt: Date;
+  /** Public sharing token for task */
+  publicToken?: string | null;
 }
 
 export interface TaskWithRelations extends Task {
