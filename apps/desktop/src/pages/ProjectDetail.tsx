@@ -1,12 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, Archive, Trash2, Plus, List, LayoutGrid, Columns } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, cn } from "@ordo-todo/ui";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { TaskCard } from "@/components/task/task-card";
 import { ProjectBoard } from "@/components/project/project-board";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useProject, useArchiveProject, useDeleteProject } from "@/hooks/api/use-projects";
 import { useTasks } from "@/hooks/api/use-tasks";
 

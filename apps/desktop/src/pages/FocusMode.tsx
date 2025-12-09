@@ -2,8 +2,7 @@ import { useTimerContext } from "@/contexts/timer-context";
 import { useTask } from "@/hooks/api";
 import { useNavigate } from "react-router-dom";
 import { Play, Pause, Square, X, Check, SkipForward, Maximize2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button, cn } from "@ordo-todo/ui";
 import { useEffect } from "react";
 
 export default function FocusMode() {

@@ -17,19 +17,22 @@ import {
 } from "lucide-react";
 import { useWorkspaceBySlug, useWorkspaceAuditLogs, useDeleteWorkspace } from "@/hooks/api/use-workspaces";
 import { useProjects } from "@/hooks/api/use-projects";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  cn,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
 import { WorkspaceSettingsDialog } from "@/components/workspace/WorkspaceSettingsDialog";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
 

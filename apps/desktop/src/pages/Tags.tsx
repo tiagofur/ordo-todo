@@ -8,13 +8,13 @@ import { toast } from "sonner";
 import { useTags, useDeleteTag } from "@/hooks/api/use-tags";
 import { useTasks } from "@/hooks/api/use-tasks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { cn } from "@/lib/utils";
 import {
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 
 export function Tags() {
   const { t } = useTranslation();
