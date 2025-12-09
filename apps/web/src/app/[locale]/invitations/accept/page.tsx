@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2, CheckCircle, XCircle, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAcceptInvitation } from "@/lib/api-hooks";
 
 export default function AcceptInvitationPage() {

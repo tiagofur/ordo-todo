@@ -1,7 +1,7 @@
 "use client";
 
 import { usePWA } from "@/components/providers/pwa-provider";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { Download, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 

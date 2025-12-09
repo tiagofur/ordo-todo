@@ -1,17 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DatePicker } from "@/components/ui/date-picker";
+import { Label, Input, Checkbox, DatePicker, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 
 export interface RecurrenceValue {

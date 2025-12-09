@@ -1,19 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
 import { Save } from "lucide-react";
 import { useWorkspaceSettings, useUpdateWorkspaceSettings } from "@/lib/api-hooks";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { useTranslations } from "next-intl";
 
 interface WorkspaceConfigurationSettingsProps {

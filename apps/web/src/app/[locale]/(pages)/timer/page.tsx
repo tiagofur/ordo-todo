@@ -1,12 +1,11 @@
 "use client";
 
 import { AppLayout } from "@/components/shared/app-layout";
+import { TomatoIcon, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 import { SessionHistory } from "@/components/timer/session-history";
 import { Clock } from "lucide-react";
-import { TomatoIcon } from "@/components/ui/custom-icons";
 import { useTimer } from "@/components/providers/timer-provider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TimerPage() {
   const { mode, config } = useTimer();

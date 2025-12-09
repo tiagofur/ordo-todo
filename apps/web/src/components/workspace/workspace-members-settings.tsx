@@ -1,27 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 import { Plus, Mail, User, Shield, Trash2, MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
 
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useWorkspaceMembers, useWorkspaceInvitations, useRemoveWorkspaceMember } from "@/lib/api-hooks";
 import { InviteMemberDialog } from "./invite-member-dialog";
 

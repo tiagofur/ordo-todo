@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/auth-context";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@ordo-todo/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { TimerProvider } from "./timer-provider";

@@ -1,15 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Button, ScrollArea, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { Bell, CheckCheck, Inbox } from "lucide-react";
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from "@/lib/api-hooks";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";

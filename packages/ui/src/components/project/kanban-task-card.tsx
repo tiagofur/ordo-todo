@@ -7,7 +7,6 @@ import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { cn } from "../../utils/index.js";
 import { Badge } from "../ui/badge.js";
-import { useTranslations } from "next-intl";
 import { TaskDetailPanel } from "../task/task-detail-panel.js";
 import {
   DropdownMenu,
@@ -29,18 +28,39 @@ interface KanbanTaskCardProps {
     project?: { id: string; name: string; color: string };
   };
   index?: number;
+  /** Callback when task card is clicked */
+  onTaskClick?: (taskId: string) => void;
+  /** Callback when edit is clicked */
+  onEditClick?: (taskId: string) => void;
+  /** Callback when delete is clicked */
+  onDeleteClick?: (taskId: string) => void;
+  /** Labels for i18n */
+  labels?: {
+    priorityLow?: string;
+    priorityMedium?: string;
+    priorityHigh?: string;
+    priorityUrgent?: string;
+    viewEdit?: string;
+    delete?: string;
+  };
 }
 
-export function KanbanTaskCard({ task, index = 0 }: KanbanTaskCardProps) {
-  const t = useTranslations('TaskCard');
+export function KanbanTaskCard({
+  task,
+  index = 0,
+  onTaskClick,
+  onEditClick,
+  onDeleteClick,
+  labels = {}
+}: KanbanTaskCardProps) {
   const [showDetail, setShowDetail] = useState(false);
   const isCompleted = task.status === "COMPLETED";
 
   const priorityConfig = {
-    LOW: { label: t('priority.LOW'), color: "text-gray-500", bg: "bg-gray-500/10" },
-    MEDIUM: { label: t('priority.MEDIUM'), color: "text-blue-500", bg: "bg-blue-500/10" },
-    HIGH: { label: t('priority.HIGH'), color: "text-orange-500", bg: "bg-orange-500/10" },
-    URGENT: { label: t('priority.URGENT'), color: "text-red-500", bg: "bg-red-500/10" },
+    LOW: { label: labels.priorityLow ?? 'Low', color: "text-gray-500", bg: "bg-gray-500/10" },
+    MEDIUM: { label: labels.priorityMedium ?? 'Medium', color: "text-blue-500", bg: "bg-blue-500/10" },
+    HIGH: { label: labels.priorityHigh ?? 'High', color: "text-orange-500", bg: "bg-orange-500/10" },
+    URGENT: { label: labels.priorityUrgent ?? 'Urgent', color: "text-red-500", bg: "bg-red-500/10" },
   };
 
   const priority = priorityConfig[task.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
@@ -62,7 +82,10 @@ export function KanbanTaskCard({ task, index = 0 }: KanbanTaskCardProps) {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         whileHover={{ y: -2, scale: 1.01 }}
-        onClick={() => setShowDetail(true)}
+        onClick={() => {
+          if (onTaskClick) onTaskClick(String(task.id));
+          setShowDetail(true);
+        }}
         className={cn(
           "group relative flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-4 shadow-sm transition-all cursor-pointer",
           "hover:shadow-md hover:border-primary/20",
@@ -84,14 +107,24 @@ export function KanbanTaskCard({ task, index = 0 }: KanbanTaskCardProps) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowDetail(true); }}>
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation();
+                if (onEditClick) onEditClick(String(task.id));
+                setShowDetail(true);
+              }}>
                 <Edit className="mr-2 h-3.5 w-3.5" />
-                {t('actions.viewEdit')}
+                {labels.viewEdit ?? 'View/Edit'}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* Add delete handler */ }} className="text-destructive focus:text-destructive">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDeleteClick) onDeleteClick(String(task.id));
+                }}
+                className="text-destructive focus:text-destructive"
+              >
                 <Trash2 className="mr-2 h-3.5 w-3.5" />
-                {t('actions.delete')}
+                {labels.delete ?? 'Delete'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

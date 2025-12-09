@@ -1,21 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Button, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle } from "@ordo-todo/ui";
 import { AppLayout } from "@/components/shared/app-layout";
 import { ReportCard } from "@/components/ai/report-card";
 import { ReportDetail } from "@/components/ai/report-detail";
 import { GenerateReportDialog } from "@/components/ai/generate-report-dialog";
 import { useReports } from "@/lib/api-hooks";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Sparkles, ArrowLeft, Calendar, FolderKanban, User } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 export default function ReportsPage() {
   const [selectedScope, setSelectedScope] = useState<string | undefined>(undefined);

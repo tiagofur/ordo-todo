@@ -1,8 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, TrendingUp, CheckCircle2, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTranslations } from "next-intl";

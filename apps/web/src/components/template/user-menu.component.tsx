@@ -5,7 +5,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import UserAvatar from "./user-avatar.component";
 import useSession from "@/data/hooks/use-session.hook";
 import Link from "next/link";

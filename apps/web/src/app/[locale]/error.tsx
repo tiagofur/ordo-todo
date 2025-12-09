@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
 

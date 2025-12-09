@@ -1,6 +1,7 @@
 "use client";
 
 import { useTasks, useUpdateTask } from "@/lib/api-hooks";
+import { Button, EmptyState } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 import {
   Loader2,
@@ -16,8 +17,6 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
 
 interface ProjectListProps {
   projectId: string;

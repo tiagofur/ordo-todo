@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { Button, Progress } from "@ordo-todo/ui";
 import { Upload, File, X, Image as ImageIcon, FileText, Film, Music } from "lucide-react";
 import { useCreateAttachment } from "@/lib/api-hooks";
 import { getToken } from "@/lib/api-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useTranslations } from "next-intl";
 
 interface FileUploadProps {

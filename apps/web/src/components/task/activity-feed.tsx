@@ -15,7 +15,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@ordo-todo/ui";
 import { useTranslations, useLocale } from "next-intl";
 
 interface Activity {

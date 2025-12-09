@@ -1,20 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Label, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@ordo-todo/ui";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateWorkspace } from "@/lib/api-hooks";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Building2, Home, Users } from "lucide-react";
 import { useTranslations } from "next-intl";

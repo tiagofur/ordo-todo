@@ -12,7 +12,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { Task } from "@ordo-todo/api-client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 
 // Setup localizer

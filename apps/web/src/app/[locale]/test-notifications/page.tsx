@@ -1,8 +1,7 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { notify } from '@/lib/notify';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { usePushNotifications } from '@/data/hooks/use-push-notifications.hook';
 import { Bell, CheckCircle2, AlertTriangle, XCircle, Info } from 'lucide-react';
 

@@ -14,7 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePWA } from "@/components/providers/pwa-provider";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { Bell, Download, Keyboard, Wifi, WifiOff } from "lucide-react";
 import { useTranslations } from "next-intl";

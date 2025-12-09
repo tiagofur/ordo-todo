@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Label, EmptyState, ScrollArea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,21 +13,10 @@ import {
   useCreateTask,
 } from "@/lib/api-hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase, Check, Palette, LayoutTemplate } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PROJECT_TEMPLATES, ProjectTemplate } from "@/data/project-templates";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { PROJECT_COLORS, createProjectSchema } from "@ordo-todo/core";
 

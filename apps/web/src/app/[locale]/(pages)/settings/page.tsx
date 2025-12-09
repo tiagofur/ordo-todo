@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { AppLayout } from "@/components/shared/app-layout";
 import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { Label } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
 import { cn } from "@/lib/utils";

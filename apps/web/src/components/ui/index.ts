@@ -4,7 +4,7 @@
  * This file re-exports all UI components from the shared package
  * to maintain backward compatibility with existing imports.
  *
- * Usage: import { Button } from '@/components/ui/button'
+ * Usage: import { Button } from '@ordo-todo/ui'
  * or:    import { Button } from '@ordo-todo/ui'
  */
 

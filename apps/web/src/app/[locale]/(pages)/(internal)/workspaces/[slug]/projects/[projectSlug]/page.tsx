@@ -1,18 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { useParams, useRouter } from "next/navigation";
 import { useProjectBySlug } from "@/hooks/use-projects";
 import { useTasks, useArchiveProject, useDeleteProject } from "@/lib/api-hooks";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   ArrowLeft,
   Plus,

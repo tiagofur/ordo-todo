@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Play, Pause, Square, X, Check, SkipForward, Maximize2, Minimize2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { useTimer } from "@/components/providers/timer-provider";
 import { useTask, useCompleteTask } from "@/lib/api-hooks";

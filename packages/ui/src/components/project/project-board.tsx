@@ -28,11 +28,24 @@ interface ProjectBoardProps {
   onUpdateTask?: (taskId: string, data: any) => void;
   /** Called when add task button is clicked in a column */
   onAddTaskClick?: (status: string) => void;
+  /** Callback when task card is clicked */
+  onTaskClick?: (taskId: string) => void;
+  /** Callback when edit is clicked */
+  onEditClick?: (taskId: string) => void;
+  /** Callback when delete is clicked */
+  onDeleteClick?: (taskId: string) => void;
   /** Custom labels */
   labels?: {
     todo?: string;
     inProgress?: string;
     completed?: string;
+    addTask?: string;
+    priorityLow?: string;
+    priorityMedium?: string;
+    priorityHigh?: string;
+    priorityUrgent?: string;
+    viewEdit?: string;
+    delete?: string;
   };
 }
 
@@ -41,12 +54,22 @@ export function ProjectBoard({
   isLoading = false,
   onUpdateTask,
   onAddTaskClick,
+  onTaskClick,
+  onEditClick,
+  onDeleteClick,
   labels = {},
 }: ProjectBoardProps) {
   const {
     todo = 'To Do',
     inProgress = 'In Progress',
     completed = 'Completed',
+    addTask = 'Add Task',
+    priorityLow = 'Low',
+    priorityMedium = 'Medium',
+    priorityHigh = 'High',
+    priorityUrgent = 'Urgent',
+    viewEdit = 'View/Edit',
+    delete: deleteLabel = 'Delete',
   } = labels;
 
   // Local state for optimistic updates
@@ -187,7 +210,17 @@ export function ProjectBoard({
         <DragOverlay>
           {activeTask && (
             <div className="w-80 opacity-80 rotate-2 cursor-grabbing">
-              <KanbanTaskCard task={activeTask} />
+              <KanbanTaskCard
+                task={activeTask}
+                labels={{
+                  priorityLow,
+                  priorityMedium,
+                  priorityHigh,
+                  priorityUrgent,
+                  viewEdit,
+                  delete: deleteLabel,
+                }}
+              />
             </div>
           )}
         </DragOverlay>,
@@ -212,6 +245,18 @@ export function ProjectBoard({
             color={column.color}
             tasks={tasks.filter((task) => task.status === column.id)}
             onAddTask={() => onAddTaskClick?.(column.id)}
+            onTaskClick={onTaskClick}
+            onEditClick={onEditClick}
+            onDeleteClick={onDeleteClick}
+            labels={{
+              addTask,
+              priorityLow,
+              priorityMedium,
+              priorityHigh,
+              priorityUrgent,
+              viewEdit,
+              delete: deleteLabel,
+            }}
           />
         ))}
       </div>

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Skeleton, Button } from "@ordo-todo/ui";
 import { useTasks, useCompleteTask } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { AlertCircle, User, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 

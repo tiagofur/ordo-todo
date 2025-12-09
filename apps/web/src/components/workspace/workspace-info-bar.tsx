@@ -5,7 +5,7 @@ import { Settings, Plus, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { useWorkspace, useProjects, useTasks } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { WorkspaceSettingsDialog } from "./workspace-settings-dialog";
 import { useTranslations } from "next-intl";
 

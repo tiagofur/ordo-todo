@@ -1,14 +1,13 @@
 "use client";
 
 import { Download, Trash2, File, Image as ImageIcon, FileText, Film, Music, Eye, X } from "lucide-react";
+import { Button, Dialog, DialogContent, DialogTitle } from "@ordo-todo/ui";
 import { useDeleteAttachment } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 
 interface Attachment {

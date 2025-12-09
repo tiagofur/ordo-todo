@@ -1,6 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { FileQuestion, Home, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 

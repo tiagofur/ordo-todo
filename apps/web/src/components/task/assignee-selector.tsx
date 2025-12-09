@@ -1,16 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { User, Check, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWorkspaceMembers, useUpdateTask } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { notify } from "@/lib/notify";
 
 interface AssigneeSelectorProps {

@@ -14,7 +14,10 @@
       "Bash(findstr:*)",
       "Bash(npx prisma generate:*)",
       "Bash(npx prisma db push:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(find:*)",
+      "Bash(node consolidate-imports.mjs:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

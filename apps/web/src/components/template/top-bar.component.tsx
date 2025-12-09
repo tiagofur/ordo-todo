@@ -5,7 +5,7 @@ import UserMenu from "./user-menu.component";
 import ThemeToggle from "./theme-toggle.component";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { Sparkles } from "lucide-react";
 
 export interface TopBarProps {

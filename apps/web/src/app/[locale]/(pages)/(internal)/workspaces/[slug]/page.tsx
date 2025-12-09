@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { WorkspaceDashboard } from "@/components/workspace/workspace-dashboard";
 import { useWorkspaceBySlug } from "@/lib/api-hooks";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 
 export default function WorkspaceDetailPage() {

@@ -16,7 +16,7 @@ import {
   useProjectDistribution,
   useTaskStatusDistribution
 } from "@/lib/api-hooks";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import {
   CalendarIcon,
   TrendingUp,

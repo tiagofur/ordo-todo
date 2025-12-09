@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 
 interface TaskFiltersProps {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Card, CardContent, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { useRouter } from "next/navigation";
 import { 
   FolderKanban, 
@@ -17,14 +18,6 @@ import {
   List
 } from "lucide-react";
 import { useWorkspace, useProjects, useWorkspaceAuditLogs, useDeleteWorkspace } from "@/lib/api-hooks";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
 import { WorkspaceSettingsDialog } from "@/components/workspace/workspace-settings-dialog";

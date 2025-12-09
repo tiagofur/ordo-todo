@@ -1,8 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Lightbulb, TrendingUp, Calendar, Sparkles } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { FocusScoreGauge } from "@/components/analytics/focus-score-gauge";

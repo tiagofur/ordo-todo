@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Input, Checkbox } from "@ordo-todo/ui";
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight, Pencil } from "lucide-react";
 import { useCreateSubtask, useCompleteTask, useDeleteTask, useUpdateTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslations } from "next-intl";
 
 interface SubtaskListProps {

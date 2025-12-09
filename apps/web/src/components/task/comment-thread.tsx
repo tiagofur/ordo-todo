@@ -1,23 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Textarea, Avatar, AvatarFallback, AvatarImage, MentionTextarea, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { Send, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { useCreateComment, useUpdateComment, useDeleteComment, useWorkspaceMembers } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
-import { MentionTextarea } from "@/components/ui/mention-textarea";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 

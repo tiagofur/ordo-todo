@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -27,14 +28,6 @@ import {
 } from "@/lib/api-hooks";
 import { AppLayout } from "@/components/shared/app-layout";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { ProjectSettingsDialog } from "@/components/project/project-settings-dialog";

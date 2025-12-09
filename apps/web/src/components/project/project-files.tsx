@@ -1,19 +1,10 @@
 "use client";
 
 import { useProjectAttachments } from "@/lib/api-hooks";
+import { Button, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { FileIcon, Download, Trash2, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useTranslations } from "next-intl";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectFilesProps {
   projectId: string;

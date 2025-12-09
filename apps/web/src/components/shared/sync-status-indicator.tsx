@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button, Badge, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { useSyncStore, SyncStatus } from "@/stores/sync-store";
 import { useTranslations } from "next-intl";
 import {
@@ -11,13 +12,6 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface SyncStatusIndicatorProps {

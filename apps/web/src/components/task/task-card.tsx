@@ -1,22 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo } from "lucide-react";
 import { useCompleteTask, useTaskTags } from "@/lib/api-hooks";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TaskDetailPanel } from "./task-detail-panel";
-import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
 
 interface TaskCardProps {

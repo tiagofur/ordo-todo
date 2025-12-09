@@ -1,13 +1,10 @@
 "use client";
 
 import { usePublicTask } from "@/lib/api-hooks";
+import { Badge, Skeleton, Card, CardContent, CardHeader, CardTitle, Separator } from "@ordo-todo/ui";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { CheckSquare, Calendar, Clock, AlertCircle } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 export default function PublicTaskPage() {
   const params = useParams();

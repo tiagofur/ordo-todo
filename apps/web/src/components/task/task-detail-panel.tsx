@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button, Input, Label, Textarea, Badge, Separator, Popover, PopoverContent, PopoverTrigger, Skeleton, Sheet, SheetContent, SheetHeader, SheetTitle, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
 import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Share2, Copy, Link as LinkIcon } from "lucide-react";
 import { useTaskDetails, useUpdateTask, useDeleteTask, useCurrentUser, useShareTask } from "@/lib/api-hooks";
 
@@ -9,32 +10,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { SubtaskList } from "./subtask-list";
 import { CommentThread } from "./comment-thread";
 import { FileUpload } from "./file-upload";
@@ -43,10 +18,8 @@ import { ActivityFeed } from "./activity-feed";
 import { Tag as TagIcon, Plus } from "lucide-react";
 import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/lib/api-hooks";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { useTranslations } from "next-intl";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AssigneeSelector } from "./assignee-selector";
 
 interface TaskDetailPanelProps {

@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Input, Label } from "@ordo-todo/ui";
 import { useCreateTask } from "@/lib/api-hooks";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { notify } from "@/lib/notify";
 import { useTranslations } from "next-intl";
 

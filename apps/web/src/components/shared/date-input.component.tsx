@@ -1,11 +1,6 @@
 "use client";
 import * as React from "react";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Calendar, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { IconCalendar } from "@tabler/icons-react";
 
 export function DateInput({

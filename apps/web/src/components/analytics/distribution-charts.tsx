@@ -1,11 +1,7 @@
 "use client";
 
-import { STATUS_COLORS } from "@ordo-todo/ui";
-import { 
-  ProjectTimeChart as ProjectTimeChartUI, 
-  TaskStatusChart as TaskStatusChartUI 
-} from "@ordo-todo/ui";
 
+import { STATUS_COLORS, ProjectTimeChart as ProjectTimeChartUI, TaskStatusChart as TaskStatusChartUI } from "@ordo-todo/ui";
 interface ProjectTimeChartProps {
   data: { name: string; value: number }[];
   className?: string;

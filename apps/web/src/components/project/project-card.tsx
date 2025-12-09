@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Progress, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@ordo-todo/ui";
 import {
   FolderKanban,
   MoreVertical,
@@ -9,18 +10,10 @@ import {
   CheckSquare,
 } from "lucide-react";
 import { useTasks, useArchiveProject, useDeleteProject } from "@/lib/api-hooks";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Progress } from "@/components/ui/progress";
 import { calculateProgress } from "@ordo-todo/core";
 
 interface ProjectCardProps {

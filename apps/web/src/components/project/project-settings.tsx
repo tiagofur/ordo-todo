@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Label, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,21 +11,9 @@ import {
   useDeleteProject,
 } from "@/lib/api-hooks";
 import { useRouter } from "next/navigation";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Palette, Check, Archive, Trash2, AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 import { PROJECT_COLORS, updateProjectSchema } from "@ordo-todo/core";
 

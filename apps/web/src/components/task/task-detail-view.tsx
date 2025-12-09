@@ -1,17 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Checkbox, Label, Separator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@ordo-todo/ui";
 import { useTaskDetails, useCompleteTask } from "@/lib/api-hooks";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Calendar, Flag, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";

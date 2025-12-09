@@ -5,7 +5,6 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { SortableTask } from "./sortable-task.js";
 import { Button } from "../ui/button.js";
 import { Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
 
 interface BoardColumnProps {
   id: string;
@@ -13,10 +12,22 @@ interface BoardColumnProps {
   color: string;
   tasks: any[];
   onAddTask: () => void;
+  onTaskClick?: (taskId: string) => void;
+  onEditClick?: (taskId: string) => void;
+  onDeleteClick?: (taskId: string) => void;
+  /** Labels for i18n */
+  labels?: {
+    addTask?: string;
+    priorityLow?: string;
+    priorityMedium?: string;
+    priorityHigh?: string;
+    priorityUrgent?: string;
+    viewEdit?: string;
+    delete?: string;
+  };
 }
 
-export function BoardColumn({ id, title, color, tasks, onAddTask }: BoardColumnProps) {
-  const t = useTranslations('ProjectBoard');
+export function BoardColumn({ id, title, color, tasks, onAddTask, onTaskClick, onEditClick, onDeleteClick, labels = {} }: BoardColumnProps) {
   const { setNodeRef } = useDroppable({
     id: id,
   });
@@ -33,7 +44,22 @@ export function BoardColumn({ id, title, color, tasks, onAddTask }: BoardColumnP
       <div ref={setNodeRef} className="flex flex-col gap-3 min-h-[200px] flex-1">
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task, index) => (
-            <SortableTask key={task.id} task={task} index={index} />
+            <SortableTask
+              key={task.id}
+              task={task}
+              index={index}
+              onTaskClick={onTaskClick}
+              onEditClick={onEditClick}
+              onDeleteClick={onDeleteClick}
+              labels={{
+                priorityLow: labels.priorityLow,
+                priorityMedium: labels.priorityMedium,
+                priorityHigh: labels.priorityHigh,
+                priorityUrgent: labels.priorityUrgent,
+                viewEdit: labels.viewEdit,
+                delete: labels.delete,
+              }}
+            />
           ))}
         </SortableContext>
 
@@ -43,7 +69,7 @@ export function BoardColumn({ id, title, color, tasks, onAddTask }: BoardColumnP
           onClick={onAddTask}
         >
           <Plus className="mr-2 h-4 w-4" />
-          {t('addTask')}
+          {labels.addTask ?? 'Add Task'}
         </Button>
       </div>
     </div>

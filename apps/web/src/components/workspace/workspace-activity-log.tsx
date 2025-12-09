@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Clock, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useWorkspaceAuditLogs } from "@/lib/api-hooks";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 import { formatDistanceToNow } from "date-fns";
 
