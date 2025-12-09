@@ -1,232 +1,318 @@
- ✅ Fase 1 COMPLETADA
+# Migración a Packages - Estado de Fases
 
-  🎯 Objetivo Alcanzado
+**Última actualización**: 2025-12-09
 
-  Migrar 30 componentes UI base desde apps/web al package compartido packages/ui
+> **IMPORTANT**: See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for MANDATORY patterns.
 
-  📦 Componentes Migrados (30)
+---
 
-  Formularios y Entrada:
-  - input, textarea, label, form, checkbox, switch, slider, select
+## Resumen de Progreso
 
-  Diálogos y Modales:
-  - dialog, sheet, alert-dialog, popover, dropdown-menu, command
+| Fase | Descripción | Componentes | Estado |
+|------|-------------|-------------|--------|
+| **Fase 1** | UI Base Components | 31 | ✅ Completada |
+| **Fase 2** | Domain Components | 37 | ✅ Completada |
+| **Fase 3** | Workspace, Tag, Auth, AI | 16 | ✅ Completada |
+| **Fase 4** | Layout, Shared, Dashboard | 14 | ✅ Completada |
+| **Fase 5** | Integración en Apps | - | 🚧 En Progreso |
+| **Fase 6** | Funcionalidades Nuevas | - | ⏳ Pendiente |
+| **Fase 7** | Testing | - | ⏳ Pendiente |
+| **Fase 8** | Documentación | - | 🚧 En Progreso |
 
-  Visualización:
-  - card, badge, avatar, table, tabs, calendar, date-picker
+**Progreso total**: ~60% (91+ componentes migrados)
 
-  Utilidades:
-  - button, separator, scroll-area, progress, skeleton, sonner (toasts)
+---
 
-  Especializados:
-  - custom-icons, mention-textarea, empty-state
+## ✅ Fase 1 COMPLETADA
 
-  🔧 Configuración Técnica
+### Objetivo
+Migrar 31 componentes UI base desde apps/web al package compartido packages/ui
 
-  1. Estructura Creada:
-  packages/ui/src/
-  ├── components/
-  │   ├── ui/ (30 componentes)
-  │   └── index.ts
-  ├── utils/
-  │   ├── index.ts (cn function)
-  │   └── colors.ts
-  └── index.ts
-  2. TypeScript Config Actualizada:
-    - ✅ JSX support (jsx: "react-jsx")
-    - ✅ Module resolution con NodeNext
-    - ✅ Type declarations generadas
-  3. Imports Corregidos:
-    - ✅ Rutas relativas actualizadas
-    - ✅ Extensiones .js agregadas
-    - ✅ Imports internos arreglados
+### Componentes Migrados
 
-  📊 Métricas
+**Formularios y Entrada** (8):
+- input, textarea, label, form, checkbox, switch, slider, select
 
-  | Métrica           | Valor       |
-  |-------------------|-------------|
-  | Archivos migrados | 36          |
-  | Líneas agregadas  | 2,561       |
-  | Componentes UI    | 30          |
-  | Build status      | ✅ Exitoso   |
-  | Compilación       | Sin errores |
+**Diálogos y Modales** (6):
+- dialog, sheet, alert-dialog, popover, dropdown-menu, command
 
-  🎁 Commits Creados
+**Visualización** (7):
+- card, badge, avatar, table, tabs, calendar, date-picker
 
-  1. Commit a18639a - Setup inicial y análisis
-  2. Commit 299cf0d - Migración Fase 1 (30 componentes)
+**Utilidades** (6):
+- button, separator, scroll-area, progress, skeleton, sonner
 
-  ---
-  📋 Estado del Proyecto
+**Especializados** (4):
+- custom-icons, mention-textarea, empty-state, tooltip
 
-  Progreso General
+### Métricas
 
-  - Fase 1: ✅ Completada (30 componentes)
-  - Fase 2: ⏳ Pendiente (Timer, Task, Project, Analytics)
-  - Fase 3-8: ⏳ Pendiente
+| Métrica | Valor |
+|---------|-------|
+| Archivos migrados | 36 |
+| Líneas agregadas | 2,561 |
+| Componentes UI | 31 |
+| Build status | ✅ Exitoso |
 
-  Progreso total: 15% del plan completo
+---
 
-  Próximos Pasos Sugeridos
+## ✅ Fase 2 COMPLETADA
 
-  Opción A: Continuar con Fase 2 ⭐ (Recomendado)
-  - Migrar componentes de dominio (timer, task, project, analytics)
-  - ~32 componentes más
-  - ~2,000 líneas de código
-  - Duración estimada: 3-4 horas
+### Objetivo
+Migrar 37 componentes de dominio (Timer, Task, Project, Analytics)
 
-  Opción B: Actualizar Apps
-  - Actualizar imports en apps/web para usar @ordo-todo/ui
-  - Actualizar imports en apps/desktop
-  - Ejecutar tests de regresión
-  - Eliminar componentes duplicados de apps
+### Componentes Migrados
 
-  Opción C: Crear Tests
-  - Tests unitarios para componentes UI
-  - Setup de Storybook
-  - Tests de regresión visual
+**Timer Components (4)**:
+- pomodoro-timer.tsx
+- session-history.tsx
+- task-selector.tsx
+- timer-widget.tsx
 
-  ---
-  📈 Beneficios Ya Obtenidos
+**Task Components (15)**:
+- activity-feed.tsx
+- assignee-selector.tsx
+- attachment-list.tsx
+- comment-thread.tsx
+- create-task-dialog.tsx
+- file-upload.tsx
+- recurrence-selector.tsx
+- subtask-list.tsx
+- task-card-compact.tsx
+- task-card.tsx
+- task-detail-panel.tsx
+- task-detail-view.tsx
+- task-filters.tsx
+- task-form.tsx
+- task-list.tsx
 
-  1. ✅ Código Compartido: 1,250+ líneas ahora reutilizables
-  2. ✅ Type Safety: Tipos TypeScript completos generados
-  3. ✅ Foundation: Base sólida para próximas 7 fases
-  4. ✅ Build Pipeline: Compilación automática funcionando
+**Project Components (11)**:
+- board-column.tsx
+- create-project-dialog.tsx
+- kanban-task-card.tsx
+- project-board.tsx
+- project-card.tsx
+- project-files.tsx
+- project-list.tsx
+- project-settings-dialog.tsx
+- project-settings.tsx
+- project-timeline.tsx
+- sortable-task.tsx
 
-  ---
-  🚀 ¿Qué Sigue?
+**Analytics Components (7)**:
+- ai-weekly-report.tsx
+- daily-metrics-card.tsx
+- distribution-charts.tsx
+- focus-score-gauge.tsx
+- peak-hours-chart.tsx
+- productivity-insights.tsx
+- weekly-chart.tsx
 
-  ¿Quieres que continúe con:
-  1. Fase 2 - Migrar componentes de dominio (timer, task, etc.)
-  2. Actualizar apps - Para empezar a usar los componentes compartidos
-  3. Tests - Crear tests para validar los componentes
+### Métricas
 
-  Dime qué prefieres y continuamos! 🎉
+| Métrica | Valor |
+|---------|-------|
+| Archivos migrados | 42 |
+| Líneas agregadas | 8,377 |
+| Total componentes | 67 (30 base + 37 dominio) |
 
+---
 
-    ✅ Fase 2 COMPLETADA
+## ✅ Fase 3 COMPLETADA
 
-  🎯 Objetivo Alcanzado
+### Objetivo
+Migrar Workspace, Tag, Auth, AI components
 
-  Migrar 37 componentes de dominio (Timer, Task, Project, Analytics) desde apps/web al package compartido packages/ui
+### Componentes Migrados
 
-  📦 Componentes Migrados por Categoría
+**Workspace (3)**:
+- workspace-card.tsx
+- workspace-selector.tsx
+- create-workspace-dialog.tsx
 
-  1. Timer Components (4 archivos):
-  - pomodoro-timer.tsx - Timer principal con visualización circular
-  - session-history.tsx - Historial de sesiones de tiempo
-  - task-selector.tsx - Selector de tarea para el timer
-  - timer-widget.tsx - Widget compacto de timer
+**Tag (3)**:
+- tag-badge.tsx
+- tag-selector.tsx
+- create-tag-dialog.tsx
 
-  2. Task Components (15 archivos):
-  - activity-feed.tsx - Feed de actividad de tareas
-  - assignee-selector.tsx - Selector de usuario asignado
-  - attachment-list.tsx - Lista de archivos adjuntos
-  - comment-thread.tsx - Sistema de comentarios
-  - create-task-dialog.tsx - Diálogo crear tarea
-  - file-upload.tsx - Subida de archivos
-  - recurrence-selector.tsx - Selector de recurrencia
-  - subtask-list.tsx - Lista de subtareas
-  - task-card-compact.tsx - Tarjeta compacta (Kanban)
-  - task-card.tsx - Tarjeta de tarea
-  - task-detail-panel.tsx - Panel de detalles
-  - task-detail-view.tsx - Vista de detalles
-  - task-filters.tsx - Filtros de tareas
-  - task-form.tsx - Formulario de tarea
-  - task-list.tsx - Lista de tareas
+**Auth (1)**:
+- auth-form.tsx
 
-  3. Project Components (11 archivos):
-  - board-column.tsx - Columna de Kanban
-  - create-project-dialog.tsx - Crear proyecto
-  - kanban-task-card.tsx - Card para Kanban
-  - project-board.tsx - Tablero Kanban
-  - project-card.tsx - Tarjeta de proyecto
-  - project-files.tsx - Archivos del proyecto
-  - project-list.tsx - Lista de proyectos
-  - project-settings-dialog.tsx - Settings dialog
-  - project-settings.tsx - Settings
-  - project-timeline.tsx - Timeline/Gantt
-  - sortable-task.tsx - Tarea draggable
+**AI (2)**:
+- generate-report-dialog.tsx
+- report-card.tsx
 
-  4. Analytics Components (7 archivos):
-  - ai-weekly-report.tsx - Reporte semanal con IA
-  - daily-metrics-card.tsx - Card de métricas diarias
-  - distribution-charts.tsx - Gráficos de distribución
-  - focus-score-gauge.tsx - Gauge de focus score
-  - peak-hours-chart.tsx - Horas pico
-  - productivity-insights.tsx - Insights de productividad
-  - weekly-chart.tsx - Gráfico semanal
+### Métricas
 
-  🔧 Trabajo Técnico Realizado
+| Métrica | Valor |
+|---------|-------|
+| Componentes migrados | 9 |
+| Total acumulado | 76 componentes |
 
-  1. Estructura Creada:
-  packages/ui/src/components/
-  ├── timer/        (4 componentes + index.ts)
-  ├── task/         (15 componentes + index.ts)
-  ├── project/      (11 componentes + index.ts)
-  └── analytics/    (7 componentes + index.ts)
-  2. Imports Actualizados:
-    - ✅ @/components/ui/xxx → ../ui/xxx.js
-    - ✅ @/components/task/xxx → ./xxx.js o ../task/xxx.js
-    - ✅ @/lib/utils → ../../utils/index.js
-    - ✅ Extensiones .js agregadas a todos los imports relativos
-  3. Exports Configurados:
-    - ✅ index.ts por categoría
-    - ✅ components/index.ts actualizado
+---
 
-  📊 Métricas
+## ✅ Fase 4 COMPLETADA
 
-  | Métrica              | Valor                               |
-  |----------------------|-------------------------------------|
-  | Archivos migrados    | 42 (37 componentes + 5 index.ts)    |
-  | Líneas agregadas     | 8,377                               |
-  | Total componentes UI | 67 (30 base + 37 dominio)           |
-  | Categorías creadas   | 4 (timer, task, project, analytics) |
+### Objetivo
+Migrar Layout, Shared, Dashboard components
 
-  🎁 Commits Creados
+### Componentes Migrados
 
-  - Commit 372616c - Fase 2: 37 componentes de dominio
+**Layout (2)**:
+- sidebar.tsx
+- topbar.tsx
 
-  📈 Progreso Total
+**Shared (7)**:
+- breadcrumbs.tsx
+- confirm-delete.tsx
+- loading.tsx
+- about-dialog.tsx
+- shortcuts-dialog.tsx
+- sync-status-indicator.tsx
+- profile-tabs.tsx
 
-  Completadas:
-  - ✅ Fase 1: 30 componentes UI base
-  - ✅ Fase 2: 37 componentes de dominio
+**Dashboard (5)**:
+- stats-card.tsx
+- active-projects-widget.tsx
+- productivity-streak-widget.tsx
+- upcoming-tasks-widget.tsx
+- weekly-activity-widget.tsx
 
-  Pendientes:
-  - ⏳ Fase 3: Workspace, Tag, Auth, AI (18 componentes)
-  - ⏳ Fase 4: Layout, Shared, Providers (14 componentes)
-  - ⏳ Fase 5: Utilidades y Hooks (18 archivos)
-  - ⏳ Fase 6: Funcionalidades Nuevas
-  - ⏳ Fase 7: Testing
-  - ⏳ Fase 8: Documentación
+### Métricas
 
-  Progreso total: ~30% del plan completo (67/220+ componentes/archivos)
+| Métrica | Valor |
+|---------|-------|
+| Componentes migrados | 14 |
+| Total acumulado | 91+ componentes |
 
-  ---
-  📝 Notas Importantes
+---
 
-  ⚠️ Dependencias Pendientes:
-  Algunos componentes tienen dependencias que se resolverán en fases futuras:
-  - @/lib/api-hooks → Usar @ordo-todo/hooks (apps deben configurar)
-  - @/lib/notify → Migrar en Fase 5 (utilidades)
-  - next/link, next/navigation → Específicos de Next.js (mantener en web)
-  - @/stores/xxx → Usar @ordo-todo/stores (ya existe)
+## 🚧 Fase 5 EN PROGRESO
 
-  ---
-  🚀 ¿Qué Sigue?
+### Objetivo
+Integración completa en apps - actualizar imports para usar @ordo-todo/ui
 
-  Opción A: Continuar con Fase 3 ⭐
-  - Migrar Workspace (8), Tag (3), Auth (2), AI (5) = 18 componentes
-  - Duración: 1-1.5 horas
+### Tareas Pendientes
 
-  Opción B: Pausa para Integración
-  - Actualizar apps/web para usar componentes compartidos
-  - Actualizar apps/desktop para usar componentes compartidos
-  - Validar que todo funciona
+- [ ] Actualizar imports en apps/web
+- [ ] Actualizar imports en apps/desktop
+- [ ] Eliminar componentes duplicados de apps
+- [ ] Validar que todo funciona
+- [ ] Ejecutar tests de regresión
 
-  Opción C: Testing
-  - Crear tests para los 67 componentes migrados
-  - Setup Storybook
-  - Tests de regresión
+### Componentes Adicionales a Migrar
+
+**Desde apps/web** (pendientes):
+- form/ (email-field, password-field, text-field, mini-form)
+- notification-popover
+- connection-status
+- pwa-install-button
+
+**Desde apps/desktop** (pendientes):
+- voice-input
+- hover-card
+- templates
+
+---
+
+## ⏳ Fase 6 PENDIENTE
+
+### Objetivo
+Implementar funcionalidades faltantes cross-platform
+
+### Web ← Desktop
+- Task Health Score
+- Templates system
+- Voice Input
+- Smart Capture
+- Dependencies UI
+
+### Desktop ← Web
+- Workflows
+- Recurrence Selector
+- Task Sharing
+- AI Assistant Chat
+
+---
+
+## ⏳ Fase 7 PENDIENTE
+
+### Objetivo
+Testing completo
+
+### Tareas
+- [ ] Tests unitarios para componentes (80% cobertura)
+- [ ] Tests de integración
+- [ ] Tests E2E
+- [ ] Tests de regresión visual (Storybook)
+
+---
+
+## 🚧 Fase 8 EN PROGRESO
+
+### Objetivo
+Documentación completa
+
+### Completado
+- [x] README.md por package
+- [x] COMPONENT_GUIDELINES.md
+- [x] Actualización CLAUDE.md
+- [x] Actualización docs/packages/README.md
+
+### Pendiente
+- [ ] Storybook interactivo
+- [ ] Migration guide detallado
+- [ ] Architecture docs
+
+---
+
+## Patrón de Componentes (MANDATORY)
+
+Todos los componentes DEBEN seguir este patrón:
+
+```typescript
+// packages/ui/src/components/[domain]/component-name.tsx
+
+// Imports: solo relativos con .js
+import { Button } from '../ui/button.js';
+import { cn } from '../../utils/index.js';
+
+// Props: todo como props (data, callbacks, labels)
+interface ComponentProps {
+  data: Data;                    // Datos del padre
+  onAction: () => void;          // Callbacks del padre
+  labels?: { title?: string };   // i18n del padre
+}
+
+// Component: solo UI state local
+export function Component({ data, onAction, labels }: ComponentProps) {
+  // NO hooks externos
+  // NO store access
+  // NO API calls
+  return (...);
+}
+```
+
+Ver [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) para documentación completa.
+
+---
+
+## Comandos Útiles
+
+```bash
+# Build packages/ui
+npm run build --filter=@ordo-todo/ui
+
+# Type check
+npm run check-types --filter=@ordo-todo/ui
+
+# Development
+npm run dev
+
+# Test
+npm run test
+```
+
+---
+
+**Última actualización**: 2025-12-09

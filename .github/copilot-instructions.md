@@ -208,6 +208,8 @@ Soy un **experto en React/Next.js Frontend** especializado en:
 
 ## 📐 Reglas de Componentización
 
+> **IMPORTANT**: ALL new UI components MUST go to `packages/ui`. See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for MANDATORY patterns.
+
 ### ✅ SIEMPRE Extraer Componente Cuando:
 
 1. El código supera **100-150 líneas**
@@ -217,17 +219,42 @@ Soy un **experto en React/Next.js Frontend** especializado en:
 5. Tiene su **propio estado**
 6. Mejora la **legibilidad** general
 
-### 🏗️ Estructura de Componentes
+### 🏗️ Ubicación de Componentes (MANDATORY)
 
+| Tipo | Ubicación | Descripción |
+|------|-----------|-------------|
+| Componentes UI base | `packages/ui/src/components/ui/` | button, card, dialog |
+| Componentes de dominio | `packages/ui/src/components/[domain]/` | TaskCard, ProjectBoard |
+| Páginas/Routes | `apps/[app]/src/app/` | page.tsx, layout.tsx |
+| Containers | `apps/[app]/src/components/` | TaskListContainer |
+
+### 🏗️ Patrón Platform-Agnostic (MANDATORY)
+
+```typescript
+// packages/ui/src/components/task/task-card.tsx
+
+// NO hooks, NO stores, NO API calls
+// Solo datos via props
+
+interface TaskCardProps {
+  task: Task;                           // Data from parent
+  onTaskClick: (id: string) => void;    // Callback from parent
+  labels?: { complete?: string };       // i18n from parent
+}
+
+export function TaskCard({ task, onTaskClick, labels }: TaskCardProps) {
+  return <Card onClick={() => onTaskClick(task.id)}>{task.title}</Card>;
+}
 ```
-components/
-├── ui/              # Base components (Radix UI + Tailwind)
-│   ├── button.tsx
-│   ├── card.tsx
-│   └── input.tsx
-├── shared/          # App-specific shared components
-├── providers/       # Context providers
-└── [domain]/        # Domain-specific components
+
+### 🏗️ Imports
+
+```typescript
+// En apps: import desde @ordo-todo/ui
+import { Button, Card, TaskCard, cn } from '@ordo-todo/ui';
+
+// En packages/ui: imports relativos con .js
+import { Button } from '../ui/button.js';
 ```
 
 ## 🎨 Sistema de Diseño - Ordo-Todo

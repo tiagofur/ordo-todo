@@ -380,6 +380,109 @@ focusScore = (workTime / totalTime) - (pauseCount * 0.02)
 7. **Type Safety**: Use TypeScript interfaces and DTOs, validate with class-validator
 8. **Shared Configs**: Extend from `@ordo-todo/eslint-config` and `@ordo-todo/typescript-config`
 9. **Auto-tracking**: TimeSessions → DailyMetrics automático, transparente para el usuario
+10. **Shared Components**: ALL UI components MUST live in `packages/ui` (see Component Guidelines below)
+
+## Component Generation Guidelines (MANDATORY)
+
+> **IMPORTANT**: See full documentation at [docs/COMPONENT_GUIDELINES.md](/docs/COMPONENT_GUIDELINES.md)
+
+### Quick Rules
+
+1. **ALL new UI components go to `packages/ui/`** - Never create UI components in `apps/`
+2. **Components must be platform-agnostic** - Pass data/callbacks via props, no hooks inside
+3. **Use relative imports with `.js`** in packages
+4. **Export from barrel files** (`index.ts`)
+5. **Apps import from `@ordo-todo/ui`**
+
+### Component Location Decision
+
+| Type | Location |
+|------|----------|
+| Reusable UI (buttons, cards, dialogs) | `packages/ui/src/components/ui/` |
+| Domain components (TaskCard, ProjectBoard) | `packages/ui/src/components/[domain]/` |
+| Pages/Routes | `apps/[app]/src/app/` or `apps/[app]/src/pages/` |
+| App-specific providers | `apps/[app]/src/providers/` |
+| Container components (connect UI to data) | `apps/[app]/src/components/` |
+
+### Platform-Agnostic Component Pattern
+
+```typescript
+// packages/ui/src/components/task/task-card.tsx
+
+// NO hooks from @ordo-todo/hooks
+// NO store access
+// NO API calls
+// NO i18n hooks
+
+interface TaskCardProps {
+  task: Task;                          // Data (from parent)
+  onTaskClick: (id: string) => void;   // Callback (from parent)
+  onComplete?: (id: string) => void;   // Optional callback
+  labels?: {                           // i18n labels (from parent)
+    complete?: string;
+    delete?: string;
+  };
+}
+
+export function TaskCard({ task, onTaskClick, onComplete, labels = {} }: TaskCardProps) {
+  return (
+    <Card onClick={() => onTaskClick(task.id)}>
+      <h3>{task.title}</h3>
+      {onComplete && (
+        <Button onClick={() => onComplete(task.id)}>
+          {labels.complete ?? 'Complete'}
+        </Button>
+      )}
+    </Card>
+  );
+}
+```
+
+### Using in Apps
+
+```typescript
+// apps/web/src/components/task/task-list-container.tsx
+'use client';
+
+import { TaskCard } from '@ordo-todo/ui';
+import { useTasks, useCompleteTask } from '@/lib/api-hooks';
+import { useTranslations } from 'next-intl';
+
+export function TaskListContainer() {
+  const { data: tasks } = useTasks();
+  const completeTask = useCompleteTask();
+  const t = useTranslations('TaskCard');
+
+  return (
+    <div>
+      {tasks?.map(task => (
+        <TaskCard
+          key={task.id}
+          task={task}
+          onTaskClick={(id) => router.push(`/tasks/${id}`)}
+          onComplete={(id) => completeTask.mutate(id)}
+          labels={{
+            complete: t('complete'),
+            delete: t('delete'),
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+### Migration Status (as of 2025-12-09)
+
+| Package | Components | Status |
+|---------|------------|--------|
+| `packages/ui` | 91+ | ✅ Active |
+| `packages/hooks` | 100+ hooks (factory) | ✅ Active |
+| `packages/stores` | 4 stores | ✅ Active |
+| `packages/api-client` | 49+ endpoints | ✅ Active |
+| `packages/i18n` | 3 languages | ✅ Active |
+
+**Components in packages/ui**: ui (31), task (15), timer (4), analytics (7), project (11), workspace (3), tag (3), dashboard (5), ai (2), shared (7), layout (2), auth (1)
 
 ## Environment Setup
 

@@ -50,6 +50,17 @@ ordo-todo/
 
 ## 💻 Reglas de Código
 
+> **IMPORTANT**: ALL new UI components MUST go to `packages/ui`. See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for MANDATORY patterns.
+
+### Component Location (MANDATORY)
+
+| Tipo | Ubicación |
+|------|-----------|
+| UI Components | `packages/ui/src/components/ui/` |
+| Domain Components | `packages/ui/src/components/[domain]/` |
+| Pages | `apps/[app]/src/app/` |
+| Containers | `apps/[app]/src/components/` |
+
 ### React/Next.js
 
 ```typescript
@@ -59,6 +70,8 @@ ordo-todo/
 - React Query para server state
 - TypeScript estricto
 - Componentes < 150 líneas
+- Crear componentes en packages/ui (platform-agnostic)
+- Pasar datos via props (no hooks en shared components)
 
 // ❌ NUNCA hacer:
 - 'use client' cuando no es necesario
@@ -66,6 +79,8 @@ ordo-todo/
 - Componentes gigantes (> 150 líneas)
 - Duplicar patrones de código
 - Ignorar accesibilidad
+- Crear componentes UI en apps/ (deben ir en packages/ui)
+- Usar hooks en componentes de packages/ui
 ```
 
 ### NestJS/TypeScript
