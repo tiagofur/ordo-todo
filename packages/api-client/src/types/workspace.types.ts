@@ -8,6 +8,7 @@ export type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 export interface Workspace {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   type: WorkspaceType;
   color: string;

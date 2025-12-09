@@ -44,7 +44,16 @@ export function SessionHistory() {
 
   // Map API response to component types
   const mappedHistoryData: SessionHistoryData | undefined = historyData ? {
-    sessions: historyData.sessions,
+    sessions: historyData.sessions.map(session => ({
+      id: session.id,
+      type: session.type,
+      startedAt: session.startedAt,
+      duration: session.duration ?? 0,
+      wasCompleted: session.wasCompleted,
+      wasInterrupted: session.wasInterrupted,
+      pauseCount: session.pauseCount ?? 0,
+      taskId: session.taskId,
+    })),
     total: historyData.total,
     totalPages: historyData.totalPages,
   } : undefined;

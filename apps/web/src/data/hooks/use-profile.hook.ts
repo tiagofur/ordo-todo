@@ -15,7 +15,12 @@ export default function useProfile() {
 
   useEffect(() => {
     if (fetchedUser) {
-      setUser(new User(fetchedUser));
+      // Convert null values to undefined for User entity compatibility
+      setUser(new User({
+        id: fetchedUser.id,
+        name: fetchedUser.name ?? undefined,
+        email: fetchedUser.email,
+      }));
     }
   }, [fetchedUser]);
 
