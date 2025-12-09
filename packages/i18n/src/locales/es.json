@@ -79,13 +79,30 @@
   },
   "Dashboard": {
     "completed": "Completadas",
+    "subtasks": "Subtareas",
     "timeWorked": "Tiempo trabajado",
     "productivity": "Productividad",
     "today": "Hoy",
     "todaysTasks": "Tareas de Hoy",
     "noTasks": "No hay tareas para hoy",
     "noTasksDescription": "Comienza creando tu primera tarea para verla aquí.",
-    "createTask": "Crear Tarea"
+    "createTask": "Crear Tarea",
+    "allTasksCompleted": "¡Todas las tareas completadas!",
+    "tasksCompletedToday": "{count} tarea(s) completada(s) hoy",
+    "showCompleted": "Mostrar completadas",
+    "hideCompleted": "Ocultar completadas",
+    "viewList": "Vista de lista",
+    "viewGrid": "Vista de cuadrícula",
+    "sortOptions": {
+      "priority": "Prioridad",
+      "duration": "Duración",
+      "created": "Fecha de creación"
+    },
+    "quickActionButtons": {
+      "newProject": "Nuevo Proyecto",
+      "startTimer": "Iniciar Timer",
+      "newTask": "Nueva Tarea"
+    }
   },
   "Tasks": {
     "title": "Tareas",
@@ -810,6 +827,9 @@
     "unknownUser": "Usuario Desconocido",
     "remove": "Eliminar",
     "confirmRemove": "¿Estás seguro de eliminar a este miembro?",
+    "memberRemoved": "Miembro eliminado",
+    "errorRemoving": "Error al eliminar miembro",
+    "noMembers": "No hay miembros en este workspace.",
     "invitationsTitle": "Invitaciones Pendientes",
     "invitationsDescription": "Invitaciones enviadas que aún no han sido aceptadas.",
     "email": "Correo",
@@ -1551,6 +1571,45 @@
       "average": "Promedio/día"
     }
   },
+  "Timer": {
+    "title": "Timer",
+    "subtitle": "Gestiona tu tiempo con Pomodoro",
+    "tabs": {
+      "timer": "Timer",
+      "history": "Historial"
+    },
+    "modes": {
+      "work": "Trabajo",
+      "shortBreak": "Descanso corto",
+      "longBreak": "Descanso largo"
+    },
+    "history": {
+      "totalSessions": "Sesiones totales",
+      "totalTime": "Tiempo total",
+      "workSessions": "Sesiones de trabajo",
+      "noSessions": "No hay sesiones",
+      "noSessionsDescription": "Completa una sesión con el timer para verla aquí.",
+      "loading": "Cargando...",
+      "filters": "Filtros",
+      "allTypes": "Todos los tipos",
+      "today": "Hoy",
+      "last7Days": "Últimos 7 días",
+      "last30Days": "Últimos 30 días",
+      "last90Days": "Últimos 90 días",
+      "page": "Página"
+    }
+  },
+  "AIWeeklyReport": {
+    "weeklyReport": "Reporte Semanal",
+    "generateReport": "Generar Reporte",
+    "analyzing": "Analizando...",
+    "sections": {
+      "summary": "Resumen",
+      "achievements": "Logros",
+      "improvements": "Áreas de Mejora",
+      "recommendations": "Recomendaciones"
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",
@@ -1567,5 +1626,34 @@
     "success": "Éxito",
     "warning": "Advertencia",
     "info": "Información"
+  },
+  "Sync": {
+    "offline": "Sin conexión",
+    "offlineDesc": "Los cambios se sincronizarán cuando haya conexión",
+    "syncing": "Sincronizando...",
+    "syncingDesc": "Sincronizando tus cambios",
+    "error": "Error de sincronización",
+    "errorDesc": "Error al sincronizar. Haz clic para reintentar",
+    "pending": "Pendiente",
+    "pendingDesc": "{{count}} cambios pendientes",
+    "synced": "Sincronizado",
+    "syncedDesc": "Última sincronización: {{time}}",
+    "unknown": "Desconocido",
+    "failedChanges": "{{count}} cambios fallidos",
+    "pendingChanges": "pendientes",
+    "offlineBanner": "Estás sin conexión. Los cambios se sincronizarán cuando vuelvas a conectarte."
+  },
+  "About": {
+    "description": "Tu compañero personal de productividad",
+    "version": "Versión",
+    "platform": "Plataforma",
+    "madeWith": "Hecho con ❤️ para impulsar tu productividad",
+    "website": "Sitio web",
+    "documentation": "Documentación"
+  },
+  "Shortcuts": {
+    "title": "Atajos de teclado",
+    "description": "Usa estos atajos para navegar y controlar la aplicación más rápido. Los atajos marcados como 'Global' funcionan incluso cuando la ventana no está enfocada.",
+    "footerNote": "Puedes personalizar los atajos globales en Configuración → Atajos"
   }
 }

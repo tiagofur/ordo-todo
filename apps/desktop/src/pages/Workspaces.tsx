@@ -32,10 +32,10 @@ export function Workspaces() {
                 >
                   <Briefcase className="h-6 w-6" />
                 </div>
-                {t("workspaces.title") || "Workspaces"}
+                {t("Workspaces.title") || "Workspaces"}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("workspaces.subtitle") || "Gestiona tus espacios de trabajo"}
+                {t("Workspaces.subtitle") || "Gestiona tus espacios de trabajo"}
               </p>
             </div>
             <button
@@ -47,7 +47,7 @@ export function Workspaces() {
               }}
             >
               <Plus className="h-4 w-4" />
-              {t("workspaces.newWorkspace") || "Nuevo Workspace"}
+              {t("Workspaces.newWorkspace") || "Nuevo Workspace"}
             </button>
           </div>
         </SlideIn>
@@ -81,10 +81,10 @@ export function Workspaces() {
                 <Briefcase className="h-12 w-12 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                {t("workspaces.noWorkspaces") || "No tienes workspaces"}
+                {t("Workspaces.noWorkspaces") || "No tienes workspaces"}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                {t("workspaces.noWorkspacesDescription") || "Crea tu primer espacio de trabajo para empezar."}
+                {t("Workspaces.noWorkspacesDescription") || "Crea tu primer espacio de trabajo para empezar."}
               </p>
               <button
                 onClick={openCreateWorkspaceDialog}
@@ -95,7 +95,7 @@ export function Workspaces() {
                 }}
               >
                 <Plus className="h-4 w-4" />
-                {t("workspaces.createWorkspace") || "Crear Workspace"}
+                {t("Workspaces.createWorkspace") || "Crear Workspace"}
               </button>
             </div>
           </FadeIn>

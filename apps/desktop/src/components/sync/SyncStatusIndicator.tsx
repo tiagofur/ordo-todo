@@ -46,21 +46,21 @@ export function SyncStatusIndicator({
       showLabel={showLabel}
       size={size}
       labels={{
-        offline: t("sync.offline", "Offline"),
-        offlineDesc: t("sync.offlineDesc", "Changes will sync when online"),
-        syncing: t("sync.syncing", "Syncing..."),
-        syncingDesc: t("sync.syncingDesc", "Syncing your changes"),
-        error: t("sync.error", "Sync Error"),
-        errorDesc: t("sync.errorDesc", "Failed to sync. Click to retry"),
-        pending: t("sync.pending", "Pending"),
+        offline: t("Sync.offline", "Offline"),
+        offlineDesc: t("Sync.offlineDesc", "Changes will sync when online"),
+        syncing: t("Sync.syncing", "Syncing..."),
+        syncingDesc: t("Sync.syncingDesc", "Syncing your changes"),
+        error: t("Sync.error", "Sync Error"),
+        errorDesc: t("Sync.errorDesc", "Failed to sync. Click to retry"),
+        pending: t("Sync.pending", "Pending"),
         pendingDesc: (count: number) =>
-          t("sync.pendingDesc", "{{count}} changes pending", { count }),
-        synced: t("sync.synced", "Synced"),
+          t("Sync.pendingDesc", "{{count}} changes pending", { count }),
+        synced: t("Sync.synced", "Synced"),
         syncedDesc: (time: string) =>
-          t("sync.syncedDesc", "Last sync: {{time}}", { time }),
-        unknown: t("sync.unknown", "Unknown"),
+          t("Sync.syncedDesc", "Last sync: {{time}}", { time }),
+        unknown: t("Sync.unknown", "Unknown"),
         failedChanges: (count: number) =>
-          t("sync.failedChanges", "{{count}} failed changes", { count }),
+          t("Sync.failedChanges", "{{count}} failed changes", { count }),
       }}
     />
   );
@@ -95,10 +95,10 @@ export function OfflineBanner() {
       pendingChanges={pendingChanges}
       labels={{
         message: t(
-          "sync.offlineBanner",
+          "Sync.offlineBanner",
           "You're offline. Changes will sync when you reconnect."
         ),
-        pending: t("sync.pendingChanges", "pending"),
+        pending: t("Sync.pendingChanges", "pending"),
       }}
     />
   );

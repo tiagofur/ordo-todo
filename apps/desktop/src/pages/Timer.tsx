@@ -37,10 +37,10 @@ export function Timer() {
                 >
                   <TimerIcon className="h-6 w-6" />
                 </div>
-                {t("timer.title") || "Focus Timer"}
+                {t("Timer.title") || "Focus Timer"}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("timer.subtitle") || "Gestiona tu tiempo con la técnica Pomodoro"}
+                {t("Timer.subtitle") || "Gestiona tu tiempo con la técnica Pomodoro"}
               </p>
             </div>
           </div>
@@ -52,11 +52,11 @@ export function Timer() {
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">
               <TabsTrigger value="timer" className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                {t("timer.tabs.timer") || "Temporizador"}
+                {t("Timer.tabs.timer") || "Temporizador"}
               </TabsTrigger>
               <TabsTrigger value="history" className="flex items-center gap-2">
                 <History className="h-4 w-4" />
-                {t("timer.tabs.history") || "Historial"}
+                {t("Timer.tabs.history") || "Historial"}
               </TabsTrigger>
             </TabsList>
             

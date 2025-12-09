@@ -40,10 +40,10 @@ export function Tags() {
 
   const handleDelete = (tagId: string | number | undefined) => {
     if (!tagId) return;
-    if (confirm(t("tags.confirmDelete") || "¿Estás seguro de eliminar esta etiqueta?")) {
+    if (confirm(t("Tags.confirmDelete") || "¿Estás seguro de eliminar esta etiqueta?")) {
       deleteTagMutation.mutate(String(tagId), {
-        onSuccess: () => toast.success(t("tags.tagDeleted") || "Etiqueta eliminada"),
-        onError: (error: any) => toast.error(error.message || t("tags.deleteError") || "Error al eliminar"),
+        onSuccess: () => toast.success(t("Tags.tagDeleted") || "Etiqueta eliminada"),
+        onError: (error: any) => toast.error(error.message || t("Tags.deleteError") || "Error al eliminar"),
       });
     }
   };
@@ -74,10 +74,10 @@ export function Tags() {
                 >
                   <TagIcon className="h-6 w-6" />
                 </div>
-                {t("tags.title") || "Etiquetas"}
+                {t("Tags.title") || "Etiquetas"}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("tags.subtitle") || "Organiza tus tareas con etiquetas"}
+                {t("Tags.subtitle") || "Organiza tus tareas con etiquetas"}
               </p>
             </div>
             <button
@@ -89,7 +89,7 @@ export function Tags() {
               }}
             >
               <Plus className="h-4 w-4" />
-              {t("tags.newTag") || "Nueva Etiqueta"}
+              {t("Tags.newTag") || "Nueva Etiqueta"}
             </button>
           </div>
         </SlideIn>
@@ -147,14 +147,14 @@ export function Tags() {
                           <DropdownMenuContent align="end" className="w-48" onClick={(e) => e.stopPropagation()}>
                             <DropdownMenuItem onClick={() => handleEdit(tag)}>
                               <Edit className="mr-2 h-4 w-4" />
-                              {t("tags.edit") || "Editar"}
+                              {t("Tags.edit") || "Editar"}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleDelete(tag.id)}
                               className="text-red-600 focus:text-red-600"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              {t("tags.delete") || "Eliminar"}
+                              {t("Tags.delete") || "Eliminar"}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -167,7 +167,7 @@ export function Tags() {
                             {taskCount}
                           </span>
                           <span className="text-muted-foreground">
-                            {taskCount === 1 ? t("tags.task") || "tarea" : t("tags.tasks") || "tareas"}
+                            {taskCount === 1 ? t("Tags.task") || "tarea" : t("Tags.tasks") || "tareas"}
                           </span>
                         </div>
                       </div>
@@ -190,10 +190,10 @@ export function Tags() {
                 <TagIcon className="h-12 w-12 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                {t("tags.noTags") || "No hay etiquetas"}
+                {t("Tags.noTags") || "No hay etiquetas"}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                {t("tags.noTagsDescription") || "Crea etiquetas para categorizar tus tareas."}
+                {t("Tags.noTagsDescription") || "Crea etiquetas para categorizar tus tareas."}
               </p>
               <button
                 onClick={() => setShowCreateTag(true)}
@@ -204,7 +204,7 @@ export function Tags() {
                 }}
               >
                 <Plus className="h-4 w-4" />
-                {t("tags.createTag") || "Crear Etiqueta"}
+                {t("Tags.createTag") || "Crear Etiqueta"}
               </button>
             </div>
           </FadeIn>

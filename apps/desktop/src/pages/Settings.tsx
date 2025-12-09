@@ -122,7 +122,7 @@ export function Settings() {
               >
                 <SettingsIcon className="h-6 w-6" />
               </div>
-              {t("settings.title")}
+              {t("Settings.title")}
             </h1>
             <p className="text-muted-foreground mt-2">Personaliza tu experiencia</p>
           </div>
@@ -134,10 +134,10 @@ export function Settings() {
             <div>
               <h3 className="text-lg font-medium flex items-center gap-2">
                 <Sun className="h-5 w-5 text-muted-foreground" />
-                {t("settings.appearance")}
+                {t("Settings.appearance")}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                {t("settings.theme")}
+                {t("Settings.theme")}
               </p>
               
               <div className="grid grid-cols-3 gap-4 max-w-md">
@@ -148,7 +148,7 @@ export function Settings() {
                   }`}
                 >
                   <Sun className="mb-2 h-6 w-6" />
-                  <span className="text-sm font-medium">{t("settings.themes.light")}</span>
+                  <span className="text-sm font-medium">{t("Settings.themes.light")}</span>
                 </button>
                 <button
                   onClick={() => setTheme("dark")}
@@ -157,7 +157,7 @@ export function Settings() {
                   }`}
                 >
                   <Moon className="mb-2 h-6 w-6" />
-                  <span className="text-sm font-medium">{t("settings.themes.dark")}</span>
+                  <span className="text-sm font-medium">{t("Settings.themes.dark")}</span>
                 </button>
                 <button
                   onClick={() => setTheme("system")}
@@ -166,7 +166,7 @@ export function Settings() {
                   }`}
                 >
                   <Laptop className="mb-2 h-6 w-6" />
-                  <span className="text-sm font-medium">{t("settings.themes.system")}</span>
+                  <span className="text-sm font-medium">{t("Settings.themes.system")}</span>
                 </button>
               </div>
             </div>
@@ -177,7 +177,7 @@ export function Settings() {
             <div>
               <h3 className="text-lg font-medium flex items-center gap-2">
                 <Globe className="h-5 w-5 text-muted-foreground" />
-                {t("settings.language")}
+                {t("Settings.language")}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Selecciona el idioma de la aplicación
@@ -207,7 +207,7 @@ export function Settings() {
             <div>
               <h3 className="text-lg font-medium flex items-center gap-2">
                 <Clock className="h-5 w-5 text-muted-foreground" />
-                {t("settings.timer")}
+                {t("Settings.timer")}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Configura los tiempos del pomodoro
@@ -217,7 +217,7 @@ export function Settings() {
             <div className="space-y-6 max-w-md">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label>{t("settings.timerSettings.focusDuration")}</Label>
+                  <Label>{t("Settings.timerSettings.focusDuration")}</Label>
                   <span className="text-sm text-muted-foreground">25 min</span>
                 </div>
                 <Slider defaultValue={[25]} max={60} min={5} step={5} />
@@ -225,7 +225,7 @@ export function Settings() {
 
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label>{t("settings.timerSettings.shortBreakDuration")}</Label>
+                  <Label>{t("Settings.timerSettings.shortBreakDuration")}</Label>
                   <span className="text-sm text-muted-foreground">5 min</span>
                 </div>
                 <Slider defaultValue={[5]} max={15} min={1} step={1} />
@@ -233,7 +233,7 @@ export function Settings() {
 
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label>{t("settings.timerSettings.longBreakDuration")}</Label>
+                  <Label>{t("Settings.timerSettings.longBreakDuration")}</Label>
                   <span className="text-sm text-muted-foreground">15 min</span>
                 </div>
                 <Slider defaultValue={[15]} max={30} min={5} step={5} />
@@ -243,7 +243,7 @@ export function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>{t("settings.timerSettings.autoStartBreaks")}</Label>
+                  <Label>{t("Settings.timerSettings.autoStartBreaks")}</Label>
                   <p className="text-sm text-muted-foreground">
                     Iniciar descanso automáticamente
                   </p>
@@ -253,7 +253,7 @@ export function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>{t("settings.timerSettings.autoStartPomodoros")}</Label>
+                  <Label>{t("Settings.timerSettings.autoStartPomodoros")}</Label>
                   <p className="text-sm text-muted-foreground">
                     Iniciar siguiente pomodoro automáticamente
                   </p>
@@ -270,7 +270,7 @@ export function Settings() {
             <div>
               <h3 className="text-lg font-medium flex items-center gap-2">
                 <Bell className="h-5 w-5 text-muted-foreground" />
-                {t("settings.notifications")}
+                {t("Settings.notifications")}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Configura las notificaciones
@@ -280,7 +280,7 @@ export function Settings() {
             <div className="space-y-4 max-w-md">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>{t("settings.notificationSettings.desktop")}</Label>
+                  <Label>{t("Settings.notificationSettings.desktop")}</Label>
                   <p className="text-sm text-muted-foreground">
                     Mostrar notificaciones de escritorio
                   </p>
@@ -290,7 +290,7 @@ export function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>{t("settings.notificationSettings.sound")}</Label>
+                  <Label>{t("Settings.notificationSettings.sound")}</Label>
                   <p className="text-sm text-muted-foreground">
                     Reproducir sonido al completar
                   </p>
@@ -300,7 +300,7 @@ export function Settings() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>{t("settings.notificationSettings.taskReminders")}</Label>
+                  <Label>{t("Settings.notificationSettings.taskReminders")}</Label>
                   <p className="text-sm text-muted-foreground">
                     Recordar tareas próximas a vencer
                   </p>

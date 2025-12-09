@@ -231,7 +231,7 @@ export function Dashboard() {
                 >
                   <Home className="h-6 w-6" />
                 </div>
-                {t("dashboard.today")}
+                {t("Dashboard.today")}
               </h1>
               <p className="text-muted-foreground mt-2">
                 {new Date().toLocaleDateString(i18n.language, {
@@ -249,7 +249,7 @@ export function Dashboard() {
         <StaggerList className="grid gap-4 md:grid-cols-4">
           <StaggerItem>
             <StatsCard
-              title={t("dashboard.completed")}
+              title={t("Dashboard.completed")}
               value={completedToday}
               icon={CheckCircle2}
               iconColor="text-cyan-500"
@@ -258,7 +258,7 @@ export function Dashboard() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title={t("dashboard.subtasks")}
+              title={t("Dashboard.subtasks")}
               value={subtasksCompletedToday}
               icon={ListChecks}
               iconColor="text-violet-500"
@@ -267,7 +267,7 @@ export function Dashboard() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title={t("dashboard.timeWorked")}
+              title={t("Dashboard.timeWorked")}
               value={timeWorkedText}
               icon={Clock}
               iconColor="text-amber-500"
@@ -276,7 +276,7 @@ export function Dashboard() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title={t("dashboard.productivity")}
+              title={t("Dashboard.productivity")}
               value={productivity}
               icon={TrendingUp}
               iconColor="text-emerald-500"
@@ -331,7 +331,7 @@ export function Dashboard() {
           <div className="rounded-2xl border border-border/50 bg-card overflow-hidden">
             {/* Header with controls */}
             <div className="border-b p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h2 className="text-xl font-semibold">{t("dashboard.todaysTasks")}</h2>
+              <h2 className="text-xl font-semibold">{t("Dashboard.todaysTasks")}</h2>
 
               <div className="flex items-center gap-3">
                 {/* View mode toggle */}
@@ -344,7 +344,7 @@ export function Dashboard() {
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted/50"
                     )}
-                    title={t("dashboard.viewList")}
+                    title={t("Dashboard.viewList")}
                   >
                     <List className="h-4 w-4" />
                   </button>
@@ -356,7 +356,7 @@ export function Dashboard() {
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted/50"
                     )}
-                    title={t("dashboard.viewGrid")}
+                    title={t("Dashboard.viewGrid")}
                   >
                     <LayoutGrid className="h-4 w-4" />
                   </button>
@@ -370,9 +370,9 @@ export function Dashboard() {
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
                     className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                   >
-                    <option value="priority">{t("dashboard.sortOptions.priority")}</option>
-                    <option value="duration">{t("dashboard.sortOptions.duration")}</option>
-                    <option value="created">{t("dashboard.sortOptions.created")}</option>
+                    <option value="priority">{t("Dashboard.sortOptions.priority")}</option>
+                    <option value="duration">{t("Dashboard.sortOptions.duration")}</option>
+                    <option value="created">{t("Dashboard.sortOptions.created")}</option>
                   </select>
                 </div>
 
@@ -392,7 +392,7 @@ export function Dashboard() {
                     <EyeOff className="h-4 w-4" />
                   )}
                   <span className="hidden sm:inline">
-                    {showCompleted ? t("dashboard.hideCompleted") : t("dashboard.showCompleted")}
+                    {showCompleted ? t("Dashboard.hideCompleted") : t("Dashboard.showCompleted")}
                   </span>
                   {completedCount > 0 && (
                     <span
@@ -417,13 +417,13 @@ export function Dashboard() {
                   <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
                   <h3 className="mb-2 text-lg font-medium">
                     {!showCompleted && completedCount > 0
-                      ? t("dashboard.allTasksCompleted")
-                      : t("dashboard.noTasks")}
+                      ? t("Dashboard.allTasksCompleted")
+                      : t("Dashboard.noTasks")}
                   </h3>
                   <p className="mb-4 text-sm text-muted-foreground">
                     {!showCompleted && completedCount > 0
-                      ? t("dashboard.tasksCompletedToday", { count: completedCount })
-                      : t("dashboard.noTasksDescription")}
+                      ? t("Dashboard.tasksCompletedToday", { count: completedCount })
+                      : t("Dashboard.noTasksDescription")}
                   </p>
                   {!showCompleted && completedCount > 0 ? (
                     <Button
@@ -432,7 +432,7 @@ export function Dashboard() {
                       className="flex items-center gap-2"
                     >
                       <Eye className="h-4 w-4" />
-                      {t("dashboard.showCompleted")}
+                      {t("Dashboard.showCompleted")}
                     </Button>
                   ) : (
                     <Button
@@ -444,7 +444,7 @@ export function Dashboard() {
                       className="text-white hover:opacity-90"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      {t("dashboard.createTask")}
+                      {t("Dashboard.createTask")}
                     </Button>
                   )}
                 </div>
@@ -486,7 +486,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    {t("dashboard.quickActionButtons.newProject")}
+                    {t("Dashboard.quickActionButtons.newProject")}
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -505,7 +505,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    {t("dashboard.quickActionButtons.startTimer")}
+                    {t("Dashboard.quickActionButtons.startTimer")}
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -524,7 +524,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    {t("dashboard.quickActionButtons.newTask")}
+                    {t("Dashboard.quickActionButtons.newTask")}
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"

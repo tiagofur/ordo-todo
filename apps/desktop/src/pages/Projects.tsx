@@ -33,10 +33,10 @@ export function Projects() {
                 >
                   <FolderKanban className="h-6 w-6" />
                 </div>
-                {t("projects.title")}
+                {t("Projects.title")}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("projects.subtitle") || "Organiza tus tareas en proyectos"}
+                {t("Projects.subtitle") || "Organiza tus tareas en proyectos"}
               </p>
             </div>
             <button
@@ -48,7 +48,7 @@ export function Projects() {
               }}
             >
               <Plus className="h-4 w-4" />
-              {t("projects.newProject") || "Nuevo Proyecto"}
+              {t("Projects.newProject") || "Nuevo Proyecto"}
             </button>
           </div>
         </SlideIn>
@@ -61,10 +61,10 @@ export function Projects() {
                 <FolderKanban className="h-12 w-12 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                {t("projects.selectWorkspace") || "Selecciona un workspace"}
+                {t("Projects.selectWorkspace") || "Selecciona un workspace"}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                {t("projects.selectWorkspaceDescription") || "Selecciona o crea un workspace para ver tus proyectos"}
+                {t("Projects.selectWorkspaceDescription") || "Selecciona o crea un workspace para ver tus proyectos"}
               </p>
             </div>
           </FadeIn>
@@ -95,10 +95,10 @@ export function Projects() {
                 <FolderKanban className="h-12 w-12 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                {t("projects.noProjects") || "No hay proyectos"}
+                {t("Projects.noProjects") || "No hay proyectos"}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                {t("projects.noProjectsDescription") || "Crea tu primer proyecto para empezar a organizar tus tareas."}
+                {t("Projects.noProjectsDescription") || "Crea tu primer proyecto para empezar a organizar tus tareas."}
               </p>
               <button
                 onClick={() => setShowCreateProject(true)}
@@ -109,7 +109,7 @@ export function Projects() {
                 }}
               >
                 <Plus className="h-4 w-4" />
-                {t("projects.createProject") || "Crear Proyecto"}
+                {t("Projects.createProject") || "Crear Proyecto"}
               </button>
             </div>
           </FadeIn>

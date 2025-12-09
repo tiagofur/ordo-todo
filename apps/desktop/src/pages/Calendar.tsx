@@ -26,10 +26,10 @@ export function Calendar() {
                 >
                   <CalendarIcon className="h-6 w-6" />
                 </div>
-                {t("calendar.title") || "Calendario"}
+                {t("Calendar.title") || "Calendario"}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("calendar.subtitle") || "Visualiza y organiza tus tareas en el tiempo"}
+                {t("Calendar.subtitle") || "Visualiza y organiza tus tareas en el tiempo"}
               </p>
             </div>
           </div>

@@ -95,11 +95,11 @@ export function SessionHistory() {
   const getSessionTypeLabel = (type: SessionType) => {
     switch (type) {
       case "WORK":
-        return t("timer.modes.work") || "Trabajo";
+        return t("Timer.modes.work") || "Trabajo";
       case "SHORT_BREAK":
-        return t("timer.modes.shortBreak") || "Descanso corto";
+        return t("Timer.modes.shortBreak") || "Descanso corto";
       case "LONG_BREAK":
-        return t("timer.modes.longBreak") || "Descanso largo";
+        return t("Timer.modes.longBreak") || "Descanso largo";
       default:
         return type;
     }
@@ -137,7 +137,7 @@ export function SessionHistory() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
-                {t("timer.history.totalSessions") || "Sesiones totales"}
+                {t("Timer.history.totalSessions") || "Sesiones totales"}
               </p>
               <p className="text-2xl font-bold">{filteredSessions.length}</p>
             </div>
@@ -151,7 +151,7 @@ export function SessionHistory() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
-                {t("timer.history.totalTime") || "Tiempo total"}
+                {t("Timer.history.totalTime") || "Tiempo total"}
               </p>
               <p className="text-2xl font-bold">{formatDuration(totalMinutes)}</p>
             </div>
@@ -165,7 +165,7 @@ export function SessionHistory() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
-                {t("timer.history.workSessions") || "Pomodoros"}
+                {t("Timer.history.workSessions") || "Pomodoros"}
               </p>
               <p className="text-2xl font-bold">{workSessions}</p>
             </div>
@@ -178,7 +178,7 @@ export function SessionHistory() {
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            {t("timer.history.filters") || "Filtros"}:
+            {t("Timer.history.filters") || "Filtros"}:
           </span>
         </div>
 
@@ -192,10 +192,10 @@ export function SessionHistory() {
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">{t("timer.history.allTypes") || "Todos"}</SelectItem>
-            <SelectItem value="WORK">{t("timer.modes.work") || "Trabajo"}</SelectItem>
-            <SelectItem value="SHORT_BREAK">{t("timer.modes.shortBreak") || "Descanso corto"}</SelectItem>
-            <SelectItem value="LONG_BREAK">{t("timer.modes.longBreak") || "Descanso largo"}</SelectItem>
+            <SelectItem value="ALL">{t("Timer.history.allTypes") || "Todos"}</SelectItem>
+            <SelectItem value="WORK">{t("Timer.modes.work") || "Trabajo"}</SelectItem>
+            <SelectItem value="SHORT_BREAK">{t("Timer.modes.shortBreak") || "Descanso corto"}</SelectItem>
+            <SelectItem value="LONG_BREAK">{t("Timer.modes.longBreak") || "Descanso largo"}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -210,10 +210,10 @@ export function SessionHistory() {
             <SelectValue placeholder="Período" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">{t("timer.history.today") || "Hoy"}</SelectItem>
-            <SelectItem value="7">{t("timer.history.last7Days") || "7 días"}</SelectItem>
-            <SelectItem value="30">{t("timer.history.last30Days") || "30 días"}</SelectItem>
-            <SelectItem value="90">{t("timer.history.last90Days") || "90 días"}</SelectItem>
+            <SelectItem value="1">{t("Timer.history.today") || "Hoy"}</SelectItem>
+            <SelectItem value="7">{t("Timer.history.last7Days") || "7 días"}</SelectItem>
+            <SelectItem value="30">{t("Timer.history.last30Days") || "30 días"}</SelectItem>
+            <SelectItem value="90">{t("Timer.history.last90Days") || "90 días"}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -222,16 +222,16 @@ export function SessionHistory() {
       <div className="rounded-2xl border bg-card overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground">
-            {t("timer.history.loading") || "Cargando historial..."}
+            {t("Timer.history.loading") || "Cargando historial..."}
           </div>
         ) : filteredSessions.length === 0 ? (
           <div className="p-8 text-center">
             <Clock className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="font-medium mb-1">
-              {t("timer.history.noSessions") || "No hay sesiones"}
+              {t("Timer.history.noSessions") || "No hay sesiones"}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {t("timer.history.noSessionsDescription") || "Completa tu primera sesión para verla aquí"}
+              {t("Timer.history.noSessionsDescription") || "Completa tu primera sesión para verla aquí"}
             </p>
           </div>
         ) : (
@@ -274,7 +274,7 @@ export function SessionHistory() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {t("timer.history.page") || "Página"} {filters.page} de {totalPages}
+            {t("Timer.history.page") || "Página"} {filters.page} de {totalPages}
           </p>
           <div className="flex gap-2">
             <Button

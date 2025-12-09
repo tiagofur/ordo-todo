@@ -57,17 +57,17 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     () => [
       {
         id: "TODO",
-        title: t("ProjectBoard.columns.todo"),
+        title: t("ProjectDetail.status.todo"),
         color: "bg-gray-500/10 border-gray-500/20",
       },
       {
         id: "IN_PROGRESS",
-        title: t("ProjectBoard.columns.inProgress"),
+        title: t("ProjectDetail.status.inProgress"),
         color: "bg-blue-500/10 border-blue-500/20",
       },
       {
         id: "COMPLETED",
-        title: t("ProjectBoard.columns.completed"),
+        title: t("ProjectDetail.status.completed"),
         color: "bg-green-500/10 border-green-500/20",
       },
     ],

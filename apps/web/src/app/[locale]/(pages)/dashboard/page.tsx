@@ -24,7 +24,7 @@ import { useTimerStats, useDailyMetrics } from "@/lib/api-hooks";
 import { useTasks } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
-import { UpcomingTasksWidget } from "@/components/dashboard/upcoming-tasks-widget";
+import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-widget";
 import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
@@ -121,15 +121,6 @@ export default function DashboardPage() {
     }
 
     return false;
-  });
-
-  // Get upcoming tasks (next 7 days, not completed)
-  const upcomingTasks = allTasks.filter((task: any) => {
-    if (task.status === "COMPLETED" || !task.dueDate) return false;
-    const dueDate = new Date(task.dueDate);
-    const sevenDaysFromNow = new Date();
-    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-    return dueDate >= startOfDay && dueDate <= sevenDaysFromNow;
   });
 
   // Filter out completed tasks if showCompleted is false
@@ -297,8 +288,7 @@ export default function DashboardPage() {
             longestStreak={longestStreak}
             accentColor={accentColor}
           />
-          <UpcomingTasksWidget
-            tasks={upcomingTasks}
+          <DashboardTimerWidget
             accentColor={accentColor}
           />
         </div>

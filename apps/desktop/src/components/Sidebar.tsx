@@ -22,13 +22,13 @@ export default function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
 
   const navItems: NavItem[] = [
-    { name: t("sidebar.today", "Today"), href: "/", icon: Home, color: "cyan" },
-    { name: t("sidebar.tasks", "Tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-    { name: t("sidebar.calendar", "Calendar"), href: "/calendar", icon: Calendar, color: "blue" },
-    { name: t("sidebar.projects", "Projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-    { name: t("sidebar.workspaces", "Workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-    { name: t("sidebar.tags", "Tags"), href: "/tags", icon: Tags, color: "green" },
-    { name: t("sidebar.analytics", "Analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
+    { name: t("Sidebar.today", "Today"), href: "/", icon: Home, color: "cyan" },
+    { name: t("Sidebar.tasks", "Tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t("Sidebar.calendar", "Calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+    { name: t("Sidebar.projects", "Projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("Sidebar.workspaces", "Workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
+    { name: t("Sidebar.tags", "Tags"), href: "/tags", icon: Tags, color: "green" },
+    { name: t("Sidebar.analytics", "Analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
   ];
 
   return (
@@ -44,7 +44,7 @@ export default function Sidebar({ className }: SidebarProps) {
       renderWorkspaceSelector={() => <WorkspaceSelector onCreateClick={() => {}} />}
       labels={{
         appName: "Ordo",
-        settings: t("sidebar.settings", "Settings"),
+        settings: t("Sidebar.settings", "Settings"),
       }}
     />
   );

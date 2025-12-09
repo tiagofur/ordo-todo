@@ -104,10 +104,10 @@ export function Analytics() {
                 >
                   <BarChart3 className="h-6 w-6" />
                 </div>
-                {t("analytics.title")}
+                {t("Analytics.title")}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("analytics.subtitle") || "Analiza tu productividad y mejora tu rendimiento"}
+                {t("Analytics.subtitle") || "Analiza tu productividad y mejora tu rendimiento"}
               </p>
             </div>
             
@@ -118,7 +118,7 @@ export function Analytics() {
               </Button>
               <div className="flex items-center gap-2 px-3 py-2 border rounded-lg bg-card">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{t("analytics.thisWeek")}</span>
+                <span className="text-sm font-medium">{t("Analytics.thisWeek")}</span>
               </div>
               <Button variant="outline" size="icon">
                 <ChevronRight className="h-4 w-4" />
@@ -131,9 +131,9 @@ export function Analytics() {
         <StaggerList className="grid gap-4 md:grid-cols-4">
           <StaggerItem>
             <StatsCard
-              title={t("analytics.pomodoros")}
+              title={t("Analytics.pomodoros")}
               value={totalPomodoros}
-              subtitle={t("analytics.thisWeek").toLowerCase()}
+              subtitle={t("Analytics.thisWeek").toLowerCase()}
               icon={Timer}
               iconColor="text-red-500"
               iconBgColor="bg-red-500/10"
@@ -146,7 +146,7 @@ export function Analytics() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title={t("analytics.tasksCompleted")}
+              title={t("Analytics.tasksCompleted")}
               value={totalTasks}
               icon={CheckCircle2}
               iconColor="text-emerald-500"
@@ -160,7 +160,7 @@ export function Analytics() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title={t("analytics.streak")}
+              title={t("Analytics.streak")}
               value={5}
               subtitle="días"
               icon={Flame}
@@ -170,7 +170,7 @@ export function Analytics() {
           </StaggerItem>
           <StaggerItem>
             <StatsCard
-              title={t("analytics.avgPerDay")}
+              title={t("Analytics.avgPerDay")}
               value={avgPomodoros}
               subtitle="pomodoros"
               icon={Target}

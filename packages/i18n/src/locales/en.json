@@ -79,13 +79,30 @@
   },
   "Dashboard": {
     "completed": "Completed",
+    "subtasks": "Subtasks",
     "timeWorked": "Time worked",
     "productivity": "Productivity",
     "today": "Today",
     "todaysTasks": "Today's Tasks",
     "noTasks": "No tasks for today",
     "noTasksDescription": "Start by creating your first task to see it here.",
-    "createTask": "Create Task"
+    "createTask": "Create Task",
+    "allTasksCompleted": "All tasks completed!",
+    "tasksCompletedToday": "{count} task(s) completed today",
+    "showCompleted": "Show completed",
+    "hideCompleted": "Hide completed",
+    "viewList": "List view",
+    "viewGrid": "Grid view",
+    "sortOptions": {
+      "priority": "Priority",
+      "duration": "Duration",
+      "created": "Date created"
+    },
+    "quickActionButtons": {
+      "newProject": "New Project",
+      "startTimer": "Start Timer",
+      "newTask": "New Task"
+    }
   },
   "Tasks": {
     "title": "Tasks",
@@ -1550,6 +1567,45 @@
       "average": "Avg/day"
     }
   },
+  "Timer": {
+    "title": "Timer",
+    "subtitle": "Manage your time with Pomodoro",
+    "tabs": {
+      "timer": "Timer",
+      "history": "History"
+    },
+    "modes": {
+      "work": "Work",
+      "shortBreak": "Short Break",
+      "longBreak": "Long Break"
+    },
+    "history": {
+      "totalSessions": "Total sessions",
+      "totalTime": "Total time",
+      "workSessions": "Work sessions",
+      "noSessions": "No sessions",
+      "noSessionsDescription": "Complete a session with the timer to see it here.",
+      "loading": "Loading...",
+      "filters": "Filters",
+      "allTypes": "All types",
+      "today": "Today",
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "last90Days": "Last 90 days",
+      "page": "Page"
+    }
+  },
+  "AIWeeklyReport": {
+    "weeklyReport": "Weekly Report",
+    "generateReport": "Generate Report",
+    "analyzing": "Analyzing...",
+    "sections": {
+      "summary": "Summary",
+      "achievements": "Achievements",
+      "improvements": "Areas for Improvement",
+      "recommendations": "Recommendations"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -1566,5 +1622,34 @@
     "success": "Success",
     "warning": "Warning",
     "info": "Information"
+  },
+  "Sync": {
+    "offline": "Offline",
+    "offlineDesc": "Changes will sync when online",
+    "syncing": "Syncing...",
+    "syncingDesc": "Syncing your changes",
+    "error": "Sync Error",
+    "errorDesc": "Failed to sync. Click to retry",
+    "pending": "Pending",
+    "pendingDesc": "{{count}} changes pending",
+    "synced": "Synced",
+    "syncedDesc": "Last sync: {{time}}",
+    "unknown": "Unknown",
+    "failedChanges": "{{count}} failed changes",
+    "pendingChanges": "pending",
+    "offlineBanner": "You're offline. Changes will sync when you reconnect."
+  },
+  "About": {
+    "description": "Your personal productivity companion",
+    "version": "Version",
+    "platform": "Platform",
+    "madeWith": "Made with ❤️ to boost your productivity",
+    "website": "Website",
+    "documentation": "Documentation"
+  },
+  "Shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "description": "Use these shortcuts to navigate and control the app faster. Shortcuts marked as 'Global' work even when the window is not focused.",
+    "footerNote": "You can customize global shortcuts in Settings → Shortcuts"
   }
 }

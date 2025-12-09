@@ -41,15 +41,15 @@ export function AboutDialog() {
       }}
       labels={{
         title: "Ordo-Todo",
-        description: t("about.description", "Your personal productivity companion"),
-        version: t("about.version", "Version"),
+        description: t("About.description", "Your personal productivity companion"),
+        version: t("About.version", "Version"),
         electron: "Electron",
-        platform: t("about.platform", "Platform"),
+        platform: t("About.platform", "Platform"),
         copyright: "© 2025 Ordo-Todo",
-        madeWith: t("about.madeWith", "Made with ❤️ to boost your productivity"),
-        website: t("about.website", "Website"),
+        madeWith: t("About.madeWith", "Made with ❤️ to boost your productivity"),
+        website: t("About.website", "Website"),
         github: "GitHub",
-        documentation: t("about.documentation", "Documentation"),
+        documentation: t("About.documentation", "Documentation"),
       }}
     />
   );

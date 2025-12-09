@@ -31,13 +31,13 @@ export function Sidebar() {
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
 
   const navigation = [
-    { name: t("nav.dashboard") || "Inicio", href: "/dashboard", icon: Home, color: "cyan" },
-    { name: t("nav.tasks") || "Tareas", href: "/tasks", icon: CheckSquare, color: "purple" },
-    { name: t("nav.calendar") || "Calendario", href: "/calendar", icon: Calendar, color: "blue" },
-    { name: t("nav.projects") || "Proyectos", href: "/projects", icon: FolderKanban, color: "pink" },
-    { name: "Workspaces", href: "/workspaces", icon: Briefcase, color: "orange" }, // Pending translation
-    { name: "Tags", href: "/tags", icon: Tags, color: "green" }, // Pending translation
-    { name: t("nav.analytics") || "Analíticas", href: "/analytics", icon: BarChart3, color: "cyan" },
+    { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
+    { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+    { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("Sidebar.workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
+    { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
+    { name: t("Sidebar.analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
   ];
 
   return (
@@ -112,7 +112,7 @@ export function Sidebar() {
                 "h-5 w-5 transition-transform duration-200",
                 location.pathname === "/settings" || location.pathname?.startsWith("/settings/") ? "" : "group-hover:scale-110"
               )} />
-              {t("nav.settings") || "Configuración"}
+              {t("Sidebar.settings")}
             </Link>
           </div>
         </div>

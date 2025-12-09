@@ -68,7 +68,7 @@ function generateAIReport(data: ProductivityData, t: (key: string) => string): A
   // Summary Section
   sections.push({
     id: "summary",
-    title: t("ai.sections.summary"),
+    title: t("AIWeeklyReport.sections.summary"),
     icon: <FileText className="h-5 w-5" />,
     type: "info",
     content: [
@@ -96,7 +96,7 @@ function generateAIReport(data: ProductivityData, t: (key: string) => string): A
   if (achievements.length > 0) {
     sections.push({
       id: "achievements",
-      title: t("ai.sections.achievements"),
+      title: t("AIWeeklyReport.sections.achievements"),
       icon: <Trophy className="h-5 w-5" />,
       type: "success",
       content: achievements,
@@ -119,7 +119,7 @@ function generateAIReport(data: ProductivityData, t: (key: string) => string): A
   if (improvements.length > 0) {
     sections.push({
       id: "improvements",
-      title: t("ai.sections.improvements"),
+      title: t("AIWeeklyReport.sections.improvements"),
       icon: <Target className="h-5 w-5" />,
       type: "warning",
       content: improvements,
@@ -141,7 +141,7 @@ function generateAIReport(data: ProductivityData, t: (key: string) => string): A
 
   sections.push({
     id: "recommendations",
-    title: t("ai.sections.recommendations"),
+    title: t("AIWeeklyReport.sections.recommendations"),
     icon: <Lightbulb className="h-5 w-5" />,
     type: "tip",
     content: recommendations,
@@ -201,7 +201,7 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
             <Sparkles className="h-6 w-6 text-purple-500" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">{t("ai.weeklyReport")}</h2>
+            <h2 className="text-xl font-bold">{t("AIWeeklyReport.weeklyReport")}</h2>
             <p className="text-sm text-muted-foreground">
               Análisis inteligente de tu productividad
             </p>
@@ -243,7 +243,7 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
                 >
                   <Zap className="h-8 w-8 text-purple-500" />
                 </motion.div>
-                <p className="text-lg font-medium mb-2">{t("ai.analyzing")}</p>
+                <p className="text-lg font-medium mb-2">{t("AIWeeklyReport.analyzing")}</p>
                 <div className="flex gap-1">
                   {[0, 1, 2].map((i) => (
                     <motion.div
@@ -269,7 +269,7 @@ export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWee
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  {t("ai.generateReport")}
+                  {t("AIWeeklyReport.generateReport")}
                 </Button>
               </>
             )}

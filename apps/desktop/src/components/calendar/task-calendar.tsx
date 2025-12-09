@@ -258,13 +258,13 @@ export function TaskCalendar() {
             event: CustomEvent
         }}
         messages={{
-            next: t("common.next") || "Next",
-            previous: t("common.previous") || "Previous",
-            today: t("common.today") || "Today",
-            month: t("common.month") || "Month",
-            week: t("common.week") || "Week",
-            day: t("common.day") || "Day",
-            agenda: t("common.agenda") || "Agenda",
+            next: t("Calendar.next") || "Next",
+            previous: t("Calendar.previous") || "Previous",
+            today: t("Calendar.today") || "Today",
+            month: t("Calendar.month") || "Month",
+            week: t("Calendar.week") || "Week",
+            day: t("Calendar.day") || "Day",
+            agenda: t("Calendar.agenda") || "Agenda",
         }}
         onEventDrop={onEventDrop}
         resizable

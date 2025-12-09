@@ -60,10 +60,10 @@ export function Tasks() {
                 >
                   <CheckSquare className="h-6 w-6" />
                 </div>
-                {t("tasks.title") || "Tareas"}
+                {t("Tasks.title") || "Tareas"}
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t("tasks.subtitle") || "Gestiona tus tareas diarias"}
+                {t("Tasks.subtitle") || "Gestiona tus tareas diarias"}
               </p>
 
               {/* Active tag filter indicator */}
@@ -109,7 +109,7 @@ export function Tasks() {
                       ? "bg-purple-500/10 text-purple-500"
                       : "text-muted-foreground hover:bg-muted/50"
                   )}
-                  title={t("tasks.listView") || "Vista de lista"}
+                  title={t("Tasks.listView") || "Vista de lista"}
                 >
                   <List className="h-4 w-4" />
                 </button>
@@ -121,7 +121,7 @@ export function Tasks() {
                       ? "bg-purple-500/10 text-purple-500"
                       : "text-muted-foreground hover:bg-muted/50"
                   )}
-                  title={t("tasks.gridView") || "Vista de cuadrícula"}
+                  title={t("Tasks.gridView") || "Vista de cuadrícula"}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </button>
@@ -136,7 +136,7 @@ export function Tasks() {
                 }}
               >
                 <Plus className="h-4 w-4" />
-                {t("tasks.newTask") || "Nueva Tarea"}
+                {t("Tasks.newTask") || "Nueva Tarea"}
               </button>
             </div>
           </div>
@@ -183,13 +183,13 @@ export function Tasks() {
               </div>
               <h3 className="text-xl font-semibold mb-2">
                 {currentTag
-                  ? t("tasks.noTasksWithTag") || "No hay tareas con esta etiqueta"
-                  : t("tasks.allClear") || "¡Todo listo!"}
+                  ? t("Tasks.noTasksWithTag") || "No hay tareas con esta etiqueta"
+                  : t("Tasks.allClear") || "¡Todo listo!"}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md">
                 {currentTag
-                  ? t("tasks.noTasksWithTagDescription") || `No hay tareas con la etiqueta "${currentTag.name}"`
-                  : t("tasks.noPendingTasks") || "No tienes tareas pendientes. ¡Buen trabajo!"}
+                  ? t("Tasks.noTasksWithTagDescription") || `No hay tareas con la etiqueta "${currentTag.name}"`
+                  : t("Tasks.noPendingTasks") || "No tienes tareas pendientes. ¡Buen trabajo!"}
               </p>
               <button
                 onClick={() => setShowCreateTask(true)}
@@ -200,7 +200,7 @@ export function Tasks() {
                 }}
               >
                 <Plus className="h-4 w-4" />
-                {t("tasks.createTask") || "Crear Tarea"}
+                {t("Tasks.createTask") || "Crear Tarea"}
               </button>
             </div>
           </FadeIn>
