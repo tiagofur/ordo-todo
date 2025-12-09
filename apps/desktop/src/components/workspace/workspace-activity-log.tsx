@@ -22,8 +22,8 @@ export function WorkspaceActivityLog({ workspaceId }: WorkspaceActivityLogProps)
     offset: page * ITEMS_PER_PAGE,
   });
 
-  const logs = data?.logs || [];
-  const total = data?.total || 0;
+  const logs = Array.isArray(data) ? data : [];
+  const total = logs.length;
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   const getActionIcon = (action: string) => {

@@ -393,7 +393,7 @@ export function TaskDetailPanel({
                     {activeTab === "activity" && (
                       <ActivityFeed 
                         taskId={taskId}
-                        activities={(task?.activities || []) as any}
+                        activities={[]} // TODO: Implement task activities fetching
                         maxItems={10}
                       />
                     )}

@@ -172,6 +172,12 @@ export class OrdoApiClient {
     // Request interceptor - attach JWT token
     this.axios.interceptors.request.use(
       async (config) => {
+        // Skip for refresh endpoint to avoid circular dependency/deadlock
+        // and to prevent sending expired tokens to the refresh endpoint
+        if (config.url?.includes('/auth/refresh')) {
+          return config;
+        }
+
         if (this.tokenStorage) {
           const token = await this.tokenStorage.getToken();
           if (token) {

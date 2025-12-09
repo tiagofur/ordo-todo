@@ -265,7 +265,7 @@ export function Analytics() {
                 <ProjectTimeChart data={projectData || []} />
                 <TaskStatusChart data={statusData || []} />
               </div>
-              <PeakHoursHeatmap data={heatmapData || []} />
+              <PeakHoursHeatmap data={(heatmapData || []) as any} />
             </TabsContent>
 
             {/* Focus Tab */}

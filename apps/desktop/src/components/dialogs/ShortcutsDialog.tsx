@@ -43,7 +43,7 @@ export function ShortcutsDialog() {
   return (
     <ShortcutsDialogUI
       open={shortcutsDialogOpen}
-      onOpenChange={closeShortcutsDialog}
+      onOpenChange={(val) => !val && closeShortcutsDialog()}
       shortcuts={shortcuts}
       labels={{
         title: t("shortcuts.title", "Keyboard Shortcuts"),
@@ -51,7 +51,7 @@ export function ShortcutsDialog() {
           "shortcuts.description",
           "Use these shortcuts to navigate and control the app faster. Shortcuts marked as 'Global' work even when the window is not focused."
         ),
-        footerNote: t(
+        footer: t(
           "shortcuts.footerNote",
           "You can customize global shortcuts in Settings → Shortcuts"
         ),

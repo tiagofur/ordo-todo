@@ -1,6 +1,8 @@
 ---
 name: scope-rule-architect-nestjs
 description: Use this agent when you need to make architectural decisions about module placement in a NestJS/TypeScript backend project following the Scope Rule pattern and Clean Architecture principles. This agent specializes in determining whether code should be placed locally within a domain module or globally in shared directories based on usage patterns, and ensures the project structure clearly communicates functionality.
+model: opus
+color: blue
 
 Examples:
 <example>

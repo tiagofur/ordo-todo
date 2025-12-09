@@ -24,6 +24,8 @@ import type {
   CreateAttachmentDto,
   InviteMemberDto,
   AcceptInvitationDto,
+  RefreshTokenDto,
+  AuthResponse,
 } from '@ordo-todo/api-client';
 import { useSyncStore } from '@/stores/sync-store';
 import { PendingActionType } from '@/lib/offline-storage';
@@ -129,6 +131,7 @@ function getEntityId(url: string): string | undefined {
 
 // Token management
 const TOKEN_KEY = 'ordo_auth_token';
+const REFRESH_TOKEN_KEY = 'ordo_refresh_token';
 
 export const setToken = (token: string) => {
   if (typeof window !== 'undefined') {
@@ -148,6 +151,70 @@ export const removeToken = () => {
     localStorage.removeItem(TOKEN_KEY);
   }
 };
+
+export const setRefreshToken = (token: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  }
+};
+
+export const getRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+  return null;
+};
+
+export const removeRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  }
+};
+
+// Refresh token logic
+let isRefreshing = false;
+let refreshPromise: Promise<AuthResponse> | null = null;
+
+async function handleTokenRefresh(): Promise<AuthResponse> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+
+  isRefreshing = true;
+
+  refreshPromise = (async () => {
+    try {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      // We cannot use axiosInstance here because it has interceptors that might cause infinite loops
+      // Create a fresh instance for the refresh call
+      const response = await axios.post<AuthResponse>(`${config.api.baseURL}/auth/refresh`, {
+        refreshToken,
+      });
+
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+      setToken(accessToken);
+      if (newRefreshToken) {
+        setRefreshToken(newRefreshToken);
+      }
+
+      return response.data;
+    } catch (error) {
+      removeToken();
+      removeRefreshToken();
+      throw error;
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -207,7 +274,27 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
+      const originalRequest = error.config as any;
+
+      // If we haven't retried this request yet and we have a refresh token
+      if (!originalRequest._retry && getRefreshToken()) {
+        originalRequest._retry = true;
+
+        try {
+          const { accessToken } = await handleTokenRefresh();
+
+          // Update header and retry
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          // If refresh fails, we will be logged out by handleTokenRefresh logic
+          return Promise.reject(refreshError);
+        }
+      }
+
+      // If no refresh token or already retried, logout
       removeToken();
+      removeRefreshToken();
     }
     return Promise.reject(error);
   }
@@ -217,7 +304,11 @@ export const apiClient = {
   // Auth
   register: (data: RegisterDto) => axiosInstance.post('/auth/register', data).then((res) => res.data),
   login: (data: LoginDto) => axiosInstance.post('/auth/login', data).then((res) => res.data),
-  logout: () => axiosInstance.post('/auth/logout').then((res) => res.data),
+  logout: () => {
+    removeRefreshToken();
+    return axiosInstance.post('/auth/logout').then((res) => res.data);
+  },
+  refreshToken: (data: RefreshTokenDto) => axiosInstance.post('/auth/refresh', data).then((res) => res.data),
 
   // User
   getCurrentUser: () => axiosInstance.get('/users/me').then((res) => res.data),

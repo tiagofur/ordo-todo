@@ -1,6 +1,8 @@
 ---
 name: postgres-schema-architect
 description: Use this agent when you need to make architectural decisions about database schema design in PostgreSQL/Prisma projects. This agent specializes in normalization, indexing strategies, relationship modeling, and performance optimization. It ensures database schemas are scalable, maintainable, and follow best practices for data integrity and query performance.
+model: opus
+color: yelow
 
 Examples:
 <example>

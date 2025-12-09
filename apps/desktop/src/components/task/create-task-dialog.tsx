@@ -107,7 +107,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
     const result = parseTaskInput(text, {
         projects: projects || [],
-        members: members || [],
+        members: members?.map((m: any) => ({ id: m.userId || m.id, name: m.name || m.user?.name || "Unknown Member", email: m.email || m.user?.email })) || [],
         tags: tags || [],
     });
 

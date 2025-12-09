@@ -16,7 +16,7 @@ export function useDailyMetrics(params?: { userId?: string, startDate?: string, 
 export function useWeeklyMetrics(params?: { weekStart?: string }) {
   return useQuery({
     queryKey: ['analytics', 'weekly', params],
-    queryFn: () => apiClient.getWeeklyMetrics(params),
+    queryFn: () => apiClient.getWeeklyMetrics(),
   });
 }
 

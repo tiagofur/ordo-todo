@@ -87,7 +87,7 @@ export function WorkspaceDetail() {
 
   const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
   const TypeIcon = typeInfo.icon;
-  const logs = activityData?.logs || [];
+  const logs = Array.isArray(activityData) ? activityData : [];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

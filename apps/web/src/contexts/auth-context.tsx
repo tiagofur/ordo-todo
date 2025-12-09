@@ -9,7 +9,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient, setToken, removeToken } from '@/lib/api-client';
+import { apiClient, setToken, removeToken, setRefreshToken, removeRefreshToken } from '@/lib/api-client';
 import { useCurrentUser, useLogin, useRegister, useLogout } from '@/lib/api-hooks';
 import type { UserResponse, LoginDto, RegisterDto } from '@ordo-todo/api-client';
 
@@ -63,6 +63,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (response.accessToken) {
       setToken(response.accessToken);
     }
+    if (response.refreshToken) {
+      setRefreshToken(response.refreshToken);
+    }
 
     // Force refetch current user
     window.location.href = '/dashboard';
@@ -74,6 +77,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (response.accessToken) {
       setToken(response.accessToken);
     }
+    if (response.refreshToken) {
+      setRefreshToken(response.refreshToken);
+    }
 
     window.location.href = '/dashboard';
   };
@@ -81,6 +87,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     await logoutMutation.mutateAsync();
     removeToken();
+    removeRefreshToken();
 
     // Redirect to signin
     window.location.href = '/login';

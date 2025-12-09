@@ -11,17 +11,18 @@ import { ProfileTabs } from "@ordo-todo/ui";
 import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { useElectron } from "@/hooks/use-electron";
-import { useFullProfile, useUpdateProfile, useUpdatePreferences, useExportData, useDeleteAccount } from "@/lib/api-hooks";
-import useMessages from "@/data/hooks/use-messages.hook";
-import { useRouter } from "react-router-dom";
+import { useFullProfile, useUpdateProfile, useUpdatePreferences, useExportData, useDeleteAccount } from "@/lib/shared-hooks";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export function Profile() {
   const { setTheme, theme } = useTheme();
   const { t, i18n } = useTranslation();
   const { isElectron } = useElectron();
-  const router = useRouter();
+  const navigate = useNavigate();
   const currentLang = getCurrentLanguage();
-  const { addSuccess, addError } = useMessages();
+  const addSuccess = (msg: string) => toast.success(msg);
+  const addError = (msg: string) => toast.error(msg);
 
   // API hooks
   const { data: profile, isLoading } = useFullProfile();
@@ -359,8 +360,8 @@ export function Profile() {
         {/* Profile Tabs */}
         <SlideIn delay={0.2}>
           <ProfileTabs
-            profile={profile}
-            sessionUser={{ email: profile?.email }}
+            profile={profile as any}
+            sessionUser={{ email: profile?.email || "" }}
             isLoading={isLoading}
             onUpdateProfile={async (data) => {
               await updateProfile.mutateAsync(data);
@@ -373,7 +374,7 @@ export function Profile() {
             }}
             onDeleteAccount={async () => {
               await deleteAccount.mutateAsync();
-              router.push("/login");
+              navigate("/login");
             }}
             isUpdateProfilePending={updateProfile.isPending}
             isUpdatePreferencesPending={updatePreferences.isPending}

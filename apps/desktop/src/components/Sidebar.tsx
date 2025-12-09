@@ -41,7 +41,7 @@ export default function Sidebar({ className }: SidebarProps) {
         </Link>
       )}
       renderTimerWidget={() => <TimerWidget />}
-      renderWorkspaceSelector={() => <WorkspaceSelector />}
+      renderWorkspaceSelector={() => <WorkspaceSelector onCreateClick={() => {}} />}
       labels={{
         appName: "Ordo",
         settings: t("sidebar.settings", "Settings"),
