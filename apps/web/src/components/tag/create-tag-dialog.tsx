@@ -1,21 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useCreateTag, useUpdateTag } from "@/lib/api-hooks";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { notify } from "@/lib/notify";
 import { useTranslations } from "next-intl";
+import { CreateTagDialog as CreateTagDialogUI, type TagFormData } from "@ordo-todo/ui";
 
 interface CreateTagDialogProps {
   open: boolean;
@@ -24,65 +12,31 @@ interface CreateTagDialogProps {
   tagToEdit?: { id: string; name: string; color?: string; workspaceId: string };
 }
 
-import { TAG_COLORS, createTagSchema } from "@ordo-todo/core";
-
+/**
+ * CreateTagDialog - Web wrapper for the shared CreateTagDialog component
+ * 
+ * Integrates the platform-agnostic UI component with:
+ * - useCreateTag and useUpdateTag hooks for API calls
+ * - notify for toast notifications
+ * - next-intl for translations
+ */
 export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: CreateTagDialogProps) {
   const t = useTranslations('CreateTagDialog');
-  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || TAG_COLORS[0]);
-
-  const formSchema = createTagSchema.extend({
-    name: z.string().min(1, t('form.name.required')),
-  });
-
-  type CreateTagForm = z.infer<typeof formSchema>;
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<CreateTagForm>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: tagToEdit?.name || "",
-      workspaceId: workspaceId || tagToEdit?.workspaceId,
-      color: tagToEdit?.color || TAG_COLORS[0],
-    },
-  });
-
-  const watchedName = watch("name");
-
-  // Update form when workspaceId or tagToEdit changes
-  useEffect(() => {
-    if (tagToEdit) {
-      setValue("name", tagToEdit.name);
-      setValue("workspaceId", tagToEdit.workspaceId);
-      setSelectedColor(tagToEdit.color || TAG_COLORS[0]);
-    } else if (workspaceId) {
-      setValue("workspaceId", workspaceId);
-      if (!open) {
-        reset({ name: "", workspaceId, color: TAG_COLORS[0] });
-        setSelectedColor(TAG_COLORS[0]);
-      }
-    }
-  }, [workspaceId, tagToEdit, setValue, reset, open]);
-
   const createTag = useCreateTag();
   const updateTag = useUpdateTag();
 
-  const onSubmit = (data: CreateTagForm) => {
-    const payload = {
-      ...data,
-      color: selectedColor,
+  const handleSubmit = (data: TagFormData, isEdit: boolean) => {
+    // Cast TagFormData to API types
+    const tagData = {
+      name: data.name,
+      color: data.color,
+      workspaceId: data.workspaceId || workspaceId,
     };
     
-    if (tagToEdit) {
-      updateTag.mutate({ tagId: tagToEdit.id, data: payload }, {
+    if (isEdit && tagToEdit) {
+      updateTag.mutate({ tagId: tagToEdit.id, data: tagData as any }, {
         onSuccess: () => {
           notify.success(t('toast.updated'));
-          reset();
           onOpenChange(false);
         },
         onError: (error: any) => {
@@ -90,10 +44,9 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
         }
       });
     } else {
-      createTag.mutate(payload, {
+      createTag.mutate(tagData as any, {
         onSuccess: () => {
           notify.success(t('toast.created'));
-          reset();
           onOpenChange(false);
         },
         onError: (error: any) => {
@@ -103,90 +56,33 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
     }
   };
 
+  const labels = {
+    titleCreate: t('title.create'),
+    titleEdit: t('title.edit'),
+    descriptionCreate: t('description.create'),
+    descriptionEdit: t('description.edit'),
+    colorLabel: t('form.color.label'),
+    nameLabel: t('form.name.label'),
+    namePlaceholder: t('form.name.placeholder'),
+    nameRequired: t('form.name.required'),
+    previewLabel: t('form.preview.label'),
+    previewDefault: t('form.preview.default'),
+    cancel: t('actions.cancel'),
+    save: t('actions.save'),
+    saving: t('actions.saving'),
+    create: t('actions.create'),
+    creating: t('actions.creating'),
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
-        <DialogHeader>
-          <DialogTitle>{tagToEdit ? t('title.edit') : t('title.create')}</DialogTitle>
-          <DialogDescription>
-            {tagToEdit ? t('description.edit') : t('description.create')}
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Color Picker */}
-          <div className="space-y-2">
-            <Label>{t('form.color.label')}</Label>
-            <div className="flex flex-wrap gap-2">
-              {TAG_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`h-10 w-10 rounded-lg transition-all ${
-                    selectedColor === color ? "scale-110 ring-2 ring-offset-2 ring-primary" : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">{t('form.name.label')}</Label>
-            <input
-              id="name"
-              {...register("name")}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder={t('form.name.placeholder')}
-              autoFocus
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Preview */}
-          <div className="space-y-2">
-            <Label>{t('form.preview.label')}</Label>
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
-                style={{
-                  backgroundColor: `${selectedColor}20`,
-                  color: selectedColor,
-                }}
-              >
-                {watchedName || t('form.preview.default')}
-              </span>
-            </div>
-          </div>
-
-          {/* Hidden workspace ID */}
-          <input type="hidden" {...register("workspaceId")} />
-
-          <DialogFooter>
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
-            >
-              {t('actions.cancel')}
-            </button>
-            <button
-              type="submit"
-              disabled={createTag.isPending || updateTag.isPending}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {tagToEdit 
-                ? (updateTag.isPending ? t('actions.saving') : t('actions.save')) 
-                : (createTag.isPending ? t('actions.creating') : t('actions.create'))
-              }
-            </button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <CreateTagDialogUI
+      open={open}
+      onOpenChange={onOpenChange}
+      workspaceId={workspaceId}
+      tagToEdit={tagToEdit}
+      onSubmit={handleSubmit}
+      isPending={createTag.isPending || updateTag.isPending}
+      labels={labels}
+    />
   );
 }

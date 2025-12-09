@@ -2,22 +2,26 @@
 
 import { useDailyMetrics, useTimerStats } from "@/lib/api-hooks";
 import { formatDuration } from "@ordo-todo/core";
-import { getFocusScoreColor } from "@ordo-todo/ui";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { CheckCircle2, Clock, Target, Zap } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
+import { 
+  DailyMetricsCard as DailyMetricsCardUI, 
+  getFocusScoreColor,
+  type DailyMetricsData, 
+  type TimerStatsData 
+} from "@ordo-todo/ui";
 
 interface DailyMetricsCardProps {
   date?: Date;
 }
 
+/**
+ * DailyMetricsCard - Web wrapper for the shared DailyMetricsCard component
+ * 
+ * Integrates the platform-agnostic UI component with:
+ * - useDailyMetrics and useTimerStats hooks for data fetching
+ * - formatDuration and getFocusScoreColor from core
+ * - next-intl for translations
+ */
 export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
   const t = useTranslations("DailyMetricsCard");
 
@@ -44,115 +48,49 @@ export function DailyMetricsCard({ date }: DailyMetricsCardProps) {
   });
 
   // Use useDailyMetrics for task-related data (tasks completed, focus score)
-  // API returns array of DailyMetrics, we take the first one
   const { data: metricsArray, isLoading: isLoadingMetrics } = useDailyMetrics({
     startDate: startOfDay.toISOString(),
     endDate: endOfDay.toISOString(),
   });
-  const metrics = metricsArray?.[0];
 
+  const metrics = metricsArray?.[0];
   const isLoading = isLoadingTimer || isLoadingMetrics;
 
-  const formatFocusScore = (score?: number): string => {
-    if (!score) return "N/A";
-    return `${Math.round(score * 100)}%`;
+  // Map to component format
+  const mappedMetrics: DailyMetricsData | undefined = metrics ? {
+    tasksCompleted: metrics.tasksCompleted,
+    tasksCreated: metrics.tasksCreated,
+    focusScore: metrics.focusScore,
+  } : undefined;
+
+  const mappedTimerStats: TimerStatsData | undefined = timerStats ? {
+    totalMinutesWorked: timerStats.totalMinutesWorked,
+    pomodorosCompleted: timerStats.pomodorosCompleted,
+  } : undefined;
+
+  const labels = {
+    title: t("title"),
+    today: t("today"),
+    completed: t("metrics.completed"),
+    time: t("metrics.time"),
+    pomodoros: t("metrics.pomodoros"),
+    focus: t("metrics.focus"),
   };
 
-  // Use shared getFocusScoreColor from @ordo-todo/ui
-  // Note: metrics.focusScore is 0-1, getFocusScoreColor expects 0-100
-  const getFocusScoreTextClass = (score?: number): string => {
-    if (!score) return "text-muted-foreground";
-    return getFocusScoreColor(Math.round(score * 100)).text;
+  // Use getFocusScoreColor from @ordo-todo/core
+  const getFocusScoreColorClass = (score: number): string => {
+    return getFocusScoreColor(score).text;
   };
-
-  const formattedDate = date
-    ? date.toLocaleDateString("es-ES", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : t("today");
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
-          <CardDescription>{formattedDate}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-16" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-        <CardDescription>{formattedDate}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Tasks Completed */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>{t("metrics.completed")}</span>
-            </div>
-            <div className="text-3xl font-bold">
-              {metrics?.tasksCompleted || 0}
-              <span className="text-sm text-muted-foreground ml-1">
-                / {metrics?.tasksCreated || 0}
-              </span>
-            </div>
-          </div>
-
-          {/* Time Worked */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>{t("metrics.time")}</span>
-            </div>
-            <div className="text-3xl font-bold">
-              {formatDuration(timerStats?.totalMinutesWorked || 0)}
-            </div>
-          </div>
-
-          {/* Pomodoros */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Target className="h-4 w-4" />
-              <span>{t("metrics.pomodoros")}</span>
-            </div>
-            <div className="text-3xl font-bold">
-              {timerStats?.pomodorosCompleted || 0}
-            </div>
-          </div>
-
-          {/* Focus Score */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Zap className="h-4 w-4" />
-              <span>{t("metrics.focus")}</span>
-            </div>
-            <div
-              className={`text-3xl font-bold ${getFocusScoreTextClass(metrics?.focusScore)}`}
-            >
-              {formatFocusScore(metrics?.focusScore)}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <DailyMetricsCardUI
+      metrics={mappedMetrics}
+      timerStats={mappedTimerStats}
+      isLoading={isLoading}
+      date={date}
+      formatDuration={formatDuration}
+      getFocusScoreColorClass={getFocusScoreColorClass}
+      labels={labels}
+    />
   );
 }

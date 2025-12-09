@@ -1534,5 +1534,20 @@
       "exportError": "Failed to export data",
       "deleteError": "Failed to delete account"
     }
+  },
+  "AIReport": {
+    "title": "Weekly Productivity Report",
+    "subtitle": "Analysis of your performance from last week",
+    "generateButton": "Generate Report",
+    "analyzing": "Analyzing data...",
+    "emptyState": "Not enough data to generate a report. Keep working!",
+    "regenerate": "Regenerate",
+    "export": "Export",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "tasks": "Tasks Completed",
+      "streak": "Streak",
+      "average": "Avg/day"
+    }
   }
 }

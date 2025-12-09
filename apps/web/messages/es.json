@@ -1351,6 +1351,21 @@
     "date": "Fecha",
     "actions": "Acciones"
   },
+  "AIReport": {
+    "title": "Reporte de Productividad Semanal",
+    "subtitle": "Análisis de tu rendimiento de la última semana",
+    "generateButton": "Generar Reporte",
+    "analyzing": "Analizando datos...",
+    "emptyState": "No hay datos suficientes para generar un reporte. ¡Sigue trabajando!",
+    "regenerate": "Regenerar",
+    "export": "Exportar",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "tasks": "Tareas Completadas",
+      "streak": "Racha",
+      "average": "Promedio/día"
+    }
+  },
   "Breadcrumbs": {
     "home": "Inicio"
   }

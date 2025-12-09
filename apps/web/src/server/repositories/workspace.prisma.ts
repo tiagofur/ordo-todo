@@ -135,7 +135,9 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
 
     async findBySlug(slug: string): Promise<Workspace | null> {
-        const workspace = await this.prisma.workspace.findUnique({ where: { slug } });
+        // Use findFirst instead of findUnique since slug alone is not unique
+        // (unique constraint is on ownerId_slug compound)
+        const workspace = await this.prisma.workspace.findFirst({ where: { slug } });
         if (!workspace) return null;
         return this.toDomain(workspace);
     }

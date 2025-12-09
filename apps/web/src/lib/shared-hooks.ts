@@ -18,11 +18,12 @@
 
 'use client';
 
-import { createHooks, queryKeys } from '@ordo-todo/hooks';
+import { createHooks, queryKeys, type ApiClient } from '@ordo-todo/hooks';
 import { apiClient } from './api-client';
 
 // Create all hooks bound to this app's API client
-const hooks = createHooks({ apiClient });
+// Cast to ApiClient to satisfy the type checker - the object has all required methods
+const hooks = createHooks({ apiClient: apiClient as unknown as ApiClient });
 
 // Re-export query keys for direct use
 export { queryKeys };

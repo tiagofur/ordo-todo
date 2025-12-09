@@ -23,16 +23,16 @@ import {
 } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { cn } from "../../utils/index.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Switch } from "../ui/switch";
-import { Button } from "../ui/button";
-import { Slider } from "../ui/slider";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Textarea } from "../ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card.js";
+import { Label } from "../ui/label.js";
+import { Input } from "../ui/input.js";
+import { Switch } from "../ui/switch.js";
+import { Button } from "../ui/button.js";
+import { Slider } from "../ui/slider.js";
+import { Badge } from "../ui/badge.js";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar.js";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
+import { Textarea } from "../ui/textarea.js";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,7 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "../ui/alert-dialog.js";
 
 const TIMEZONES = [
   { value: "America/Mexico_City", label: "Mexico City (GMT-6)" },
@@ -160,16 +160,26 @@ export function ProfileTabs({
   });
 
   // AI preferences state
-  const [aiPreferences, setAiPreferences] = useState({
+  const [aiPreferences, setAiPreferences] = useState<{
+    enableAI: boolean;
+    aiAggressiveness: number;
+    aiSuggestTaskDurations: boolean;
+    aiSuggestPriorities: boolean;
+    aiSuggestScheduling: boolean;
+    aiWeeklyReports: boolean;
+    morningEnergy: "LOW" | "MEDIUM" | "HIGH";
+    afternoonEnergy: "LOW" | "MEDIUM" | "HIGH";
+    eveningEnergy: "LOW" | "MEDIUM" | "HIGH";
+  }>({
     enableAI: true,
     aiAggressiveness: 5,
     aiSuggestTaskDurations: true,
     aiSuggestPriorities: true,
     aiSuggestScheduling: true,
     aiWeeklyReports: true,
-    morningEnergy: "MEDIUM" as const,
-    afternoonEnergy: "MEDIUM" as const,
-    eveningEnergy: "LOW" as const,
+    morningEnergy: "MEDIUM",
+    afternoonEnergy: "MEDIUM",
+    eveningEnergy: "LOW",
   });
 
   // Privacy preferences state
@@ -195,14 +205,14 @@ export function ProfileTabs({
       if (profile.preferences) {
         setAiPreferences({
           enableAI: profile.preferences.enableAI,
-          aiAggressiveness: profile.preferences.aiAggressiveness,
+          aiAggressiveness: profile.preferences.aiAggressiveness ?? 5,
           aiSuggestTaskDurations: profile.preferences.aiSuggestTaskDurations,
           aiSuggestPriorities: profile.preferences.aiSuggestPriorities,
           aiSuggestScheduling: profile.preferences.aiSuggestScheduling,
           aiWeeklyReports: profile.preferences.aiWeeklyReports,
-          morningEnergy: profile.preferences.morningEnergy,
-          afternoonEnergy: profile.preferences.afternoonEnergy,
-          eveningEnergy: profile.preferences.eveningEnergy,
+          morningEnergy: profile.preferences.morningEnergy ?? "MEDIUM",
+          afternoonEnergy: profile.preferences.afternoonEnergy ?? "MEDIUM",
+          eveningEnergy: profile.preferences.eveningEnergy ?? "LOW",
         });
         setPrivacyPreferences({
           shareAnalytics: profile.preferences.shareAnalytics,
@@ -259,7 +269,7 @@ export function ProfileTabs({
     }
   }
 
-  const getInitials = (name: string | null) => {
+  const getInitials = (name: string | null | undefined) => {
     if (!name) return "U";
     return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
@@ -567,7 +577,7 @@ export function ProfileTabs({
                   <Slider
                     value={[aiPreferences.aiAggressiveness]}
                     onValueChange={([value]) =>
-                      setAiPreferences({ ...aiPreferences, aiAggressiveness: value })
+                      setAiPreferences({ ...aiPreferences, aiAggressiveness: value ?? 5 })
                     }
                     min={1}
                     max={10}
