@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
 import {
+  cn,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@ordo-todo/ui";
 import {
   calculateTaskHealth,
   getHealthColor,

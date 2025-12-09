@@ -4,23 +4,23 @@ import { Plus, Mail, MoreHorizontal, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
 
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
+  Button,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@ordo-todo/ui";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { 
   useWorkspaceMembers, 

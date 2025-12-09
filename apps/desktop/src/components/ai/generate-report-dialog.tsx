@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  Button,
+} from "@ordo-todo/ui";
 import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { useGenerateWeeklyReport } from "@/hooks/api/use-ai";
 import { useTranslation } from "react-i18next";

@@ -1,5 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Badge,
+} from "@ordo-todo/ui";
 import { CheckCircle2, XCircle, Lightbulb, TrendingUp, Calendar, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";

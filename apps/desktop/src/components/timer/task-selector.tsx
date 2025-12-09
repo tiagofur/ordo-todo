@@ -1,20 +1,18 @@
 import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { api } from "@/utils/api";
 import {
+  cn,
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@ordo-todo/ui";
+import { api } from "@/utils/api";
 
 interface TaskSelectorProps {
   selectedTaskId?: string | null;

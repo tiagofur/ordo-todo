@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Check, ChevronsUpDown, LayoutTemplate, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
+  cn,
+  Button,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -10,12 +10,10 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@ordo-todo/ui";
 import { useTemplates, TaskTemplate } from "@/hooks/api/use-templates";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TemplateManagerDialog } from "@/components/templates/template-manager-dialog";

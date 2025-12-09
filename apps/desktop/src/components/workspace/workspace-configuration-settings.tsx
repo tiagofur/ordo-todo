@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
+  Button,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+  Input,
+} from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
 import { useWorkspaceSettings, useUpdateWorkspaceSettings } from "@/hooks/api/use-workspaces";
 

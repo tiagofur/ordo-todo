@@ -6,7 +6,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@ordo-todo/ui";
 import { TagBadge } from "./tag-badge";
 import { toast } from "sonner";
 

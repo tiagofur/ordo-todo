@@ -2,9 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Upload, File, X, Image as ImageIcon, FileText, Film, Music } from "lucide-react";
 import { ElectronStoreTokenStorage } from "@/lib/storage";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { cn, Button, Progress } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
 
 interface FileUploadProps {

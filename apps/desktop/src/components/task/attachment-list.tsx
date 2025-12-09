@@ -1,12 +1,10 @@
 import { Download, Trash2, File, Image as ImageIcon, FileText, Film, Music, Eye, X } from "lucide-react";
 import { useDeleteAttachment } from "@/hooks/api/use-attachments";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn, Button, Dialog, DialogContent, DialogTitle } from "@ordo-todo/ui";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 
 interface Attachment {

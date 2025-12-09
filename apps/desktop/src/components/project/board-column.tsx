@@ -1,7 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableTask } from "./sortable-task";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

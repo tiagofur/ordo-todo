@@ -2,14 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { MoreVertical, Trash2, Settings as SettingsIcon, Briefcase, FolderKanban, CheckSquare } from "lucide-react";
 import { useDeleteWorkspace } from "@/hooks/api/use-workspaces";
 import {
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { WorkspaceSettingsDialog } from "./WorkspaceSettingsDialog";

@@ -2,7 +2,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@ordo-todo/ui";
 import { TemplateManager } from "./template-manager";
 
 interface TemplateManagerDialogProps {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Clock, User, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";

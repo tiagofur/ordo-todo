@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn, Avatar, AvatarFallback, AvatarImage } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
 
 interface Activity {

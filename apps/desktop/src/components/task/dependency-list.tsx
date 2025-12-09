@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useTaskDependencies, useAddDependency, useRemoveDependency, useTasks } from "@/hooks/api";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { 
+import {
+    cn,
+    Button,
+    Label,
     Command,
     CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
-} from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@ordo-todo/ui";
 import { Check, Link, Trash2, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function DependencyList({ taskId, projectId }: { taskId: string; projectId?: string }) {
     const { data: dependencies, isLoading } = useTaskDependencies(taskId);

@@ -3,10 +3,7 @@ import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
 import { useCreateTask, useUpdateTask, useDeleteTask } from "@/hooks/api/use-tasks";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { cn, Button, Input, Checkbox } from "@ordo-todo/ui";
 
 interface SubtaskListProps {
   taskId: string;

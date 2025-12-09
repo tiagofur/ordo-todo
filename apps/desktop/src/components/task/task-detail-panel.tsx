@@ -6,26 +6,24 @@ import {
   useDeleteTask 
 } from "@/hooks/api";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import {
+  cn,
   Sheet,
   SheetContent,
   SheetTitle,
   SheetDescription,
-} from "@/components/ui/sheet";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
+  VisuallyHidden,
+  Button,
+  Input,
+  Label,
+  Textarea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+  Separator,
+} from "@ordo-todo/ui";
 import { SubtaskList } from "./subtask-list";
 import { CommentThread } from "./comment-thread";
 import { FileUpload } from "./file-upload";

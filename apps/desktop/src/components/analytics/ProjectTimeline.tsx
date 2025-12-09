@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import { cn } from "@/lib/utils";
+import { cn, Button } from "@ordo-todo/ui";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface TimelineTask {
   id: string;
