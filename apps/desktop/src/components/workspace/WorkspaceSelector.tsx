@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Building2, ChevronDown, Plus, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useWorkspaceStore } from "../../stores/workspace-store";
-import { api } from "../../utils/api";
+import { useWorkspaces } from "@/hooks/api/use-workspaces";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +18,9 @@ interface WorkspaceSelectorProps {
 }
 
 export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
+  const { t } = useTranslation();
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
-  const { data: workspaces } = api.workspace.list.useQuery();
+  const { data: workspaces } = useWorkspaces();
   const [showSettings, setShowSettings] = useState(false);
 
   const selectedWorkspace = workspaces?.find((w) => w.id === selectedWorkspaceId);
@@ -42,14 +44,14 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
               )}
             </div>
             <span className="flex-1 truncate text-left font-medium">
-              {selectedWorkspace?.name || "Seleccionar workspace"}
+              {selectedWorkspace?.name || t('WorkspaceSelector.defaultName')}
             </span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-64" align="start">
           <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-            Workspaces
+            {t('WorkspaceSelector.label')}
           </DropdownMenuLabel>
           
           {workspaces?.map((workspace) => (
@@ -83,13 +85,13 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
           {selectedWorkspaceId && (
             <DropdownMenuItem onClick={() => setShowSettings(true)}>
               <Settings className="mr-2 h-4 w-4" />
-              Configurar Workspace
+              {t('WorkspaceSelector.settings')}
             </DropdownMenuItem>
           )}
           
           <DropdownMenuItem onClick={onCreateClick}>
             <Plus className="mr-2 h-4 w-4" />
-            Nuevo Workspace
+            {t('WorkspaceSelector.newWorkspace')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

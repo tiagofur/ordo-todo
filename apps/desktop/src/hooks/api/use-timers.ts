@@ -6,6 +6,13 @@ import type { StartTimerDto, StopTimerDto } from '@ordo-todo/api-client';
  * Timer and Time Tracking Hooks
  */
 
+/**
+ * Server Timer Hooks (useTimers)
+ * 
+ * These hooks interact with the backend API to persist timer sessions (TimeSession).
+ * Use these for starting/stopping sessions on the server, fetching history, and stats.
+ * They work in tandem with the local `useTimer` hook which manages the tick-by-tick UI.
+ */
 export function useTimeSessions(taskId?: string) {
   return useQuery({
     queryKey: ['time-sessions', { taskId }],

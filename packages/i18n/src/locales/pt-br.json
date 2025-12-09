@@ -663,7 +663,9 @@
     "stats": {
       "projects": "projetos",
       "tasks": "tarefas"
-    }
+    },
+    "settings": "Configurar Workspace",
+    "newWorkspace": "Novo Workspace"
   },
   "WorkspaceSettingsDialog": {
     "title": "Configurações do Espaço de Trabalho",

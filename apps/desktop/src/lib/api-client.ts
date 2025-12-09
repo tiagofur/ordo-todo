@@ -20,19 +20,17 @@ export class DesktopApiClient extends OrdoApiClient {
   // ============ TASK DEPENDENCIES (Desktop-specific for now) ============
 
   async addTaskDependency(blockedTaskId: string, blockingTaskId: string) {
-    // @ts-ignore - access private axios instance
+    // access protected axios instance
     const response = await this.axios.post(`/tasks/${blockedTaskId}/dependencies`, { blockingTaskId });
     return response.data;
   }
 
   async removeTaskDependency(blockedTaskId: string, blockingTaskId: string) {
-    // @ts-ignore
     const response = await this.axios.delete(`/tasks/${blockedTaskId}/dependencies/${blockingTaskId}`);
     return response.data;
   }
 
   async getTaskDependencies(taskId: string) {
-    // @ts-ignore
     const response = await this.axios.get(`/tasks/${taskId}/dependencies`);
     return response.data;
   }

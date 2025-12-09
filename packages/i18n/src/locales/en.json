@@ -698,7 +698,9 @@
     "stats": {
       "projects": "projects",
       "tasks": "tasks"
-    }
+    },
+    "settings": "Workspace Settings",
+    "newWorkspace": "New Workspace"
   },
   "WorkspaceSettingsDialog": {
     "title": "Workspace Settings",

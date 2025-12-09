@@ -6,7 +6,13 @@ import { Label, Separator, Switch, Slider, Button, ProfileTabs } from "@ordo-tod
 import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { useElectron } from "@/hooks/use-electron";
-import { useFullProfile, useUpdateProfile, useUpdatePreferences, useExportData, useDeleteAccount } from "@/lib/shared-hooks";
+import {
+  useFullProfile,
+  useUpdateProfile,
+  useUpdatePreferences,
+  useExportData,
+  useDeleteAccount
+} from "@/hooks/api/use-user";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 

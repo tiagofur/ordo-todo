@@ -680,7 +680,9 @@
     "stats": {
       "projects": "proyectos",
       "tasks": "tareas"
-    }
+    },
+    "settings": "Configurar Workspace",
+    "newWorkspace": "Nuevo Workspace"
   },
   "WorkspaceDashboard": {
     "notFound": "Workspace no encontrado",

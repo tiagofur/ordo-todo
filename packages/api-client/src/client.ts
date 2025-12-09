@@ -142,7 +142,7 @@ export interface ClientConfig {
  * ```
  */
 export class OrdoApiClient {
-  private axios: AxiosInstance;
+  protected axios: AxiosInstance;
   private tokenStorage?: TokenStorage;
   private isRefreshing = false;
   private refreshPromise: Promise<AuthResponse> | null = null;

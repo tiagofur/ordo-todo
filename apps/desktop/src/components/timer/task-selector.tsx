@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   cn,
   Command,
@@ -12,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@ordo-todo/ui";
-import { api } from "@/utils/api";
+import { useTasks } from "@/hooks/api/use-tasks";
 
 interface TaskSelectorProps {
   selectedTaskId?: string | null;
@@ -21,10 +22,11 @@ interface TaskSelectorProps {
 }
 
 export function TaskSelector({ selectedTaskId, onSelect, className }: TaskSelectorProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   
   // Fetch pending tasks
-  const { data: tasks } = api.task.list.useQuery();
+  const { data: tasks } = useTasks();
   
   // Filter only pending tasks for the selector
   const pendingTasks = tasks?.filter(t => t.status !== "COMPLETED") || [];
@@ -45,17 +47,17 @@ export function TaskSelector({ selectedTaskId, onSelect, className }: TaskSelect
           {selectedTask ? (
             <span className="truncate font-medium">{selectedTask.title}</span>
           ) : (
-            <span className="text-muted-foreground">Seleccionar tarea para trabajar...</span>
+            <span className="text-muted-foreground">{t('TaskSelector.placeholder')}</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Buscar tarea..." />
+          <CommandInput placeholder={t('TaskSelector.searchPlaceholder')} />
           <CommandList>
-            <CommandEmpty>No se encontraron tareas.</CommandEmpty>
-            <CommandGroup heading="Tareas Pendientes">
+            <CommandEmpty>{t('TaskSelector.noTasks')}</CommandEmpty>
+            <CommandGroup heading={t('TaskSelector.groupHeading')}>
               {/* Option to clear selection */}
               <CommandItem
                 value="no-task"
@@ -71,9 +73,9 @@ export function TaskSelector({ selectedTaskId, onSelect, className }: TaskSelect
                     !selectedTaskId ? "opacity-100" : "opacity-0"
                   )}
                 />
-                Sin tarea asignada
+                {t('TaskSelector.noTaskAssigned')}
               </CommandItem>
-              
+
               {pendingTasks.map((task) => (
                 <CommandItem
                   key={task.id}
