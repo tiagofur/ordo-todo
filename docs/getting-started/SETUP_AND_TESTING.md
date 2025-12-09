@@ -27,7 +27,7 @@ docker-compose up -d
 Este comando:
 - Descarga la imagen de PostgreSQL 15
 - Crea un contenedor llamado `ordo-todo-db`
-- Expone el puerto 5432
+- Expone el puerto 3433
 - Crea la base de datos `ordo_todo`
 - Usuario: `ordo`
 - Password: `ordo_dev_password`
@@ -41,7 +41,7 @@ docker ps
 Deberías ver algo como:
 ```
 CONTAINER ID   IMAGE                COMMAND                  STATUS         PORTS                    NAMES
-xxxxx          postgres:15-alpine   "docker-entrypoint.s…"   Up 10 seconds  0.0.0.0:5432->5432/tcp   ordo-todo-db
+xxxxx          postgres:15-alpine   "docker-entrypoint.s…"   Up 10 seconds  0.0.0.0:3433->5432/tcp   ordo-todo-db
 ```
 
 ### 1.3 Verificar conexión a la base de datos
@@ -68,7 +68,7 @@ cp .env.example .env
 
 El archivo `.env` ya debe contener:
 ```bash
-DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:5432/ordo_todo"
+DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:3433/ordo_todo"
 ```
 
 ### 2.2 Crear archivo .env para la aplicación web
@@ -81,7 +81,7 @@ cp .env.example .env
 Asegúrate de que contenga:
 ```bash
 # Database
-DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:5432/ordo_todo"
+DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:3433/ordo_todo"
 
 # NextAuth
 NEXTAUTH_SECRET="tu-secret-key-super-segura-cambiala-en-produccion"
@@ -302,17 +302,17 @@ cd ../..
 npx turbo run build --filter=@ordo-todo/core
 ```
 
-### Problema: Puerto 5432 ya en uso
+### Problema: Puerto 3433 ya en uso
 
 **Solución:**
 ```bash
 # Detén otros servicios de PostgreSQL
 # O cambia el puerto en docker-compose.yml:
 ports:
-  - "5433:5432"  # Usa 5433 en lugar de 5432
+  - "3434:5432"  # Usa 3434 en lugar de 3433
 
 # Y actualiza DATABASE_URL:
-DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:5433/ordo_todo"
+DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:3434/ordo_todo"
 ```
 
 ## 🧹 Limpiar y Reiniciar

@@ -6,7 +6,7 @@ services:
     container_name: ordo-todo-db
     restart: unless-stopped
     ports:
-      - "5433:5432"
+      - "3433:5432"
     environment:
       POSTGRES_USER: ordo
       POSTGRES_PASSWORD: ordo_dev_password

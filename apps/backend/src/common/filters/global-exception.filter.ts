@@ -91,6 +91,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             this.logger.warn(
                 `Status: ${httpStatus} Error: ${JSON.stringify(responseBody)}`,
             );
+            // Log stack trace for debugging in development even for non-500 errors
+            if (process.env.NODE_ENV !== 'production' && exception instanceof Error) {
+                this.logger.debug(exception.stack);
+            }
         }
 
         httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);

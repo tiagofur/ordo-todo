@@ -8,7 +8,7 @@ REM Crear .env para packages/db
 echo [1/3] Creando packages/db/.env...
 (
 echo # Database
-echo DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:5433/ordo_todo"
+echo DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:3433/ordo_todo"
 ) > packages\db\.env
 echo ✓ Creado packages/db/.env
 
@@ -16,7 +16,7 @@ REM Crear .env.local para apps/web
 echo [2/3] Creando apps/web/.env.local...
 (
 echo # Database
-echo DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:5433/ordo_todo"
+echo DATABASE_URL="postgresql://ordo:ordo_dev_password@localhost:3433/ordo_todo"
 echo.
 echo # NextAuth
 echo NEXTAUTH_SECRET="dev-secret-key-change-in-production-min-32-chars-long"
