@@ -9,10 +9,8 @@ import { useTranslation } from "react-i18next";
 import { useTasks } from "@/hooks/api/use-tasks";
 import { useUpdateTask } from "@/hooks/api/use-tasks";
 import { Task } from "@ordo-todo/api-client";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn, Button, Badge } from "@ordo-todo/ui";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 

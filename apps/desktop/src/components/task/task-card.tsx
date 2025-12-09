@@ -2,19 +2,19 @@ import { useState } from "react";
 import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo } from "lucide-react";
 import { useUpdateTask, useTask } from "@/hooks/api/use-tasks";
 import {
+  cn,
+  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { TaskDetailPanel } from "./task-detail-panel";
-import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 
 interface TaskCardProps {

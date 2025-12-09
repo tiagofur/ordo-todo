@@ -12,16 +12,16 @@ import {
 } from "lucide-react";
 import { format, subDays, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
+  cn,
+  Button,
+  Badge,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+} from "@ordo-todo/ui";
 
 // Session types
 type SessionType = "WORK" | "SHORT_BREAK" | "LONG_BREAK";

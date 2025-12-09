@@ -10,10 +10,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+  Label,
+  EmptyState,
+} from "@ordo-todo/ui";
 import { toast } from "sonner";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Briefcase } from "lucide-react";
 
 const createProjectSchema = z.object({
