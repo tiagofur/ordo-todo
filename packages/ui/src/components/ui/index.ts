@@ -36,4 +36,6 @@ export * from "./table.js";
 export * from "./tabs.js";
 export * from "./textarea.js";
 export * from "./tooltip.js";
+export * from "./hover-card.js";
+export * from "./visually-hidden.js";
 

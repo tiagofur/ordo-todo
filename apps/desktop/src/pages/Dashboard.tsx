@@ -18,7 +18,7 @@ import {
   FolderPlus,
   ListChecks,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, cn } from "@ordo-todo/ui";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { TaskCard } from "@/components/task/task-card";
@@ -34,7 +34,6 @@ import {
   WeeklyActivityWidget,
   ActiveProjectsWidget,
 } from "@/components/dashboard";
-import { cn } from "@/lib/utils";
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";

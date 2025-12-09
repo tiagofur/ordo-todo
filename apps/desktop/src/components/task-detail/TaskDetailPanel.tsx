@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import {
   X,
   Calendar,
@@ -18,24 +17,23 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
+  cn,
+  Button,
+  Input,
+  Textarea,
+  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@ordo-todo/ui";
 
 export interface SubTask {
   id: string;

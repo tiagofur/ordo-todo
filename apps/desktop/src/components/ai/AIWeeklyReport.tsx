@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
 import {
   Sparkles,
   FileText,
@@ -16,8 +15,7 @@ import {
   ChevronRight,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { cn, Button, Card } from "@ordo-todo/ui";
 
 interface ProductivityData {
   totalPomodoros: number;

@@ -1,13 +1,13 @@
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { cn } from "@/lib/utils";
 import { MoreHorizontal, Plus, Clock, Tag as TagIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
+  cn,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 
 export interface KanbanTask {
   id: string;

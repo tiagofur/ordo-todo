@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target, TrendingUp, Brain, BarChart3 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {

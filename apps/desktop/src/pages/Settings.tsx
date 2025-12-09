@@ -5,11 +5,7 @@ import {
   Moon, Sun, Laptop, Globe, Bell, Clock, Keyboard, 
   Monitor, Download, Power, ExternalLink, RefreshCw, Loader2, Settings as SettingsIcon 
 } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
+import { Label, Separator, Switch, Slider, Button } from "@ordo-todo/ui";
 import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { useElectron } from "@/hooks/use-electron";

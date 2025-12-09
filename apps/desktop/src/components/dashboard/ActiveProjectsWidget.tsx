@@ -1,6 +1,5 @@
 import { FolderKanban, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
+import { cn, Progress } from "@ordo-todo/ui";
 
 interface Project {
   id: string;

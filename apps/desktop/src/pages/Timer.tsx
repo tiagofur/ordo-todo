@@ -3,7 +3,7 @@ import { Clock, Timer as TimerIcon, History } from "lucide-react";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 import { SessionHistory } from "@/components/timer/session-history";
 import { useTimerContext } from "@/contexts/timer-context";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import { PageTransition, SlideIn } from "@/components/motion";
 
 export function Timer() {
