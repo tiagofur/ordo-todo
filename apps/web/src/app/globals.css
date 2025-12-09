@@ -5,7 +5,7 @@
  */
 
 @import "tailwindcss";
-@source "../../../packages/ui";
+@source "../../../../packages/ui";
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
@@ -14,10 +14,10 @@
 @variant dark (.dark &);
 
 /* Import shared styles from @ordo-todo/styles */
-@import "@ordo-todo/styles/src/variables.css";
-@import "@ordo-todo/styles/src/theme.css";
-@import "@ordo-todo/styles/src/base.css";
-@import "@ordo-todo/styles/src/components.css";
+@import "../../../../packages/styles/src/variables.css";
+@import "../../../../packages/styles/src/theme.css";
+@import "../../../../packages/styles/src/base.css";
+@import "../../../../packages/styles/src/components.css";
 
 /* Web-specific overrides or additions can go here */
 /* Example: PWA-specific styles, desktop browser optimizations, etc. */

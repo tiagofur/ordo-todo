@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
   },
   // Disable production source maps to avoid build issues
   productionBrowserSourceMaps: false,
+  transpilePackages: ["@ordo-todo/ui", "@ordo-todo/styles"],
 };
 
 export default withNextIntl(nextConfig);
