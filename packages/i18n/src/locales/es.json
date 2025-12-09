@@ -1550,5 +1550,22 @@
       "streak": "Racha",
       "average": "Promedio/día"
     }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "search": "Buscar",
+    "noResults": "Sin resultados",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "info": "Información"
   }
 }
