@@ -2,6 +2,8 @@
 
 Documentación de los packages compartidos del monorepo.
 
+> **IMPORTANT**: See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for MANDATORY patterns when creating new components.
+
 ---
 
 ## 🏗️ Estructura General
@@ -11,9 +13,10 @@ packages/
 ├── core/           # 🎯 Lógica de dominio (DDD)
 ├── db/             # 🗄️ Prisma Client + Schema
 ├── api-client/     # 🔌 Cliente HTTP tipado
-├── ui/             # 🎨 Componentes UI compartidos
-├── hooks/          # 🪝 React Hooks compartidos
-├── i18n/           # 🌍 Internacionalización
+├── ui/             # 🎨 Componentes UI compartidos (91+ components)
+├── hooks/          # 🪝 React Hooks compartidos (100+ hooks)
+├── stores/         # 🏪 Zustand stores compartidos
+├── i18n/           # 🌍 Internacionalización (3 idiomas)
 └── config/         # ⚙️ ESLint, TypeScript configs
 ```
 
@@ -237,25 +240,33 @@ export function useCreateTask() {
 
 ## 📍 @ordo-todo/ui
 
-**Componentes UI compartidos** entre web y desktop. ✅ **Fase 2 Completada (2024-12-06)**
+**Componentes UI compartidos** entre web y desktop. ✅ **Fases 1-4 Completadas (2025-12-09)**
+
+> **MANDATORY**: See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for creating new components.
 
 ### Estado de Migración
 
 | Categoría | Componentes | Estado |
 |-----------|-------------|--------|
-| `ui/` | 30 | ✅ Completo |
-| `timer/` | 4 | ✅ Completo (props-driven) |
-| `task/` | 15 | ✅ Completo (props-driven) |
-| `project/` | 11 | ✅ Completo (props-driven) |
-| `analytics/` | 7 | ✅ Completo (props-driven) |
+| `ui/` | 31 | ✅ Completo |
+| `timer/` | 4 | ✅ Completo |
+| `task/` | 15 | ✅ Completo |
+| `project/` | 11 | ✅ Completo |
+| `analytics/` | 7 | ✅ Completo |
 | `tag/` | 3 | ✅ Completo |
-| `workspace/` | 0 | 🔴 Pendiente (Fase 3) |
-| `layout/` | 0 | 🔴 Pendiente (Fase 3) |
+| `workspace/` | 3 | ✅ Completo |
+| `dashboard/` | 5 | ✅ Completo |
+| `ai/` | 2 | ✅ Completo |
+| `auth/` | 1 | ✅ Completo |
+| `layout/` | 2 | ✅ Completo |
+| `shared/` | 7 | ✅ Completo |
+
+**Total: 91+ componentes**
 
 ### Build Status
 
 ```bash
-npm run build  # ✅ Compila sin errores
+npm run build --filter=@ordo-todo/ui  # ✅ Compila sin errores
 ```
 
 ### Estructura Actual
@@ -263,91 +274,108 @@ npm run build  # ✅ Compila sin errores
 ```
 packages/ui/src/
 ├── components/
-│   ├── ui/          # 30 componentes base (button, input, dialog, etc.)
+│   ├── ui/          # 31 componentes base (button, input, dialog, etc.)
 │   ├── timer/       # 4 componentes (pomodoro-timer, session-history, etc.)
 │   ├── task/        # 15 componentes (task-card, task-form, subtask-list, etc.)
 │   ├── project/     # 11 componentes (project-card, kanban-board, etc.)
 │   ├── analytics/   # 7 componentes (weekly-chart, focus-score, etc.)
+│   ├── workspace/   # 3 componentes (workspace-card, workspace-selector, etc.)
 │   ├── tag/         # 3 componentes (tag-badge, tag-selector, create-tag-dialog)
+│   ├── dashboard/   # 5 componentes (stats-card, upcoming-tasks, etc.)
+│   ├── ai/          # 2 componentes (generate-report-dialog, report-card)
+│   ├── auth/        # 1 componente (auth-form)
+│   ├── layout/      # 2 componentes (sidebar, topbar)
+│   ├── shared/      # 7 componentes (breadcrumbs, loading, etc.)
 │   └── index.ts
 ├── utils/
 │   ├── index.ts     # cn() helper
-│   └── colors.ts
+│   └── colors.ts    # Color constants
 └── index.ts
 ```
 
-### Patrón de Abstracción (Implementado)
+### Patrón de Abstracción (MANDATORY)
 
-Todos los componentes son **platform-agnostic**. Dependencias de plataforma se pasan via props:
+**TODOS los componentes DEBEN ser platform-agnostic**. Dependencias de plataforma se pasan via props:
 
 ```typescript
-// ✅ Patrón implementado en todos los componentes
+// ✅ Patrón OBLIGATORIO en todos los componentes
 interface CreateTaskDialogProps {
+  // State
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isPending?: boolean;
+
+  // Data (from parent, NOT from hooks)
   projects?: ProjectOption[];
+
+  // Callbacks (from parent)
   onSubmit: (data: CreateTaskFormData) => Promise<void>;
   onGenerateAIDescription?: (title: string) => Promise<string>;
-  isPending?: boolean;
+
+  // i18n Labels (from parent, NOT from useTranslations)
   labels?: {
     title?: string;
     formTitle?: string;
-    // ... más labels para i18n
   };
 }
 
-// En apps/web - el componente padre maneja hooks y traducciones
-const { data: projects } = useAllProjects();
-const createTask = useCreateTask();
-const t = useTranslations('CreateTaskDialog');
-
-<CreateTaskDialog
-  open={open}
-  onOpenChange={setOpen}
-  projects={projects}
-  onSubmit={async (data) => {
-    await createTask.mutateAsync(data);
-    notify.success(t('success'));
-  }}
-  isPending={createTask.isPending}
-  labels={{
-    title: t('title'),
-    formTitle: t('form.title'),
-  }}
-/>
+// NO hooks inside component:
+// - NO useTasks()
+// - NO useTranslations()
+// - NO useStore()
+// - NO API calls
 ```
 
-### Componentes Refactorizados (Fase 2)
-
-| Componente | Cambios Principales |
-|------------|---------------------|
-| `task/create-task-dialog.tsx` | `onSubmit`, `projects`, `labels` via props |
-| `task/task-detail-panel.tsx` | Render props para sub-componentes |
-| `task/activity-feed.tsx` | `activities`, `locale`, `labels` via props |
-| `task/comment-thread.tsx` | `onCreate`, `onUpdate`, `onDelete` callbacks |
-| `task/attachment-list.tsx` | `resolveUrl`, `onDelete` via props |
-| `task/assignee-selector.tsx` | `members`, `onAssign` via props |
-| `task/file-upload.tsx` | `onUpload` callback con progress |
-| `project/project-board.tsx` | `tasks`, `onUpdateTask` via props |
-| `project/project-card.tsx` | `onProjectClick`, `onArchive`, `onDelete` callbacks |
-| `project/project-settings.tsx` | `onUpdate`, `onArchive`, `onDelete` callbacks |
-| `analytics/ai-weekly-report.tsx` | `onGenerateReport` callback |
-
-### Uso
+### Usage in Apps
 
 ```typescript
-import { 
-  Button, 
-  Card, 
-  TaskCard, 
+// apps/web/src/components/task/create-task-container.tsx
+'use client';
+
+import { CreateTaskDialog } from '@ordo-todo/ui';
+import { useAllProjects, useCreateTask } from '@/lib/api-hooks';
+import { useTranslations } from 'next-intl';
+
+export function CreateTaskContainer() {
+  const { data: projects } = useAllProjects();
+  const createTask = useCreateTask();
+  const t = useTranslations('CreateTaskDialog');
+
+  return (
+    <CreateTaskDialog
+      open={open}
+      onOpenChange={setOpen}
+      projects={projects}
+      onSubmit={async (data) => {
+        await createTask.mutateAsync(data);
+        notify.success(t('success'));
+      }}
+      isPending={createTask.isPending}
+      labels={{
+        title: t('title'),
+        formTitle: t('form.title'),
+      }}
+    />
+  );
+}
+```
+
+### Import
+
+```typescript
+import {
+  Button,
+  Card,
+  TaskCard,
   TagBadge,
   CreateTaskDialog,
   ProjectBoard,
-  ActivityFeed
+  ActivityFeed,
+  cn,
 } from '@ordo-todo/ui';
 ```
 
-> **Estado:** 🟢 Fase 2 completada. Próximo: Fase 3 (workspace, layout, auth, ai) y Fase 4 (integración en apps).
+> **Estado:** 🟢 Fases 1-4 completadas. Fase 5: Integración completa en apps.
 
 ---
 
