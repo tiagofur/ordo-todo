@@ -68,9 +68,9 @@ export class WorkspaceGuard implements CanActivate {
   }
 
   private async extractWorkspaceId(request: any): Promise<string | null> {
-    const params = request.params;
-    const query = request.query;
-    const body = request.body;
+    const params = request.params || {};
+    const query = request.query || {};
+    const body = request.body || {};
 
     // Direct Workspace ID
     if (params.workspaceId) return params.workspaceId;
@@ -91,7 +91,7 @@ export class WorkspaceGuard implements CanActivate {
 
     // For now, let's keep it simple and focus on explicit 'workspaceId' or 'id' if route is /workspaces/:id
     if (request.route.path.includes('/workspaces/:id')) {
-        return params.id;
+      return params.id;
     }
 
     return null;
