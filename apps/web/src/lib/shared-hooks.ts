@@ -4,6 +4,9 @@
  * This file creates the React Query hooks bound to the web app's API client.
  * It re-exports all hooks from the shared package for easy consumption.
  *
+ * IMPORTANT: Hooks are created lazily to avoid "No QueryClient set" errors
+ * when the module is imported before QueryClientProvider is mounted.
+ *
  * @example
  * ```tsx
  * import { useTasks, useCreateTask } from '@/lib/shared-hooks';
@@ -21,135 +24,149 @@
 import { createHooks, queryKeys, type ApiClient } from '@ordo-todo/hooks';
 import { apiClient } from './api-client';
 
-// Create all hooks bound to this app's API client
-// Cast to ApiClient to satisfy the type checker - the object has all required methods
-const hooks = createHooks({ apiClient: apiClient as unknown as ApiClient });
-
 // Re-export query keys for direct use
 export { queryKeys };
 
-// Re-export all hooks individually for tree-shaking
-export const {
-  // Auth
-  useRegister,
-  useLogin,
-  useLogout,
+// Lazy-initialized hooks to avoid "No QueryClient set" errors
+let _hooks: ReturnType<typeof createHooks> | null = null;
 
-  // User
-  useCurrentUser,
-  useUpdateProfile,
-  useFullProfile,
-  useUserPreferences,
-  useUpdatePreferences,
-  useUserIntegrations,
-  useExportData,
-  useDeleteAccount,
+function getHooks() {
+  if (!_hooks) {
+    _hooks = createHooks({ apiClient: apiClient as unknown as ApiClient });
+  }
+  return _hooks;
+}
 
-  // Workspace
-  useWorkspaces,
-  useWorkspace,
-  useWorkspaceBySlug,
-  useCreateWorkspace,
-  useUpdateWorkspace,
-  useDeleteWorkspace,
-  useAddWorkspaceMember,
-  useRemoveWorkspaceMember,
-  useWorkspaceMembers,
-  useWorkspaceInvitations,
-  useInviteMember,
-  useAcceptInvitation,
-  useWorkspaceSettings,
-  useUpdateWorkspaceSettings,
-  useWorkspaceAuditLogs,
+// Create wrapper functions that lazily initialize hooks
+// Auth
+export function useRegister() { return getHooks().useRegister(); }
+export function useLogin() { return getHooks().useLogin(); }
+export function useLogout() { return getHooks().useLogout(); }
 
-  // Workflow
-  useWorkflows,
-  useCreateWorkflow,
-  useUpdateWorkflow,
-  useDeleteWorkflow,
+// User
+export function useCurrentUser() { return getHooks().useCurrentUser(); }
+export function useUpdateProfile() { return getHooks().useUpdateProfile(); }
+export function useFullProfile() { return getHooks().useFullProfile(); }
+export function useUserPreferences() { return getHooks().useUserPreferences(); }
+export function useUpdatePreferences() { return getHooks().useUpdatePreferences(); }
+export function useUserIntegrations() { return getHooks().useUserIntegrations(); }
+export function useExportData() { return getHooks().useExportData(); }
+export function useDeleteAccount() { return getHooks().useDeleteAccount(); }
 
-  // Project
-  useProjects,
-  useAllProjects,
-  useProject,
-  useCreateProject,
-  useUpdateProject,
-  useArchiveProject,
-  useCompleteProject,
-  useDeleteProject,
+// Workspace
+export function useWorkspaces() { return getHooks().useWorkspaces(); }
+export function useWorkspace(workspaceId: string) { return getHooks().useWorkspace(workspaceId); }
+export function useWorkspaceBySlug(slug: string) { return getHooks().useWorkspaceBySlug(slug); }
+export function useCreateWorkspace() { return getHooks().useCreateWorkspace(); }
+export function useUpdateWorkspace() { return getHooks().useUpdateWorkspace(); }
+export function useDeleteWorkspace() { return getHooks().useDeleteWorkspace(); }
+export function useAddWorkspaceMember() { return getHooks().useAddWorkspaceMember(); }
+export function useRemoveWorkspaceMember() { return getHooks().useRemoveWorkspaceMember(); }
+export function useWorkspaceMembers(workspaceId: string) { return getHooks().useWorkspaceMembers(workspaceId); }
+export function useWorkspaceInvitations(workspaceId: string) { return getHooks().useWorkspaceInvitations(workspaceId); }
+export function useInviteMember() { return getHooks().useInviteMember(); }
+export function useAcceptInvitation() { return getHooks().useAcceptInvitation(); }
+export function useWorkspaceSettings(workspaceId: string) { return getHooks().useWorkspaceSettings(workspaceId); }
+export function useUpdateWorkspaceSettings() { return getHooks().useUpdateWorkspaceSettings(); }
+export function useWorkspaceAuditLogs(workspaceId: string, params?: { limit?: number; offset?: number }) {
+  return getHooks().useWorkspaceAuditLogs(workspaceId, params);
+}
 
-  // Task
-  useTasks,
-  useTask,
-  useTaskDetails,
-  useCreateTask,
-  useUpdateTask,
-  useCompleteTask,
-  useDeleteTask,
-  useCreateSubtask,
-  useShareTask,
-  usePublicTask,
+// Workflow
+export function useWorkflows(workspaceId: string) { return getHooks().useWorkflows(workspaceId); }
+export function useCreateWorkflow() { return getHooks().useCreateWorkflow(); }
+export function useUpdateWorkflow() { return getHooks().useUpdateWorkflow(); }
+export function useDeleteWorkflow() { return getHooks().useDeleteWorkflow(); }
 
-  // Tag
-  useTags,
-  useTaskTags,
-  useCreateTag,
-  useUpdateTag,
-  useAssignTagToTask,
-  useRemoveTagFromTask,
-  useDeleteTag,
+// Project
+export function useProjects(workspaceId: string) { return getHooks().useProjects(workspaceId); }
+export function useAllProjects() { return getHooks().useAllProjects(); }
+export function useProject(projectId: string) { return getHooks().useProject(projectId); }
+export function useCreateProject() { return getHooks().useCreateProject(); }
+export function useUpdateProject() { return getHooks().useUpdateProject(); }
+export function useArchiveProject() { return getHooks().useArchiveProject(); }
+export function useCompleteProject() { return getHooks().useCompleteProject(); }
+export function useDeleteProject() { return getHooks().useDeleteProject(); }
 
-  // Timer
-  useActiveTimer,
-  useStartTimer,
-  useStopTimer,
-  usePauseTimer,
-  useResumeTimer,
-  useSwitchTask,
-  useSessionHistory,
-  useTimerStats,
-  useTaskTimeSessions,
+// Task
+export function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
+  return getHooks().useTasks(projectId, tags, options);
+}
+export function useTask(taskId: string) { return getHooks().useTask(taskId); }
+export function useTaskDetails(taskId: string) { return getHooks().useTaskDetails(taskId); }
+export function useCreateTask() { return getHooks().useCreateTask(); }
+export function useUpdateTask() { return getHooks().useUpdateTask(); }
+export function useCompleteTask() { return getHooks().useCompleteTask(); }
+export function useDeleteTask() { return getHooks().useDeleteTask(); }
+export function useCreateSubtask() { return getHooks().useCreateSubtask(); }
+export function useShareTask() { return getHooks().useShareTask(); }
+export function usePublicTask(token: string) { return getHooks().usePublicTask(token); }
 
-  // Analytics
-  useDailyMetrics,
-  useWeeklyMetrics,
-  useMonthlyMetrics,
-  useDateRangeMetrics,
-  useDashboardStats,
-  useHeatmapData,
-  useProjectDistribution,
-  useTaskStatusDistribution,
+// Tag
+export function useTags(workspaceId: string) { return getHooks().useTags(workspaceId); }
+export function useTaskTags(taskId: string) { return getHooks().useTaskTags(taskId); }
+export function useCreateTag() { return getHooks().useCreateTag(); }
+export function useUpdateTag() { return getHooks().useUpdateTag(); }
+export function useAssignTagToTask() { return getHooks().useAssignTagToTask(); }
+export function useRemoveTagFromTask() { return getHooks().useRemoveTagFromTask(); }
+export function useDeleteTag() { return getHooks().useDeleteTag(); }
 
-  // AI
-  useAIProfile,
-  useOptimalSchedule,
-  useTaskDurationPrediction,
-  useGenerateWeeklyReport,
-  useReports,
-  useReport,
-  useDeleteReport,
+// Timer
+export function useActiveTimer() { return getHooks().useActiveTimer(); }
+export function useStartTimer() { return getHooks().useStartTimer(); }
+export function useStopTimer() { return getHooks().useStopTimer(); }
+export function usePauseTimer() { return getHooks().usePauseTimer(); }
+export function useResumeTimer() { return getHooks().useResumeTimer(); }
+export function useSwitchTask() { return getHooks().useSwitchTask(); }
+export function useSessionHistory(params?: { page?: number; limit?: number; startDate?: string; endDate?: string; type?: string; completedOnly?: boolean }) {
+  return getHooks().useSessionHistory(params);
+}
+export function useTimerStats(params?: { startDate?: string; endDate?: string }) {
+  return getHooks().useTimerStats(params);
+}
+export function useTaskTimeSessions(taskId: string) { return getHooks().useTaskTimeSessions(taskId); }
 
-  // Comments
-  useTaskComments,
-  useCreateComment,
-  useUpdateComment,
-  useDeleteComment,
+// Analytics
+export function useDailyMetrics(params?: { date?: string }) { return getHooks().useDailyMetrics(params); }
+export function useWeeklyMetrics() { return getHooks().useWeeklyMetrics(); }
+export function useMonthlyMetrics() { return getHooks().useMonthlyMetrics(); }
+export function useDateRangeMetrics(startDate: string, endDate: string) {
+  return getHooks().useDateRangeMetrics(startDate, endDate);
+}
+export function useDashboardStats() { return getHooks().useDashboardStats(); }
+export function useHeatmapData() { return getHooks().useHeatmapData(); }
+export function useProjectDistribution() { return getHooks().useProjectDistribution(); }
+export function useTaskStatusDistribution() { return getHooks().useTaskStatusDistribution(); }
 
-  // Attachments
-  useTaskAttachments,
-  useCreateAttachment,
-  useDeleteAttachment,
-  useProjectAttachments,
+// AI
+export function useAIProfile() { return getHooks().useAIProfile(); }
+export function useOptimalSchedule() { return getHooks().useOptimalSchedule(); }
+export function useTaskDurationPrediction() { return getHooks().useTaskDurationPrediction(); }
+export function useGenerateWeeklyReport() { return getHooks().useGenerateWeeklyReport(); }
+export function useReports() { return getHooks().useReports(); }
+export function useReport(reportId: string) { return getHooks().useReport(reportId); }
+export function useDeleteReport() { return getHooks().useDeleteReport(); }
 
-  // Notifications
-  useNotifications,
-  useUnreadNotificationsCount,
-  useMarkNotificationAsRead,
-  useMarkAllNotificationsAsRead,
+// Comments
+export function useTaskComments(taskId: string) { return getHooks().useTaskComments(taskId); }
+export function useCreateComment() { return getHooks().useCreateComment(); }
+export function useUpdateComment() { return getHooks().useUpdateComment(); }
+export function useDeleteComment() { return getHooks().useDeleteComment(); }
 
-  // Utilities
-  invalidateAllTasks,
-} = hooks;
+// Attachments
+export function useTaskAttachments(taskId: string) { return getHooks().useTaskAttachments(taskId); }
+export function useCreateAttachment() { return getHooks().useCreateAttachment(); }
+export function useDeleteAttachment() { return getHooks().useDeleteAttachment(); }
+export function useProjectAttachments(projectId: string) { return getHooks().useProjectAttachments(projectId); }
 
-// Also export the hooks object for dynamic access
-export { hooks };
+// Notifications
+export function useNotifications(options?: { limit?: number }) { return getHooks().useNotifications(options); }
+export function useUnreadNotificationsCount() { return getHooks().useUnreadNotificationsCount(); }
+export function useMarkNotificationAsRead() { return getHooks().useMarkNotificationAsRead(); }
+export function useMarkAllNotificationsAsRead() { return getHooks().useMarkAllNotificationsAsRead(); }
+
+// Utilities
+export function invalidateAllTasks() { return getHooks().invalidateAllTasks(); }
+
+// Export the lazy getter for dynamic access
+export { getHooks as hooks };
