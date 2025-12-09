@@ -71,7 +71,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
 
   const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
   const TypeIcon = typeInfo.icon;
-  const logs = activityData?.logs || [];
+  const logs = activityData || [];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

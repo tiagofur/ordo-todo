@@ -22,9 +22,10 @@ export function WorkspaceActivityLog({ workspaceId }: WorkspaceActivityLogProps)
     offset: page * ITEMS_PER_PAGE,
   });
 
-  const logs = data?.logs || [];
-  const total = data?.total || 0;
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  const logs = data || [];
+  // Note: API doesn't return total count, so we disable pagination for now
+  const total = logs.length;
+  const totalPages = 1; // Would need pagination info from API
 
   const getActionIcon = (action: string) => {
     const iconMap: Record<string, string> = {

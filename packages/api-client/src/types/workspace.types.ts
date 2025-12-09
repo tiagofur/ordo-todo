@@ -70,6 +70,8 @@ export interface WorkspaceInvitation {
   expiresAt: Date;
   invitedById?: string;
   createdAt: Date;
+  /** Token for dev/testing mode when email service is not configured */
+  devToken?: string;
 }
 
 export interface InviteMemberDto {
