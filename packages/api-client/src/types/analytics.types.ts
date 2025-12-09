@@ -12,6 +12,7 @@ export interface DailyMetrics {
   breakTime: number;
   pomodorosCompleted: number;
   productivityScore: number;
+  focusScore?: number; // Optional: calculated focus score for analytics
   streakDays: number;
   createdAt: Date;
   updatedAt: Date;

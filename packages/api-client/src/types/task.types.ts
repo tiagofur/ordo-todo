@@ -94,9 +94,32 @@ export interface TaskShareResponse {
 }
 
 export interface PublicTaskResponse {
-  task: Task;
-  project: {
+  id: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate: Date | null;
+  estimatedTime: number | null;
+  project?: {
     id: string;
     name: string;
-  };
+    color?: string;
+  } | null;
+  assignee?: {
+    id: string;
+    name: string | null;
+    image?: string;
+  } | null;
+  creator?: {
+    id: string;
+    name: string | null;
+    image?: string;
+  } | null;
+  subTasks?: Array<{
+    id: string;
+    title: string;
+    status: TaskStatus;
+  }>;
 }
+
