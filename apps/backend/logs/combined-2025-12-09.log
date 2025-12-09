@@ -1397,3 +1397,9 @@
 {"context":"RouterExplorer","level":"info","message":"Mapped {/api/v1/templates/:id, DELETE} route","timestamp":"2025-12-09T14:47:15.882Z"}
 {"context":"NestApplication","level":"info","message":"Nest application successfully started","timestamp":"2025-12-09T14:47:16.046Z"}
 {"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T14:50:00.015Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T15:00:00.010Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-09T15:00:00.021Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Sending daily planning reminders...","timestamp":"2025-12-09T15:00:00.030Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Sent daily planning reminder to user 532f6600-7091-4db0-a4cf-9b0147750995","timestamp":"2025-12-09T15:00:00.079Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T15:10:00.013Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T15:20:00.034Z"}

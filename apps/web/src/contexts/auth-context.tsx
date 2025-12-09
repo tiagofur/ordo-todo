@@ -11,10 +11,10 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useRouter } from 'next/navigation';
 import { apiClient, setToken, removeToken } from '@/lib/api-client';
 import { useCurrentUser, useLogin, useRegister, useLogout } from '@/lib/api-hooks';
-import type { User, LoginDto, RegisterDto } from '@ordo-todo/api-client';
+import type { UserResponse, LoginDto, RegisterDto } from '@ordo-todo/api-client';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserResponse | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   error: unknown;
