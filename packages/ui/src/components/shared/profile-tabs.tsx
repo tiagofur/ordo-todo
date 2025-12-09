@@ -110,10 +110,12 @@ interface Profile {
     taskRemindersEmail: boolean;
     weeklyDigestEmail: boolean;
     marketingEmail: boolean;
-  };
+  } | null;
   subscription?: {
     plan: "FREE" | "PRO" | "TEAM" | "ENTERPRISE";
-  };
+    status?: string;
+    expiresAt?: Date | null;
+  } | null;
 }
 
 interface ProfileTabsProps {

@@ -32,7 +32,7 @@ export default function ProfilePage() {
       <Title title="Profile Settings" />
 
       <ProfileTabs
-        profile={profile}
+        profile={profile ?? null}
         sessionUser={sessionUser}
         isLoading={isLoading}
         onUpdateProfile={async (data) => {

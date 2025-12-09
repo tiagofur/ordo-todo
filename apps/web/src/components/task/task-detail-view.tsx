@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTask, useCompleteTask } from "@/lib/api-hooks";
+import { useTaskDetails, useCompleteTask } from "@/lib/api-hooks";
 import {
   Sheet,
   SheetContent,
@@ -24,7 +24,7 @@ interface TaskDetailViewProps {
 
 export function TaskDetailView({ taskId, open, onOpenChange }: TaskDetailViewProps) {
   const t = useTranslations('TaskDetailView');
-  const { data: task, isLoading } = useTask(taskId as string);
+  const { data: task, isLoading } = useTaskDetails(taskId as string);
 
   const completeTask = useCompleteTask();
 
