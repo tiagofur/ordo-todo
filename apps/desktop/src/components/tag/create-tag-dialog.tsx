@@ -11,8 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+  Label,
+} from "@ordo-todo/ui";
 import { toast } from "sonner";
 
 const createTagSchema = z.object({

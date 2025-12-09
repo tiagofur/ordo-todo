@@ -1,6 +1,5 @@
 import { Timer, Play, Pause, SkipForward, RotateCcw } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn, Button } from "@ordo-todo/ui";
 import { useTimerStore, startTimerInterval, stopTimerInterval } from "@/stores/timer-store";
 
 interface TimerWidgetProps {

@@ -2028,3 +2028,6 @@
 {"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T20:40:00.013Z"}
 {"context":"GlobalExceptionFilter","level":"warn","message":"Status: 404 Error: {\"statusCode\":404,\"timestamp\":\"2025-12-09T20:42:50.023Z\",\"path\":\"/api/v1/workspaces/31a1546b-2369-431f-a987-10f6ec4fe63b/members\",\"message\":\"User not found\",\"error\":\"Not Found\"}","timestamp":"2025-12-09T20:42:50.023Z"}
 {"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T20:50:00.004Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking for long work sessions...","timestamp":"2025-12-09T21:00:00.014Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T21:00:00.020Z"}
+{"context":"SmartNotificationsService","level":"info","message":"Checking upcoming tasks...","timestamp":"2025-12-09T21:10:00.006Z"}

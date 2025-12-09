@@ -3,14 +3,14 @@ import { FolderKanban, MoreVertical, Archive, Trash2, CheckCircle2, Clock } from
 import { useDeleteProject, useUpdateProject } from "@/hooks/api/use-projects";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: {
