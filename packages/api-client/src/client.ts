@@ -77,6 +77,14 @@ import type {
   // Notifications
   Notification,
   UnreadCountResponse,
+  // Chat
+  CreateConversationDto,
+  SendMessageDto,
+  ChatMessageResponse,
+  ConversationResponse,
+  ConversationDetail,
+  SendMessageResponse,
+  AIInsightsResponse,
 } from './types';
 
 /**
@@ -1208,6 +1216,86 @@ export class OrdoApiClient {
    */
   async markAllNotificationsAsRead(): Promise<{ success: boolean }> {
     const response = await this.axios.post<{ success: boolean }>('/notifications/mark-all-read');
+    return response.data;
+  }
+
+
+  // ============ CHAT ENDPOINTS ============
+
+  /**
+   * List all conversations
+   * GET /chat/conversations
+   */
+  async getConversations(params?: {
+    limit?: number;
+    offset?: number;
+    includeArchived?: boolean;
+  }): Promise<ConversationResponse[]> {
+    const response = await this.axios.get<ConversationResponse[]>('/chat/conversations', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get a single conversation with messages
+   * GET /chat/conversations/:id
+   */
+  async getConversation(id: string): Promise<ConversationDetail> {
+    const response = await this.axios.get<ConversationDetail>(`/chat/conversations/${id}`);
+    return response.data;
+  }
+
+  /**
+   * Create a new conversation
+   * POST /chat/conversations
+   */
+  async createConversation(data: CreateConversationDto): Promise<ConversationResponse> {
+    const response = await this.axios.post<ConversationResponse>('/chat/conversations', data);
+    return response.data;
+  }
+
+  /**
+   * Send a message to a conversation
+   * POST /chat/conversations/:id/messages
+   */
+  async sendMessage(conversationId: string, data: SendMessageDto): Promise<SendMessageResponse> {
+    const response = await this.axios.post<SendMessageResponse>(`/chat/conversations/${conversationId}/messages`, data);
+    return response.data;
+  }
+
+  /**
+   * Update conversation title
+   * PATCH /chat/conversations/:id
+   */
+  async updateConversation(id: string, title: string): Promise<ConversationResponse> {
+    const response = await this.axios.patch<ConversationResponse>(`/chat/conversations/${id}`, { title });
+    return response.data;
+  }
+
+  /**
+   * Archive a conversation
+   * PATCH /chat/conversations/:id/archive
+   */
+  async archiveConversation(id: string): Promise<ConversationResponse> {
+    const response = await this.axios.patch<ConversationResponse>(`/chat/conversations/${id}/archive`);
+    return response.data;
+  }
+
+  /**
+   * Delete a conversation
+   * DELETE /chat/conversations/:id
+   */
+  async deleteConversation(id: string): Promise<void> {
+    await this.axios.delete(`/chat/conversations/${id}`);
+  }
+
+  /**
+   * Get AI insights
+   * GET /chat/insights
+   */
+  async getAIInsights(): Promise<AIInsightsResponse> {
+    const response = await this.axios.get<AIInsightsResponse>('/chat/insights');
     return response.data;
   }
 }

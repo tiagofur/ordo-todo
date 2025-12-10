@@ -15,3 +15,4 @@ export * from './comment.types';
 export * from './attachment.types';
 export * from './ai.types';
 export * from './notification.types';
+export * from './chat.types';

@@ -797,6 +797,12 @@
       "updateError": "Error updating settings"
     }
   },
+  "AIAssistantSidebar": {
+    "title": "AI Assistant",
+    "welcome": "Hello! I am your Ordo AI assistant. How can I help you be more productive today?",
+    "placeholder": "Ask me anything...",
+    "error": "Failed to send message. Please try again."
+  },
   "InviteMemberDialog": {
     "title": "Invite Member",
     "description": "Invite a new member to this workspace.",

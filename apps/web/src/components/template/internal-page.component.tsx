@@ -5,8 +5,10 @@ import TopBar from "./top-bar.component";
 import { useScreenSize } from "@/data/hooks/use-screen-size.hook";
 import { AIAssistantSidebar } from "@/components/ai/ai-assistant-sidebar";
 import { Sidebar } from "@/components/shared/sidebar";
+import { useNotificationsSocket } from "@/hooks/use-notifications-socket";
 
 export default function InternalPage(props: any) {
+  useNotificationsSocket();
   const { xs, sm, md } = useScreenSize();
   const [isMenuOpen, setMenuOpen] = useState(!(xs || sm || md));
   const [isAIOpen, setAIOpen] = useState(false);

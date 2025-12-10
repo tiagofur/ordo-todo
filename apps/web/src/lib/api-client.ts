@@ -26,6 +26,9 @@ import type {
   AcceptInvitationDto,
   RefreshTokenDto,
   AuthResponse,
+  // Chat
+  CreateConversationDto,
+  SendMessageDto,
 } from '@ordo-todo/api-client';
 import { useSyncStore } from '@/stores/sync-store';
 import { PendingActionType } from '@/lib/offline-storage';
@@ -442,4 +445,16 @@ export const apiClient = {
   getUnreadNotificationsCount: () => axiosInstance.get('/notifications/unread-count').then((res) => res.data),
   markNotificationAsRead: (id: string) => axiosInstance.patch(`/notifications/${id}/read`).then((res) => res.data),
   markAllNotificationsAsRead: () => axiosInstance.post('/notifications/mark-all-read').then((res) => res.data),
+
+  // Chat
+  getConversations: (params?: { limit?: number; offset?: number; includeArchived?: boolean }) =>
+    axiosInstance.get('/chat/conversations', { params }).then((res) => res.data),
+  getConversation: (id: string) => axiosInstance.get(`/chat/conversations/${id}`).then((res) => res.data),
+  createConversation: (data: CreateConversationDto) => axiosInstance.post('/chat/conversations', data).then((res) => res.data),
+  sendMessage: (conversationId: string, data: SendMessageDto) =>
+    axiosInstance.post(`/chat/conversations/${conversationId}/messages`, data).then((res) => res.data),
+  updateConversation: (id: string, title: string) => axiosInstance.patch(`/chat/conversations/${id}`, { title }).then((res) => res.data),
+  archiveConversation: (id: string) => axiosInstance.patch(`/chat/conversations/${id}/archive`).then((res) => res.data),
+  deleteConversation: (id: string) => axiosInstance.delete(`/chat/conversations/${id}`).then((res) => res.data),
+  getAIInsights: () => axiosInstance.get('/chat/insights').then((res) => res.data),
 };

@@ -5,7 +5,7 @@ import { Button, Input } from "@ordo-todo/ui";
 import { Sparkles, Send, X, Bot, User } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string;
@@ -20,12 +20,12 @@ interface AIAssistantSidebarProps {
 }
 
 export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps) {
-  const t = useTranslations('AIAssistantSidebar');
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "assistant",
-      content: "Hello! I am your Ordo AI assistant. How can I help you be more productive today?", // Temporary hardcoded fallback if translation fails
+      content: "Hello! I am your Ordo AI assistant. How can I help you be more productive today?",
       timestamp: new Date(),
     },
   ]);
@@ -38,7 +38,11 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
   useEffect(() => {
     setMessages(prev => {
         if (prev[0].id === 'welcome') {
-             return [{ ...prev[0], content: t('welcome') }];
+             // Basic check if translation exists or fallback
+             const welcomeMsg = t('AIAssistantSidebar.welcome');
+             if (welcomeMsg && welcomeMsg !== 'AIAssistantSidebar.welcome') {
+                 return [{ ...prev[0], content: welcomeMsg }];
+             }
         }
         return prev;
     });
@@ -75,10 +79,6 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
              });
              currentConversationId = newConv.id;
              setConversationId(currentConversationId);
-             
-             // If the backend creates the message as part of creation, we might get it back?
-             // But let's assume we need to send it if it wasn't processed.
-             // For now, let's treat createConversation as just setting up the room.
          } catch (err) {
              console.error("Failed to create conversation", err);
              throw new Error("Could not start conversation");
@@ -99,7 +99,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error(error);
-      toast.error(t('error'));
+      toast.error(t('Common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +116,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
             <Sparkles className="h-4 w-4 text-white" />
           </div>
           <h3 className="font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            {t('title')}
+            {t('AIAssistantSidebar.title', 'AI Assistant')}
           </h3>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-muted/50 rounded-full">
@@ -186,7 +186,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t('placeholder')}
+            placeholder={t('AIAssistantSidebar.placeholder', 'Ask me anything...')}
             disabled={isLoading}
             className="flex-1 pr-10 shadow-sm border-zinc-200 dark:border-zinc-800 focus-visible:ring-indigo-500"
           />
