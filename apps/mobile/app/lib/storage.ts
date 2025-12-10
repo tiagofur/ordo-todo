@@ -50,4 +50,11 @@ export class AsyncStorageTokenStorage implements TokenStorage {
       console.error('Error setting refresh token in AsyncStorage:', error);
     }
   }
+  async removeRefreshToken(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+    } catch (error) {
+      console.error('Error removing refresh token from AsyncStorage:', error);
+    }
+  }
 }

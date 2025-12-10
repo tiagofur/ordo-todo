@@ -104,5 +104,23 @@ export interface TaskTimeResponse {
   totalMinutes: number;
   completedSessions: number;
   avgSessionDuration: number;
+
   lastSessionAt?: Date;
 }
+
+export interface CreateTimerSessionDto {
+  taskId: string;
+  startedAt: string | Date;
+  endedAt?: string | Date;
+  type?: SessionType;
+  duration?: number;
+}
+
+export interface UpdateTimerSessionDto {
+  taskId?: string;
+  startedAt?: string | Date;
+  endedAt?: string | Date;
+  type?: SessionType;
+  wasCompleted?: boolean;
+}
+

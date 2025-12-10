@@ -1,7 +1,7 @@
 import React from "react";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { StyleSheet, View, Pressable, Platform } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, router } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -139,6 +139,24 @@ export default function TabsLayout() {
             <TabBarIcon name="list" color={color} focused={focused} />
           ),
         }}
+      />
+      <Tabs.Screen
+        name="ai-chat-tab"
+        options={{
+            title: "AI",
+            tabBarButton: (props) => {
+                const { ref, ...rest } = props;
+                return (
+                  <Pressable {...rest} ref={ref as any} onPress={() => router.push('/screens/(internal)/ai-chat')}>
+                      <View style={{ top: -20, alignItems: 'center', justifyContent: 'center' }}>
+                          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: {width:0, height:4}, shadowOpacity:0.3, shadowRadius:4, elevation:5 }}>
+                              <Feather name="message-square" size={24} color="white" />
+                          </View>
+                      </View>
+                  </Pressable>
+                );
+            }
+        }} 
       />
       <Tabs.Screen
         name="profile"

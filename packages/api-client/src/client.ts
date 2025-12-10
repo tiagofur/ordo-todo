@@ -58,6 +58,9 @@ import type {
   GetTimerStatsParams,
   TimerStatsResponse,
   TaskTimeResponse,
+  CreateTimerSessionDto,
+  UpdateTimerSessionDto,
+
   // Analytics
   DailyMetrics,
   GetDailyMetricsParams,
@@ -664,6 +667,24 @@ export class OrdoApiClient {
     return response.data;
   }
 
+  /**
+   * Assign a task to a user
+   * POST /tasks/:id/assign
+   */
+  async assignTask(taskId: string, userId: string): Promise<Task> {
+    const response = await this.axios.post<Task>(`/tasks/${taskId}/assign`, { userId });
+    return response.data;
+  }
+
+  /**
+   * Unassign a task from a user
+   * DELETE /tasks/:id/assign
+   */
+  async unassignTask(taskId: string, userId: string): Promise<Task> {
+    const response = await this.axios.delete<Task>(`/tasks/${taskId}/assign/${userId}`);
+    return response.data;
+  }
+
   // ============ TAG ENDPOINTS (6) ============
 
   /**
@@ -1124,6 +1145,52 @@ export class OrdoApiClient {
   async updateTag(tagId: string, data: UpdateTagDto): Promise<Tag> {
     const response = await this.axios.put<Tag>(`/tags/${tagId}`, data);
     return response.data;
+  }
+
+  // ============ EXTENDED TIMER ENDPOINTS ============
+
+  /**
+   * Get all timer sessions for a task
+   * GET /timers?taskId=xxx
+   */
+  async getTimerSessions(taskId: string): Promise<TimeSession[]> {
+    const response = await this.axios.get<TimeSession[]>('/timers', { params: { taskId } });
+    return response.data;
+  }
+
+  /**
+   * Get a specific timer session
+   * GET /timers/:id
+   */
+  async getTimerSession(sessionId: string): Promise<TimeSession> {
+    const response = await this.axios.get<TimeSession>(`/timers/${sessionId}`);
+    return response.data;
+  }
+
+  /**
+   * Create a manual timer session
+   * POST /timers/session
+   */
+  async createTimerSession(data: CreateTimerSessionDto): Promise<TimeSession> {
+    const response = await this.axios.post<TimeSession>('/timers/session', data);
+    return response.data;
+  }
+
+  /**
+   * Update a timer session
+   * PATCH /timers/:id
+   */
+  async updateTimerSession(sessionId: string, data: UpdateTimerSessionDto): Promise<TimeSession> {
+    const response = await this.axios.patch<TimeSession>(`/timers/${sessionId}`, data);
+    return response.data;
+  }
+
+  /**
+   * Delete a timer session
+   * DELETE /timers/:id
+   */
+  async deleteTimerSession(sessionId: string): Promise<void> {
+    await this.axios.delete(`/timers/${sessionId}`);
   }
 
   // ============ EXTENDED TASK ENDPOINTS ============
