@@ -1,0 +1,27 @@
+---
+export interface Props {
+  variant?: 'default' | 'compact' | 'featured';
+  hover?: boolean;
+  class?: string;
+}
+
+const { 
+  variant = 'default', 
+  hover = false,
+  class: className = ''
+} = Astro.props;
+
+const baseClasses = 'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700';
+const variantClasses = {
+  default: 'p-6',
+  compact: 'p-4',
+  featured: 'p-8 shadow-lg'
+};
+const hoverClasses = hover ? 'transition-all duration-200 hover:shadow-md hover:-translate-y-1' : '';
+
+const classes = `${baseClasses} ${variantClasses[variant]} ${hoverClasses} ${className}`;
+---
+
+<div class={classes}>
+  <slot />
+</div>

@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/sections/Hero.astro';
+import FeaturesGrid from '../../components/sections/FeaturesGrid.astro';
+import Testimonials from '../../components/sections/Testimonials.astro';
+import Demo from '../../components/sections/Demo.astro';
+import CTA from '../../components/sections/CTA.astro';
+
+const meta = {
+  title: 'Ordo-Todo - The AI-Powered Task Manager That Works For You',
+  description: 'Transform your productivity with intelligent task management, smart scheduling, and proactive wellbeing insights. Try Ordo-Todo free today.'
+};
+---
+
+<BaseLayout title={meta.title} description={meta.description}>
+  <Hero />
+  <FeaturesGrid />
+  <Testimonials />
+  <Demo />
+  <CTA />
+</BaseLayout>

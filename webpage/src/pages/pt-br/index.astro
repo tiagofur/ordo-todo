@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/sections/Hero.astro';
+import FeaturesGrid from '../../components/sections/FeaturesGrid.astro';
+import Testimonials from '../../components/sections/Testimonials.astro';
+import Demo from '../../components/sections/Demo.astro';
+import CTA from '../../components/sections/CTA.astro';
+
+const meta = {
+  title: 'Ordo-Todo - O Gerenciador de Tarefas com IA que Trabalha por Você',
+  description: 'Transforme sua produtividade com gerenciamento inteligente de tarefas, agendamento inteligente e insights proativos de bem-estar. Experimente o Ordo-Todo grátis hoje.'
+};
+---
+
+<BaseLayout title={meta.title} description={meta.description}>
+  <Hero />
+  <FeaturesGrid />
+  <Testimonials />
+  <Demo />
+  <CTA />
+</BaseLayout>

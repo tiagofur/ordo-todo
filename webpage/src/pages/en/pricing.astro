@@ -1,0 +1,277 @@
+---
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Card from '../../components/ui/Card.astro';
+import Button from '../../components/ui/Button.astro';
+
+const currentLang = getLangFromUrl(Astro.url);
+const t = useTranslations(currentLang);
+
+const meta = {
+  en: {
+    title: 'Pricing - Ordo-Todo',
+    description: 'Choose the perfect plan for your productivity needs. Free for personal use, Pro for power users, and Team for growing organizations.'
+  },
+  es: {
+    title: 'Precios - Ordo-Todo',
+    description: 'Elige el plan perfecto para tus necesidades de productividad. Gratis para uso personal, Pro para usuarios avanzados, y Team para organizaciones en crecimiento.'
+  },
+  'pt-br': {
+    title: 'Preços - Ordo-Todo',
+    description: 'Escolha o plano perfeito para suas necessidades de produtividade. Gratuito para uso pessoal, Pro para usuários avançados, e Team para organizações em crescimento.'
+  }
+};
+
+const pageMeta = meta[currentLang] || meta.en;
+---
+
+<BaseLayout title={pageMeta.title} description={pageMeta.description}>
+  <section class="py-20 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Simple, Transparent Pricing
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          Start free, upgrade when you need more power
+        </p>
+      </div>
+
+      <!-- Billing Toggle -->
+      <div class="flex justify-center mb-12">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-1 shadow-sm border border-gray-200 dark:border-gray-700">
+          <button class="billing-toggle active px-6 py-2 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white" data-billing="monthly">
+            {t('pricing.billed_monthly')}
+          </button>
+          <button class="billing-toggle px-6 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400" data-billing="yearly">
+            {t('pricing.billed_yearly')}
+            <span class="ml-2 text-green-600 font-semibold">{t('pricing.save')}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Free Plan -->
+        <Card variant="featured" class="relative">
+          <div class="text-center">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {t('pricing.free.title')}
+            </h3>
+            <div class="mb-6">
+              <span class="text-5xl font-bold text-gray-900 dark:text-white">{t('pricing.free.price')}</span>
+              <span class="text-gray-600 dark:text-gray-400">{t('pricing.per_month')}</span>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">
+              {t('pricing.free.description')}
+            </p>
+            
+            <Button 
+              href={getRelativeLocaleUrl(currentLang, '/signup')}
+              variant="outline"
+              size="lg"
+              class="w-full"
+            >
+              Get Started
+            </Button>
+          </div>
+          
+          <ul class="mt-8 space-y-4">
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Up to 100 tasks
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Basic Pomodoro timer
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Mobile & Web apps
+            </li>
+            <li class="flex items-center text-gray-400">
+              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              AI Assistant
+            </li>
+          </ul>
+        </Card>
+
+        <!-- Pro Plan -->
+        <Card variant="featured" class="relative border-2 border-blue-500 shadow-xl transform scale-105">
+          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+            <span class="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+              Most Popular
+            </span>
+          </div>
+          
+          <div class="text-center">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {t('pricing.pro.title')}
+            </h3>
+            <div class="mb-6">
+              <span class="text-5xl font-bold text-gray-900 dark:text-white">{t('pricing.pro.price')}</span>
+              <span class="text-gray-600 dark:text-gray-400">{t('pricing.per_month')}</span>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">
+              {t('pricing.pro.description')}
+            </p>
+            
+            <Button 
+              href={getRelativeLocaleUrl(currentLang, '/signup?plan=pro')}
+              variant="primary"
+              size="lg"
+              class="w-full"
+            >
+              Start Free Trial
+            </Button>
+          </div>
+          
+          <ul class="mt-8 space-y-4">
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Unlimited tasks
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              AI Assistant
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Advanced Analytics
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Priority Support
+            </li>
+          </ul>
+        </Card>
+
+        <!-- Team Plan -->
+        <Card variant="featured" class="relative">
+          <div class="text-center">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {t('pricing.team.title')}
+            </h3>
+            <div class="mb-6">
+              <span class="text-5xl font-bold text-gray-900 dark:text-white">{t('pricing.team.price')}</span>
+              <span class="text-gray-600 dark:text-gray-400">{t('pricing.per_user')}{t('pricing.per_month')}</span>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">
+              {t('pricing.team.description')}
+            </p>
+            
+            <Button 
+              href={getRelativeLocaleUrl(currentLang, '/signup?plan=team')}
+              variant="primary"
+              size="lg"
+              class="w-full"
+            >
+              Start Free Trial
+            </Button>
+          </div>
+          
+          <ul class="mt-8 space-y-4">
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Everything in Pro
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Team Collaboration
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Admin Controls
+            </li>
+            <li class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Dedicated Support
+            </li>
+          </ul>
+        </Card>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="mt-20 max-w-4xl mx-auto">
+        <h3 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-12">
+          Frequently Asked Questions
+        </h3>
+        
+        <div class="space-y-6">
+          <details class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <summary class="font-semibold text-gray-900 dark:text-white cursor-pointer">
+              Can I change plans anytime?
+            </summary>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">
+              Yes! You can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.
+            </p>
+          </details>
+          
+          <details class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <summary class="font-semibold text-gray-900 dark:text-white cursor-pointer">
+              Is there a free trial for paid plans?
+            </summary>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">
+              Yes! All paid plans come with a 14-day free trial. No credit card required to start.
+            </p>
+          </details>
+          
+          <details class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <summary class="font-semibold text-gray-900 dark:text-white cursor-pointer">
+              What payment methods do you accept?
+            </summary>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">
+              We accept all major credit cards, PayPal, and wire transfers for enterprise customers.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Billing toggle functionality
+  const monthlyBtn = document.querySelector('[data-billing="monthly"]');
+  const yearlyBtn = document.querySelector('[data-billing="yearly"]');
+  
+  monthlyBtn?.addEventListener('click', () => {
+    monthlyBtn.classList.add('bg-blue-600', 'text-white');
+    monthlyBtn.classList.remove('text-gray-600', 'dark:text-gray-400');
+    yearlyBtn.classList.remove('bg-blue-600', 'text-white');
+    yearlyBtn.classList.add('text-gray-600', 'dark:text-gray-400');
+  });
+  
+  yearlyBtn?.addEventListener('click', () => {
+    yearlyBtn.classList.add('bg-blue-600', 'text-white');
+    yearlyBtn.classList.remove('text-gray-600', 'dark:text-gray-400');
+    monthlyBtn.classList.remove('bg-blue-600', 'text-white');
+    monthlyBtn.classList.add('text-gray-600', 'dark:text-gray-400');
+  });
+</script>
