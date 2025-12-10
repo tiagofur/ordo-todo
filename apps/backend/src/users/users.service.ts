@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import type { UserRepository } from '@ordo-todo/core';
 import { UserByEmail, ChangeUserName } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
@@ -12,7 +17,7 @@ export class UsersService {
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   async getMe(email: string) {
     const userByEmailUseCase = new UserByEmail(this.userRepository);
@@ -53,10 +58,10 @@ export class UsersService {
       updatedAt: user.updatedAt,
       subscription: user.subscription
         ? {
-          plan: user.subscription.plan,
-          status: user.subscription.status,
-          expiresAt: user.subscription.stripeCurrentPeriodEnd,
-        }
+            plan: user.subscription.plan,
+            status: user.subscription.status,
+            expiresAt: user.subscription.stripeCurrentPeriodEnd,
+          }
         : null,
       integrations: user.integrations.map((integration) => ({
         provider: integration.provider,
@@ -66,23 +71,23 @@ export class UsersService {
       })),
       preferences: user.preferences
         ? {
-          enableAI: user.preferences.enableAI,
-          aiAggressiveness: user.preferences.aiAggressiveness,
-          aiSuggestTaskDurations: user.preferences.aiSuggestTaskDurations,
-          aiSuggestPriorities: user.preferences.aiSuggestPriorities,
-          aiSuggestScheduling: user.preferences.aiSuggestScheduling,
-          aiWeeklyReports: user.preferences.aiWeeklyReports,
-          morningEnergy: user.preferences.morningEnergy,
-          afternoonEnergy: user.preferences.afternoonEnergy,
-          eveningEnergy: user.preferences.eveningEnergy,
-          shareAnalytics: user.preferences.shareAnalytics,
-          showActivityStatus: user.preferences.showActivityStatus,
-          taskRemindersEmail: user.preferences.taskRemindersEmail,
-          weeklyDigestEmail: user.preferences.weeklyDigestEmail,
-          marketingEmail: user.preferences.marketingEmail,
-          completedTasksRetention: user.preferences.completedTasksRetention,
-          timeSessionsRetention: user.preferences.timeSessionsRetention,
-        }
+            enableAI: user.preferences.enableAI,
+            aiAggressiveness: user.preferences.aiAggressiveness,
+            aiSuggestTaskDurations: user.preferences.aiSuggestTaskDurations,
+            aiSuggestPriorities: user.preferences.aiSuggestPriorities,
+            aiSuggestScheduling: user.preferences.aiSuggestScheduling,
+            aiWeeklyReports: user.preferences.aiWeeklyReports,
+            morningEnergy: user.preferences.morningEnergy,
+            afternoonEnergy: user.preferences.afternoonEnergy,
+            eveningEnergy: user.preferences.eveningEnergy,
+            shareAnalytics: user.preferences.shareAnalytics,
+            showActivityStatus: user.preferences.showActivityStatus,
+            taskRemindersEmail: user.preferences.taskRemindersEmail,
+            weeklyDigestEmail: user.preferences.weeklyDigestEmail,
+            marketingEmail: user.preferences.marketingEmail,
+            completedTasksRetention: user.preferences.completedTasksRetention,
+            timeSessionsRetention: user.preferences.timeSessionsRetention,
+          }
         : null,
     };
   }

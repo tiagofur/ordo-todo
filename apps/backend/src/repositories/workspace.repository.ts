@@ -18,7 +18,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaWorkspace: PrismaWorkspace): Workspace {
     return new Workspace({
@@ -190,22 +190,25 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
           select: {
             projects: true,
             members: true,
-          }
+          },
         },
         projects: {
           select: {
             _count: {
-              select: { tasks: true }
-            }
-          }
-        }
-      }
+              select: { tasks: true },
+            },
+          },
+        },
+      },
     });
 
     if (!workspace) return null;
 
     const domainWorkspace = this.toDomain(workspace);
-    const taskCount = workspace.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+    const taskCount = workspace.projects.reduce(
+      (acc, p) => acc + p._count.tasks,
+      0,
+    );
 
     return domainWorkspace.setStats({
       projectCount: workspace._count.projects,
@@ -224,10 +227,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   async findByUserId(userId: string): Promise<Workspace[]> {
     const workspaces = await this.prisma.workspace.findMany({
       where: {
-        OR: [
-          { ownerId: userId },
-          { members: { some: { userId } } }
-        ],
+        OR: [{ ownerId: userId }, { members: { some: { userId } } }],
         isDeleted: false,
       },
       include: {
@@ -235,16 +235,16 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
           select: {
             projects: true,
             members: true,
-          }
+          },
         },
         projects: {
           select: {
             _count: {
-              select: { tasks: true }
-            }
-          }
-        }
-      }
+              select: { tasks: true },
+            },
+          },
+        },
+      },
     });
 
     return workspaces.map((w) => {

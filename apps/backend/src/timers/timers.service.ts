@@ -42,7 +42,7 @@ export class TimersService {
     @Inject('AIProfileRepository')
     private readonly aiProfileRepository: AIProfileRepository,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   async start(startTimerDto: StartTimerDto, userId: string) {
     const startTimerUseCase = new StartTimerUseCase(
@@ -270,9 +270,9 @@ export class TimersService {
     const avgSessionDuration =
       stats.totalSessions > 0
         ? Math.round(
-          (stats.totalMinutesWorked + stats.totalBreakMinutes) /
-          stats.totalSessions,
-        )
+            (stats.totalMinutesWorked + stats.totalBreakMinutes) /
+              stats.totalSessions,
+          )
         : 0;
 
     const avgPausesPerSession =
@@ -285,17 +285,17 @@ export class TimersService {
     const avgFocusScore =
       totalWorkSeconds > 0
         ? Math.round(
-          (1 -
-            stats.totalPauseSeconds /
-            (totalWorkSeconds + stats.totalPauseSeconds)) *
-          100,
-        )
+            (1 -
+              stats.totalPauseSeconds /
+                (totalWorkSeconds + stats.totalPauseSeconds)) *
+              100,
+          )
         : 0;
 
     const completionRate =
       stats.totalSessions > 0
         ? Math.round((stats.completedSessions / stats.totalSessions) * 100) /
-        100
+          100
         : 0;
 
     // Get daily breakdown for last 7 days

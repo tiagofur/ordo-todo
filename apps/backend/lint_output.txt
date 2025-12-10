@@ -1,0 +1,654 @@
+
+> @ordo-todo/backend@1.0.0 lint
+> eslint "{src,apps,libs,test}/**/*.ts" --fix
+
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\activities\activities.service.ts
+  30:11  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\ai\ai.controller.ts
+  18:3   error  'AIWellbeingDto' is defined but never used  @typescript-eslint/no-unused-vars
+  42:20  error  'user' is defined but never used            @typescript-eslint/no-unused-vars
+  71:20  error  'user' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\ai\ai.service.ts
+    7:3   error    'TaskRepository' is defined but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   83:19  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+   83:38  error    Unsafe member access .title on an `any` value                                                                                                                                                                                                                                      @typescript-eslint/no-unsafe-member-access
+   84:19  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+   84:44  error    Unsafe member access .description on an `any` value                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-member-access
+   85:19  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+   85:41  error    Unsafe member access .priority on an `any` value                                                                                                                                                                                                                                   @typescript-eslint/no-unsafe-member-access
+   86:40  error    Unsafe member access .dueDate on an `any` value                                                                                                                                                                                                                                    @typescript-eslint/no-unsafe-member-access
+   87:32  warning  Unsafe argument of type `any` assigned to a parameter of type `string | number | Date`                                                                                                                                                                                             @typescript-eslint/no-unsafe-argument
+   87:44  error    Unsafe member access .dueDate on an `any` value                                                                                                                                                                                                                                    @typescript-eslint/no-unsafe-member-access
+  223:11  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+  244:66  warning  Unsafe argument of type `any` assigned to a parameter of type `{ userId: string; scope: "TASK_COMPLETION" | "PROJECT_SUMMARY" | "WEEKLY_SCHEDULED" | "MONTHLY_SCHEDULED"; metricsSnapshot: any; sessions?: any[] | undefined; profile?: any; projectName?: string | undefined; }`  @typescript-eslint/no-unsafe-argument
+  324:9   error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+  404:9   error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+  418:16  error    Unsafe member access .estimatedMinutes on an `any` value                                                                                                                                                                                                                           @typescript-eslint/no-unsafe-member-access
+  418:38  error    Unsafe member access .actualMinutes on an `any` value                                                                                                                                                                                                                              @typescript-eslint/no-unsafe-member-access
+  418:57  error    Unsafe member access .status on an `any` value                                                                                                                                                                                                                                     @typescript-eslint/no-unsafe-member-access
+  423:11  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+  424:23  error    Unsafe member access .actualMinutes on an `any` value                                                                                                                                                                                                                              @typescript-eslint/no-unsafe-member-access
+  424:41  error    Unsafe member access .estimatedMinutes on an `any` value                                                                                                                                                                                                                           @typescript-eslint/no-unsafe-member-access
+  426:7   error    Unsafe return of a value of type `any`                                                                                                                                                                                                                                             @typescript-eslint/no-unsafe-return
+  441:7   error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\ai\gemini-ai.service.ts
+  149:15  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  151:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  151:25  error    Unsafe member access .message on an `any` value                                                                 @typescript-eslint/no-unsafe-member-access
+  152:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  152:25  error    Unsafe member access .actions on an `any` value                                                                 @typescript-eslint/no-unsafe-member-access
+  153:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  153:29  error    Unsafe member access .suggestions on an `any` value                                                             @typescript-eslint/no-unsafe-member-access
+  217:15  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  219:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  219:23  error    Unsafe member access .title on an `any` value                                                                   @typescript-eslint/no-unsafe-member-access
+  220:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  220:29  error    Unsafe member access .description on an `any` value                                                             @typescript-eslint/no-unsafe-member-access
+  221:25  error    Unsafe member access .dueDate on an `any` value                                                                 @typescript-eslint/no-unsafe-member-access
+  221:44  warning  Unsafe argument of type `any` assigned to a parameter of type `string | number | Date`                          @typescript-eslint/no-unsafe-argument
+  221:49  error    Unsafe member access .dueDate on an `any` value                                                                 @typescript-eslint/no-unsafe-member-access
+  222:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  222:26  error    Unsafe member access .priority on an `any` value                                                                @typescript-eslint/no-unsafe-member-access
+  223:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  223:34  error    Unsafe member access .estimatedMinutes on an `any` value                                                        @typescript-eslint/no-unsafe-member-access
+  224:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  224:22  error    Unsafe member access .tags on an `any` value                                                                    @typescript-eslint/no-unsafe-member-access
+  225:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  225:28  error    Unsafe member access .confidence on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  226:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  226:27  error    Unsafe member access .reasoning on an `any` value                                                               @typescript-eslint/no-unsafe-member-access
+  331:15  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  334:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  334:26  error    Unsafe member access .insights on an `any` value                                                                @typescript-eslint/no-unsafe-member-access
+  335:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  335:33  error    Unsafe member access .recommendations on an `any` value                                                         @typescript-eslint/no-unsafe-member-access
+  363:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  364:19  error    Unsafe return of a value of type `any`                                                                          @typescript-eslint/no-unsafe-return
+  364:28  error    Unsafe member access .minutesWorked on an `any` value                                                           @typescript-eslint/no-unsafe-member-access
+  368:36  error    Unsafe member access .minutesWorked on an `any` value                                                           @typescript-eslint/no-unsafe-member-access
+  375:28  warning  Unsafe argument of type `any` assigned to a parameter of type `string | number | Date`                          @typescript-eslint/no-unsafe-argument
+  375:30  error    Unsafe member access .startedAt on an `any` value                                                               @typescript-eslint/no-unsafe-member-access
+  383:29  warning  Unsafe argument of type `any` assigned to a parameter of type `string | number | Date`                          @typescript-eslint/no-unsafe-argument
+  383:31  error    Unsafe member access .startedAt on an `any` value                                                               @typescript-eslint/no-unsafe-member-access
+  416:56  error    Unsafe member access .wasCompleted on an `any` value                                                            @typescript-eslint/no-unsafe-member-access
+  441:53  error    Unsafe member access .tasksCompleted on an `any` value                                                          @typescript-eslint/no-unsafe-member-access
+  494:9   error    Unsafe return of a value of type `any`                                                                          @typescript-eslint/no-unsafe-return
+  600:15  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  602:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  602:25  error    Unsafe member access .summary on an `any` value                                                                 @typescript-eslint/no-unsafe-member-access
+  603:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  603:27  error    Unsafe member access .strengths on an `any` value                                                               @typescript-eslint/no-unsafe-member-access
+  604:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  604:28  error    Unsafe member access .weaknesses on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  605:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  605:33  error    Unsafe member access .recommendations on an `any` value                                                         @typescript-eslint/no-unsafe-member-access
+  606:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  606:26  error    Unsafe member access .patterns on an `any` value                                                                @typescript-eslint/no-unsafe-member-access
+  609:25  warning  Unsafe argument of type `any` assigned to a parameter of type `number`                                          @typescript-eslint/no-unsafe-argument
+  609:30  error    Unsafe member access .productivityScore on an `any` value                                                       @typescript-eslint/no-unsafe-member-access
+  625:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  631:33  warning  Unsafe argument of type `any` assigned to a parameter of type `string`                                          @typescript-eslint/no-unsafe-argument
+  636:30  error    Unsafe member access .length on an `any` value                                                                  @typescript-eslint/no-unsafe-member-access
+  637:53  error    Unsafe member access .length on an `any` value                                                                  @typescript-eslint/no-unsafe-member-access
+  638:3   error    Unsafe call of a(n) `any` typed value                                                                           @typescript-eslint/no-unsafe-call
+  638:3   error    Unsafe call of a(n) `any` typed value                                                                           @typescript-eslint/no-unsafe-call
+  638:3   error    Unsafe call of a(n) `any` typed value                                                                           @typescript-eslint/no-unsafe-call
+  639:4   error    Unsafe member access .slice on an `any` value                                                                   @typescript-eslint/no-unsafe-member-access
+  640:4   error    Unsafe member access .map on an `any` value                                                                     @typescript-eslint/no-unsafe-member-access
+  642:34  error    Unsafe member access .duration on an `any` value                                                                @typescript-eslint/no-unsafe-member-access
+  642:60  error    Unsafe member access .pauseCount on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  642:93  error    Unsafe member access .wasCompleted on an `any` value                                                            @typescript-eslint/no-unsafe-member-access
+  644:4   error    Unsafe member access .join on an `any` value                                                                    @typescript-eslint/no-unsafe-member-access
+  649:40  warning  Unsafe argument of type `any` assigned to a parameter of type `{ [s: string]: unknown; } | ArrayLike<unknown>`  @typescript-eslint/no-unsafe-argument
+  649:48  error    Unsafe member access .peakHours on an `any` value                                                               @typescript-eslint/no-unsafe-member-access
+  656:36  error    Unsafe member access .avgTaskDuration on an `any` value                                                         @typescript-eslint/no-unsafe-member-access
+  657:42  error    Unsafe member access .completionRate on an `any` value                                                          @typescript-eslint/no-unsafe-member-access
+  727:15  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  729:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  729:34  error    Unsafe member access .estimatedMinutes on an `any` value                                                        @typescript-eslint/no-unsafe-member-access
+  730:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  730:28  error    Unsafe member access .confidence on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  731:11  error    Unsafe assignment of an `any` value                                                                             @typescript-eslint/no-unsafe-assignment
+  731:27  error    Unsafe member access .reasoning on an `any` value                                                               @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\analytics\analytics.service.ts
+   87:7   error  Unsafe assignment of an `any` value                                                                                  @typescript-eslint/no-unsafe-assignment
+   87:45  error  Unsafe return of a value of type `any`                                                                               @typescript-eslint/no-unsafe-return
+   87:53  error  Unsafe member access .props on an `any` value                                                                        @typescript-eslint/no-unsafe-member-access
+   88:7   error  Unsafe assignment of an `any` value                                                                                  @typescript-eslint/no-unsafe-assignment
+   88:41  error  Unsafe return of a value of type `any`                                                                               @typescript-eslint/no-unsafe-return
+   88:49  error  Unsafe member access .props on an `any` value                                                                        @typescript-eslint/no-unsafe-member-access
+   89:7   error  Unsafe assignment of an `any` value                                                                                  @typescript-eslint/no-unsafe-assignment
+   89:43  error  Unsafe return of a value of type `any`                                                                               @typescript-eslint/no-unsafe-return
+   89:51  error  Unsafe member access .props on an `any` value                                                                        @typescript-eslint/no-unsafe-member-access
+  161:7   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  173:5   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  182:5   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\app.controller.ts
+  32:13  error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  32:28  error  Unsafe use of a(n) `any` typed template tag      @typescript-eslint/no-unsafe-call
+  38:31  error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  40:32  error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  40:45  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  60:32  error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  60:45  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\attachments\attachments.controller.ts
+  41:17  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+  41:35  error  Unsafe member access .taskId on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\attachments\attachments.service.ts
+   92:15  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  128:21  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  139:66  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\auth\auth.controller.ts
+  29:3  error  Async method 'logout' has no 'await' expression  @typescript-eslint/require-await
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\auth\auth.module.ts
+  21:11  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\auth\auth.service.spec.ts
+  45:62  error  Unsafe member access .sub on an `any` value                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unsafe-member-access
+  86:14  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\auth\auth.service.ts
+   44:11  error    Unsafe call of a(n) `any` typed value                                   @typescript-eslint/no-unsafe-call
+   44:17  error    Unsafe member access .message on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   71:9   error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+   87:9   error    Unsafe call of a(n) `any` typed value                                   @typescript-eslint/no-unsafe-call
+   87:15  error    Unsafe member access .message on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   88:9   error    Unsafe call of a(n) `any` typed value                                   @typescript-eslint/no-unsafe-call
+   88:15  error    Unsafe member access .message on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  111:13  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  116:13  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  116:44  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  116:52  error    Unsafe member access .email on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  123:9   error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  123:19  error    Unsafe member access .id on an `any` value                              @typescript-eslint/no-unsafe-member-access
+  124:9   error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  124:21  error    Unsafe member access .email on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  125:9   error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  125:20  error    Unsafe member access .name on an `any` value                            @typescript-eslint/no-unsafe-member-access
+  130:9   error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  139:11  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  139:20  error    Unsafe member access .id on an `any` value                              @typescript-eslint/no-unsafe-member-access
+  140:11  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  140:23  error    Unsafe member access .email on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  141:11  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  141:22  error    Unsafe member access .name on an `any` value                            @typescript-eslint/no-unsafe-member-access
+  150:17  error    Unsafe member access .name on an `any` value                            @typescript-eslint/no-unsafe-member-access
+  153:17  error    Unsafe member access .name on an `any` value                            @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\auth\strategies\jwt.strategy.ts
+  21:11  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  21:54  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  21:62  error    Unsafe member access .email on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  25:14  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  25:26  error    Unsafe member access .sub on an `any` value                             @typescript-eslint/no-unsafe-member-access
+  25:31  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  25:46  error    Unsafe member access .email on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  25:53  error    Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  25:67  error    Unsafe member access .name on an `any` value                            @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\collaboration\collaboration.gateway.ts
+   11:18  error    'UseGuards' is defined but never used                                                                                                                               @typescript-eslint/no-unused-vars
+   41:13  error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   50:13  error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   50:57  warning  Unsafe argument of type `any` assigned to a parameter of type `string`                                                                                              @typescript-eslint/no-unsafe-argument
+   51:7   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   51:19  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+   51:36  error    Unsafe member access .sub on an `any` value                                                                                                                         @typescript-eslint/no-unsafe-member-access
+   52:7   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   52:19  error    Unsafe member access .userName on an `any` value                                                                                                                    @typescript-eslint/no-unsafe-member-access
+   52:38  error    Unsafe member access .name on an `any` value                                                                                                                        @typescript-eslint/no-unsafe-member-access
+   52:54  error    Unsafe member access .email on an `any` value                                                                                                                       @typescript-eslint/no-unsafe-member-access
+   55:62  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+   58:52  error    Unsafe member access .message on an `any` value                                                                                                                     @typescript-eslint/no-unsafe-member-access
+   64:11  error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   64:32  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+   77:5   warning  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   80:7   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   80:27  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+   81:7   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   81:29  error    Unsafe member access .userName on an `any` value                                                                                                                    @typescript-eslint/no-unsafe-member-access
+   88:27  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+   97:5   warning  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  107:5   warning  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  117:41  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+  125:5   warning  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  144:7   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  146:9   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  146:29  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+  147:9   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  147:31  error    Unsafe member access .userName on an `any` value                                                                                                                    @typescript-eslint/no-unsafe-member-access
+  152:67  error    Unsafe member access .userId on an `any` value                                                                                                                      @typescript-eslint/no-unsafe-member-access
+  183:7   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\collaboration\collaboration.module.ts
+  10:7  error  Async method 'useFactory' has no 'await' expression  @typescript-eslint/require-await
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\comments\comments.service.spec.ts
+    6:10  error  'NotFoundException' is defined but never used              @typescript-eslint/no-unused-vars
+    7:28  error  'ResourceType' is defined but never used                   @typescript-eslint/no-unused-vars
+   11:7   error  'prismaService' is assigned a value but never used         @typescript-eslint/no-unused-vars
+   12:7   error  'activitiesService' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   13:7   error  'notificationsService' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  142:13  error  'result' is assigned a value but never used                @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\decorators\current-user.decorator.ts
+  6:11  error  Unsafe assignment of an `any` value           @typescript-eslint/no-unsafe-assignment
+  7:5   error  Unsafe return of a value of type `any`        @typescript-eslint/no-unsafe-return
+  7:20  error  Unsafe member access .user on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\filters\global-exception.filter.ts
+  33:9   error  Unsafe assignment of an `any` value                               @typescript-eslint/no-unsafe-assignment
+  33:37  error  Unsafe member access .message on an `any` value                   @typescript-eslint/no-unsafe-member-access
+  34:9   error  Unsafe assignment of an `any` value                               @typescript-eslint/no-unsafe-assignment
+  34:35  error  Unsafe member access .error on an `any` value                     @typescript-eslint/no-unsafe-member-access
+  79:7   error  Unsafe assignment of an `any` value                               @typescript-eslint/no-unsafe-assignment
+  85:9   error  The two values in this comparison do not have a shared enum type  @typescript-eslint/no-unsafe-enum-comparison
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\filters\http-exception.filter.ts
+   6:3   error  'HttpStatus' is defined but never used           @typescript-eslint/no-unused-vars
+  24:7   error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  27:40  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\guards\base-resource.guard.ts
+   6:3   error  'NotFoundException' is defined but never used            @typescript-eslint/no-unused-vars
+  21:11  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  22:11  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  22:26  error  Unsafe member access .user on an `any` value             @typescript-eslint/no-unsafe-member-access
+  44:11  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  44:24  error  Unsafe member access .id on an `any` value               @typescript-eslint/no-unsafe-member-access
+  67:3   error  Async method 'getWorkspaceId' has no 'await' expression  @typescript-eslint/require-await
+  67:34  error  'request' is defined but never used                      @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\guards\create-task.guard.ts
+   7:11  error  Unsafe assignment of an `any` value           @typescript-eslint/no-unsafe-assignment
+   7:31  error  Unsafe member access .body on an `any` value  @typescript-eslint/no-unsafe-member-access
+  11:16  error  Unsafe assignment of an `any` value           @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\guards\jwt-auth.guard.ts
+  29:38  error  'info' is defined but never used        @typescript-eslint/no-unused-vars
+  33:5   error  Unsafe return of a value of type `any`  @typescript-eslint/no-unsafe-return
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\guards\project.guard.ts
+   7:11  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+   7:31  error  Unsafe member access .params on an `any` value  @typescript-eslint/no-unsafe-member-access
+  11:19  error  Unsafe member access .body on an `any` value    @typescript-eslint/no-unsafe-member-access
+  11:35  error  Unsafe member access .body on an `any` value    @typescript-eslint/no-unsafe-member-access
+  12:9   error  Unsafe return of a value of type `any`          @typescript-eslint/no-unsafe-return
+  12:24  error  Unsafe member access .body on an `any` value    @typescript-eslint/no-unsafe-member-access
+  14:19  error  Unsafe member access .query on an `any` value   @typescript-eslint/no-unsafe-member-access
+  14:36  error  Unsafe member access .query on an `any` value   @typescript-eslint/no-unsafe-member-access
+  15:9   error  Unsafe return of a value of type `any`          @typescript-eslint/no-unsafe-return
+  15:24  error  Unsafe member access .query on an `any` value   @typescript-eslint/no-unsafe-member-access
+  21:16  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\guards\task.guard.ts
+   7:11  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+   7:28  error  Unsafe member access .params on an `any` value  @typescript-eslint/no-unsafe-member-access
+  15:16  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\guards\workspace.guard.ts
+   6:3   error  'NotFoundException' is defined but never used                @typescript-eslint/no-unused-vars
+   7:3   error  'Inject' is defined but never used                           @typescript-eslint/no-unused-vars
+  22:11  error  Unsafe assignment of an `any` value                          @typescript-eslint/no-unsafe-assignment
+  23:11  error  Unsafe assignment of an `any` value                          @typescript-eslint/no-unsafe-assignment
+  23:26  error  Unsafe member access .user on an `any` value                 @typescript-eslint/no-unsafe-member-access
+  44:11  error  Unsafe assignment of an `any` value                          @typescript-eslint/no-unsafe-assignment
+  44:24  error  Unsafe member access .id on an `any` value                   @typescript-eslint/no-unsafe-member-access
+  66:13  error  Unsafe member access .workspaceMember on an `any` value      @typescript-eslint/no-unsafe-member-access
+  70:3   error  Async method 'extractWorkspaceId' has no 'await' expression  @typescript-eslint/require-await
+  71:11  error  Unsafe assignment of an `any` value                          @typescript-eslint/no-unsafe-assignment
+  71:28  error  Unsafe member access .params on an `any` value               @typescript-eslint/no-unsafe-member-access
+  72:11  error  Unsafe assignment of an `any` value                          @typescript-eslint/no-unsafe-assignment
+  72:27  error  Unsafe member access .query on an `any` value                @typescript-eslint/no-unsafe-member-access
+  73:11  error  Unsafe assignment of an `any` value                          @typescript-eslint/no-unsafe-assignment
+  73:26  error  Unsafe member access .body on an `any` value                 @typescript-eslint/no-unsafe-member-access
+  76:16  error  Unsafe member access .workspaceId on an `any` value          @typescript-eslint/no-unsafe-member-access
+  76:29  error  Unsafe return of a value of type `any`                       @typescript-eslint/no-unsafe-return
+  76:43  error  Unsafe member access .workspaceId on an `any` value          @typescript-eslint/no-unsafe-member-access
+  77:15  error  Unsafe member access .workspaceId on an `any` value          @typescript-eslint/no-unsafe-member-access
+  77:28  error  Unsafe return of a value of type `any`                       @typescript-eslint/no-unsafe-return
+  77:41  error  Unsafe member access .workspaceId on an `any` value          @typescript-eslint/no-unsafe-member-access
+  78:14  error  Unsafe member access .workspaceId on an `any` value          @typescript-eslint/no-unsafe-member-access
+  78:27  error  Unsafe return of a value of type `any`                       @typescript-eslint/no-unsafe-return
+  78:39  error  Unsafe member access .workspaceId on an `any` value          @typescript-eslint/no-unsafe-member-access
+  93:9   error  Unsafe call of a(n) `any` typed value                        @typescript-eslint/no-unsafe-call
+  93:17  error  Unsafe member access .route on an `any` value                @typescript-eslint/no-unsafe-member-access
+  94:7   error  Unsafe return of a value of type `any`                       @typescript-eslint/no-unsafe-return
+  94:21  error  Unsafe member access .id on an `any` value                   @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\interceptors\logging.interceptor.ts
+   8:10  error  'Observable' is defined but never used       @typescript-eslint/no-unused-vars
+   9:10  error  'tap' is defined but never used              @typescript-eslint/no-unused-vars
+  16:11  error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+  17:11  error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+  17:13  error  'method' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  17:21  error  'url' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  18:11  error  'now' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\common\migration.service.ts
+  14:13  error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+  14:28  error  Unsafe use of a(n) `any` typed template tag  @typescript-eslint/no-unsafe-call
+  22:31  error  Unsafe assignment of an `any` value          @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\database\prisma.service.ts
+  40:5  error  Unsafe return of a value of type `any`  @typescript-eslint/no-unsafe-return
+  45:5  error  Unsafe return of a value of type `any`  @typescript-eslint/no-unsafe-return
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\main.ts
+  68:1  warning  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\notifications\notifications.controller.ts
+  20:46  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  20:50  error    Unsafe member access .user on an `any` value                            @typescript-eslint/no-unsafe-member-access
+  25:53  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  25:57  error    Unsafe member access .user on an `any` value                            @typescript-eslint/no-unsafe-member-access
+  30:53  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  30:57  error    Unsafe member access .user on an `any` value                            @typescript-eslint/no-unsafe-member-access
+  35:52  warning  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  35:56  error    Unsafe member access .user on an `any` value                            @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\notifications\notifications.service.spec.ts
+    8:7   error  'prismaService' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  112:11  error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  131:11  error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\projects\projects.service.ts
+  104:52  error  Invalid type "Date | undefined" of template literal expression  @typescript-eslint/restrict-template-expressions
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\analytics.repository.ts
+  20:7   error  Unsafe assignment of an `any` value                           @typescript-eslint/no-unsafe-assignment
+  20:52  error  Unsafe member access .shortBreaksCompleted on an `any` value  @typescript-eslint/no-unsafe-member-access
+  21:7   error  Unsafe assignment of an `any` value                           @typescript-eslint/no-unsafe-assignment
+  21:51  error  Unsafe member access .longBreaksCompleted on an `any` value   @typescript-eslint/no-unsafe-member-access
+  22:7   error  Unsafe assignment of an `any` value                           @typescript-eslint/no-unsafe-assignment
+  22:44  error  Unsafe member access .breakMinutes on an `any` value          @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\productivity-report.repository.ts
+  30:7  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\task.repository.ts
+   39:7   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   39:13  error    Unsafe call of a(n) `any` typed value                                      @typescript-eslint/no-unsafe-call
+   39:33  error    Unsafe member access .tags on an `any` value                               @typescript-eslint/no-unsafe-member-access
+   40:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   40:15  error    Unsafe member access .tag on an `any` value                                @typescript-eslint/no-unsafe-member-access
+   41:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   41:17  error    Unsafe member access .tag on an `any` value                                @typescript-eslint/no-unsafe-member-access
+   42:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   42:18  error    Unsafe member access .tag on an `any` value                                @typescript-eslint/no-unsafe-member-access
+   43:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   43:24  error    Unsafe member access .tag on an `any` value                                @typescript-eslint/no-unsafe-member-access
+   50:13  error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   50:44  error    Unsafe member access .pattern on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   51:13  error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   51:45  error    Unsafe member access .interval on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   52:13  error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   52:47  error    Unsafe member access .daysOfWeek on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   53:13  error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   53:47  error    Unsafe member access .dayOfMonth on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   54:13  error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   54:44  error    Unsafe member access .endDate on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   60:29  error    Unsafe member access .project on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   61:16  error    Unsafe member access .project on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   62:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   62:33  error    Unsafe member access .project on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   63:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   63:35  error    Unsafe member access .project on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   64:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   64:36  error    Unsafe member access .project on an `any` value                            @typescript-eslint/no-unsafe-member-access
+   69:29  error    Unsafe member access .assignee on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   70:16  error    Unsafe member access .assignee on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   71:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   71:33  error    Unsafe member access .assignee on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   72:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   72:35  error    Unsafe member access .assignee on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   73:9   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+   73:36  error    Unsafe member access .assignee on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   77:21  warning  Unsafe argument of type `any` assigned to a parameter of type `TaskProps`  @typescript-eslint/no-unsafe-argument
+  155:12  error    Unsafe member access .recurrence on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  168:7   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+  169:7   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+  228:13  error    Unsafe member access .projectId on an `any` value                          @typescript-eslint/no-unsafe-member-access
+  232:13  error    Unsafe member access .tags on an `any` value                               @typescript-eslint/no-unsafe-member-access
+  242:7   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+  283:12  error    Unsafe member access .assigneeId on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  288:7   error    Unsafe assignment of an `any` value                                        @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\timer.repository.spec.ts
+  72:12  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+  74:9   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\timer.repository.ts
+   36:40  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+   36:55  error  Unsafe member access .endedAt on an `any` value          @typescript-eslint/no-unsafe-member-access
+   55:38  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+   55:53  error  Unsafe member access .endedAt on an `any` value          @typescript-eslint/no-unsafe-member-access
+  154:12  error  Unsafe member access .taskId on an `any` value           @typescript-eslint/no-unsafe-member-access
+  157:12  error  Unsafe member access .parentSessionId on an `any` value  @typescript-eslint/no-unsafe-member-access
+  160:12  error  Unsafe member access .splitReason on an `any` value      @typescript-eslint/no-unsafe-member-access
+  164:7   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  262:13  error  Unsafe member access .taskId on an `any` value           @typescript-eslint/no-unsafe-member-access
+  266:13  error  Unsafe member access .type on an `any` value             @typescript-eslint/no-unsafe-member-access
+  270:13  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+  272:15  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+  275:15  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+  280:13  error  Unsafe member access .wasCompleted on an `any` value     @typescript-eslint/no-unsafe-member-access
+  281:13  error  Unsafe member access .endedAt on an `any` value          @typescript-eslint/no-unsafe-member-access
+  286:9   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  291:39  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  314:13  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+  316:15  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+  319:15  error  Unsafe member access .startedAt on an `any` value        @typescript-eslint/no-unsafe-member-access
+  323:63  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\user.repository.ts
+  15:7   error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  15:37  error  Unsafe member access .hashedPassword on an `any` value  @typescript-eslint/no-unsafe-member-access
+  27:7   error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  27:38  error  Unsafe member access .updatedAt on an `any` value       @typescript-eslint/no-unsafe-member-access
+  41:9   error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  42:9   error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  43:9   error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\workflow.repository.ts
+  12:9  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\repositories\workspace.repository.ts
+  151:11  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                     @typescript-eslint/no-unsafe-assignment
+  151:27  error    Unsafe call of a(n) `any` typed value                                                                                                                                                                                                                                   @typescript-eslint/no-unsafe-call
+  152:13  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                     @typescript-eslint/no-unsafe-assignment
+  152:35  error    Unsafe call of a(n) `any` typed value                                                                                                                                                                                                                                   @typescript-eslint/no-unsafe-call
+  152:38  error    Unsafe member access .workspace on an `any` value                                                                                                                                                                                                                       @typescript-eslint/no-unsafe-member-access
+  158:15  error    Unsafe call of a(n) `any` typed value                                                                                                                                                                                                                                   @typescript-eslint/no-unsafe-call
+  158:18  error    Unsafe member access .workspaceMember on an `any` value                                                                                                                                                                                                                 @typescript-eslint/no-unsafe-member-access
+  160:13  error    Unsafe assignment of an `any` value                                                                                                                                                                                                                                     @typescript-eslint/no-unsafe-assignment
+  160:40  error    Unsafe member access .id on an `any` value                                                                                                                                                                                                                              @typescript-eslint/no-unsafe-member-access
+  167:7   error    Unsafe return of a value of type `any`                                                                                                                                                                                                                                  @typescript-eslint/no-unsafe-return
+  170:26  warning  Unsafe argument of type `any` assigned to a parameter of type `{ id: string; createdAt: Date; name: string; type: WorkspaceType; updatedAt: Date; description: string | null; slug: string; color: string; icon: string | null; ... 4 more ...; isDeleted: boolean; }`  @typescript-eslint/no-unsafe-argument
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\tags\tags.service.spec.ts
+  7:7  error  'prismaService' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\tasks\tasks.controller.spec.ts
+  58:28  warning  Unsafe argument of type `any` assigned to a parameter of type `Readonly<TaskProps> | Promise<Readonly<TaskProps>>`                                                                                                                                                                                                                          @typescript-eslint/no-unsafe-argument
+  60:46  warning  Unsafe argument of type `any` assigned to a parameter of type `CreateTaskDto`                                                                                                                                                                                                                                                               @typescript-eslint/no-unsafe-argument
+  60:58  warning  Unsafe argument of type `any` assigned to a parameter of type `RequestUser`                                                                                                                                                                                                                                                                 @typescript-eslint/no-unsafe-argument
+  63:14  error    A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\tasks\tasks.service.spec.ts
+    9:7   error  'prismaService' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   10:7   error  'activitiesService' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  243:9   error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  245:11  error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  246:11  error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  247:11  error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+  248:11  error  Unsafe assignment of an `any` value                     @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\tasks\tasks.service.ts
+  182:11  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+  218:48  error  '_' is defined but never used        @typescript-eslint/no-unused-vars
+  392:41  error  'userId' is defined but never used   @typescript-eslint/no-unused-vars
+  419:11  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+  489:14  error  'e' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\templates\templates.service.ts
+  13:9  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+  48:9  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\timers\dto\start-timer.dto.ts
+  1:10  error  'IsString' is defined but never used   @typescript-eslint/no-unused-vars
+  1:20  error  'MinLength' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\users\users.service.ts
+  8:23  error  'ChangeUserName' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\workspaces\dto\invite-member.dto.ts
+  1:10  error  'IsString' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\src\workspaces\workspaces.service.ts
+   54:11  error  'user' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  234:17  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  235:43  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  237:17  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  259:17  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  260:43  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  262:17  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  337:17  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  338:43  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  367:15  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  368:15  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  369:15  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  371:43  error  Unsafe member access .message on an `any` value  @typescript-eslint/no-unsafe-member-access
+  471:7   error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\test\collaboration.e2e-spec.ts
+   35:45  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   42:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   42:41  error    Unsafe member access .accessToken on an `any` value                  @typescript-eslint/no-unsafe-member-access
+   43:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   43:38  error    Unsafe member access .user on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   46:45  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   53:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   53:41  error    Unsafe member access .accessToken on an `any` value                  @typescript-eslint/no-unsafe-member-access
+   54:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   54:38  error    Unsafe member access .user on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   57:45  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   64:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   64:42  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   67:19  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   71:9   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   71:39  error    Unsafe member access .user on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   76:43  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   83:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   83:38  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   86:40  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   94:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   94:32  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  113:9   error    'commentId' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  116:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  125:28  error    Unsafe member access .content on an `any` value                      @typescript-eslint/no-unsafe-member-access
+  126:28  error    Unsafe member access .author on an `any` value                       @typescript-eslint/no-unsafe-member-access
+  127:7   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  127:33  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  132:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  137:13  error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  139:13  error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  139:35  error    Unsafe call of a(n) `any` typed value                                @typescript-eslint/no-unsafe-call
+  139:49  error    Unsafe member access .find on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  141:11  error    Unsafe return of a value of type `any`                               @typescript-eslint/no-unsafe-return
+  141:13  error    Unsafe member access .type on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  142:13  error    Unsafe member access .resourceId on an `any` value                   @typescript-eslint/no-unsafe-member-access
+  143:11  error    Unsafe call of a(n) `any` typed value                                @typescript-eslint/no-unsafe-call
+  143:13  error    Unsafe member access .message on an `any` value                      @typescript-eslint/no-unsafe-member-access
+  146:34  error    Unsafe member access .isRead on an `any` value                       @typescript-eslint/no-unsafe-member-access
+  150:21  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  161:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  166:13  error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  167:13  error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  167:35  error    Unsafe call of a(n) `any` typed value                                @typescript-eslint/no-unsafe-call
+  167:49  error    Unsafe member access .find on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  169:11  error    Unsafe return of a value of type `any`                               @typescript-eslint/no-unsafe-return
+  169:13  error    Unsafe member access .type on an `any` value                         @typescript-eslint/no-unsafe-member-access
+  170:13  error    Unsafe member access .resourceId on an `any` value                   @typescript-eslint/no-unsafe-member-access
+  171:11  error    Unsafe call of a(n) `any` typed value                                @typescript-eslint/no-unsafe-call
+  171:13  error    Unsafe member access .message on an `any` value                      @typescript-eslint/no-unsafe-member-access
+  177:21  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  197:21  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  202:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  207:28  error    Unsafe member access .count on an `any` value                        @typescript-eslint/no-unsafe-member-access
+
+C:\Users\tfurt\source\repos\ordo-todo\apps\backend\test\tasks.e2e-spec.ts
+   27:44  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   35:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   35:39  error    Unsafe member access .accessToken on an `any` value                  @typescript-eslint/no-unsafe-member-access
+   36:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   36:36  error    Unsafe member access .user on an `any` value                         @typescript-eslint/no-unsafe-member-access
+   39:45  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   47:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   47:42  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   50:43  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   58:5   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+   58:38  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+   81:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+   94:27  error    Unsafe member access .title on an `any` value                        @typescript-eslint/no-unsafe-member-access
+   95:27  error    Unsafe member access .priority on an `any` value                     @typescript-eslint/no-unsafe-member-access
+  100:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  110:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  122:9   error    'taskId' is assigned a value but never used                          @typescript-eslint/no-unused-vars
+  125:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  132:7   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  132:30  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  136:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  142:27  error    Unsafe member access .length on an `any` value                       @typescript-eslint/no-unsafe-member-access
+  147:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  153:11  error    Unsafe call of a(n) `any` typed value                                @typescript-eslint/no-unsafe-call
+  153:20  error    Unsafe member access .forEach on an `any` value                      @typescript-eslint/no-unsafe-member-access
+  154:25  error    Unsafe member access .projectId on an `any` value                    @typescript-eslint/no-unsafe-member-access
+  164:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  171:7   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  171:30  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  175:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  180:27  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  181:27  error    Unsafe member access .title on an `any` value                        @typescript-eslint/no-unsafe-member-access
+  186:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  197:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  204:7   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  204:30  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  208:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  217:27  error    Unsafe member access .title on an `any` value                        @typescript-eslint/no-unsafe-member-access
+  218:27  error    Unsafe member access .priority on an `any` value                     @typescript-eslint/no-unsafe-member-access
+  227:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  234:7   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  234:30  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  238:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  243:27  error    Unsafe member access .status on an `any` value                       @typescript-eslint/no-unsafe-member-access
+  252:38  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+  259:7   error    Unsafe assignment of an `any` value                                  @typescript-eslint/no-unsafe-assignment
+  259:30  error    Unsafe member access .id on an `any` value                           @typescript-eslint/no-unsafe-member-access
+  263:22  warning  Unsafe argument of type `any` assigned to a parameter of type `App`  @typescript-eslint/no-unsafe-argument
+
+Ô£û 532 problems (476 errors, 56 warnings)
+
+npm error Lifecycle script `lint` failed with error:
+npm error code 1
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error workspace @ordo-todo/backend@1.0.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c eslint "{src,apps,libs,test}/**/*.ts" --fix

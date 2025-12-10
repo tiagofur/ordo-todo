@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  ActivityIndicator,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -23,6 +24,7 @@ interface CustomButtonProps {
   textStyle?: TextStyle;
   disabled?: boolean;
   icon?: React.ReactNode;
+  isLoading?: boolean;
 }
 
 export default function CustomButton({
@@ -34,6 +36,7 @@ export default function CustomButton({
   textStyle,
   disabled,
   icon,
+  isLoading = false,
 }: CustomButtonProps) {
   const colors = useThemeColors();
   const scale = useSharedValue(1);
@@ -45,11 +48,13 @@ export default function CustomButton({
   }));
 
   const handlePressIn = () => {
+    if (isLoading || disabled) return;
     scale.value = withSpring(0.96, { damping: 15 });
     opacity.value = withTiming(0.8, { duration: 100 });
   };
 
   const handlePressOut = () => {
+    if (isLoading || disabled) return;
     scale.value = withSpring(1, { damping: 15 });
     opacity.value = withTiming(1, { duration: 100 });
   };
@@ -117,30 +122,36 @@ export default function CustomButton({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      disabled={disabled}
+      disabled={disabled || isLoading}
     >
       <Animated.View
         style={[
           styles.button,
           getButtonStyle(),
           getSizeStyle(),
-          disabled && styles.disabled,
+          (disabled || isLoading) && styles.disabled,
           animatedStyle,
           style,
         ]}
       >
-        {icon && <Animated.View style={styles.icon}>{icon}</Animated.View>}
-        <Text
-          style={[
-            styles.buttonText,
-            getTextStyle(),
-            getTextSizeStyle(),
-            disabled && { color: colors.textMuted },
-            textStyle,
-          ]}
-        >
-          {title}
-        </Text>
+        {isLoading ? (
+          <ActivityIndicator color={variant === "outline" ? colors.buttonPrimary : colors.buttonPrimaryText} />
+        ) : (
+          <>
+            {icon && <Animated.View style={styles.icon}>{icon}</Animated.View>}
+            <Text
+              style={[
+                styles.buttonText,
+                getTextStyle(),
+                getTextSizeStyle(),
+                disabled && { color: colors.textMuted },
+                textStyle,
+              ]}
+            >
+              {title}
+            </Text>
+          </>
+        )}
       </Animated.View>
     </Pressable>
   );

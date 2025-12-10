@@ -4,8 +4,8 @@ import { DatabaseModule } from '../database/database.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-    imports: [DatabaseModule, NotificationsModule],
-    providers: [GamificationService],
-    exports: [GamificationService],
+  imports: [DatabaseModule, NotificationsModule],
+  providers: [GamificationService],
+  exports: [GamificationService],
 })
-export class GamificationModule { }
+export class GamificationModule {}

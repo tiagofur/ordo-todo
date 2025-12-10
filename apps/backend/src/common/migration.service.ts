@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 export class MigrationService {
   private readonly logger = new Logger(MigrationService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async fixCompletedField() {
     try {

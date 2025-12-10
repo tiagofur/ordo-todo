@@ -16,7 +16,7 @@ export class CommentsService {
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async create(createCommentDto: CreateCommentDto, userId: string) {
     const comment = await this.prisma.comment.create({

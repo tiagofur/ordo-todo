@@ -42,8 +42,17 @@ export class UploadController {
         fileSize: 10 * 1024 * 1024, // 10MB
       },
       fileFilter: (req, file, callback) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|txt)$/)) {
-          return callback(new BadRequestException('Only image, pdf, and document files are allowed!'), false);
+        if (
+          !file.originalname.match(
+            /\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|txt)$/,
+          )
+        ) {
+          return callback(
+            new BadRequestException(
+              'Only image, pdf, and document files are allowed!',
+            ),
+            false,
+          );
         }
         callback(null, true);
       },

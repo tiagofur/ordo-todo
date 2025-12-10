@@ -4,57 +4,57 @@ import { CreateTemplateDto, UpdateTemplateDto } from './dto/template.dto';
 
 @Injectable()
 export class TemplatesService {
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    async create(dto: CreateTemplateDto) {
-        return this.prisma.taskTemplate.create({
-            data: {
-                ...dto,
-                defaultTags: dto.defaultTags ? (dto.defaultTags as any) : undefined,
-            },
-        });
+  async create(dto: CreateTemplateDto) {
+    return this.prisma.taskTemplate.create({
+      data: {
+        ...dto,
+        defaultTags: dto.defaultTags ? (dto.defaultTags as any) : undefined,
+      },
+    });
+  }
+
+  async findAll(workspaceId: string) {
+    return this.prisma.taskTemplate.findMany({
+      where: {
+        workspaceId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findOne(id: string) {
+    const template = await this.prisma.taskTemplate.findUnique({
+      where: { id },
+    });
+
+    if (!template) {
+      throw new NotFoundException(`Task template with ID ${id} not found`);
     }
 
-    async findAll(workspaceId: string) {
-        return this.prisma.taskTemplate.findMany({
-            where: {
-                workspaceId,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
-    }
+    return template;
+  }
 
-    async findOne(id: string) {
-        const template = await this.prisma.taskTemplate.findUnique({
-            where: { id },
-        });
+  async update(id: string, dto: UpdateTemplateDto) {
+    await this.findOne(id); // Ensure exists
 
-        if (!template) {
-            throw new NotFoundException(`Task template with ID ${id} not found`);
-        }
+    return this.prisma.taskTemplate.update({
+      where: { id },
+      data: {
+        ...dto,
+        defaultTags: dto.defaultTags ? (dto.defaultTags as any) : undefined,
+      },
+    });
+  }
 
-        return template;
-    }
+  async remove(id: string) {
+    await this.findOne(id); // Ensure exists
 
-    async update(id: string, dto: UpdateTemplateDto) {
-        await this.findOne(id); // Ensure exists
-
-        return this.prisma.taskTemplate.update({
-            where: { id },
-            data: {
-                ...dto,
-                defaultTags: dto.defaultTags ? (dto.defaultTags as any) : undefined,
-            },
-        });
-    }
-
-    async remove(id: string) {
-        await this.findOne(id); // Ensure exists
-
-        return this.prisma.taskTemplate.delete({
-            where: { id },
-        });
-    }
+    return this.prisma.taskTemplate.delete({
+      where: { id },
+    });
+  }
 }

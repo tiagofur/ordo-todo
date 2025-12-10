@@ -30,7 +30,7 @@ export class AIService {
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   // ============ AI CHAT ============
 
@@ -57,11 +57,10 @@ export class AIService {
       },
     });
 
-    const response = await this.geminiService.chat(
-      message,
-      history,
-      { ...context, tasks },
-    );
+    const response = await this.geminiService.chat(message, history, {
+      ...context,
+      tasks,
+    });
 
     // Execute actions if any
     if (response.actions && response.actions.length > 0) {
@@ -84,7 +83,9 @@ export class AIService {
                   title: action.data.title,
                   description: action.data.description,
                   priority: action.data.priority || 'MEDIUM',
-                  dueDate: action.data.dueDate ? new Date(action.data.dueDate) : null,
+                  dueDate: action.data.dueDate
+                    ? new Date(action.data.dueDate)
+                    : null,
                   projectId: defaultProject.id,
                   creatorId: userId,
                 },
@@ -130,7 +131,8 @@ export class AIService {
   ) {
     // Default to last 30 days
     const end = endDate || new Date();
-    const start = startDate || new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const start =
+      startDate || new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     // Get daily metrics
     const dailyMetrics = await this.prisma.dailyMetrics.findMany({
@@ -211,7 +213,7 @@ export class AIService {
       const geminiPrediction = await this.geminiService.estimateTaskDuration(
         taskTitle,
         taskDescription,
-        localPrediction.estimatedMinutes
+        localPrediction.estimatedMinutes,
       );
 
       // If Gemini provides a result, use it.
@@ -220,14 +222,14 @@ export class AIService {
           estimatedMinutes: geminiPrediction.estimatedMinutes,
           confidence: geminiPrediction.confidence as any,
           reasoning: `🤖 ${geminiPrediction.reasoning}`,
-          source: 'AI'
+          source: 'AI',
         };
       }
     }
 
     return {
       ...localPrediction,
-      source: 'Local'
+      source: 'Local',
     };
   }
 
@@ -280,12 +282,23 @@ export class AIService {
 
     // Aggregate metrics
     const metricsSnapshot = {
-      totalTasksCompleted: dailyMetrics.reduce((sum, d) => sum + d.tasksCompleted, 0),
-      totalMinutesWorked: dailyMetrics.reduce((sum, d) => sum + d.minutesWorked, 0),
-      totalPomodoros: dailyMetrics.reduce((sum, d) => sum + d.pomodorosCompleted, 0),
-      avgFocusScore: dailyMetrics.length > 0
-        ? dailyMetrics.reduce((sum, d) => sum + (d.focusScore || 0), 0) / dailyMetrics.length
-        : 0,
+      totalTasksCompleted: dailyMetrics.reduce(
+        (sum, d) => sum + d.tasksCompleted,
+        0,
+      ),
+      totalMinutesWorked: dailyMetrics.reduce(
+        (sum, d) => sum + d.minutesWorked,
+        0,
+      ),
+      totalPomodoros: dailyMetrics.reduce(
+        (sum, d) => sum + d.pomodorosCompleted,
+        0,
+      ),
+      avgFocusScore:
+        dailyMetrics.length > 0
+          ? dailyMetrics.reduce((sum, d) => sum + (d.focusScore || 0), 0) /
+            dailyMetrics.length
+          : 0,
       daysWorked: dailyMetrics.filter((d) => d.minutesWorked > 0).length,
     };
 
@@ -354,11 +367,17 @@ export class AIService {
     const metricsSnapshot = {
       projectName: project.name,
       totalTasks: project.tasks.length,
-      completedTasks: project.tasks.filter((t) => t.status === 'COMPLETED').length,
-      totalMinutesWorked: sessions.reduce((sum, s) => sum + (s.duration || 0), 0),
-      avgTaskDuration: project.tasks.length > 0
-        ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / project.tasks.filter((t) => t.status === 'COMPLETED').length
-        : 0,
+      completedTasks: project.tasks.filter((t) => t.status === 'COMPLETED')
+        .length,
+      totalMinutesWorked: sessions.reduce(
+        (sum, s) => sum + (s.duration || 0),
+        0,
+      ),
+      avgTaskDuration:
+        project.tasks.length > 0
+          ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) /
+            project.tasks.filter((t) => t.status === 'COMPLETED').length
+          : 0,
       estimateAccuracy: this.calculateEstimateAccuracy(project.tasks),
     };
 
@@ -396,7 +415,7 @@ export class AIService {
 
   private calculateEstimateAccuracy(tasks: any[]): number {
     const tasksWithEstimates = tasks.filter(
-      (t) => t.estimatedMinutes && t.actualMinutes && t.status === 'COMPLETED'
+      (t) => t.estimatedMinutes && t.actualMinutes && t.status === 'COMPLETED',
     );
 
     if (tasksWithEstimates.length === 0) return 0;

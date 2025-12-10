@@ -92,7 +92,8 @@ export class GeminiAIService {
   ): Promise<ChatResponse> {
     if (!this.flashModel) {
       return {
-        message: 'El servicio de IA no está disponible. Configura GEMINI_API_KEY.',
+        message:
+          'El servicio de IA no está disponible. Configura GEMINI_API_KEY.',
         actions: [],
       };
     }
@@ -132,7 +133,9 @@ ${context?.tasks ? `Tareas actuales del usuario: ${JSON.stringify(context.tasks.
 Responde siempre en español y sé conciso pero amigable.`;
 
       const historyText = history
-        .map((h) => `${h.role === 'user' ? 'Usuario' : 'Asistente'}: ${h.content}`)
+        .map(
+          (h) => `${h.role === 'user' ? 'Usuario' : 'Asistente'}: ${h.content}`,
+        )
         .join('\n');
 
       const prompt = `${systemPrompt}\n\nHistorial:\n${historyText}\n\nUsuario: ${message}\n\nResponde en formato JSON:`;
@@ -158,7 +161,8 @@ Responde siempre en español y sé conciso pero amigable.`;
     } catch (error) {
       this.logger.error('Chat failed', error);
       return {
-        message: 'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.',
+        message:
+          'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.',
         actions: [],
       };
     }
@@ -243,7 +247,8 @@ Ejemplos:
     const lowerInput = input.toLowerCase();
 
     if (urgentKeywords.some((k) => lowerInput.includes(k))) priority = 'URGENT';
-    else if (highKeywords.some((k) => lowerInput.includes(k))) priority = 'HIGH';
+    else if (highKeywords.some((k) => lowerInput.includes(k)))
+      priority = 'HIGH';
     else if (lowKeywords.some((k) => lowerInput.includes(k))) priority = 'LOW';
 
     // Extract time estimates
@@ -261,7 +266,8 @@ Ejemplos:
       estimatedMinutes,
       tags: [],
       confidence: 'LOW',
-      reasoning: 'Parsing local sin IA - configure GEMINI_API_KEY para mejor precisión',
+      reasoning:
+        'Parsing local sin IA - configure GEMINI_API_KEY para mejor precisión',
     };
   }
 
@@ -283,8 +289,12 @@ Ejemplos:
     if (!this.proModel) {
       return {
         ...localMetrics,
-        insights: ['Análisis local - configura GEMINI_API_KEY para insights de IA'],
-        recommendations: ['Mantén un balance saludable entre trabajo y descanso'],
+        insights: [
+          'Análisis local - configura GEMINI_API_KEY para insights de IA',
+        ],
+        recommendations: [
+          'Mantén un balance saludable entre trabajo y descanso',
+        ],
       };
     }
 
@@ -332,7 +342,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       return {
         ...localMetrics,
         insights: ['No se pudo completar el análisis de IA'],
-        recommendations: ['Toma descansos regulares durante tu jornada laboral'],
+        recommendations: [
+          'Toma descansos regulares durante tu jornada laboral',
+        ],
       };
     }
   }
@@ -348,9 +360,13 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
     const { dailyMetrics, sessions } = metrics;
 
     // Calculate averages
-    const totalMinutes = dailyMetrics.reduce((sum, d) => sum + (d.minutesWorked || 0), 0);
-    const daysWithWork = dailyMetrics.filter((d) => d.minutesWorked > 0).length || 1;
-    const avgHoursPerDay = (totalMinutes / daysWithWork / 60);
+    const totalMinutes = dailyMetrics.reduce(
+      (sum, d) => sum + (d.minutesWorked || 0),
+      0,
+    );
+    const daysWithWork =
+      dailyMetrics.filter((d) => d.minutesWorked > 0).length || 1;
+    const avgHoursPerDay = totalMinutes / daysWithWork / 60;
 
     const avgSessionsPerDay = sessions.length / Math.max(daysWithWork, 1);
 
@@ -359,36 +375,58 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       const day = new Date(s.startedAt).getDay();
       return day === 0 || day === 6;
     });
-    const weekendWorkPercentage = (weekendSessions.length / Math.max(sessions.length, 1)) * 100;
+    const weekendWorkPercentage =
+      (weekendSessions.length / Math.max(sessions.length, 1)) * 100;
 
     // Late night work (after 10pm)
     const lateNightSessions = sessions.filter((s) => {
       const hour = new Date(s.startedAt).getHours();
       return hour >= 22 || hour < 6;
     });
-    const lateNightWorkPercentage = (lateNightSessions.length / Math.max(sessions.length, 1)) * 100;
+    const lateNightWorkPercentage =
+      (lateNightSessions.length / Math.max(sessions.length, 1)) * 100;
 
     // Calculate scores
     let burnoutRisk: 'LOW' | 'MEDIUM' | 'HIGH' = 'LOW';
-    if (avgHoursPerDay > 10 || weekendWorkPercentage > 40 || lateNightWorkPercentage > 30) {
+    if (
+      avgHoursPerDay > 10 ||
+      weekendWorkPercentage > 40 ||
+      lateNightWorkPercentage > 30
+    ) {
       burnoutRisk = 'HIGH';
-    } else if (avgHoursPerDay > 8 || weekendWorkPercentage > 20 || lateNightWorkPercentage > 15) {
+    } else if (
+      avgHoursPerDay > 8 ||
+      weekendWorkPercentage > 20 ||
+      lateNightWorkPercentage > 15
+    ) {
       burnoutRisk = 'MEDIUM';
     }
 
-    const workLifeBalance = Math.max(0, Math.min(100,
-      100 - (weekendWorkPercentage * 0.5) - (lateNightWorkPercentage * 0.5) - Math.max(0, (avgHoursPerDay - 8) * 10)
-    ));
+    const workLifeBalance = Math.max(
+      0,
+      Math.min(
+        100,
+        100 -
+          weekendWorkPercentage * 0.5 -
+          lateNightWorkPercentage * 0.5 -
+          Math.max(0, (avgHoursPerDay - 8) * 10),
+      ),
+    );
 
     const completedSessions = sessions.filter((s) => s.wasCompleted).length;
-    const focusQuality = Math.round((completedSessions / Math.max(sessions.length, 1)) * 100);
+    const focusQuality = Math.round(
+      (completedSessions / Math.max(sessions.length, 1)) * 100,
+    );
 
     // Consistency score based on daily variance
-    const consistencyScore = Math.min(100, Math.max(0, 100 - (daysWithWork < 3 ? 50 : 0)));
+    const consistencyScore = Math.min(
+      100,
+      Math.max(0, 100 - (daysWithWork < 3 ? 50 : 0)),
+    );
 
     // Overall score
     const overallScore = Math.round(
-      (workLifeBalance * 0.3 + focusQuality * 0.4 + consistencyScore * 0.3)
+      workLifeBalance * 0.3 + focusQuality * 0.4 + consistencyScore * 0.3,
     );
 
     return {
@@ -466,30 +504,52 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
   /**
    * Default workflow template when AI is unavailable
    */
-  private getDefaultWorkflowSuggestion(projectName: string): WorkflowSuggestion {
+  private getDefaultWorkflowSuggestion(
+    projectName: string,
+  ): WorkflowSuggestion {
     return {
       phases: [
         {
           name: 'Planificación',
           description: 'Definir objetivos y alcance',
           suggestedTasks: [
-            { title: 'Definir objetivos del proyecto', priority: 'HIGH', estimatedMinutes: 60 },
-            { title: 'Identificar stakeholders', priority: 'MEDIUM', estimatedMinutes: 30 },
+            {
+              title: 'Definir objetivos del proyecto',
+              priority: 'HIGH',
+              estimatedMinutes: 60,
+            },
+            {
+              title: 'Identificar stakeholders',
+              priority: 'MEDIUM',
+              estimatedMinutes: 30,
+            },
           ],
         },
         {
           name: 'Ejecución',
           description: 'Desarrollo principal',
           suggestedTasks: [
-            { title: `Implementar ${projectName}`, priority: 'HIGH', estimatedMinutes: 120 },
+            {
+              title: `Implementar ${projectName}`,
+              priority: 'HIGH',
+              estimatedMinutes: 120,
+            },
           ],
         },
         {
           name: 'Revisión',
           description: 'Validación y ajustes',
           suggestedTasks: [
-            { title: 'Revisar entregables', priority: 'HIGH', estimatedMinutes: 60 },
-            { title: 'Documentar resultados', priority: 'MEDIUM', estimatedMinutes: 45 },
+            {
+              title: 'Revisar entregables',
+              priority: 'HIGH',
+              estimatedMinutes: 60,
+            },
+            {
+              title: 'Documentar resultados',
+              priority: 'MEDIUM',
+              estimatedMinutes: 45,
+            },
           ],
         },
       ],
@@ -510,13 +570,18 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
    */
   async generateProductivityReport(context: {
     userId: string;
-    scope: 'TASK_COMPLETION' | 'WEEKLY_SCHEDULED' | 'MONTHLY_SCHEDULED' | 'PROJECT_SUMMARY';
+    scope:
+      | 'TASK_COMPLETION'
+      | 'WEEKLY_SCHEDULED'
+      | 'MONTHLY_SCHEDULED'
+      | 'PROJECT_SUMMARY';
     metricsSnapshot: any;
     sessions?: any[];
     profile?: any;
     projectName?: string;
   }): Promise<ProductivityReportData> {
-    const complexity: ModelComplexity = context.scope === 'MONTHLY_SCHEDULED' ? 'high' : 'medium';
+    const complexity: ModelComplexity =
+      context.scope === 'MONTHLY_SCHEDULED' ? 'high' : 'medium';
     const model = this.selectModel(complexity);
 
     if (!model) {
@@ -571,12 +636,12 @@ ${projectName ? `- Project: ${projectName}` : ''}
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
 ${sessions
-          .slice(0, 10)
-          .map(
-            (s: any, i: number) =>
-              `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
-          )
-          .join('\n')}
+  .slice(0, 10)
+  .map(
+    (s: any, i: number) =>
+      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+  )
+  .join('\n')}
 `;
     }
 
@@ -624,12 +689,20 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
     }
   }
 
-  async estimateTaskDuration(taskTitle: string, taskDescription?: string, avgDuration = 30): Promise<{ estimatedMinutes: number; confidence: string; reasoning: string }> {
+  async estimateTaskDuration(
+    taskTitle: string,
+    taskDescription?: string,
+    avgDuration = 30,
+  ): Promise<{
+    estimatedMinutes: number;
+    confidence: string;
+    reasoning: string;
+  }> {
     if (!this.flashModel) {
       return {
         estimatedMinutes: avgDuration,
         confidence: 'LOW',
-        reasoning: 'Estimación basada en promedio histórico (Modo Offline).'
+        reasoning: 'Estimación basada en promedio histórico (Modo Offline).',
       };
     }
 
@@ -655,16 +728,16 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
         return {
           estimatedMinutes: data.estimatedMinutes || avgDuration,
           confidence: data.confidence || 'LOW',
-          reasoning: data.reasoning || 'Estimación automática generada por IA.'
+          reasoning: data.reasoning || 'Estimación automática generada por IA.',
         };
       }
-      throw new Error("Invalid format");
+      throw new Error('Invalid format');
     } catch (e) {
-      this.logger.error("Failed to estimate duration", e);
+      this.logger.error('Failed to estimate duration', e);
       return {
         estimatedMinutes: avgDuration,
         confidence: 'LOW',
-        reasoning: 'Fallo en servicio de IA, usando promedio histórico.'
+        reasoning: 'Fallo en servicio de IA, usando promedio histórico.',
       };
     }
   }

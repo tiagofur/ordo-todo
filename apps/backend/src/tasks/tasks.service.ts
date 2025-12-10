@@ -1,7 +1,17 @@
-import { Injectable, Inject, NotFoundException, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import type { TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
-import { CreateTaskUseCase, CompleteTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
+import {
+  CreateTaskUseCase,
+  CompleteTaskUseCase,
+  UpdateDailyMetricsUseCase,
+} from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { CreateSubtaskDto } from './dto/create-subtask.dto';
@@ -25,7 +35,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
@@ -52,7 +62,9 @@ export class TasksService {
     await this.activitiesService.logTaskCreated(task.id as string, userId);
 
     // Update daily metrics - increment tasksCreated
-    const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+    const updateMetrics = new UpdateDailyMetricsUseCase(
+      this.analyticsRepository,
+    );
     await updateMetrics.execute({
       userId,
       date: new Date(),
@@ -82,7 +94,9 @@ export class TasksService {
 
     // Only update metrics if task wasn't already completed (prevent double counting)
     if (!wasAlreadyCompleted) {
-      const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+      const updateMetrics = new UpdateDailyMetricsUseCase(
+        this.analyticsRepository,
+      );
 
       // If subtask, increment subtasksCompleted; otherwise increment tasksCompleted
       if (task.props.parentTaskId) {
@@ -112,8 +126,15 @@ export class TasksService {
     return task.props;
   }
 
-  async findAll(userId: string, projectId?: string, tags?: string[], assignedToMe?: boolean) {
-    this.logger.debug(`Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`);
+  async findAll(
+    userId: string,
+    projectId?: string,
+    tags?: string[],
+    assignedToMe?: boolean,
+  ) {
+    this.logger.debug(
+      `Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`,
+    );
     const tasks = await this.taskRepository.findByCreatorId(userId, {
       projectId,
       tags,
@@ -125,8 +146,12 @@ export class TasksService {
 
     // Apply "My Tasks" filter - show only tasks assigned to the current user
     if (assignedToMe) {
-      filteredTasks = filteredTasks.filter((t) => t.props.assigneeId === userId);
-      this.logger.debug(`Filtered to ${filteredTasks.length} tasks assigned to user`);
+      filteredTasks = filteredTasks.filter(
+        (t) => t.props.assigneeId === userId,
+      );
+      this.logger.debug(
+        `Filtered to ${filteredTasks.length} tasks assigned to user`,
+      );
     }
 
     this.logger.debug(`Returning ${filteredTasks.length} main tasks`);
@@ -190,12 +215,14 @@ export class TasksService {
 
       // Remove undefined fields from updateTaskDto to avoid overwriting with undefined
       const cleanUpdateDto = Object.fromEntries(
-        Object.entries(updateTaskDto).filter(([_, v]) => v !== undefined)
+        Object.entries(updateTaskDto).filter(([_, v]) => v !== undefined),
       );
 
       const updatedTask = task.update(cleanUpdateDto);
 
-      this.logger.debug(`Updating task ${id} with data: ${JSON.stringify(updateTaskDto)}`);
+      this.logger.debug(
+        `Updating task ${id} with data: ${JSON.stringify(updateTaskDto)}`,
+      );
 
       await this.taskRepository.update(updatedTask);
       this.logger.debug(`Task ${id} updated successfully`);
@@ -234,11 +261,16 @@ export class TasksService {
           updateTaskDto.status,
         );
 
-        const updateMetrics = new UpdateDailyMetricsUseCase(this.analyticsRepository);
+        const updateMetrics = new UpdateDailyMetricsUseCase(
+          this.analyticsRepository,
+        );
         const isSubtask = !!oldTask.parentTaskId;
 
         // If status changed to COMPLETED from non-COMPLETED, increment metrics
-        if (updateTaskDto.status === 'COMPLETED' && oldTask.status !== 'COMPLETED') {
+        if (
+          updateTaskDto.status === 'COMPLETED' &&
+          oldTask.status !== 'COMPLETED'
+        ) {
           if (isSubtask) {
             await updateMetrics.execute({
               userId,
@@ -258,24 +290,30 @@ export class TasksService {
         }
 
         // If status changed from COMPLETED to non-COMPLETED (reopening), decrement metrics
-        if (oldTask.status === 'COMPLETED' && updateTaskDto.status !== 'COMPLETED') {
+        if (
+          oldTask.status === 'COMPLETED' &&
+          updateTaskDto.status !== 'COMPLETED'
+        ) {
           if (isSubtask) {
             await updateMetrics.execute({
               userId,
               date: new Date(),
-              subtasksCompleted: -1,  // Decrement
+              subtasksCompleted: -1, // Decrement
             });
           } else {
             await updateMetrics.execute({
               userId,
               date: new Date(),
-              tasksCompleted: -1,  // Decrement
+              tasksCompleted: -1, // Decrement
             });
           }
         }
       }
 
-      if (updateTaskDto.priority && updateTaskDto.priority !== oldTask.priority) {
+      if (
+        updateTaskDto.priority &&
+        updateTaskDto.priority !== oldTask.priority
+      ) {
         this.logger.debug(`Logging priority change for task ${id}`);
         await this.activitiesService.logPriorityChanged(
           id,
@@ -351,7 +389,6 @@ export class TasksService {
     return subtask.props;
   }
 
-
   async generatePublicToken(id: string, userId: string) {
     const task = await this.taskRepository.findById(id);
     if (!task) {
@@ -411,7 +448,7 @@ export class TasksService {
     // Check if tasks exist
     const [blocked, blocking] = await Promise.all([
       this.prisma.task.findUnique({ where: { id: blockedTaskId } }),
-      this.prisma.task.findUnique({ where: { id: blockingTaskId } })
+      this.prisma.task.findUnique({ where: { id: blockingTaskId } }),
     ]);
 
     if (!blocked || !blocking) throw new NotFoundException('Task not found');
@@ -421,9 +458,9 @@ export class TasksService {
       where: {
         blockingTaskId_blockedTaskId: {
           blockingTaskId: blockedTaskId,
-          blockedTaskId: blockingTaskId
-        }
-      }
+          blockedTaskId: blockingTaskId,
+        },
+      },
     });
 
     if (reverse) throw new BadRequestException('Circular dependency detected');
@@ -431,8 +468,8 @@ export class TasksService {
     return this.prisma.taskDependency.create({
       data: {
         blockedTaskId,
-        blockingTaskId
-      }
+        blockingTaskId,
+      },
     });
   }
 
@@ -445,9 +482,9 @@ export class TasksService {
         where: {
           blockingTaskId_blockedTaskId: {
             blockedTaskId,
-            blockingTaskId
-          }
-        }
+            blockingTaskId,
+          },
+        },
       });
     } catch (e) {
       throw new NotFoundException('Dependency not found');
@@ -459,14 +496,14 @@ export class TasksService {
       where: { id: taskId },
       include: {
         blockedBy: { include: { blockingTask: true } },
-        blocking: { include: { blockedTask: true } }
-      }
+        blocking: { include: { blockedTask: true } },
+      },
     });
     if (!task) throw new NotFoundException('Task not found');
 
     return {
-      blockedBy: task.blockedBy.map(d => d.blockingTask),
-      blocking: task.blocking.map(d => d.blockedTask)
+      blockedBy: task.blockedBy.map((d) => d.blockingTask),
+      blocking: task.blocking.map((d) => d.blockedTask),
     };
   }
 }

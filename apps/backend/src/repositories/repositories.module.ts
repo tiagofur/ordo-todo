@@ -109,4 +109,4 @@ import { PrismaWorkspaceAuditLogRepository } from './workspace-audit-log.reposit
     'WorkspaceAuditLogRepository',
   ],
 })
-export class RepositoriesModule { }
+export class RepositoriesModule {}

@@ -28,7 +28,7 @@ import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto'
 @Controller('workspaces')
 @UseGuards(JwtAuthGuard)
 export class WorkspacesController {
-  constructor(private readonly workspacesService: WorkspacesService) { }
+  constructor(private readonly workspacesService: WorkspacesService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -46,7 +46,12 @@ export class WorkspacesController {
 
   @Get(':id')
   @UseGuards(WorkspaceGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findOne(@Param('id') id: string) {
     return this.workspacesService.findOne(id);
   }
@@ -95,7 +100,12 @@ export class WorkspacesController {
 
   @Get(':id/members')
   @UseGuards(WorkspaceGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   getMembers(@Param('id') workspaceId: string) {
     return this.workspacesService.getMembers(workspaceId);
   }
@@ -171,7 +181,10 @@ export class WorkspacesController {
     @Param('id') workspaceId: string,
     @Body() updateSettingsDto: UpdateWorkspaceSettingsDto,
   ) {
-    return this.workspacesService.updateSettings(workspaceId, updateSettingsDto);
+    return this.workspacesService.updateSettings(
+      workspaceId,
+      updateSettingsDto,
+    );
   }
 
   // ============ AUDIT LOGS ============

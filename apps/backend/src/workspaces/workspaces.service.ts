@@ -47,7 +47,7 @@ export class WorkspacesService {
     @Inject('WorkflowRepository')
     private readonly workflowRepository: WorkflowRepository,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
     // Check if user has a username to namespace the workspace
@@ -62,11 +62,13 @@ export class WorkspacesService {
           ownerId_slug: {
             ownerId: userId,
             slug: createWorkspaceDto.slug,
-          }
-        }
+          },
+        },
       });
       if (existing) {
-        throw new ForbiddenException('You already have a workspace with this slug');
+        throw new ForbiddenException(
+          'You already have a workspace with this slug',
+        );
       }
     }
 
@@ -92,10 +94,15 @@ export class WorkspacesService {
     });
 
     // Log workspace creation
-    await this.createAuditLog(workspace.id as string, 'WORKSPACE_CREATED', userId, {
-      name: workspace.props.name,
-      type: workspace.props.type,
-    });
+    await this.createAuditLog(
+      workspace.id as string,
+      'WORKSPACE_CREATED',
+      userId,
+      {
+        name: workspace.props.name,
+        type: workspace.props.type,
+      },
+    );
 
     return workspace.props;
   }
@@ -104,11 +111,11 @@ export class WorkspacesService {
     const workspaces = await this.workspaceRepository.findByUserId(userId);
     // Filter out deleted workspaces (repository already handles this but keeping safe)
     return workspaces
-      .filter(w => !w.props.isDeleted)
+      .filter((w) => !w.props.isDeleted)
       .map((w) => ({
         ...w.props,
         // Ensure stats are passed
-        stats: w.props.stats
+        stats: w.props.stats,
       }));
   }
 
@@ -136,23 +143,23 @@ export class WorkspacesService {
         ownerId_slug: {
           ownerId: user.id,
           slug,
-        }
+        },
       },
       include: {
         _count: {
           select: {
             projects: true,
             members: true,
-          }
+          },
         },
         projects: {
           select: {
             _count: {
-              select: { tasks: true }
-            }
-          }
-        }
-      }
+              select: { tasks: true },
+            },
+          },
+        },
+      },
     });
 
     if (!workspace || workspace.isDeleted) {
@@ -160,7 +167,10 @@ export class WorkspacesService {
     }
 
     // Format stats manually as in repository (simplified)
-    const taskCount = workspace.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+    const taskCount = workspace.projects.reduce(
+      (acc, p) => acc + p._count.tasks,
+      0,
+    );
 
     return {
       id: workspace.id,
@@ -179,7 +189,7 @@ export class WorkspacesService {
         projectCount: workspace._count.projects,
         memberCount: workspace._count.members,
         taskCount: taskCount,
-      }
+      },
     };
   }
 
@@ -225,7 +235,9 @@ export class WorkspacesService {
         throw new NotFoundException(error.message);
       }
       if (error.message === 'Unauthorized') {
-        throw new ForbiddenException('No tienes permisos para eliminar este workspace');
+        throw new ForbiddenException(
+          'No tienes permisos para eliminar este workspace',
+        );
       }
       throw error;
     }
@@ -248,7 +260,9 @@ export class WorkspacesService {
         throw new NotFoundException(error.message);
       }
       if (error.message === 'Unauthorized') {
-        throw new ForbiddenException('No tienes permisos para archivar este workspace');
+        throw new ForbiddenException(
+          'No tienes permisos para archivar este workspace',
+        );
       }
       throw error;
     }
@@ -286,14 +300,24 @@ export class WorkspacesService {
     return { success: true };
   }
 
-  async inviteMember(workspaceId: string, userId: string, email: string, role: 'ADMIN' | 'MEMBER' | 'VIEWER') {
+  async inviteMember(
+    workspaceId: string,
+    userId: string,
+    email: string,
+    role: 'ADMIN' | 'MEMBER' | 'VIEWER',
+  ) {
     const inviteMemberUseCase = new InviteMemberUseCase(
       this.workspaceRepository,
       this.invitationRepository,
     );
 
     try {
-      const result = await inviteMemberUseCase.execute(workspaceId, email, role, userId);
+      const result = await inviteMemberUseCase.execute(
+        workspaceId,
+        email,
+        role,
+        userId,
+      );
 
       // Log member invitation
       await this.createAuditLog(workspaceId, 'MEMBER_INVITED', userId, {
@@ -307,7 +331,7 @@ export class WorkspacesService {
         message: 'Invitation created',
         invitationId: result.invitation.id,
         // Returning token for dev purposes/MVP so we can test without email service
-        devToken: result.token
+        devToken: result.token,
       };
     } catch (error) {
       if (error.message === 'Workspace not found') {
@@ -339,7 +363,11 @@ export class WorkspacesService {
 
       return { success: true, message: 'Invitation accepted' };
     } catch (error) {
-      if (error.message === 'Invalid invitation token' || error.message === 'Invitation expired' || error.message === 'Invitation is not pending') {
+      if (
+        error.message === 'Invalid invitation token' ||
+        error.message === 'Invitation expired' ||
+        error.message === 'Invitation is not pending'
+      ) {
         throw new NotFoundException(error.message); // Or BadRequest
       }
       throw error;
@@ -348,22 +376,27 @@ export class WorkspacesService {
 
   async getMembers(workspaceId: string) {
     const members = await this.workspaceRepository.listMembers(workspaceId);
-    const membersWithUser = await Promise.all(members.map(async (member) => {
-      const user = await this.userRepository.findById(member.props.userId);
-      return {
-        ...member.props,
-        user: user ? {
-          name: user.props.name,
-          email: user.props.email,
-        } : null
-      };
-    }));
+    const membersWithUser = await Promise.all(
+      members.map(async (member) => {
+        const user = await this.userRepository.findById(member.props.userId);
+        return {
+          ...member.props,
+          user: user
+            ? {
+                name: user.props.name,
+                email: user.props.email,
+              }
+            : null,
+        };
+      }),
+    );
     return membersWithUser;
   }
 
   async getInvitations(workspaceId: string) {
-    const invitations = await this.invitationRepository.findByWorkspaceId(workspaceId);
-    return invitations.map(i => i.props);
+    const invitations =
+      await this.invitationRepository.findByWorkspaceId(workspaceId);
+    return invitations.map((i) => i.props);
   }
 
   // ============ WORKSPACE SETTINGS ============
@@ -417,7 +450,7 @@ export class WorkspacesService {
     });
 
     return {
-      logs: result.logs.map(log => log.props),
+      logs: result.logs.map((log) => log.props),
       total: result.total,
     };
   }

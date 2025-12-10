@@ -33,7 +33,7 @@ export class ProjectsController {
   constructor(
     private readonly projectsService: ProjectsService,
     private readonly workspacesService: WorkspacesService,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(ProjectGuard) // ProjectGuard handles logic for creation if workspaceId is in body
@@ -47,7 +47,12 @@ export class ProjectsController {
   // We need to ensure user can only list projects for workspaces they are in.
   // ProjectGuard with query logic handles this.
   @UseGuards(ProjectGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findAll(@Query('workspaceId') workspaceId: string) {
     // Note: ProjectGuard returns false if workspaceId is missing in query.
     // So this endpoint is safe (returns 403 if no workspaceId).
@@ -61,7 +66,12 @@ export class ProjectsController {
 
   @Get(':id')
   @UseGuards(ProjectGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findOne(@Param('id') id: string) {
     return this.projectsService.findOne(id);
   }

@@ -16,7 +16,7 @@ export class ProjectsService {
   constructor(
     @Inject('ProjectRepository')
     private readonly projectRepository: ProjectRepository,
-  ) { }
+  ) {}
 
   async create(createProjectDto: CreateProjectDto) {
     const createProjectUseCase = new CreateProjectUseCase(
@@ -24,7 +24,8 @@ export class ProjectsService {
     );
 
     // Generate slug if not provided
-    const slug = createProjectDto.slug || this.generateSlug(createProjectDto.name);
+    const slug =
+      createProjectDto.slug || this.generateSlug(createProjectDto.name);
 
     const project = await createProjectUseCase.execute({
       ...createProjectDto,
@@ -76,7 +77,9 @@ export class ProjectsService {
       this.projectRepository,
     );
     const project = await archiveProjectUseCase.execute(id);
-    this.logger.log(`Project ${id} archived successfully. Status: ${project.props.archived}`);
+    this.logger.log(
+      `Project ${id} archived successfully. Status: ${project.props.archived}`,
+    );
     return project.props;
   }
 

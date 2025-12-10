@@ -5,9 +5,9 @@ import { SmartNotificationsService } from './smart-notifications.service';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [NotificationsController],
-    providers: [NotificationsService, SmartNotificationsService],
-    exports: [NotificationsService],
+  imports: [DatabaseModule],
+  controllers: [NotificationsController],
+  providers: [NotificationsService, SmartNotificationsService],
+  exports: [NotificationsService],
 })
-export class NotificationsModule { }
+export class NotificationsModule {}

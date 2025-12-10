@@ -15,9 +15,11 @@ async function bootstrap() {
   });
 
   // Security headers
-  app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow resource sharing for uploads
-  }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow resource sharing for uploads
+    }),
+  );
 
   const configService = app.get(ConfigService);
   const httpAdapter = app.get(HttpAdapterHost);

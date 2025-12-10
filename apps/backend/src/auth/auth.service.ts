@@ -20,7 +20,7 @@ export class AuthService {
     private readonly cryptoProvider: BcryptCryptoProvider,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     try {

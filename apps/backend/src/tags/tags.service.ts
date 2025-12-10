@@ -18,7 +18,7 @@ export class TagsService {
     @Inject('TagRepository')
     private readonly tagRepository: TagRepository,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   async create(createTagDto: CreateTagDto) {
     const createTagUseCase = new CreateTagUseCase(this.tagRepository);
@@ -55,7 +55,9 @@ export class TagsService {
       taskCount: tag._count.tasks,
     }));
 
-    this.logger.debug(`Found ${result.length} tags for workspace ${workspaceId}`);
+    this.logger.debug(
+      `Found ${result.length} tags for workspace ${workspaceId}`,
+    );
     return result;
   }
 

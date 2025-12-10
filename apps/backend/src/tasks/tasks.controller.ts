@@ -44,7 +44,7 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(CreateTaskGuard)
@@ -80,19 +80,34 @@ export class TasksController {
     this.logger.debug(`Received tags query param: ${JSON.stringify(tags)}`);
     this.logger.debug(`Processed tagList: ${JSON.stringify(tagList)}`);
     this.logger.debug(`Filter assignedToMe: ${filterAssignedToMe}`);
-    return this.tasksService.findAll(user.id, projectId, tagList, filterAssignedToMe);
+    return this.tasksService.findAll(
+      user.id,
+      projectId,
+      tagList,
+      filterAssignedToMe,
+    );
   }
 
   @Get(':id')
   @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findOne(@Param('id') id: string) {
     return this.tasksService.findOne(id);
   }
 
   @Get(':id/details')
   @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findOneWithDetails(@Param('id') id: string) {
     return this.tasksService.findOneWithDetails(id);
   }
@@ -134,21 +149,36 @@ export class TasksController {
 
   @Get(':id/tags')
   @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findTags(@Param('id') taskId: string) {
     return this.tagsService.findByTask(taskId);
   }
 
   @Get(':id/comments')
   @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findComments(@Param('id') taskId: string) {
     return this.commentsService.findByTask(taskId);
   }
 
   @Get(':id/attachments')
   @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   findAttachments(@Param('id') taskId: string) {
     return this.attachmentsService.findByTask(taskId);
   }
@@ -156,7 +186,10 @@ export class TasksController {
   @Post(':id/share')
   @UseGuards(TaskGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
-  generatePublicToken(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+  generatePublicToken(
+    @Param('id') id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     return this.tasksService.generatePublicToken(id, user.id);
   }
 
@@ -169,7 +202,12 @@ export class TasksController {
   // Dependencies Reference
   @Get(':id/dependencies')
   @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   getDependencies(@Param('id') id: string) {
     return this.tasksService.getDependencies(id);
   }
@@ -179,7 +217,7 @@ export class TasksController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   addDependency(
     @Param('id') id: string,
-    @Body('blockingTaskId') blockingTaskId: string
+    @Body('blockingTaskId') blockingTaskId: string,
   ) {
     return this.tasksService.addDependency(id, blockingTaskId);
   }
@@ -189,7 +227,7 @@ export class TasksController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   removeDependency(
     @Param('id') id: string,
-    @Param('blockingTaskId') blockingTaskId: string
+    @Param('blockingTaskId') blockingTaskId: string,
   ) {
     return this.tasksService.removeDependency(id, blockingTaskId);
   }

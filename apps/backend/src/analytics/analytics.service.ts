@@ -11,7 +11,7 @@ export class AnalyticsService {
     @Inject('TimerRepository')
     private readonly timerRepository: TimerRepository,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   async getDailyMetrics(userId: string, date?: Date) {
     const getDailyMetricsUseCase = new GetDailyMetricsUseCase(
@@ -72,8 +72,16 @@ export class AnalyticsService {
     endOfLastWeek.setDate(endOfLastWeek.getDate() - 1);
     endOfLastWeek.setHours(23, 59, 59, 999);
 
-    const currentWeekMetrics = await this.analyticsRepository.getRange(userId, startOfWeek, endOfWeek);
-    const lastWeekMetrics = await this.analyticsRepository.getRange(userId, startOfLastWeek, endOfLastWeek);
+    const currentWeekMetrics = await this.analyticsRepository.getRange(
+      userId,
+      startOfWeek,
+      endOfWeek,
+    );
+    const lastWeekMetrics = await this.analyticsRepository.getRange(
+      userId,
+      startOfLastWeek,
+      endOfLastWeek,
+    );
 
     const summarize = (metrics: any[]) => ({
       pomodoros: metrics.reduce((acc, m) => acc + m.props.pomodorosCount, 0),
@@ -92,8 +100,8 @@ export class AnalyticsService {
       trends: {
         pomodoros: current.pomodoros - last.pomodoros,
         tasks: current.tasks - last.tasks,
-        minutes: current.minutes - last.minutes
-      }
+        minutes: current.minutes - last.minutes,
+      },
     };
   }
 
@@ -103,15 +111,19 @@ export class AnalyticsService {
     end.setDate(end.getDate() + 6);
     end.setHours(23, 59, 59, 999);
 
-    const sessions = await this.timerRepository.findByUserIdAndDateRange(userId, start, end);
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      start,
+      end,
+    );
 
-    const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-    const heatmap = days.map(day => ({
+    const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const heatmap = days.map((day) => ({
       day,
-      hours: Array.from({ length: 24 }, (_, hour) => ({ hour, value: 0 }))
+      hours: Array.from({ length: 24 }, (_, hour) => ({ hour, value: 0 })),
     }));
 
-    sessions.forEach(session => {
+    sessions.forEach((session) => {
       const sDate = new Date(session.props.startedAt);
       const dayIndex = sDate.getDay();
       const hour = sDate.getHours();
@@ -135,17 +147,17 @@ export class AnalyticsService {
     const sessions = await this.prisma.timeSession.findMany({
       where: {
         userId,
-        startedAt: { gte: start, lte: end }
+        startedAt: { gte: start, lte: end },
       },
       include: {
         task: {
-          include: { project: true }
-        }
-      }
+          include: { project: true },
+        },
+      },
     });
 
     const distribution: Record<string, number> = {};
-    sessions.forEach(s => {
+    sessions.forEach((s) => {
       // @ts-ignore
       const project = s.task?.project?.name || 'Sin Proyecto';
       const mins = Math.round((s.duration || 0) / 60);
@@ -164,11 +176,11 @@ export class AnalyticsService {
       where: {
         assigneeId: userId,
       },
-      _count: { id: true }
+      _count: { id: true },
     });
 
     // @ts-ignore
-    return tasks.map(t => ({ status: t.status, count: t._count.id }));
+    return tasks.map((t) => ({ status: t.status, count: t._count.id }));
   }
 
   // ============ TEAM REPORTS (FOR MANAGERS) ============
@@ -184,7 +196,9 @@ export class AnalyticsService {
     // Get all workspace members
     const members = await this.prisma.workspaceMember.findMany({
       where: { workspaceId },
-      include: { user: { select: { id: true, name: true, email: true, image: true } } },
+      include: {
+        user: { select: { id: true, name: true, email: true, image: true } },
+      },
     });
 
     const memberIds = members.map((m) => m.userId);
@@ -199,27 +213,51 @@ export class AnalyticsService {
 
     // Calculate team totals
     const teamTotals = {
-      totalTasksCompleted: allMetrics.reduce((sum, m) => sum + m.tasksCompleted, 0),
-      totalMinutesWorked: allMetrics.reduce((sum, m) => sum + m.minutesWorked, 0),
-      totalPomodoros: allMetrics.reduce((sum, m) => sum + m.pomodorosCompleted, 0),
-      avgFocusScore: allMetrics.length > 0
-        ? allMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) / allMetrics.length
-        : 0,
+      totalTasksCompleted: allMetrics.reduce(
+        (sum, m) => sum + m.tasksCompleted,
+        0,
+      ),
+      totalMinutesWorked: allMetrics.reduce(
+        (sum, m) => sum + m.minutesWorked,
+        0,
+      ),
+      totalPomodoros: allMetrics.reduce(
+        (sum, m) => sum + m.pomodorosCompleted,
+        0,
+      ),
+      avgFocusScore:
+        allMetrics.length > 0
+          ? allMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) /
+            allMetrics.length
+          : 0,
       activeMembersCount: new Set(allMetrics.map((m) => m.userId)).size,
     };
 
     // Calculate per-member breakdown
     const memberBreakdown = members.map((member) => {
-      const memberMetrics = allMetrics.filter((m) => m.userId === member.userId);
+      const memberMetrics = allMetrics.filter(
+        (m) => m.userId === member.userId,
+      );
       return {
         user: member.user,
         role: member.role,
-        tasksCompleted: memberMetrics.reduce((sum, m) => sum + m.tasksCompleted, 0),
-        minutesWorked: memberMetrics.reduce((sum, m) => sum + m.minutesWorked, 0),
-        pomodorosCompleted: memberMetrics.reduce((sum, m) => sum + m.pomodorosCompleted, 0),
-        avgFocusScore: memberMetrics.length > 0
-          ? memberMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) / memberMetrics.length
-          : 0,
+        tasksCompleted: memberMetrics.reduce(
+          (sum, m) => sum + m.tasksCompleted,
+          0,
+        ),
+        minutesWorked: memberMetrics.reduce(
+          (sum, m) => sum + m.minutesWorked,
+          0,
+        ),
+        pomodorosCompleted: memberMetrics.reduce(
+          (sum, m) => sum + m.pomodorosCompleted,
+          0,
+        ),
+        avgFocusScore:
+          memberMetrics.length > 0
+            ? memberMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) /
+              memberMetrics.length
+            : 0,
         activeDays: memberMetrics.filter((m) => m.minutesWorked > 0).length,
       };
     });
@@ -253,7 +291,8 @@ export class AnalyticsService {
     let lastDate: Date | null = null;
 
     for (const metric of metrics) {
-      const isProductive = metric.tasksCompleted > 0 || metric.minutesWorked > 30;
+      const isProductive =
+        metric.tasksCompleted > 0 || metric.minutesWorked > 30;
 
       if (isProductive) {
         if (lastDate === null) {
@@ -262,7 +301,8 @@ export class AnalyticsService {
           currentStreak = 1;
         } else {
           const dayDiff = Math.floor(
-            (lastDate.getTime() - metric.date.getTime()) / (1000 * 60 * 60 * 24)
+            (lastDate.getTime() - metric.date.getTime()) /
+              (1000 * 60 * 60 * 24),
           );
 
           if (dayDiff === 1) {
@@ -290,18 +330,24 @@ export class AnalyticsService {
 
     // Calculate average daily productivity
     const productiveDays = metrics.filter(
-      (m) => m.tasksCompleted > 0 || m.minutesWorked > 30
+      (m) => m.tasksCompleted > 0 || m.minutesWorked > 30,
     ).length;
-    const avgDailyTasks = productiveDays > 0
-      ? metrics.reduce((sum, m) => sum + m.tasksCompleted, 0) / productiveDays
-      : 0;
+    const avgDailyTasks =
+      productiveDays > 0
+        ? metrics.reduce((sum, m) => sum + m.tasksCompleted, 0) / productiveDays
+        : 0;
 
     return {
       currentStreak,
       longestStreak,
       productiveDaysLast90: productiveDays,
       avgDailyTasks: Math.round(avgDailyTasks * 10) / 10,
-      streakStatus: currentStreak >= 7 ? 'excellent' : currentStreak >= 3 ? 'good' : 'building',
+      streakStatus:
+        currentStreak >= 7
+          ? 'excellent'
+          : currentStreak >= 3
+            ? 'good'
+            : 'building',
     };
   }
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
@@ -16,17 +16,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ProfileForm from "../../../components/shared/profile-form.component";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/app/lib/api-client";
 import UserAvatar from "../../../components/shared/user-avatar.component";
 import useSession from "../../../data/hooks/use-session.hook";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import Card from "@/app/components/shared/card.component";
-
-const PROFILE_STATS = [
-  { icon: "check-circle", label: "Completadas", value: "42", color: "#48BB78" },
-  { icon: "clock", label: "En Progreso", value: "8", color: "#ED8936" },
-  { icon: "target", label: "Racha", value: "15 días", color: "#667EEA" },
-];
 
 const PROFILE_OPTIONS = [
   { icon: "bell", label: "Notificaciones", color: "#667EEA", hasSwitch: true },
@@ -39,6 +34,33 @@ const PROFILE_OPTIONS = [
 export default function Profile() {
   const { user, endSession } = useSession();
   const colors = useThemeColors();
+
+  const { data: stats } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: () => apiClient.getDashboardStats(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const profileStats = useMemo(() => [
+    { 
+      icon: "check-circle", 
+      label: "Completadas", 
+      value: stats?.tasks?.toString() || "0", 
+      color: "#48BB78" 
+    },
+    { 
+      icon: "clock", 
+      label: "Minutos Foco", 
+      value: stats?.minutes?.toString() || "0", 
+      color: "#ED8936" 
+    },
+    { 
+      icon: "target", 
+      label: "Pomodoros", 
+      value: stats?.pomodoros?.toString() || "0", 
+      color: "#667EEA" 
+    },
+  ], [stats]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -86,7 +108,7 @@ export default function Profile() {
           >
             <Animated.View entering={ZoomIn.delay(200).springify()}>
               <View style={styles.avatarContainer}>
-                <UserAvatar name={user.name} size={100} />
+                <UserAvatar name={user.name || ""} size={100} />
                 <View style={styles.avatarBadge}>
                   <Feather name="check" size={16} color="#FFFFFF" />
                 </View>
@@ -105,7 +127,7 @@ export default function Profile() {
           entering={FadeInDown.delay(400).springify()}
           style={styles.statsContainer}
         >
-          {PROFILE_STATS.map((stat, index) => (
+          {profileStats.map((stat, index) => (
             <Animated.View
               key={stat.label}
               entering={FadeInDown.delay(500 + index * 100).springify()}
@@ -180,7 +202,7 @@ export default function Profile() {
         <Animated.View entering={FadeInDown.delay(1200)}>
           <Pressable onPress={handleLogout}>
             <Card
-              style={[styles.logoutCard, { borderColor: colors.error }]}
+              style={{ ...styles.logoutCard, borderColor: colors.error }}
               padding={16}
               variant="outlined"
             >

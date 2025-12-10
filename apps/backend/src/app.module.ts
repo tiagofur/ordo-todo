@@ -31,10 +31,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100, // 100 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100, // 100 requests per minute
+      },
+    ]),
     ConfigModule,
     DatabaseModule,
     RepositoriesModule,
@@ -70,4 +72,4 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

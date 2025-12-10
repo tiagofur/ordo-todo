@@ -1,4 +1,14 @@
-import { Controller, Get, Put, Patch, Delete, Body, UseGuards, Post, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Patch,
+  Delete,
+  Body,
+  UseGuards,
+  Post,
+  Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -10,7 +20,7 @@ import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   /**
    * Get current user (basic info)
@@ -86,7 +96,10 @@ export class UsersController {
     const data = await this.usersService.exportData(user.email);
 
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="ordo-todo-export-${Date.now()}.json"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="ordo-todo-export-${Date.now()}.json"`,
+    );
     return res.send(JSON.stringify(data, null, 2));
   }
 

@@ -12,4 +12,4 @@ import { GamificationModule } from '../gamification/gamification.module';
   providers: [TimersService],
   exports: [TimersService],
 })
-export class TimersModule { }
+export class TimersModule {}

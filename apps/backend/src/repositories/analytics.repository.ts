@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaAnalyticsRepository implements AnalyticsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaMetrics: PrismaDailyMetrics): DailyMetrics {
     return new DailyMetrics({

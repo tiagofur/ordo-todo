@@ -35,6 +35,7 @@ export default function CustomTextInput({
   error,
   leftIcon,
   rightIcon,
+  style,
   ...props
 }: CustomTextInputProps) {
   const colors = useThemeColors();
@@ -97,9 +98,10 @@ export default function CustomTextInput({
             {
               color: colors.text,
             },
-            leftIcon && styles.inputWithLeftIcon,
-            rightIcon && styles.inputWithRightIcon,
-          ]}
+            !!leftIcon && styles.inputWithLeftIcon,
+            !!rightIcon && styles.inputWithRightIcon,
+            style,
+          ] as any}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}

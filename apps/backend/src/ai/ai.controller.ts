@@ -22,21 +22,16 @@ import {
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
 export class AIController {
-  constructor(private readonly aiService: AIService) { }
+  constructor(private readonly aiService: AIService) {}
 
   // ============ AI CHAT ============
 
   @Post('chat')
-  async chat(
-    @Body() chatDto: AIChatDto,
-    @CurrentUser() user: RequestUser,
-  ) {
-    return this.aiService.chat(
-      user.id,
-      chatDto.message,
-      chatDto.history,
-      { workspaceId: chatDto.workspaceId, projectId: chatDto.projectId },
-    );
+  async chat(@Body() chatDto: AIChatDto, @CurrentUser() user: RequestUser) {
+    return this.aiService.chat(user.id, chatDto.message, chatDto.history, {
+      workspaceId: chatDto.workspaceId,
+      projectId: chatDto.projectId,
+    });
   }
 
   // ============ NATURAL LANGUAGE TASK PARSING ============

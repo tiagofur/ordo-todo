@@ -25,4 +25,4 @@ import { GamificationModule } from '../gamification/gamification.module';
   providers: [TasksService],
   exports: [TasksService],
 })
-export class TasksModule { }
+export class TasksModule {}

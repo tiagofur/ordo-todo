@@ -24,7 +24,7 @@ import { CreateAttachmentDto } from './dto/create-attachment.dto';
 @Controller('attachments')
 @UseGuards(JwtAuthGuard)
 export class AttachmentsController {
-  constructor(private readonly attachmentsService: AttachmentsService) { }
+  constructor(private readonly attachmentsService: AttachmentsService) {}
 
   @Get('project/:projectId')
   findByProject(@Param('projectId') projectId: string) {
@@ -52,8 +52,17 @@ export class AttachmentsController {
         fileSize: 10 * 1024 * 1024, // 10MB
       },
       fileFilter: (req, file, callback) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|txt)$/)) {
-          return callback(new BadRequestException('Only image, pdf, word, excel, and text files are allowed!'), false);
+        if (
+          !file.originalname.match(
+            /\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|txt)$/,
+          )
+        ) {
+          return callback(
+            new BadRequestException(
+              'Only image, pdf, word, excel, and text files are allowed!',
+            ),
+            false,
+          );
         }
         callback(null, true);
       },

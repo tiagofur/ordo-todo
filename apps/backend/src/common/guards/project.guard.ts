@@ -8,13 +8,13 @@ export class ProjectGuard extends BaseResourceGuard {
 
     // Check if it's a create request with workspaceId in body
     if (!projectId) {
-        if (request.body && request.body.workspaceId) {
-            return request.body.workspaceId;
-        }
-        if (request.query && request.query.workspaceId) {
-            return request.query.workspaceId;
-        }
-        return null;
+      if (request.body && request.body.workspaceId) {
+        return request.body.workspaceId;
+      }
+      if (request.query && request.query.workspaceId) {
+        return request.query.workspaceId;
+      }
+      return null;
     }
 
     const project = await this.prisma.project.findUnique({

@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaProjectRepository implements ProjectRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaProject: PrismaProject): Project {
     return new Project({

@@ -13,7 +13,7 @@ import { join } from 'path';
 export class AttachmentsService {
   private readonly logger = new Logger(AttachmentsService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createAttachmentDto: CreateAttachmentDto, userId: string) {
     const attachment = await this.prisma.attachment.create({

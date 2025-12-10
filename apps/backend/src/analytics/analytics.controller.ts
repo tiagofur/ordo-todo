@@ -7,7 +7,7 @@ import { AnalyticsService } from './analytics.service';
 @Controller('analytics')
 @UseGuards(JwtAuthGuard)
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) { }
+  constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('daily')
   getDailyMetrics(

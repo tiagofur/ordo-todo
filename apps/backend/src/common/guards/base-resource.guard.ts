@@ -15,7 +15,7 @@ export class BaseResourceGuard implements CanActivate {
   constructor(
     protected reflector: Reflector,
     protected prisma: PrismaService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -25,16 +25,16 @@ export class BaseResourceGuard implements CanActivate {
     const workspaceId = await this.getWorkspaceId(request);
 
     if (!workspaceId) {
-       // Ideally we should default to false for security, but some endpoints might not have workspace context.
-       // However, if this Guard is applied, it implies workspace context is expected.
-       // For 'Create' operations, subclasses must extract workspaceId from body.
-       // For 'List' operations, subclasses must extract from query.
-       // If extraction fails, it usually means bad request or unauthorized access attempt.
-       // Let's make it configurable or default to FALSE if the guard is meant to secure resources.
+      // Ideally we should default to false for security, but some endpoints might not have workspace context.
+      // However, if this Guard is applied, it implies workspace context is expected.
+      // For 'Create' operations, subclasses must extract workspaceId from body.
+      // For 'List' operations, subclasses must extract from query.
+      // If extraction fails, it usually means bad request or unauthorized access attempt.
+      // Let's make it configurable or default to FALSE if the guard is meant to secure resources.
 
-       // NOTE: If getWorkspaceId returns null, it means the specific guard (ProjectGuard/TaskGuard)
-       // failed to find the resource or the ID.
-       return false;
+      // NOTE: If getWorkspaceId returns null, it means the specific guard (ProjectGuard/TaskGuard)
+      // failed to find the resource or the ID.
+      return false;
     }
 
     const membership = await this.prisma.workspaceMember.findUnique({
@@ -47,7 +47,9 @@ export class BaseResourceGuard implements CanActivate {
     });
 
     if (!membership) {
-      throw new ForbiddenException('You are not a member of the workspace for this resource');
+      throw new ForbiddenException(
+        'You are not a member of the workspace for this resource',
+      );
     }
 
     const requiredRoles = this.reflector.getAllAndOverride<MemberRole[]>(
