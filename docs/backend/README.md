@@ -2,9 +2,17 @@
 
 Complete API reference for the Ordo-Todo backend REST API.
 
+## Documentation
+
+- **[README.md](./README.md)** - API endpoints reference (this file)
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and module structure
+- **[SECURITY.md](./SECURITY.md)** - Security implementation details
+- **[IMPROVEMENTS.md](./IMPROVEMENTS.md)** - Planned enhancements roadmap
+- **[ai-features.md](./ai-features.md)** - AI capabilities and cost optimization
+
 ## Quick Start
 
-**Base URL**: `http://localhost:3101/api`
+**Base URL**: `http://localhost:3101/api/v1`
 
 **Authentication**: All endpoints (except public auth routes) require JWT Bearer token.
 

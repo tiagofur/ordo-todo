@@ -17,12 +17,13 @@ import {
   AIParseTaskDto,
   AIWellbeingDto,
   AIWorkflowSuggestionDto,
+  AIDecomposeTaskDto,
 } from './dto/ai-chat.dto';
 
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
 export class AIController {
-  constructor(private readonly aiService: AIService) {}
+  constructor(private readonly aiService: AIService) { }
 
   // ============ AI CHAT ============
 
@@ -74,6 +75,24 @@ export class AIController {
       suggestionDto.projectName,
       suggestionDto.projectDescription,
       suggestionDto.objectives,
+    );
+  }
+
+  // ============ TASK DECOMPOSITION ============
+
+  /**
+   * Decompose a complex task into manageable subtasks using AI
+   */
+  @Post('decompose-task')
+  async decomposeTask(
+    @Body() dto: AIDecomposeTaskDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.aiService.decomposeTask(
+      dto.taskTitle,
+      dto.taskDescription,
+      dto.projectContext,
+      dto.maxSubtasks,
     );
   }
 

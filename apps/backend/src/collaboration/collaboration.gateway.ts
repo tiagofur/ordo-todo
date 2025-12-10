@@ -10,6 +10,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { WsThrottleGuard } from '../common/guards/ws-throttle.guard';
 
 interface UserPresence {
   userId: string;
@@ -19,22 +21,35 @@ interface UserPresence {
   lastSeen: Date;
 }
 
+// Get allowed origins from environment variable
+const getAllowedOrigins = (): string[] => {
+  const origins = process.env.CORS_ORIGINS || 'http://localhost:3000';
+  return origins.split(',').map((o) => o.trim());
+};
+
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+      const allowedOrigins = getAllowedOrigins();
+      // Allow requests with no origin (e.g., same-origin, mobile apps)
+      if (!origin || allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
   },
 })
 export class CollaborationGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(CollaborationGateway.name);
   private activeUsers: Map<string, UserPresence> = new Map();
 
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) { }
 
   async handleConnection(client: Socket) {
     try {
@@ -133,6 +148,7 @@ export class CollaborationGateway
     this.broadcastTaskPresence(data.taskId);
   }
 
+  @UseGuards(WsThrottleGuard)
   @SubscribeMessage('task-update')
   handleTaskUpdate(
     @ConnectedSocket() client: Socket,

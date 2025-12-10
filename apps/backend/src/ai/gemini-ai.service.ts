@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { ConfigService } from '@nestjs/config';
 import type {
   ParsedTaskResult,
@@ -20,17 +20,19 @@ export interface ProductivityReportData {
 
 type ModelComplexity = 'low' | 'medium' | 'high';
 
+// Model constants - using latest stable models
+const FLASH_MODEL = 'gemini-2.0-flash';
+const THINKING_MODEL = 'gemini-2.0-flash-thinking-exp'; // For complex reasoning
+
 @Injectable()
 export class GeminiAIService {
   private readonly logger = new Logger(GeminiAIService.name);
-  private genAI: GoogleGenerativeAI;
-  private flashModel: GenerativeModel;
-  private proModel: GenerativeModel;
+  private ai: GoogleGenAI | null = null;
 
   // Cost tracking (for logging/monitoring)
   private requestCounts = {
     flash: 0,
-    pro: 0,
+    thinking: 0,
   };
 
   constructor(private configService: ConfigService) {
@@ -43,40 +45,170 @@ export class GeminiAIService {
       return;
     }
 
-    this.genAI = new GoogleGenerativeAI(apiKey);
-
-    // Flash model for quick, simple tasks (cheaper)
-    this.flashModel = this.genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
-    });
-
-    // Pro model for complex analysis (more capable but costlier)
-    this.proModel = this.genAI.getGenerativeModel({
-      model: 'gemini-1.5-pro',
-    });
+    // Initialize the new Google GenAI client
+    this.ai = new GoogleGenAI({ apiKey });
+    this.logger.log('Google GenAI SDK initialized successfully');
   }
 
   /**
-   * Select appropriate model based on task complexity
+   * Get model name based on task complexity
    * FLASH: Simple parsing, quick chat, duration estimates
-   * PRO: Complex reports, wellbeing analysis, nuanced understanding
+   * THINKING: Complex reports, wellbeing analysis, nuanced understanding
    */
-  private selectModel(complexity: ModelComplexity): GenerativeModel {
+  private getModelName(complexity: ModelComplexity): string {
     if (complexity === 'high') {
-      this.requestCounts.pro++;
-      this.logger.debug(`Using PRO model (total: ${this.requestCounts.pro})`);
-      return this.proModel || this.flashModel;
+      this.requestCounts.thinking++;
+      this.logger.debug(
+        `Using THINKING model (total: ${this.requestCounts.thinking})`,
+      );
+      return THINKING_MODEL;
     }
     this.requestCounts.flash++;
-    this.logger.debug(`Using FLASH model (total: ${this.requestCounts.flash})`);
-    return this.flashModel;
+    this.logger.debug(
+      `Using FLASH model (total: ${this.requestCounts.flash})`,
+    );
+    return FLASH_MODEL;
+  }
+
+  /**
+   * Generate content using the new SDK
+   */
+  private async generateContent(
+    modelName: string,
+    prompt: string,
+  ): Promise<string> {
+    if (!this.ai) {
+      throw new Error('AI not initialized');
+    }
+
+    const response = await this.ai.models.generateContent({
+      model: modelName,
+      contents: prompt,
+    });
+
+    return response.text || '';
   }
 
   /**
    * Check if AI is available
    */
   isAvailable(): boolean {
-    return !!this.flashModel;
+    return !!this.ai;
+  }
+
+  // ============ TASK DECOMPOSITION ============
+
+  /**
+   * Decompose a complex task into subtasks
+   * Uses FLASH model for quick task breakdown
+   */
+  async decomposeTask(
+    taskTitle: string,
+    taskDescription?: string,
+    projectContext?: string,
+    maxSubtasks = 5,
+  ): Promise<{
+    subtasks: Array<{
+      title: string;
+      description?: string;
+      estimatedMinutes?: number;
+      priority: 'LOW' | 'MEDIUM' | 'HIGH';
+      order: number;
+    }>;
+    reasoning: string;
+    totalEstimatedMinutes: number;
+  }> {
+    if (!this.ai) {
+      return this.getDefaultDecomposition(taskTitle);
+    }
+
+    try {
+      const modelName = this.getModelName('low');
+
+      const prompt = `Eres un Project Manager experto. Descompón esta tarea compleja en subtareas específicas y accionables.
+
+Tarea principal: "${taskTitle}"
+${taskDescription ? `Descripción: "${taskDescription}"` : ''}
+${projectContext ? `Contexto del proyecto: "${projectContext}"` : ''}
+
+Reglas:
+- Crea entre 2 y ${maxSubtasks} subtareas
+- Cada subtarea debe ser específica y medible
+- Ordena las subtareas de forma lógica
+- Estima tiempo en minutos (mínimo 15, máximo 120 por subtarea)
+- Asigna prioridad basada en dependencias
+
+Responde SOLO con JSON válido:
+{
+  "subtasks": [
+    {
+      "title": "Subtarea específica",
+      "description": "Descripción breve",
+      "estimatedMinutes": 30,
+      "priority": "HIGH",
+      "order": 1
+    }
+  ],
+  "reasoning": "Explicación breve de la descomposición",
+  "totalEstimatedMinutes": 120
+}`;
+
+      const text = await this.generateContent(modelName, prompt);
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[0]);
+        return {
+          subtasks: data.subtasks || [],
+          reasoning: data.reasoning || 'Descomposición generada por IA',
+          totalEstimatedMinutes:
+            data.totalEstimatedMinutes ||
+            data.subtasks?.reduce(
+              (sum: number, s: any) => sum + (s.estimatedMinutes || 30),
+              0,
+            ) ||
+            60,
+        };
+      }
+
+      throw new Error('Invalid JSON response');
+    } catch (error) {
+      this.logger.error('Task decomposition failed', error);
+      return this.getDefaultDecomposition(taskTitle);
+    }
+  }
+
+  /**
+   * Default decomposition when AI is unavailable
+   */
+  private getDefaultDecomposition(taskTitle: string) {
+    return {
+      subtasks: [
+        {
+          title: `Planificar: ${taskTitle}`,
+          description: 'Definir alcance y requisitos',
+          estimatedMinutes: 30,
+          priority: 'HIGH' as const,
+          order: 1,
+        },
+        {
+          title: `Ejecutar: ${taskTitle}`,
+          description: 'Realizar el trabajo principal',
+          estimatedMinutes: 60,
+          priority: 'HIGH' as const,
+          order: 2,
+        },
+        {
+          title: `Revisar: ${taskTitle}`,
+          description: 'Verificar y hacer ajustes finales',
+          estimatedMinutes: 30,
+          priority: 'MEDIUM' as const,
+          order: 3,
+        },
+      ],
+      reasoning: 'Descomposición básica - configura GEMINI_API_KEY para mejor análisis',
+      totalEstimatedMinutes: 120,
+    };
   }
 
   // ============ AI CHAT ============
@@ -90,7 +222,7 @@ export class GeminiAIService {
     history: ChatMessageDto[] = [],
     context?: { workspaceId?: string; projectId?: string; tasks?: any[] },
   ): Promise<ChatResponse> {
-    if (!this.flashModel) {
+    if (!this.ai) {
       return {
         message:
           'El servicio de IA no está disponible. Configura GEMINI_API_KEY.',
@@ -101,7 +233,7 @@ export class GeminiAIService {
     try {
       // Determine complexity based on message
       const isComplex = message.length > 200 || history.length > 5;
-      const model = this.selectModel(isComplex ? 'medium' : 'low');
+      const modelName = this.getModelName(isComplex ? 'medium' : 'low');
 
       const systemPrompt = `Eres un asistente de productividad inteligente para una app de gestión de tareas llamada Ordo-Todo.
 Tu rol es ayudar al usuario a:
@@ -140,8 +272,7 @@ Responde siempre en español y sé conciso pero amigable.`;
 
       const prompt = `${systemPrompt}\n\nHistorial:\n${historyText}\n\nUsuario: ${message}\n\nResponde en formato JSON:`;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
+      const text = await this.generateContent(modelName, prompt);
 
       // Parse JSON response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -178,12 +309,12 @@ Responde siempre en español y sé conciso pero amigable.`;
     input: string,
     timezone = 'America/Mexico_City',
   ): Promise<ParsedTaskResult> {
-    if (!this.flashModel) {
+    if (!this.ai) {
       return this.extractTaskLocally(input);
     }
 
     try {
-      const model = this.selectModel('low');
+      const modelName = this.getModelName('low');
       const now = new Date().toISOString();
 
       const prompt = `Eres un parser de tareas. Extrae información estructurada de este texto.
@@ -209,8 +340,7 @@ Ejemplos:
 - "Tarea urgente: llamar al cliente" → priority: URGENT
 - "Estudiar por 2 horas" → estimatedMinutes: 120`;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
+      const text = await this.generateContent(modelName, prompt);
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
@@ -286,7 +416,7 @@ Ejemplos:
     const localMetrics = this.calculateWellbeingMetricsLocally(metrics);
 
     // If PRO model not available, return local metrics only
-    if (!this.proModel) {
+    if (!this.ai) {
       return {
         ...localMetrics,
         insights: [
@@ -299,7 +429,7 @@ Ejemplos:
     }
 
     try {
-      const model = this.selectModel('high');
+      const modelName = this.getModelName('high');
 
       const prompt = `Eres un coach de bienestar laboral. Analiza estos patrones de trabajo y proporciona insights sensibles sobre el bienestar del usuario.
 
@@ -323,8 +453,7 @@ Responde con JSON:
 
 Sé empático, constructivo y evita ser alarmista. Usa español.`;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
+      const text = await this.generateContent(modelName, prompt);
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
@@ -407,9 +536,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       Math.min(
         100,
         100 -
-          weekendWorkPercentage * 0.5 -
-          lateNightWorkPercentage * 0.5 -
-          Math.max(0, (avgHoursPerDay - 8) * 10),
+        weekendWorkPercentage * 0.5 -
+        lateNightWorkPercentage * 0.5 -
+        Math.max(0, (avgHoursPerDay - 8) * 10),
       ),
     );
 
@@ -456,12 +585,12 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
     projectDescription?: string,
     objectives?: string,
   ): Promise<WorkflowSuggestion> {
-    if (!this.flashModel) {
+    if (!this.ai) {
       return this.getDefaultWorkflowSuggestion(projectName);
     }
 
     try {
-      const model = this.selectModel('low');
+      const modelName = this.getModelName('low');
 
       const prompt = `Eres un Project Manager experto. Sugiere un flujo de trabajo para este proyecto:
 
@@ -486,8 +615,7 @@ Responde con JSON:
 
 Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
+      const text = await this.generateContent(modelName, prompt);
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
@@ -571,10 +699,10 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
   async generateProductivityReport(context: {
     userId: string;
     scope:
-      | 'TASK_COMPLETION'
-      | 'WEEKLY_SCHEDULED'
-      | 'MONTHLY_SCHEDULED'
-      | 'PROJECT_SUMMARY';
+    | 'TASK_COMPLETION'
+    | 'WEEKLY_SCHEDULED'
+    | 'MONTHLY_SCHEDULED'
+    | 'PROJECT_SUMMARY';
     metricsSnapshot: any;
     sessions?: any[];
     profile?: any;
@@ -582,17 +710,15 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
   }): Promise<ProductivityReportData> {
     const complexity: ModelComplexity =
       context.scope === 'MONTHLY_SCHEDULED' ? 'high' : 'medium';
-    const model = this.selectModel(complexity);
+    const modelName = this.getModelName(complexity);
 
-    if (!model) {
+    if (!this.ai) {
       return this.getMockReport(context.scope);
     }
 
     try {
       const prompt = this.buildProductivityReportPrompt(context);
-      const result = await model.generateContent(prompt);
-      const response = result.response;
-      const text = response.text();
+      const text = await this.generateContent(modelName, prompt);
 
       // Parse JSON response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -636,12 +762,12 @@ ${projectName ? `- Project: ${projectName}` : ''}
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
 ${sessions
-  .slice(0, 10)
-  .map(
-    (s: any, i: number) =>
-      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
-  )
-  .join('\n')}
+          .slice(0, 10)
+          .map(
+            (s: any, i: number) =>
+              `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+          )
+          .join('\n')}
 `;
     }
 
@@ -698,7 +824,7 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
     confidence: string;
     reasoning: string;
   }> {
-    if (!this.flashModel) {
+    if (!this.ai) {
       return {
         estimatedMinutes: avgDuration,
         confidence: 'LOW',
@@ -707,7 +833,7 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
     }
 
     try {
-      const model = this.selectModel('low');
+      const modelName = this.getModelName('low');
 
       const prompt = `
         Actúa como un experto Project Manager. Estima la duración en minutos para la siguiente tarea:
@@ -719,8 +845,7 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
         Responde SOLO con un objeto JSON: { "estimatedMinutes": number, "confidence": "LOW" | "MEDIUM" | "HIGH", "reasoning": "Breve explicación en español" }
         `;
 
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
+      const text = await this.generateContent(modelName, prompt);
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
@@ -768,7 +893,7 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
   getModelStats() {
     return {
       ...this.requestCounts,
-      estimatedCostSavings: `${Math.round((this.requestCounts.flash / Math.max(this.requestCounts.flash + this.requestCounts.pro, 1)) * 100)}% requests using cheaper Flash model`,
+      estimatedCostSavings: `${Math.round((this.requestCounts.flash / Math.max(this.requestCounts.flash + this.requestCounts.thinking, 1)) * 100)}% requests using cheaper Flash model`,
     };
   }
 }

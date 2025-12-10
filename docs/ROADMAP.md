@@ -14,7 +14,8 @@
 | **Desktop App** | ✅ Funcional | 85% |
 | **Mobile App** | 🟡 En Progreso | 60% |
 | **Gamificación** | ✅ Backend Completo | 80% |
-| **AI Features** | 🟡 Parcial | 50% |
+| **AI Features** | 🟡 En Mejora | 50% → 80% (plan activo) |
+| **Backend Security** | 🟡 En Mejora | Fase 1 activa |
 
 ---
 
@@ -75,11 +76,40 @@
 
 ## 🔮 Próximos Sprints
 
-### Sprint 7: AI & Intelligence
-- [ ] Sugerencias inteligentes de tareas
-- [ ] Estimación automática de tiempo
-- [ ] Análisis de patrones de productividad
-- [ ] Energy Matching (tareas según energía)
+### Sprint 7: Backend AI Enhancement 🔥 ACTIVO
+
+**Objetivo:** Transformar el backend en plataforma AI de clase mundial.
+
+**Documentación completa:** [docs/backend/IMPROVEMENTS.md](./backend/IMPROVEMENTS.md)
+
+#### Fase 1: Seguridad (Crítico)
+- [ ] Fix WebSocket CORS (`origin: '*'` → configurado)
+- [ ] WebSocket rate limiting guard
+- [ ] Enhanced audit logging
+
+#### Fase 2: SDK Migration ✅
+- [x] Migrar `@google/generative-ai` → `@google/genai`
+- [x] Actualizar GeminiAIService para nuevo SDK
+- [x] Agregar soporte de streaming (preparado)
+
+#### Fase 3: AI Productivity Chat ✅
+- [x] Schema: ChatConversation + ChatMessage
+- [x] Chat module (controller, service, repository)
+- [x] ProductivityCoachService con context awareness
+- [x] Persistencia de conversaciones
+
+#### Fase 4: Real-Time Notifications ✅
+- [x] NotificationsGateway WebSocket
+- [x] Push de notificaciones real-time
+- [x] Timer alerts via WebSocket
+- [x] Task reminders via WebSocket
+
+#### Fase 5: New Endpoints ✅
+- [x] POST /ai/decompose-task
+- [x] GET /chat/insights
+- [x] GET/POST/DELETE /chat/conversations
+- [x] WebSocket /notifications namespace
+- [x] Actualizar documentación de API
 
 ### Sprint 8: Mobile Parity
 - [ ] Autenticación OAuth en mobile

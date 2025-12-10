@@ -22,7 +22,7 @@
     "prisma:generate": "prisma generate --schema=../../packages/db/prisma/schema.prisma"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^1.32.0",
     "@nestjs/common": "^11.1.9",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.9",

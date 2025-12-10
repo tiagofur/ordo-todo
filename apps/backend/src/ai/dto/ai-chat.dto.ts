@@ -71,6 +71,23 @@ export class AIWorkflowSuggestionDto {
   objectives?: string;
 }
 
+export class AIDecomposeTaskDto {
+  @IsString()
+  taskTitle: string;
+
+  @IsString()
+  @IsOptional()
+  taskDescription?: string;
+
+  @IsString()
+  @IsOptional()
+  projectContext?: string;
+
+  @IsOptional()
+  maxSubtasks?: number;
+}
+
+
 // Response types
 export interface ParsedTaskResult {
   title: string;
@@ -87,12 +104,12 @@ export interface ChatResponse {
   message: string;
   actions?: {
     type:
-      | 'CREATE_TASK'
-      | 'UPDATE_TASK'
-      | 'COMPLETE_TASK'
-      | 'LIST_TASKS'
-      | 'CREATE_PROJECT'
-      | 'NONE';
+    | 'CREATE_TASK'
+    | 'UPDATE_TASK'
+    | 'COMPLETE_TASK'
+    | 'LIST_TASKS'
+    | 'CREATE_PROJECT'
+    | 'NONE';
     data?: any;
     result?: any;
   }[];

@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationType, ResourceType } from '@prisma/client';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Optional() private gateway?: NotificationsGateway,
+  ) { }
 
   async create(data: {
     userId: string;
@@ -15,9 +19,29 @@ export class NotificationsService {
     resourceType?: ResourceType;
     metadata?: any;
   }) {
-    return this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data,
     });
+
+    // Push real-time notification via WebSocket
+    if (this.gateway) {
+      this.gateway.sendNotification(data.userId, {
+        id: notification.id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message ?? undefined,
+        resourceId: notification.resourceId ?? undefined,
+        resourceType: notification.resourceType ?? undefined,
+        metadata: notification.metadata,
+        createdAt: notification.createdAt,
+      });
+
+      // Also send updated unread count
+      const unreadCount = await this.getUnreadCount(data.userId);
+      this.gateway.sendUnreadCount(data.userId, unreadCount);
+    }
+
+    return notification;
   }
 
   async findAll(userId: string) {
@@ -39,17 +63,25 @@ export class NotificationsService {
 
   async markAsRead(id: string, userId: string) {
     // Verify ownership implicitly by where clause
-    return this.prisma.notification.updateMany({
+    const result = await this.prisma.notification.updateMany({
       where: { id, userId },
       data: {
         isRead: true,
         readAt: new Date(),
       },
     });
+
+    // Send updated unread count via WebSocket
+    if (this.gateway && result.count > 0) {
+      const unreadCount = await this.getUnreadCount(userId);
+      this.gateway.sendUnreadCount(userId, unreadCount);
+    }
+
+    return result;
   }
 
   async markAllAsRead(userId: string) {
-    return this.prisma.notification.updateMany({
+    const result = await this.prisma.notification.updateMany({
       where: {
         userId,
         isRead: false,
@@ -59,5 +91,13 @@ export class NotificationsService {
         readAt: new Date(),
       },
     });
+
+    // Send updated unread count (0) via WebSocket
+    if (this.gateway && result.count > 0) {
+      this.gateway.sendUnreadCount(userId, 0);
+    }
+
+    return result;
   }
 }
+

@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NotificationsService } from './notifications.service';
+import { NotificationsGateway } from './notifications.gateway';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
@@ -10,7 +11,8 @@ export class SmartNotificationsService {
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly prisma: PrismaService,
-  ) {}
+    @Optional() private readonly gateway?: NotificationsGateway,
+  ) { }
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async checkUpcomingTasks() {
@@ -47,6 +49,7 @@ export class SmartNotificationsService {
       });
 
       if (!existing) {
+        // Create persistent notification (this also pushes via WebSocket)
         await this.notificationsService.create({
           userId: targetUserId,
           type: 'DUE_DATE_APPROACHING',
@@ -55,6 +58,22 @@ export class SmartNotificationsService {
           resourceId: task.id,
           resourceType: 'TASK',
         });
+
+        // Also send a dedicated task reminder for connected users
+        if (this.gateway && this.gateway.isUserConnected(targetUserId)) {
+          const minutesUntilDue = task.dueDate
+            ? Math.round((task.dueDate.getTime() - now.getTime()) / 60000)
+            : 0;
+
+          this.gateway.sendTaskReminder(targetUserId, {
+            taskId: task.id,
+            taskTitle: task.title,
+            dueDate: task.dueDate!,
+            priority: task.priority,
+            minutesUntilDue,
+          });
+        }
+
         this.logger.log(
           `Sent reminder for task ${task.id} to user ${targetUserId}`,
         );

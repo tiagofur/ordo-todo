@@ -14,6 +14,7 @@ import { TagsModule } from './tags/tags.module';
 import { TimersModule } from './timers/timers.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AIModule } from './ai/ai.module';
+import { ChatModule } from './chat/chat.module';
 import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { UploadModule } from './upload/upload.module';
@@ -50,6 +51,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     TimersModule,
     AnalyticsModule,
     AIModule,
+    ChatModule,
     CommentsModule,
     AttachmentsModule,
     UploadModule,
@@ -72,4 +74,4 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

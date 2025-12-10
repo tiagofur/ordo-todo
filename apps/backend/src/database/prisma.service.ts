@@ -161,4 +161,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get userIntegration() {
     return this.prisma.userIntegration;
   }
+
+  get chatConversation() {
+    return this.prisma.chatConversation;
+  }
+
+  get chatMessage() {
+    return this.prisma.chatMessage;
+  }
 }
