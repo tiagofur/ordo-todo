@@ -135,6 +135,19 @@ export type ApiClient = OrdoApiClient | {
   getUnreadNotificationsCount?: () => Promise<unknown>;
   markNotificationAsRead?: (id: string) => Promise<unknown>;
   markAllNotificationsAsRead?: () => Promise<unknown>;
+
+  // Habits
+  getHabits: OrdoApiClient['getHabits'];
+  getTodayHabits: OrdoApiClient['getTodayHabits'];
+  getHabit: OrdoApiClient['getHabit'];
+  getHabitStats: OrdoApiClient['getHabitStats'];
+  createHabit: OrdoApiClient['createHabit'];
+  updateHabit: OrdoApiClient['updateHabit'];
+  deleteHabit: OrdoApiClient['deleteHabit'];
+  completeHabit: OrdoApiClient['completeHabit'];
+  uncompleteHabit: OrdoApiClient['uncompleteHabit'];
+  pauseHabit: OrdoApiClient['pauseHabit'];
+  resumeHabit: OrdoApiClient['resumeHabit'];
 };
 
 /**

@@ -33,6 +33,10 @@ import type {
   CreateAttachmentDto,
   InviteMemberDto,
   AcceptInvitationDto,
+  // Habits
+  CreateHabitDto,
+  UpdateHabitDto,
+  CompleteHabitDto,
 } from '@ordo-todo/api-client';
 import { queryKeys } from './query-keys';
 import type { ApiClient, CreateHooksConfig } from './types';
@@ -1164,6 +1168,134 @@ export function createHooks(config: CreateHooksConfig) {
     queryClient.invalidateQueries({ queryKey: ['tasks'] });
   }
 
+  // ============ HABIT HOOKS ============
+
+  function useHabits(includeArchived?: boolean) {
+    return useQuery({
+      queryKey: [...queryKeys.habits, { includeArchived }],
+      queryFn: () => apiClient.getHabits(includeArchived),
+    });
+  }
+
+  function useTodayHabits() {
+    return useQuery({
+      queryKey: queryKeys.todayHabits,
+      queryFn: () => apiClient.getTodayHabits(),
+    });
+  }
+
+  function useHabit(habitId: string) {
+    return useQuery({
+      queryKey: queryKeys.habit(habitId),
+      queryFn: () => apiClient.getHabit(habitId),
+      enabled: !!habitId,
+    });
+  }
+
+  function useHabitStats(habitId: string) {
+    return useQuery({
+      queryKey: queryKeys.habitStats(habitId),
+      queryFn: () => apiClient.getHabitStats(habitId),
+      enabled: !!habitId,
+    });
+  }
+
+  function useCreateHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: CreateHabitDto) => apiClient.createHabit(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+      },
+    });
+  }
+
+  function useUpdateHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ habitId, data }: { habitId: string; data: UpdateHabitDto }) =>
+        apiClient.updateHabit(habitId, data),
+      onSuccess: (_, { habitId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+      },
+    });
+  }
+
+  function useDeleteHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (habitId: string) => apiClient.deleteHabit(habitId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+      },
+    });
+  }
+
+  function useCompleteHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ habitId, data }: { habitId: string; data?: CompleteHabitDto }) =>
+        apiClient.completeHabit(habitId, data),
+      onSuccess: (_, { habitId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habitStats(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+        // Invalidate user profile for XP updates
+        queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+        queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
+      },
+    });
+  }
+
+  function useUncompleteHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (habitId: string) => apiClient.uncompleteHabit(habitId),
+      onSuccess: (_, habitId) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habitStats(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+      },
+    });
+  }
+
+  function usePauseHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (habitId: string) => apiClient.pauseHabit(habitId),
+      onSuccess: (_, habitId) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+      },
+    });
+  }
+
+  function useResumeHabit() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (habitId: string) => apiClient.resumeHabit(habitId),
+      onSuccess: (_, habitId) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+        queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
+      },
+    });
+  }
+
   // Return all hooks
   return {
     // Auth
@@ -1282,6 +1414,19 @@ export function createHooks(config: CreateHooksConfig) {
     useUnreadNotificationsCount,
     useMarkNotificationAsRead,
     useMarkAllNotificationsAsRead,
+
+    // Habits
+    useHabits,
+    useTodayHabits,
+    useHabit,
+    useHabitStats,
+    useCreateHabit,
+    useUpdateHabit,
+    useDeleteHabit,
+    useCompleteHabit,
+    useUncompleteHabit,
+    usePauseHabit,
+    useResumeHabit,
 
     // Utilities
     invalidateAllTasks,

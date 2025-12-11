@@ -6,7 +6,7 @@ Esta carpeta contiene la planificación detallada para las funcionalidades que h
 
 | Prioridad | Documento | Feature | Estado |
 |-----------|-----------|---------|--------|
-| ⭐⭐⭐⭐⭐ | [01-HABIT-TRACKER.md](./01-HABIT-TRACKER.md) | Sistema de Hábitos | 📝 Planificado |
+| ⭐⭐⭐⭐⭐ | [01-HABIT-TRACKER.md](./01-HABIT-TRACKER.md) | Sistema de Hábitos | ✅ **Completado** |
 | ⭐⭐⭐⭐⭐ | [02-SMART-DATES.md](./02-SMART-DATES.md) | Start Date + Scheduled Date | ✅ **Completado** |
 | ⭐⭐⭐⭐ | [03-OKRS-GOALS.md](./03-OKRS-GOALS.md) | Sistema de OKRs y Metas | 📝 Planificado |
 | ⭐⭐⭐⭐ | [04-TIME-BLOCKING.md](./04-TIME-BLOCKING.md) | Time Blocking Visual | 📝 Planificado |

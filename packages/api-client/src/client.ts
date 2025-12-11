@@ -90,6 +90,14 @@ import type {
   ConversationDetail,
   SendMessageResponse,
   AIInsightsResponse,
+  // Habits
+  Habit,
+  CreateHabitDto,
+  UpdateHabitDto,
+  CompleteHabitDto,
+  HabitStats,
+  TodayHabitsResponse,
+  CompleteHabitResponse,
 } from './types';
 
 /**
@@ -1411,6 +1419,108 @@ export class OrdoApiClient {
    */
   async getAIInsights(): Promise<AIInsightsResponse> {
     const response = await this.axios.get<AIInsightsResponse>('/chat/insights');
+    return response.data;
+  }
+
+  // ============ HABIT ENDPOINTS (11) ============
+
+  /**
+   * Create a new habit
+   * POST /habits
+   */
+  async createHabit(data: CreateHabitDto): Promise<Habit> {
+    const response = await this.axios.post<Habit>('/habits', data);
+    return response.data;
+  }
+
+  /**
+   * Get all habits for current user
+   * GET /habits
+   */
+  async getHabits(includeArchived?: boolean): Promise<Habit[]> {
+    const response = await this.axios.get<Habit[]>('/habits', {
+      params: { includeArchived: includeArchived ? 'true' : undefined },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get habits for today with completion status
+   * GET /habits/today
+   */
+  async getTodayHabits(): Promise<TodayHabitsResponse> {
+    const response = await this.axios.get<TodayHabitsResponse>('/habits/today');
+    return response.data;
+  }
+
+  /**
+   * Get a specific habit by ID
+   * GET /habits/:id
+   */
+  async getHabit(habitId: string): Promise<Habit> {
+    const response = await this.axios.get<Habit>(`/habits/${habitId}`);
+    return response.data;
+  }
+
+  /**
+   * Get habit statistics
+   * GET /habits/:id/stats
+   */
+  async getHabitStats(habitId: string): Promise<HabitStats> {
+    const response = await this.axios.get<HabitStats>(`/habits/${habitId}/stats`);
+    return response.data;
+  }
+
+  /**
+   * Update a habit
+   * PATCH /habits/:id
+   */
+  async updateHabit(habitId: string, data: UpdateHabitDto): Promise<Habit> {
+    const response = await this.axios.patch<Habit>(`/habits/${habitId}`, data);
+    return response.data;
+  }
+
+  /**
+   * Delete a habit
+   * DELETE /habits/:id
+   */
+  async deleteHabit(habitId: string): Promise<void> {
+    await this.axios.delete(`/habits/${habitId}`);
+  }
+
+  /**
+   * Complete a habit for today
+   * POST /habits/:id/complete
+   */
+  async completeHabit(habitId: string, data?: CompleteHabitDto): Promise<CompleteHabitResponse> {
+    const response = await this.axios.post<CompleteHabitResponse>(`/habits/${habitId}/complete`, data || {});
+    return response.data;
+  }
+
+  /**
+   * Uncomplete a habit for today
+   * DELETE /habits/:id/complete
+   */
+  async uncompleteHabit(habitId: string): Promise<{ success: boolean; newStreak: number }> {
+    const response = await this.axios.delete<{ success: boolean; newStreak: number }>(`/habits/${habitId}/complete`);
+    return response.data;
+  }
+
+  /**
+   * Pause a habit
+   * POST /habits/:id/pause
+   */
+  async pauseHabit(habitId: string): Promise<Habit> {
+    const response = await this.axios.post<Habit>(`/habits/${habitId}/pause`);
+    return response.data;
+  }
+
+  /**
+   * Resume a habit
+   * POST /habits/:id/resume
+   */
+  async resumeHabit(habitId: string): Promise<Habit> {
+    const response = await this.axios.post<Habit>(`/habits/${habitId}/resume`);
     return response.data;
   }
 }

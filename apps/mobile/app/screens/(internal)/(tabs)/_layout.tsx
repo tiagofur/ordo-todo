@@ -150,6 +150,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="habits"
+        options={{
+          title: "Hábitos",
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon name="star" color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="ai-chat-tab"
         options={{
             title: "AI",

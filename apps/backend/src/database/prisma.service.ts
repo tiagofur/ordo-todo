@@ -169,4 +169,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get chatMessage() {
     return this.prisma.chatMessage;
   }
+
+  get habit() {
+    return this.prisma.habit;
+  }
+
+  get habitCompletion() {
+    return this.prisma.habitCompletion;
+  }
 }

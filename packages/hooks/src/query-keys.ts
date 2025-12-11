@@ -82,4 +82,10 @@ export const queryKeys = {
   // ============ Notifications ============
   notifications: ['notifications'] as const,
   unreadNotificationsCount: ['notifications', 'unread-count'] as const,
+
+  // ============ Habits ============
+  habits: ['habits'] as const,
+  todayHabits: ['habits', 'today'] as const,
+  habit: (id: string) => ['habits', id] as const,
+  habitStats: (id: string) => ['habits', id, 'stats'] as const,
 } as const;

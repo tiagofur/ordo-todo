@@ -10,6 +10,7 @@ import {
   Briefcase,
   Calendar,
   Download,
+  Sparkles,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
@@ -27,6 +28,7 @@ export function Sidebar() {
   const navItems: NavItem[] = [
     { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
     { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+    { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
     { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
     { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
     { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },

@@ -13,6 +13,7 @@
   "Sidebar": {
     "today": "Hoy",
     "tasks": "Tareas",
+    "habits": "Hábitos",
     "calendar": "Calendario",
     "projects": "Proyectos",
     "workspaces": "Workspaces",
@@ -145,6 +146,127 @@
     "noTags": "No hay etiquetas",
     "noTagsDescription": "Crea tu primera etiqueta para empezar a organizar tus tareas.",
     "createTag": "Crear Etiqueta"
+  },
+  "Habits": {
+    "title": "Hábitos",
+    "subtitle": "Construye rutinas positivas y mantén el impulso",
+    "newHabit": "Nuevo Hábito",
+    "todayProgress": "Progreso de Hoy",
+    "completed": "{count} de {total} completados",
+    "allDone": "¡Todos completados!",
+    "keepGoing": "¡Sigue así!",
+    "noHabits": "No hay hábitos aún",
+    "noHabitsDescription": "Crea tu primer hábito para empezar a construir rutinas positivas",
+    "createHabit": "Crear Hábito",
+    "stats": {
+      "currentStreak": "Racha actual",
+      "longestStreak": "Mejor racha",
+      "totalCompletions": "Veces completado",
+      "completionRate": "Tasa de éxito",
+      "thisWeek": "Esta semana",
+      "thisMonth": "Este mes"
+    },
+    "frequency": {
+      "DAILY": "Diario",
+      "WEEKLY": "Semanal",
+      "SPECIFIC_DAYS": "Días específicos",
+      "MONTHLY": "Mensual",
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "custom": "Personalizado"
+    },
+    "timeOfDay": {
+      "MORNING": "Mañana",
+      "AFTERNOON": "Tarde",
+      "EVENING": "Noche",
+      "ANYTIME": "Cualquier momento",
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "evening": "Noche",
+      "anytime": "Cualquier momento"
+    },
+    "daysOfWeek": {
+      "short": ["D", "L", "M", "X", "J", "V", "S"],
+      "long": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+    },
+    "actions": {
+      "complete": "Completar",
+      "undo": "Deshacer",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "viewStats": "Ver estadísticas"
+    },
+    "form": {
+      "createTitle": "Nuevo Hábito",
+      "createDescription": "Crea un nuevo hábito para construir rutinas positivas",
+      "name": "Nombre del hábito",
+      "namePlaceholder": "Ej: Meditar 10 minutos",
+      "description": "Descripción (opcional)",
+      "descriptionPlaceholder": "¿Por qué es importante este hábito?",
+      "icon": "Icono",
+      "color": "Color",
+      "frequency": "Frecuencia",
+      "daysOfWeek": "Días de la semana",
+      "targetDays": "Días objetivo",
+      "targetCount": "Veces por período",
+      "timeOfDay": "Momento del día",
+      "preferredTime": "Hora preferida",
+      "reminder": "Recordatorio",
+      "create": "Crear Hábito",
+      "creating": "Creando...",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "created": "¡Hábito creado!",
+      "updated": "Hábito actualizado",
+      "deleted": "Hábito eliminado",
+      "completed": "¡Hábito completado! +{xp} XP",
+      "uncompleted": "Completión deshecha",
+      "paused": "Hábito pausado",
+      "resumed": "Hábito reanudado",
+      "streakBonus": "🔥 ¡Racha de {days} días! +{xp} XP bonus",
+      "error": "Error: {message}"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar este hábito? Se perderá todo el historial.",
+    "status": {
+      "active": "Activo",
+      "paused": "Pausado",
+      "archived": "Archivado"
+    },
+    "emptyToday": {
+      "weekend": "¡Disfruta tu fin de semana! No tienes hábitos programados.",
+      "allDone": "¡Increíble! Completaste todos tus hábitos de hoy.",
+      "noScheduled": "No tienes hábitos programados para hoy."
+    },
+    "streakMessage": {
+      "new": "¡Empezaste una nueva racha!",
+      "week": "¡Una semana completa! 🎉",
+      "month": "¡Un mes! Eres imparable 🚀",
+      "hundred": "¡100 días! Leyenda 🏆"
+    },
+    "onboarding": {
+      "welcome": {
+        "title": "Construye Mejores Hábitos",
+        "description": "Haz seguimiento de tus hábitos diarios, construye rachas y conviértete en tu mejor versión."
+      },
+      "streaks": {
+        "title": "Construye Rachas Poderosas",
+        "description": "Completa hábitos de forma consistente para construir rachas. ¡Las rachas largas dan XP extra!"
+      },
+      "reminders": {
+        "title": "Nunca Pierdas un Día",
+        "description": "Configura recordatorios para recibir notificaciones en el momento perfecto."
+      },
+      "gamification": {
+        "title": "Gana XP y Sube de Nivel",
+        "description": "Cada hábito completado te da XP. ¡Construye rachas para bonificaciones!"
+      },
+      "skip": "Saltar",
+      "next": "Siguiente",
+      "getStarted": "Comenzar"
+    }
   },
   "Analytics": {
     "title": "Analíticas",

@@ -57,6 +57,10 @@ export const LazyTasks = lazy(() =>
   import('./Tasks').then(module => ({ default: module.Tasks }))
 );
 
+export const LazyHabits = lazy(() => 
+  import('./Habits').then(module => ({ default: module.Habits }))
+);
+
 export const LazyTimer = lazy(() => 
   import('./Timer').then(module => ({ default: module.Timer }))
 );
@@ -120,6 +124,7 @@ export const LazyFocusMode = lazy(() => import('./FocusMode'));
 export const preloadPage = {
   dashboard: () => import('./Dashboard'),
   tasks: () => import('./Tasks'),
+  habits: () => import('./Habits'),
   timer: () => import('./Timer'),
   calendar: () => import('./Calendar'),
   projects: () => import('./Projects'),

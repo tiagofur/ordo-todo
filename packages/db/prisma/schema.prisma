@@ -56,6 +56,9 @@ model User {
   productivityReports ProductivityReport[]
   chatConversations   ChatConversation[]
 
+  // Habits
+  habits              Habit[]
+
   // Third-party Integrations
   integrations UserIntegration[]
 
@@ -959,6 +962,88 @@ model UserAchievement {
 
   @@unique([userId, achievementId])
   @@index([userId])
+}
+
+// ============ HABITS ============
+
+model Habit {
+  id          String @id @default(cuid())
+  
+  // Básicos
+  name        String
+  description String?
+  icon        String?  // Lucide icon name
+  color       String   @default("#10B981")
+  
+  // Owner
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Workspace (optional - habits can be personal)
+  workspaceId String?
+  
+  // Schedule
+  frequency       HabitFrequency @default(DAILY)
+  targetDaysOfWeek Int[]         // [0,1,2,3,4,5,6] for daily selection
+  targetCount     Int            @default(1) // Can complete multiple times per period
+  
+  // Time constraints (optional)
+  preferredTime   String?        // "HH:mm" - reminder time
+  timeOfDay       TimeOfDay?     // MORNING, AFTERNOON, EVENING, ANYTIME
+  
+  // Gamification
+  currentStreak   Int @default(0)
+  longestStreak   Int @default(0)
+  totalCompletions Int @default(0)
+  
+  // State
+  isActive    Boolean   @default(true)
+  isPaused    Boolean   @default(false)
+  pausedAt    DateTime?
+  archivedAt  DateTime?
+  
+  // Relationships
+  completions HabitCompletion[]
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([workspaceId])
+}
+
+model HabitCompletion {
+  id        String   @id @default(cuid())
+  
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  habitId   String
+  
+  // When completed
+  completedAt DateTime @default(now())
+  completedDate DateTime @db.Date // Date only (for grouping)
+  
+  // Optional metadata
+  note      String?
+  value     Float?   // For quantifiable habits (e.g., "drank 8 glasses")
+  
+  @@index([habitId])
+  @@index([completedDate])
+  @@unique([habitId, completedDate]) // One completion per day (unless targetCount > 1)
+}
+
+enum HabitFrequency {
+  DAILY        // Every day
+  WEEKLY       // X times per week
+  SPECIFIC_DAYS // Mon, Wed, Fri
+  MONTHLY      // X times per month
+}
+
+enum TimeOfDay {
+  MORNING
+  AFTERNOON
+  EVENING
+  ANYTIME
 }
 
 // ============ AI CHAT ============

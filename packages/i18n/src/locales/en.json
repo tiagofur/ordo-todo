@@ -13,6 +13,7 @@
   "Sidebar": {
     "today": "Today",
     "tasks": "Tasks",
+    "habits": "Habits",
     "calendar": "Calendar",
     "projects": "Projects",
     "workspaces": "Workspaces",
@@ -145,6 +146,127 @@
     "noTags": "No tags",
     "noTagsDescription": "Create your first tag to start organizing your tasks.",
     "createTag": "Create Tag"
+  },
+  "Habits": {
+    "title": "Habits",
+    "subtitle": "Build positive routines and maintain momentum",
+    "newHabit": "New Habit",
+    "todayProgress": "Today's Progress",
+    "completed": "{count} of {total} completed",
+    "allDone": "All done!",
+    "keepGoing": "Keep it up!",
+    "noHabits": "No habits yet",
+    "noHabitsDescription": "Create your first habit to start building positive routines",
+    "createHabit": "Create Habit",
+    "stats": {
+      "currentStreak": "Current streak",
+      "longestStreak": "Best streak",
+      "totalCompletions": "Times completed",
+      "completionRate": "Success rate",
+      "thisWeek": "This week",
+      "thisMonth": "This month"
+    },
+    "frequency": {
+      "DAILY": "Daily",
+      "WEEKLY": "Weekly",
+      "SPECIFIC_DAYS": "Specific days",
+      "MONTHLY": "Monthly",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "custom": "Custom"
+    },
+    "timeOfDay": {
+      "MORNING": "Morning",
+      "AFTERNOON": "Afternoon",
+      "EVENING": "Evening",
+      "ANYTIME": "Anytime",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "anytime": "Anytime"
+    },
+    "daysOfWeek": {
+      "short": ["S", "M", "T", "W", "T", "F", "S"],
+      "long": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    },
+    "actions": {
+      "complete": "Complete",
+      "undo": "Undo",
+      "pause": "Pause",
+      "resume": "Resume",
+      "edit": "Edit",
+      "delete": "Delete",
+      "viewStats": "View stats"
+    },
+    "form": {
+      "createTitle": "New Habit",
+      "createDescription": "Create a new habit to build positive routines",
+      "name": "Habit name",
+      "namePlaceholder": "Ex: Meditate for 10 minutes",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "Why is this habit important?",
+      "icon": "Icon",
+      "color": "Color",
+      "frequency": "Frequency",
+      "daysOfWeek": "Days of the week",
+      "targetDays": "Target days",
+      "targetCount": "Times per period",
+      "timeOfDay": "Time of day",
+      "preferredTime": "Preferred time",
+      "reminder": "Reminder",
+      "create": "Create Habit",
+      "creating": "Creating...",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "created": "Habit created!",
+      "updated": "Habit updated",
+      "deleted": "Habit deleted",
+      "completed": "Habit completed! +{xp} XP",
+      "uncompleted": "Completion undone",
+      "paused": "Habit paused",
+      "resumed": "Habit resumed",
+      "streakBonus": "🔥 {days}-day streak! +{xp} XP bonus",
+      "error": "Error: {message}"
+    },
+    "confirmDelete": "Are you sure you want to delete this habit? All history will be lost.",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "archived": "Archived"
+    },
+    "emptyToday": {
+      "weekend": "Enjoy your weekend! No habits scheduled.",
+      "allDone": "Amazing! You completed all your habits today.",
+      "noScheduled": "No habits scheduled for today."
+    },
+    "streakMessage": {
+      "new": "You started a new streak!",
+      "week": "One full week! 🎉",
+      "month": "One month! You're unstoppable 🚀",
+      "hundred": "100 days! Legend 🏆"
+    },
+    "onboarding": {
+      "welcome": {
+        "title": "Build Better Habits",
+        "description": "Track your daily habits, build streaks, and become the best version of yourself."
+      },
+      "streaks": {
+        "title": "Build Powerful Streaks",
+        "description": "Complete habits consistently to build streaks. Long streaks earn bonus XP!"
+      },
+      "reminders": {
+        "title": "Never Miss a Day",
+        "description": "Set reminders to get notified at the perfect time to complete your habits."
+      },
+      "gamification": {
+        "title": "Earn XP & Level Up",
+        "description": "Every completed habit earns you XP. Build streaks for bonus rewards!"
+      },
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Get Started"
+    }
   },
   "Analytics": {
     "title": "Analytics",

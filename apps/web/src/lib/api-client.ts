@@ -465,4 +465,28 @@ export const apiClient = {
     if (end) params.end = end instanceof Date ? end.toISOString() : end;
     return axiosInstance.get('/tasks/time-blocks', { params }).then((res) => res.data);
   },
+
+  // Habits
+  getHabits: (includeArchived?: boolean) =>
+    axiosInstance.get('/habits', { params: { includeArchived } }).then((res) => res.data),
+  getTodayHabits: () =>
+    axiosInstance.get('/habits/today').then((res) => res.data),
+  getHabit: (id: string) =>
+    axiosInstance.get(`/habits/${id}`).then((res) => res.data),
+  getHabitStats: (id: string) =>
+    axiosInstance.get(`/habits/${id}/stats`).then((res) => res.data),
+  createHabit: (data: any) =>
+    axiosInstance.post('/habits', data).then((res) => res.data),
+  updateHabit: (id: string, data: any) =>
+    axiosInstance.put(`/habits/${id}`, data).then((res) => res.data),
+  deleteHabit: (id: string) =>
+    axiosInstance.delete(`/habits/${id}`).then((res) => res.data),
+  completeHabit: (id: string, data?: any) =>
+    axiosInstance.post(`/habits/${id}/complete`, data).then((res) => res.data),
+  uncompleteHabit: (id: string) =>
+    axiosInstance.delete(`/habits/${id}/complete`).then((res) => res.data),
+  pauseHabit: (id: string) =>
+    axiosInstance.patch(`/habits/${id}/pause`).then((res) => res.data),
+  resumeHabit: (id: string) =>
+    axiosInstance.patch(`/habits/${id}/resume`).then((res) => res.data),
 };

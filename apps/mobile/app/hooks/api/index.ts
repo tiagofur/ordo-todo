@@ -9,6 +9,9 @@ export * from './use-auth';
 // Task hooks
 export * from './use-tasks';
 
+// Habit hooks
+export * from './use-habits';
+
 // Workspace hooks
 export * from './use-workspaces';
 

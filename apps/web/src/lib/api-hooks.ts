@@ -1172,4 +1172,135 @@ export const useMarkAllNotificationsAsRead = () => {
   });
 };
 
+// ==========================================
+// HABITS
+// ==========================================
+
+const habitQueryKeys = {
+  all: ['habits'] as const,
+  today: ['habits', 'today'] as const,
+  habit: (id: string) => ['habits', id] as const,
+  stats: (id: string) => ['habits', id, 'stats'] as const,
+};
+
+export function useHabits() {
+  return useQuery({
+    queryKey: habitQueryKeys.all,
+    queryFn: () => apiClient.getHabits(),
+  });
+}
+
+export function useTodayHabits() {
+  return useQuery({
+    queryKey: habitQueryKeys.today,
+    queryFn: () => apiClient.getTodayHabits(),
+  });
+}
+
+export function useHabit(habitId: string) {
+  return useQuery({
+    queryKey: habitQueryKeys.habit(habitId),
+    queryFn: () => apiClient.getHabit(habitId),
+    enabled: !!habitId,
+  });
+}
+
+export function useHabitStats(habitId: string) {
+  return useQuery({
+    queryKey: habitQueryKeys.stats(habitId),
+    queryFn: () => apiClient.getHabitStats(habitId),
+    enabled: !!habitId,
+  });
+}
+
+export function useCreateHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Parameters<typeof apiClient.createHabit>[0]) => apiClient.createHabit(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+    },
+  });
+}
+
+export function useUpdateHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ habitId, data }: { habitId: string; data: Parameters<typeof apiClient.updateHabit>[1] }) =>
+      apiClient.updateHabit(habitId, data),
+    onSuccess: (_, { habitId }) => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+    },
+  });
+}
+
+export function useDeleteHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (habitId: string) => apiClient.deleteHabit(habitId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+    },
+  });
+}
+
+export function useCompleteHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ habitId, data }: { habitId: string; data?: Parameters<typeof apiClient.completeHabit>[1] }) =>
+      apiClient.completeHabit(habitId, data),
+    onSuccess: (_, { habitId }) => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.stats(habitId) });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+    },
+  });
+}
+
+export function useUncompleteHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (habitId: string) => apiClient.uncompleteHabit(habitId),
+    onSuccess: (habitId) => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+    },
+  });
+}
+
+export function usePauseHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (habitId: string) => apiClient.pauseHabit(habitId),
+    onSuccess: (_, habitId) => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+    },
+  });
+}
+
+export function useResumeHabit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (habitId: string) => apiClient.resumeHabit(habitId),
+    onSuccess: (_, habitId) => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
+    },
+  });
+}
 

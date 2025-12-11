@@ -5,6 +5,7 @@ import {
   PageLoader,
   LazyDashboard,
   LazyTasks,
+  LazyHabits,
   LazyProjects,
   LazyProjectDetail,
   LazyTimer,
@@ -19,6 +20,7 @@ import {
   LazyWorkspaces,
   LazyWorkspaceDetail,
 } from "../pages/lazy";
+
 
 /**
  * Application routes with code splitting
@@ -79,6 +81,14 @@ export const router = createHashRouter([
         element: (
           <LazyPage fallback={<PageLoader message="Loading tasks..." />}>
             <LazyTasks />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "habits",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading habits..." />}>
+            <LazyHabits />
           </LazyPage>
         ),
       },

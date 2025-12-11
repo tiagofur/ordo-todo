@@ -26,6 +26,7 @@ import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-widget";
 import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
+import { HabitsWidget } from "@/components/dashboard/habits-widget";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useRouter } from "next/navigation";
@@ -282,7 +283,7 @@ export default function DashboardPage() {
         </div>
 
         {/* New Widgets Row */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ProductivityStreakWidget
             currentStreak={currentStreak}
             longestStreak={longestStreak}
@@ -291,6 +292,7 @@ export default function DashboardPage() {
           <DashboardTimerWidget
             accentColor={accentColor}
           />
+          <HabitsWidget />
         </div>
 
         {/* Tasks Section */}

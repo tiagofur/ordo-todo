@@ -9,3 +9,4 @@ export * from "./workspace.validation";
 export * from "./tag.validation";
 export * from "./user.validation";
 export * from "./comment.validation";
+export * from "./habit.validation";
