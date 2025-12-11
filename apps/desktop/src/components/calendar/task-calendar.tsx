@@ -11,6 +11,7 @@ import { useUpdateTask } from "@/hooks/api/use-tasks";
 import { Task } from "@ordo-todo/api-client";
 import { cn, Button, Badge } from "@ordo-todo/ui";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { DragStore } from "@/lib/drag-store";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
@@ -166,16 +167,30 @@ export function TaskCalendar() {
   const events = useMemo(() => {
     if (!tasks) return [];
     return tasks
-      .filter((task) => task.dueDate)
+      .filter((task) => task.scheduledDate || (task.dueDate && task.isTimeBlocked))
       .map((task) => {
-        const dueDate = new Date(task.dueDate!);
-        // Default logic: assume 1 hour duration for visualization
-        let start = dueDate;
-        let end = addHours(dueDate, 1);
+        // Use scheduledDate preferably, fallback to dueDate if time blocked (compatibility)
+        const dateBase = task.scheduledDate ? new Date(task.scheduledDate) : new Date(task.dueDate!);
+        
+        let start = dateBase;
+        
+        // Parse time if exists
+        if (task.scheduledTime) {
+            const [hours, minutes] = task.scheduledTime.split(':').map(Number);
+            start = new Date(dateBase);
+            start.setHours(hours, minutes, 0, 0);
+        }
+
+        let end = addHours(start, 1);
+        if (task.scheduledEndTime) {
+             const [hours, minutes] = task.scheduledEndTime.split(':').map(Number);
+             end = new Date(dateBase);
+             end.setHours(hours, minutes, 0, 0);
+        }
 
         // Check for validity
         if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
-        if (end < start) end = addHours(start, 1);
+        if (end <= start) end = addHours(start, 1);
 
         return {
           id: task.id,
@@ -188,6 +203,26 @@ export function TaskCalendar() {
       .filter(Boolean) as TaskEvent[];
   }, [tasks]);
 
+  const onDropFromOutside = async ({ start, end, allDay }: any) => {
+    const task = DragStore.getDraggedTask();
+    if (!task) return;
+    
+    try {
+        await updateTaskMutation.mutateAsync({
+            taskId: task.id,
+            data: {
+                scheduledDate: start.toISOString(),
+                scheduledTime: format(start, 'HH:mm'),
+                scheduledEndTime: format(end, 'HH:mm'),
+                isTimeBlocked: true
+            }
+        });
+        DragStore.setDraggedTask(null);
+    } catch (error) {
+        console.error("Failed to schedule task", error);
+    }
+  };
+
   const onEventDrop = async ({ event, start, end }: any) => {
     const task = event.resource as Task;
     if (!task) return;
@@ -196,11 +231,33 @@ export function TaskCalendar() {
         await updateTaskMutation.mutateAsync({
             taskId: task.id,
             data: {
-                dueDate: start.toISOString(),
+                scheduledDate: start.toISOString(),
+                scheduledTime: format(start, 'HH:mm'),
+                scheduledEndTime: format(end, 'HH:mm'),
+                isTimeBlocked: true
             }
         });
     } catch (error) {
         console.error("Failed to update task date", error);
+    }
+  };
+
+  const onEventResize = async ({ event, start, end }: any) => {
+    const task = event.resource as Task;
+    if (!task) return;
+
+    try {
+        await updateTaskMutation.mutateAsync({
+            taskId: task.id,
+            data: {
+                scheduledDate: start.toISOString(),
+                scheduledTime: format(start, 'HH:mm'),
+                scheduledEndTime: format(end, 'HH:mm'),
+                isTimeBlocked: true
+            }
+        });
+    } catch (error) {
+        console.error("Failed to resize task", error);
     }
   };
 
@@ -267,6 +324,8 @@ export function TaskCalendar() {
             agenda: t("Calendar.agenda") || "Agenda",
         }}
         onEventDrop={onEventDrop}
+        onDropFromOutside={onDropFromOutside}
+        onEventResize={onEventResize}
         resizable
         selectable
       />

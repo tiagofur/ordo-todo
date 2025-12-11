@@ -49,7 +49,23 @@ export function useUpdateTask() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['tasks', variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'available'] });
+      queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
     },
+  });
+}
+
+export function useAvailableTasks(projectId?: string) {
+  return useQuery({
+    queryKey: ['tasks', 'available', projectId],
+    queryFn: () => apiClient.getAvailableTasks(projectId),
+  });
+}
+
+export function useTimeBlocks(start?: Date | string, end?: Date | string) {
+  return useQuery({
+    queryKey: ['time-blocks', start instanceof Date ? start.toISOString() : start, end instanceof Date ? end.toISOString() : end],
+    queryFn: () => apiClient.getTimeBlocks(start, end),
   });
 }
 

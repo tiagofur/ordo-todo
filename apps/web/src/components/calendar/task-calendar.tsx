@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@ordo-todo/ui";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { DragStore } from "@/lib/drag-store";
 
 // Setup localizer
 const locales = {
@@ -157,16 +158,30 @@ export function TaskCalendar() {
   const events = useMemo(() => {
     if (!tasks) return [];
     return tasks
-      .filter((task: Task) => task.dueDate)
+      .filter((task: Task) => task.scheduledDate || (task.dueDate && task.isTimeBlocked))
       .map((task: Task) => {
-        const dueDate = new Date(task.dueDate!);
+        // Use scheduledDate preferably, fallback to dueDate if time blocked (compatibility)
+        const dateBase = task.scheduledDate ? new Date(task.scheduledDate) : new Date(task.dueDate!);
         
-        let start = dueDate;
-        let end = addHours(dueDate, 1);
+        let start = dateBase;
+        
+        // Parse time if exists
+        if (task.scheduledTime) {
+            const [hours, minutes] = task.scheduledTime.split(':').map(Number);
+            start = new Date(dateBase);
+            start.setHours(hours, minutes, 0, 0);
+        }
+
+        let end = addHours(start, 1);
+        if (task.scheduledEndTime) {
+             const [hours, minutes] = task.scheduledEndTime.split(':').map(Number);
+             end = new Date(dateBase);
+             end.setHours(hours, minutes, 0, 0);
+        }
         
         // Validation
         if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
-        if (end < start) end = addHours(start, 1);
+        if (end <= start) end = addHours(start, 1);
 
         return {
           id: task.id,
@@ -179,6 +194,26 @@ export function TaskCalendar() {
       .filter(Boolean) as TaskEvent[];
   }, [tasks]);
 
+  const onDropFromOutside = async ({ start, end, allDay }: any) => {
+    const task = DragStore.getDraggedTask();
+    if (!task) return;
+    
+    try {
+        await updateTaskMutation.mutateAsync({
+            taskId: task.id,
+            data: {
+                scheduledDate: start.toISOString(),
+                scheduledTime: format(start, 'HH:mm'),
+                scheduledEndTime: format(end, 'HH:mm'),
+                isTimeBlocked: true
+            }
+        });
+        DragStore.setDraggedTask(null);
+    } catch (error) {
+        console.error("Failed to schedule task", error);
+    }
+  };
+
   const onEventDrop = async ({ event, start, end }: any) => {
     const task = event.resource as Task;
     if (!task) return;
@@ -187,11 +222,33 @@ export function TaskCalendar() {
         await updateTaskMutation.mutateAsync({
             taskId: task.id,
             data: {
-                dueDate: start.toISOString(),
+                scheduledDate: start.toISOString(),
+                scheduledTime: format(start, 'HH:mm'),
+                scheduledEndTime: format(end, 'HH:mm'),
+                isTimeBlocked: true
             }
         });
     } catch (error) {
         console.error("Failed to update task date", error);
+    }
+  };
+
+  const onEventResize = async ({ event, start, end }: any) => {
+    const task = event.resource as Task;
+    if (!task) return;
+
+    try {
+        await updateTaskMutation.mutateAsync({
+            taskId: task.id,
+            data: {
+                scheduledDate: start.toISOString(),
+                scheduledTime: format(start, 'HH:mm'),
+                scheduledEndTime: format(end, 'HH:mm'),
+                isTimeBlocked: true
+            }
+        });
+    } catch (error) {
+        console.error("Failed to resize task", error);
     }
   };
 
@@ -255,6 +312,7 @@ export function TaskCalendar() {
         }}
         onEventDrop={onEventDrop}
         onSelectEvent={handleSelectEvent}
+        onDropFromOutside={onDropFromOutside}
         resizable
         selectable
       />

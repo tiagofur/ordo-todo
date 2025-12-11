@@ -88,4 +88,7 @@ export const queryKeys = {
   todayHabits: ['habits', 'today'] as const,
   habit: (id: string) => ['habits', id] as const,
   habitStats: (id: string) => ['habits', id, 'stats'] as const,
+
+  // ============ Time Blocking ============
+  timeBlocks: (start?: string, end?: string) => ['time-blocks', start, end] as const,
 } as const;

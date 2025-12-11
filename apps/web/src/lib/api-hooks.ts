@@ -110,6 +110,9 @@ export const queryKeys = {
   taskDurationPrediction: (params?: { title?: string; description?: string; category?: string; priority?: string }) =>
     ['ai', 'predict-duration', params] as const,
 
+  // Time Blocking
+  timeBlocks: (start?: string, end?: string) => ['time-blocks', start, end] as const,
+
   // AI Reports
   reports: (params?: { scope?: string; limit?: number; offset?: number }) => ['ai', 'reports', params] as const,
   report: (id: string) => ['ai', 'reports', id] as const,
@@ -548,6 +551,23 @@ export function useTasks(projectId?: string, tags?: string[], options?: { assign
   });
 }
 
+export function useAvailableTasks(projectId?: string) {
+  return useQuery({
+    queryKey: ['tasks', 'available', projectId],
+    queryFn: () => apiClient.getAvailableTasks(projectId),
+  });
+}
+
+export function useTimeBlocks(start?: Date | string, end?: Date | string) {
+  return useQuery({
+    queryKey: queryKeys.timeBlocks(
+      start instanceof Date ? start.toISOString() : start,
+      end instanceof Date ? end.toISOString() : end
+    ),
+    queryFn: () => apiClient.getTimeBlocks(start, end),
+  });
+}
+
 // Helper to invalidate all task queries
 export const invalidateAllTasks = (queryClient: any) => {
   // Invalidate all queries that start with 'tasks'
@@ -624,6 +644,7 @@ export function useUpdateTask() {
       queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
       // Invalidate ALL task queries (with any projectId or tags)
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
     },
   });
 }

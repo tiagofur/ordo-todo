@@ -569,6 +569,7 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
       },
     });
   }
@@ -1168,6 +1169,22 @@ export function createHooks(config: CreateHooksConfig) {
     queryClient.invalidateQueries({ queryKey: ['tasks'] });
   }
 
+  function useTimeBlocks(start?: Date | string, end?: Date | string) {
+    return useQuery({
+      queryKey: queryKeys.timeBlocks(
+        start instanceof Date ? start.toISOString() : start,
+        end instanceof Date ? end.toISOString() : end
+      ),
+      queryFn: () => {
+        if (!apiClient.getTimeBlocks) {
+          throw new Error('getTimeBlocks not implemented in API client');
+        }
+        return apiClient.getTimeBlocks(start, end);
+      },
+      enabled: !!apiClient.getTimeBlocks,
+    });
+  }
+
   // ============ HABIT HOOKS ============
 
   function useHabits(includeArchived?: boolean) {
@@ -1414,6 +1431,9 @@ export function createHooks(config: CreateHooksConfig) {
     useUnreadNotificationsCount,
     useMarkNotificationAsRead,
     useMarkAllNotificationsAsRead,
+
+    // Time Blocking
+    useTimeBlocks,
 
     // Habits
     useHabits,

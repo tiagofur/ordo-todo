@@ -73,6 +73,9 @@ export type ApiClient = OrdoApiClient | {
   generatePublicToken?: (taskId: string) => Promise<unknown>;
   getTaskByPublicToken?: (token: string) => Promise<unknown>;
 
+  // Time Blocking
+  getTimeBlocks?: OrdoApiClient['getTimeBlocks'];
+
   // Tag
   getTags: OrdoApiClient['getTags'];
   getTaskTags: OrdoApiClient['getTaskTags'];
