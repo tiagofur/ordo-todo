@@ -504,9 +504,13 @@ model Task {
   priority Priority   @default(MEDIUM)
 
   // Scheduling
-  dueDate     DateTime?
-  startDate   DateTime?
-  completedAt DateTime?
+  dueDate       DateTime?
+  startDate     DateTime?
+  scheduledDate DateTime?  // When the task is scheduled to be worked on
+  scheduledTime String?    // Time of day scheduled (e.g., "14:30")
+  scheduledEndTime String? // End time for time block (e.g., "16:00")
+  isTimeBlocked Boolean    @default(false) // Whether task is time blocked in calendar
+  completedAt   DateTime?
 
   // Time Tracking
   estimatedMinutes Int?
@@ -567,6 +571,7 @@ model Task {
   @@index([status])
   @@index([dueDate])
   @@index([priority])
+  @@index([scheduledDate])
 }
 
 enum TaskStatus {

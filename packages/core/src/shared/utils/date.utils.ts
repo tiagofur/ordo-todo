@@ -168,3 +168,132 @@ export function addMinutes(date: Date | string, minutes: number): Date {
     d.setMinutes(d.getMinutes() + minutes);
     return d;
 }
+
+// ============ SMART DATES UTILITIES ============
+
+/**
+ * Get the start of today
+ */
+export function startOfToday(): Date {
+    return startOfDay(new Date());
+}
+
+/**
+ * Check if date1 is before date2
+ */
+export function isBefore(date1: Date | string, date2: Date | string): boolean {
+    const d1 = typeof date1 === "string" ? new Date(date1) : date1;
+    const d2 = typeof date2 === "string" ? new Date(date2) : date2;
+    return d1.getTime() < d2.getTime();
+}
+
+/**
+ * Check if date1 is after date2
+ */
+export function isAfter(date1: Date | string, date2: Date | string): boolean {
+    const d1 = typeof date1 === "string" ? new Date(date1) : date1;
+    const d2 = typeof date2 === "string" ? new Date(date2) : date2;
+    return d1.getTime() > d2.getTime();
+}
+
+/**
+ * Check if a task is available to work on (startDate <= today or no startDate)
+ */
+export function isTaskAvailable(task: { startDate?: Date | string | null }): boolean {
+    if (!task.startDate) return true;
+    const startDate = typeof task.startDate === "string" ? new Date(task.startDate) : task.startDate;
+    return startDate <= new Date();
+}
+
+/**
+ * Check if a task is scheduled for today
+ */
+export function isScheduledForToday(task: { scheduledDate?: Date | string | null }): boolean {
+    if (!task.scheduledDate) return false;
+    return isToday(task.scheduledDate);
+}
+
+/**
+ * Check if a task is due today
+ */
+export function isDueToday(task: { dueDate?: Date | string | null }): boolean {
+    if (!task.dueDate) return false;
+    return isToday(task.dueDate);
+}
+
+/**
+ * Task interface for categorization
+ */
+interface TaskForCategorization {
+    dueDate?: Date | string | null;
+    startDate?: Date | string | null;
+    scheduledDate?: Date | string | null;
+    status?: string;
+}
+
+/**
+ * Categorize tasks by availability and dates
+ */
+export function categorizeTasksByAvailability<T extends TaskForCategorization>(tasks: T[]): {
+    overdue: T[];
+    dueToday: T[];
+    scheduledToday: T[];
+    available: T[];
+    notYetAvailable: T[];
+} {
+    const today = startOfToday();
+
+    return {
+        overdue: tasks.filter(t =>
+            t.dueDate &&
+            isBefore(t.dueDate, today) &&
+            t.status !== 'COMPLETED'
+        ),
+        dueToday: tasks.filter(t =>
+            t.dueDate &&
+            isToday(t.dueDate)
+        ),
+        scheduledToday: tasks.filter(t =>
+            t.scheduledDate &&
+            isToday(t.scheduledDate)
+        ),
+        available: tasks.filter(t =>
+            isTaskAvailable(t) &&
+            !isScheduledForToday(t) &&
+            t.status !== 'COMPLETED'
+        ),
+        notYetAvailable: tasks.filter(t =>
+            !isTaskAvailable(t)
+        ),
+    };
+}
+
+/**
+ * Get tasks that can be worked on today (available and not blocked)
+ */
+export function getWorkableTasks<T extends TaskForCategorization>(tasks: T[]): T[] {
+    return tasks.filter(t =>
+        isTaskAvailable(t) &&
+        t.status !== 'COMPLETED' &&
+        t.status !== 'CANCELLED'
+    );
+}
+
+/**
+ * Format scheduled time for display
+ */
+export function formatScheduledDateTime(
+    scheduledDate: Date | string | null | undefined,
+    scheduledTime: string | null | undefined,
+    locale: string = "en-US"
+): string | null {
+    if (!scheduledDate) return null;
+
+    const dateStr = formatDateShort(scheduledDate, locale);
+
+    if (scheduledTime) {
+        return `${dateStr} at ${scheduledTime}`;
+    }
+
+    return dateStr;
+}

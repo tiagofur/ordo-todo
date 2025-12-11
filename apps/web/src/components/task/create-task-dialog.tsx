@@ -62,11 +62,17 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const onSubmit = async (data: CreateTaskForm) => {
     const { estimatedMinutes, ...taskData } = data;
     try {
-      await createTaskMutation.mutateAsync({
-        ...taskData,
+      // Clean up null values to undefined for CreateTaskDto compatibility
+      const cleanedData = {
+        title: taskData.title,
+        description: taskData.description || undefined,
+        priority: taskData.priority,
+        projectId: taskData.projectId,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         estimatedTime: estimatedMinutes ?? undefined,
-      });
+        recurrence: taskData.recurrence,
+      };
+      await createTaskMutation.mutateAsync(cleanedData);
       notify.success(t('toast.success'));
       reset();
       onOpenChange(false);

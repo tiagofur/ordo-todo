@@ -141,6 +141,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="calendar"
+        options={{
+          title: "Calendario",
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon name="calendar" color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="ai-chat-tab"
         options={{
             title: "AI",

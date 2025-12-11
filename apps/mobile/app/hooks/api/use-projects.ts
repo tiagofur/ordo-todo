@@ -3,12 +3,14 @@ import { apiClient } from '../../lib/api-client';
 import type { CreateProjectDto, UpdateProjectDto } from '@ordo-todo/api-client';
 
 /**
- * Hook to get projects for a workflow
+ * Hook to get projects for a workspace (or all projects)
  */
-export function useProjects(workflowId?: string) {
+export function useProjects(workspaceId?: string) {
   return useQuery({
-    queryKey: ['projects', { workflowId }],
-    queryFn: () => apiClient.getProjects(workflowId),
+    queryKey: ['projects', { workspaceId }],
+    queryFn: () => workspaceId
+      ? apiClient.getProjects(workspaceId)
+      : apiClient.getAllProjects(),
     staleTime: 1000 * 60 * 3, // 3 minutes
   });
 }

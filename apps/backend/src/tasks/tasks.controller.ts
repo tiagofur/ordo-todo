@@ -44,7 +44,7 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(CreateTaskGuard)
@@ -62,6 +62,63 @@ export class TasksController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   complete(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.complete(id, user.id);
+  }
+
+  /**
+   * Get tasks categorized for today view
+   * Returns: overdue, dueToday, scheduledToday, available, notYetAvailable
+   */
+  @Get('today')
+  findToday(@CurrentUser() user: RequestUser) {
+    return this.tasksService.findToday(user.id);
+  }
+
+  /**
+   * Get tasks scheduled for a specific date
+   */
+  @Get('scheduled')
+  findScheduled(
+    @CurrentUser() user: RequestUser,
+    @Query('date') dateStr?: string,
+  ) {
+    const date = dateStr ? new Date(dateStr) : new Date();
+    return this.tasksService.findScheduledForDate(user.id, date);
+  }
+
+  /**
+   * Get all available tasks (can be started today)
+   */
+  @Get('available')
+  findAvailable(
+    @CurrentUser() user: RequestUser,
+    @Query('projectId') projectId?: string,
+  ) {
+    return this.tasksService.findAvailable(user.id, projectId);
+  }
+
+  /**
+   * Get time-blocked tasks within a date range for calendar view
+   */
+  @Get('time-blocks')
+  findTimeBlocks(
+    @CurrentUser() user: RequestUser,
+    @Query('start') startStr?: string,
+    @Query('end') endStr?: string,
+  ) {
+    const now = new Date();
+    // Default to current week
+    const defaultStart = new Date(now);
+    defaultStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+    defaultStart.setHours(0, 0, 0, 0);
+
+    const defaultEnd = new Date(defaultStart);
+    defaultEnd.setDate(defaultStart.getDate() + 6); // End of week (Saturday)
+    defaultEnd.setHours(23, 59, 59, 999);
+
+    const start = startStr ? new Date(startStr) : defaultStart;
+    const end = endStr ? new Date(endStr) : defaultEnd;
+
+    return this.tasksService.findTimeBlocks(user.id, start, end);
   }
 
   @Get()

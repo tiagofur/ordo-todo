@@ -457,4 +457,12 @@ export const apiClient = {
   archiveConversation: (id: string) => axiosInstance.patch(`/chat/conversations/${id}/archive`).then((res) => res.data),
   deleteConversation: (id: string) => axiosInstance.delete(`/chat/conversations/${id}`).then((res) => res.data),
   getAIInsights: () => axiosInstance.get('/chat/insights').then((res) => res.data),
+
+  // Time Blocking
+  getTimeBlocks: (start?: Date | string, end?: Date | string) => {
+    const params: any = {};
+    if (start) params.start = start instanceof Date ? start.toISOString() : start;
+    if (end) params.end = end instanceof Date ? end.toISOString() : end;
+    return axiosInstance.get('/tasks/time-blocks', { params }).then((res) => res.data);
+  },
 };

@@ -9,6 +9,11 @@ export interface TaskProps extends EntityProps {
     status: TaskStatus;
     priority: TaskPriority;
     dueDate?: Date;
+    startDate?: Date;           // When task can be started
+    scheduledDate?: Date;       // When task is scheduled to be worked on
+    scheduledTime?: string;     // Time of day scheduled (e.g., "14:30")
+    isTimeBlocked?: boolean;    // Whether task is time blocked in calendar
+    completedAt?: Date;
     projectId: string;
     creatorId: string;
     assigneeId?: string | null;

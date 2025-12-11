@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../lib/api-client';
-import type { CreateWorkspaceDto, UpdateWorkspaceDto } from '@ordo-todo/api-client';
+import type { CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto } from '@ordo-todo/api-client';
 
 /**
  * Hook to get all workspaces
@@ -54,7 +54,6 @@ export function useUpdateWorkspace() {
       apiClient.updateWorkspace(id, data),
     onSuccess: (updatedWorkspace) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      queryClient.setQueryData(['workspaces', updatedWorkspace.id], updatedWorkspace);
       console.log('[useUpdateWorkspace] Workspace updated:', updatedWorkspace.id);
     },
     onError: (error: any) => {
@@ -73,7 +72,6 @@ export function useDeleteWorkspace() {
     mutationFn: (workspaceId: string) => apiClient.deleteWorkspace(workspaceId),
     onSuccess: (_, workspaceId) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      queryClient.removeQueries({ queryKey: ['workspaces', workspaceId] });
       console.log('[useDeleteWorkspace] Workspace deleted:', workspaceId);
     },
     onError: (error: any) => {
@@ -101,8 +99,8 @@ export function useAddWorkspaceMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, userId, role }: { workspaceId: string; userId: string; role: string }) =>
-      apiClient.addWorkspaceMember(workspaceId, userId, role),
+    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: AddMemberDto }) =>
+      apiClient.addWorkspaceMember(workspaceId, data),
     onSuccess: (_, { workspaceId }) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
       console.log('[useAddWorkspaceMember] Member added to workspace:', workspaceId);

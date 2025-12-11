@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../lib/api-client';
+import type { CreateAttachmentDto } from '@ordo-todo/api-client';
 
 /**
  * Hook to get attachments for a task
@@ -7,40 +8,38 @@ import { apiClient } from '../../lib/api-client';
 export function useAttachments(taskId: string) {
   return useQuery({
     queryKey: ['attachments', { taskId }],
-    queryFn: () => apiClient.getAttachments(taskId),
+    queryFn: () => apiClient.getTaskAttachments(taskId),
     enabled: !!taskId,
     staleTime: 1000 * 60 * 3, // 3 minutes
   });
 }
 
 /**
- * Hook to get a single attachment by ID
+ * Hook to get attachments for a project
  */
-export function useAttachment(attachmentId: string) {
+export function useProjectAttachments(projectId: string) {
   return useQuery({
-    queryKey: ['attachments', attachmentId],
-    queryFn: () => apiClient.getAttachment(attachmentId),
-    enabled: !!attachmentId,
+    queryKey: ['attachments', 'project', { projectId }],
+    queryFn: () => apiClient.getProjectAttachments(projectId),
+    enabled: !!projectId,
     staleTime: 1000 * 60 * 3, // 3 minutes
   });
 }
 
 /**
- * Hook to upload an attachment
- * Note: In React Native, you'll need to use FormData and handle file picking separately
+ * Hook to create an attachment
  */
-export function useUploadAttachment() {
+export function useCreateAttachment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ taskId, file }: { taskId: string; file: File }) =>
-      apiClient.uploadAttachment(taskId, file),
-    onSuccess: (newAttachment) => {
+    mutationFn: (data: CreateAttachmentDto) => apiClient.createAttachment(data),
+    onSuccess: (newAttachment, variables) => {
       queryClient.invalidateQueries({ queryKey: ['attachments'] });
-      console.log('[useUploadAttachment] Attachment uploaded:', newAttachment.id);
+      console.log('[useCreateAttachment] Attachment created:', newAttachment.id);
     },
     onError: (error: any) => {
-      console.error('[useUploadAttachment] Failed to upload attachment:', error.message);
+      console.error('[useCreateAttachment] Failed to create attachment:', error.message);
     },
   });
 }
@@ -55,7 +54,6 @@ export function useDeleteAttachment() {
     mutationFn: (attachmentId: string) => apiClient.deleteAttachment(attachmentId),
     onSuccess: (_, attachmentId) => {
       queryClient.invalidateQueries({ queryKey: ['attachments'] });
-      queryClient.removeQueries({ queryKey: ['attachments', attachmentId] });
       console.log('[useDeleteAttachment] Attachment deleted:', attachmentId);
     },
     onError: (error: any) => {

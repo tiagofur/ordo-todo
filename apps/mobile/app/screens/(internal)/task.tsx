@@ -43,7 +43,15 @@ export default function TaskScreen() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("MEDIUM");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [scheduledTime, setScheduledTime] = useState<string>("");
+  const [scheduledEndTime, setScheduledEndTime] = useState<string>("");
+  const [isTimeBlocked, setIsTimeBlocked] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [activeTimeField, setActiveTimeField] = useState<'start' | 'end'>('start');
+  const [activeDateField, setActiveDateField] = useState<'due' | 'start' | 'scheduled'>('due');
 
   useEffect(() => {
     if (existingTask) {
@@ -53,6 +61,15 @@ export default function TaskScreen() {
       if (existingTask.dueDate) {
         setDueDate(new Date(existingTask.dueDate));
       }
+      if (existingTask.startDate) {
+        setStartDate(new Date(existingTask.startDate));
+      }
+      if (existingTask.scheduledDate) {
+        setScheduledDate(new Date(existingTask.scheduledDate));
+      }
+      setScheduledTime((existingTask as any).scheduledTime || "");
+      setScheduledEndTime((existingTask as any).scheduledEndTime || "");
+      setIsTimeBlocked(existingTask.isTimeBlocked || false);
     }
   }, [existingTask]);
 
@@ -87,6 +104,11 @@ export default function TaskScreen() {
             description,
             priority: priority as any,
             dueDate: dueDate ? dueDate.toISOString() : undefined,
+            startDate: startDate ? startDate.toISOString() : undefined,
+            scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined,
+            scheduledTime: scheduledTime || null,
+            scheduledEndTime: scheduledEndTime || null,
+            isTimeBlocked,
           },
         });
       } else {
@@ -100,6 +122,8 @@ export default function TaskScreen() {
           description,
           priority: priority as any,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
+          startDate: startDate ? startDate.toISOString() : undefined,
+          scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined,
           projectId: targetProjectId,
         });
       }
@@ -113,8 +137,53 @@ export default function TaskScreen() {
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
-      setDueDate(selectedDate);
+      switch (activeDateField) {
+        case 'due':
+          setDueDate(selectedDate);
+          break;
+        case 'start':
+          setStartDate(selectedDate);
+          break;
+        case 'scheduled':
+          setScheduledDate(selectedDate);
+          break;
+      }
     }
+  };
+
+  const openDatePicker = (field: 'due' | 'start' | 'scheduled') => {
+    setActiveDateField(field);
+    setShowDatePicker(true);
+  };
+
+  const openTimePicker = (field: 'start' | 'end') => {
+    setActiveTimeField(field);
+    setShowTimePicker(true);
+  };
+
+  const onTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(Platform.OS === 'ios');
+    if (selectedTime) {
+      const timeString = selectedTime.toLocaleTimeString('es', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+      if (activeTimeField === 'start') {
+        setScheduledTime(timeString);
+      } else {
+        setScheduledEndTime(timeString);
+      }
+    }
+  };
+
+  const parseTimeToDate = (timeStr: string): Date => {
+    const date = new Date();
+    if (timeStr) {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      date.setHours(hours, minutes, 0, 0);
+    }
+    return date;
   };
 
   return (
@@ -190,10 +259,10 @@ export default function TaskScreen() {
         <View style={styles.formGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Fecha de Vencimiento</Text>
           <Pressable
-            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: colors.border }]}
-            onPress={() => setShowDatePicker(true)}
+            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: '#F97316' }]}
+            onPress={() => openDatePicker('due')}
           >
-            <Feather name="calendar" size={20} color={colors.primary} />
+            <Feather name="calendar" size={20} color="#F97316" />
             <Text style={[styles.dateText, { color: dueDate ? colors.text : colors.textMuted }]}>
               {dueDate ? dueDate.toLocaleDateString() : "Sin fecha límite"}
             </Text>
@@ -209,18 +278,146 @@ export default function TaskScreen() {
               </Pressable>
             )}
           </Pressable>
-          
-          {showDatePicker && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={dueDate || new Date()}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateChange}
-              minimumDate={new Date()}
-            />
-          )}
         </View>
+
+        {/* Start Date Field */}
+        <View style={styles.formGroup}>
+          <Text style={[styles.label, { color: colors.text }]}>Fecha de Inicio</Text>
+          <Pressable
+            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: '#22C55E' }]}
+            onPress={() => openDatePicker('start')}
+          >
+            <Feather name="check-square" size={20} color="#22C55E" />
+            <Text style={[styles.dateText, { color: startDate ? colors.text : colors.textMuted }]}>
+              {startDate ? startDate.toLocaleDateString() : "Disponible desde hoy"}
+            </Text>
+            {startDate && (
+              <Pressable
+                style={styles.clearDateButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  setStartDate(undefined);
+                }}
+              >
+                <Feather name="x" size={16} color={colors.textMuted} />
+              </Pressable>
+            )}
+          </Pressable>
+        </View>
+
+        {/* Scheduled Date Field */}
+        <View style={styles.formGroup}>
+          <Text style={[styles.label, { color: colors.text }]}>Programado para</Text>
+          <Pressable
+            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: '#3B82F6' }]}
+            onPress={() => openDatePicker('scheduled')}
+          >
+            <Feather name="clock" size={20} color="#3B82F6" />
+            <Text style={[styles.dateText, { color: scheduledDate ? colors.text : colors.textMuted }]}>
+              {scheduledDate ? scheduledDate.toLocaleDateString() : "Sin fecha programada"}
+            </Text>
+            {scheduledDate && (
+              <Pressable
+                style={styles.clearDateButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  setScheduledDate(undefined);
+                }}
+              >
+                <Feather name="x" size={16} color={colors.textMuted} />
+              </Pressable>
+            )}
+          </Pressable>
+        </View>
+
+        {/* Time Blocking Section - Only shown when scheduledDate is set */}
+        {scheduledDate && (
+          <View style={[styles.formGroup, styles.timeBlockSection]}>
+            <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+              ⏰ Time Blocking
+            </Text>
+            
+            {/* Time Pickers Row */}
+            <View style={styles.timePickersRow}>
+              {/* Start Time */}
+              <View style={styles.timePickerContainer}>
+                <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>Hora inicio</Text>
+                <Pressable
+                  style={[styles.timeButton, { backgroundColor: colors.card, borderColor: colors.primary }]}
+                  onPress={() => openTimePicker('start')}
+                >
+                  <Feather name="clock" size={16} color={colors.primary} />
+                  <Text style={[styles.timeText, { color: scheduledTime ? colors.text : colors.textMuted }]}>
+                    {scheduledTime || "00:00"}
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* End Time */}
+              <View style={styles.timePickerContainer}>
+                <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>Hora fin</Text>
+                <Pressable
+                  style={[styles.timeButton, { backgroundColor: colors.card, borderColor: '#8B5CF6' }]}
+                  onPress={() => openTimePicker('end')}
+                >
+                  <Feather name="clock" size={16} color="#8B5CF6" />
+                  <Text style={[styles.timeText, { color: scheduledEndTime ? colors.text : colors.textMuted }]}>
+                    {scheduledEndTime || "00:00"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Time Block Toggle */}
+            <View style={[styles.toggleContainer, { backgroundColor: colors.card, borderColor: isTimeBlocked ? colors.primary : colors.border }]}>
+              <View style={styles.toggleInfo}>
+                <Feather name="calendar" size={20} color={isTimeBlocked ? colors.primary : colors.textMuted} />
+                <View style={styles.toggleTextContainer}>
+                  <Text style={[styles.toggleTitle, { color: colors.text }]}>Bloque de tiempo</Text>
+                  <Text style={[styles.toggleDescription, { color: colors.textMuted }]}>
+                    Mostrar en el calendario semanal
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                style={[
+                  styles.toggleSwitch,
+                  { backgroundColor: isTimeBlocked ? colors.primary : colors.border }
+                ]}
+                onPress={() => setIsTimeBlocked(!isTimeBlocked)}
+              >
+                <View style={[
+                  styles.toggleThumb,
+                  { 
+                    backgroundColor: '#FFFFFF',
+                    transform: [{ translateX: isTimeBlocked ? 20 : 0 }]
+                  }
+                ]} />
+              </Pressable>
+            </View>
+          </View>
+        )}
+          
+        {showDatePicker && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={(activeDateField === 'due' ? dueDate : activeDateField === 'start' ? startDate : scheduledDate) || new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onDateChange}
+          />
+        )}
+
+        {showTimePicker && (
+          <DateTimePicker
+            testID="timePicker"
+            value={parseTimeToDate(activeTimeField === 'start' ? scheduledTime : scheduledEndTime)}
+            mode="time"
+            is24Hour={true}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onTimeChange}
+          />
+        )}
 
         <View style={styles.footer}>
           <CustomButton
@@ -312,5 +509,78 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  // Time Blocking styles
+  timeBlockSection: {
+    backgroundColor: 'transparent',
+    paddingTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 16,
+  },
+  timePickersRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  timePickerContainer: {
+    flex: 1,
+  },
+  timeLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  timeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+  },
+  timeText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  toggleInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  toggleTextContainer: {
+    flex: 1,
+  },
+  toggleTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  toggleDescription: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  toggleSwitch: {
+    width: 50,
+    height: 30,
+    borderRadius: 15,
+    padding: 3,
+    justifyContent: "center",
+  },
+  toggleThumb: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
 });

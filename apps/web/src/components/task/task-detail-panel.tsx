@@ -78,6 +78,11 @@ export function TaskDetailPanel({
     status: "TODO",
     priority: "MEDIUM",
     dueDate: "",
+    startDate: "",
+    scheduledDate: "",
+    scheduledTime: "",
+    scheduledEndTime: "",
+    isTimeBlocked: false,
     estimatedTime: "",
   });
 
@@ -90,6 +95,11 @@ export function TaskDetailPanel({
         status: task.status || "TODO",
         priority: task.priority || "MEDIUM",
         dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+        startDate: task.startDate ? new Date(task.startDate).toISOString().split("T")[0] : "",
+        scheduledDate: task.scheduledDate ? new Date(task.scheduledDate).toISOString().split("T")[0] : "",
+        scheduledTime: task.scheduledTime || "",
+        scheduledEndTime: (task as any).scheduledEndTime || "",
+        isTimeBlocked: task.isTimeBlocked || false,
         estimatedTime: task.estimatedTime?.toString() || "",
       });
     }
@@ -518,7 +528,7 @@ export function TaskDetailPanel({
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">{t('details.dueDate')}</Label>
                           <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
-                            <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                            <Calendar className="w-4 h-4 text-orange-500 flex-shrink-0" />
                             <Input
                               type="date"
                               value={formData.dueDate}
@@ -532,6 +542,101 @@ export function TaskDetailPanel({
                                 }
                               }}
                               className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Start Date - When task can be started */}
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground">{t('details.startDate') || 'Start Date'}</Label>
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                            <CheckSquare className="w-4 h-4 text-green-500 flex-shrink-0" />
+                            <Input
+                              type="date"
+                              value={formData.startDate}
+                              onChange={(e) => {
+                                handleFieldChange("startDate", e.target.value);
+                                if (!isEditing) {
+                                  updateTask.mutate({ 
+                                    taskId, 
+                                    data: { startDate: e.target.value ? new Date(e.target.value) : undefined }
+                                  });
+                                }
+                              }}
+                              className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Scheduled Date & Time - When task is planned */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs font-medium text-muted-foreground">{t('details.scheduledDate') || 'Scheduled'}</Label>
+                            {/* Time Block Toggle */}
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <span className="text-xs text-muted-foreground">📅 Time Block</span>
+                              <input
+                                type="checkbox"
+                                checked={formData.isTimeBlocked}
+                                onChange={(e) => {
+                                  handleFieldChange("isTimeBlocked", e.target.checked);
+                                  if (!isEditing) {
+                                    updateTask.mutate({ 
+                                      taskId, 
+                                      data: { isTimeBlocked: e.target.checked }
+                                    });
+                                  }
+                                }}
+                                className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                              />
+                            </label>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                            <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            <Input
+                              type="date"
+                              value={formData.scheduledDate}
+                              onChange={(e) => {
+                                handleFieldChange("scheduledDate", e.target.value);
+                                if (!isEditing) {
+                                  updateTask.mutate({ 
+                                    taskId, 
+                                    data: { scheduledDate: e.target.value ? new Date(e.target.value) : undefined }
+                                  });
+                                }
+                              }}
+                              className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 flex-1"
+                            />
+                            <Input
+                              type="time"
+                              value={formData.scheduledTime}
+                              onChange={(e) => {
+                                handleFieldChange("scheduledTime", e.target.value);
+                                if (!isEditing) {
+                                  updateTask.mutate({ 
+                                    taskId, 
+                                    data: { scheduledTime: e.target.value || null }
+                                  });
+                                }
+                              }}
+                              placeholder="Start"
+                              className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 w-16"
+                            />
+                            <span className="text-muted-foreground text-xs">-</span>
+                            <Input
+                              type="time"
+                              value={formData.scheduledEndTime}
+                              onChange={(e) => {
+                                handleFieldChange("scheduledEndTime", e.target.value);
+                                if (!isEditing) {
+                                  updateTask.mutate({ 
+                                    taskId, 
+                                    data: { scheduledEndTime: e.target.value || null }
+                                  });
+                                }
+                              }}
+                              placeholder="End"
+                              className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 w-16"
                             />
                           </div>
                         </div>

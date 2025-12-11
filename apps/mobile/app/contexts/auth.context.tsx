@@ -1,10 +1,10 @@
 import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useCurrentUser, useLogin, useRegister, useLogout } from '../hooks/api';
-import type { User, LoginDto, RegisterDto } from '@ordo-todo/api-client';
+import type { UserResponse, LoginDto, RegisterDto } from '@ordo-todo/api-client';
 import { useRouter } from 'expo-router';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserResponse | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (data: LoginDto) => Promise<void>;

@@ -16,6 +16,11 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: Date | null;
+  startDate: Date | null;
+  scheduledDate: Date | null;
+  scheduledTime: string | null;
+  scheduledEndTime: string | null;
+  isTimeBlocked: boolean;
   completedAt: Date | null;
   estimatedTime: number | null;
   actualTime: number | null;
@@ -64,6 +69,11 @@ export interface CreateTaskDto {
   description?: string;
   priority?: TaskPriority;
   dueDate?: Date | string;
+  startDate?: Date | string;
+  scheduledDate?: Date | string;
+  scheduledTime?: string;
+  scheduledEndTime?: string;
+  isTimeBlocked?: boolean;
   projectId: string;
   estimatedTime?: number;
 }
@@ -74,6 +84,11 @@ export interface UpdateTaskDto {
   status?: TaskStatus;
   priority?: TaskPriority;
   dueDate?: Date | string | null;
+  startDate?: Date | string | null;
+  scheduledDate?: Date | string | null;
+  scheduledTime?: string | null;
+  scheduledEndTime?: string | null;
+  isTimeBlocked?: boolean;
   estimatedTime?: number;
   assigneeId?: string | null;
 }
@@ -125,3 +140,37 @@ export interface PublicTaskResponse {
   }>;
 }
 
+/**
+ * Response from GET /tasks/today - categorized tasks for today view
+ */
+export interface TodayTasksResponse {
+  overdue: Task[];
+  dueToday: Task[];
+  scheduledToday: Task[];
+  available: Task[];
+  notYetAvailable: Task[];
+}
+
+/**
+ * Time block for calendar view - represents a scheduled time slot
+ */
+export interface TimeBlock {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  scheduledDate: Date | null;
+  scheduledTime: string | null;
+  scheduledEndTime: string | null;
+  estimatedTime: number | null;
+  project: {
+    id: string;
+    name: string;
+    color: string;
+  } | null;
+  tags: Array<{
+    id: string;
+    name: string;
+    color: string;
+  }>;
+}

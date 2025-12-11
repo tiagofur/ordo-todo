@@ -1,10 +1,16 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { TaskCalendar } from "@/components/calendar/task-calendar";
+import { WeeklyTimeBlocks } from "@/components/calendar/weekly-time-blocks";
 import { PageTransition, SlideIn } from "@/components/motion";
+import { Button } from "@/components/ui/button";
+
+type CalendarView = "timeblocks" | "monthly";
 
 export function Calendar() {
   const { t } = useTranslation();
+  const [view, setView] = useState<CalendarView>("timeblocks");
 
   // Accent color (blue for calendar)
   const accentColor = "#3b82f6"; // Blue-500
@@ -32,12 +38,34 @@ export function Calendar() {
                 {t("Calendar.subtitle") || "Visualiza y organiza tus tareas en el tiempo"}
               </p>
             </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+              <Button
+                variant={view === "timeblocks" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setView("timeblocks")}
+                className="gap-2"
+              >
+                <Clock className="h-4 w-4" />
+                Time Blocking
+              </Button>
+              <Button
+                variant={view === "monthly" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setView("monthly")}
+                className="gap-2"
+              >
+                <CalendarIcon className="h-4 w-4" />
+                Mensual
+              </Button>
+            </div>
           </div>
         </SlideIn>
 
         {/* Calendar Container */}
         <div className="flex-1 min-h-0 border rounded-xl bg-card shadow-sm overflow-hidden">
-          <TaskCalendar />
+          {view === "monthly" ? <TaskCalendar /> : <WeeklyTimeBlocks />}
         </div>
       </div>
     </PageTransition>

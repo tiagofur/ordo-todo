@@ -41,6 +41,8 @@ import type {
   TaskDetails,
   TaskShareResponse,
   PublicTaskResponse,
+  TodayTasksResponse,
+  TimeBlock,
   CreateTaskDto,
   UpdateTaskDto,
   CreateSubtaskDto,
@@ -624,6 +626,52 @@ export class OrdoApiClient {
     const response = await this.axios.get<Task[]>('/tasks', {
       params,
     });
+    return response.data;
+  }
+
+  /**
+   * Get tasks categorized for today view
+   * GET /tasks/today
+   * Returns: overdue, dueToday, scheduledToday, available, notYetAvailable
+   */
+  async getTasksToday(): Promise<TodayTasksResponse> {
+    const response = await this.axios.get<TodayTasksResponse>('/tasks/today');
+    return response.data;
+  }
+
+  /**
+   * Get tasks scheduled for a specific date
+   * GET /tasks/scheduled?date=xxx
+   */
+  async getScheduledTasks(date?: Date | string): Promise<Task[]> {
+    const params: any = {};
+    if (date) {
+      params.date = typeof date === 'string' ? date : date.toISOString();
+    }
+    const response = await this.axios.get<Task[]>('/tasks/scheduled', { params });
+    return response.data;
+  }
+
+  /**
+   * Get all available tasks (can be started today)
+   * GET /tasks/available?projectId=xxx
+   */
+  async getAvailableTasks(projectId?: string): Promise<Task[]> {
+    const params: any = {};
+    if (projectId) params.projectId = projectId;
+    const response = await this.axios.get<Task[]>('/tasks/available', { params });
+    return response.data;
+  }
+
+  /**
+   * Get time-blocked tasks within a date range for calendar view
+   * GET /tasks/time-blocks?start=xxx&end=xxx
+   */
+  async getTimeBlocks(start?: Date | string, end?: Date | string): Promise<TimeBlock[]> {
+    const params: any = {};
+    if (start) params.start = start instanceof Date ? start.toISOString() : start;
+    if (end) params.end = end instanceof Date ? end.toISOString() : end;
+    const response = await this.axios.get<TimeBlock[]>('/tasks/time-blocks', { params });
     return response.data;
   }
 

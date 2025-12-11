@@ -15,18 +15,6 @@ export function useWorkflows(workspaceId: string) {
 }
 
 /**
- * Hook to get a single workflow by ID
- */
-export function useWorkflow(workflowId: string) {
-  return useQuery({
-    queryKey: ['workflows', workflowId],
-    queryFn: () => apiClient.getWorkflow(workflowId),
-    enabled: !!workflowId,
-    staleTime: 1000 * 60 * 3, // 3 minutes
-  });
-}
-
-/**
  * Hook to create a new workflow
  */
 export function useCreateWorkflow() {
@@ -55,7 +43,6 @@ export function useUpdateWorkflow() {
       apiClient.updateWorkflow(id, data),
     onSuccess: (updatedWorkflow) => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
-      queryClient.setQueryData(['workflows', updatedWorkflow.id], updatedWorkflow);
       console.log('[useUpdateWorkflow] Workflow updated:', updatedWorkflow.id);
     },
     onError: (error: any) => {
@@ -74,7 +61,6 @@ export function useDeleteWorkflow() {
     mutationFn: (workflowId: string) => apiClient.deleteWorkflow(workflowId),
     onSuccess: (_, workflowId) => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
-      queryClient.removeQueries({ queryKey: ['workflows', workflowId] });
       console.log('[useDeleteWorkflow] Workflow deleted:', workflowId);
     },
     onError: (error: any) => {

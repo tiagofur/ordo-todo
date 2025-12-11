@@ -17,7 +17,7 @@ interface UserAvatarProps {
 }
 
 // Conjunto de gradientes vibrantes para avatares
-const AVATAR_GRADIENTS = [
+const AVATAR_GRADIENTS: readonly [string, string][] = [
   ["#667EEA", "#9F7AEA"], // Purple
   ["#48BB78", "#38A169"], // Green
   ["#ED8936", "#F6AD55"], // Orange

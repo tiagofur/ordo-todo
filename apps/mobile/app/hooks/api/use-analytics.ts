@@ -2,49 +2,49 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../lib/api-client';
 
 /**
- * Hook to get daily metrics for a user
+ * Hook to get daily metrics
+ * Uses the shared API client with proper GetDailyMetricsParams
  */
-export function useDailyMetrics(userId: string, startDate?: Date, endDate?: Date) {
+export function useDailyMetrics(startDate?: Date, endDate?: Date) {
   return useQuery({
-    queryKey: ['analytics', 'daily-metrics', { userId, startDate, endDate }],
-    queryFn: () => apiClient.getDailyMetrics(userId, startDate, endDate),
-    enabled: !!userId,
+    queryKey: ['analytics', 'daily-metrics', { startDate, endDate }],
+    queryFn: () => apiClient.getDailyMetrics({
+      startDate: startDate?.toISOString().split('T')[0],
+      endDate: endDate?.toISOString().split('T')[0],
+    }),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 /**
- * Hook to get productivity summary for a user
+ * Hook to get dashboard stats
  */
-export function useProductivitySummary(userId: string, period: 'week' | 'month' | 'year' = 'week') {
+export function useDashboardStats() {
   return useQuery({
-    queryKey: ['analytics', 'productivity-summary', { userId, period }],
-    queryFn: () => apiClient.getProductivitySummary(userId, period),
-    enabled: !!userId,
+    queryKey: ['analytics', 'dashboard-stats'],
+    queryFn: () => apiClient.getDashboardStats(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 /**
- * Hook to get task completion stats
+ * Hook to get weekly metrics
  */
-export function useTaskCompletionStats(userId: string, workspaceId?: string) {
+export function useWeeklyMetrics() {
   return useQuery({
-    queryKey: ['analytics', 'task-completion', { userId, workspaceId }],
-    queryFn: () => apiClient.getTaskCompletionStats(userId, workspaceId),
-    enabled: !!userId,
+    queryKey: ['analytics', 'weekly-metrics'],
+    queryFn: () => apiClient.getWeeklyMetrics(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 /**
- * Hook to get time tracking summary
+ * Hook to get heatmap data
  */
-export function useTimeTrackingSummary(userId: string, startDate?: Date, endDate?: Date) {
+export function useHeatmapData() {
   return useQuery({
-    queryKey: ['analytics', 'time-tracking', { userId, startDate, endDate }],
-    queryFn: () => apiClient.getTimeTrackingSummary(userId, startDate, endDate),
-    enabled: !!userId,
-    staleTime: 1000 * 60 * 3, // 3 minutes
+    queryKey: ['analytics', 'heatmap-data'],
+    queryFn: () => apiClient.getHeatmapData(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

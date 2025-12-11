@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo } from "lucide-react";
+import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo, CalendarClock, CalendarCheck } from "lucide-react";
 import { useUpdateTask, useTask } from "@/hooks/api/use-tasks";
 import {
   cn,
@@ -25,6 +25,10 @@ interface TaskCardProps {
     status: string;
     priority: string;
     dueDate?: Date | string | null;
+    startDate?: Date | string | null;
+    scheduledDate?: Date | string | null;
+    scheduledTime?: string | null;
+    isTimeBlocked?: boolean;
     tags?: any[];
     project?: { id: string; name: string; color: string };
     subTasks?: Array<{
@@ -195,15 +199,33 @@ export function TaskCard({ task: initialTask, isSelected, onOpenDetail, index = 
 
               <div className="pt-3 border-t border-dashed border-border/50">
                 <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-3 text-muted-foreground">
+                  <div className="flex items-center gap-3 text-muted-foreground flex-wrap">
                     <div className={cn("flex items-center gap-1.5", priority.color)}>
                       <Flag className="h-3.5 w-3.5" />
                       <span>{priority.label}</span>
                     </div>
+                    {/* Scheduled Date Badge */}
+                    {task.scheduledDate && (
+                      <div className="flex items-center gap-1.5 text-blue-500">
+                        <CalendarClock className="h-3.5 w-3.5" />
+                        <span>
+                          {formatDueDate(task.scheduledDate)}
+                          {task.scheduledTime && ` ${task.scheduledTime}`}
+                        </span>
+                      </div>
+                    )}
+                    {/* Due Date Badge */}
                     {task.dueDate && (
-                      <div className={cn("flex items-center gap-1.5", isOverdue ? "text-red-500" : "")}>
+                      <div className={cn("flex items-center gap-1.5", isOverdue ? "text-red-500" : "text-orange-500")}>
                         <Calendar className="h-3.5 w-3.5" />
                         <span>{formatDueDate(task.dueDate)}</span>
+                      </div>
+                    )}
+                    {/* Start Date Badge - only show if not yet available */}
+                    {task.startDate && new Date(task.startDate) > new Date() && (
+                      <div className="flex items-center gap-1.5 text-gray-400">
+                        <CalendarCheck className="h-3.5 w-3.5" />
+                        <span>{formatDueDate(task.startDate)}</span>
                       </div>
                     )}
                   </div>

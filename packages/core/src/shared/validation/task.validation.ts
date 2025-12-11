@@ -23,6 +23,10 @@ export const taskBaseSchema = z.object({
     priority: z.enum(PRIORITY_VALUES),
     status: z.enum(TASK_STATUS_VALUES).optional(),
     dueDate: z.string().optional().nullable(),
+    startDate: z.string().optional().nullable(),
+    scheduledDate: z.string().optional().nullable(),
+    scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, "Time must be in HH:mm format").optional().nullable(),
+    isTimeBlocked: z.boolean().optional(),
     estimatedMinutes: z
         .union([
             z.number()
@@ -35,6 +39,27 @@ export const taskBaseSchema = z.object({
         .nullable()
         .transform((val) => (Number.isNaN(val) ? undefined : val)),
 });
+
+/**
+ * Validation for date relationships
+ */
+export const taskDatesSchema = taskBaseSchema.refine(
+    (data) => {
+        if (data.startDate && data.dueDate) {
+            return new Date(data.startDate) <= new Date(data.dueDate);
+        }
+        return true;
+    },
+    { message: "Start date must be before or equal to due date", path: ["startDate"] }
+).refine(
+    (data) => {
+        if (data.scheduledDate && data.dueDate) {
+            return new Date(data.scheduledDate) <= new Date(data.dueDate);
+        }
+        return true;
+    },
+    { message: "Scheduled date must be before or equal to due date", path: ["scheduledDate"] }
+);
 
 /**
  * Create task schema

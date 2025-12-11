@@ -5,9 +5,8 @@ import { Platform } from 'react-native';
 export interface PushNotificationPayload {
     title: string;
     body: string;
-    data?: any;
+    data?: Record<string, unknown>;
     sound?: boolean;
-    priority?: 'default' | 'high' | 'low' | 'min' | 'max';
 }
 
 Notifications.setNotificationHandler({
@@ -15,14 +14,16 @@ Notifications.setNotificationHandler({
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
     }),
 });
 
 export function usePushNotifications() {
     const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
     const [notification, setNotification] = useState<Notifications.Notification | null>(null);
-    const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
-    const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
+    const notificationListener = useRef<Notifications.EventSubscription | undefined>(undefined);
+    const responseListener = useRef<Notifications.EventSubscription | undefined>(undefined);
 
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => {
@@ -50,10 +51,10 @@ export function usePushNotifications() {
 
         return () => {
             if (notificationListener.current) {
-                Notifications.removeNotificationSubscription(notificationListener.current);
+                notificationListener.current.remove();
             }
             if (responseListener.current) {
-                Notifications.removeNotificationSubscription(responseListener.current);
+                responseListener.current.remove();
             }
         };
     }, []);
@@ -65,8 +66,7 @@ export function usePushNotifications() {
                     title: payload.title,
                     body: payload.body,
                     data: payload.data || {},
-                    sound: payload.sound !== false,
-                    priority: payload.priority || 'default',
+                    sound: payload.sound !== false ? 'default' : undefined,
                 },
                 trigger: null, // Send immediately
             });
@@ -78,7 +78,7 @@ export function usePushNotifications() {
 
     const scheduleNotification = async (
         payload: PushNotificationPayload,
-        trigger: Notifications.NotificationTrigger
+        trigger: Notifications.NotificationTriggerInput
     ) => {
         try {
             await Notifications.scheduleNotificationAsync({
@@ -86,8 +86,7 @@ export function usePushNotifications() {
                     title: payload.title,
                     body: payload.body,
                     data: payload.data || {},
-                    sound: payload.sound !== false,
-                    priority: payload.priority || 'default',
+                    sound: payload.sound !== false ? 'default' : undefined,
                 },
                 trigger,
             });
@@ -127,31 +126,23 @@ async function registerForPushNotificationsAsync() {
         });
     }
 
-    if (Platform.OS === 'ios') {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-        }
-        if (finalStatus !== 'granted') {
-            alert('Failed to get push token for push notification!');
-            return;
-        }
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+        console.log('[PushNotification] Failed to get push token - permission not granted');
+        return;
+    }
+
+    try {
         token = (await Notifications.getExpoPushTokenAsync()).data;
-    } else {
-        // For Android and web
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-        }
-        if (finalStatus !== 'granted') {
-            alert('Failed to get push token for push notification!');
-            return;
-        }
-        token = (await Notifications.getExpoPushTokenAsync()).data;
+    } catch (error) {
+        console.error('[PushNotification] Error getting push token:', error);
     }
 
     return token;

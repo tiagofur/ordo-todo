@@ -35,7 +35,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
@@ -156,6 +156,165 @@ export class TasksService {
 
     this.logger.debug(`Returning ${filteredTasks.length} main tasks`);
     return filteredTasks.map((t) => t.props);
+  }
+
+  /**
+   * Find tasks for today view - returns categorized tasks
+   * Categories: overdue, dueToday, scheduledToday, available, notYetAvailable
+   */
+  async findToday(userId: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        creatorId: userId,
+        status: { not: 'COMPLETED' },
+        parentTaskId: null, // Only main tasks
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+    });
+
+    // Categorize tasks
+    const overdue = tasks.filter(
+      (t) => t.dueDate && t.dueDate < today,
+    );
+    const dueToday = tasks.filter(
+      (t) => t.dueDate && t.dueDate >= today && t.dueDate < tomorrow,
+    );
+    const scheduledToday = tasks.filter(
+      (t) => t.scheduledDate && t.scheduledDate >= today && t.scheduledDate < tomorrow,
+    );
+    const notYetAvailable = tasks.filter(
+      (t) => t.startDate && t.startDate > today,
+    );
+    const available = tasks.filter(
+      (t) =>
+        (!t.startDate || t.startDate <= today) &&
+        (!t.scheduledDate || t.scheduledDate < today || t.scheduledDate >= tomorrow) &&
+        (!t.dueDate || t.dueDate >= tomorrow),
+    );
+
+    const formatTask = (task: typeof tasks[0]) => ({
+      ...task,
+      tags: task.tags.map((t) => t.tag),
+      estimatedTime: task.estimatedMinutes,
+    });
+
+    return {
+      overdue: overdue.map(formatTask),
+      dueToday: dueToday.map(formatTask),
+      scheduledToday: scheduledToday.map(formatTask),
+      available: available.map(formatTask),
+      notYetAvailable: notYetAvailable.map(formatTask),
+    };
+  }
+
+  /**
+   * Find tasks scheduled for a specific date
+   */
+  async findScheduledForDate(userId: string, date: Date) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        creatorId: userId,
+        scheduledDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ scheduledTime: 'asc' }, { priority: 'desc' }],
+    });
+
+    return tasks.map((task) => ({
+      ...task,
+      tags: task.tags.map((t) => t.tag),
+      estimatedTime: task.estimatedMinutes,
+    }));
+  }
+
+  /**
+   * Find all available tasks (startDate <= today or no startDate)
+   */
+  async findAvailable(userId: string, projectId?: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        creatorId: userId,
+        status: { not: 'COMPLETED' },
+        parentTaskId: null,
+        OR: [
+          { startDate: null },
+          { startDate: { lte: today } },
+        ],
+        ...(projectId ? { projectId } : {}),
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+    });
+
+    return tasks.map((task) => ({
+      ...task,
+      tags: task.tags.map((t) => t.tag),
+      estimatedTime: task.estimatedMinutes,
+    }));
+  }
+
+  /**
+   * Find time-blocked tasks within a date range for calendar view
+   */
+  async findTimeBlocks(userId: string, startDate: Date, endDate: Date) {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        creatorId: userId,
+        isTimeBlocked: true,
+        scheduledDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        scheduledTime: { not: null },
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ scheduledDate: 'asc' }, { scheduledTime: 'asc' }],
+    });
+
+    return tasks.map((task) => ({
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      scheduledDate: task.scheduledDate,
+      scheduledTime: task.scheduledTime,
+      scheduledEndTime: task.scheduledEndTime,
+      estimatedTime: task.estimatedMinutes,
+      project: task.project,
+      tags: task.tags.map((t) => t.tag),
+    }));
   }
 
   async findOne(id: string) {
