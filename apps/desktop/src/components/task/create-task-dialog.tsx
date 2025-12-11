@@ -23,6 +23,7 @@ import { parseTaskInput } from "@/utils/smart-capture";
 import { TemplateSelector } from "./template-selector";
 import { TaskTemplate } from "@/hooks/api/use-templates";
 import { VoiceInputButton } from "@/components/voice/voice-input";
+import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 
 const createTaskSchema = z.object({
   title: z.string().min(1, "El título es requerido"),
@@ -56,10 +57,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
   const [isEstimating, setIsEstimating] = useState(false);
 
-  // Fetch all projects if no projectId is provided
   const { data: projects, isLoading: isLoadingProjects } = useProjects();
   const { data: tags } = useTags();
   const { data: members } = useWorkspaceMembers(selectedWorkspaceId || "");
+
+  // Get the currently selected project ID for custom fields
+  const [watchedProjectId, setWatchedProjectId] = useState(projectId || "");
 
   const {
     register,
@@ -75,6 +78,9 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
       priority: "MEDIUM",
     },
   });
+
+  // Custom fields form state
+  const customFieldsForm = useCustomFieldForm(watchedProjectId);
 
   const handleTemplateSelect = (template: TaskTemplate) => {
     setSelectedTemplateId(template.id);
@@ -190,7 +196,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const onSubmit = async (data: CreateTaskForm) => {
     const { estimatedMinutes, ...taskData } = data;
     try {
-      await createTask.mutateAsync({
+      const createdTask = await createTask.mutateAsync({
         ...taskData,
         priority: selectedPriority,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
@@ -198,6 +204,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         // Ensure estimatedTime is an integer if present, or undefined
         estimatedTime: estimatedMinutes ? Math.round(estimatedMinutes) : undefined,
       });
+
+      // Save custom field values if any
+      if (customFieldsForm.getValuesForSubmit().length > 0 && createdTask?.id) {
+        await customFieldsForm.saveValues(createdTask.id);
+      }
+
       toast.success("Tarea creada exitosamente");
       reset();
       setSelectedTemplateId(undefined);
@@ -397,6 +409,15 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
               {/* Hidden project ID if provided */}
               {projectId && <input type="hidden" {...register("projectId")} />}
+
+              {/* Custom Fields */}
+              {watchedProjectId && (
+                <CustomFieldInputs
+                  projectId={watchedProjectId}
+                  values={customFieldsForm.values}
+                  onChange={customFieldsForm.handleChange}
+                />
+              )}
 
               <div className="flex justify-end gap-2 pt-4">
                 <button

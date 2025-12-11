@@ -18,6 +18,7 @@ import {
   FolderKanban,
   Clock,
   Paperclip,
+  Settings2,
 } from "lucide-react";
 import {
   useProject,
@@ -34,6 +35,7 @@ import { ProjectSettingsDialog } from "@/components/project/project-settings-dia
 import { ProjectBoard } from "@/components/project/project-board";
 import { ProjectTimeline } from "@/components/project/project-timeline";
 import { ProjectFiles } from "@/components/project/project-files";
+import { CustomFieldsEditor } from "@/components/project/custom-fields-editor";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -335,6 +337,10 @@ export default function ProjectDetailPage() {
               <Paperclip className="w-4 h-4" />
               {t("tabs.files")}
             </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings2 className="w-4 h-4" />
+              {t("tabs.settings") || "Settings"}
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -586,6 +592,11 @@ export default function ProjectDetailPage() {
           {/* Files Tab */}
           <TabsContent value="files">
             <ProjectFiles projectId={projectId} />
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <CustomFieldsEditor projectId={projectId} />
           </TabsContent>
         </Tabs>
       </div>

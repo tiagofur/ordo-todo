@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CollaborationGateway } from './collaboration.gateway';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { WsThrottleGuard } from '../common/guards/ws-throttle.guard';
 
 @Module({
   imports: [
@@ -14,7 +15,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [CollaborationGateway],
+  providers: [
+    CollaborationGateway,
+    {
+      provide: WsThrottleGuard,
+      useValue: new WsThrottleGuard(50, 60),
+    },
+  ],
   exports: [CollaborationGateway],
 })
 export class CollaborationModule {}

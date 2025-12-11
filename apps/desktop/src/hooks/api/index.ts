@@ -15,4 +15,6 @@ export * from './use-timers';
 export * from './use-comments';
 export * from './use-attachments';
 export * from './use-analytics';
+export * from './use-objectives';
+export * from './use-custom-fields';
 

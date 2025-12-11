@@ -87,7 +87,6 @@ export class AIDecomposeTaskDto {
   maxSubtasks?: number;
 }
 
-
 // Response types
 export interface ParsedTaskResult {
   title: string;
@@ -104,12 +103,12 @@ export interface ChatResponse {
   message: string;
   actions?: {
     type:
-    | 'CREATE_TASK'
-    | 'UPDATE_TASK'
-    | 'COMPLETE_TASK'
-    | 'LIST_TASKS'
-    | 'CREATE_PROJECT'
-    | 'NONE';
+      | 'CREATE_TASK'
+      | 'UPDATE_TASK'
+      | 'COMPLETE_TASK'
+      | 'LIST_TASKS'
+      | 'CREATE_PROJECT'
+      | 'NONE';
     data?: any;
     result?: any;
   }[];

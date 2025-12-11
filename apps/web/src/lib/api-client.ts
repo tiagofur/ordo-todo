@@ -27,8 +27,15 @@ import type {
   RefreshTokenDto,
   AuthResponse,
   // Chat
+  // Chat
   CreateConversationDto,
   SendMessageDto,
+  // Objectives
+  CreateObjectiveDto,
+  UpdateObjectiveDto,
+  CreateKeyResultDto,
+  UpdateKeyResultDto,
+  LinkTaskDto,
 } from '@ordo-todo/api-client';
 import { useSyncStore } from '@/stores/sync-store';
 import { PendingActionType } from '@/lib/offline-storage';
@@ -491,4 +498,28 @@ export const apiClient = {
     axiosInstance.patch(`/habits/${id}/pause`).then((res) => res.data),
   resumeHabit: (id: string) =>
     axiosInstance.patch(`/habits/${id}/resume`).then((res) => res.data),
+
+  // Objectives (OKRs)
+  getObjectives: () => axiosInstance.get('/objectives').then((res) => res.data),
+  getCurrentPeriodObjectives: () => axiosInstance.get('/objectives/current-period').then((res) => res.data),
+  getObjectivesDashboardSummary: () => axiosInstance.get('/objectives/dashboard/summary').then((res) => res.data),
+  getObjective: (id: string) => axiosInstance.get(`/objectives/${id}`).then((res) => res.data),
+  createObjective: (data: CreateObjectiveDto) => axiosInstance.post('/objectives', data).then((res) => res.data),
+  updateObjective: (id: string, data: UpdateObjectiveDto) => axiosInstance.put(`/objectives/${id}`, data).then((res) => res.data),
+  deleteObjective: (id: string) => axiosInstance.delete(`/objectives/${id}`).then((res) => res.data),
+
+  addKeyResult: (objectiveId: string, data: CreateKeyResultDto) => axiosInstance.post(`/objectives/${objectiveId}/key-results`, data).then((res) => res.data),
+  updateKeyResult: (objectiveId: string, keyResultId: string, data: UpdateKeyResultDto) => axiosInstance.put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data).then((res) => res.data),
+  deleteKeyResult: (objectiveId: string, keyResultId: string) => axiosInstance.delete(`/objectives/${objectiveId}/key-results/${keyResultId}`).then((res) => res.data),
+
+  linkTaskToKeyResult: (keyResultId: string, data: LinkTaskDto) => axiosInstance.post(`/objectives/key-results/${keyResultId}/tasks`, data).then((res) => res.data),
+  unlinkTaskFromKeyResult: (keyResultId: string, taskId: string) => axiosInstance.delete(`/objectives/key-results/${keyResultId}/tasks/${taskId}`).then((res) => res.data),
+
+  // Custom Fields
+  getProjectCustomFields: (projectId: string) => axiosInstance.get(`/projects/${projectId}/custom-fields`).then((res) => res.data),
+  createCustomField: (projectId: string, data: any) => axiosInstance.post(`/projects/${projectId}/custom-fields`, data).then((res) => res.data),
+  updateCustomField: (fieldId: string, data: any) => axiosInstance.patch(`/custom-fields/${fieldId}`, data).then((res) => res.data),
+  deleteCustomField: (fieldId: string) => axiosInstance.delete(`/custom-fields/${fieldId}`).then((res) => res.data),
+  getTaskCustomValues: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/custom-values`).then((res) => res.data),
+  setTaskCustomValues: (taskId: string, data: any) => axiosInstance.patch(`/tasks/${taskId}/custom-values`, data).then((res) => res.data),
 };

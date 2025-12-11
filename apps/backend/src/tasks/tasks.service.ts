@@ -35,7 +35,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
@@ -183,14 +183,15 @@ export class TasksService {
     });
 
     // Categorize tasks
-    const overdue = tasks.filter(
-      (t) => t.dueDate && t.dueDate < today,
-    );
+    const overdue = tasks.filter((t) => t.dueDate && t.dueDate < today);
     const dueToday = tasks.filter(
       (t) => t.dueDate && t.dueDate >= today && t.dueDate < tomorrow,
     );
     const scheduledToday = tasks.filter(
-      (t) => t.scheduledDate && t.scheduledDate >= today && t.scheduledDate < tomorrow,
+      (t) =>
+        t.scheduledDate &&
+        t.scheduledDate >= today &&
+        t.scheduledDate < tomorrow,
     );
     const notYetAvailable = tasks.filter(
       (t) => t.startDate && t.startDate > today,
@@ -198,11 +199,13 @@ export class TasksService {
     const available = tasks.filter(
       (t) =>
         (!t.startDate || t.startDate <= today) &&
-        (!t.scheduledDate || t.scheduledDate < today || t.scheduledDate >= tomorrow) &&
+        (!t.scheduledDate ||
+          t.scheduledDate < today ||
+          t.scheduledDate >= tomorrow) &&
         (!t.dueDate || t.dueDate >= tomorrow),
     );
 
-    const formatTask = (task: typeof tasks[0]) => ({
+    const formatTask = (task: (typeof tasks)[0]) => ({
       ...task,
       tags: task.tags.map((t) => t.tag),
       estimatedTime: task.estimatedMinutes,
@@ -261,10 +264,8 @@ export class TasksService {
         creatorId: userId,
         status: { not: 'COMPLETED' },
         parentTaskId: null,
-        OR: [
-          { startDate: null },
-          { startDate: { lte: today } },
-        ],
+        isTimeBlocked: { not: true }, // Exclude scheduled blocks
+        OR: [{ startDate: null }, { startDate: { lte: today } }],
         ...(projectId ? { projectId } : {}),
       },
       include: {

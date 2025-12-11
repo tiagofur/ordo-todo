@@ -91,4 +91,11 @@ export const queryKeys = {
 
   // ============ Time Blocking ============
   timeBlocks: (start?: string, end?: string) => ['time-blocks', start, end] as const,
+
+  // ============ Objectives (OKRs) ============
+  objectives: (options?: { status?: string; workspaceId?: string }) =>
+    ['objectives', options] as const,
+  currentPeriodObjectives: ['objectives', 'current-period'] as const,
+  objectivesDashboard: ['objectives', 'dashboard-summary'] as const,
+  objective: (id: string) => ['objectives', id] as const,
 } as const;

@@ -61,6 +61,9 @@ export const LazyHabits = lazy(() =>
   import('./Habits').then(module => ({ default: module.Habits }))
 );
 
+export const LazyGoals = lazy(() => import("./goals/Goals").then(module => ({ default: module.Goals })));
+export const LazyGoalDetails = lazy(() => import("./goals/GoalDetails").then(module => ({ default: module.GoalDetails })));
+
 export const LazyTimer = lazy(() => 
   import('./Timer').then(module => ({ default: module.Timer }))
 );
@@ -125,6 +128,7 @@ export const preloadPage = {
   dashboard: () => import('./Dashboard'),
   tasks: () => import('./Tasks'),
   habits: () => import('./Habits'),
+  goals: () => import('./goals/Goals'),
   timer: () => import('./Timer'),
   calendar: () => import('./Calendar'),
   projects: () => import('./Projects'),

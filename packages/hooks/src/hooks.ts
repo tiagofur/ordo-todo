@@ -37,6 +37,12 @@ import type {
   CreateHabitDto,
   UpdateHabitDto,
   CompleteHabitDto,
+  // Objectives
+  CreateObjectiveDto,
+  UpdateObjectiveDto,
+  CreateKeyResultDto,
+  UpdateKeyResultDto,
+  LinkTaskDto,
 } from '@ordo-todo/api-client';
 import { queryKeys } from './query-keys';
 import type { ApiClient, CreateHooksConfig } from './types';
@@ -1313,6 +1319,132 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  // ============ OBJECTIVES (OKRs) HOOKS ============
+
+  function useObjectives(options?: { status?: string; workspaceId?: string }) {
+    return useQuery({
+      queryKey: queryKeys.objectives(options),
+      queryFn: () => apiClient.getObjectives(options),
+    });
+  }
+
+  function useCurrentPeriodObjectives() {
+    return useQuery({
+      queryKey: queryKeys.currentPeriodObjectives,
+      queryFn: () => apiClient.getCurrentPeriodObjectives(),
+    });
+  }
+
+  function useObjectivesDashboard() {
+    return useQuery({
+      queryKey: queryKeys.objectivesDashboard,
+      queryFn: () => apiClient.getObjectivesDashboardSummary(),
+    });
+  }
+
+  function useObjective(objectiveId: string) {
+    return useQuery({
+      queryKey: queryKeys.objective(objectiveId),
+      queryFn: () => apiClient.getObjective(objectiveId),
+      enabled: !!objectiveId,
+    });
+  }
+
+  function useCreateObjective() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: CreateObjectiveDto) => apiClient.createObjective(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useUpdateObjective() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ objectiveId, data }: { objectiveId: string; data: UpdateObjectiveDto }) =>
+        apiClient.updateObjective(objectiveId, data),
+      onSuccess: (_, { objectiveId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useDeleteObjective() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (objectiveId: string) => apiClient.deleteObjective(objectiveId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useAddKeyResult() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ objectiveId, data }: { objectiveId: string; data: CreateKeyResultDto }) =>
+        apiClient.addKeyResult(objectiveId, data),
+      onSuccess: (_, { objectiveId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useUpdateKeyResult() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ keyResultId, data }: { keyResultId: string; data: UpdateKeyResultDto }) =>
+        apiClient.updateKeyResult(keyResultId, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useDeleteKeyResult() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (keyResultId: string) => apiClient.deleteKeyResult(keyResultId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useLinkTaskToKeyResult() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ keyResultId, data }: { keyResultId: string; data: LinkTaskDto }) =>
+        apiClient.linkTaskToKeyResult(keyResultId, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
+  function useUnlinkTaskFromKeyResult() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ keyResultId, taskId }: { keyResultId: string; taskId: string }) =>
+        apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      },
+    });
+  }
+
   // Return all hooks
   return {
     // Auth
@@ -1447,6 +1579,20 @@ export function createHooks(config: CreateHooksConfig) {
     useUncompleteHabit,
     usePauseHabit,
     useResumeHabit,
+
+    // Objectives (OKRs)
+    useObjectives,
+    useCurrentPeriodObjectives,
+    useObjectivesDashboard,
+    useObjective,
+    useCreateObjective,
+    useUpdateObjective,
+    useDeleteObjective,
+    useAddKeyResult,
+    useUpdateKeyResult,
+    useDeleteKeyResult,
+    useLinkTaskToKeyResult,
+    useUnlinkTaskFromKeyResult,
 
     // Utilities
     invalidateAllTasks,

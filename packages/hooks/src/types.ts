@@ -151,6 +151,20 @@ export type ApiClient = OrdoApiClient | {
   uncompleteHabit: OrdoApiClient['uncompleteHabit'];
   pauseHabit: OrdoApiClient['pauseHabit'];
   resumeHabit: OrdoApiClient['resumeHabit'];
+
+  // Objectives (OKRs)
+  getObjectives: OrdoApiClient['getObjectives'];
+  getCurrentPeriodObjectives: OrdoApiClient['getCurrentPeriodObjectives'];
+  getObjectivesDashboardSummary: OrdoApiClient['getObjectivesDashboardSummary'];
+  getObjective: OrdoApiClient['getObjective'];
+  createObjective: OrdoApiClient['createObjective'];
+  updateObjective: OrdoApiClient['updateObjective'];
+  deleteObjective: OrdoApiClient['deleteObjective'];
+  addKeyResult: OrdoApiClient['addKeyResult'];
+  updateKeyResult: OrdoApiClient['updateKeyResult'];
+  deleteKeyResult: OrdoApiClient['deleteKeyResult'];
+  linkTaskToKeyResult: OrdoApiClient['linkTaskToKeyResult'];
+  unlinkTaskFromKeyResult: OrdoApiClient['unlinkTaskFromKeyResult'];
 };
 
 /**

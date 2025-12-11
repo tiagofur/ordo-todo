@@ -177,4 +177,16 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get habitCompletion() {
     return this.prisma.habitCompletion;
   }
+
+  get objective() {
+    return this.prisma.objective;
+  }
+
+  get keyResult() {
+    return this.prisma.keyResult;
+  }
+
+  get keyResultTask() {
+    return this.prisma.keyResultTask;
+  }
 }

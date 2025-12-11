@@ -33,6 +33,7 @@ import {
   TimerWidget,
   WeeklyActivityWidget,
   ActiveProjectsWidget,
+  OkrWidget,
 } from "@/components/dashboard";
 
 type SortOption = "priority" | "duration" | "created";
@@ -292,6 +293,11 @@ export function Dashboard() {
             {/* Timer Widget */}
             <SlideIn delay={0.1}>
               <TimerWidget onExpand={() => navigate("/timer")} />
+            </SlideIn>
+
+            {/* OKR Widget */}
+            <SlideIn delay={0.12}>
+              <OkrWidget />
             </SlideIn>
 
             {/* Weekly Activity */}

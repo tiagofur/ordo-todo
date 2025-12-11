@@ -23,13 +23,14 @@ import { GamificationModule } from './gamification/gamification.module';
 import { TemplatesModule } from './templates/templates.module';
 import { CollaborationModule } from './collaboration/collaboration.module';
 import { HabitsModule } from './habits/habits.module';
+import { ObjectivesModule } from './objectives/objectives.module';
+import { CustomFieldsModule } from './custom-fields/custom-fields.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
-
 
 @Module({
   imports: [
@@ -62,6 +63,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     TemplatesModule,
     CollaborationModule,
     HabitsModule,
+    ObjectivesModule,
+    CustomFieldsModule,
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],

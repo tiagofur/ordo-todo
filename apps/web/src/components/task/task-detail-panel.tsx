@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button, Input, Label, Textarea, Badge, Separator, Popover, PopoverContent, PopoverTrigger, Skeleton, Sheet, SheetContent, SheetHeader, SheetTitle, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
-import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Share2, Copy, Link as LinkIcon } from "lucide-react";
-import { useTaskDetails, useUpdateTask, useDeleteTask, useCurrentUser, useShareTask } from "@/lib/api-hooks";
+import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Share2, Copy, Link as LinkIcon, Target } from "lucide-react";
+import { useTaskDetails, useUpdateTask, useDeleteTask, useCurrentUser, useShareTask, useCurrentPeriodObjectives, useLinkTaskToKeyResult } from "@/lib/api-hooks";
 
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { useTranslations } from "next-intl";
 import { AssigneeSelector } from "./assignee-selector";
+import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -117,6 +118,11 @@ export function TaskDetailPanel({
   const assignTag = useAssignTagToTask();
   const removeTag = useRemoveTagFromTask();
   const { data: currentUser } = useCurrentUser();
+  const { data: objectives } = useCurrentPeriodObjectives();
+  const linkTaskToKR = useLinkTaskToKeyResult();
+
+  // Custom fields form state
+  const customFieldsForm = useCustomFieldForm(task?.projectId || "", taskId || undefined);
 
   const PRIORITY_CONFIG = {
     LOW: { label: t('priorities.low'), color: "bg-slate-500", textColor: "text-slate-600", icon: Flag },
@@ -673,7 +679,58 @@ export function TaskDetailPanel({
                           currentAssignee={task?.assignee}
                           variant="full"
                         />
+                        
+                        <Separator className="my-3" />
 
+                        {/* Link to Goal */}
+                        <div className="space-y-2">
+                           <Label className="text-xs font-medium text-muted-foreground">{t('details.linkToGoal') || "Link to Goal"}</Label>
+                           <Select onValueChange={(krid) => {
+                               if(!taskId) return;
+                               linkTaskToKR.mutate({ keyResultId: krid, data: { taskId, weight: 1 } }, {
+                                   onSuccess: () => notify.success(t('toast.linkedToGoal') || "Task linked to goal"),
+                                   onError: () => notify.error(t('toast.linkGoalError') || "Failed to link to goal")
+                               });
+                           }}>
+                             <SelectTrigger className={cn("w-full h-9 text-xs justify-start gap-2 bg-background/60 border border-border/50")}>
+                               <Target className="w-3.5 h-3.5 text-pink-500" />
+                               <span className="truncate">Select Objective Key Result</span>
+                             </SelectTrigger>
+                             <SelectContent>
+                               {objectives?.map((obj) => (
+                                 <div key={obj.id}>
+                                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/30">
+                                     {obj.title}
+                                   </div>
+                                   {obj.keyResults?.map((kr) => (
+                                     <SelectItem key={kr.id} value={kr.id} className="pl-4 text-xs">
+                                       {kr.title}
+                                     </SelectItem>
+                                   ))}
+                                 </div>
+                               ))}
+                               {(!objectives || objectives.length === 0) && (
+                                   <div className="p-2 text-xs text-muted-foreground">No active objectives found</div>
+                               )}
+                             </SelectContent>
+                           </Select>
+                        </div>
+
+                        {/* Custom Fields */}
+                        {task?.projectId && (
+                          <CustomFieldInputs
+                            projectId={task.projectId}
+                            taskId={taskId || undefined}
+                            values={customFieldsForm.values}
+                            onChange={(fieldId, value) => {
+                              customFieldsForm.handleChange(fieldId, value);
+                              // Auto-save custom field values
+                              if (taskId) {
+                                customFieldsForm.saveValues(taskId);
+                              }
+                            }}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

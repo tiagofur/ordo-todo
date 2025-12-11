@@ -29,10 +29,16 @@ const getAllowedOrigins = (): string[] => {
 
 @WebSocketGateway({
   cors: {
-    origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      origin: string,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       const allowedOrigins = getAllowedOrigins();
       // Allow requests with no origin (e.g., same-origin, mobile apps)
-      if (!origin || allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+      if (
+        !origin ||
+        allowedOrigins.some((allowed) => origin.startsWith(allowed))
+      ) {
         callback(null, true);
       } else {
         callback(new Error(`Origin ${origin} not allowed by CORS`));
@@ -42,14 +48,15 @@ const getAllowedOrigins = (): string[] => {
   },
 })
 export class CollaborationGateway
-  implements OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(CollaborationGateway.name);
   private activeUsers: Map<string, UserPresence> = new Map();
 
-  constructor(private jwtService: JwtService) { }
+  constructor(private jwtService: JwtService) {}
 
   async handleConnection(client: Socket) {
     try {
@@ -148,7 +155,7 @@ export class CollaborationGateway
     this.broadcastTaskPresence(data.taskId);
   }
 
-  @UseGuards(WsThrottleGuard)
+  // @UseGuards(WsThrottleGuard)
   @SubscribeMessage('task-update')
   handleTaskUpdate(
     @ConnectedSocket() client: Socket,

@@ -6,9 +6,9 @@ import { ProductivityCoachService } from './productivity-coach.service';
 import { AIModule } from '../ai/ai.module';
 
 @Module({
-    imports: [AIModule],
-    controllers: [ChatController],
-    providers: [ChatService, ChatRepository, ProductivityCoachService],
-    exports: [ChatService, ProductivityCoachService],
+  imports: [AIModule],
+  controllers: [ChatController],
+  providers: [ChatService, ChatRepository, ProductivityCoachService],
+  exports: [ChatService, ProductivityCoachService],
 })
-export class ChatModule { }
+export class ChatModule {}

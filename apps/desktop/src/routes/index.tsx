@@ -6,6 +6,8 @@ import {
   LazyDashboard,
   LazyTasks,
   LazyHabits,
+  LazyGoals,
+  LazyGoalDetails,
   LazyProjects,
   LazyProjectDetail,
   LazyTimer,
@@ -89,6 +91,23 @@ export const router = createHashRouter([
         element: (
           <LazyPage fallback={<PageLoader message="Loading habits..." />}>
             <LazyHabits />
+          </LazyPage>
+        ),
+      },
+
+      {
+        path: "goals",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading goals..." />}>
+            <LazyGoals />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "goals/:id",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading goal details..." />}>
+            <LazyGoalDetails />
           </LazyPage>
         ),
       },

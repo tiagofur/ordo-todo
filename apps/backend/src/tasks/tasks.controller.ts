@@ -44,7 +44,7 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(CreateTaskGuard)

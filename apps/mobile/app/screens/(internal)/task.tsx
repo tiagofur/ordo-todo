@@ -11,11 +11,12 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useCreateTask, useUpdateTask, useTask, useWorkspaces, useProjects } from "@/app/hooks/api";
+import { useCreateTask, useUpdateTask, useTask, useWorkspaces, useProjects, useObjectives, useLinkTaskToKeyResult } from "@/app/hooks/api";
 import CustomTextInput from "../../components/shared/text-input.component";
 import CustomButton from "../../components/shared/button.component";
 import { Feather } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { CustomFieldInputs, useCustomFieldForm } from "@/app/components/task/custom-field-inputs";
 
 const PRIORITIES = [
   { value: "LOW", label: "Baja", color: "#48BB78" },
@@ -52,6 +53,16 @@ export default function TaskScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [activeTimeField, setActiveTimeField] = useState<'start' | 'end'>('start');
   const [activeDateField, setActiveDateField] = useState<'due' | 'start' | 'scheduled'>('due');
+  
+  // Link to Goal State
+  const { data: objectives } = useObjectives();
+  const linkTaskToKR = useLinkTaskToKeyResult();
+  const [selectedKeyResultId, setSelectedKeyResultId] = useState<string | null>(null);
+  const [showGoalSelector, setShowGoalSelector] = useState(false);
+
+  // Custom Fields - get current projectId
+  const currentProjectId = existingTask?.projectId || (projects?.[0]?.id ?? "");
+  const customFieldsForm = useCustomFieldForm(currentProjectId, taskId);
 
   useEffect(() => {
     if (existingTask) {
@@ -117,7 +128,7 @@ export default function TaskScreen() {
              return;
         }
 
-        await createTask.mutateAsync({
+        const newTask = await createTask.mutateAsync({
           title,
           description,
           priority: priority as any,
@@ -126,6 +137,28 @@ export default function TaskScreen() {
           scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined,
           projectId: targetProjectId,
         });
+
+        // Save custom field values if any
+        if (customFieldsForm.getValuesForSubmit().length > 0 && newTask?.id) {
+          await customFieldsForm.saveValues(newTask.id);
+        }
+        
+        // Link to Goal if selected
+        if (selectedKeyResultId) {
+            await linkTaskToKR.mutateAsync({ 
+                keyResultId: selectedKeyResultId, 
+                data: { taskId: newTask.id, weight: 1 } 
+            });
+        }
+      }
+      
+      // Handle Link for existing task (if changed - simplistically just link again if selected)
+      if (isEditing && taskId && selectedKeyResultId) {
+            // Check if already linked? API should handle idempotency or replacement
+            await linkTaskToKR.mutateAsync({ 
+                keyResultId: selectedKeyResultId, 
+                data: { taskId, weight: 1 } 
+            });
       }
       router.back();
     } catch (error) {
@@ -397,6 +430,58 @@ export default function TaskScreen() {
             </View>
           </View>
         )}
+
+        {/* Link to Goal Section */}
+        <View style={styles.formGroup}>
+            <Text style={[styles.label, { color: colors.text }]}>Link to Goal</Text>
+            <Pressable
+                style={[styles.dateButton, { backgroundColor: colors.card, borderColor: selectedKeyResultId ? '#db2777' : colors.border }]}
+                onPress={() => setShowGoalSelector(!showGoalSelector)}
+            >
+                <Feather name="target" size={20} color={selectedKeyResultId ? '#db2777' : colors.textMuted} />
+                <Text style={[styles.dateText, { color: selectedKeyResultId ? '#db2777' : colors.textMuted }]}>
+                    {selectedKeyResultId 
+                        ? (objectives?.flatMap(o => (o as any).keyResults || [])?.find(kr => kr.id === selectedKeyResultId)?.title || "Goal Linked")
+                        : "Select a Goal (Optional)"}
+                </Text>
+                {selectedKeyResultId && (
+                    <Pressable
+                        style={styles.clearDateButton}
+                        onPress={(e) => { e.stopPropagation(); setSelectedKeyResultId(null); }}
+                    >
+                        <Feather name="x" size={16} color={colors.textMuted} />
+                    </Pressable>
+                )}
+            </Pressable>
+
+            {showGoalSelector && objectives && (
+                <View style={[styles.card, { marginTop: 8, borderColor: colors.border, borderWidth: 1, padding: 8 }]}>
+                    {objectives.map(obj => (
+                        <View key={obj.id} style={{marginBottom: 8}}>
+                            <Text style={{fontWeight: 'bold', color: colors.text, marginBottom: 4}}>{obj.title}</Text>
+                            {obj.keyResults?.map(kr => (
+                                <Pressable
+                                    key={kr.id}
+                                    style={{
+                                        padding: 8,
+                                        backgroundColor: selectedKeyResultId === kr.id ? '#fce7f3' : 'transparent',
+                                        borderRadius: 8
+                                    }}
+                                    onPress={() => {
+                                        setSelectedKeyResultId(kr.id);
+                                        setShowGoalSelector(false);
+                                    }}
+                                >
+                                    <Text style={{color: selectedKeyResultId === kr.id ? '#db2777' : colors.textSecondary}}>• {kr.title}</Text>
+                                </Pressable>
+                            ))}
+                            {(!obj.keyResults || obj.keyResults.length === 0) && <Text style={{fontSize: 12, color: colors.textMuted, marginLeft: 8}}>No key results</Text>}
+                        </View>
+                    ))}
+                    {objectives.length === 0 && <Text style={{color: colors.textMuted}}>No active goals.</Text>}
+                </View>
+            )}
+        </View>
           
         {showDatePicker && (
           <DateTimePicker
@@ -416,6 +501,16 @@ export default function TaskScreen() {
             is24Hour={true}
             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={onTimeChange}
+          />
+        )}
+
+        {/* Custom Fields */}
+        {currentProjectId && (
+          <CustomFieldInputs
+            projectId={currentProjectId}
+            taskId={taskId}
+            values={customFieldsForm.values}
+            onChange={customFieldsForm.handleChange}
           />
         )}
 
@@ -583,4 +678,9 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
   },
+  card: {
+    borderRadius: 12,
+    backgroundColor: '#fff', 
+    // Additional styling if needed, but background/border handled inline
+  }
 });

@@ -11,6 +11,7 @@ export {
 
 // Keep local TimerWidget as it has desktop-specific functionality
 export { TimerWidget } from "./TimerWidget";
+export { OkrWidget } from "./OkrWidget";
 
 // Type re-exports
 export type {

@@ -98,6 +98,22 @@ import type {
   HabitStats,
   TodayHabitsResponse,
   CompleteHabitResponse,
+  // Objectives (OKRs)
+  Objective,
+  KeyResult,
+  KeyResultTask,
+  CreateObjectiveDto,
+  UpdateObjectiveDto,
+  CreateKeyResultDto,
+  UpdateKeyResultDto,
+  LinkTaskDto,
+  ObjectiveDashboardSummary,
+  // Custom Fields
+  CustomField,
+  CustomFieldValue,
+  CreateCustomFieldDto,
+  UpdateCustomFieldDto,
+  SetMultipleCustomFieldValuesDto,
 } from './types';
 
 /**
@@ -1523,4 +1539,167 @@ export class OrdoApiClient {
     const response = await this.axios.post<Habit>(`/habits/${habitId}/resume`);
     return response.data;
   }
+
+  // ============ OBJECTIVES (OKRs) ENDPOINTS (12) ============
+
+  /**
+   * Create a new objective
+   * POST /objectives
+   */
+  async createObjective(data: CreateObjectiveDto): Promise<Objective> {
+    const response = await this.axios.post<Objective>('/objectives', data);
+    return response.data;
+  }
+
+  /**
+   * Get all objectives for current user
+   * GET /objectives
+   */
+  async getObjectives(options?: { status?: string; workspaceId?: string }): Promise<Objective[]> {
+    const response = await this.axios.get<Objective[]>('/objectives', { params: options });
+    return response.data;
+  }
+
+  /**
+   * Get objectives for current period (quarter)
+   * GET /objectives/current-period
+   */
+  async getCurrentPeriodObjectives(): Promise<Objective[]> {
+    const response = await this.axios.get<Objective[]>('/objectives/current-period');
+    return response.data;
+  }
+
+  /**
+   * Get objectives dashboard summary
+   * GET /objectives/dashboard-summary
+   */
+  async getObjectivesDashboardSummary(): Promise<ObjectiveDashboardSummary> {
+    const response = await this.axios.get<ObjectiveDashboardSummary>('/objectives/dashboard-summary');
+    return response.data;
+  }
+
+  /**
+   * Get a specific objective by ID
+   * GET /objectives/:id
+   */
+  async getObjective(objectiveId: string): Promise<Objective> {
+    const response = await this.axios.get<Objective>(`/objectives/${objectiveId}`);
+    return response.data;
+  }
+
+  /**
+   * Update an objective
+   * PATCH /objectives/:id
+   */
+  async updateObjective(objectiveId: string, data: UpdateObjectiveDto): Promise<Objective> {
+    const response = await this.axios.patch<Objective>(`/objectives/${objectiveId}`, data);
+    return response.data;
+  }
+
+  /**
+   * Delete an objective
+   * DELETE /objectives/:id
+   */
+  async deleteObjective(objectiveId: string): Promise<void> {
+    await this.axios.delete(`/objectives/${objectiveId}`);
+  }
+
+  /**
+   * Add a key result to an objective
+   * POST /objectives/:id/key-results
+   */
+  async addKeyResult(objectiveId: string, data: CreateKeyResultDto): Promise<KeyResult> {
+    const response = await this.axios.post<KeyResult>(`/objectives/${objectiveId}/key-results`, data);
+    return response.data;
+  }
+
+  /**
+   * Update a key result
+   * PATCH /objectives/key-results/:id
+   */
+  async updateKeyResult(keyResultId: string, data: UpdateKeyResultDto): Promise<KeyResult> {
+    const response = await this.axios.patch<KeyResult>(`/objectives/key-results/${keyResultId}`, data);
+    return response.data;
+  }
+
+  /**
+   * Delete a key result
+   * DELETE /objectives/key-results/:id
+   */
+  async deleteKeyResult(keyResultId: string): Promise<void> {
+    await this.axios.delete(`/objectives/key-results/${keyResultId}`);
+  }
+
+  /**
+   * Link a task to a key result
+   * POST /objectives/key-results/:id/tasks
+   */
+  async linkTaskToKeyResult(keyResultId: string, data: LinkTaskDto): Promise<KeyResultTask> {
+    const response = await this.axios.post<KeyResultTask>(`/objectives/key-results/${keyResultId}/tasks`, data);
+    return response.data;
+  }
+
+  /**
+   * Unlink a task from a key result
+   * DELETE /objectives/key-results/:id/tasks/:taskId
+   */
+  async unlinkTaskFromKeyResult(keyResultId: string, taskId: string): Promise<void> {
+    await this.axios.delete(`/objectives/key-results/${keyResultId}/tasks/${taskId}`);
+  }
+
+  // ============ CUSTOM FIELDS ============
+
+  /**
+   * Get all custom fields for a project
+   * GET /projects/:projectId/custom-fields
+   */
+  async getProjectCustomFields(projectId: string): Promise<CustomField[]> {
+    const response = await this.axios.get<CustomField[]>(`/projects/${projectId}/custom-fields`);
+    return response.data;
+  }
+
+  /**
+   * Create a custom field for a project
+   * POST /projects/:projectId/custom-fields
+   */
+  async createCustomField(projectId: string, data: CreateCustomFieldDto): Promise<CustomField> {
+    const response = await this.axios.post<CustomField>(`/projects/${projectId}/custom-fields`, data);
+    return response.data;
+  }
+
+  /**
+   * Update a custom field
+   * PATCH /custom-fields/:id
+   */
+  async updateCustomField(fieldId: string, data: UpdateCustomFieldDto): Promise<CustomField> {
+    const response = await this.axios.patch<CustomField>(`/custom-fields/${fieldId}`, data);
+    return response.data;
+  }
+
+  /**
+   * Delete a custom field
+   * DELETE /custom-fields/:id
+   */
+  async deleteCustomField(fieldId: string): Promise<void> {
+    await this.axios.delete(`/custom-fields/${fieldId}`);
+  }
+
+  /**
+   * Get custom field values for a task
+   * GET /tasks/:taskId/custom-values
+   */
+  async getTaskCustomValues(taskId: string): Promise<CustomFieldValue[]> {
+    const response = await this.axios.get<CustomFieldValue[]>(`/tasks/${taskId}/custom-values`);
+    return response.data;
+  }
+
+  /**
+   * Set custom field values for a task
+   * PATCH /tasks/:taskId/custom-values
+   */
+  async setTaskCustomValues(taskId: string, data: SetMultipleCustomFieldValuesDto): Promise<CustomFieldValue[]> {
+    const response = await this.axios.patch<CustomFieldValue[]>(`/tasks/${taskId}/custom-values`, data);
+    return response.data;
+  }
 }
+

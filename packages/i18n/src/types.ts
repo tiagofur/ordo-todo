@@ -18,7 +18,7 @@ export interface TransformOptions {
 /**
  * Deep nested translation object type
  */
-export type TranslationValue = string | { [key: string]: TranslationValue };
+export type TranslationValue = string | TranslationValue[] | { [key: string]: TranslationValue };
 
 export type Translations = {
   [key: string]: TranslationValue;

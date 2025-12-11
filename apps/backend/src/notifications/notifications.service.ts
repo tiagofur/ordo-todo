@@ -8,7 +8,7 @@ export class NotificationsService {
   constructor(
     private prisma: PrismaService,
     @Optional() private gateway?: NotificationsGateway,
-  ) { }
+  ) {}
 
   async create(data: {
     userId: string;
@@ -100,4 +100,3 @@ export class NotificationsService {
     return result;
   }
 }
-

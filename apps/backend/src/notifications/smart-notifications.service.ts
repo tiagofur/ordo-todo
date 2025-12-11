@@ -12,7 +12,7 @@ export class SmartNotificationsService {
     private readonly notificationsService: NotificationsService,
     private readonly prisma: PrismaService,
     @Optional() private readonly gateway?: NotificationsGateway,
-  ) { }
+  ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async checkUpcomingTasks() {

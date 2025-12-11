@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Link2 } from "lucide-react";
+import { X, Save, Trash2, Calendar, Flag, Clock, CheckSquare, MessageSquare, Paperclip, Activity, Layout, Link2, Target } from "lucide-react";
 import { 
   useTaskDetails, 
   useUpdateTask, 
-  useDeleteTask 
+  useDeleteTask,
+  useCurrentPeriodObjectives,
+  useLinkTaskToKeyResult
 } from "@/hooks/api";
 import { toast } from "sonner";
 import {
@@ -67,6 +69,8 @@ export function TaskDetailPanel({
   const { data: task, isLoading } = useTaskDetails(taskId || "");
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
+  const { data: objectives } = useCurrentPeriodObjectives();
+  const linkTaskToKR = useLinkTaskToKeyResult();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -423,8 +427,43 @@ export function TaskDetailPanel({
                         </div>
                       </div>
                     </div>
+
+                       {/* Link to Goal */}
+                       <div className="space-y-1.5">
+                         <Label className="text-xs text-muted-foreground">Vincular a Objetivo (OKR)</Label>
+                         <Select onValueChange={(krid) => {
+                             if(!taskId) return;
+                             linkTaskToKR.mutate({ keyResultId: krid, data: { taskId, weight: 1 } }, {
+                                 onSuccess: () => toast.success("Tarea vinculada a objetivo"),
+                                 onError: () => toast.error("Error al vincular")
+                             });
+                         }}>
+                           <SelectTrigger className="h-8 text-sm bg-transparent border-transparent hover:bg-background hover:border-input transition-colors gap-2">
+                             <Target className="w-4 h-4 text-pink-500" />
+                             <SelectValue placeholder="Seleccionar KR" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             {objectives?.map((obj) => (
+                               <div key={obj.id}>
+                                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/30">
+                                   {obj.title}
+                                 </div>
+                                 {obj.keyResults?.map((kr) => (
+                                   <SelectItem key={kr.id} value={kr.id} className="pl-4 text-xs">
+                                     {kr.title}
+                                   </SelectItem>
+                                 ))}
+                               </div>
+                             ))}
+                             {(!objectives || objectives.length === 0) && (
+                                <div className="p-2 text-xs text-muted-foreground">No objectives found</div>
+                             )}
+                           </SelectContent>
+                         </Select>
+                       </div>
+
+                    </div>
                   </div>
-                </div>
 
                 <Separator />
 

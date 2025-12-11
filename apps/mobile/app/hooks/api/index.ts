@@ -35,3 +35,9 @@ export * from './use-comments';
 
 // Attachment hooks
 export * from './use-attachments';
+
+// Objective hooks
+export * from './use-objectives';
+
+// Custom Field hooks
+export * from './use-custom-fields';

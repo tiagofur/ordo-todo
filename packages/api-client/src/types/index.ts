@@ -17,3 +17,5 @@ export * from './ai.types';
 export * from './notification.types';
 export * from './chat.types';
 export * from './habit.types';
+export * from './objective.types';
+export * from './custom-field.types';

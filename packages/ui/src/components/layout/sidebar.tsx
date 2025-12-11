@@ -18,7 +18,7 @@ export interface NavItem {
   name: string;
   href: string;
   icon: ElementType;
-  color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue';
+  color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue' | 'yellow' | 'red';
 }
 
 interface SidebarProps {
@@ -62,6 +62,8 @@ const colorClasses = {
   orange: 'group-hover:bg-orange-500/10 group-hover:text-orange-500',
   green: 'group-hover:bg-green-500/10 group-hover:text-green-500',
   blue: 'group-hover:bg-blue-500/10 group-hover:text-blue-500',
+  yellow: 'group-hover:bg-yellow-500/10 group-hover:text-yellow-500',
+  red: 'group-hover:bg-red-500/10 group-hover:text-red-500',
 };
 
 const activeColorClasses = {
@@ -71,6 +73,8 @@ const activeColorClasses = {
   orange: 'bg-orange-500 text-white shadow-lg shadow-orange-500/20',
   green: 'bg-green-500 text-white shadow-lg shadow-green-500/20',
   blue: 'bg-blue-500 text-white shadow-lg shadow-blue-500/20',
+  yellow: 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/20',
+  red: 'bg-red-500 text-white shadow-lg shadow-red-500/20',
 };
 
 const DEFAULT_LABELS = {

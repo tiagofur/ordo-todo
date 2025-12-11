@@ -12,6 +12,7 @@ import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from "luci
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useTranslations } from "next-intl";
 import { RecurrenceSelector } from "./recurrence-selector";
+import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -55,6 +56,12 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     },
   });
 
+  // Get selected project ID for custom fields (after watch is available)
+  const selectedProjectId = projectId || watch("projectId");
+
+  // Custom fields form state
+  const customFieldsForm = useCustomFieldForm(selectedProjectId || "");
+
   const currentPriority = watch("priority");
 
   const createTaskMutation = useCreateTask();
@@ -72,7 +79,13 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         estimatedTime: estimatedMinutes ?? undefined,
         recurrence: taskData.recurrence,
       };
-      await createTaskMutation.mutateAsync(cleanedData);
+      const createdTask = await createTaskMutation.mutateAsync(cleanedData);
+      
+      // Save custom field values if any
+      if (customFieldsForm.getValuesForSubmit().length > 0 && createdTask?.id) {
+        await customFieldsForm.saveValues(createdTask.id);
+      }
+      
       notify.success(t('toast.success'));
       reset();
       onOpenChange(false);
@@ -290,6 +303,15 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
               value={watch("recurrence")}
               onChange={(val) => setValue("recurrence", val)}
             />
+
+            {/* Custom Fields */}
+            {selectedProjectId && (
+              <CustomFieldInputs
+                projectId={selectedProjectId}
+                values={customFieldsForm.values}
+                onChange={customFieldsForm.handleChange}
+              />
+            )}
 
             <DialogFooter className="pt-2">
               <button

@@ -59,6 +59,9 @@ model User {
   // Habits
   habits              Habit[]
 
+  // OKRs
+  objectives          Objective[]
+
   // Third-party Integrations
   integrations UserIntegration[]
 
@@ -288,6 +291,7 @@ model Workspace {
   invitations   WorkspaceInvitation[]
   audits        WorkspaceAuditLog[]
   taskTemplates TaskTemplate[]
+  objectives    Objective[]
 
   // NUEVO: Estados de ciclo de vida
   isArchived Boolean   @default(false)
@@ -488,6 +492,9 @@ model Project {
   @@index([workspaceId])
   @@index([workflowId])
   @@index([ownerId])
+
+  // Custom Fields
+  customFields CustomField[]
 }
 
 enum ProjectStatus {
@@ -495,6 +502,59 @@ enum ProjectStatus {
   ON_HOLD
   COMPLETED
   ARCHIVED
+}
+
+// ============ CUSTOM FIELDS ============
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  SELECT
+  MULTI_SELECT
+  DATE
+  URL
+  EMAIL
+  CHECKBOX
+}
+
+model CustomField {
+  id          String          @id @default(cuid())
+  name        String
+  type        CustomFieldType
+  description String?
+  options     Json?           // For SELECT/MULTI_SELECT: ["Option 1", "Option 2"]
+  isRequired  Boolean         @default(false)
+  position    Int             @default(0)
+  
+  // Relations
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  values      CustomFieldValue[]
+  
+  // Timestamps
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([projectId])
+}
+
+model CustomFieldValue {
+  id          String      @id @default(cuid())
+  value       String      @db.Text  // Stored as string, parsed based on field type
+  
+  // Relations
+  field       CustomField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  fieldId     String
+  task        Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String
+  
+  // Timestamps
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([fieldId, taskId])
+  @@index([taskId])
+  @@index([fieldId])
 }
 
 model Task {
@@ -557,6 +617,12 @@ model Task {
   // AI Metadata
   aiSuggestions  Json? // Stores AI-generated suggestions
   energyRequired EnergyLevel @default(MEDIUM)
+
+  // OKRs - Link to Key Results
+  keyResults KeyResultTask[]
+
+  // Custom Field Values
+  customFieldValues CustomFieldValue[]
 
   // Time Sessions
   timeSessions TimeSession[]
@@ -1098,5 +1164,115 @@ enum ChatRole {
   USER
   ASSISTANT
   SYSTEM
+}
+
+// ============ OKRs & GOALS ============
+
+model Objective {
+  id          String    @id @default(cuid())
+  
+  // Básicos
+  title       String
+  description String?   @db.Text
+  
+  // Owner & Scope
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  
+  // Timeframe
+  startDate   DateTime  @default(now())
+  endDate     DateTime
+  period      OKRPeriod @default(QUARTERLY)
+  
+  // Status
+  status      ObjectiveStatus @default(ACTIVE)
+  progress    Float           @default(0) // 0-100, calculated from KRs
+  
+  // Relationships
+  keyResults  KeyResult[]
+  
+  // Appearance
+  color       String    @default("#3B82F6")
+  icon        String?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([endDate])
+}
+
+model KeyResult {
+  id          String    @id @default(cuid())
+  
+  // Parent
+  objective   Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  objectiveId String
+  
+  // Básicos
+  title       String
+  description String?
+  
+  // Measurement
+  metricType  MetricType @default(PERCENTAGE)
+  startValue  Float      @default(0)
+  targetValue Float
+  currentValue Float     @default(0)
+  unit        String?    // "users", "revenue", "tasks", etc.
+  
+  // Progress (calculated)
+  progress    Float      @default(0) // 0-100
+  
+  // Relationships
+  linkedTasks KeyResultTask[]
+  
+  // Timestamps  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([objectiveId])
+}
+
+// Join table for linking tasks to Key Results
+model KeyResultTask {
+  keyResult   KeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+  keyResultId String
+  
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String
+  
+  // Contribution weight (how much completing this task contributes to KR)
+  weight      Float     @default(1)
+  
+  @@id([keyResultId, taskId])
+}
+
+enum OKRPeriod {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+enum ObjectiveStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  AT_RISK
+}
+
+enum MetricType {
+  PERCENTAGE    // 0-100%
+  NUMBER        // Absolute number
+  CURRENCY      // Money
+  BOOLEAN       // Done/Not done
+  TASK_COUNT    // Auto-calculated from linked tasks
 }
 

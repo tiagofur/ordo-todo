@@ -20,8 +20,11 @@ import { DatabaseModule } from '../database/database.module';
     }),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService, SmartNotificationsService, NotificationsGateway],
+  providers: [
+    NotificationsService,
+    SmartNotificationsService,
+    NotificationsGateway,
+  ],
   exports: [NotificationsService, NotificationsGateway],
 })
-export class NotificationsModule { }
-
+export class NotificationsModule {}

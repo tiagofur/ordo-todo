@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase } from "lucide-react";
+import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ export function Sidebar() {
     { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
     { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
     { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("Sidebar.goals"), href: "/goals", icon: Target, color: "pink" },
     { name: t("Sidebar.workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
     { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
     { name: t("Sidebar.analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },

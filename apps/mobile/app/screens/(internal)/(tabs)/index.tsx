@@ -9,7 +9,7 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import Card from "@/app/components/shared/card.component";
-import { useTasks, useCompleteTask } from "@/app/hooks/api";
+import { useTasks, useCompleteTask, useObjectivesDashboardSummary } from "@/app/hooks/api";
 import { router } from "expo-router";
 
 const FILTERS = ["Todas", "Hoy", "Próximas", "Completadas"];
@@ -20,6 +20,7 @@ export default function Home() {
   
   // Hooks
   const { data: tasks, isLoading, error, refetch } = useTasks();
+  const { data: objectiveSummary } = useObjectivesDashboardSummary();
   const completeTaskMutation = useCompleteTask();
 
   const onRefresh = useCallback(() => {
@@ -149,6 +150,35 @@ export default function Home() {
             <Text style={styles.statNumber}>{todayCount}</Text>
             <Text style={styles.statLabel}>Hoy</Text>
           </View>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(250)} style={{marginTop: 16, paddingHorizontal: 20, marginBottom: 10}}>
+             <Pressable 
+                onPress={() => router.push('/screens/(internal)/goals')} 
+                style={{
+                    backgroundColor: 'rgba(255,255,255,0.15)', 
+                    padding: 12, 
+                    borderRadius: 12, 
+                    flexDirection: 'row', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.2)'
+                }}
+            >
+                <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+                    <View style={{padding:6, backgroundColor:'rgba(255,255,255,0.2)', borderRadius:8}}>
+                         <Feather name="target" size={18} color="#fff" />
+                    </View>
+                    <View>
+                        <Text style={{color: '#fff', fontWeight: '700', fontSize: 14}}>OKRs & Goals</Text>
+                        <Text style={{color: 'rgba(255,255,255,0.8)', fontSize: 11}}>{objectiveSummary?.total || 0} active</Text>
+                    </View>
+                </View>
+                <View style={{alignItems:'flex-end'}}>
+                    <Text style={{color: '#fff', fontWeight: '800', fontSize: 16}}>{Math.round(objectiveSummary?.averageProgress || 0)}%</Text>
+                </View>
+            </Pressable>
         </Animated.View>
       </LinearGradient>
 

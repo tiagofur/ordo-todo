@@ -64,12 +64,16 @@ export class CreateTaskDto {
   scheduledDate?: Date;
 
   @IsString()
-  @Matches(/^\d{2}:\d{2}$/, { message: 'scheduledTime must be in HH:mm format' })
+  @Matches(/^\d{2}:\d{2}$/, {
+    message: 'scheduledTime must be in HH:mm format',
+  })
   @IsOptional()
   scheduledTime?: string;
 
   @IsString()
-  @Matches(/^\d{2}:\d{2}$/, { message: 'scheduledEndTime must be in HH:mm format' })
+  @Matches(/^\d{2}:\d{2}$/, {
+    message: 'scheduledEndTime must be in HH:mm format',
+  })
   @IsOptional()
   scheduledEndTime?: string;
 

@@ -62,15 +62,21 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
 
   const onSubmit = async (data: CreateHabitForm) => {
     try {
+      let frequency = data.frequency.toUpperCase();
+      // Map "CUSTOM" to "SPECIFIC_DAYS" to match backend enum
+      if (frequency === "CUSTOM") {
+        frequency = "SPECIFIC_DAYS";
+      }
+
       await createHabitMutation.mutateAsync({
         name: data.name,
         description: data.description || undefined,
-        frequency: data.frequency.toUpperCase(),
-        daysOfWeek: data.daysOfWeek,
-        timeOfDay: data.timeOfDay?.toUpperCase(),
+        frequency: frequency as any,
+        targetDaysOfWeek: data.daysOfWeek,
+        timeOfDay: data.timeOfDay?.toUpperCase() as any,
         color: data.color,
         icon: data.icon,
-        reminderTime: data.reminderTime || undefined,
+        preferredTime: data.reminderTime || undefined,
       });
       notify.success(t("toast.created"));
       reset();

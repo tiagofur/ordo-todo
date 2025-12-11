@@ -43,6 +43,9 @@ export function transformTranslations(
     if (typeof value === 'string') {
       return convertInterpolation(value, targetFormat);
     }
+    if (Array.isArray(value)) {
+      return value.map(transform);
+    }
     const result: { [key: string]: TranslationValue } = {};
     for (const [key, val] of Object.entries(value)) {
       result[key] = transform(val);
@@ -95,7 +98,16 @@ export function getByPath(translations: Translations, path: string): string | un
     if (typeof current === 'string' || current === undefined) {
       return undefined;
     }
-    current = current[key];
+    if (Array.isArray(current)) {
+      const index = parseInt(key, 10);
+      if (isNaN(index)) {
+        current = undefined;
+      } else {
+        current = current[index];
+      }
+    } else {
+      current = current[key];
+    }
   }
 
   return typeof current === 'string' ? current : undefined;

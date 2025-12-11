@@ -20,7 +20,8 @@
     "tags": "Etiquetas",
     "analytics": "Analíticas",
     "settings": "Configuración",
-    "installApp": "Instalar App"
+    "installApp": "Instalar App",
+    "goals": "Objetivos"
   },
   "Settings": {
     "title": "Configuración",
@@ -1139,7 +1140,9 @@
       "tagError": "Error al asignar etiqueta",
       "noTaskId": "Error: No se encontró el ID de la tarea",
       "shareError": "Error al generar enlace de compartir",
-      "linkCopied": "Enlace copiado al portapapeles"
+      "linkCopied": "Enlace copiado al portapapeles",
+      "linkedToGoal": "Tarea vinculada al objetivo",
+      "linkGoalError": "Error al vincular el objetivo"
     },
     "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
     "titlePlaceholder": "Título de la tarea",
@@ -1162,7 +1165,8 @@
     "details": {
       "title": "Detalles",
       "dueDate": "Fecha de vencimiento",
-      "estimation": "Estimación (pomodoros)"
+      "estimation": "Estimación (pomodoros)",
+      "linkToGoal": "Vincular a Objetivo"
     },
     "tabs": {
       "subtasks": "Subtareas",
@@ -1779,5 +1783,118 @@
     "title": "Atajos de teclado",
     "description": "Usa estos atajos para navegar y controlar la aplicación más rápido. Los atajos marcados como 'Global' funcionan incluso cuando la ventana no está enfocada.",
     "footerNote": "Puedes personalizar los atajos globales en Configuración → Atajos"
+  },
+  "Goals": {
+    "title": "Objetivos (OKRs)",
+    "subtitle": "Establece objetivos ambiciosos y rastrea resultados clave",
+    "createObjective": "Nuevo Objetivo",
+    "noObjectives": "No hay objetivos establecidos aún",
+    "noObjectivesDescription": "Define tus objetivos para mantenerte enfocado en lo que más importa.",
+    "listTitle": "Objetivos y Resultados Clave",
+    "backToList": "Volver a Objetivos",
+    "createDescription": "Crea un nuevo objetivo para rastrear tus metas.",
+    "cancel": "Cancelar",
+    "create": "Crear Objetivo",
+    "form": {
+        "title": "Título",
+        "titlePlaceholder": "ej. Aumentar ingresos en un 20%",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Descripción opcional del objetivo",
+        "period": "Período",
+        "startDate": "Fecha de Inicio",
+        "endDate": "Fecha de Fin",
+        "color": "Color",
+        "icon": "Icono"
+    },
+    "periods": {
+        "QUARTERLY": "Trimestral",
+        "YEARLY": "Anual",
+        "CUSTOM": "Personalizado"
+    },
+    "status": {
+      "DRAFT": "Borrador",
+      "ACTIVE": "Activo",
+      "COMPLETED": "Completado",
+      "CANCELLED": "Cancelado",
+      "AT_RISK": "En Riesgo"
+    },
+    "period": {
+      "Q1": "Q1",
+      "Q2": "Q2",
+      "Q3": "Q3",
+      "Q4": "Q4",
+      "YEARLY": "Anual"
+    },
+    "keyResults": {
+      "title": "Resultados Clave",
+      "add": "Agregar Resultado Clave",
+      "name": "Título",
+      "target": "Objetivo",
+      "current": "Actual",
+      "unit": "Unidad",
+      "metricType": "Tipo",
+      "types": {
+        "PERCENTAGE": "Porcentaje",
+        "NUMBER": "Número",
+        "CURRENCY": "Moneda",
+        "BOOLEAN": "Verdadero/Falso"
+      }
+    },
+    "stats": {
+      "totalObjectives": "Total Objetivos",
+      "onTrack": "En Camino",
+      "atRisk": "En Riesgo",
+      "completed": "Completados"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "list": "Vista de Lista",
+      "board": "Vista de Tablero"
+    },
+    "averageProgress": "Progreso Promedio",
+    "viewAll": "Ver Todo",
+    "total": "Total",
+    "okrsAtRisk": "OKRs En Riesgo",
+    "left": "restantes"
+  },
+  "CustomFields": {
+    "title": "Campos Personalizados",
+    "subtitle": "Añade propiedades personalizadas a las tareas de este proyecto",
+    "addField": "Añadir Campo",
+    "noFields": "No hay campos personalizados",
+    "noFieldsDescription": "Añade campos para rastrear propiedades adicionales en las tareas",
+    "editField": "Editar Campo",
+    "createField": "Crear Campo Personalizado",
+    "updateField": "Actualizar propiedades del campo",
+    "addFieldDescription": "Añade una nueva propiedad personalizada para tareas",
+    "fieldName": "Nombre del Campo",
+    "fieldNamePlaceholder": "ej. Sprint, Story Points, Cliente",
+    "fieldType": "Tipo de Campo",
+    "description": "Descripción (opcional)",
+    "descriptionPlaceholder": "Texto de ayuda para este campo",
+    "options": "Opciones",
+    "addOption": "Añadir opción...",
+    "required": "Campo requerido",
+    "deleteConfirm": "¿Eliminar este campo personalizado? Todos los valores se perderán.",
+    "cancel": "Cancelar",
+    "create": "Crear Campo",
+    "save": "Guardar Cambios",
+    "fieldCreated": "Campo creado",
+    "fieldUpdated": "Campo actualizado",
+    "fieldDeleted": "Campo eliminado",
+    "fieldError": "Error al guardar campo",
+    "deleteError": "Error al eliminar campo",
+    "nameRequired": "El nombre del campo es requerido",
+    "optionsRequired": "Los campos de selección requieren al menos una opción",
+    "types": {
+      "TEXT": "Texto",
+      "NUMBER": "Número",
+      "SELECT": "Selección Única",
+      "MULTI_SELECT": "Selección Múltiple",
+      "DATE": "Fecha",
+      "URL": "URL",
+      "EMAIL": "Email",
+      "CHECKBOX": "Casilla de verificación"
+    }
   }
 }

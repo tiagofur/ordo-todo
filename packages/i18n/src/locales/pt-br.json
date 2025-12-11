@@ -20,7 +20,8 @@
     "tags": "Tags",
     "analytics": "Análises",
     "settings": "Configurações",
-    "installApp": "Instalar App"
+    "installApp": "Instalar App",
+    "goals": "Metas"
   },
   "Settings": {
     "title": "Configurações",
@@ -80,13 +81,30 @@
   },
   "Dashboard": {
     "completed": "Concluídas",
+    "subtasks": "Subtarefas",
     "timeWorked": "Tempo trabalhado",
     "productivity": "Produtividade",
     "today": "Hoje",
     "todaysTasks": "Tarefas de Hoje",
     "noTasks": "Sem tarefas para hoje",
     "noTasksDescription": "Comece criando sua primeira tarefa para vê-la aqui.",
-    "createTask": "Criar Tarefa"
+    "createTask": "Criar Tarefa",
+    "allTasksCompleted": "Todas as tarefas foram concluídas!",
+    "tasksCompletedToday": "{count} tarefa(s) concluída(s) hoje",
+    "showCompleted": "Mostrar concluídas",
+    "hideCompleted": "Ocultar concluídas",
+    "viewList": "Visualizar lista",
+    "viewGrid": "Visualizar grade",
+    "sortOptions": {
+      "priority": "Prioridade",
+      "duration": "Duração",
+      "created": "Data de criação"
+    },
+    "quickActionButtons": {
+      "newProject": "Novo Projeto",
+      "startTimer": "Iniciar Cronômetro",
+      "newTask": "Nova Tarefa"
+    }
   },
   "Tasks": {
     "title": "Tarefas",
@@ -1053,7 +1071,9 @@
       "tagError": "Erro ao atribuir tag",
       "noTaskId": "Erro: ID da tarefa não encontrado",
       "shareError": "Erro ao gerar link de compartilhamento",
-      "linkCopied": "Link copiado para a área de transferência"
+      "linkCopied": "Link copiado para a área de transferência",
+      "linkedToGoal": "Tarefa vinculada à meta",
+      "linkGoalError": "Erro ao vincular meta"
     },
     "confirmDelete": "Tem certeza que deseja excluir esta tarefa?",
     "titlePlaceholder": "Título da tarefa",
@@ -1076,7 +1096,8 @@
     "details": {
       "title": "Detalhes",
       "dueDate": "Data de Vencimento",
-      "estimation": "Estimativa (pomodoros)"
+      "estimation": "Estimativa (pomodoros)",
+      "linkToGoal": "Vincular à Meta"
     },
     "tabs": {
       "subtasks": "Subtarefas",
@@ -1676,5 +1697,201 @@
     "success": "Sucesso",
     "warning": "Aviso",
     "info": "Informação"
+  },
+  "AIReport": {
+    "title": "Relatório Semanal de Produtividade",
+    "subtitle": "Análise do seu desempenho da última semana",
+    "generateButton": "Gerar Relatório",
+    "analyzing": "Analisando dados...",
+    "emptyState": "Dados insuficientes para gerar um relatório. Continue trabalhando!",
+    "regenerate": "Regenerar",
+    "export": "Exportar",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "tasks": "Tarefas Concluídas",
+      "streak": "Sequência",
+      "average": "Média/dia"
+    }
+  },
+  "Timer": {
+    "title": "Cronômetro",
+    "subtitle": "Gerencie seu tempo com Pomodoro",
+    "tabs": {
+      "timer": "Cronômetro",
+      "history": "Histórico"
+    },
+    "modes": {
+      "work": "Trabalho",
+      "shortBreak": "Pausa Curta",
+      "longBreak": "Pausa Longa"
+    },
+    "history": {
+      "totalSessions": "Total de sessões",
+      "totalTime": "Tempo total",
+      "workSessions": "Sessões de trabalho",
+      "noSessions": "Sem sessões",
+      "noSessionsDescription": "Complete uma sessão com o cronômetro para vê-la aqui.",
+      "loading": "Carregando...",
+      "filters": "Filtros",
+      "allTypes": "Todos os tipos",
+      "today": "Hoje",
+      "last7Days": "Últimos 7 dias",
+      "last30Days": "Últimos 30 dias",
+      "last90Days": "Últimos 90 dias",
+      "page": "Página"
+    }
+  },
+  "AIWeeklyReport": {
+    "weeklyReport": "Relatório Semanal",
+    "generateReport": "Gerar Relatório",
+    "analyzing": "Analisando...",
+    "sections": {
+      "summary": "Resumo",
+      "achievements": "Conquistas",
+      "improvements": "Áreas para Melhoria",
+      "recommendations": "Recomendações"
+    }
+  },
+  "Sync": {
+    "offline": "Offline",
+    "offlineDesc": "Alterações serão sincronizadas quando online",
+    "syncing": "Sincronizando...",
+    "syncingDesc": "Sincronizando suas alterações",
+    "error": "Erro de Sincronização",
+    "errorDesc": "Falha ao sincronizar. Clique para tentar novamente",
+    "pending": "Pendente",
+    "pendingDesc": "{{count}} alterações pendentes",
+    "synced": "Sincronizado",
+    "syncedDesc": "Última sincronização: {{time}}",
+    "unknown": "Desconhecido",
+    "failedChanges": "{{count}} alterações com falha",
+    "pendingChanges": "pendentes",
+    "offlineBanner": "Você está offline. As alterações serão sincronizadas quando você reconectar."
+  },
+  "About": {
+    "description": "Seu companheiro pessoal de produtividade",
+    "version": "Versão",
+    "platform": "Plataforma",
+    "madeWith": "Feito com ❤️ para aumentar sua produtividade",
+    "website": "Website",
+    "documentation": "Documentação"
+  },
+  "Shortcuts": {
+    "title": "Atalhos de Teclado",
+    "description": "Use estes atalhos para navegar e controlar o aplicativo mais rapidamente. Atalhos marcados como 'Global' funcionam mesmo quando a janela não está em foco.",
+    "footerNote": "Você pode personalizar atalhos globais em Configurações → Atalhos"
+  },
+  "Goals": {
+    "title": "Metas (OKRs)",
+    "subtitle": "Defina objetivos ambiciosos e acompanhe resultados chave",
+    "createObjective": "Nova Meta",
+    "noObjectives": "Nenhuma meta definida ainda",
+    "noObjectivesDescription": "Defina seus objetivos para manter o foco no que mais importa.",
+    "listTitle": "Objetivos e Resultados Chave",
+    "backToList": "Voltar para Metas",
+    "createDescription": "Crie um novo objetivo para acompanhar suas metas.",
+    "cancel": "Cancelar",
+    "create": "Criar Objetivo",
+    "form": {
+        "title": "Título",
+        "titlePlaceholder": "ex. Aumentar receita em 20%",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Descrição opcional do objetivo",
+        "period": "Período",
+        "startDate": "Data de Início",
+        "endDate": "Data de Término",
+        "color": "Cor",
+        "icon": "Ícone"
+    },
+    "periods": {
+        "QUARTERLY": "Trimestral",
+        "YEARLY": "Anual",
+        "CUSTOM": "Personalizado"
+    },
+    "status": {
+      "DRAFT": "Rascunho",
+      "ACTIVE": "Ativo",
+      "COMPLETED": "Concluído",
+      "CANCELLED": "Cancelado",
+      "AT_RISK": "Em Risco"
+    },
+    "period": {
+      "Q1": "T1",
+      "Q2": "T2",
+      "Q3": "T3",
+      "Q4": "T4",
+      "YEARLY": "Anual"
+    },
+    "keyResults": {
+      "title": "Resultados Chave",
+      "add": "Adicionar Resultado Chave",
+      "name": "Título",
+      "target": "Alvo",
+      "current": "Atual",
+      "unit": "Unidade",
+      "metricType": "Tipo",
+      "types": {
+        "PERCENTAGE": "Porcentagem",
+        "NUMBER": "Número",
+        "CURRENCY": "Moeda",
+        "BOOLEAN": "Verdadeiro/Falso"
+      }
+    },
+    "stats": {
+      "totalObjectives": "Total de Objetivos",
+      "onTrack": "No Caminho",
+      "atRisk": "Em Risco",
+      "completed": "Concluídos"
+    },
+    "tabs": {
+      "overview": "Visão Geral",
+      "list": "Vista em Lista",
+      "board": "Vista em Quadro"
+    },
+    "averageProgress": "Progresso Médio",
+    "viewAll": "Ver Tudo",
+    "total": "Total",
+    "okrsAtRisk": "OKRs em Risco",
+    "left": "restantes"
+  },
+  "CustomFields": {
+    "title": "Campos Personalizados",
+    "subtitle": "Adicione propriedades personalizadas às tarefas deste projeto",
+    "addField": "Adicionar Campo",
+    "noFields": "Nenhum campo personalizado ainda",
+    "noFieldsDescription": "Adicione campos para rastrear propriedades adicionais nas tarefas",
+    "editField": "Editar Campo",
+    "createField": "Criar Campo Personalizado",
+    "updateField": "Atualizar propriedades do campo",
+    "addFieldDescription": "Adicione uma nova propriedade personalizada para tarefas",
+    "fieldName": "Nome do Campo",
+    "fieldNamePlaceholder": "ex. Sprint, Story Points, Cliente",
+    "fieldType": "Tipo de Campo",
+    "description": "Descrição (opcional)",
+    "descriptionPlaceholder": "Texto de ajuda para este campo",
+    "options": "Opções",
+    "addOption": "Adicionar opção...",
+    "required": "Campo obrigatório",
+    "deleteConfirm": "Excluir este campo personalizado? Todos os valores serão perdidos.",
+    "cancel": "Cancelar",
+    "create": "Criar Campo",
+    "save": "Salvar Alterações",
+    "fieldCreated": "Campo criado",
+    "fieldUpdated": "Campo atualizado",
+    "fieldDeleted": "Campo excluído",
+    "fieldError": "Falha ao salvar campo",
+    "deleteError": "Falha ao excluir campo",
+    "nameRequired": "O nome do campo é obrigatório",
+    "optionsRequired": "Campos de seleção requerem pelo menos uma opção",
+    "types": {
+      "TEXT": "Texto",
+      "NUMBER": "Número",
+      "SELECT": "Seleção Única",
+      "MULTI_SELECT": "Seleção Múltipla",
+      "DATE": "Data",
+      "URL": "URL",
+      "EMAIL": "Email",
+      "CHECKBOX": "Caixa de Seleção"
+    }
   }
 }

@@ -46,6 +46,15 @@ import type {
   CreateAttachmentDto,
   InviteMemberDto,
   AcceptInvitationDto,
+  // Objectives
+  Objective,
+  KeyResult,
+  CreateObjectiveDto,
+  UpdateObjectiveDto,
+  CreateKeyResultDto,
+  UpdateKeyResultDto,
+  LinkTaskDto,
+  ObjectiveDashboardSummary,
 } from '@ordo-todo/api-client';
 
 // ============ QUERY KEYS ============
@@ -1325,3 +1334,145 @@ export function useResumeHabit() {
   });
 }
 
+
+// ============ OBJECTIVES (OKRs) HOOKS ============
+
+const objectiveQueryKeys = {
+  all: ['objectives'] as const,
+  dashboard: ['objectives', 'dashboard'] as const,
+  currentPeriod: ['objectives', 'current-period'] as const,
+  objective: (id: string) => ['objectives', id] as const,
+};
+
+export function useObjectives() {
+  return useQuery<Objective[]>({
+    queryKey: objectiveQueryKeys.all,
+    queryFn: () => apiClient.getObjectives(),
+  });
+}
+
+export function useCurrentPeriodObjectives() {
+  return useQuery<Objective[]>({
+    queryKey: objectiveQueryKeys.currentPeriod,
+    queryFn: () => apiClient.getCurrentPeriodObjectives(),
+  });
+}
+
+export function useObjectivesDashboardSummary() {
+  return useQuery<ObjectiveDashboardSummary>({
+    queryKey: objectiveQueryKeys.dashboard,
+    queryFn: () => apiClient.getObjectivesDashboardSummary(),
+  });
+}
+
+export function useObjectivesDashboard() {
+  return useQuery({
+    queryKey: objectiveQueryKeys.dashboard,
+    queryFn: () => apiClient.getObjectivesDashboardSummary(),
+  });
+}
+
+export function useObjective(id: string) {
+  return useQuery<Objective>({
+    queryKey: objectiveQueryKeys.objective(id),
+    queryFn: () => apiClient.getObjective(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateObjective() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateObjectiveDto) => apiClient.createObjective(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.currentPeriod });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.dashboard });
+    },
+  });
+}
+
+export function useUpdateObjective() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateObjectiveDto }) =>
+      apiClient.updateObjective(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(id) });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.currentPeriod });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.dashboard });
+    },
+  });
+}
+
+export function useDeleteObjective() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.deleteObjective(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.currentPeriod });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.dashboard });
+    },
+  });
+}
+
+export function useAddKeyResult() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ objectiveId, data }: { objectiveId: string; data: CreateKeyResultDto }) =>
+      apiClient.addKeyResult(objectiveId, data),
+    onSuccess: (_, { objectiveId }) => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+    },
+  });
+}
+
+export function useUpdateKeyResult() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ objectiveId, keyResultId, data }: { objectiveId: string; keyResultId: string; data: UpdateKeyResultDto }) =>
+      apiClient.updateKeyResult(objectiveId, keyResultId, data),
+    onSuccess: (_, { objectiveId }) => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+    },
+  });
+}
+
+export function useDeleteKeyResult() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ objectiveId, keyResultId }: { objectiveId: string; keyResultId: string }) =>
+      apiClient.deleteKeyResult(objectiveId, keyResultId),
+    onSuccess: (_, { objectiveId }) => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+    },
+  });
+}
+
+export function useLinkTaskToKeyResult() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ keyResultId, data }: { keyResultId: string; data: LinkTaskDto }) =>
+      apiClient.linkTaskToKeyResult(keyResultId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+      // Ideally we would invalidate specific objective but we don't have ID here easily
+    },
+  });
+}
+
+export function useUnlinkTaskFromKeyResult() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ keyResultId, taskId }: { keyResultId: string; taskId: string }) =>
+      apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
+    }
+  });
+}
