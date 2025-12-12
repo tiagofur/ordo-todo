@@ -43,6 +43,8 @@ const features = defineCollection({
       "productivity",
       "collaboration",
       "time-management",
+      "habits",
+      "okrs",
     ]),
     featured: z.boolean().default(false),
   }),

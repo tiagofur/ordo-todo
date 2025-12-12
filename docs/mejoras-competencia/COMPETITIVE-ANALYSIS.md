@@ -140,82 +140,65 @@ Identificar funcionalidades faltantes y oportunidades de mejora para que Ordo-To
 
 ### 🔥 Prioridad ALTA (Diferenciadores Competitivos)
 
-#### 1. **Habit Tracker Integrado** ⭐⭐⭐⭐⭐
+#### 1. **Habit Tracker Integrado** ⭐⭐⭐⭐⭐ ✅ COMPLETADO
 > *TickTick lo tiene y es su mayor diferenciador*
 
-```
-Propuesta:
-- Hábitos como tipo especial de "tarea recurrente"
-- Streaks visuales (racha de días)
+**Estado:** ✅ Implementado completamente
+- Hábitos con streaks visuales
 - Estadísticas de cumplimiento
-- Diferentes frecuencias (diario, 3x semana, etc.)
+- Diferentes frecuencias (diario, semanal, etc.)
 - Recordatorios específicos
-- Gamificación extra para hábitos
-```
-
-**Porque importa:** Los usuarios quieren una sola app para tareas Y hábitos. Actualmente usan 2 apps.
+- Gamificación con XP
 
 ---
 
-#### 2. **Start Date + Scheduled Date separadas de Due Date** ⭐⭐⭐⭐⭐
+#### 2. **Start Date + Scheduled Date separadas de Due Date** ⭐⭐⭐⭐⭐ ✅ COMPLETADO
 > *Queja #1 de usuarios de Todoist*
 
-```
-Propuesta:
+**Estado:** ✅ Implementado completamente
 - Start Date: Cuando puedo empezar a trabajar en esto
 - Scheduled Date: Cuando planeo hacerlo  
 - Due Date: Fecha límite real
-
-Beneficio: Las tareas no aparecen antes de poder hacerse.
-Vista "Upcoming" muestra solo lo que ya puede comenzarse.
-```
+- Vista "Today" filtra correctamente
 
 ---
 
-#### 3. **OKRs / Goals System** ⭐⭐⭐⭐
+#### 3. **OKRs / Goals System** ⭐⭐⭐⭐ ✅ COMPLETADO
 > *Asana, ClickUp, Lattice lo tienen*
 
-```
-Propuesta:
+**Estado:** ✅ Implementado completamente
 - Crear Objetivos con Key Results medibles
 - Vincular tareas a Objetivos
 - Dashboard de progreso hacia goals
-- Quarterly reviews automáticos
-- AI que sugiere tareas que impactan goals
-```
-
-**Porque importa:** Los usuarios quieren ver cómo sus tareas contribuyen a metas mayores.
+- Métricas: Porcentaje, Número, Moneda, Booleano
+- UI completa en Web, Desktop y Mobile
 
 ---
 
-#### 4. **Calendario con Time Blocking REAL** ⭐⭐⭐⭐
+#### 4. **Calendario con Time Blocking REAL** ⭐⭐⭐⭐ ✅ PARCIAL
 > *TickTick, Calendar AI lo tienen*
 
-```
-Propuesta:
-- Arrastrar tareas al calendario asigna horario
-- Estimación de duración visible
-- Conflictos detectados automáticamente
+**Estado:** ✅ Implementación base completa
+- scheduledTime y scheduledEndTime
+- isTimeBlocked para mostrar en calendario
+- Vista semanal con bloques
+
+**Pendiente:**
+- Drag & drop de tareas al calendario
 - AI que sugiere slots óptimos
 - Sincronización bidireccional con Google/Outlook
-```
 
 ---
 
-#### 5. **Custom Fields / Properties** ⭐⭐⭐⭐
+#### 5. **Custom Fields / Properties** ⭐⭐⭐⭐ ✅ COMPLETADO
 > *Notion, ClickUp lo tienen - usuarios lo piden constantemente*
 
-```
-Propuesta:
-- Campos personalizados por proyecto:
-  - Dropdown (ej: Sprint, Cliente)
-  - Number (ej: Story Points)
-  - Date (ej: Fecha revisión)
-  - URL, Email
-  - Person (asignado secundario)
-- Filtrar por custom fields
-- Reportes por custom fields
-```
+**Estado:** ✅ Implementado completamente (Diciembre 2024)
+- 8 tipos de campo: TEXT, NUMBER, SELECT, MULTI_SELECT, DATE, URL, EMAIL, CHECKBOX
+- Editor en Project Settings
+- Integración en formularios de tarea
+- Web, Desktop y Mobile
+- i18n completo
 
 ---
 
@@ -300,19 +283,21 @@ Propuesta:
 
 ```mermaid
 gantt
-    title Roadmap de Features Competitivas
+    title Roadmap de Features Competitivas (Actualizado Dic 2024)
     dateFormat  YYYY-MM
-    section Alta Prioridad
-    Habit Tracker           :2025-01, 6w
-    Start/Scheduled/Due dates:2025-02, 3w
-    Time Blocking Calendar   :2025-02, 5w
-    section Media Prioridad
-    OKRs/Goals System       :2025-03, 6w
-    Custom Fields           :2025-04, 5w
-    Browser Extension       :2025-04, 4w
-    section Optimización
-    Performance audit       :2025-01, 2w
-    Mobile UX improvements  :2025-02, 4w
+    section Completado ✅
+    Habit Tracker           :done, 2024-11, 6w
+    Start/Scheduled/Due dates:done, 2024-11, 3w
+    OKRs/Goals System       :done, 2024-12, 4w
+    Time Blocking Base      :done, 2024-12, 2w
+    Custom Fields           :done, 2024-12, 1w
+    section Próximo (Q1 2025)
+    Browser Extension       :2025-01, 4w
+    Team Workload View      :2025-01, 3w
+    Smart Search Semántico  :2025-02, 3w
+    section Q2 2025
+    AI Meeting Assistant    :2025-03, 6w
+    Calendar Sync           :2025-04, 4w
 ```
 
 ---
@@ -343,11 +328,26 @@ Para superar a la competencia, monitorear:
 
 **Ordo-Todo tiene una base técnica excelente y features únicos (Pomodoro avanzado, cambio de tarea en vuelo).** 
 
-Para ser "la mejor del mundo", enfocarse en:
+### ✅ Logros (Diciembre 2024)
 
-1. ⭐ **Habit Tracker** - El feature más pedido que falta
-2. ⭐ **Start Dates** - Soluciona frustraciones comunes
-3. ⭐ **Performance impecable** - Diferenciador vs ClickUp
-4. ⭐ **UX móvil premium** - Diferenciador vs Notion
-5. ⭐ **IA no intrusiva** - Diferenciador vs todos
+| Feature | Estado | Impacto |
+|---------|--------|---------|
+| **Habit Tracker** | ✅ Completado | Alto - Diferenciador vs Todoist |
+| **Start/Scheduled/Due Dates** | ✅ Completado | Alto - Soluciona queja #1 |
+| **OKRs/Goals System** | ✅ Completado | Alto - Diferenciador vs apps simples |
+| **Time Blocking** | ✅ Base Completa | Medio - Falta D&D y sync |
+| **Custom Fields** | ✅ Completado | Alto - Paridad con Notion/ClickUp |
+
+### 🎯 Próximos Pasos
+
+1. ⭐ **Browser Extension** - Quick capture desde cualquier página
+2. ⭐ **Smart Search** - Búsqueda en lenguaje natural
+3. ⭐ **Calendar Sync** - Google/Outlook bidireccional
+4. ⭐ **Performance audit** - Optimización continua
+5. ⭐ **AI Meeting Assistant** - Extracción de action items
+
+---
+
+**Última actualización:** 11 Diciembre 2024
+
 

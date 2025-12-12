@@ -12,6 +12,8 @@ const featureCategories = [
   { key: 'ai', icon: '🤖' },
   { key: 'productivity', icon: '⚡' },
   { key: 'collaboration', icon: '👥' },
+  { key: 'habits', icon: '🔥' },
+  { key: 'okrs', icon: '🎯' },
   { key: 'time-management', icon: '⏰' }
 ];
 ---
@@ -29,7 +31,7 @@ const featureCategories = [
     </div>
 
     <!-- Features Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {featureCategories.map(category => {
         const categoryFeatures = features.filter(f => f.data.category === category.key);
         
