@@ -170,6 +170,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=https://api.ordotodo.app/api/v1
             NEXTAUTH_URL=https://ordotodo.app
+            CACHEBUST=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

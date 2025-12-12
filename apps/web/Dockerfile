@@ -44,8 +44,10 @@ COPY apps/web ./apps/web
 COPY packages ./packages
 
 # Build arguments for environment variables
+ARG CACHEBUST=1
 ARG NEXT_PUBLIC_API_URL
 ARG NEXTAUTH_URL
+RUN echo "Building web with API URL: $NEXT_PUBLIC_API_URL"
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXTAUTH_URL=$NEXTAUTH_URL
 

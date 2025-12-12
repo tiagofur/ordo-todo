@@ -1,7 +1,7 @@
-const sharp = require("sharp");
-const iconGen = require("icon-gen");
-const fs = require("fs");
-const path = require("path");
+import sharp from "sharp";
+import iconGen from "icon-gen";
+import fs from "fs";
+import path from "path";
 
 async function generateIcons() {
   const buildDir = path.join(__dirname, "..", "build");
