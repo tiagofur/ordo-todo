@@ -103,11 +103,11 @@ jobs:
               working-directory: .
 
             - name: Generate Prisma client
-              run: npx prisma generate
+              run: npx prisma generate --schema=prisma/schema.prisma
               working-directory: packages/db
 
-            - name: Push database schema
-              run: npx prisma db push
+            - name: Run database migrations
+              run: npx prisma migrate deploy --schema=prisma/schema.prisma
               working-directory: packages/db
 
             - name: Lint
