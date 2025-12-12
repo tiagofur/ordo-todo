@@ -210,17 +210,23 @@ jobs:
             # Login to GitHub Container Registry
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
             
+            # Stop existing containers to release ports
+            echo "[$(date)] 🛑 Stopping existing containers..."
+            docker compose down --remove-orphans || true
+            
             # Pull new images
             echo "[$(date)] 📦 Pulling new images..."
             docker compose pull
             
             # Run database migrations
             echo "[$(date)] 🗄️ Running database migrations..."
+            docker compose up -d postgres
+            sleep 5
             docker compose up migrations --exit-code-from migrations || true
             
-            # Deploy with zero-downtime rolling update
+            # Deploy services
             echo "[$(date)] 🔄 Deploying services..."
-            docker compose up -d --remove-orphans backend web
+            docker compose up -d backend web
             
             # Wait for health checks
             echo "[$(date)] ⏳ Waiting for services to be healthy..."
