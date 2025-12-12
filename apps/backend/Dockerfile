@@ -10,9 +10,17 @@ RUN apk add --no-cache libc6-compat python3 make g++
 # Copy package files for the entire monorepo
 COPY package.json package-lock.json ./
 COPY apps/backend/package.json ./apps/backend/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/config/package.json ./packages/config/
 COPY packages/core/package.json ./packages/core/
 COPY packages/db/package.json ./packages/db/
-COPY packages/config/package.json ./packages/config/
+COPY packages/eslint-config/package.json ./packages/eslint-config/
+COPY packages/hooks/package.json ./packages/hooks/
+COPY packages/i18n/package.json ./packages/i18n/
+COPY packages/stores/package.json ./packages/stores/
+COPY packages/styles/package.json ./packages/styles/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/ui/package.json ./packages/ui/
 
 # Copy Prisma schema for generate
 COPY packages/db/prisma ./packages/db/prisma
@@ -35,9 +43,7 @@ COPY --from=deps /app/apps/backend/node_modules ./apps/backend/node_modules
 # Copy source code
 COPY package.json package-lock.json turbo.json ./
 COPY apps/backend ./apps/backend
-COPY packages/core ./packages/core
-COPY packages/db ./packages/db
-COPY packages/config ./packages/config
+COPY packages ./packages
 
 # Generate Prisma client
 RUN npx prisma generate --schema=packages/db/prisma/schema.prisma

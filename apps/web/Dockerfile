@@ -18,6 +18,8 @@ COPY packages/stores/package.json ./packages/stores/
 COPY packages/i18n/package.json ./packages/i18n/
 COPY packages/styles/package.json ./packages/styles/
 COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/eslint-config/package.json ./packages/eslint-config/
 
 # Copy Prisma schema for postinstall script
 COPY packages/db/prisma ./packages/db/prisma
