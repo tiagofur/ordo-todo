@@ -4,7 +4,8 @@ import { useAuth } from "../components/providers/auth-provider";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { CheckSquare } from "lucide-react";
+import { Separator } from "../components/ui/separator";
+import { CheckSquare, Chrome, Github } from "lucide-react";
 
 export function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,7 +13,8 @@ export function Auth() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, signup } = useAuth();
+  const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
+  const { login, signup, signInWithGoogle, signInWithGitHub } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +32,30 @@ export function Auth() {
       console.error("Auth error:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setOauthLoading("google");
+    try {
+      await signInWithGoogle();
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Google sign in error:", error);
+    } finally {
+      setOauthLoading(null);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    setOauthLoading("github");
+    try {
+      await signInWithGitHub();
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("GitHub sign in error:", error);
+    } finally {
+      setOauthLoading(null);
     }
   };
 
@@ -95,6 +121,55 @@ export function Auth() {
               : "Crear cuenta"}
           </Button>
         </form>
+
+        {/* OAuth Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator className="w-full" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              O continúa con
+            </span>
+          </div>
+        </div>
+
+        {/* OAuth Buttons */}
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={oauthLoading !== null}
+          >
+            {oauthLoading === "google" ? (
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+            ) : (
+              <Chrome className="h-4 w-4" />
+            )}
+            <span className="ml-2">
+              {oauthLoading === "google" ? "Conectando..." : "Continuar con Google"}
+            </span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGitHubSignIn}
+            disabled={oauthLoading !== null}
+          >
+            {oauthLoading === "github" ? (
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+            ) : (
+              <Github className="h-4 w-4" />
+            )}
+            <span className="ml-2">
+              {oauthLoading === "github" ? "Conectando..." : "Continuar con GitHub"}
+            </span>
+          </Button>
+        </div>
 
         {/* Toggle */}
         <div className="text-center text-sm">

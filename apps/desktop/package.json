@@ -1,6 +1,7 @@
 {
   "name": "@ordo-todo/desktop",
   "version": "1.0.0",
+  "type": "module",
   "description": "Ordo-Todo Desktop Application - Modern Task & Pomodoro Management",
   "author": "Ordo-Todo Team",
   "main": "dist-electron/main.js",
@@ -21,7 +22,16 @@
     "generate-icons": "node scripts/generate-icons.js",
     "prebuild": "npm run generate-icons && echo 'Building Ordo-Todo Desktop...'",
     "clean": "rimraf dist dist-electron",
-    "clean:all": "npm run clean && rimraf node_modules"
+    "clean:all": "npm run clean && rimraf node_modules",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "build:analyze": "ANALYZE_BUNDLE=true npm run build:vite",
+    "build:report": "ANALYZE_BUNDLE=true npm run build:vite -- --mode production",
+    "analyze:bundle": "node scripts/analyze-bundle.mjs",
+    "bundle:check": "npm run build && npm run analyze:bundle"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -84,10 +94,14 @@
   },
   "devDependencies": {
     "@electron/notarize": "^2.5.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/ui": "^4.0.15",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
@@ -95,14 +109,17 @@
     "electron-builder": "^26.0.12",
     "electron-builder-notarize": "^1.5.2",
     "icon-gen": "^5.0.0",
+    "jsdom": "^27.3.0",
     "postcss": "^8.5.1",
     "rimraf": "^3.0.2",
+    "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "vite": "^7.2.6",
     "vite-plugin-electron": "^0.29.0",
     "vite-plugin-electron-renderer": "^0.14.6",
+    "vitest": "^4.0.15",
     "wait-on": "^8.0.1"
   },
   "build": {

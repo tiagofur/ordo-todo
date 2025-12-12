@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo, CalendarClock, CalendarCheck } from "lucide-react";
+import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo, CalendarClock, CalendarCheck, Share2 } from "lucide-react";
 import { useUpdateTask, useTask } from "@/hooks/api/use-tasks";
 import {
   cn,
@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@ordo-todo/ui";
+import { ShareTaskDialog } from "@/components/sharing";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -45,7 +46,8 @@ interface TaskCardProps {
 export function TaskCard({ task: initialTask, isSelected, onOpenDetail, index = 0 }: TaskCardProps) {
   const { t } = useTranslation();
   const [showDetail, setShowDetail] = useState(false);
-  
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
   // Fetch full task details to ensure we have tags and subtasks
   const { data: fullTask } = useTask(String(initialTask.id));
   const task = (fullTask || initialTask) as any;
@@ -148,6 +150,11 @@ export function TaskCard({ task: initialTask, isSelected, onOpenDetail, index = 
                   {t('TaskCard.actions.viewEdit')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShareDialogOpen(true); }}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Compartir
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* Add delete handler */ }} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
                   <Trash2 className="mr-2 h-4 w-4" />
                   {t('TaskCard.actions.delete')}
@@ -246,12 +253,19 @@ export function TaskCard({ task: initialTask, isSelected, onOpenDetail, index = 
       </motion.div>
 
       {!onOpenDetail && (
-        <TaskDetailPanel 
-          taskId={task.id ? String(task.id) : null} 
-          open={showDetail} 
-          onOpenChange={setShowDetail} 
+        <TaskDetailPanel
+          taskId={task.id ? String(task.id) : null}
+          open={showDetail}
+          onOpenChange={setShowDetail}
         />
       )}
+
+      <ShareTaskDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        taskId={task.id ? String(task.id) : ""}
+        taskTitle={task.title}
+      />
     </>
   );
 }

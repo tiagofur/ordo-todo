@@ -34,6 +34,90 @@ export class DesktopApiClient extends OrdoApiClient {
     const response = await this.axios.get(`/tasks/${taskId}/dependencies`);
     return response.data;
   }
+
+  // ============ TASK SHARING ============
+
+  async generateShareToken(taskId: string) {
+    const response = await this.axios.post(`/tasks/${taskId}/share`);
+    return response.data;
+  }
+
+  async getSharedTask(token: string) {
+    const response = await this.axios.get(`/tasks/share/${token}`);
+    return response.data;
+  }
+
+  async getShareUrl(taskId: string) {
+    const shareData = await this.generateShareToken(taskId);
+    const baseUrl = this.baseURL.endsWith('/api/v1')
+      ? this.baseURL.slice(0, -7) // Remove '/api/v1'
+      : this.baseURL;
+    return `${baseUrl}/share/task/${shareData.token}`;
+  }
+
+  // ============ CUSTOM FIELDS ============
+
+  async getProjectCustomFields(projectId: string) {
+    const response = await this.axios.get(`/projects/${projectId}/custom-fields`);
+    return response.data;
+  }
+
+  async createCustomField(projectId: string, data: any) {
+    const response = await this.axios.post(`/projects/${projectId}/custom-fields`, data);
+    return response.data;
+  }
+
+  async updateCustomField(fieldId: string, data: any) {
+    const response = await this.axios.put(`/custom-fields/${fieldId}`, data);
+    return response.data;
+  }
+
+  async deleteCustomField(fieldId: string) {
+    const response = await this.axios.delete(`/custom-fields/${fieldId}`);
+    return response.data;
+  }
+
+  async getTaskCustomValues(taskId: string) {
+    const response = await this.axios.get(`/tasks/${taskId}/custom-values`);
+    return response.data;
+  }
+
+  async setTaskCustomValues(taskId: string, data: { values: any[] }) {
+    const response = await this.axios.post(`/tasks/${taskId}/custom-values`, data);
+    return response.data;
+  }
+
+  // ============ FILE UPLOADS ============
+
+  async uploadFile(taskId: string, file: File, onProgress?: (progress: number) => void) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('taskId', taskId);
+
+    const response = await this.axios.post('/attachments/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(progress);
+        }
+      },
+    });
+
+    return response.data;
+  }
+
+  async deleteAttachment(attachmentId: string) {
+    const response = await this.axios.delete(`/attachments/${attachmentId}`);
+    return response.data;
+  }
+
+  async getTaskAttachments(taskId: string) {
+    const response = await this.axios.get(`/tasks/${taskId}/attachments`);
+    return response.data;
+  }
 }
 
 export const apiClient = new DesktopApiClient({

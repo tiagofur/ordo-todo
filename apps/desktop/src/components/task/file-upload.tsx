@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
-import { Upload, File, X, Image as ImageIcon, FileText, Film, Music } from "lucide-react";
+import { Upload, File, X, Image as ImageIcon, FileText, Film, Music, AlertTriangle } from "lucide-react";
 import { ElectronStoreTokenStorage } from "@/lib/storage";
+import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
-import { cn, Button, Progress } from "@ordo-todo/ui";
+import { cn, Button, Progress, Alert, AlertDescription } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
 
 interface FileUploadProps {
@@ -83,6 +84,20 @@ export function FileUpload({
       return t('FileUpload.errors.invalidType');
     }
 
+    // Check filename for security
+    const dangerousExtensions = ['.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    if (dangerousExtensions.includes(fileExtension)) {
+      return t('FileUpload.errors.dangerousType');
+    }
+
+    // Check for potentially dangerous filenames
+    const dangerousNames = ['..', 'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
+    const fileNameWithoutExt = file.name.toLowerCase().substring(0, file.name.lastIndexOf('.'));
+    if (dangerousNames.includes(fileNameWithoutExt)) {
+      return t('FileUpload.errors.invalidName');
+    }
+
     return null;
   };
 
@@ -99,94 +114,27 @@ export function FileUpload({
     // Add to uploading files with unique ID
     setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
 
-    // Create FormData
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("taskId", taskId);
-
-    // Upload file
-    const xhr = new XMLHttpRequest();
-
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) {
-        const progress = Math.round((e.loaded / e.total) * 100);
+    try {
+      // Use API client for better error handling
+      const response = await apiClient.uploadFile(taskId, file, (progress) => {
         setUploadingFiles((prev) =>
           prev.map((f) => (f.id === uploadId ? { ...f, progress } : f))
         );
-      }
-    });
+      });
 
-    xhr.addEventListener("load", async () => {
-      if (xhr.status === 200 || xhr.status === 201) {
-        try {
-          const response = JSON.parse(xhr.responseText);
-
-          // Validate response structure
-          if (!response.success) {
-            throw new Error(t('FileUpload.errors.invalidResponse'));
-          }
-
-          // Backend already created the attachment record
-          toast.success(t('FileUpload.success.uploaded', { fileName: file.name }));
-          setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
-          onUploadComplete?.();
-        } catch (err) {
-          console.error("Upload error:", err);
-          const errorMessage = err instanceof Error ? err.message : t('FileUpload.errors.unknown');
-          toast.error(t('FileUpload.errors.uploadError', { errorMessage }));
-          setUploadingFiles((prev) =>
-            prev.map((f) =>
-              f.id === uploadId ? { ...f, error: errorMessage } : f
-            )
-          );
-        }
-      } else {
-        console.error("Upload failed with status:", xhr.status, xhr.responseText);
-        let errorMessage = t('FileUpload.errors.statusError', { status: xhr.status, statusText: xhr.statusText });
-
-        try {
-          const errorResponse = JSON.parse(xhr.responseText);
-          if (errorResponse.message) {
-            errorMessage = errorResponse.message;
-          } else if (errorResponse.error) {
-            errorMessage = errorResponse.error;
-          }
-        } catch (e) {
-          // Keep default error message
-        }
-
-        toast.error(errorMessage);
-        setUploadingFiles((prev) =>
-          prev.map((f) =>
-            f.id === uploadId ? { ...f, error: errorMessage } : f
-          )
-        );
-      }
-    });
-
-    xhr.addEventListener("error", () => {
-      console.error("XHR Error event triggered");
-      const errorMessage = t('FileUpload.errors.networkError');
-      toast.error(errorMessage);
+      toast.success(t('FileUpload.success.uploaded', { fileName: file.name }));
+      setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
+      onUploadComplete?.();
+    } catch (err) {
+      console.error("Upload error:", err);
+      const errorMessage = err instanceof Error ? err.message : t('FileUpload.errors.unknown');
+      toast.error(t('FileUpload.errors.uploadError', { errorMessage }));
       setUploadingFiles((prev) =>
         prev.map((f) =>
           f.id === uploadId ? { ...f, error: errorMessage } : f
         )
       );
-    });
-
-    // Use backend upload endpoint
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3101/api/v1";
-    xhr.open("POST", `${apiUrl}/attachments/upload`);
-
-    // Add auth token
-    const tokenStorage = new ElectronStoreTokenStorage();
-    const token = tokenStorage.getToken();
-    if (token) {
-      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     }
-
-    xhr.send(formData);
   };
 
   const handleFiles = (files: FileList | null) => {
@@ -235,6 +183,14 @@ export function FileUpload({
 
   return (
     <div className="space-y-4">
+      {/* Security Warning */}
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Seguridad:</strong> Solo se permiten archivos seguros. Se bloquearán automáticamente ejecutables y archivos potencialmente peligrosos.
+        </AlertDescription>
+      </Alert>
+
       {/* Drop Zone */}
       <div
         className={cn(
@@ -281,6 +237,13 @@ export function FileUpload({
             <p className="text-xs text-muted-foreground">
               {t('FileUpload.dropzone.maxSize', { maxFileSize })}
             </p>
+            <div className="flex flex-wrap justify-center gap-1 mt-2">
+              <span className="text-xs bg-muted px-2 py-1 rounded">Imágenes</span>
+              <span className="text-xs bg-muted px-2 py-1 rounded">PDF</span>
+              <span className="text-xs bg-muted px-2 py-1 rounded">Word</span>
+              <span className="text-xs bg-muted px-2 py-1 rounded">Excel</span>
+              <span className="text-xs bg-muted px-2 py-1 rounded">Texto</span>
+            </div>
           </div>
         </div>
       </div>

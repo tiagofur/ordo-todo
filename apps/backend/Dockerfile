@@ -76,6 +76,7 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/apps/backend/dist ./dist
 COPY --from=builder /app/apps/backend/package.json ./
 COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
+COPY --from=builder /app/packages/db/prisma.config.ts ./packages/db/
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy shared packages (complete packages with package.json for proper resolution)

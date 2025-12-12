@@ -144,3 +144,26 @@ export function useRemoveDependency() {
     }
   });
 }
+
+// ============ TASK SHARING ============
+
+export function useSharedTask(token: string) {
+  return useQuery({
+    queryKey: ['shared-task', token],
+    queryFn: () => apiClient.getSharedTask(token),
+    enabled: !!token,
+    retry: false,
+  });
+}
+
+export function useGenerateShareToken() {
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.generateShareToken(taskId),
+  });
+}
+
+export function useShareUrl() {
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.getShareUrl(taskId),
+  });
+}

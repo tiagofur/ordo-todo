@@ -17,7 +17,16 @@
       "Bash(docker:*)",
       "Bash(find:*)",
       "Bash(node consolidate-imports.mjs:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm run lint)",
+      "Bash(echo:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run check-types:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run test:*)",
+      "Bash(cmd:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
