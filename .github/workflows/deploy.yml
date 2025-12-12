@@ -214,6 +214,17 @@ jobs:
             echo "[$(date)] 🛑 Stopping existing containers..."
             docker compose down --remove-orphans || true
             
+            # Stop any rogue postgres containers not managed by compose
+            docker ps -a --filter "name=postgres" -q | xargs -r docker stop || true
+            docker ps -a --filter "name=postgres" -q | xargs -r docker rm || true
+            
+            # Kill any processes using our ports (in case system postgres is running)
+            echo "[$(date)] 🔌 Releasing ports..."
+            sudo fuser -k 5432/tcp || true
+            sudo fuser -k 3000/tcp || true
+            sudo fuser -k 3001/tcp || true
+            sleep 2
+            
             # Pull new images
             echo "[$(date)] 📦 Pulling new images..."
             docker compose pull
