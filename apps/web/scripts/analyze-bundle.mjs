@@ -196,7 +196,8 @@ function generateOptimizationRecommendations(analysis) {
   // Chunk analysis
   const largeChunks = analysis.chunks.filter(chunk => chunk.size > 300000);
   if (largeChunks.length > 0) {
-    recommendations.push(`🟡 Large chunks detected: ${largeChunks.map(c => `${c.name} (${formatBytes(c.size))}`).join(', ')}`);
+    const largeChunksList = largeChunks.map(c => `${c.name} (${formatBytes(c.size)})`).join(', ');
+    recommendations.push('🟡 Large chunks detected: ' + largeChunksList);
   }
 
   // Vendor chunk analysis

@@ -300,11 +300,11 @@ export const createMockAnalyticsEvent = (overrides = {}) => ({
 export const waitFor = (ms: number = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper function to create mock promises
-export const createMockPromise = <T>(value: T, delay: number = 0) =>
+export const createMockPromise = <T,>(value: T, delay: number = 0) =>
   new Promise<T>((resolve) => setTimeout(() => resolve(value), delay));
 
 // Helper function to mock API responses
-export const createMockApiResponse = <T>(data: T, status: number = 200) => ({
+export const createMockApiResponse = <T,>(data: T, status: number = 200) => ({
   ok: status >= 200 && status < 300,
   status,
   json: () => Promise.resolve(data),

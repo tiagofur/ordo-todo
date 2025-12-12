@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { TimerProvider } from "./timer-provider";
 import { TimerSettingsProvider } from "./timer-settings-provider";
+import { DevToolsProvider } from "./devtools-provider";
+import { DevToolsPanel } from "@/components/devtools";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -38,8 +40,12 @@ export function Providers({ children }: ProvidersProps) {
         <AuthProvider>
           <TimerSettingsProvider>
             <TimerProvider>
-              {children}
-              <Toaster richColors position="top-right" />
+              <DevToolsProvider>
+                {children}
+                <Toaster richColors position="top-right" />
+                {/* DevTools only in development */}
+                {process.env.NODE_ENV === 'development' && <DevToolsPanel />}
+              </DevToolsProvider>
             </TimerProvider>
           </TimerSettingsProvider>
         </AuthProvider>
