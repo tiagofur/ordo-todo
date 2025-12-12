@@ -78,9 +78,9 @@ COPY --from=builder /app/apps/backend/package.json ./
 COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy shared packages dist
-COPY --from=builder /app/packages/core/dist ./node_modules/@ordo-todo/core/dist
-COPY --from=builder /app/packages/config/dist ./node_modules/@ordo-todo/config/dist
+# Copy shared packages (complete packages with package.json for proper resolution)
+COPY --from=builder /app/packages/core ./node_modules/@ordo-todo/core
+COPY --from=builder /app/packages/config ./node_modules/@ordo-todo/config
 
 # Copy Prisma generated client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
