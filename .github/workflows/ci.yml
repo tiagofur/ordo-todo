@@ -38,7 +38,8 @@ jobs:
               run: npm ci
 
             - name: Generate Prisma client
-              run: npx prisma generate --schema=packages/db/prisma/schema.prisma
+              run: npx prisma generate --schema=prisma/schema.prisma
+              working-directory: packages/db
 
             - name: Build packages
               run: npm run build --workspaces --if-present || true
