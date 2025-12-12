@@ -1,28 +1,35 @@
-import { EmailTemplate, EmailTemplateData } from '../interfaces/email-template.interface';
+import {
+  EmailTemplate,
+  EmailTemplateData,
+} from '../interfaces/email-template.interface';
 
-export const taskReminderTemplate = (data: EmailTemplateData & {
-  task: {
-    title: string;
-    description?: string;
-    dueDate?: Date;
-    priority: string;
-    project?: string;
-  };
-}): EmailTemplate => {
+export const taskReminderTemplate = (
+  data: EmailTemplateData & {
+    task: {
+      title: string;
+      description?: string;
+      dueDate?: Date;
+      priority: string;
+      project?: string;
+    };
+  },
+): EmailTemplate => {
   const { user, task } = data;
 
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
-  const dueDateText = task.dueDate ? new Date(task.dueDate).toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }) : '';
+  const dueDateText = task.dueDate
+    ? new Date(task.dueDate).toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : '';
 
   const priorityColors = {
     LOW: '#10b981',
     MEDIUM: '#f59e0b',
     HIGH: '#f97316',
-    URGENT: '#ef4444'
+    URGENT: '#ef4444',
   };
 
   return {
@@ -144,30 +151,42 @@ export const taskReminderTemplate = (data: EmailTemplateData & {
             </div>
           </div>
 
-          ${isOverdue ? `
+          ${
+            isOverdue
+              ? `
             <div class="overdue-warning">
               <h3 style="margin-top: 0;">⏰ Esta tarea está vencida</h3>
               <p style="margin-bottom: 0;">
                 La fecha límite fue el ${dueDateText}. Es importante completar esta tarea lo antes posible.
               </p>
             </div>
-          ` : ''}
+          `
+              : ''
+          }
 
           <div class="task-details">
             <h2 class="task-title">${task.title}</h2>
             ${task.description ? `<p class="task-description">${task.description}</p>` : ''}
 
             <div class="task-meta">
-              ${task.project ? `
+              ${
+                task.project
+                  ? `
                 <div class="meta-item">
                   📁 ${task.project}
                 </div>
-              ` : ''}
-              ${task.dueDate ? `
+              `
+                  : ''
+              }
+              ${
+                task.dueDate
+                  ? `
                 <div class="meta-item">
                   📅 ${isOverdue ? 'Vencía el' : 'Vence el'} ${dueDateText}
                 </div>
-              ` : ''}
+              `
+                  : ''
+              }
             </div>
           </div>
 

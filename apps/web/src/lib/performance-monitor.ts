@@ -55,7 +55,7 @@ export interface PerformanceScore {
 }
 
 class WebPerformanceMonitor {
-  private metrics: Partial<WebPerformanceMetrics> = {
+  private metrics: WebPerformanceMetrics = {
     lcp: 0,
     fid: 0,
     cls: 0,
@@ -189,8 +189,9 @@ class WebPerformanceMonitor {
     // First Input Delay (FID)
     this.observeVital('first-input', (entries) => {
       entries.forEach(entry => {
-        const fid = (entry as any).processingStart - entry.startTime;
-        if (this.metrics.fid === 0 || fid > this.metrics.fid) {
+        const processingStart = (entry as any).processingStart;
+        const fid = processingStart ? processingStart - entry.startTime : 0;
+        if (this.metrics.fid === undefined || fid > this.metrics.fid) {
           this.metrics.fid = fid;
         }
         this.entries.push({
@@ -210,7 +211,11 @@ class WebPerformanceMonitor {
           clsValue += (entry as any).value;
         }
       });
-      this.metrics.cls += clsValue;
+      if (this.metrics.cls !== undefined) {
+        this.metrics.cls += clsValue;
+      } else {
+        this.metrics.cls = clsValue;
+      }
       this.entries.push({
         name: 'CLS',
         startTime: 0,
@@ -259,11 +264,17 @@ class WebPerformanceMonitor {
               const resourceName = this.extractResourceName(resource.name);
 
               if (resource.name.includes('/assets/') && resource.name.includes('.js')) {
-                this.metrics.chunkLoadTimes[resourceName] = loadTime;
-                this.metrics.bundleLoadTime = Math.max(
-                  this.metrics.bundleLoadTime,
-                  loadTime
-                );
+                if (this.metrics.chunkLoadTimes) {
+                  this.metrics.chunkLoadTimes[resourceName] = loadTime;
+                }
+                if (this.metrics.bundleLoadTime !== undefined) {
+                  this.metrics.bundleLoadTime = Math.max(
+                    this.metrics.bundleLoadTime,
+                    loadTime
+                  );
+                } else {
+                  this.metrics.bundleLoadTime = loadTime;
+                }
               }
 
               this.entries.push({
@@ -370,18 +381,18 @@ class WebPerformanceMonitor {
     let clsScore = 100;
 
     // LCP scoring (Good: <2.5s, Needs Improvement: 2.5s-4s, Poor: >4s)
-    if (this.metrics.lcp > 4000) lcpScore = 0;
-    else if (this.metrics.lcp > 2500) lcpScore = 50;
+    if (this.metrics.lcp !== undefined && this.metrics.lcp > 4000) lcpScore = 0;
+    else if (this.metrics.lcp !== undefined && this.metrics.lcp > 2500) lcpScore = 50;
     else lcpScore = 100;
 
     // FID scoring (Good: <100ms, Needs Improvement: 100ms-300ms, Poor: >300ms)
-    if (this.metrics.fid > 300) fidScore = 0;
-    else if (this.metrics.fid > 100) fidScore = 50;
+    if (this.metrics.fid !== undefined && this.metrics.fid > 300) fidScore = 0;
+    else if (this.metrics.fid !== undefined && this.metrics.fid > 100) fidScore = 50;
     else fidScore = 100;
 
     // CLS scoring (Good: <0.1, Needs Improvement: 0.1-0.25, Poor: >0.25)
-    if (this.metrics.cls > 0.25) clsScore = 0;
-    else if (this.metrics.cls > 0.1) clsScore = 50;
+    if (this.metrics.cls !== undefined && this.metrics.cls > 0.25) clsScore = 0;
+    else if (this.metrics.cls !== undefined && this.metrics.cls > 0.1) clsScore = 50;
     else clsScore = 100;
 
     const overall = Math.round((lcpScore + fidScore + clsScore) / 3);
@@ -418,7 +429,7 @@ class WebPerformanceMonitor {
     }
 
     // Bundle-specific recommendations
-    if (this.metrics.bundleLoadTime > 2000) {
+    if (this.metrics.bundleLoadTime !== undefined && this.metrics.bundleLoadTime > 2000) {
       recommendations.push(`Bundle loading time is slow (${Math.round(this.metrics.bundleLoadTime)}ms). Consider code splitting`);
     }
 

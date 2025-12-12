@@ -1,16 +1,21 @@
-import { EmailTemplate, EmailTemplateData } from '../interfaces/email-template.interface';
+import {
+  EmailTemplate,
+  EmailTemplateData,
+} from '../interfaces/email-template.interface';
 
-export const workspaceInvitationTemplate = (data: EmailTemplateData & {
-  workspace: {
-    name: string;
-    description?: string;
-    color?: string;
-  };
-  inviter: {
-    name: string;
-  };
-  invitationToken: string;
-}): EmailTemplate => {
+export const workspaceInvitationTemplate = (
+  data: EmailTemplateData & {
+    workspace: {
+      name: string;
+      description?: string;
+      color?: string;
+    };
+    inviter: {
+      name: string;
+    };
+    invitationToken: string;
+  },
+): EmailTemplate => {
   const { user, workspace, inviter, invitationToken } = data;
 
   return {
@@ -137,11 +142,15 @@ export const workspaceInvitationTemplate = (data: EmailTemplateData & {
             </h2>
           </div>
 
-          ${workspace.description ? `
+          ${
+            workspace.description
+              ? `
             <p style="text-align: center; margin: 20px 0; color: #64748b; font-size: 16px;">
               ${workspace.description}
             </p>
-          ` : ''}
+          `
+              : ''
+          }
 
           <div class="inviter-message">
             <p style="margin: 0;">

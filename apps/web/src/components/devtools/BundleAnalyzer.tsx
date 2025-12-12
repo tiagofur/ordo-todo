@@ -39,6 +39,7 @@ export function BundleAnalyzer({ isOpen = true, className }: BundleAnalyzerProps
   const [filterType, setFilterType] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('overview');
   const [sortBy, setSortBy] = useState('size');
+  const [showDetails, setShowDetails] = useState(false);
 
   // Mock bundle data for demonstration
   const loadBundleAnalysis = async () => {
@@ -89,7 +90,7 @@ export function BundleAnalyzer({ isOpen = true, className }: BundleAnalyzerProps
               name: 'app-components',
               size: 320000,
               gzippedSize: 110000,
-              brotli_size: 95000,
+              brotliSize: 95000,
               type: 'app',
               modules: ['TaskCard', 'ProjectCard', 'Timer', 'Charts']
             },

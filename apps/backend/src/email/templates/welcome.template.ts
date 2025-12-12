@@ -1,4 +1,7 @@
-import { EmailTemplate, EmailTemplateData } from '../interfaces/email-template.interface';
+import {
+  EmailTemplate,
+  EmailTemplateData,
+} from '../interfaces/email-template.interface';
 
 export const welcomeTemplate = (data: EmailTemplateData): EmailTemplate => {
   const { user } = data;

@@ -5,6 +5,7 @@
  * Used across Web, Desktop, and Mobile applications.
  */
 
+export * from "./alert.js";
 export * from "./alert-dialog.js";
 export * from "./avatar.js";
 export * from "./badge.js";
@@ -12,6 +13,7 @@ export * from "./button.js";
 export * from "./calendar.js";
 export * from "./card.js";
 export * from "./checkbox.js";
+export * from "./collapsible.js";
 export * from "./command.js";
 export * from "./custom-icons.js";
 export * from "./date-picker.js";

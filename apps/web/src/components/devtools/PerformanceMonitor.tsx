@@ -278,7 +278,7 @@ export function PerformanceMonitor({ isOpen = true, className }: PerformanceMoni
                         .map(([chunk, time]) => (
                           <div key={chunk} className="flex justify-between text-sm">
                             <span className="text-gray-700 dark:text-gray-300">{chunk}</span>
-                            <span className="font-medium">{Math.round(time)}ms</span>
+                            <span className="font-medium">{Math.round(Number(time))}ms</span>
                           </div>
                         ))}
                     </div>
@@ -325,7 +325,7 @@ export function PerformanceMonitor({ isOpen = true, className }: PerformanceMoni
                   Recommendations
                 </h3>
                 <div className="space-y-2">
-                  {score.recommendations.map((recommendation, index) => (
+                  {score.recommendations.map((recommendation: string, index: number) => (
                     <Alert key={index}>
                       <AlertDescription>{recommendation}</AlertDescription>
                     </Alert>
@@ -342,7 +342,7 @@ export function PerformanceMonitor({ isOpen = true, className }: PerformanceMoni
                   Warnings
                 </h3>
                 <div className="space-y-2">
-                  {score.warnings.map((warning, index) => (
+                  {score.warnings.map((warning: string, index: number) => (
                     <Alert key={index} variant="destructive">
                       <AlertDescription>{warning}</AlertDescription>
                     </Alert>

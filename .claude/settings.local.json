@@ -29,7 +29,10 @@
       "Bash(dir:*)",
       "Bash(npm run build:analyze:*)",
       "Bash(ANALYZE_BUNDLE=true npm run build:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npx next lint:*)",
+      "Bash(pushd:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []
