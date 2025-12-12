@@ -45,6 +45,11 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.$executeRaw.bind(this.prisma);
   }
 
+  // Expose queryRaw method
+  get $queryRaw() {
+    return this.prisma.$queryRaw.bind(this.prisma);
+  }
+
   // Proxy all model methods
   get user() {
     return this.prisma.user;
