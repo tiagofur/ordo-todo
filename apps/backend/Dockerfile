@@ -73,22 +73,26 @@ ENV PORT=3001
 
 # Copy necessary files
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-COPY --from=builder /app/apps/backend/package.json ./apps/backend/
+COPY --from=builder /app/apps/backend/dist ./dist
+COPY --from=builder /app/apps/backend/package.json ./
 COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy shared packages dist
+COPY --from=builder /app/packages/core/dist ./node_modules/@ordo-todo/core/dist
+COPY --from=builder /app/packages/config/dist ./node_modules/@ordo-todo/config/dist
 
 # Copy Prisma generated client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Create uploads directory
-RUN mkdir -p /app/apps/backend/uploads && chown -R nestjs:nodejs /app
+RUN mkdir -p /app/uploads && chown -R nestjs:nodejs /app
 
 # Switch to non-root user
 USER nestjs
 
-WORKDIR /app/apps/backend
+WORKDIR /app
 
 EXPOSE 3001
 
