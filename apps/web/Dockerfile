@@ -19,8 +19,13 @@ COPY packages/i18n/package.json ./packages/i18n/
 COPY packages/styles/package.json ./packages/styles/
 COPY packages/api-client/package.json ./packages/api-client/
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# Copy Prisma schema for postinstall script
+COPY packages/db/prisma ./packages/db/prisma
+COPY packages/db/prisma.config.ts ./packages/db/
+
+# Install dependencies (ignore postinstall errors, we'll generate Prisma client later)
+RUN npm ci --legacy-peer-deps --ignore-scripts
+RUN cd packages/db && npx prisma generate --schema=prisma/schema.prisma
 
 # =============================================================================
 # Stage 2: Builder
