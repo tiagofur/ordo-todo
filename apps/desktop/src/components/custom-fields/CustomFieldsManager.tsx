@@ -5,11 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { EmptyState } from "@/components/ui/empty-state";
+} from "@ordo-todo/ui";
+import { Button } from "@ordo-todo/ui";
+import { ScrollArea } from "@ordo-todo/ui";
+import { Separator, EmptyState } from "@ordo-todo/ui";
 import { Settings, Edit, Trash2, Plus } from "lucide-react";
 import { useCustomFields, useCreateCustomField, useUpdateCustomField, useDeleteCustomField } from "@/hooks/api/use-custom-fields";
 import type { CustomField, CreateCustomFieldDto, UpdateCustomFieldDto } from "@ordo-todo/api-client";
@@ -27,7 +26,7 @@ export function CustomFieldsManager({
   onOpenChange,
   projectId,
 }: CustomFieldsManagerProps) {
-  const [editingField, setEditingField] = useState<CustomField | null>(null);
+  const [editingField, setEditingField] = useState<CustomField | undefined>(undefined);
   const [isCreateMode, setIsCreateMode] = useState(false);
 
   const { data: fields, isLoading, error } = useCustomFields(projectId);
@@ -36,7 +35,7 @@ export function CustomFieldsManager({
   const deleteFieldMutation = useDeleteCustomField();
 
   const handleCreate = () => {
-    setEditingField(null);
+    setEditingField(undefined);
     setIsCreateMode(true);
   };
 
@@ -48,7 +47,7 @@ export function CustomFieldsManager({
   const handleSave = async (data: CreateCustomFieldDto | UpdateCustomFieldDto) => {
     try {
       if (isCreateMode) {
-        await createFieldMutation.mutateAsync({ projectId, data });
+        await createFieldMutation.mutateAsync({ projectId, data: data as CreateCustomFieldDto });
         toast.success("Campo personalizado creado exitosamente");
       } else {
         await updateFieldMutation.mutateAsync({
@@ -59,7 +58,7 @@ export function CustomFieldsManager({
         toast.success("Campo personalizado actualizado exitosamente");
       }
       setIsCreateMode(false);
-      setEditingField(null);
+      setEditingField(undefined);
     } catch (error) {
       toast.error("Error al guardar el campo personalizado");
       console.error("Error saving custom field:", error);
@@ -82,7 +81,7 @@ export function CustomFieldsManager({
 
   const handleClose = () => {
     setIsCreateMode(false);
-    setEditingField(null);
+    setEditingField(undefined);
     onOpenChange(false);
   };
 

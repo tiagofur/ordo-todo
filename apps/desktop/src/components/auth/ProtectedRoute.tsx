@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/api/use-auth";
+import { useCurrentUser } from "@/hooks/api/use-auth";
 import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { data: user, isLoading } = useCurrentUser();
   const location = useLocation();
 
   // Show loading spinner while checking auth

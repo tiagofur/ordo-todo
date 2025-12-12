@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Wifi, WifiOff, AlertTriangle, CheckCircle, Sync, XCircle, Clock, Database } from 'lucide-react';
+import { Wifi, WifiOff, AlertTriangle, CheckCircle, RefreshCw, XCircle, Clock, Database } from 'lucide-react';
 import { useOfflineSyncStore } from '@/stores/offline-sync-store';
 import { cn, Badge, Button, Popover, PopoverContent, PopoverTrigger } from '@ordo-todo/ui';
 import { formatDistanceToNow } from 'date-fns';
@@ -39,7 +39,7 @@ export function OfflineStatusIndicator() {
       return <AlertTriangle className="h-4 w-4 text-orange-500" />;
     }
     if (syncStatus === 'syncing') {
-      return <Sync className="h-4 w-4 text-blue-500 animate-spin" />;
+      return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
     }
     if (pendingOperations > 0) {
       return <Clock className="h-4 w-4 text-yellow-500" />;
@@ -196,7 +196,7 @@ export function OfflineStatusIndicator() {
                   className="w-full"
                   onClick={forceSync}
                 >
-                  <Sync className="h-4 w-4 mr-2" />
+                  <RefreshCw className="h-4 w-4 mr-2" />
                   Retry Failed Operations
                 </Button>
               ) : unresolvedConflicts > 0 ? (
@@ -216,7 +216,7 @@ export function OfflineStatusIndicator() {
                   className="w-full"
                   onClick={forceSync}
                 >
-                  <Sync className="h-4 w-4 mr-2" />
+                  <RefreshCw className="h-4 w-4 mr-2" />
                   Sync Now
                 </Button>
               ) : null}

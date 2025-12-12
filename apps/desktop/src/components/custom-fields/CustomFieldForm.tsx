@@ -12,7 +12,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
-import type { CustomField, CreateCustomFieldDto, UpdateCustomFieldDto } from "@ordo-todo/api-client";
+import type { CustomField, CreateCustomFieldDto, UpdateCustomFieldDto, CustomFieldType } from "@ordo-todo/api-client";
 
 interface CustomFieldFormProps {
   field?: CustomField;
@@ -42,7 +42,7 @@ export function CustomFieldForm({
     name: field?.name || "",
     type: field?.type || "TEXT",
     description: field?.description || "",
-    required: field?.required || false,
+    required: field?.isRequired || false,
     options: field?.options || [],
   });
 
@@ -93,7 +93,7 @@ export function CustomFieldForm({
   const handleTypeChange = (newType: string) => {
     setFormData(prev => ({
       ...prev,
-      type: newType,
+      type: newType as CustomFieldType,
       options: (newType === "SELECT" || newType === "MULTI_SELECT") ? prev.options : [],
     }));
   };

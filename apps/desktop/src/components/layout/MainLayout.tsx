@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { TitleBar } from "../TitleBar";
+import TitleBar from "../TitleBar";
 import { Sidebar } from "../layout/Sidebar";
 import { useState, useEffect } from "react";
 import { QuickActionsOverlay } from "../quick-actions/QuickActionsOverlay";
