@@ -53,26 +53,8 @@ ENV NEXTAUTH_URL=$NEXTAUTH_URL
 RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
 
 # Build shared packages
-WORKDIR /app/packages/core
-RUN npm run build || true
-
-WORKDIR /app/packages/config
-RUN npm run build || true
-
-WORKDIR /app/packages/ui
-RUN npm run build || true
-
-WORKDIR /app/packages/hooks
-RUN npm run build || true
-
-WORKDIR /app/packages/stores
-RUN npm run build || true
-
-WORKDIR /app/packages/i18n
-RUN npm run build || true
-
-WORKDIR /app/packages/api-client
-RUN npm run build || true
+WORKDIR /app
+RUN npx turbo run build --filter=@ordo-todo/core --filter=@ordo-todo/config --filter=@ordo-todo/ui --filter=@ordo-todo/hooks --filter=@ordo-todo/stores --filter=@ordo-todo/i18n --filter=@ordo-todo/api-client
 
 # Build Next.js app
 WORKDIR /app/apps/web

@@ -49,11 +49,8 @@ COPY packages ./packages
 RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
 
 # Build shared packages first
-WORKDIR /app/packages/core
-RUN npm run build || true
-
-WORKDIR /app/packages/config
-RUN npm run build || true
+WORKDIR /app
+RUN npx turbo run build --filter=@ordo-todo/core --filter=@ordo-todo/config
 
 # Build the backend
 WORKDIR /app/apps/backend

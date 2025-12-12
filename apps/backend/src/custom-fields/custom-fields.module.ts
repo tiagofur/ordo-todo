@@ -4,9 +4,9 @@ import { CustomFieldsService } from './custom-fields.service';
 import { DatabaseModule } from '@/database/database.module';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [CustomFieldsController],
-    providers: [CustomFieldsService],
-    exports: [CustomFieldsService],
+  imports: [DatabaseModule],
+  controllers: [CustomFieldsController],
+  providers: [CustomFieldsService],
+  exports: [CustomFieldsService],
 })
-export class CustomFieldsModule { }
+export class CustomFieldsModule {}
