@@ -16,7 +16,7 @@ const envSchema = z.object({
     GITHUB_CLIENT_SECRET: z.string().optional(),
 
     // Client-side variables
-    NEXT_PUBLIC_API_URL: z.string().url().default('http://localhost:3101/api/v1'),
+    NEXT_PUBLIC_API_URL: z.string().url().default('https://api.ordotodo.app/api/v1'),
 });
 
 const processEnv = {
@@ -30,7 +30,16 @@ const processEnv = {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    NEXT_PUBLIC_API_URL: (() => {
+        const url = process.env.NEXT_PUBLIC_API_URL;
+        // Logic to fix missing /api/v1 in production if it happens
+        if (process.env.NODE_ENV === 'production') {
+            if (!url) return 'https://api.ordotodo.app/api/v1';
+            if (!url.endsWith('/api/v1')) return `${url}/api/v1`;
+        }
+        return url;
+    })(),
 };
 
 // Validate on runtime
