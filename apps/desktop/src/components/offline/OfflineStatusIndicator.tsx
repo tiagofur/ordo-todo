@@ -186,10 +186,10 @@ export function OfflineStatusIndicator() {
             {/* Actions */}
             <div className="space-y-2">
               {!isOnline ? (
-                <Alert>
+                <div className="flex items-center gap-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm">
                   <WifiOff className="h-4 w-4" />
-                  <p className="text-sm">You're currently offline. Changes will sync when you reconnect.</p>
-                </Alert>
+                  <p>You're currently offline. Changes will sync when you reconnect.</p>
+                </div>
               ) : failedOperations > 0 ? (
                 <Button
                   variant="outline"
@@ -219,7 +219,7 @@ export function OfflineStatusIndicator() {
                   <Sync className="h-4 w-4 mr-2" />
                   Sync Now
                 </Button>
-              )}
+              ) : null}
             </div>
 
             {/* Offline Mode Info */}

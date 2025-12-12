@@ -176,7 +176,7 @@ export function useQuickActions() {
   const closeQuickActions = useCallback(() => {
     setIsOpen(false);
     setSearchTerm('');
-  }, [];
+  }, []);
 
   // Keyboard shortcut handler
   useEffect(() => {

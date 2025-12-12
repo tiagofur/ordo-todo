@@ -1,0 +1,22 @@
+{
+  "name": "@ordo-todo/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ordo-Todo Web Application - Next.js 16 + REST API",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "build:analyze": "ANALYZE_BUNDLE=true npm run build",
+    "build:report": "ANALYZE_BUNDLE=true npm run build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "analyze:bundle": "node scripts/analyze-bundle.mjs",
+    "bundle:check": "npm run build && npm run analyze:bundle"
+  }
+}
