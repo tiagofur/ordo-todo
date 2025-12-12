@@ -25,6 +25,7 @@ import { CollaborationModule } from './collaboration/collaboration.module';
 import { HabitsModule } from './habits/habits.module';
 import { ObjectivesModule } from './objectives/objectives.module';
 import { CustomFieldsModule } from './custom-fields/custom-fields.module';
+import { HealthModule } from './health/health.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
@@ -44,6 +45,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ConfigModule,
     DatabaseModule,
     RepositoriesModule,
+    HealthModule, // Health check endpoints (no prefix)
     AuthModule,
     UsersModule,
     WorkspacesModule,
@@ -81,3 +83,4 @@ import { ScheduleModule } from '@nestjs/schedule';
   ],
 })
 export class AppModule { }
+

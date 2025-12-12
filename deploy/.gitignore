@@ -1,0 +1,11 @@
+# Ignore environment files with real secrets
+.env
+!.env.example
+
+# Ignore backups
+backups/
+*.sql
+*.sql.gz
+
+# Ignore local scripts modifications
+scripts/*.local.sh

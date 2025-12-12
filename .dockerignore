@@ -1,0 +1,66 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs (we build in Docker)
+**/dist
+**/.next
+**/out
+**/.turbo
+
+# Development files
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+docs
+documentation
+
+# Desktop and Mobile apps (not needed for server deployment)
+apps/desktop
+apps/mobile
+
+# Test files
+**/*.spec.ts
+**/*.test.ts
+**/test
+**/tests
+**/__tests__
+**/coverage
+**/jest.config.*
+**/vitest.config.*
+
+# Logs
+**/*.log
+**/logs
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.temp
+.cache
+
+# Build artifacts
+*.tgz
+*.tar.gz
+
+# Uploads (handled separately)
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep

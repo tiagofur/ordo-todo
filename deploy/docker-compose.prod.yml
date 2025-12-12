@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Traefik - Reverse Proxy & SSL
+  # =============================================================================
+  traefik:
+    image: traefik:v3.0
+    container_name: ordo-traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt:/letsencrypt"
+    networks:
+      - ordo-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
+
+  # =============================================================================
+  # PostgreSQL Database
+  # =============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: ordo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - ordo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # Backend (NestJS API)
+  # =============================================================================
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
+    container_name: ordo-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-15m}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
+      CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    networks:
+      - ordo-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.${DOMAIN}`)"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
+      - "traefik.http.routers.backend.middlewares=backend-cors"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolalloworiginlist=https://${DOMAIN},https://www.${DOMAIN}"
+      - "traefik.http.middlewares.backend-cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.backend-cors.headers.addvaryheader=true"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - backend_uploads:/app/apps/backend/uploads
+
+  # =============================================================================
+  # Web Frontend (Next.js)
+  # =============================================================================
+  web:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-web:${IMAGE_TAG:-latest}
+    container_name: ordo-web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://api.${DOMAIN}
+      NEXTAUTH_URL: https://${DOMAIN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    networks:
+      - ordo-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
+      - "traefik.http.routers.web.middlewares=www-redirect"
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.(.+)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+
+  # =============================================================================
+  # Database Migrations (Run once on deploy)
+  # =============================================================================
+  migrations:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
+    container_name: ordo-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: >
+      sh -c "
+        npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma &&
+        echo 'Migrations completed successfully!'
+      "
+    networks:
+      - ordo-network
+    restart: "no"
+
+networks:
+  ordo-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  letsencrypt:
+    driver: local
+  backend_uploads:
+    driver: local

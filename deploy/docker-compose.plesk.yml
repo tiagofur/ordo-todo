@@ -1,0 +1,106 @@
+# =============================================================================
+# Docker Compose for Plesk Deployment
+# Plesk handles SSL and reverse proxy, we just run the containers
+# =============================================================================
+
+services:
+  # =============================================================================
+  # PostgreSQL Database
+  # =============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: ordo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - "127.0.0.1:5432:5432"  # Only accessible from localhost
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # Backend (NestJS API)
+  # =============================================================================
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
+    container_name: ordo-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-15m}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
+      CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://api.${DOMAIN}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "127.0.0.1:3001:3001"  # Plesk will proxy to this
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - backend_uploads:/app/apps/backend/uploads
+
+  # =============================================================================
+  # Web Frontend (Next.js)
+  # =============================================================================
+  web:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-web:${IMAGE_TAG:-latest}
+    container_name: ordo-web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://api.${DOMAIN}
+      NEXTAUTH_URL: https://${DOMAIN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    ports:
+      - "127.0.0.1:3000:3000"  # Plesk will proxy to this
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # Database Migrations (Run once on deploy)
+  # =============================================================================
+  migrations:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ordo-todo-backend:${IMAGE_TAG:-latest}
+    container_name: ordo-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: >
+      sh -c "
+        npx prisma migrate deploy --schema=/app/packages/db/prisma/schema.prisma &&
+        echo 'Migrations completed successfully!'
+      "
+    restart: "no"
+
+volumes:
+  postgres_data:
+    driver: local
+  backend_uploads:
+    driver: local

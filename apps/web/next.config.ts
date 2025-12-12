@@ -6,6 +6,8 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Enable standalone output for Docker deployment
+  output: 'standalone',
   turbopack: {
     root: path.resolve(__dirname, '../..'),
     // Disable debug IDs and sourcemaps to avoid parsing errors in monorepo
