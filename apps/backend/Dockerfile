@@ -50,6 +50,7 @@ RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
 
 # Build shared packages first
 WORKDIR /app
+RUN npm install -g tsup typescript
 RUN npx turbo run build --filter=@ordo-todo/core --filter=@ordo-todo/config
 
 # Build the backend

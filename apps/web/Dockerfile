@@ -54,6 +54,7 @@ RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
 
 # Build shared packages
 WORKDIR /app
+RUN npm install -g tsup typescript
 RUN npx turbo run build --filter=@ordo-todo/core --filter=@ordo-todo/config --filter=@ordo-todo/ui --filter=@ordo-todo/hooks --filter=@ordo-todo/stores --filter=@ordo-todo/i18n --filter=@ordo-todo/api-client
 
 # Build Next.js app
