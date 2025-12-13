@@ -146,6 +146,14 @@ export class WorkspacesService {
         },
       },
       include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
         _count: {
           select: {
             projects: true,
@@ -182,6 +190,7 @@ export class WorkspacesService {
       color: workspace.color,
       icon: workspace.icon,
       ownerId: workspace.ownerId,
+      owner: workspace.owner,
       isArchived: workspace.isArchived,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
