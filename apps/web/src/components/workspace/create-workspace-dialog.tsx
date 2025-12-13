@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateWorkspace } from "@/lib/api-hooks";
+import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
 import { Building2, Home, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -19,6 +20,7 @@ interface CreateWorkspaceDialogProps {
 
 export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const t = useTranslations('CreateWorkspaceDialog');
   const [selectedType, setSelectedType] = useState<"PERSONAL" | "WORK" | "TEAM">("PERSONAL");
 
@@ -55,7 +57,14 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
         toast.success(t('toast.success'));
         reset();
         onOpenChange(false);
-        router.push(`/workspaces/${workspace.slug}`);
+        // Use username/slug pattern for workspace URLs
+        const username = user?.username || workspace.owner?.username;
+        if (username) {
+          router.push(`/${username}/${workspace.slug}`);
+        } else {
+          // Fallback to old pattern if username not available
+          router.push(`/workspaces/${workspace.slug}`);
+        }
       },
       onError: (error: any) => {
         toast.error(error.message || t('toast.error'));
