@@ -7,7 +7,11 @@ import { NotificationPopover } from "@/components/shared/notification-popover";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuClick?: () => void;
+}
+
+export function TopBar({ onMenuClick }: TopBarProps) {
   const t = useTranslations("TopBar");
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -23,6 +27,7 @@ export function TopBar() {
       onLogout={logout}
       onProfileClick={() => router.push("/profile")}
       onSettingsClick={() => router.push("/profile")}
+      onMenuClick={onMenuClick}
       onAICopilotClick={() => {
         // TODO: Open AI Copilot
       }}
@@ -36,6 +41,7 @@ export function TopBar() {
         logout: t("logout"),
         aiCopilot: "Ordo AI Copilot",
         level: "Lvl",
+        menu: t("menu"),
       }}
     />
   );

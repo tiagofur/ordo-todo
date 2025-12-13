@@ -77,7 +77,8 @@
     "myAccount": "Minha Conta",
     "profile": "Perfil",
     "settings": "Configurações",
-    "logout": "Sair"
+    "logout": "Sair",
+    "menu": "Menu"
   },
   "Dashboard": {
     "completed": "Concluídas",

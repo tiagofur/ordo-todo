@@ -117,8 +117,8 @@ export function Sidebar({
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-background">
-      <div className="flex h-full flex-col">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-background hidden lg:block">
+      <div className="flex h-full flex-col overflow-hidden">
         {/* Logo */}
         <div className="flex h-16 items-center border-b border-border/50 px-6">
           {renderLink({
@@ -138,7 +138,7 @@ export function Sidebar({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navigation.map((item) => {
             const isActive = isActiveRoute(item.href);
             const color = item.color || 'cyan';
