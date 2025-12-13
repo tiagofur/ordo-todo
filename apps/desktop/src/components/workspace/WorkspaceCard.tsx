@@ -65,7 +65,7 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
     setShowSettings(true);
   };
 
-  const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
+  const typeInfo = typeConfig[workspace.type] || typeConfig.PERSONAL;
   const TypeIcon = typeInfo.icon;
 
   return (

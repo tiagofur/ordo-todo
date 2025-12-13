@@ -8,7 +8,7 @@ import { apiClient } from '@/lib/api-client';
 export function useDailyMetrics(params?: { userId?: string, startDate?: string, endDate?: string }) {
   return useQuery({
     queryKey: ['analytics', 'daily-metrics', params],
-    // @ts-ignore - The client expects GetDailyMetricsParams but we are passing matching object
+    // @ts-expect-error - The client expects GetDailyMetricsParams but we are passing matching object
     queryFn: () => apiClient.getDailyMetrics(params),
   });
 }

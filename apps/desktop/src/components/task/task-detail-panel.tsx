@@ -175,7 +175,7 @@ export function TaskDetailPanel({
                       value={formData.status}
                       onValueChange={(value) => {
                         handleFieldChange("status", value);
-                        updateTask.mutate({ taskId, data: { status: value as any } });
+                        updateTask.mutate({ taskId, data: { status: value } });
                       }}
                     >
                       <SelectTrigger className={cn("h-7 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
@@ -197,7 +197,7 @@ export function TaskDetailPanel({
                       value={formData.priority}
                       onValueChange={(value) => {
                         handleFieldChange("priority", value);
-                        updateTask.mutate({ taskId, data: { priority: value as any } });
+                        updateTask.mutate({ taskId, data: { priority: value } });
                       }}
                     >
                       <SelectTrigger className={cn("h-7 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>

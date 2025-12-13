@@ -263,7 +263,7 @@ export function TaskDetailPanel({
               <label className="text-sm text-muted-foreground mb-2 block">Estado</label>
               <Select
                 value={task.status}
-                onValueChange={(value) => onUpdate?.({ status: value as any })}
+                onValueChange={(value) => onUpdate?.({ status: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -287,7 +287,7 @@ export function TaskDetailPanel({
               <label className="text-sm text-muted-foreground mb-2 block">Prioridad</label>
               <Select
                 value={task.priority}
-                onValueChange={(value) => onUpdate?.({ priority: value as any })}
+                onValueChange={(value) => onUpdate?.({ priority: value })}
               >
                 <SelectTrigger>
                   <SelectValue />

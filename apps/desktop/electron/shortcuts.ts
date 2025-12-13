@@ -47,7 +47,7 @@ export const defaultShortcuts: ShortcutConfig[] = [
   },
 ]
 
-let registeredShortcuts: Map<string, ShortcutConfig> = new Map()
+const registeredShortcuts: Map<string, ShortcutConfig> = new Map()
 
 export function registerGlobalShortcuts(mainWindow: BrowserWindow, shortcuts: ShortcutConfig[] = defaultShortcuts): void {
   // Unregister existing shortcuts first

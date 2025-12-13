@@ -35,7 +35,7 @@ export interface SyncState {
   error?: string;
 }
 
-let syncState: SyncState = {
+const syncState: SyncState = {
   status: 'idle',
   lastSyncTime: null,
   pendingChanges: 0,

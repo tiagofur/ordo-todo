@@ -110,7 +110,7 @@ const router = createBrowserRouter([
       // Special routes without main layout
       {
         path: "focus",
-        element: <FocusMode />,
+        element: <LazyFocusMode />,
       },
       {
         path: "timer/floating",

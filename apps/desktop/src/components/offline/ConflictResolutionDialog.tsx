@@ -312,7 +312,7 @@ function ConflictDetailView({ conflict, previewMode, onPreviewModeChange }: Conf
       </div>
 
       {/* Preview Mode Tabs */}
-      <Tabs value={previewMode} onValueChange={(value) => onPreviewModeChange(value as any)}>
+      <Tabs value={previewMode} onValueChange={(value) => onPreviewModeChange(value)}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="diff" className="flex items-center gap-2">
             <GitBranch className="h-4 w-4" />

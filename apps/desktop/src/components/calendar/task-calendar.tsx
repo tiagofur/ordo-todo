@@ -170,7 +170,7 @@ export function TaskCalendar() {
       .filter((task) => task.scheduledDate || (task.dueDate && task.isTimeBlocked))
       .map((task) => {
         // Use scheduledDate preferably, fallback to dueDate if time blocked (compatibility)
-        const dateBase = task.scheduledDate ? new Date(task.scheduledDate) : new Date(task.dueDate!);
+        const dateBase = task.scheduledDate ? new Date(task.scheduledDate) : new Date(task.dueDate);
         
         let start = dateBase;
         
