@@ -15,7 +15,7 @@ const getBaseURL = (): string => {
     return (
       process.env.EXPO_PUBLIC_API_URL ||
       Constants.expoConfig?.extra?.apiUrl ||
-      'http://localhost:3101/api/v1'
+      'http://localhost:3001/api/v1'
     );
   }
 
@@ -24,7 +24,7 @@ const getBaseURL = (): string => {
     return (
       process.env.EXPO_PUBLIC_API_URL ||
       Constants.expoConfig?.extra?.apiUrl ||
-      'http://192.168.1.10:3101/api/v1' // Replace with your machine's IP
+      'http://192.168.1.10:3001/api/v1' // Replace with your machine's IP
     );
   }
 
@@ -33,7 +33,7 @@ const getBaseURL = (): string => {
   return (
     process.env.EXPO_PUBLIC_API_URL ||
     Constants.expoConfig?.extra?.apiUrl ||
-    `http://${localhost}:3101/api/v1`
+    `http://${localhost}:3001/api/v1`
   );
 };
 

@@ -8,7 +8,7 @@
 import { OrdoApiClient } from '@ordo-todo/api-client';
 import { ElectronStoreTokenStorage } from './storage';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3101/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
 /**
  * Desktop-specific API client with Electron storage

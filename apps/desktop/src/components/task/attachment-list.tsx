@@ -67,7 +67,7 @@ export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps
     // If URL is relative, prepend backend URL
     if (url.startsWith("/")) {
       // Get backend base URL from environment or default
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3101/api/v1";
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1";
       const backendBaseUrl = apiUrl.replace("/api/v1", "");
       return backendBaseUrl + url;
     }
