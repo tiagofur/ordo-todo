@@ -76,7 +76,7 @@ export function WorkspaceConfigurationSettings({
           </Label>
           <Select
             value={formData.defaultView}
-            onValueChange={(value) => setFormData({ ...formData, defaultView: value as any })}
+            onValueChange={(value) => setFormData({ ...formData, defaultView: value })}
           >
             <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
               <SelectValue />

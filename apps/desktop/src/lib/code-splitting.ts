@@ -71,7 +71,7 @@ class ChunkPreloader {
   }
 
   private processPrefetchQueue() {
-    const batch = this.prefetchQueue.splice(0, this.options.maxConcurrent!);
+    const batch = this.prefetchQueue.splice(0, this.options.maxConcurrent);
 
     batch.forEach(chunkName => {
       this.loadChunk(chunkName, 'prefetch');

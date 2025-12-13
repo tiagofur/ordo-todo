@@ -53,7 +53,7 @@ export function parseTaskInput(input: string, context: ParseContext = {}): Parse
     // 2. Parse Priority
     // !high, !urgent, p1, p2
     const priorityRegex = /(^|\s)(!|p:)(low|medium|high|urgent|p?1|p?2|p?3|p?4)\b/i;
-    let priorityMatch = title.match(priorityRegex);
+    const priorityMatch = title.match(priorityRegex);
     if (priorityMatch) {
         const p = priorityMatch[3].toLowerCase();
         if (p.includes('urgent') || p === '1' || p === 'p1') priority = 'URGENT';

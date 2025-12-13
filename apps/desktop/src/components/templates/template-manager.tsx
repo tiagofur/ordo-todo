@@ -135,7 +135,7 @@ export function TemplateManager() {
               <div className="space-y-2">
                 <Label>Default Priority</Label>
                 <Select 
-                  onValueChange={(v) => form.setValue("defaultPriority", v as any)} 
+                  onValueChange={(v) => form.setValue("defaultPriority", v)} 
                   defaultValue={form.getValues("defaultPriority")}
                 >
                   <SelectTrigger>

@@ -34,8 +34,10 @@ export default [
       "dist-electron/**",
       "build/**",
       "node_modules/**",
+      "scripts/**",
       "*.config.js",
       "*.config.ts",
+      "*.config.mjs",
       "vite.config.ts"
     ],
   },

@@ -20,11 +20,15 @@ export function LazyLoad<T extends React.ComponentType<any>>(
 ) {
   const LazyComponent = lazy(factory);
 
-  return (props: React.ComponentProps<T>) => (
+  const LazyWrapper = (props: React.ComponentProps<T>) => (
     <Suspense fallback={fallback || <LoadingSpinner />}>
       <LazyComponent {...props} />
     </Suspense>
   );
+
+  LazyWrapper.displayName = 'LazyWrapper';
+
+  return LazyWrapper;
 }
 
 // Preload component (for critical paths)

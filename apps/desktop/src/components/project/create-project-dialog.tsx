@@ -125,7 +125,7 @@ export function CreateProjectDialog({ open, onOpenChange, workspaceId }: CreateP
 
         await createProject.mutateAsync({
             ...data,
-            workflowId: finalWorkflowId!, // We ensure it's set above
+            workflowId: finalWorkflowId, // We ensure it's set above
             color: selectedColor,
         });
         toast.success("Proyecto creado exitosamente");

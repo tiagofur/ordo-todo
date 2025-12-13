@@ -148,7 +148,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     ) {
       updateTaskMutation.mutate({
         taskId: active.id as string,
-        data: { status: currentTask.status as any },
+        data: { status: currentTask.status },
       });
     }
 
