@@ -17,10 +17,11 @@ import { Input } from '../ui/input.js';
 import { Textarea } from '../ui/textarea.js';
 import { Button } from '../ui/button.js';
 import { Building2, Home, Users } from 'lucide-react';
-import { createWorkspaceSchema } from '@ordo-todo/core';
+import { createWorkspaceSchema, generateSlug } from '@ordo-todo/core';
 
 export interface CreateWorkspaceFormData {
   name: string;
+  slug: string;
   description?: string;
   type: 'PERSONAL' | 'WORK' | 'TEAM';
 }
@@ -126,8 +127,10 @@ export function CreateWorkspaceDialog({
 
   const handleFormSubmit = async (data: FormData) => {
     try {
+      const slug = generateSlug(data.name);
       await onSubmit({
         ...data,
+        slug,
         type: selectedType,
       });
       reset();

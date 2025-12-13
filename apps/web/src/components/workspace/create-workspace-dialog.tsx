@@ -10,7 +10,7 @@ import { useCreateWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { Building2, Home, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { createWorkspaceSchema, WORKSPACE_TYPES } from "@ordo-todo/core";
+import { createWorkspaceSchema, WORKSPACE_TYPES, generateSlug } from "@ordo-todo/core";
 
 interface CreateWorkspaceDialogProps {
   open: boolean;
@@ -44,8 +44,11 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
   const createWorkspace = useCreateWorkspace();
 
   const onSubmit = (data: CreateWorkspaceForm) => {
+    const slug = generateSlug(data.name);
+
     createWorkspace.mutate({
       ...data,
+      slug,
       type: selectedType,
     }, {
       onSuccess: (workspace) => {
