@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, type ElementType } from 'react';
+import { Settings } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -184,7 +185,12 @@ export function MobileSidebar({
               ),
               children: (
                 <>
-                  <span className="h-5 w-5" />
+                  <Settings
+                    className={cn(
+                      'h-5 w-5 transition-transform duration-200',
+                      isActiveRoute('/profile') ? '' : 'group-hover:scale-110'
+                    )}
+                  />
                   {t.settings}
                 </>
               ),
