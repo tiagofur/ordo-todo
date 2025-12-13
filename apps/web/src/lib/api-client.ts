@@ -334,6 +334,7 @@ export const apiClient = {
   getWorkspaces: () => axiosInstance.get('/workspaces').then((res) => res.data),
   getWorkspace: (id: string) => axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
   getWorkspaceBySlug: (slug: string) => axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
+  getWorkspaceByUsernameAndSlug: (username: string, slug: string) => axiosInstance.get(`/workspaces/by-user/${username}/${slug}`).then((res) => res.data),
   createWorkspace: (data: CreateWorkspaceDto) => axiosInstance.post('/workspaces', data).then((res) => res.data),
   updateWorkspace: (id: string, data: UpdateWorkspaceDto) => axiosInstance.put(`/workspaces/${id}`, data).then((res) => res.data),
   deleteWorkspace: (id: string) => axiosInstance.delete(`/workspaces/${id}`).then((res) => res.data),

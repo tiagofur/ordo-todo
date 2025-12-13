@@ -272,6 +272,14 @@ export function useWorkspaceBySlug(slug: string) {
   });
 }
 
+export function useWorkspaceByUsernameAndSlug(username: string, slug: string) {
+  return useQuery({
+    queryKey: ['workspaces', 'user', username, 'slug', slug],
+    queryFn: () => apiClient.getWorkspaceByUsernameAndSlug(username, slug),
+    enabled: !!username && !!slug,
+  });
+}
+
 // Force recompile
 export const useWorkspaceBySlugTest = () => true;
 
