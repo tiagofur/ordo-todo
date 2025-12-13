@@ -26,6 +26,12 @@ interface WorkspaceCardProps {
     type: "PERSONAL" | "WORK" | "TEAM";
     color: string;
     icon?: string | null;
+    owner?: {
+      id: string;
+      username: string;
+      name: string | null;
+      email: string;
+    } | null;
   };
   index?: number;
 }
@@ -50,8 +56,13 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   const deleteWorkspaceMutation = useDeleteWorkspace();
 
   const handleCardClick = () => {
-    // Navigate to workspace detail page
-    router.push(`/workspaces/${workspace.slug}`);
+    // Navigate to workspace detail page using username/slug pattern
+    if (workspace.owner?.username) {
+      router.push(`/${workspace.owner.username}/${workspace.slug}`);
+    } else {
+      // Fallback to old route if owner username is not available
+      router.push(`/workspaces/${workspace.slug}`);
+    }
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
