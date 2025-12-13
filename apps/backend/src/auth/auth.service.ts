@@ -31,6 +31,7 @@ export class AuthService {
 
       await registerUseCase.execute({
         name: registerDto.name || '',
+        username: registerDto.username,
         email: registerDto.email,
         password: registerDto.password,
       });
@@ -41,8 +42,8 @@ export class AuthService {
         password: registerDto.password,
       });
     } catch (error) {
-      if (error.message.includes('já existe')) {
-        throw new ConflictException('User already exists');
+      if (error.message.includes('já existe') || error.message.includes('já está em uso')) {
+        throw new ConflictException(error.message);
       }
       throw error;
     }

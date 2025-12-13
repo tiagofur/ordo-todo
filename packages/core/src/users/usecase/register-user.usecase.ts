@@ -5,6 +5,7 @@ import UserRepository from "../provider/user.repository";
 
 type Input = {
   name: string;
+  username: string;
   email: string;
   password: string;
 };
@@ -22,8 +23,18 @@ export default class RegisterUser implements UseCase<Input, void> {
       throw new Error("Usuário já existe");
     }
 
+    // Check if username is already taken
+    const existingUsername = await this.repo.findByUsername(user.username);
+    if (existingUsername) {
+      throw new Error("Nome de usuário já está em uso");
+    }
+
     if (!user.password) {
       throw new Error("Senha é obrigatória");
+    }
+
+    if (!user.username || user.username.length < 3) {
+      throw new Error("Nome de usuário deve ter pelo menos 3 caracteres");
     }
 
     if (user.name?.length < 3) {
@@ -33,6 +44,7 @@ export default class RegisterUser implements UseCase<Input, void> {
     const hashedPassword = await this.crypto.encrypt(user.password!);
     const newUser = new User({
       name: user.name,
+      username: user.username,
       email: user.email,
       password: hashedPassword,
     });
