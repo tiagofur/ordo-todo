@@ -4,6 +4,7 @@
 
 export interface RegisterDto {
   email: string;
+  username: string;
   password: string;
   name?: string;
 }
@@ -19,6 +20,7 @@ export interface AuthResponse {
   user: {
     id: string;
     email: string;
+    username: string;
     name: string | null;
   };
 }

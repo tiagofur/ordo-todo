@@ -64,6 +64,7 @@ export class AuthService {
       const payload = {
         sub: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
       };
 
@@ -80,6 +81,7 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           name: user.name || null,
         },
       };
@@ -102,6 +104,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      username: user.username,
       name: user.name,
     };
   }
@@ -123,6 +126,7 @@ export class AuthService {
       const newPayload = {
         sub: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
       };
 
@@ -139,6 +143,7 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           name: user.name || null,
         },
       };
