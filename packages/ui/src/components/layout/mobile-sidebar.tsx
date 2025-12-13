@@ -1,18 +1,16 @@
 'use client';
 
 import { type ReactNode, type ElementType } from 'react';
+import { Settings } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
 } from '../ui/sheet.js';
 import { cn } from '../../utils/index.js';
+import type { NavItem } from './sidebar.js';
 
-export interface NavItem {
-  name: string;
-  href: string;
-  icon: ElementType;
-  color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue' | 'yellow' | 'red';
-}
+// Re-export NavItem for convenience
+export type { NavItem };
 
 interface MobileSidebarProps {
   /** Controls sheet open/close state */
@@ -184,7 +182,12 @@ export function MobileSidebar({
               ),
               children: (
                 <>
-                  <span className="h-5 w-5" />
+                  <Settings
+                    className={cn(
+                      'h-5 w-5 transition-transform duration-200',
+                      isActiveRoute('/profile') ? '' : 'group-hover:scale-110'
+                    )}
+                  />
                   {t.settings}
                 </>
               ),
