@@ -31,6 +31,7 @@ export class AuthService {
 
       await registerUseCase.execute({
         name: registerDto.name || '',
+        username: registerDto.username,
         email: registerDto.email,
         password: registerDto.password,
       });
@@ -41,8 +42,8 @@ export class AuthService {
         password: registerDto.password,
       });
     } catch (error) {
-      if (error.message.includes('já existe')) {
-        throw new ConflictException('User already exists');
+      if (error.message.includes('já existe') || error.message.includes('já está em uso')) {
+        throw new ConflictException(error.message);
       }
       throw error;
     }
@@ -63,6 +64,7 @@ export class AuthService {
       const payload = {
         sub: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
       };
 
@@ -79,6 +81,7 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           name: user.name || null,
         },
       };
@@ -101,6 +104,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      username: user.username,
       name: user.name,
     };
   }
@@ -122,6 +126,7 @@ export class AuthService {
       const newPayload = {
         sub: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
       };
 
@@ -138,6 +143,7 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           name: user.name || null,
         },
       };

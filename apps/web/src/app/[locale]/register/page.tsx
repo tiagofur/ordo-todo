@@ -8,6 +8,7 @@ import {
   Mail,
   Lock,
   User,
+  AtSign,
   Github,
   Chrome,
   ArrowRight,
@@ -29,6 +30,7 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -83,6 +85,7 @@ export default function SignUpPage() {
     try {
       await register({
         name: formData.name,
+        username: formData.username,
         email: formData.email,
         password: formData.password,
       });
@@ -159,6 +162,32 @@ export default function SignUpPage() {
                   placeholder="Tu nombre completo"
                 />
               </div>
+            </div>
+
+            {/* Username Input */}
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium text-foreground">
+                Nombre de Usuario
+              </label>
+              <div className="relative group">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 transition-colors">
+                  <AtSign className="h-5 w-5" />
+                </div>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') })}
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  placeholder="usuario123"
+                  pattern="[a-z0-9_-]+"
+                  minLength={3}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Solo letras minúsculas, números, guiones y guiones bajos. Mínimo 3 caracteres.
+              </p>
             </div>
 
             {/* Email Input */}

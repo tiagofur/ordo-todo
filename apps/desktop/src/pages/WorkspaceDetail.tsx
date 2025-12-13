@@ -43,11 +43,15 @@ const typeConfig = {
 };
 
 export function WorkspaceDetail() {
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug, username, slug } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  
-  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(workspaceSlug || "");
+
+  // Determine which hook to use based on available params
+  // If we have username and slug (new route), use by username and slug
+  // Otherwise use the old by-slug method
+  const actualSlug = slug || workspaceSlug || "";
+  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(actualSlug);
   
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

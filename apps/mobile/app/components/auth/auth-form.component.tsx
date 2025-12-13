@@ -32,9 +32,11 @@ export default function AuthForm() {
   const {
     mode,
     name,
+    username,
     email,
     password,
     setName,
+    setUsername,
     setEmail,
     setPassword,
     toggleMode,
@@ -135,17 +137,35 @@ export default function AuthForm() {
               style={styles.form}
             >
               {mode === "register" && (
-                <Animated.View entering={FadeInDown.springify()}>
-                  <CustomTextInput
-                    label="Nome"
-                    placeholder="Seu nome completo"
-                    value={name}
-                    onChangeText={setName}
-                    leftIcon={
-                      <Feather name="user" size={20} color={colors.textMuted} />
-                    }
-                  />
-                </Animated.View>
+                <>
+                  <Animated.View entering={FadeInDown.springify()}>
+                    <CustomTextInput
+                      label="Nome"
+                      placeholder="Seu nome completo"
+                      value={name}
+                      onChangeText={setName}
+                      leftIcon={
+                        <Feather name="user" size={20} color={colors.textMuted} />
+                      }
+                    />
+                  </Animated.View>
+
+                  <Animated.View entering={FadeInDown.delay(50).springify()}>
+                    <CustomTextInput
+                      label="Nome de usuário"
+                      placeholder="usuario123"
+                      value={username}
+                      onChangeText={(text) => setUsername(text.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                      leftIcon={
+                        <Feather name="at-sign" size={20} color={colors.textMuted} />
+                      }
+                      autoCapitalize="none"
+                    />
+                    <Text style={[styles.helperText, { color: colors.textMuted }]}>
+                      Solo letras minúsculas, números, guiones y guiones bajos. Mínimo 3 caracteres.
+                    </Text>
+                  </Animated.View>
+                </>
               )}
 
               <CustomTextInput
@@ -587,5 +607,11 @@ const styles = StyleSheet.create({
   matchText: {
     fontSize: 12,
     fontWeight: "700",
+  },
+  helperText: {
+    fontSize: 11,
+    marginTop: 4,
+    marginBottom: 8,
+    paddingHorizontal: 4,
   },
 });

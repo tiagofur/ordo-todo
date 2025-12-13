@@ -108,15 +108,69 @@ export class WorkspacesService {
   }
 
   async findAll(userId: string) {
-    const workspaces = await this.workspaceRepository.findByUserId(userId);
-    // Filter out deleted workspaces (repository already handles this but keeping safe)
-    return workspaces
-      .filter((w) => !w.props.isDeleted)
-      .map((w) => ({
-        ...w.props,
-        // Ensure stats are passed
-        stats: w.props.stats,
-      }));
+    // Fetch workspaces with owner information using Prisma directly
+    const workspaces = await this.prisma.workspace.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          {
+            members: {
+              some: {
+                userId: userId,
+              },
+            },
+          },
+        ],
+        isDeleted: false,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
+        _count: {
+          select: {
+            projects: true,
+            members: true,
+          },
+        },
+        projects: {
+          select: {
+            _count: {
+              select: { tasks: true },
+            },
+          },
+        },
+      },
+    });
+
+    return workspaces.map((w) => {
+      const taskCount = w.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+      return {
+        id: w.id,
+        name: w.name,
+        slug: w.slug,
+        description: w.description,
+        type: w.type,
+        tier: w.tier,
+        color: w.color,
+        icon: w.icon,
+        ownerId: w.ownerId,
+        owner: w.owner,
+        isArchived: w.isArchived,
+        createdAt: w.createdAt,
+        updatedAt: w.updatedAt,
+        stats: {
+          projectCount: w._count.projects,
+          memberCount: w._count.members,
+          taskCount: taskCount,
+        },
+      };
+    });
   }
 
   async findOne(id: string) {
@@ -146,6 +200,14 @@ export class WorkspacesService {
         },
       },
       include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
         _count: {
           select: {
             projects: true,
@@ -182,6 +244,7 @@ export class WorkspacesService {
       color: workspace.color,
       icon: workspace.icon,
       ownerId: workspace.ownerId,
+      owner: workspace.owner,
       isArchived: workspace.isArchived,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,

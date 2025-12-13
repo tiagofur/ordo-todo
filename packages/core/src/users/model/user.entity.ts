@@ -4,6 +4,7 @@ import { Entity, EntityMode, EntityProps } from "../../shared/entity";
 
 export interface UserProps extends EntityProps<string> {
   name?: string;
+  username: string;
   email?: string;
   password?: string;
   createdAt?: Date;
@@ -12,6 +13,7 @@ export interface UserProps extends EntityProps<string> {
 
 export class User extends Entity<UserProps> {
   public readonly name: string;
+  public readonly username: string;
   public readonly email: string;
   public readonly password?: string;
 
@@ -21,6 +23,7 @@ export class User extends Entity<UserProps> {
       mode === "draft"
         ? (props?.name ?? "")
         : PersonName.create(props?.name ?? "").value;
+    this.username = props.username;
     this.email =
       mode === "draft"
         ? (props?.email ?? "")

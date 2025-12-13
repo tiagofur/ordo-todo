@@ -11,6 +11,7 @@ export class PrismaUserRepository implements UserRepository {
     return new User({
       id: prismaUser.id,
       name: prismaUser.name ?? undefined,
+      username: prismaUser.username,
       email: prismaUser.email,
       password: (prismaUser as any).hashedPassword ?? undefined,
       createdAt: prismaUser.createdAt,
@@ -22,6 +23,7 @@ export class PrismaUserRepository implements UserRepository {
     const data = {
       id: user.id,
       name: user.name,
+      username: user.props.username,
       email: user.email,
       hashedPassword: user.password,
       updatedAt: (user.props as any).updatedAt,
@@ -58,6 +60,12 @@ export class PrismaUserRepository implements UserRepository {
       return domainUser.withoutPassword();
     }
     return domainUser;
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({ where: { username } });
+    if (!user) return null;
+    return this.toDomain(user);
   }
 
   async findById(id: string): Promise<User | null> {

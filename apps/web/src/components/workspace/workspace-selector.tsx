@@ -195,7 +195,12 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
                         key={workspace.id}
                         onClick={() => {
                           setSelectedWorkspaceId(workspace.id);
-                          router.push(`/workspaces/${workspace.slug}`);
+                          // Use username/slug pattern for navigation
+                          if ((workspace as any).owner?.username) {
+                            router.push(`/${(workspace as any).owner.username}/${workspace.slug}`);
+                          } else {
+                            router.push(`/workspaces/${workspace.slug}`);
+                          }
                           setIsOpen(false);
                         }}
                         className={cn(
