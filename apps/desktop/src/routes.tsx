@@ -69,6 +69,15 @@ const router = createBrowserRouter([
             path: "workspaces/:id",
             element: <LazyWorkspaceDetail />,
           },
+          // New username/slug routes
+          {
+            path: ":username/:slug",
+            element: <LazyWorkspaceDetail />,
+          },
+          {
+            path: ":username/:slug/projects/:projectSlug",
+            element: <LazyProjectDetail />,
+          },
           {
             path: "timer",
             element: <Timer />,
