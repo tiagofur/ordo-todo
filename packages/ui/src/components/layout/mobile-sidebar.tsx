@@ -7,13 +7,10 @@ import {
   SheetContent,
 } from '../ui/sheet.js';
 import { cn } from '../../utils/index.js';
+import type { NavItem } from './sidebar.js';
 
-export interface NavItem {
-  name: string;
-  href: string;
-  icon: ElementType;
-  color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue' | 'yellow' | 'red';
-}
+// Re-export NavItem for convenience
+export type { NavItem };
 
 interface MobileSidebarProps {
   /** Controls sheet open/close state */
