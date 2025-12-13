@@ -9,6 +9,7 @@ export default function useAuthForm() {
   const [mode, setMode] = useState<"login" | "register">("login");
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -27,7 +28,7 @@ export default function useAuthForm() {
       if (mode === "login") {
         await loginMutation({ email, password });
       } else {
-        await registerMutation({ name, email, password });
+        await registerMutation({ name, username, email, password });
       }
       clearForm();
     } catch (error: any) {
@@ -37,6 +38,7 @@ export default function useAuthForm() {
 
   function clearForm() {
     setName("");
+    setUsername("");
     setEmail("");
     setPassword("");
     setMode("login");
@@ -45,9 +47,11 @@ export default function useAuthForm() {
   return {
     mode,
     name,
+    username,
     email,
     password,
     setName,
+    setUsername,
     setEmail,
     setPassword,
     toggleMode,

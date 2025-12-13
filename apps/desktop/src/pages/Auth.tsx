@@ -12,6 +12,7 @@ export function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const { login, signup, signInWithGoogle, signInWithGitHub } = useAuth();
@@ -25,7 +26,7 @@ export function Auth() {
       if (isLogin) {
         await login({ email, password });
       } else {
-        await signup({ email, password, name });
+        await signup({ email, password, username, name });
       }
       navigate("/dashboard");
     } catch (error) {
@@ -76,17 +77,36 @@ export function Auth() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div className="space-y-2">
-              <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Tu nombre"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required={!isLogin}
-              />
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="name">Nombre</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required={!isLogin}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">Nombre de Usuario</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="usuario123"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                  pattern="[a-z0-9_-]+"
+                  minLength={3}
+                  required={!isLogin}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Solo letras minúsculas, números, guiones y guiones bajos. Mínimo 3 caracteres.
+                </p>
+              </div>
+            </>
           )}
 
           <div className="space-y-2">
