@@ -200,7 +200,13 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                 : "space-y-3"
             )}>
               {projects.map((project: any, index: number) => (
-                <ProjectCard key={project.id} project={project} index={index} workspaceSlug={workspace.slug} />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={index}
+                  workspaceSlug={workspace.slug}
+                  ownerUsername={workspace.owner?.username}
+                />
               ))}
             </div>
           )}

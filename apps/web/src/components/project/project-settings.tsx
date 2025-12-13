@@ -27,11 +27,13 @@ interface ProjectSettingsProps {
     slug?: string;
   };
   workspaceSlug: string;
+  ownerUsername?: string;
 }
 
 export function ProjectSettings({
   project,
   workspaceSlug,
+  ownerUsername,
 }: ProjectSettingsProps) {
   const t = useTranslations("ProjectSettings");
   const router = useRouter();
@@ -103,7 +105,12 @@ export function ProjectSettings({
     try {
       await deleteProjectMutation.mutateAsync(project.id);
       toast.success(t("toast.deleted"));
-      router.push(`/workspaces/${workspaceSlug}`);
+      // Navigate using username/slug pattern
+      if (ownerUsername) {
+        router.push(`/${ownerUsername}/${workspaceSlug}`);
+      } else {
+        router.push(`/workspaces/${workspaceSlug}`);
+      }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || t("toast.deleteError"));
     }
