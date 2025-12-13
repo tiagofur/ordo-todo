@@ -223,19 +223,19 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lg"
                 style={{
                   backgroundColor: accentColor,
                   boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
-                <Home className="h-6 w-6" />
+                <Home className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               {t("today")}
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">
               {format.dateTime(new Date(), {
                 weekday: "long",
                 year: "numeric",
@@ -454,7 +454,7 @@ export default function DashboardPage() {
       />
 
       {/* Quick Actions FAB */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         <AnimatePresence>
           {showQuickActions && (
             <>

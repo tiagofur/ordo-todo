@@ -77,7 +77,8 @@
     "myAccount": "Mi Cuenta",
     "profile": "Perfil",
     "settings": "Configuración",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "menu": "Menú"
   },
   "Dashboard": {
     "completed": "Completadas",

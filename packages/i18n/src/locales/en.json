@@ -77,7 +77,8 @@
     "myAccount": "My Account",
     "profile": "Profile",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "menu": "Menu"
   },
   "Dashboard": {
     "completed": "Completed",

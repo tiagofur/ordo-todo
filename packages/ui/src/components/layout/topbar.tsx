@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode } from 'react';
-import { Search, Sparkles } from 'lucide-react';
+import { Search, Sparkles, Menu } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,7 @@ interface TopBarProps {
   onAICopilotClick?: () => void;
   onProfileClick?: () => void;
   onSettingsClick?: () => void;
+  onMenuClick?: () => void;
   /** Notifications component */
   renderNotifications?: () => ReactNode;
   /** Sync status indicator component */
@@ -39,6 +40,7 @@ interface TopBarProps {
     logout?: string;
     aiCopilot?: string;
     level?: string;
+    menu?: string;
   };
 }
 
@@ -50,6 +52,7 @@ const DEFAULT_LABELS = {
   logout: 'Log out',
   aiCopilot: 'Ordo AI Copilot',
   level: 'Lvl',
+  menu: 'Menu',
 };
 
 export function TopBar({
@@ -59,6 +62,7 @@ export function TopBar({
   onAICopilotClick,
   onProfileClick,
   onSettingsClick,
+  onMenuClick,
   renderNotifications,
   renderSyncStatus,
   labels = {},
@@ -72,7 +76,20 @@ export function TopBar({
   const xpProgress = Math.min(100, userXp % 100);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background px-4 md:px-6">
+      {/* Mobile Menu Button */}
+      {onMenuClick && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden h-10 w-10 rounded-xl"
+          onClick={onMenuClick}
+          title={t.menu}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
+
       {/* Search */}
       <div className="flex flex-1 items-center gap-2">
         <div className="relative w-full max-w-md">
@@ -81,8 +98,16 @@ export function TopBar({
             type="search"
             placeholder={t.searchPlaceholder}
             onChange={(e) => onSearchChange?.(e.target.value)}
-            className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background"
+            className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background hidden sm:block"
           />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sm:hidden h-10 w-10 rounded-xl"
+            title={t.searchPlaceholder}
+          >
+            <Search className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 

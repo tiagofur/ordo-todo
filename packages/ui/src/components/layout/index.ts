@@ -5,4 +5,5 @@
  */
 
 export * from './sidebar.js';
+export * from './mobile-sidebar.js';
 export * from './topbar.js';
