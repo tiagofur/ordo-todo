@@ -32,6 +32,7 @@ export interface UpdateProfileDto {
 export interface UserResponse {
   id: string;
   email: string;
+  username: string;
   name: string | null;
   image: string | null;
 }

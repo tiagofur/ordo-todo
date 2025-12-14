@@ -14,6 +14,11 @@ export const registerUserSchema = z.object({
         .string()
         .min(USER_LIMITS.NAME_MIN_LENGTH, `Name must be at least ${USER_LIMITS.NAME_MIN_LENGTH} characters`)
         .max(USER_LIMITS.NAME_MAX_LENGTH, `Name must be less than ${USER_LIMITS.NAME_MAX_LENGTH} characters`),
+    username: z
+        .string()
+        .min(3, "Username must be at least 3 characters")
+        .max(20, "Username must be less than 20 characters")
+        .regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, hyphens, and underscores"),
     email: z.string().email("Invalid email address"),
     password: z
         .string()
@@ -105,4 +110,16 @@ export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
 export type ChangePassword = z.infer<typeof changePasswordSchema>;
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
 export type ResetPassword = z.infer<typeof resetPasswordSchema>;
+/**
+ * Username validation schema
+ */
+export const usernameValidationSchema = z.object({
+    username: z
+        .string()
+        .min(3, "Username must be at least 3 characters")
+        .max(20, "Username must be less than 20 characters")
+        .regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, hyphens, and underscores"),
+});
+
 export type UserPreferences = z.infer<typeof userPreferencesSchema>;
+export type UsernameValidation = z.infer<typeof usernameValidationSchema>;

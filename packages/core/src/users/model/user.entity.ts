@@ -37,7 +37,7 @@ export class User extends Entity<UserProps> {
     return this.clone({ password: undefined });
   }
 
-  static draft(props: UserProps = {}) {
+  static draft(props: UserProps = { username: "" }) {
     return new User(props, "draft");
   }
 

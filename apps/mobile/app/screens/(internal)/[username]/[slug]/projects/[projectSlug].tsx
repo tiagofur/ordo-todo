@@ -13,8 +13,8 @@ export default function ProjectDetailScreen() {
   const colors = useThemeColors();
   const { username, slug, projectSlug } = useLocalSearchParams();
 
-  const { project, isLoading: isLoadingProject } = useProjectBySlug(
-    slug as string,
+  const { data: project, isLoading: isLoadingProject } = useProjectBySlug(
+    username as string,
     projectSlug as string
   );
   const { data: allTasks } = useTasks();

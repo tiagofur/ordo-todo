@@ -22,11 +22,13 @@
   },
   "dependencies": {
     "@ordo-todo/api-client": "*",
-    "@ordo-todo/core": "*"
+    "@ordo-todo/core": "*",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
     "@tanstack/react-query": "^5.80.7",
+    "@types/lodash": "^4.17.0",
     "@types/react": "^19.1.8",
     "react": "^19.1.0",
     "typescript": "^5.9.3"

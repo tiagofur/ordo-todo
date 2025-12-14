@@ -21,6 +21,8 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { motion } from "framer-motion";
+import { UsernameInput } from "@ordo-todo/ui";
+import { useUsernameValidation } from "@ordo-todo/hooks";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -34,6 +36,12 @@ export default function SignUpPage() {
     email: "",
     password: "",
     confirmPassword: "",
+  });
+
+  // Mock API client for username validation - replace with actual API client
+  const mockApiClient = {} as any;
+  const { validationResult } = useUsernameValidation({
+    apiClient: mockApiClient,
   });
 
   // Password strength calculation
@@ -64,6 +72,24 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate username
+    if (!formData.username || formData.username.length < 3) {
+      toast.error("El nombre de usuario debe tener al menos 3 caracteres");
+      return;
+    }
+
+    // Check if username validation shows it's taken
+    if (validationResult.isAvailable === false) {
+      toast.error("El nombre de usuario ya está en uso. Por favor, elige otro.");
+      return;
+    }
+
+    // Check if username validation is still loading
+    if (validationResult.isLoading) {
+      toast.error("Espera a que se valide el nombre de usuario");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Las contraseñas no coinciden");
@@ -165,30 +191,16 @@ export default function SignUpPage() {
             </div>
 
             {/* Username Input */}
-            <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium text-foreground">
-                Nombre de Usuario
-              </label>
-              <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 transition-colors">
-                  <AtSign className="h-5 w-5" />
-                </div>
-                <input
-                  id="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') })}
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  placeholder="usuario123"
-                  pattern="[a-z0-9_-]+"
-                  minLength={3}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Solo letras minúsculas, números, guiones y guiones bajos. Mínimo 3 caracteres.
-              </p>
-            </div>
+            <UsernameInput
+              value={formData.username}
+              onChange={(value) => setFormData({ ...formData, username: value })}
+              apiClient={mockApiClient}
+              label="Nombre de Usuario"
+              placeholder="usuario123"
+              required={true}
+              helperText="Este será tu identificador único en la plataforma"
+              className="h-12"
+            />
 
             {/* Email Input */}
             <div className="space-y-2">

@@ -24,6 +24,7 @@ export function SessionProvider(props: any) {
       
       return new User({
         id: user.id || "unknown",
+        username: user.username || "",
         name: user.name || "",
         email: user.email || "",
       });

@@ -9,6 +9,7 @@ export default function useAuthForm() {
   const [mode, setMode] = useState<"login" | "register">("login");
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -52,11 +53,12 @@ export default function useAuthForm() {
   }
 
   async function registerUser() {
-    await registerMutation.mutateAsync({ name, email, password });
+    await registerMutation.mutateAsync({ name, username, email, password });
   }
 
   function clearForm() {
     setName("");
+    setUsername("");
     setEmail("");
     setPassword("");
     setMode("login");
@@ -65,9 +67,11 @@ export default function useAuthForm() {
   return {
     mode,
     name,
+    username,
     email,
     password,
     setName,
+    setUsername,
     setEmail,
     setPassword,
     toggleMode,

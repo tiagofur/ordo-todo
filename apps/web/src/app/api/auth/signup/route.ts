@@ -15,7 +15,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { name, email, password } = result.data;
+        const { name, username, email, password } = result.data;
 
         // Verificar si el usuario ya existe
         const existingUser = await prisma.user.findUnique({
@@ -29,6 +29,18 @@ export async function POST(req: Request) {
             );
         }
 
+        // Verificar si el username ya está tomado
+        const existingUsername = await prisma.user.findUnique({
+            where: { username },
+        });
+
+        if (existingUsername) {
+            return NextResponse.json(
+                { error: "El nombre de usuario ya está en uso" },
+                { status: 400 }
+            );
+        }
+
         // Hash de la contraseña
         const hashedPassword = await hash(password, 12);
 
@@ -36,6 +48,7 @@ export async function POST(req: Request) {
         const user = await prisma.user.create({
             data: {
                 name,
+                username,
                 email,
                 hashedPassword,
             },
@@ -46,6 +59,7 @@ export async function POST(req: Request) {
                 user: {
                     id: user.id,
                     name: user.name,
+                    username: user.username,
                     email: user.email,
                 },
             },

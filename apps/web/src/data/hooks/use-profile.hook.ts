@@ -18,6 +18,7 @@ export default function useProfile() {
       // Convert null values to undefined for User entity compatibility
       setUser(new User({
         id: fetchedUser.id,
+        username: fetchedUser.username,
         name: fetchedUser.name ?? undefined,
         email: fetchedUser.email,
       }));

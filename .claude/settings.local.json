@@ -32,7 +32,8 @@
       "Bash(node:*)",
       "Bash(npx next lint:*)",
       "Bash(pushd:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(npm run)"
     ],
     "deny": [],
     "ask": []

@@ -463,11 +463,11 @@ export class OrdoApiClient {
   }
 
   /**
-   * Get a specific workspace by Slug
-   * GET /workspaces/by-slug/:slug
+   * Get a specific workspace by Slug and Username
+   * GET /workspaces/:username/:slug
    */
-  async getWorkspaceBySlug(slug: string): Promise<WorkspaceWithMembers> {
-    const response = await this.axios.get<WorkspaceWithMembers>(`/workspaces/by-slug/${slug}`);
+  async getWorkspaceBySlug(username: string, slug: string): Promise<WorkspaceWithMembers> {
+    const response = await this.axios.get<WorkspaceWithMembers>(`/workspaces/${username}/${slug}`);
     return response.data;
   }
 
@@ -581,6 +581,15 @@ export class OrdoApiClient {
    */
   async getProject(projectId: string): Promise<Project> {
     const response = await this.axios.get<Project>(`/projects/${projectId}`);
+    return response.data;
+  }
+
+  /**
+   * Get a specific project by slug and username
+   * GET /projects/:username/:projectSlug
+   */
+  async getProjectBySlug(username: string, projectSlug: string): Promise<Project> {
+    const response = await this.axios.get<Project>(`/projects/${username}/${projectSlug}`);
     return response.data;
   }
 

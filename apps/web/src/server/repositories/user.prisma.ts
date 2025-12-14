@@ -8,6 +8,7 @@ export class PrismaUserRepository implements UserRepository {
         // Assuming prismaUser.hashedPassword stores the hashed password
         return new User({
             id: prismaUser.id,
+            username: prismaUser.username,
             name: prismaUser.name ?? undefined,
             email: prismaUser.email,
             password: (prismaUser as any).hashedPassword ?? undefined,
@@ -19,6 +20,7 @@ export class PrismaUserRepository implements UserRepository {
     async save(user: User): Promise<void> {
         const data = {
             id: user.id as string,
+            username: user.username,
             name: user.name,
             email: user.email,
             hashedPassword: user.password,
@@ -60,6 +62,12 @@ export class PrismaUserRepository implements UserRepository {
             return domainUser.withoutPassword();
         }
         return domainUser;
+    }
+
+    async findByUsername(username: string): Promise<User | null> {
+        const user = await this.prisma.user.findUnique({ where: { username } });
+        if (!user) return null;
+        return this.toDomain(user);
     }
 
     async findById(id: string): Promise<User | null> {

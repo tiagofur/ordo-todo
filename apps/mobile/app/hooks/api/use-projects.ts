@@ -28,6 +28,18 @@ export function useProject(projectId: string) {
 }
 
 /**
+ * Hook to get a project by slug and username
+ */
+export function useProjectBySlug(username: string, projectSlug: string) {
+  return useQuery({
+    queryKey: ['projects', 'by-slug', username, projectSlug],
+    queryFn: () => apiClient.getProjectBySlug(username, projectSlug),
+    enabled: !!username && !!projectSlug,
+    staleTime: 1000 * 60 * 3, // 3 minutes
+  });
+}
+
+/**
  * Hook to create a new project
  */
 export function useCreateProject() {

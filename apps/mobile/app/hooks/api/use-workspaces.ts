@@ -26,6 +26,18 @@ export function useWorkspace(workspaceId: string) {
 }
 
 /**
+ * Hook to get a workspace by slug and username
+ */
+export function useWorkspaceBySlug(username: string, slug: string) {
+  return useQuery({
+    queryKey: ['workspaces', 'by-slug', username, slug],
+    queryFn: () => apiClient.getWorkspaceBySlug(username, slug),
+    enabled: !!username && !!slug,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+/**
  * Hook to create a new workspace
  */
 export function useCreateWorkspace() {

@@ -102,7 +102,18 @@ export class ChatService {
         id: m.id,
         role: m.role as 'USER' | 'ASSISTANT' | 'SYSTEM',
         content: m.content,
-        metadata: m.metadata as any,
+        metadata: m.metadata as
+          | {
+              actions?: Array<{
+                type: string;
+                data?: any;
+                result?: any;
+              }>;
+              suggestions?: string[];
+              modelUsed?: string;
+              processingTimeMs?: number;
+            }
+          | undefined,
         createdAt: m.createdAt,
       })),
       isArchived: conversation.isArchived,

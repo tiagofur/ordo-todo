@@ -20,7 +20,7 @@ export default function WorkspaceDetailScreen() {
   const { username, slug } = useLocalSearchParams();
 
   // Use workspace by slug (the backend endpoint supports username/slug)
-  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(slug as string);
+  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(username as string, slug as string);
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace?.id);
 
   const handleProjectPress = (project: Project) => {

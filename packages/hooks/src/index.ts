@@ -66,3 +66,9 @@ export {
   type SessionData,
   type UseTimerReturn,
 } from './use-timer';
+
+// Username validation hook
+export {
+  useUsernameValidation,
+  generateUsernameSuggestions,
+} from './use-username-validation';

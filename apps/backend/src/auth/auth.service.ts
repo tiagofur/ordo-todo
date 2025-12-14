@@ -42,7 +42,10 @@ export class AuthService {
         password: registerDto.password,
       });
     } catch (error) {
-      if (error.message.includes('já existe') || error.message.includes('já está em uso')) {
+      if (
+        error.message.includes('já existe') ||
+        error.message.includes('já está em uso')
+      ) {
         throw new ConflictException(error.message);
       }
       throw error;
