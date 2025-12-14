@@ -34,7 +34,12 @@
       "Bash(pushd:*)",
       "Bash(powershell:*)",
       "Bash(npm run)",
-      "Bash(npx turbo run build:*)"
+      "Bash(npx turbo run build:*)",
+      "Bash(git push:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/ordo_todo?schema=public\" npx prisma migrate deploy:*)",
+      "Bash(npm run build:vite:*)"
     ],
     "deny": [],
     "ask": []

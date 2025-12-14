@@ -49,9 +49,9 @@ export class DesktopApiClient extends OrdoApiClient {
 
   async getShareUrl(taskId: string) {
     const shareData = await this.generateShareToken(taskId);
-    const baseUrl = this.baseURL.endsWith('/api/v1')
-      ? this.baseURL.slice(0, -7) // Remove '/api/v1'
-      : this.baseURL;
+    const baseUrl = this.axios.defaults.baseURL?.endsWith('/api/v1')
+      ? this.axios.defaults.baseURL.slice(0, -7) // Remove '/api/v1'
+      : this.axios.defaults.baseURL || '';
     return `${baseUrl}/share/task/${shareData.token}`;
   }
 

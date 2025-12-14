@@ -173,7 +173,7 @@ export function CustomFieldsManager({
               </div>
             ) : !fields || fields.length === 0 ? (
               <EmptyState
-                icon={<Settings className="h-12 w-12 text-muted-foreground" />}
+                icon={Settings as any}
                 title="Sin campos personalizados"
                 description="Crea campos personalizados para agregar más información a tus tareas"
                 action={
@@ -185,7 +185,7 @@ export function CustomFieldsManager({
               />
             ) : (
               <div className="space-y-3">
-                {fields.map((field) => (
+                {fields.map((field: any) => (
                   <div
                     key={field.id}
                     className="flex items-center justify-between p-4 border rounded-lg bg-card"
@@ -208,7 +208,7 @@ export function CustomFieldsManager({
                       )}
                       {field.options && field.options.length > 0 && (
                         <div className="flex flex-wrap gap-1 ml-11">
-                          {field.options.slice(0, 3).map((option, index) => (
+                          {field.options.slice(0, 3).map((option: any, index: number) => (
                             <span
                               key={index}
                               className="inline-block px-2 py-1 text-xs bg-muted rounded"
@@ -258,7 +258,7 @@ export function CustomFieldsManager({
         </div>
 
         <div className="flex gap-2 pt-4">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
             Cerrar
           </Button>
           <Button onClick={handleCreate} className="flex-1">

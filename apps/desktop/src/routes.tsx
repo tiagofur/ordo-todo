@@ -11,18 +11,18 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { LazyLoad } from "./components/LazyLoad";
 
 // Lazy load heavy components for better performance
-const LazyProjectDetail = LazyLoad(() => import("./pages/ProjectDetail"));
-const LazyWorkspaces = LazyLoad(() => import("./pages/Workspaces"));
-const LazyWorkspaceDetail = LazyLoad(() => import("./pages/WorkspaceDetail"));
-const LazyAnalytics = LazyLoad(() => import("./pages/Analytics"));
-const LazySettings = LazyLoad(() => import("./pages/Settings"));
-const LazyProfile = LazyLoad(() => import("./pages/Profile"));
-const LazyCalendar = LazyLoad(() => import("./pages/Calendar"));
-const LazyTags = LazyLoad(() => import("./pages/Tags"));
-const LazyHabits = LazyLoad(() => import("./pages/Habits"));
-const LazyGoals = LazyLoad(() => import("./pages/goals/Goals"));
-const LazyGoalDetails = LazyLoad(() => import("./pages/goals/GoalDetails"));
-const LazyFocusMode = LazyLoad(() => import("./pages/FocusMode"));
+const LazyProjectDetail = LazyLoad(() => import("./pages/ProjectDetail").then(m => ({ default: m.ProjectDetail || m.default })));
+const LazyWorkspaces = LazyLoad(() => import("./pages/Workspaces").then(m => ({ default: m.Workspaces || m.default })));
+const LazyWorkspaceDetail = LazyLoad(() => import("./pages/WorkspaceDetail").then(m => ({ default: m.WorkspaceDetail || m.default })));
+const LazyAnalytics = LazyLoad(() => import("./pages/Analytics").then(m => ({ default: m.Analytics || m.default })));
+const LazySettings = LazyLoad(() => import("./pages/Settings").then(m => ({ default: m.Settings || m.default })));
+const LazyProfile = LazyLoad(() => import("./pages/Profile").then(m => ({ default: m.Profile || m.default })));
+const LazyCalendar = LazyLoad(() => import("./pages/Calendar").then(m => ({ default: m.Calendar || m.default })));
+const LazyTags = LazyLoad(() => import("./pages/Tags").then(m => ({ default: m.Tags || m.default })));
+const LazyHabits = LazyLoad(() => import("./pages/Habits").then(m => ({ default: m.Habits || m.default })));
+const LazyGoals = LazyLoad(() => import("./pages/goals/Goals").then(m => ({ default: m.Goals || m.default })));
+const LazyGoalDetails = LazyLoad(() => import("./pages/goals/GoalDetails").then(m => ({ default: m.GoalDetails || m.default })));
+const LazyFocusMode = LazyLoad(() => import("./pages/FocusMode").then(m => ({ default: m.FocusMode || m.default })));
 
 // Create router configuration
 const router = createBrowserRouter([

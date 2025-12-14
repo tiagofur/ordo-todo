@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Save, X } from "lucide-react";
 import { useCustomFields, useTaskCustomValues, useSetTaskCustomValues } from "@/hooks/api/use-custom-fields";
-import type { CustomField, CustomFieldValue } from "@ordo-todo/api-client";
+import type { CustomField, CustomFieldValue, CustomFieldType } from "@ordo-todo/api-client";
 import { useCustomFieldForm } from "@/hooks/api/use-custom-fields";
 import { toast } from "sonner";
 
@@ -48,7 +48,7 @@ export function TaskCustomFields({
     if (values && !valuesLoading && fields) {
       const initialValues: Record<string, string> = {};
       values.forEach((value: CustomFieldValue) => {
-        initialValues[value.customFieldId] = value.value;
+        initialValues[value.fieldId] = value.value;
       });
       // Update form values without triggering re-render
       Object.entries(initialValues).forEach(([fieldId, value]) => {
@@ -100,7 +100,7 @@ export function TaskCustomFields({
               id={`field-${field.id}`}
               value={value}
               onChange={(e) => handleChange(field.id, e.target.value)}
-              placeholder={field.description}
+              placeholder={field.description || undefined}
               disabled={!isEditing}
             />
           </div>
@@ -118,7 +118,7 @@ export function TaskCustomFields({
               type="number"
               value={value}
               onChange={(e) => handleChange(field.id, e.target.value)}
-              placeholder={field.description}
+              placeholder={field.description || undefined}
               disabled={!isEditing}
             />
           </div>
@@ -141,7 +141,7 @@ export function TaskCustomFields({
           </div>
         );
 
-      case "BOOLEAN":
+      case CustomFieldType.BOOLEAN:
         return (
           <div className="flex items-center space-x-2 mt-2" key={field.id}>
             <Checkbox
@@ -291,7 +291,7 @@ export function TaskCustomFields({
           </div>
         )}
 
-        {fields.map((field) => (
+        {fields.map((field: any) => (
           <div key={field.id} className="border-l-2 border-primary pl-4">
             {renderField(field)}
           </div>
