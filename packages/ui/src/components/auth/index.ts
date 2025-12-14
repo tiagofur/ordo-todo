@@ -5,3 +5,4 @@
  */
 
 export * from './auth-form.js';
+export { UsernameInput } from './username-input';

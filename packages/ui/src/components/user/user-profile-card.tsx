@@ -38,10 +38,12 @@ import {
   AlertTriangle,
   Info,
   Clock,
-  Zap
+  Zap,
+  AlertCircle,
+  Plus
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-// import { UsernameInput } from '../auth/username-input'; // Temporarily disabled
+import { UsernameInput } from '../auth/username-input';
 
 interface UserProfileCardProps {
   user: {
@@ -87,7 +89,7 @@ export function UserProfileCard({
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   // Mock API client for UsernameInput - replace with actual implementation
-  // const mockApiClient = {} as any;
+  const mockApiClient = {} as any;
 
   const handleUsernameUpdate = async () => {
     if (!onUpdateUsername || username === user.username) return;
@@ -282,9 +284,16 @@ export function UserProfileCard({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h2 className="text-2xl font-bold">{user.name || user.username}</h2>
+            <h2 className="text-2xl font-bold">{user.name || 'User'}</h2>
             <div className="flex items-center gap-2 text-muted-foreground">
-              <span>@{user.username}</span>
+              {user.username ? (
+                <span>@{user.username}</span>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-yellow-500" />
+                  <span className="text-yellow-600 dark:text-yellow-400">No username set</span>
+                </div>
+              )}
               <Badge variant="secondary" className="text-xs">
                 ID: {user.id.slice(-8)}
               </Badge>
@@ -292,6 +301,12 @@ export function UserProfileCard({
             <p className="text-sm text-muted-foreground">{user.email}</p>
             {user.bio && (
               <p className="mt-2 text-sm">{user.bio}</p>
+            )}
+            {!user.username && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                <Info className="h-3 w-3" />
+                <span>Username is required for profile URL and sharing</span>
+              </div>
             )}
           </div>
         </div>
@@ -307,114 +322,182 @@ export function UserProfileCard({
                 <span>Part of your profile URL</span>
               </div>
             </div>
-            {onUpdateUsername && (
-              <Dialog open={isEditingUsername} onOpenChange={setIsEditingUsername}>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Change
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Change Username</DialogTitle>
-                    <DialogDescription>
-                      Your username is part of your profile URL and must be unique.
-                      This change will update all your profile URLs.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    {/* Temporarily disabled UsernameInput
-                    <UsernameInput
-                      value={username}
-                      onChange={setUsername}
-                      apiClient={mockApiClient}
-                      label="New Username"
-                      helperText="This will be your new unique identifier"
-                    />
-                    */}
-                    <div className="text-center text-muted-foreground">
-                      Username input temporarily disabled
-                    </div>
-                    <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
-                      <div className="flex items-start gap-2 text-sm">
-                        <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-                        <div>
-                          <p className="font-medium text-yellow-800 dark:text-yellow-200">
-                            Important: URL Change
-                          </p>
-                          <p className="text-yellow-700 dark:text-yellow-300">
-                            Changing your username will update your profile URLs.
-                            Old links will no longer work.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {updateError && (
-                    <div className="flex items-center gap-2 text-sm text-destructive">
-                      <X className="h-4 w-4" />
-                      {updateError}
-                    </div>
-                  )}
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditingUsername(false);
-                        setUsername(user.username);
-                        setUpdateError(null);
-                      }}
-                      disabled={isUpdating}
-                    >
-                      Cancel
+            {/* Show different button based on whether user has username */}
+            {user.username ? (
+              onUpdateUsername && (
+                <Dialog open={isEditingUsername} onOpenChange={setIsEditingUsername}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Change
                     </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          disabled={isUpdating || username === user.username || username.length < 3}
-                        >
-                          {isUpdating ? (
-                            <>
-                              <Clock className="h-4 w-4 mr-2 animate-spin" />
-                              Updating...
-                            </>
-                          ) : (
-                            <>
-                              <Zap className="h-4 w-4 mr-2" />
-                              Change Username
-                            </>
-                          )}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Confirm Username Change</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to change your username from{' '}
-                            <span className="font-medium">@{user.username}</span> to{' '}
-                            <span className="font-medium">@{username}</span>?
-                            <br />
-                            <br />
-                            This action cannot be undone and will update all your profile URLs.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleUsernameUpdate}>
-                            Yes, Change Username
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Change Username</DialogTitle>
+                      <DialogDescription>
+                        Enter your new username. This will change your profile URL.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <UsernameInput
+                        value={username}
+                        onChange={setUsername}
+                        apiClient={mockApiClient}
+                        label="New Username"
+                        helperText="This will be your new profile identifier"
+                      />
+                    </div>
+                    {updateError && (
+                      <div className="flex items-center gap-2 text-sm text-destructive">
+                        <X className="h-4 w-4" />
+                        {updateError}
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsEditingUsername(false);
+                          setUsername(user.username);
+                          setUpdateError(null);
+                        }}
+                        disabled={isUpdating}
+                      >
+                        Cancel
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            disabled={isUpdating || username === user.username || username.length < 3}
+                          >
+                            {isUpdating ? (
+                              <>
+                                <Clock className="h-4 w-4 mr-2 animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-4 w-4 mr-2" />
+                                Change Username
+                              </>
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Change Username</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to change your username from{' '}
+                              <span className="font-medium">@{user.username}</span> to{' '}
+                              <span className="font-medium">@{username}</span>?
+                              <br />
+                              <br />
+                              This will change your profile URL and may affect bookmarks.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleUsernameUpdate}>
+                              Yes, Change Username
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )
+            ) : (
+              onUpdateUsername && (
+                <Dialog open={isEditingUsername} onOpenChange={setIsEditingUsername}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Username
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Add Username</DialogTitle>
+                      <DialogDescription>
+                        Choose a username for your profile. This will be part of your profile URL
+                        and must be unique.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <UsernameInput
+                        value={username}
+                        onChange={setUsername}
+                        apiClient={mockApiClient}
+                        label="Username"
+                        helperText="This will be your unique profile identifier"
+                      />
+                    </div>
+                    {updateError && (
+                      <div className="flex items-center gap-2 text-sm text-destructive">
+                        <X className="h-4 w-4" />
+                        {updateError}
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsEditingUsername(false);
+                          setUsername('');
+                          setUpdateError(null);
+                        }}
+                        disabled={isUpdating}
+                      >
+                        Cancel
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            disabled={isUpdating || username.length < 3}
+                          >
+                            {isUpdating ? (
+                              <>
+                                <Clock className="h-4 w-4 mr-2 animate-spin" />
+                                Adding...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-4 w-4 mr-2" />
+                                Add Username
+                              </>
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Add Username</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to add the username{' '}
+                              <span className="font-medium"> @{username}</span>?
+                              <br />
+                              <br />
+                              This will be your permanent profile identifier.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleUsernameUpdate}>
+                              Yes, Add Username
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )
             )}
           </div>
           <div className="bg-muted/50 rounded-lg p-3">
             <code className="text-sm">
-              ordo-todo.com/{username}/workspace-name
+              ordo-todo.com/{username || 'username'}/workspace-name
             </code>
           </div>
         </div>
