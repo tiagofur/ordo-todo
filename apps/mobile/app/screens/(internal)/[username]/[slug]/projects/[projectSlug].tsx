@@ -7,6 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Card from "@/app/components/shared/card.component";
+import type { Task } from "@ordo-todo/api-client";
 
 export default function ProjectDetailScreen() {
   const colors = useThemeColors();
@@ -20,7 +21,7 @@ export default function ProjectDetailScreen() {
 
   // Filter tasks by project
   const projectTasks = allTasks?.filter(
-    (task: any) => String(task.projectId) === String(project?.id)
+    (task: Task) => String(task.projectId) === String(project?.id)
   ) || [];
 
   const handleBack = () => {
@@ -51,9 +52,9 @@ export default function ProjectDetailScreen() {
     );
   }
 
-  const todoTasks = projectTasks.filter((t: any) => t.status === "TODO");
-  const inProgressTasks = projectTasks.filter((t: any) => t.status === "IN_PROGRESS");
-  const completedTasks = projectTasks.filter((t: any) => t.status === "COMPLETED");
+  const todoTasks = projectTasks.filter((t: Task) => t.status === "TODO");
+  const inProgressTasks = projectTasks.filter((t: Task) => t.status === "IN_PROGRESS");
+  const completedTasks = projectTasks.filter((t: Task) => t.status === "COMPLETED");
   const totalTasks = projectTasks.length;
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
 
@@ -151,7 +152,7 @@ export default function ProjectDetailScreen() {
                 <Text style={[styles.taskSectionTitle, { color: colors.textSecondary }]}>
                   POR HACER ({todoTasks.length})
                 </Text>
-                {todoTasks.map((task: any, index: number) => (
+                {todoTasks.map((task: Task, index: number) => (
                   <Animated.View
                     key={task.id}
                     entering={FadeInDown.delay(300 + index * 50).springify()}
@@ -202,7 +203,7 @@ export default function ProjectDetailScreen() {
                 <Text style={[styles.taskSectionTitle, { color: colors.textSecondary }]}>
                   EN PROGRESO ({inProgressTasks.length})
                 </Text>
-                {inProgressTasks.map((task: any, index: number) => (
+                {inProgressTasks.map((task: Task, index: number) => (
                   <Animated.View
                     key={task.id}
                     entering={FadeInDown.delay(300 + index * 50).springify()}
@@ -253,7 +254,7 @@ export default function ProjectDetailScreen() {
                 <Text style={[styles.taskSectionTitle, { color: colors.textSecondary }]}>
                   COMPLETADAS ({completedTasks.length})
                 </Text>
-                {completedTasks.map((task: any, index: number) => (
+                {completedTasks.map((task: Task, index: number) => (
                   <Animated.View
                     key={task.id}
                     entering={FadeInDown.delay(300 + index * 50).springify()}

@@ -14,6 +14,12 @@ export interface Workspace {
   color: string;
   icon: string | null;
   ownerId: string | null;
+  owner?: {
+    id: string;
+    username: string;
+    name: string | null;
+    email: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   stats?: {
