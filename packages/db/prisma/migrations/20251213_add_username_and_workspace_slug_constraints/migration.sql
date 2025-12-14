@@ -1,10 +1,31 @@
--- Make username required (NOT NULL)
--- First, ensure all existing users have a username (generate from email if needed)
+-- Add username column to User table if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'User' AND column_name = 'username'
+    ) THEN
+        ALTER TABLE "User" ADD COLUMN "username" TEXT;
+    END IF;
+END $$;
+
+-- Add unique constraint for username if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'User_username_key'
+    ) THEN
+        CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+    END IF;
+END $$;
+
+-- Update existing users to have a username based on their email
 UPDATE "User"
 SET "username" = LOWER(SPLIT_PART("email", '@', 1))
 WHERE "username" IS NULL OR "username" = '';
 
--- Now make the column NOT NULL
+-- Make username column NOT NULL after populating it
 ALTER TABLE "User" ALTER COLUMN "username" SET NOT NULL;
 
 -- Add unique constraint on workspace (ownerId, slug) if it doesn't exist
