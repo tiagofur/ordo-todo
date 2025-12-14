@@ -41,7 +41,7 @@ import {
   Zap
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { UsernameInput } from '../auth/username-input';
+// import { UsernameInput } from '../auth/username-input'; // Temporarily disabled
 
 interface UserProfileCardProps {
   user: {
@@ -87,7 +87,7 @@ export function UserProfileCard({
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   // Mock API client for UsernameInput - replace with actual implementation
-  const mockApiClient = {} as any;
+  // const mockApiClient = {} as any;
 
   const handleUsernameUpdate = async () => {
     if (!onUpdateUsername || username === user.username) return;
@@ -324,6 +324,7 @@ export function UserProfileCard({
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Temporarily disabled UsernameInput
                     <UsernameInput
                       value={username}
                       onChange={setUsername}
@@ -331,6 +332,10 @@ export function UserProfileCard({
                       label="New Username"
                       helperText="This will be your new unique identifier"
                     />
+                    */}
+                    <div className="text-center text-muted-foreground">
+                      Username input temporarily disabled
+                    </div>
                     <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
                       <div className="flex items-start gap-2 text-sm">
                         <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5" />

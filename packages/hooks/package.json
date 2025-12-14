@@ -3,7 +3,21 @@
   "version": "1.0.0",
   "description": "Shared React Query hooks for Ordo-Todo applications",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./use-username-validation": {
+      "types": "./dist/use-username-validation.d.ts",
+      "import": "./dist/use-username-validation.js",
+      "require": "./dist/use-username-validation.js"
+    }
+  },
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

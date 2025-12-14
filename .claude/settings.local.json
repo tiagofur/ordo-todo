@@ -39,7 +39,8 @@
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/ordo_todo?schema=public\" npx prisma migrate deploy:*)",
-      "Bash(npm run build:vite:*)"
+      "Bash(npm run build:vite:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
