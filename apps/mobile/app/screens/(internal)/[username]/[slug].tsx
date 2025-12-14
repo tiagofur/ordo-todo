@@ -7,6 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Card from "@/app/components/shared/card.component";
+import type { Project } from "@ordo-todo/api-client";
 
 const TYPE_CONFIG = {
   PERSONAL: { color: "#06b6d4", icon: "briefcase" as const },
@@ -22,7 +23,7 @@ export default function WorkspaceDetailScreen() {
   const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(slug as string);
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace?.id);
 
-  const handleProjectPress = (project: any) => {
+  const handleProjectPress = (project: Project) => {
     // Navigate using username/slug/projects/projectSlug pattern
     if (project.slug) {
       router.push(`/screens/(internal)/${username}/${slug}/projects/${project.slug}`);
@@ -115,7 +116,7 @@ export default function WorkspaceDetailScreen() {
             </Text>
           </View>
         ) : (
-          projects?.map((project: any, index: number) => (
+          projects?.map((project: Project, index: number) => (
             <Animated.View
               key={project.id}
               entering={FadeInDown.delay(300 + index * 100).springify()}

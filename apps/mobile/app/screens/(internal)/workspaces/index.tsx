@@ -7,6 +7,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Card from "@/app/components/shared/card.component";
 import { useState } from "react";
+import type { Workspace } from "@ordo-todo/api-client";
 
 const TYPE_CONFIG = {
   PERSONAL: { label: "Personal", color: "#06b6d4", icon: "briefcase" as const },
@@ -18,7 +19,7 @@ export default function WorkspacesScreen() {
   const colors = useThemeColors();
   const { data: workspaces, isLoading } = useWorkspaces();
 
-  const handleWorkspacePress = (workspace: any) => {
+  const handleWorkspacePress = (workspace: Workspace) => {
     // Navigate using username/slug pattern
     if (workspace.owner?.username) {
       router.push(`/screens/(internal)/${workspace.owner.username}/${workspace.slug}`);
@@ -61,7 +62,7 @@ export default function WorkspacesScreen() {
             </Text>
           </View>
         ) : (
-          workspaces?.map((workspace: any, index: number) => {
+          workspaces?.map((workspace: Workspace, index: number) => {
             const typeInfo = TYPE_CONFIG[workspace.type as keyof typeof TYPE_CONFIG] || TYPE_CONFIG.PERSONAL;
             return (
               <Animated.View
