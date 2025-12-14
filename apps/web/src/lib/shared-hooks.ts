@@ -58,7 +58,7 @@ export function useDeleteAccount() { return getHooks().useDeleteAccount(); }
 // Workspace
 export function useWorkspaces() { return getHooks().useWorkspaces(); }
 export function useWorkspace(workspaceId: string) { return getHooks().useWorkspace(workspaceId); }
-export function useWorkspaceBySlug(slug: string) { return getHooks().useWorkspaceBySlug(slug); }
+export function useWorkspaceBySlug(username: string, slug: string) { return getHooks().useWorkspaceBySlug(username, slug); }
 export function useCreateWorkspace() { return getHooks().useCreateWorkspace(); }
 export function useUpdateWorkspace() { return getHooks().useUpdateWorkspace(); }
 export function useDeleteWorkspace() { return getHooks().useDeleteWorkspace(); }

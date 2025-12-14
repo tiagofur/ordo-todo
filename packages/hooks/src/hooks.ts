@@ -185,11 +185,11 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
-  function useWorkspaceBySlug(slug: string) {
+  function useWorkspaceBySlug(username: string, slug: string) {
     return useQuery({
-      queryKey: ['workspaces', 'slug', slug],
-      queryFn: () => apiClient.getWorkspaceBySlug(slug),
-      enabled: !!slug,
+      queryKey: ['workspaces', 'slug', username, slug],
+      queryFn: () => apiClient.getWorkspaceBySlug(username, slug),
+      enabled: !!username && !!slug,
     });
   }
 

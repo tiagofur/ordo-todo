@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 function generateUsernameSuggestions(baseUsername: string): string[] {
     const base = baseUsername.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 10);
     const suggestions = [];
-    const randomNumbers = [123, 456, 789, 2024, 2025, 99, 01, 007];
+    const randomNumbers = [123, 456, 789, 2024, 2025, 99, 1, 7];
     const suffixes = ['', '_', '-', '___', '__', 'dev', 'app', 'user', 'pro', 'official'];
 
     for (let i = 0; i < 5; i++) {
