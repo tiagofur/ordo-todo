@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useWorkspaces, useCreateWorkspace } from "@/app/hooks/api/use-workspaces";
+import { useWorkspaces } from "@/app/hooks/api/use-workspaces";
 import { Feather } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
