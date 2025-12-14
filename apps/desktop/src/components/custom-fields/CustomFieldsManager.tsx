@@ -176,12 +176,7 @@ export function CustomFieldsManager({
                 icon={Settings as any}
                 title="Sin campos personalizados"
                 description="Crea campos personalizados para agregar más información a tus tareas"
-                action={
-                  <Button onClick={handleCreate} size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Crear primer campo
-                  </Button>
-                }
+                onAction={handleCreate}
               />
             ) : (
               <div className="space-y-3">

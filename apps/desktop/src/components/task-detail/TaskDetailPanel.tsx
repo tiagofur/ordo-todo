@@ -95,6 +95,7 @@ const STATUS_OPTIONS = [
   { value: "IN_PROGRESS", label: "En Progreso", color: "#3b82f6" },
   { value: "IN_REVIEW", label: "En Revisión", color: "#f59e0b" },
   { value: "COMPLETED", label: "Completado", color: "#22c55e" },
+  { value: "CANCELLED", label: "Cancelado", color: "#ef4444" },
 ];
 
 const PRIORITY_OPTIONS = [

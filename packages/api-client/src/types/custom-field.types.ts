@@ -10,7 +10,8 @@ export type CustomFieldType =
     | 'DATE'
     | 'URL'
     | 'EMAIL'
-    | 'CHECKBOX';
+    | 'CHECKBOX'
+    | 'BOOLEAN';
 
 export interface CustomField {
     id: string;
