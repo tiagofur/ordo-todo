@@ -8,6 +8,7 @@ import {
   useLinkTaskToKeyResult
 } from "@/hooks/api";
 import { toast } from "sonner";
+import type { TaskStatus, TaskPriority } from "@ordo-todo/api-client";
 import {
   cn,
   Sheet,
@@ -175,7 +176,7 @@ export function TaskDetailPanel({
                       value={formData.status}
                       onValueChange={(value) => {
                         handleFieldChange("status", value);
-                        updateTask.mutate({ taskId, data: { status: value } });
+                        updateTask.mutate({ taskId, data: { status: value as TaskStatus } });
                       }}
                     >
                       <SelectTrigger className={cn("h-7 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>
@@ -197,7 +198,7 @@ export function TaskDetailPanel({
                       value={formData.priority}
                       onValueChange={(value) => {
                         handleFieldChange("priority", value);
-                        updateTask.mutate({ taskId, data: { priority: value } });
+                        updateTask.mutate({ taskId, data: { priority: value as TaskPriority } });
                       }}
                     >
                       <SelectTrigger className={cn("h-7 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0")}>

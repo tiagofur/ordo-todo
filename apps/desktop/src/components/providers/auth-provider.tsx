@@ -43,7 +43,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // OAuth functions for desktop app
   const signInWithGoogle = async () => {
     // For desktop, we'll open OAuth flow in system browser
-    const oauthUrl = `${apiClient.axios.defaults.baseURL}/auth/google`;
+    const oauthUrl = `${apiClient.getBaseUrl()}/auth/google`;
 
     // Open OAuth URL in default browser
     if (window.electronAPI) {
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signInWithGitHub = async () => {
     // Similar to Google OAuth
-    const oauthUrl = `${apiClient.axios.defaults.baseURL}/auth/github`;
+    const oauthUrl = `${apiClient.getBaseUrl()}/auth/github`;
 
     if (window.electronAPI) {
       await window.electronAPI.showNotification({

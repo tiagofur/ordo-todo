@@ -17,6 +17,11 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
  * Most endpoints are now in the base client.
  */
 export class DesktopApiClient extends OrdoApiClient {
+  // Public method to access base URL
+  getBaseUrl(): string {
+    return this.axios.defaults.baseURL || '';
+  }
+
   // ============ TASK DEPENDENCIES (Desktop-specific for now) ============
 
   async addTaskDependency(blockedTaskId: string, blockingTaskId: string) {
@@ -49,9 +54,9 @@ export class DesktopApiClient extends OrdoApiClient {
 
   async getShareUrl(taskId: string) {
     const shareData = await this.generateShareToken(taskId);
-    const baseUrl = this.axios.defaults.baseURL?.endsWith('/api/v1')
-      ? this.axios.defaults.baseURL.slice(0, -7) // Remove '/api/v1'
-      : this.axios.defaults.baseURL || '';
+    const baseUrl = this.getBaseUrl().endsWith('/api/v1')
+      ? this.getBaseUrl().slice(0, -7) // Remove '/api/v1'
+      : this.getBaseUrl();
     return `${baseUrl}/share/task/${shareData.token}`;
   }
 

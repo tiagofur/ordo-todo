@@ -141,7 +141,7 @@ export function TaskCustomFields({
           </div>
         );
 
-      case CustomFieldType.BOOLEAN:
+      case "BOOLEAN":
         return (
           <div className="flex items-center space-x-2 mt-2" key={field.id}>
             <Checkbox
