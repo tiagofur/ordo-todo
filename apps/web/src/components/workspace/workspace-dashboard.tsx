@@ -17,7 +17,7 @@ import {
   LayoutGrid,
   List
 } from "lucide-react";
-import { useWorkspace, useProjects, useWorkspaceAuditLogs, useDeleteWorkspace } from "@/lib/api-hooks";
+import { useProjects, useWorkspaceAuditLogs, useDeleteWorkspace } from "@/lib/api-hooks";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
 import { WorkspaceSettingsDialog } from "@/components/workspace/workspace-settings-dialog";
