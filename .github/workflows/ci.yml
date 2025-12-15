@@ -66,7 +66,7 @@ jobs:
                   PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
 
             - name: Build packages
-              run: npm run build --workspaces --if-present
+              run: npm run build
 
             - name: Cache packages
               uses: actions/cache@v4
