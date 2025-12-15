@@ -25,7 +25,7 @@
   "dependencies": {
     "@prisma/client": "^7.1.0",
     "@prisma/config": "^7.1.0",
-    "dotenv": "^16.6.1"
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
