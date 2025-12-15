@@ -61,7 +61,11 @@ export class GamificationService implements OnModuleInit {
   }
 
   async addXp(userId: string, amount: number, source: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    // Only select xp and level needed for the calculation
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { xp: true, level: true },
+    });
     if (!user) return;
 
     const newXp = (user.xp || 0) + amount;

@@ -17,9 +17,10 @@ export async function POST(req: Request) {
 
         const { name, username, email, password } = result.data;
 
-        // Verificar si el usuario ya existe
+        // Verificar si el usuario ya existe (use explicit select for efficiency)
         const existingUser = await prisma.user.findUnique({
             where: { email },
+            select: { id: true },
         });
 
         if (existingUser) {
@@ -29,9 +30,10 @@ export async function POST(req: Request) {
             );
         }
 
-        // Verificar si el username ya está tomado
+        // Verificar si el username ya está tomado (use explicit select for efficiency)
         const existingUsername = await prisma.user.findUnique({
             where: { username },
+            select: { id: true },
         });
 
         if (existingUsername) {
