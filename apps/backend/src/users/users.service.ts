@@ -29,9 +29,25 @@ export class UsersService {
    * Get full user profile with subscription, integrations, and preferences
    */
   async getFullProfile(email: string): Promise<UserProfileResponseDto> {
+    // Use explicit select to avoid issues with missing columns in database
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        emailVerified: true,
+        image: true,
+        phone: true,
+        jobTitle: true,
+        department: true,
+        bio: true,
+        timezone: true,
+        locale: true,
+        lastUsernameChangeAt: true,
+        createdAt: true,
+        updatedAt: true,
         subscription: true,
         integrations: true,
         preferences: true,
