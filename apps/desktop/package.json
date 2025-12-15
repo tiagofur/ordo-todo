@@ -216,7 +216,8 @@
       "icon": "build/icon.png",
       "category": "Office",
       "synopsis": "Modern Task Organization Platform",
-      "description": "Ordo-Todo is a modern task organization platform built with React and Electron."
+      "description": "Ordo-Todo is a modern task organization platform built with React and Electron.",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
