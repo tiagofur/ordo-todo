@@ -4,12 +4,15 @@
  * Centralized import optimization for better tree-shaking and bundle size
  */
 
+import { lazy, type ComponentType } from 'react';
 // React imports - optimized
 export {
   useState, useEffect, useCallback, useMemo, useRef,
   createContext, useContext, useReducer,
-  Fragment, Suspense, lazy
+  Fragment, Suspense,
 } from 'react';
+
+export { lazy };
 
 // React Router imports - tree-shakable
 export {
@@ -138,21 +141,11 @@ export const LAZY_LOAD_THRESHOLD = 100000; // 100KB
 export const CHUNK_SIZE = 50000; // 50KB chunks for code splitting
 
 // Optimized chunk loader utility
-export function createLazyChunk<T>(
+export function createLazyChunk<T extends ComponentType<any>>(
   importer: () => Promise<{ default: T }>,
   chunkName?: string
 ) {
-  return lazy(importer, {
-    ssr: false,
-    ...(chunkName && {
-      // Webpack magic comment for chunk naming
-      webpackChunkName: chunkName,
-      // Vite magic comment
-      webpackPrefetch: true,
-      // Add to preloaded chunks
-      preload: true,
-    }),
-  });
+  return lazy(importer);
 }
 
 // Preload strategy for critical chunks

@@ -36,8 +36,8 @@ export function useKeyboardShortcuts({ shortcuts, onShortcutTriggered }: Keyboar
     // Don't trigger shortcuts when typing in inputs, unless global
     const activeElement = document.activeElement;
     const isInput = activeElement instanceof HTMLInputElement ||
-                   activeElement instanceof HTMLTextAreaElement ||
-                   activeElement?.contentEditable === 'true';
+      activeElement instanceof HTMLTextAreaElement ||
+      (activeElement as HTMLElement)?.contentEditable === 'true';
 
     for (const shortcut of shortcuts) {
       if (matchesShortcut(e, shortcut)) {

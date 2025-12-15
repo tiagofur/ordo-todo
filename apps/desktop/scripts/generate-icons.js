@@ -9,7 +9,12 @@ const __dirname = path.dirname(__filename);
 
 async function generateIcons() {
   const buildDir = path.join(__dirname, "..", "build");
-  const svgPath = path.join(buildDir, "icon.svg");
+  const resourcesDir = path.join(__dirname, "..", "resources");
+  const svgPath = path.join(resourcesDir, "icon.svg");
+
+  if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir, { recursive: true });
+  }
   const pngPath = path.join(buildDir, "icon.png");
   const icoPath = path.join(buildDir, "icon.ico");
   const icnsPath = path.join(buildDir, "icon.icns");

@@ -204,7 +204,12 @@ global.FileReader = vi.fn().mockImplementation(() => ({
   readAsBinaryString: vi.fn(),
   onload: null,
   onerror: null,
-}));
+})) as any;
+Object.assign(global.FileReader, {
+  EMPTY: 0,
+  LOADING: 1,
+  DONE: 2,
+});
 
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {
