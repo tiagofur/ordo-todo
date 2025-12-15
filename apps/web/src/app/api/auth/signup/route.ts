@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs";
+import { hash } from "bcrypt";
 import { prisma } from "@/lib/prisma";
 import { registerUserSchema } from "@ordo-todo/core";
 
