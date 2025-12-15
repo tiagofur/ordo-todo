@@ -24,7 +24,7 @@
     "@ordo-todo/typescript-config": "*",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
-    "@types/uuid": "^8.3.2",
+    "@types/uuid": "^11.0.0",
     "bundle-require": "^5.1.0",
     "cac": "^6.7.14",
     "eslint": "^9.39.1",
