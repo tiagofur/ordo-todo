@@ -2,6 +2,10 @@ import sharp from "sharp";
 import iconGen from "icon-gen";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function generateIcons() {
   const buildDir = path.join(__dirname, "..", "build");

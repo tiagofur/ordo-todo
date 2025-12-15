@@ -4,6 +4,8 @@
  * Implements intelligent code splitting for optimal bundle sizes and loading performance
  */
 
+import { lazy, ComponentType } from 'react';
+
 export enum ChunkPriority {
   CRITICAL = 'critical',
   HIGH = 'high',
@@ -206,11 +208,12 @@ export const codeSplittingConfig: SplittingStrategy = {
 };
 
 // Create lazy loaded component with chunk configuration
-export function createLazyComponent<T>(
+export function createLazyComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   chunkConfig: Partial<ChunkConfig> = {}
 ) {
   const config: ChunkConfig = {
+    name: 'chunk',
     priority: ChunkPriority.MEDIUM,
     preload: false,
     prefetch: true,
@@ -218,17 +221,16 @@ export function createLazyComponent<T>(
     ...chunkConfig
   };
 
-  // Add webpack magic comments for better chunk naming
-  const chunkName = config.name;
-  const webpackComments = [
-    `webpackChunkName: "${chunkName}"`,
+  // Add webpack magic comments for better chunk naming (informational only)
+  const _chunkName = config.name;
+  const _webpackComments = [
+    `webpackChunkName: "${_chunkName}"`,
     `webpackPreload: ${config.preload}`,
     `webpackPrefetch: ${config.prefetch}`
   ].filter(Boolean).join(', ');
 
-  return lazy(importFn, {
-    ssr: false
-  });
+  // React.lazy only accepts the import function
+  return lazy(importFn);
 }
 
 // Initialize code splitting based on strategy
@@ -366,7 +368,7 @@ export const bundleSplitting = {
   rollupOptions: {
     output: {
       // Ensure consistent chunk naming
-      chunkFileNames: (chunkInfo) => {
+      chunkFileNames: (chunkInfo: { facadeModuleId?: string | null }) => {
         const facadeModuleId = chunkInfo.facadeModuleId
           ? chunkInfo.facadeModuleId.split('/').pop()?.replace(/[^\w-]/g, '')
           : 'chunk';
@@ -377,7 +379,7 @@ export const bundleSplitting = {
       entryFileNames: 'assets/[name]-[hash].js',
 
       // Asset naming
-      assetFileNames: (assetInfo) => {
+      assetFileNames: (assetInfo: { name?: string }) => {
         const extType = assetInfo.name?.split('.').pop();
         if (/\.(woff2?|eot|ttf|otf)$/.test(assetInfo.name || '')) {
           return 'assets/fonts/[name]-[hash][extname]';

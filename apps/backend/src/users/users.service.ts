@@ -71,18 +71,18 @@ export class UsersService {
       bio: user.bio,
       timezone: user.timezone,
       locale: user.locale,
-      lastUsernameChangeAt: user.lastUsernameChangeAt,
+      lastUsernameChangeAt: user.lastUsernameChangeAt ?? null,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       subscription: user.subscription
         ? {
-          plan: user.subscription.plan,
+          plan: user.subscription.plan as 'FREE' | 'PRO' | 'TEAM' | 'ENTERPRISE',
           status: user.subscription.status,
           expiresAt: user.subscription.stripeCurrentPeriodEnd,
         }
         : null,
-      integrations: user.integrations.map((integration) => ({
-        provider: integration.provider,
+      integrations: (user.integrations ?? []).map((integration) => ({
+        provider: String(integration.provider),
         isActive: integration.isActive,
         providerEmail: integration.providerEmail,
         lastSyncAt: integration.lastSyncAt,
@@ -95,9 +95,9 @@ export class UsersService {
           aiSuggestPriorities: user.preferences.aiSuggestPriorities,
           aiSuggestScheduling: user.preferences.aiSuggestScheduling,
           aiWeeklyReports: user.preferences.aiWeeklyReports,
-          morningEnergy: user.preferences.morningEnergy,
-          afternoonEnergy: user.preferences.afternoonEnergy,
-          eveningEnergy: user.preferences.eveningEnergy,
+          morningEnergy: String(user.preferences.morningEnergy),
+          afternoonEnergy: String(user.preferences.afternoonEnergy),
+          eveningEnergy: String(user.preferences.eveningEnergy),
           shareAnalytics: user.preferences.shareAnalytics,
           showActivityStatus: user.preferences.showActivityStatus,
           taskRemindersEmail: user.preferences.taskRemindersEmail,
