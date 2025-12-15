@@ -1,0 +1,168 @@
+name: Security Audit
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # Run security audit every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # =============================================================================
+  # NPM Security Audit
+  # =============================================================================
+  npm-audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
+
+      - name: Run npm audit
+        id: audit
+        run: |
+          npm audit --json > audit-results.json || true
+          npm audit || true
+        continue-on-error: true
+
+      - name: Parse audit results
+        id: parse
+        run: |
+          CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit-results.json)
+          HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit-results.json)
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' audit-results.json)
+          LOW=$(jq '.metadata.vulnerabilities.low // 0' audit-results.json)
+          TOTAL=$(jq '.metadata.vulnerabilities.total // 0' audit-results.json)
+
+          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          echo "high=$HIGH" >> $GITHUB_OUTPUT
+          echo "moderate=$MODERATE" >> $GITHUB_OUTPUT
+          echo "low=$LOW" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+
+          if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+            echo "severity=critical"  >> $GITHUB_OUTPUT
+            exit 1
+          elif [ "$MODERATE" -gt 0 ]; then
+            echo "severity=moderate" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "severity=low" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+      - name: Comment PR with audit results
+        if: github.event_name == 'pull_request' && steps.parse.outputs.total > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const critical = ${{ steps.parse.outputs.critical }};
+            const high = ${{ steps.parse.outputs.high }};
+            const moderate = ${{ steps.parse.outputs.moderate }};
+            const low = ${{ steps.parse.outputs.low }};
+            const total = ${{ steps.parse.outputs.total }};
+
+            const severity = critical > 0 || high > 0 ? '🚨 Critical/High' :
+                            moderate > 0 ? '⚠️ Moderate' : '💡 Low';
+
+            const body = `## ${severity} Security Vulnerabilities Found
+
+            **Total vulnerabilities:** ${total}
+
+            | Severity | Count |
+            |----------|-------|
+            | 🔴 Critical | ${critical} |
+            | 🟠 High | ${high} |
+            | 🟡 Moderate | ${moderate} |
+            | 🔵 Low | ${low} |
+
+            ${critical > 0 || high > 0 ? '⚠️ **Action Required:** This PR contains critical or high severity vulnerabilities. Please update the affected dependencies before merging.' : ''}
+
+            <details>
+            <summary>View full audit report</summary>
+
+            \`\`\`
+            Run \`npm audit\` locally to see detailed information.
+            \`\`\`
+            </details>
+
+            ---
+            *Automated security audit by [npm audit](https://docs.npmjs.com/cli/audit)*
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-results
+          path: audit-results.json
+          retention-days: 30
+
+  # =============================================================================
+  # Check for outdated dependencies
+  # =============================================================================
+  outdated-check:
+    name: Outdated Dependencies Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
+
+      - name: Check for outdated packages
+        id: outdated
+        run: |
+          npm outdated --json > outdated-results.json || true
+          npm outdated || true
+        continue-on-error: true
+
+      - name: Upload outdated results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-outdated-results
+          path: outdated-results.json
+          retention-days: 30

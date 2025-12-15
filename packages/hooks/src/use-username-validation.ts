@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import type { ApiClient } from './types';
 
 interface UsernameValidationResult {

@@ -1,0 +1,155 @@
+# Dependabot configuration for automated dependency updates
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Root workspace
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Web app
+  - package-ecosystem: "npm"
+    directory: "/apps/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "web"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Backend app
+  - package-ecosystem: "npm"
+    directory: "/apps/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "backend"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Mobile app
+  - package-ecosystem: "npm"
+    directory: "/apps/mobile"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "mobile"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Desktop app
+  - package-ecosystem: "npm"
+    directory: "/apps/desktop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "desktop"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Core package
+  - package-ecosystem: "npm"
+    directory: "/packages/core"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "core"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # UI package
+  - package-ecosystem: "npm"
+    directory: "/packages/ui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "ui"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Database package
+  - package-ecosystem: "npm"
+    directory: "/packages/db"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "database"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
