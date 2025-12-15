@@ -31,6 +31,12 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, './src'),
+            // Workspace aliases for monorepo
+            '@ordo-todo/ui': resolve(__dirname, '../../packages/ui/src'),
+            '@ordo-todo/hooks': resolve(__dirname, '../../packages/hooks/src'),
+            '@ordo-todo/api-client': resolve(__dirname, '../../packages/api-client/src'),
+            '@ordo-todo/core': resolve(__dirname, '../../packages/core/src'),
+            '@ordo-todo/stores': resolve(__dirname, '../../packages/stores/src'),
         },
     },
     build: {
@@ -147,7 +153,13 @@ export default defineConfig({
         chunkSizeWarningLimit: 1000, // 1MB warning
     },
     optimizeDeps: {
-        include: ['@ordo-todo/api-client'],
+        include: [
+            '@ordo-todo/api-client',
+            '@ordo-todo/ui',
+            '@ordo-todo/hooks',
+            '@ordo-todo/core',
+            '@ordo-todo/stores',
+        ],
     },
     base: './',
 })

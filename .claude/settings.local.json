@@ -40,7 +40,20 @@
       "Bash(npx prisma migrate:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/ordo_todo?schema=public\" npx prisma migrate deploy:*)",
       "Bash(npm run build:vite:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git rm:*)",
+      "Bash(npx eas:*)",
+      "Bash(java:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo prebuild:*)",
+      "Bash(npx expo run:android:*)",
+      "Bash(verify-setup.bat:*)",
+      "Bash(gradlew.bat assembleRelease:*)",
+      "Bash(./gradlew assembleRelease:*)",
+      "Bash(build-without-sdk.bat:*)",
+      "Bash(npm start dev)",
+      "Bash(./build-without-sdk.bat)",
+      "Bash(NODE_ENV=development npm start)"
     ],
     "deny": [],
     "ask": []
