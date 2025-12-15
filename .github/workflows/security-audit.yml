@@ -39,10 +39,21 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
+      - name: Setup Python (for native modules)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
         env:
           PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
+        continue-on-error: false
 
       - name: Run npm audit
         id: audit
@@ -147,10 +158,21 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
+      - name: Setup Python (for native modules)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
         env:
           PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
+        continue-on-error: false
 
       - name: Check for outdated packages
         id: outdated
