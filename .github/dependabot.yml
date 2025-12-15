@@ -1,32 +1,43 @@
 # Dependabot configuration for automated dependency updates
+# Optimized to minimize PR noise and group related updates
 # See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  # Root workspace
+  # Root workspace - Monthly updates, grouped
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
     versioning-strategy: increase
     labels:
       - "dependencies"
       - "automated"
+      - "root"
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      # Group all development dependencies together
+      development-dependencies:
+        dependency-type: "development"
+      # Group all production dependencies together
+      production-dependencies:
+        dependency-type: "production"
 
-  # Web app
+  # Web app - Monthly updates, grouped by category
   - package-ecosystem: "npm"
     directory: "/apps/web"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -35,15 +46,38 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      # Group Next.js and React updates
+      nextjs-ecosystem:
+        patterns:
+          - "next*"
+          - "react*"
+          - "@next/*"
+      # Group UI libraries
+      ui-libraries:
+        patterns:
+          - "@radix-ui/*"
+          - "lucide-react"
+          - "framer-motion"
+          - "tailwind*"
+      # Group testing tools
+      testing-tools:
+        dependency-type: "development"
+        patterns:
+          - "@testing-library/*"
+          - "vitest*"
+          - "@vitest/*"
+          - "playwright*"
 
-  # Backend app
+  # Backend app - Monthly updates, grouped
   - package-ecosystem: "npm"
     directory: "/apps/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -52,15 +86,30 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      # Group NestJS dependencies
+      nestjs-ecosystem:
+        patterns:
+          - "@nestjs/*"
+      # Group database dependencies
+      database:
+        patterns:
+          - "@prisma/*"
+          - "prisma"
+          - "pg"
+      # Group development dependencies
+      dev-dependencies:
+        dependency-type: "development"
 
-  # Mobile app
+  # Mobile app - Monthly updates, grouped
   - package-ecosystem: "npm"
     directory: "/apps/mobile"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -69,15 +118,28 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      # Group Expo and React Native
+      expo-ecosystem:
+        patterns:
+          - "expo*"
+          - "react-native*"
+          - "@expo/*"
+          - "@react-native*"
+      # Group navigation
+      navigation:
+        patterns:
+          - "@react-navigation/*"
 
-  # Desktop app
+  # Desktop app - Monthly updates, grouped
   - package-ecosystem: "npm"
     directory: "/apps/desktop"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -86,15 +148,28 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      # Group Electron dependencies
+      electron-ecosystem:
+        patterns:
+          - "electron*"
+          - "@electron/*"
+      # Group UI libraries
+      ui-libraries:
+        patterns:
+          - "@radix-ui/*"
+          - "lucide-react"
+          - "tailwind*"
 
-  # Core package
+  # Core package - Monthly updates, minimal PRs
   - package-ecosystem: "npm"
     directory: "/packages/core"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 1
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -103,15 +178,20 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
 
-  # UI package
+  # UI package - Monthly updates, grouped
   - package-ecosystem: "npm"
     directory: "/packages/ui"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -120,15 +200,28 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      # Group Radix UI components
+      radix-ui:
+        patterns:
+          - "@radix-ui/*"
+      # Group other UI dependencies
+      ui-utilities:
+        patterns:
+          - "lucide-react"
+          - "class-variance-authority"
+          - "clsx"
+          - "tailwind-merge"
 
-  # Database package
+  # Database package - Monthly updates, grouped
   - package-ecosystem: "npm"
     directory: "/packages/db"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 1
     versioning-strategy: increase
     labels:
       - "dependencies"
@@ -137,15 +230,21 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      prisma:
+        patterns:
+          - "@prisma/*"
+          - "prisma"
 
-  # GitHub Actions
+  # GitHub Actions - Quarterly updates
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "github-actions"
@@ -153,3 +252,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
