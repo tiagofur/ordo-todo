@@ -99,7 +99,7 @@
     "@types/pg": "^8.15.6",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.1.2",
     "@vitest/ui": "^4.0.15",
     "eslint-config-next": "^16.0.6",
     "jsdom": "^27.2.0",
