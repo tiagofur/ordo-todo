@@ -7,7 +7,7 @@ import { Public } from '../common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Post('register')
@@ -37,5 +37,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refresh(refreshTokenDto.refreshToken);
+  }
+
+  /**
+   * Check if a username is available
+   */
+  @Public()
+  @Post('check-username')
+  @HttpCode(HttpStatus.OK)
+  async checkUsername(@Body() body: { username: string }) {
+    return this.authService.checkUsernameAvailability(body.username);
   }
 }

@@ -367,6 +367,9 @@ export function Profile() {
             onUpdateProfile={async (data) => {
               await updateProfile.mutateAsync(data);
             }}
+            onUpdateUsername={async (newUsername) => {
+              await updateProfile.mutateAsync({ username: newUsername });
+            }}
             onUpdatePreferences={async (data) => {
               await updatePreferences.mutateAsync(data);
             }}

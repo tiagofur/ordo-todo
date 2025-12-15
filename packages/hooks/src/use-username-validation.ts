@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
-import { debounce } from 'lodash-es';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { ApiClient } from './types';
 
 interface UsernameValidationResult {
@@ -70,35 +69,60 @@ export function useUsernameValidation({
     return { isValid: true, message: 'Username format is valid' };
   }, [minLength, maxLength]);
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Debounced function to check username availability
   const checkUsernameAvailability = useCallback(
-    debounce(async (username: string) => {
-      // Don't check if it's the same as last checked
-      if (username === lastCheckedUsername) {
-        return;
+    async (username: string) => {
+      // Clear existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
 
-      setValidationResult(prev => ({ ...prev, isLoading: true }));
+      // custom debounce using setTimeout
+      timeoutRef.current = setTimeout(async () => {
+        // Don't check if it's the same as last checked
+        if (username === lastCheckedUsername) {
+          return;
+        }
 
-      try {
-        // Check if there's a method to check username availability
-        // For now, we'll use a mock implementation - replace with actual API call
-        const response = await fetch('/api/auth/check-username', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username }),
-        });
+        setValidationResult(prev => ({ ...prev, isLoading: true }));
 
-        if (response.ok) {
-          const data = await response.json();
-          setValidationResult({
-            isValid: true,
-            isAvailable: data.available,
-            message: data.available ? 'Username is available!' : 'Username is already taken',
-            isLoading: false,
+        try {
+          // Try to get API URL from environment or use relative path
+          const baseUrl = typeof window !== 'undefined'
+            ? (window as any).__ENV__?.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL || ''
+            : '';
+
+          // Use /api/v1 prefix for the backend endpoint
+          const apiUrl = baseUrl ? `${baseUrl}/auth/check-username` : '/api/v1/auth/check-username';
+
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username }),
           });
-          setLastCheckedUsername(username);
-        } else {
+
+          if (response.ok) {
+            const data = await response.json();
+            setValidationResult({
+              isValid: true,
+              isAvailable: data.available,
+              message: data.available ? 'Username is available!' : 'Username is already taken',
+              isLoading: false,
+            });
+            setLastCheckedUsername(username);
+          } else {
+            // Fallback: assume username is available if API fails
+            setValidationResult({
+              isValid: true,
+              isAvailable: true,
+              message: 'Username format is valid',
+              isLoading: false,
+            });
+          }
+        } catch (error) {
+          console.warn('Username availability check failed:', error);
           // Fallback: assume username is available if API fails
           setValidationResult({
             isValid: true,
@@ -107,17 +131,8 @@ export function useUsernameValidation({
             isLoading: false,
           });
         }
-      } catch (error) {
-        console.warn('Username availability check failed:', error);
-        // Fallback: assume username is available if API fails
-        setValidationResult({
-          isValid: true,
-          isAvailable: true,
-          message: 'Username format is valid',
-          isLoading: false,
-        });
-      }
-    }, debounceMs),
+      }, debounceMs);
+    },
     [lastCheckedUsername, debounceMs]
   );
 

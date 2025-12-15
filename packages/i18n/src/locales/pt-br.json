@@ -1047,57 +1047,18 @@
   },
   "TaskDetailPanel": {
     "title": "Detalhes da Tarefa",
-    "priorities": {
-      "low": "Baixa",
-      "medium": "Média",
-      "high": "Alta",
-      "urgent": "Urgente"
-    },
-    "statuses": {
-      "todo": "A Fazer",
-      "inProgress": "Em Progresso",
-      "completed": "Concluída",
-      "cancelled": "Cancelada"
-    },
-    "toast": {
-      "updated": "Tarefa atualizada",
-      "updateError": "Erro ao atualizar tarefa",
-      "deleted": "Tarefa excluída",
-      "deleteError": "Erro ao excluir tarefa",
-      "statusUpdated": "Status atualizado",
-      "statusError": "Erro ao atualizar status",
-      "priorityUpdated": "Prioridade atualizada",
-      "priorityError": "Erro ao atualizar prioridade",
-      "tagAssigned": "Tag {tagName} atribuída",
-      "tagError": "Erro ao atribuir tag",
-      "noTaskId": "Erro: ID da tarefa não encontrado",
-      "shareError": "Erro ao gerar link de compartilhamento",
-      "linkCopied": "Link copiado para a área de transferência",
-      "linkedToGoal": "Tarefa vinculada à meta",
-      "linkGoalError": "Erro ao vincular meta"
-    },
-    "confirmDelete": "Tem certeza que deseja excluir esta tarefa?",
-    "titlePlaceholder": "Título da tarefa",
-    "tags": {
-      "none": "Sem tags",
-      "add": "Adicionar",
-      "available": "Tags Disponíveis",
-      "noAvailable": "Sem tags disponíveis",
-      "create": "Criar nova tag"
-    },
-    "buttons": {
-      "save": "Salvar Alterações",
-      "delete": "Excluir Tarefa"
-    },
+    "titlePlaceholder": "Título da Tarefa",
     "description": {
       "label": "DESCRIÇÃO",
-      "placeholder": "Adicione uma descrição mais detalhada...",
+      "placeholder": "Adicionar uma descrição...",
       "empty": "Nenhuma descrição fornecida."
     },
     "details": {
       "title": "Detalhes",
       "dueDate": "Data de Vencimento",
-      "estimation": "Estimativa (pomodoros)",
+      "startDate": "Data de Início",
+      "scheduledDate": "Agendado",
+      "estimation": "Tempo Estimado (min)",
       "linkToGoal": "Vincular à Meta"
     },
     "tabs": {
@@ -1106,12 +1067,53 @@
       "attachments": "Anexos",
       "activity": "Atividade"
     },
+    "tags": {
+      "none": "Sem etiquetas",
+      "add": "Adicionar Etiqueta",
+      "available": "Etiquetas Disponíveis",
+      "noAvailable": "Nenhuma etiqueta disponível",
+      "create": "Criar Nova Etiqueta"
+    },
+    "buttons": {
+      "save": "Salvar",
+      "delete": "Excluir Tarefa"
+    },
     "footer": {
-      "created": "Criada em"
+      "created": "Criado em"
+    },
+    "confirmDelete": "Tem certeza que deseja excluir esta tarefa?",
+    "toast": {
+      "updated": "Tarefa atualizada com sucesso",
+      "statusUpdated": "Status atualizado",
+      "statusError": "Erro ao atualizar status",
+      "priorityUpdated": "Prioridade atualizada",
+      "priorityError": "Erro ao atualizar prioridade",
+      "updateError": "Erro ao atualizar tarefa",
+      "deleted": "Tarefa excluída com sucesso",
+      "deleteError": "Erro ao excluir tarefa",
+      "tagAssigned": "Etiqueta {tagName} atribuída",
+      "tagError": "Erro ao atribuir etiqueta",
+      "noTaskId": "Sem ID de tarefa",
+      "shareError": "Erro ao compartilhar tarefa",
+      "linkCopied": "Link copiado para a área de transferência",
+      "linkedToGoal": "Tarefa vinculada à meta",
+      "linkGoalError": "Falha ao vincular à meta"
     },
     "share": {
       "title": "Compartilhar Tarefa",
-      "description": "Qualquer pessoa com este link pode visualizar esta tarefa sem fazer login."
+      "description": "Compartilhe este link com outras pessoas para ver esta tarefa."
+    },
+    "priorities": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "statuses": {
+      "todo": "A Fazer",
+      "inProgress": "Em Andamento",
+      "completed": "Concluída",
+      "cancelled": "Cancelada"
     }
   },
   "TaskFilters": {
@@ -1896,3 +1898,4 @@
     }
   }
 }
+

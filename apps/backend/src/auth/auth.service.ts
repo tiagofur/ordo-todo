@@ -20,7 +20,7 @@ export class AuthService {
     private readonly cryptoProvider: BcryptCryptoProvider,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     try {
@@ -164,5 +164,46 @@ export class AuthService {
       }
       throw new UnauthorizedException('Failed to refresh token');
     }
+  }
+
+  /**
+   * Check if a username is available
+   */
+  async checkUsernameAvailability(username: string): Promise<{ available: boolean; message?: string }> {
+    // Validate username format
+    const usernameRegex = /^[a-z0-9_-]+$/;
+
+    if (!username || username.length < 3) {
+      return { available: false, message: 'Username must be at least 3 characters' };
+    }
+
+    if (username.length > 20) {
+      return { available: false, message: 'Username must be less than 20 characters' };
+    }
+
+    if (!usernameRegex.test(username)) {
+      return { available: false, message: 'Username can only contain lowercase letters, numbers, hyphens, and underscores' };
+    }
+
+    if (username.startsWith('_') || username.startsWith('-')) {
+      return { available: false, message: 'Username cannot start with underscore or hyphen' };
+    }
+
+    if (username.endsWith('_') || username.endsWith('-')) {
+      return { available: false, message: 'Username cannot end with underscore or hyphen' };
+    }
+
+    if (username.includes('--') || username.includes('__')) {
+      return { available: false, message: 'Username cannot contain consecutive hyphens or underscores' };
+    }
+
+    // Check if username is already taken
+    const existingUser = await this.userRepository.findByUsername(username);
+
+    if (existingUser) {
+      return { available: false, message: 'Username is already taken' };
+    }
+
+    return { available: true, message: 'Username is available' };
   }
 }

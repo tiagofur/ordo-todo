@@ -117,6 +117,9 @@ export default function Profile() {
 
             <Animated.View entering={FadeInDown.delay(300)}>
               <Text style={styles.userName}>{user.name}</Text>
+              {user.username && (
+                <Text style={styles.userUsername}>@{user.username}</Text>
+              )}
               <Text style={styles.userEmail}>{user.email}</Text>
             </Animated.View>
           </LinearGradient>
@@ -285,6 +288,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#FFFFFF",
     opacity: 0.9,
+    textAlign: "center",
+  },
+  userUsername: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    opacity: 0.8,
+    marginBottom: 4,
     textAlign: "center",
   },
   statsContainer: {

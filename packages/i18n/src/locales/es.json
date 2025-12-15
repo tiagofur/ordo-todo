@@ -1116,57 +1116,18 @@
   },
   "TaskDetailPanel": {
     "title": "Detalles de la Tarea",
-    "priorities": {
-      "low": "Baja",
-      "medium": "Media",
-      "high": "Alta",
-      "urgent": "Urgente"
-    },
-    "statuses": {
-      "todo": "Por hacer",
-      "inProgress": "En progreso",
-      "completed": "Completada",
-      "cancelled": "Cancelada"
-    },
-    "toast": {
-      "updated": "Tarea actualizada",
-      "updateError": "Error al actualizar tarea",
-      "deleted": "Tarea eliminada",
-      "deleteError": "Error al eliminar tarea",
-      "statusUpdated": "Estado actualizado",
-      "statusError": "Error al actualizar estado",
-      "priorityUpdated": "Prioridad actualizada",
-      "priorityError": "Error al actualizar prioridad",
-      "tagAssigned": "Etiqueta {tagName} asignada",
-      "tagError": "Error al asignar etiqueta",
-      "noTaskId": "Error: No se encontró el ID de la tarea",
-      "shareError": "Error al generar enlace de compartir",
-      "linkCopied": "Enlace copiado al portapapeles",
-      "linkedToGoal": "Tarea vinculada al objetivo",
-      "linkGoalError": "Error al vincular el objetivo"
-    },
-    "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
-    "titlePlaceholder": "Título de la tarea",
-    "tags": {
-      "none": "Sin etiquetas",
-      "add": "Añadir",
-      "available": "Etiquetas disponibles",
-      "noAvailable": "No hay etiquetas disponibles",
-      "create": "Crear nueva etiqueta"
-    },
-    "buttons": {
-      "save": "Guardar",
-      "delete": "Eliminar Tarea"
-    },
+    "titlePlaceholder": "Título de la Tarea",
     "description": {
       "label": "DESCRIPCIÓN",
-      "placeholder": "Añadir una descripción más detallada...",
-      "empty": "Sin descripción proporcionada."
+      "placeholder": "Añadir una descripción...",
+      "empty": "No se proporcionó descripción."
     },
     "details": {
       "title": "Detalles",
       "dueDate": "Fecha de vencimiento",
-      "estimation": "Estimación (pomodoros)",
+      "startDate": "Fecha de inicio",
+      "scheduledDate": "Programado",
+      "estimation": "Tiempo estimado (min)",
       "linkToGoal": "Vincular a Objetivo"
     },
     "tabs": {
@@ -1175,12 +1136,53 @@
       "attachments": "Adjuntos",
       "activity": "Actividad"
     },
+    "tags": {
+      "none": "Sin etiquetas",
+      "add": "Añadir Etiqueta",
+      "available": "Etiquetas Disponibles",
+      "noAvailable": "No hay etiquetas disponibles",
+      "create": "Crear Nueva Etiqueta"
+    },
+    "buttons": {
+      "save": "Guardar",
+      "delete": "Eliminar Tarea"
+    },
     "footer": {
       "created": "Creado el"
     },
+    "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
+    "toast": {
+      "updated": "Tarea actualizada exitosamente",
+      "statusUpdated": "Estado actualizado",
+      "statusError": "Error al actualizar estado",
+      "priorityUpdated": "Prioridad actualizada",
+      "priorityError": "Error al actualizar prioridad",
+      "updateError": "Error actualizando tarea",
+      "deleted": "Tarea eliminada exitosamente",
+      "deleteError": "Error eliminando tarea",
+      "tagAssigned": "Etiqueta {tagName} asignada",
+      "tagError": "Error asignando etiqueta",
+      "noTaskId": "No hay ID de tarea",
+      "shareError": "Error al compartir tarea",
+      "linkCopied": "Enlace copiado al portapapeles",
+      "linkedToGoal": "Tarea vinculada al objetivo",
+      "linkGoalError": "Error al vincular con el objetivo"
+    },
     "share": {
       "title": "Compartir Tarea",
-      "description": "Cualquiera con este enlace puede ver esta tarea sin iniciar sesión."
+      "description": "Comparte este enlace con otros para ver esta tarea."
+    },
+    "priorities": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "statuses": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
     }
   },
   "TaskFilters": {
@@ -1899,3 +1901,4 @@
     }
   }
 }
+

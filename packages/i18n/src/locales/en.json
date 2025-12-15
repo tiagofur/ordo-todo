@@ -1113,6 +1113,62 @@
   },
   "TaskDetailPanel": {
     "title": "Task Details",
+    "titlePlaceholder": "Task Title",
+    "description": {
+      "label": "DESCRIPTION",
+      "placeholder": "Add a description...",
+      "empty": "No description provided."
+    },
+    "details": {
+      "title": "Details",
+      "dueDate": "Due Date",
+      "startDate": "Start Date",
+      "scheduledDate": "Scheduled",
+      "estimation": "Estimated Time (min)",
+      "linkToGoal": "Link to Goal"
+    },
+    "tabs": {
+      "subtasks": "Subtasks",
+      "comments": "Comments",
+      "attachments": "Attachments",
+      "activity": "Activity"
+    },
+    "tags": {
+      "none": "No tags",
+      "add": "Add Tag",
+      "available": "Available Tags",
+      "noAvailable": "No tags available",
+      "create": "Create New Tag"
+    },
+    "buttons": {
+      "save": "Save",
+      "delete": "Delete Task"
+    },
+    "footer": {
+      "created": "Created on"
+    },
+    "confirmDelete": "Are you sure you want to delete this task?",
+    "toast": {
+      "updated": "Task updated successfully",
+      "statusUpdated": "Status updated",
+      "statusError": "Error updating status",
+      "priorityUpdated": "Priority updated",
+      "priorityError": "Error updating priority",
+      "updateError": "Error updating task",
+      "deleted": "Task deleted successfully",
+      "deleteError": "Error deleting task",
+      "tagAssigned": "Tag {tagName} assigned",
+      "tagError": "Error assigning tag",
+      "noTaskId": "No task ID",
+      "shareError": "Error sharing task",
+      "linkCopied": "Link copied to clipboard",
+      "linkedToGoal": "Task linked to goal",
+      "linkGoalError": "Failed to link to goal"
+    },
+    "share": {
+      "title": "Share Task",
+      "description": "Share this link with others to view this task."
+    },
     "priorities": {
       "low": "Low",
       "medium": "Medium",
@@ -1124,60 +1180,6 @@
       "inProgress": "In Progress",
       "completed": "Completed",
       "cancelled": "Cancelled"
-    },
-    "toast": {
-      "updated": "Task updated",
-      "updateError": "Error updating task",
-      "deleted": "Task deleted",
-      "deleteError": "Error deleting task",
-      "statusUpdated": "Status updated",
-      "statusError": "Error updating status",
-      "priorityUpdated": "Priority updated",
-      "priorityError": "Error updating priority",
-      "tagAssigned": "Tag {tagName} assigned",
-      "tagError": "Error assigning tag",
-      "noTaskId": "Error: Task ID not found",
-      "shareError": "Error generating share link",
-      "linkCopied": "Link copied to clipboard",
-      "linkedToGoal": "Task linked to goal",
-      "linkGoalError": "Failed to link to goal"
-    },
-    "confirmDelete": "Are you sure you want to delete this task?",
-    "titlePlaceholder": "Task title",
-    "tags": {
-      "none": "No tags",
-      "add": "Add",
-      "available": "Available Tags",
-      "noAvailable": "No tags available",
-      "create": "Create new tag"
-    },
-    "buttons": {
-      "save": "Save Changes",
-      "delete": "Delete Task"
-    },
-    "description": {
-      "label": "DESCRIPTION",
-      "placeholder": "Add a more detailed description...",
-      "empty": "No description provided."
-    },
-    "details": {
-      "title": "Details",
-      "dueDate": "Due Date",
-      "estimation": "Estimation (pomodoros)",
-      "linkToGoal": "Link to Goal"
-    },
-    "tabs": {
-      "subtasks": "Subtasks",
-      "comments": "Comments",
-      "attachments": "Attachments",
-      "activity": "Activity"
-    },
-    "footer": {
-      "created": "Created on"
-    },
-    "share": {
-      "title": "Share Task",
-      "description": "Anyone with this link can view this task without logging in."
     }
   },
   "TaskFilters": {
@@ -1895,3 +1897,4 @@
     }
   }
 }
+
