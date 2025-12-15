@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.2",
     "prisma": "^7.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3"
