@@ -1,19 +1,72 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useObjectives } from "@/lib/api-hooks";
-import { Plus, Target } from "lucide-react";
-import { Button, Skeleton } from "@ordo-todo/ui";
-import { useState } from "react";
+import { Plus, Target, Sparkles, KeyRound, Link2, TrendingUp, Rocket } from "lucide-react";
+import { Button, Skeleton, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
 import { CreateObjectiveDialog } from "@/components/goals/create-objective-dialog";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/shared/app-layout";
+
+const GOALS_ONBOARDING_KEY = "goals-onboarding-seen";
+
+const goalsOnboardingSteps: OnboardingStep[] = [
+  {
+    id: "welcome",
+    icon: Sparkles,
+    color: "#8b5cf6",
+    title: "Objetivos y OKRs",
+    description: "Define metas ambiciosas y mide tu progreso con la metodología OKR (Objectives and Key Results) usada por Google.",
+  },
+  {
+    id: "objectives",
+    icon: Target,
+    color: "#8b5cf6",
+    title: "¿Qué son los Objetivos?",
+    description: "Un objetivo es una meta inspiracional y cualitativa. Ejemplo: 'Mejorar la salud física' o 'Lanzar un producto exitoso'.",
+  },
+  {
+    id: "keyresults",
+    icon: KeyRound,
+    color: "#10b981",
+    title: "Key Results",
+    description: "Los Key Results son métricas específicas y medibles. Ejemplo: 'Hacer ejercicio 3 veces por semana' o 'Alcanzar 1000 usuarios'.",
+  },
+  {
+    id: "linking",
+    icon: Link2,
+    color: "#f59e0b",
+    title: "Vincula Tareas",
+    description: "Conecta tus tareas diarias a Key Results específicos. Cada tarea completada contribuye a tu progreso.",
+  },
+  {
+    id: "progress",
+    icon: TrendingUp,
+    color: "#06b6d4",
+    title: "Seguimiento de Progreso",
+    description: "Visualiza el avance de cada objetivo y ajusta tu estrategia. ¡Mantén el foco en lo que realmente importa!",
+  },
+];
 
 export default function GoalsPage() {
   const t = useTranslations("Goals");
   const { data: objectives, isLoading } = useObjectives();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem(GOALS_ONBOARDING_KEY);
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(GOALS_ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  };
 
   return (
     <AppLayout>
@@ -89,6 +142,19 @@ export default function GoalsPage() {
         )}
 
         <CreateObjectiveDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+
+        {/* Onboarding */}
+        {showOnboarding && (
+          <FeatureOnboarding
+            steps={goalsOnboardingSteps}
+            storageKey={GOALS_ONBOARDING_KEY}
+            onComplete={handleOnboardingComplete}
+            onSkip={handleOnboardingComplete}
+            skipText="Saltar"
+            nextText="Siguiente"
+            getStartedText="¡Crear mi primer Objetivo!"
+          />
+        )}
       </div>
     </AppLayout>
   );

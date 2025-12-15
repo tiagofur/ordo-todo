@@ -1,19 +1,72 @@
 "use client";
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger, Button, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle } from "@ordo-todo/ui";
+import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Button, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
 import { AppLayout } from "@/components/shared/app-layout";
 import { ReportCard } from "@/components/ai/report-card";
 import { ReportDetail } from "@/components/ai/report-detail";
 import { GenerateReportDialog } from "@/components/ai/generate-report-dialog";
 import { useReports } from "@/lib/api-hooks";
-import { FileText, Sparkles, ArrowLeft, Calendar, FolderKanban, User } from "lucide-react";
+import { FileText, Sparkles, ArrowLeft, Calendar, FolderKanban, User, BarChart3, TrendingUp, Lightbulb, Rocket } from "lucide-react";
+
+const REPORTS_ONBOARDING_KEY = "reports-onboarding-seen";
+
+const reportsOnboardingSteps: OnboardingStep[] = [
+  {
+    id: "welcome",
+    icon: Sparkles,
+    color: "#8b5cf6",
+    title: "Reportes Inteligentes",
+    description: "La IA analiza tu productividad y genera insights personalizados para ayudarte a mejorar.",
+  },
+  {
+    id: "weekly",
+    icon: Calendar,
+    color: "#10b981",
+    title: "Resúmenes Semanales",
+    description: "Cada semana recibirás un análisis de tu desempeño: tareas completadas, tiempo trabajado y patrones.",
+  },
+  {
+    id: "insights",
+    icon: Lightbulb,
+    color: "#f59e0b",
+    title: "Insights Personalizados",
+    description: "Descubre tus horas más productivas, identifica obstáculos y recibe recomendaciones de mejora.",
+  },
+  {
+    id: "trends",
+    icon: TrendingUp,
+    color: "#0ea5e9",
+    title: "Tendencias de Productividad",
+    description: "Visualiza tu progreso a lo largo del tiempo. ¿Estás mejorando o necesitas ajustar tu estrategia?",
+  },
+  {
+    id: "getstarted",
+    icon: Rocket,
+    color: "#8b5cf6",
+    title: "¡Genera tu Primer Reporte!",
+    description: "Haz clic en 'Generar Reporte' para obtener un análisis completo de tu productividad actual.",
+  },
+];
 
 export default function ReportsPage() {
   const [selectedScope, setSelectedScope] = useState<string | undefined>(undefined);
   const [selectedReport, setSelectedReport] = useState<any | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { data: reports, isLoading } = useReports({ scope: selectedScope, limit: 20 });
   const accentColor = "#8b5cf6"; // Purple
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem(REPORTS_ONBOARDING_KEY);
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(REPORTS_ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  };
 
   const handleReportClick = (report: any) => {
     setSelectedReport(report);
@@ -210,6 +263,19 @@ export default function ReportsPage() {
             {selectedReport && <ReportDetail report={selectedReport} />}
           </DialogContent>
         </Dialog>
+
+        {/* Onboarding */}
+        {showOnboarding && (
+          <FeatureOnboarding
+            steps={reportsOnboardingSteps}
+            storageKey={REPORTS_ONBOARDING_KEY}
+            onComplete={handleOnboardingComplete}
+            onSkip={handleOnboardingComplete}
+            skipText="Saltar"
+            nextText="Siguiente"
+            getStartedText="¡Explorar Reportes!"
+          />
+        )}
       </div>
     </AppLayout>
   );

@@ -5,6 +5,7 @@
 export interface User {
   id: string;
   email: string;
+  username: string | null;
   name: string | null;
   image: string | null;
   emailVerified: Date | null;
@@ -14,12 +15,14 @@ export interface User {
   bio: string | null;
   timezone: string | null;
   locale: string | null;
+  lastUsernameChangeAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface UpdateProfileDto {
   name?: string;
+  username?: string;
   image?: string;
   phone?: string;
   jobTitle?: string;

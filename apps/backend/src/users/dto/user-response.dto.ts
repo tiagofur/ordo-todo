@@ -1,6 +1,7 @@
 export class UserResponseDto {
   id: string;
   email: string;
+  username: string | null;
   name: string | null;
   emailVerified: Date | null;
   image: string | null;
@@ -12,6 +13,7 @@ export class UserResponseDto {
   bio: string | null;
   timezone: string | null;
   locale: string | null;
+  lastUsernameChangeAt: Date | null;
 
   // Dates
   createdAt: Date;

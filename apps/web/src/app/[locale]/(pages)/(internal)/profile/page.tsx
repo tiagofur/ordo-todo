@@ -41,6 +41,9 @@ export default function ProfilePage() {
         onUpdatePreferences={async (data) => {
           await updatePreferences.mutateAsync(data);
         }}
+        onUpdateUsername={async (newUsername) => {
+          await updateProfile.mutateAsync({ username: newUsername });
+        }}
         onExportData={async () => {
           await exportData.mutateAsync();
         }}

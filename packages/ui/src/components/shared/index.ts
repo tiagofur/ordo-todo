@@ -11,4 +11,5 @@ export * from './about-dialog.js';
 export * from './shortcuts-dialog.js';
 export * from './sync-status-indicator.js';
 export * from './profile-tabs.js';
+export * from './feature-onboarding.js';
 

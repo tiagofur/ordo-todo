@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import {
   CheckCircle2,
@@ -16,6 +16,10 @@ import {
   Plus,
   Timer,
   FolderPlus,
+  Sparkles,
+  Target,
+  Zap,
+  Rocket,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -31,6 +35,47 @@ import { OkrWidget } from "@/components/dashboard/okr-widget";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useRouter } from "next/navigation";
+import { FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+
+const DASHBOARD_ONBOARDING_KEY = "dashboard-onboarding-seen";
+
+const dashboardOnboardingSteps: OnboardingStep[] = [
+  {
+    id: "welcome",
+    icon: Sparkles,
+    color: "#06b6d4",
+    title: "¡Bienvenido a Ordo!",
+    description: "Tu centro de comando para la productividad. Aquí verás un resumen de tu día, tus tareas pendientes y tu progreso.",
+  },
+  {
+    id: "tasks",
+    icon: CheckCircle2,
+    color: "#10b981",
+    title: "Tus Tareas del Día",
+    description: "Visualiza todas las tareas pendientes para hoy, ordénalas por prioridad o duración, y márcalas como completadas.",
+  },
+  {
+    id: "timer",
+    icon: Timer,
+    color: "#f59e0b",
+    title: "Timer Integrado",
+    description: "Usa el widget de timer para iniciar sesiones de enfoque con la técnica Pomodoro o en modo continuo.",
+  },
+  {
+    id: "habits",
+    icon: Target,
+    color: "#8b5cf6",
+    title: "Hábitos y OKRs",
+    description: "Mantén tus hábitos al día y revisa el progreso de tus objetivos directamente desde el dashboard.",
+  },
+  {
+    id: "getstarted",
+    icon: Rocket,
+    color: "#06b6d4",
+    title: "¡Comienza Ahora!",
+    description: "Crea tu primera tarea con el botón (+) en la esquina inferior derecha. ¡Tu productividad empieza aquí!",
+  },
+];
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
@@ -52,6 +97,21 @@ export default function DashboardPage() {
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
 
+  // Onboarding State
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if first time user
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem(DASHBOARD_ONBOARDING_KEY);
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(DASHBOARD_ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  };
 
   // Get today's date range
   const today = new Date();
@@ -569,6 +629,19 @@ export default function DashboardPage() {
         open={showCreateProjectDialog}
         onOpenChange={setShowCreateProjectDialog}
       />
+
+      {/* Onboarding */}
+      {showOnboarding && (
+        <FeatureOnboarding
+          steps={dashboardOnboardingSteps}
+          storageKey={DASHBOARD_ONBOARDING_KEY}
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingComplete}
+          skipText="Saltar"
+          nextText="Siguiente"
+          getStartedText="¡Empezar!"
+        />
+      )}
     </AppLayout>
   );
 }

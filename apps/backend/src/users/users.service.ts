@@ -17,7 +17,7 @@ export class UsersService {
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async getMe(email: string) {
     const userByEmailUseCase = new UserByEmail(this.userRepository);
@@ -45,6 +45,7 @@ export class UsersService {
     return {
       id: user.id,
       email: user.email,
+      username: user.username,
       name: user.name,
       emailVerified: user.emailVerified,
       image: user.image,
@@ -54,14 +55,15 @@ export class UsersService {
       bio: user.bio,
       timezone: user.timezone,
       locale: user.locale,
+      lastUsernameChangeAt: user.lastUsernameChangeAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       subscription: user.subscription
         ? {
-            plan: user.subscription.plan,
-            status: user.subscription.status,
-            expiresAt: user.subscription.stripeCurrentPeriodEnd,
-          }
+          plan: user.subscription.plan,
+          status: user.subscription.status,
+          expiresAt: user.subscription.stripeCurrentPeriodEnd,
+        }
         : null,
       integrations: user.integrations.map((integration) => ({
         provider: integration.provider,
@@ -71,23 +73,23 @@ export class UsersService {
       })),
       preferences: user.preferences
         ? {
-            enableAI: user.preferences.enableAI,
-            aiAggressiveness: user.preferences.aiAggressiveness,
-            aiSuggestTaskDurations: user.preferences.aiSuggestTaskDurations,
-            aiSuggestPriorities: user.preferences.aiSuggestPriorities,
-            aiSuggestScheduling: user.preferences.aiSuggestScheduling,
-            aiWeeklyReports: user.preferences.aiWeeklyReports,
-            morningEnergy: user.preferences.morningEnergy,
-            afternoonEnergy: user.preferences.afternoonEnergy,
-            eveningEnergy: user.preferences.eveningEnergy,
-            shareAnalytics: user.preferences.shareAnalytics,
-            showActivityStatus: user.preferences.showActivityStatus,
-            taskRemindersEmail: user.preferences.taskRemindersEmail,
-            weeklyDigestEmail: user.preferences.weeklyDigestEmail,
-            marketingEmail: user.preferences.marketingEmail,
-            completedTasksRetention: user.preferences.completedTasksRetention,
-            timeSessionsRetention: user.preferences.timeSessionsRetention,
-          }
+          enableAI: user.preferences.enableAI,
+          aiAggressiveness: user.preferences.aiAggressiveness,
+          aiSuggestTaskDurations: user.preferences.aiSuggestTaskDurations,
+          aiSuggestPriorities: user.preferences.aiSuggestPriorities,
+          aiSuggestScheduling: user.preferences.aiSuggestScheduling,
+          aiWeeklyReports: user.preferences.aiWeeklyReports,
+          morningEnergy: user.preferences.morningEnergy,
+          afternoonEnergy: user.preferences.afternoonEnergy,
+          eveningEnergy: user.preferences.eveningEnergy,
+          shareAnalytics: user.preferences.shareAnalytics,
+          showActivityStatus: user.preferences.showActivityStatus,
+          taskRemindersEmail: user.preferences.taskRemindersEmail,
+          weeklyDigestEmail: user.preferences.weeklyDigestEmail,
+          marketingEmail: user.preferences.marketingEmail,
+          completedTasksRetention: user.preferences.completedTasksRetention,
+          timeSessionsRetention: user.preferences.timeSessionsRetention,
+        }
         : null,
     };
   }
@@ -102,6 +104,18 @@ export class UsersService {
     // Check if username is being updated and if it's unique
     if (updateProfileDto.username) {
       if (updateProfileDto.username !== user.username) {
+        // Check 30-day cooldown
+        if (user.lastUsernameChangeAt) {
+          const daysSinceLastChange = Math.floor(
+            (Date.now() - user.lastUsernameChangeAt.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          if (daysSinceLastChange < 30) {
+            throw new BadRequestException(
+              `You can change your username again in ${30 - daysSinceLastChange} days`
+            );
+          }
+        }
+
         const existingUser = await this.prisma.user.findUnique({
           where: { username: updateProfileDto.username },
         });
@@ -112,20 +126,28 @@ export class UsersService {
       }
     }
 
+    // Prepare update data
+    const updateData: any = {
+      name: updateProfileDto.name,
+      phone: updateProfileDto.phone,
+      jobTitle: updateProfileDto.jobTitle,
+      department: updateProfileDto.department,
+      bio: updateProfileDto.bio,
+      timezone: updateProfileDto.timezone,
+      locale: updateProfileDto.locale,
+      image: updateProfileDto.image,
+    };
+
+    // If username is being changed, update it and track the change time
+    if (updateProfileDto.username && updateProfileDto.username !== user.username) {
+      updateData.username = updateProfileDto.username;
+      updateData.lastUsernameChangeAt = new Date();
+    }
+
     // Update extended profile fields directly in Prisma
     const updatedUser = await this.prisma.user.update({
       where: { email },
-      data: {
-        name: updateProfileDto.name,
-        username: updateProfileDto.username,
-        phone: updateProfileDto.phone,
-        jobTitle: updateProfileDto.jobTitle,
-        department: updateProfileDto.department,
-        bio: updateProfileDto.bio,
-        timezone: updateProfileDto.timezone,
-        locale: updateProfileDto.locale,
-        image: updateProfileDto.image,
-      },
+      data: updateData,
     });
 
     return {

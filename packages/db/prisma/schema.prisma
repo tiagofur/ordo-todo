@@ -26,6 +26,7 @@ model User {
   bio        String? @db.Text
   timezone   String? @default("America/Mexico_City")
   locale     String? @default("es")
+  lastUsernameChangeAt DateTime? // For 30-day username change cooldown
 
   // Auth
   hashedPassword String?

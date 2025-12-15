@@ -87,6 +87,7 @@ const INTEGRATIONS = [
 
 interface Profile {
   id: string;
+  username: string | null;
   name: string | null;
   email: string;
   phone: string | null;
@@ -95,6 +96,7 @@ interface Profile {
   bio: string | null;
   image: string | null;
   timezone: string | null;
+  lastUsernameChangeAt?: Date | string | null;
   preferences?: {
     enableAI: boolean;
     aiAggressiveness: number;
@@ -124,6 +126,7 @@ interface ProfileTabsProps {
   isLoading?: boolean;
   onUpdateProfile: (data: any) => Promise<void>;
   onUpdatePreferences: (data: any) => Promise<void>;
+  onUpdateUsername?: (newUsername: string) => Promise<void>;
   onExportData: () => Promise<void>;
   onDeleteAccount: () => Promise<void>;
   isUpdateProfilePending?: boolean;
@@ -141,6 +144,7 @@ export function ProfileTabs({
   isLoading = false,
   onUpdateProfile,
   onUpdatePreferences,
+  onUpdateUsername,
   onExportData,
   onDeleteAccount,
   isUpdateProfilePending = false,
@@ -151,6 +155,10 @@ export function ProfileTabs({
   addError,
   desktopOnlyContent
 }: ProfileTabsProps) {
+  // Username state
+  const [username, setUsername] = useState("");
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
   // Profile form state
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -196,6 +204,7 @@ export function ProfileTabs({
   // Update form when profile loads
   useEffect(() => {
     if (profile) {
+      setUsername(profile.username || "");
       setProfileForm({
         name: profile.name || "",
         phone: profile.phone || "",
@@ -226,6 +235,39 @@ export function ProfileTabs({
       }
     }
   }, [profile]);
+
+  // Calculate days until username can be changed again
+  const getDaysUntilUsernameChange = () => {
+    if (!profile?.lastUsernameChangeAt) return 0;
+    const lastChange = new Date(profile.lastUsernameChangeAt);
+    const daysSinceChange = Math.floor((Date.now() - lastChange.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, 30 - daysSinceChange);
+  };
+
+  const canChangeUsername = getDaysUntilUsernameChange() === 0;
+
+  async function handleUpdateUsername() {
+    if (!onUpdateUsername) return;
+    if (!username || username.length < 3) {
+      addError("Username must be at least 3 characters");
+      return;
+    }
+    if (username === profile?.username) {
+      setIsEditingUsername(false);
+      return;
+    }
+
+    setIsUpdatingUsername(true);
+    try {
+      await onUpdateUsername(username);
+      addSuccess("Username updated successfully!");
+      setIsEditingUsername(false);
+    } catch (error: any) {
+      addError(error.message || "Failed to update username");
+    } finally {
+      setIsUpdatingUsername(false);
+    }
+  }
 
   async function handleSaveProfile() {
     try {
@@ -407,6 +449,88 @@ export function ProfileTabs({
                 <Button variant="outline" size="sm">Change Avatar</Button>
                 <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max 2MB.</p>
               </div>
+            </div>
+
+            {/* Username Section */}
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-base font-medium">Username</Label>
+                </div>
+                {onUpdateUsername && !isEditingUsername && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setIsEditingUsername(true)}
+                    disabled={!canChangeUsername && !!profile?.username}
+                  >
+                    {profile?.username ? "Change" : "Add Username"}
+                  </Button>
+                )}
+              </div>
+              
+              {isEditingUsername ? (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
+                      placeholder="your-username"
+                      className="max-w-xs"
+                    />
+                    <Button 
+                      onClick={handleUpdateUsername} 
+                      disabled={isUpdatingUsername || username.length < 3}
+                      size="sm"
+                    >
+                      {isUpdatingUsername ? "Saving..." : "Save"}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        setIsEditingUsername(false);
+                        setUsername(profile?.username || "");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                  {profile?.username && (
+                    <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
+                      <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">Warning: Changing your username will:</p>
+                        <ul className="list-disc list-inside mt-1 text-xs">
+                          <li>Change your profile URL</li>
+                          <li>Break existing bookmarks and shared links</li>
+                          <li>You can only change it again after 30 days</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-medium">
+                      {profile?.username ? `@${profile.username}` : "No username set"}
+                    </span>
+                    {!profile?.username && (
+                      <Badge variant="outline" className="text-amber-600 border-amber-300">Required</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Your profile URL: ordotodo.app/{profile?.username || "username"}/workspace
+                  </p>
+                  {!canChangeUsername && profile?.username && (
+                    <p className="text-xs text-muted-foreground">
+                      You can change your username again in {getDaysUntilUsernameChange()} days
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

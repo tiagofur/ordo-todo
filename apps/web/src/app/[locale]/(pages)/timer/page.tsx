@@ -1,14 +1,68 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
-import { TomatoIcon, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
+import { TomatoIcon, Tabs, TabsContent, TabsList, TabsTrigger, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 import { SessionHistory } from "@/components/timer/session-history";
-import { Clock } from "lucide-react";
+import { Clock, Timer, Sparkles, Zap, BarChart3, Target } from "lucide-react";
 import { useTimer } from "@/components/providers/timer-provider";
+
+const TIMER_ONBOARDING_KEY = "timer-onboarding-seen";
+
+const timerOnboardingSteps: OnboardingStep[] = [
+  {
+    id: "welcome",
+    icon: Sparkles,
+    color: "#ef4444",
+    title: "Timer de Productividad",
+    description: "Tu herramienta para mantener el enfoque. Elige entre Pomodoro o modo continuo según tu estilo de trabajo.",
+  },
+  {
+    id: "pomodoro",
+    icon: Timer,
+    color: "#ef4444",
+    title: "Técnica Pomodoro",
+    description: "Trabaja 25 minutos, descansa 5. Después de 4 pomodoros, toma un descanso largo de 15 minutos. ¡Comprobado científicamente!",
+  },
+  {
+    id: "continuous",
+    icon: Clock,
+    color: "#3b82f6",
+    title: "Modo Continuo",
+    description: "¿Prefieres fluir sin interrupciones? El modo continuo rastrea tu tiempo sin pausas forzadas.",
+  },
+  {
+    id: "tasks",
+    icon: Target,
+    color: "#10b981",
+    title: "Vincula Tareas",
+    description: "Asocia cada sesión a una tarea específica para saber exactamente cuánto tiempo dedicas a cada proyecto.",
+  },
+  {
+    id: "stats",
+    icon: BarChart3,
+    color: "#8b5cf6",
+    title: "Estadísticas",
+    description: "Revisa tu historial de sesiones y aprende de tus patrones de productividad.",
+  },
+];
 
 export default function TimerPage() {
   const { mode, config } = useTimer();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem(TIMER_ONBOARDING_KEY);
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(TIMER_ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  };
 
   const MODE_COLORS = {
     WORK: "#ef4444", // Red
@@ -65,6 +119,19 @@ export default function TimerPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Onboarding */}
+      {showOnboarding && (
+        <FeatureOnboarding
+          steps={timerOnboardingSteps}
+          storageKey={TIMER_ONBOARDING_KEY}
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingComplete}
+          skipText="Saltar"
+          nextText="Siguiente"
+          getStartedText="¡A Enfocarse!"
+        />
+      )}
     </AppLayout>
   );
 }
