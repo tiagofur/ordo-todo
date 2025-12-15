@@ -51,7 +51,7 @@
     "@tanstack/react-query-persist-client": "^5.90.13",
     "@types/bcrypt": "^5.0.2",
     "@types/react-big-calendar": "^1.16.3",
-    "@upstash/redis": "^1.35.7",
+    "@upstash/redis": "^1.35.8",
     "bcrypt": "^5.1.1",
     "chrono-node": "^2.9.0",
     "class-variance-authority": "^0.7.1",
