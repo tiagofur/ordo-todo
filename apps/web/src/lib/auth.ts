@@ -21,8 +21,16 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Email y contraseña son requeridos");
                 }
 
+                // Use explicit select to avoid errors with schema mismatches
+                // and improve query performance
                 const user = await prisma.user.findUnique({
                     where: { email: credentials.email },
+                    select: {
+                        id: true,
+                        email: true,
+                        name: true,
+                        hashedPassword: true,
+                    },
                 });
 
                 if (!user || !user.hashedPassword) {

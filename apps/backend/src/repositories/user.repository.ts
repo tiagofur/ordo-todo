@@ -48,14 +48,28 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
+  // Define the select fields needed for domain conversion
+  private readonly userSelectFields = {
+    id: true,
+    email: true,
+    username: true,
+    name: true,
+    hashedPassword: true,
+    createdAt: true,
+    updatedAt: true,
+  } as const;
+
   async findByEmail(
     email: string,
     withPassword?: boolean,
   ): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: this.userSelectFields,
+    });
     if (!user) return null;
 
-    const domainUser = this.toDomain(user);
+    const domainUser = this.toDomain(user as any);
     if (!withPassword) {
       return domainUser.withoutPassword();
     }
@@ -63,14 +77,20 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({ where: { username } });
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: this.userSelectFields,
+    });
     if (!user) return null;
-    return this.toDomain(user);
+    return this.toDomain(user as any);
   }
 
   async findById(id: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: this.userSelectFields,
+    });
     if (!user) return null;
-    return this.toDomain(user);
+    return this.toDomain(user as any);
   }
 }

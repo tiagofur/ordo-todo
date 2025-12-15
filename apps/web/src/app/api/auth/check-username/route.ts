@@ -16,9 +16,10 @@ export async function POST(req: Request) {
 
         const { username } = result.data;
 
-        // Check if username is already taken
+        // Check if username is already taken (use explicit select for efficiency)
         const existingUser = await prisma.user.findUnique({
             where: { username },
+            select: { id: true },
         });
 
         if (existingUser) {

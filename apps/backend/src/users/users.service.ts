@@ -95,7 +95,15 @@ export class UsersService {
   }
 
   async updateProfile(email: string, updateProfileDto: UpdateProfileDto) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    // Only select fields needed for validation logic
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        username: true,
+        lastUsernameChangeAt: true,
+      },
+    });
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -116,8 +124,10 @@ export class UsersService {
           }
         }
 
+        // Only select id to check existence
         const existingUser = await this.prisma.user.findUnique({
           where: { username: updateProfileDto.username },
+          select: { id: true },
         });
 
         if (existingUser) {
@@ -172,9 +182,10 @@ export class UsersService {
    * Update user preferences (AI and privacy settings)
    */
   async updatePreferences(email: string, dto: UpdatePreferencesDto) {
+    // Only select id needed for the upsert operation
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: { preferences: true },
+      select: { id: true },
     });
 
     if (!user) {
@@ -220,9 +231,22 @@ export class UsersService {
    * Get user integrations
    */
   async getIntegrations(email: string) {
+    // Use select with include for integrations only
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: { integrations: true },
+      select: {
+        id: true,
+        integrations: {
+          select: {
+            id: true,
+            provider: true,
+            isActive: true,
+            providerEmail: true,
+            lastSyncAt: true,
+            createdAt: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -243,7 +267,11 @@ export class UsersService {
    * Delete user account and all associated data
    */
   async deleteAccount(email: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    // Only select id needed for deletion
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
 
     if (!user) {
       throw new NotFoundException('User not found');
