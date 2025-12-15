@@ -5,6 +5,10 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ReactNode, useState, useEffect } from 'react';
 
+interface QueryProviderProps {
+  children: ReactNode;
+}
+
 /**
  * React Query Configuration for Desktop App
  *

@@ -23,6 +23,15 @@ const createWorkspaceSchema = z.object({
 
 type CreateWorkspaceForm = z.infer<typeof createWorkspaceSchema>;
 
+// Helper function to generate slug from name
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50);
+};
+
 interface CreateWorkspaceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,6 +60,7 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
       await createWorkspaceMutation.mutateAsync({
         ...data,
         type: selectedType,
+        slug: generateSlug(data.name),
       });
       toast.success("Workspace creado exitosamente");
       reset();

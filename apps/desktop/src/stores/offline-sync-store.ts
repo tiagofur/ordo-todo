@@ -70,6 +70,17 @@ interface OfflineSyncStore {
   forceSync: () => Promise<void>;
   processQueue: () => Promise<void>;
 
+  // Entity Sync Operations
+  executeSyncOperation: (operation: SyncOperation) => Promise<any>;
+  syncTaskOperation: (operation: SyncOperation) => Promise<any>;
+  syncProjectOperation: (operation: SyncOperation) => Promise<any>;
+  syncWorkspaceOperation: (operation: SyncOperation) => Promise<any>;
+  syncSessionOperation: (operation: SyncOperation) => Promise<any>;
+
+  // Local and Remote Updates
+  applyLocalUpdate: (entityType: string, entityId: string, data: any) => Promise<void>;
+  applyRemoteUpdate: (entityType: string, entityId: string, data: any) => Promise<void>;
+
   // Connection Management
   setOnlineStatus: (isOnline: boolean) => void;
   setupNetworkListeners: () => void;
@@ -373,24 +384,25 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
                 operations: state.queue.operations.map((op) =>
                   op.id === operation.id
                     ? {
-                        ...op,
-                        status: 'failed',
-                        retryCount: op.retryCount + 1,
-                        lastRetry: Date.now(),
-                      }
+                      ...op,
+                      status: 'failed',
+                      retryCount: op.retryCount + 1,
+                      lastRetry: Date.now(),
+                    }
                     : op
                 ),
               },
             }));
 
             // Add to conflict queue if it's a data conflict
-            if (error.message?.includes('conflict')) {
+            const err = error as { message?: string; remoteData?: any };
+            if (err.message?.includes('conflict')) {
               get().addConflict({
                 type: operation.type === 'delete' ? 'delete' : 'update',
                 entityType: operation.entityType,
                 entityId: operation.entityId,
                 localData: operation.data,
-                remoteData: error.remoteData,
+                remoteData: err.remoteData,
               });
             }
           }
@@ -477,7 +489,8 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
           },
         }));
 
-        if (isOnline && state.queue.operations.length > 0) {
+        const currentQueue = get().queue;
+        if (isOnline && currentQueue.operations.length > 0) {
           // Start sync when coming back online
           get().processQueue();
         }

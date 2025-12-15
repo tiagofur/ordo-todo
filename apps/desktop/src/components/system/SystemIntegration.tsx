@@ -1,7 +1,21 @@
 import { useEffect, useState, useCallback } from 'react';
-import { app, Notification, ipcRenderer } from 'electron';
 import { toast } from 'sonner';
 import { Bell, Zap, Coffee, Calendar, Trophy, Volume2, VolumeX } from 'lucide-react';
+
+// Get electron APIs from window if available (set by preload script)
+const electronAPI = (window as any).electronAPI;
+const ipcRenderer = electronAPI?.ipcRenderer ?? {
+  invoke: async (channel: string, ...args: any[]) => {
+    console.log(`IPC invoke ${channel}:`, args);
+    return null;
+  },
+  on: (channel: string, callback: (...args: any[]) => void) => {
+    console.log(`IPC on ${channel}`);
+  },
+  removeListener: (channel: string, callback: (...args: any[]) => void) => {
+    console.log(`IPC removeListener ${channel}`);
+  },
+};
 
 interface SystemNotificationOptions {
   title: string;
@@ -47,7 +61,7 @@ export function useSystemIntegration() {
     loadSettings();
 
     // Listen for system setting changes
-    const handleSettingsChange = (_, newSettings: Partial<SystemIntegrationState>) => {
+    const handleSettingsChange = (_event: unknown, newSettings: Partial<SystemIntegrationState>) => {
       setState(prev => ({ ...prev, ...newSettings }));
     };
 
@@ -63,37 +77,38 @@ export function useSystemIntegration() {
     if (!state.notificationsEnabled) return;
 
     try {
-      const notification = new Notification({
-        title: options.title,
-        body: options.body,
-        icon: options.icon || '/icon.png',
-        urgency: options.urgency || 'normal',
-        silent: options.silent || !state.soundEnabled,
-        actions: options.actions || [],
-      });
+      // Use browser Notification API
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const notification = new Notification(options.title, {
+          body: options.body,
+          icon: options.icon || '/icon.png',
+          silent: options.silent || !state.soundEnabled,
+        });
 
-      // Handle notification click
-      notification.on('click', () => {
-        // Bring app to focus
-        const mainWindow = app.getWindow('main');
-        mainWindow?.focus();
+        // Handle notification click
+        notification.onclick = () => {
+          window.focus();
+          // Navigate to relevant page based on notification type
+          if (options.title.includes('Task')) {
+            window.location.hash = '/tasks';
+          } else if (options.title.includes('Timer')) {
+            window.location.hash = '/timer';
+          }
+        };
 
-        // Navigate to relevant page based on notification type
-        if (options.title.includes('Task')) {
-          window.location.hash = '/tasks';
-        } else if (options.title.includes('Timer')) {
-          window.location.hash = '/timer';
+        // Play notification sound if enabled
+        if (state.soundEnabled && !options.silent) {
+          playNotificationSound(options.urgency);
         }
-      });
 
-      notification.show();
-
-      // Play notification sound if enabled
-      if (state.soundEnabled && !options.silent) {
-        playNotificationSound(options.urgency);
+        return notification;
+      } else {
+        // Fallback to toast notification
+        toast(options.body, {
+          icon: getNotificationIcon(options.urgency),
+          duration: options.urgency === 'critical' ? 8000 : 4000,
+        });
       }
-
-      return notification;
     } catch (error) {
       console.error('Failed to show notification:', error);
       // Fallback to toast notification

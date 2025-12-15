@@ -40,6 +40,20 @@ export class DesktopApiClient extends OrdoApiClient {
     return response.data;
   }
 
+  // ============ WORKSPACE ENDPOINTS ============
+
+  async getWorkspaceBySlug(slug: string) {
+    const response = await this.axios.get(`/workspaces/slug/${slug}`);
+    return response.data;
+  }
+
+  // ============ ANALYTICS ============
+
+  async getAnalytics(params?: { startDate?: string; endDate?: string }) {
+    const response = await this.axios.get('/analytics', { params });
+    return response.data;
+  }
+
   // ============ TASK SHARING ============
 
   async generateShareToken(taskId: string) {
