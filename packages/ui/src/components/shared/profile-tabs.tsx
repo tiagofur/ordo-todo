@@ -19,8 +19,12 @@ import {
   Calendar,
   Github,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Loader2
 } from "lucide-react";
+import { useUsernameValidation } from "@ordo-todo/hooks";
 import * as Tabs from "@radix-ui/react-tabs";
 import { cn } from "../../utils/index.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card.js";
@@ -200,6 +204,24 @@ export function ProfileTabs({
     weeklyDigestEmail: true,
     marketingEmail: false,
   });
+
+  // Username validation hook
+  const { validationResult, validateUsername, resetValidation } = useUsernameValidation({
+    apiClient: {} as any, // API client not needed - uses fetch directly
+    minLength: 3,
+    maxLength: 20,
+    debounceMs: 500,
+    currentUsername: profile?.username || undefined,
+  });
+
+  // Validate username when it changes (only when editing)
+  useEffect(() => {
+    if (isEditingUsername && username && username.length >= 1) {
+      validateUsername(username);
+    } else if (!isEditingUsername) {
+      resetValidation();
+    }
+  }, [username, isEditingUsername, validateUsername, resetValidation]);
 
   // Update form when profile loads
   useEffect(() => {
@@ -472,16 +494,41 @@ export function ProfileTabs({
               
               {isEditingUsername ? (
                 <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
-                      placeholder="your-username"
-                      className="max-w-xs"
-                    />
+                  <div className="flex gap-2 items-center">
+                    <div className="relative flex-1 max-w-xs">
+                      <Input
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
+                        placeholder="your-username"
+                        className={cn(
+                          "pr-10",
+                          validationResult.isLoading && "border-muted",
+                          validationResult.isAvailable === true && username.length >= 3 && "border-green-500 focus:border-green-500",
+                          validationResult.isAvailable === false && username.length >= 3 && "border-destructive focus:border-destructive"
+                        )}
+                      />
+                      {/* Validation icon */}
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        {validationResult.isLoading && (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        )}
+                        {!validationResult.isLoading && validationResult.isAvailable === true && username.length >= 3 && (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        )}
+                        {!validationResult.isLoading && validationResult.isAvailable === false && username.length >= 3 && (
+                          <XCircle className="h-4 w-4 text-destructive" />
+                        )}
+                      </div>
+                    </div>
                     <Button 
                       onClick={handleUpdateUsername} 
-                      disabled={isUpdatingUsername || username.length < 3}
+                      disabled={
+                        isUpdatingUsername || 
+                        username.length < 3 || 
+                        validationResult.isLoading ||
+                        validationResult.isAvailable === false ||
+                        username === profile?.username
+                      }
                       size="sm"
                     >
                       {isUpdatingUsername ? "Saving..." : "Save"}
@@ -492,11 +539,32 @@ export function ProfileTabs({
                       onClick={() => {
                         setIsEditingUsername(false);
                         setUsername(profile?.username || "");
+                        resetValidation();
                       }}
                     >
                       Cancel
                     </Button>
                   </div>
+                  
+                  {/* Validation message */}
+                  {username.length > 0 && validationResult.message && (
+                    <p className={cn(
+                      "text-xs flex items-center gap-1",
+                      validationResult.isAvailable === true && "text-green-600 dark:text-green-400",
+                      validationResult.isAvailable === false && "text-destructive",
+                      validationResult.isLoading && "text-muted-foreground"
+                    )}>
+                      {validationResult.message}
+                    </p>
+                  )}
+                  
+                  {/* Character count hint */}
+                  {username.length > 0 && username.length < 3 && (
+                    <p className="text-xs text-muted-foreground">
+                      Username must be at least 3 characters ({username.length}/3)
+                    </p>
+                  )}
+                  
                   {profile?.username && (
                     <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
                       <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />

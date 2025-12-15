@@ -57,6 +57,12 @@ import type {
   ObjectiveDashboardSummary,
 } from '@ordo-todo/api-client';
 
+// Helper to check if user is authenticated
+const isAuthenticated = () => {
+  if (typeof window === 'undefined') return false;
+  return !!localStorage.getItem('ordo_auth_token');
+};
+
 // ============ QUERY KEYS ============
 
 export const queryKeys = {
@@ -347,7 +353,7 @@ export function useWorkspaceMembers(workspaceId: string) {
   return useQuery({
     queryKey: queryKeys.workspaceMembers(workspaceId),
     queryFn: () => apiClient.getWorkspaceMembers(workspaceId),
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && isAuthenticated(),
   });
 }
 
@@ -355,7 +361,7 @@ export function useWorkspaceInvitations(workspaceId: string) {
   return useQuery({
     queryKey: queryKeys.workspaceInvitations(workspaceId),
     queryFn: () => apiClient.getWorkspaceInvitations(workspaceId),
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && isAuthenticated(),
   });
 }
 
@@ -1356,6 +1362,7 @@ export function useObjectives() {
   return useQuery<Objective[]>({
     queryKey: objectiveQueryKeys.all,
     queryFn: () => apiClient.getObjectives(),
+    enabled: isAuthenticated(),
   });
 }
 
@@ -1363,6 +1370,7 @@ export function useCurrentPeriodObjectives() {
   return useQuery<Objective[]>({
     queryKey: objectiveQueryKeys.currentPeriod,
     queryFn: () => apiClient.getCurrentPeriodObjectives(),
+    enabled: isAuthenticated(),
   });
 }
 
@@ -1370,6 +1378,7 @@ export function useObjectivesDashboardSummary() {
   return useQuery<ObjectiveDashboardSummary>({
     queryKey: objectiveQueryKeys.dashboard,
     queryFn: () => apiClient.getObjectivesDashboardSummary(),
+    enabled: isAuthenticated(),
   });
 }
 
@@ -1377,6 +1386,7 @@ export function useObjectivesDashboard() {
   return useQuery({
     queryKey: objectiveQueryKeys.dashboard,
     queryFn: () => apiClient.getObjectivesDashboardSummary(),
+    enabled: isAuthenticated(),
   });
 }
 
@@ -1384,7 +1394,7 @@ export function useObjective(id: string) {
   return useQuery<Objective>({
     queryKey: objectiveQueryKeys.objective(id),
     queryFn: () => apiClient.getObjective(id),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated(),
   });
 }
 

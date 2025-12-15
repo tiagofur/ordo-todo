@@ -13,6 +13,8 @@ interface UseUsernameValidationOptions {
   minLength?: number;
   maxLength?: number;
   debounceMs?: number;
+  /** Current user's username - if provided, this username is always considered "available" */
+  currentUsername?: string;
 }
 
 export function useUsernameValidation({
@@ -20,6 +22,7 @@ export function useUsernameValidation({
   minLength = 3,
   maxLength = 20,
   debounceMs = 500,
+  currentUsername,
 }: UseUsernameValidationOptions) {
   const [validationResult, setValidationResult] = useState<UsernameValidationResult>({
     isValid: false,
@@ -86,6 +89,18 @@ export function useUsernameValidation({
           return;
         }
 
+        // If username matches current user's username, consider it available
+        if (currentUsername && username === currentUsername) {
+          setValidationResult({
+            isValid: true,
+            isAvailable: true,
+            message: 'This is your current username',
+            isLoading: false,
+          });
+          setLastCheckedUsername(username);
+          return;
+        }
+
         setValidationResult(prev => ({ ...prev, isLoading: true }));
 
         try {
@@ -133,7 +148,7 @@ export function useUsernameValidation({
         }
       }, debounceMs);
     },
-    [lastCheckedUsername, debounceMs]
+    [lastCheckedUsername, debounceMs, currentUsername]
   );
 
   const validateUsername = useCallback(

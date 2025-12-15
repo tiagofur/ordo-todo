@@ -503,7 +503,7 @@ export const apiClient = {
   // Objectives (OKRs)
   getObjectives: () => axiosInstance.get('/objectives').then((res) => res.data),
   getCurrentPeriodObjectives: () => axiosInstance.get('/objectives/current-period').then((res) => res.data),
-  getObjectivesDashboardSummary: () => axiosInstance.get('/objectives/dashboard/summary').then((res) => res.data),
+  getObjectivesDashboardSummary: () => axiosInstance.get('/objectives/dashboard-summary').then((res) => res.data),
   getObjective: (id: string) => axiosInstance.get(`/objectives/${id}`).then((res) => res.data),
   createObjective: (data: CreateObjectiveDto) => axiosInstance.post('/objectives', data).then((res) => res.data),
   updateObjective: (id: string, data: UpdateObjectiveDto) => axiosInstance.put(`/objectives/${id}`, data).then((res) => res.data),
