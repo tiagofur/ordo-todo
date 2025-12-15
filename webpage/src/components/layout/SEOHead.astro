@@ -1,6 +1,4 @@
 ---
-import { getRelativeLocaleUrl } from 'astro:i18n';
-
 interface Props {
   title: string;
   description: string;
@@ -10,6 +8,25 @@ interface Props {
 const { title, description, currentPath } = Astro.props;
 const locales = ['en', 'es', 'pt-br'];
 const siteUrl = 'https://ordo-todo.com';
+
+// Extract the path without locale prefix for building hreflang URLs
+const pathWithoutLocale = currentPath.replace(/^\/(en|es|pt-br)/, '') || '/';
+
+// Build JSON-LD data
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Ordo-Todo",
+  "description": description,
+  "url": siteUrl,
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "Web, iOS, Android, Windows, macOS, Linux",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+});
 ---
 
 <title>{title}</title>
@@ -31,18 +48,18 @@ const siteUrl = 'https://ordo-todo.com';
 
 <!-- hreflang tags for SEO -->
 {locales.map(locale => (
-  <link 
-    rel="alternate" 
-    hreflang={locale} 
-    href={`${siteUrl}${getRelativeLocaleUrl(locale, currentPath)}`} 
+  <link
+    rel="alternate"
+    hreflang={locale}
+    href={`${siteUrl}/${locale}${pathWithoutLocale}`}
   />
 ))}
 
 <!-- x-default for international targeting -->
-<link 
-  rel="alternate" 
-  hreflang="x-default" 
-  href={`${siteUrl}${getRelativeLocaleUrl('en', currentPath)}`} 
+<link
+  rel="alternate"
+  hreflang="x-default"
+  href={`${siteUrl}/en${pathWithoutLocale}`}
 />
 
 <!-- Canonical URL -->
@@ -54,19 +71,4 @@ const siteUrl = 'https://ordo-todo.com';
 <meta name="keywords" content="task management, productivity, AI, pomodoro, collaboration, time tracking" />
 
 <!-- JSON-LD Structured Data -->
-<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Ordo-Todo",
-  "description": description,
-  "url": siteUrl,
-  "applicationCategory": "ProductivityApplication",
-  "operatingSystem": "Web, iOS, Android, Windows, macOS, Linux",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  }
-}}
-</script>
+<script type="application/ld+json" set:html={jsonLd} />

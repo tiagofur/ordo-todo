@@ -1,6 +1,3 @@
 ---
-import { redirectToDefaultLocale } from 'astro:i18n';
-
-export async function GET() {
-  return redirectToDefaultLocale();
-}
+return Astro.redirect('/en/');
+---
