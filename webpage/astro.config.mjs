@@ -3,10 +3,11 @@ import { defineConfig } from "astro/config";
 
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
+import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react()],
+  integrations: [react(), sitemap()],
 
   vite: {
     plugins: [tailwindcss()],
@@ -16,12 +17,7 @@ export default defineConfig({
     locales: ["en", "es", "pt-br"],
     defaultLocale: "en",
     routing: {
-      prefixDefaultLocale: false,
-      fallbackType: "rewrite",
-    },
-    fallback: {
-      "pt-br": "en",
-      es: "en",
+      prefixDefaultLocale: true,
     },
   },
   output: "static",
