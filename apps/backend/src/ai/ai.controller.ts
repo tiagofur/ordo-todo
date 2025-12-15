@@ -15,7 +15,6 @@ import { AIService } from './ai.service';
 import {
   AIChatDto,
   AIParseTaskDto,
-  AIWellbeingDto,
   AIWorkflowSuggestionDto,
   AIDecomposeTaskDto,
 } from './dto/ai-chat.dto';
@@ -23,7 +22,7 @@ import {
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
 export class AIController {
-  constructor(private readonly aiService: AIService) {}
+  constructor(private readonly aiService: AIService) { }
 
   // ============ AI CHAT ============
 
@@ -40,7 +39,6 @@ export class AIController {
   @Post('parse-task')
   async parseTask(
     @Body() parseDto: AIParseTaskDto,
-    @CurrentUser() user: RequestUser,
   ) {
     return this.aiService.parseNaturalLanguageTask(
       parseDto.input,
@@ -69,7 +67,6 @@ export class AIController {
   @Post('workflow-suggestion')
   async suggestWorkflow(
     @Body() suggestionDto: AIWorkflowSuggestionDto,
-    @CurrentUser() user: RequestUser,
   ) {
     return this.aiService.suggestWorkflow(
       suggestionDto.projectName,

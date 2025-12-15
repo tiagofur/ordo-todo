@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Ordo-Todo Desktop Application - Modern Task & Pomodoro Management",
-  "author": "Ordo-Todo Team",
+  "author": {
+    "name": "Ordo-Todo Team",
+    "email": "support@ordo-todo.app"
+  },
   "main": "dist-electron/main.js",
   "homepage": "./",
   "scripts": {

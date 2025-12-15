@@ -13,7 +13,7 @@ import { Prisma } from '@prisma/client';
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) { }
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
@@ -82,7 +82,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
 
     // Log the error
-    if (httpStatus >= 500) {
+    if (Number(httpStatus) >= 500) {
       this.logger.error(
         `Status: ${httpStatus} Error: ${JSON.stringify(responseBody)}`,
         exception instanceof Error ? exception.stack : '',

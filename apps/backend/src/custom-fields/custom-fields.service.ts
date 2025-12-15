@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class CustomFieldsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Get all custom fields for a project
@@ -204,7 +204,7 @@ export class CustomFieldsService {
           );
         }
         break;
-      case CustomFieldType.MULTI_SELECT:
+      case CustomFieldType.MULTI_SELECT: {
         const selectedOptions = value.split(',').map((s) => s.trim());
         if (options) {
           const invalid = selectedOptions.filter((o) => !options.includes(o));
@@ -215,6 +215,7 @@ export class CustomFieldsService {
           }
         }
         break;
+      }
       case CustomFieldType.EMAIL:
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           throw new BadRequestException('Invalid email format');

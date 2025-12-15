@@ -11,7 +11,7 @@ export class AnalyticsService {
     @Inject('TimerRepository')
     private readonly timerRepository: TimerRepository,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async getDailyMetrics(userId: string, date?: Date) {
     const getDailyMetricsUseCase = new GetDailyMetricsUseCase(
@@ -158,7 +158,6 @@ export class AnalyticsService {
 
     const distribution: Record<string, number> = {};
     sessions.forEach((s) => {
-      // @ts-ignore
       const project = s.task?.project?.name || 'Sin Proyecto';
       const mins = Math.round((s.duration || 0) / 60);
       distribution[project] = (distribution[project] || 0) + mins;
@@ -170,7 +169,6 @@ export class AnalyticsService {
   }
 
   async getTaskStatusDistribution(userId: string) {
-    // @ts-ignore
     const tasks = await this.prisma.task.groupBy({
       by: ['status'],
       where: {
@@ -179,7 +177,6 @@ export class AnalyticsService {
       _count: { id: true },
     });
 
-    // @ts-ignore
     return tasks.map((t) => ({ status: t.status, count: t._count.id }));
   }
 
@@ -228,7 +225,7 @@ export class AnalyticsService {
       avgFocusScore:
         allMetrics.length > 0
           ? allMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) /
-            allMetrics.length
+          allMetrics.length
           : 0,
       activeMembersCount: new Set(allMetrics.map((m) => m.userId)).size,
     };
@@ -256,7 +253,7 @@ export class AnalyticsService {
         avgFocusScore:
           memberMetrics.length > 0
             ? memberMetrics.reduce((sum, m) => sum + (m.focusScore || 0), 0) /
-              memberMetrics.length
+            memberMetrics.length
             : 0,
         activeDays: memberMetrics.filter((m) => m.minutesWorked > 0).length,
       };
@@ -302,7 +299,7 @@ export class AnalyticsService {
         } else {
           const dayDiff = Math.floor(
             (lastDate.getTime() - metric.date.getTime()) /
-              (1000 * 60 * 60 * 24),
+            (1000 * 60 * 60 * 24),
           );
 
           if (dayDiff === 1) {
