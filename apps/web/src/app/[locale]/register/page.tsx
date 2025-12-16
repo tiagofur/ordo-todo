@@ -41,9 +41,7 @@ export default function SignUpPage() {
 
   // Real API client for username validation
   const { validationResult } = useUsernameValidation({
-    apiClient: {
-      checkUsernameAvailability: apiClient.checkUsernameAvailability,
-    },
+    apiClient: apiClient as any, // Hook uses fetch internally, type mismatch
   });
 
   // Password strength calculation
@@ -196,9 +194,7 @@ export default function SignUpPage() {
             <UsernameInput
               value={formData.username}
               onChange={(value) => setFormData({ ...formData, username: value })}
-              apiClient={{
-                checkUsernameAvailability: apiClient.checkUsernameAvailability,
-              }}
+              apiClient={apiClient as any}
               label="Nombre de Usuario"
               placeholder="usuario123"
               required={true}
