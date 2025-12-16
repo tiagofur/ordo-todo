@@ -83,6 +83,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/core ./node_modules/@ordo-todo/core
 COPY --from=builder /app/packages/config ./node_modules/@ordo-todo/config
 
+# Copy backend-specific node_modules (for dependencies like rxjs that may be hoisted here)
+COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
+
 # Copy Prisma generated client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
