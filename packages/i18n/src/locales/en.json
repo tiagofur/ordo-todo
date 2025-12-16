@@ -1895,6 +1895,182 @@
       "EMAIL": "Email",
       "CHECKBOX": "Checkbox"
     }
+  },
+  "Focus": {
+    "title": "Focus",
+    "subtitle": "Focused work sessions with ambient audio",
+    "startSession": "Start Session",
+    "endSession": "End Session",
+    "ambientAudio": "Ambient Audio",
+    "selectTrack": "Select a sound",
+    "noTrack": "No sound",
+    "volume": "Volume",
+    "favorites": "Favorites",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "categories": {
+      "nature": "Nature",
+      "cafe": "Café",
+      "whiteNoise": "White Noise",
+      "binaural": "Binaural",
+      "music": "Music"
+    },
+    "tracks": {
+      "rain": "Rain",
+      "thunderstorm": "Thunderstorm",
+      "forest": "Forest",
+      "ocean": "Ocean Waves",
+      "river": "River",
+      "cafe": "Café",
+      "library": "Library",
+      "whiteNoise": "White Noise",
+      "pinkNoise": "Pink Noise",
+      "brownNoise": "Brown Noise",
+      "binaural": "Binaural Beats",
+      "lofi": "Lo-Fi"
+    },
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "deepWork": "Deep Work",
+      "flow": "Flow State",
+      "sprint": "Sprint"
+    },
+    "modeDescriptions": {
+      "pomodoro": "25 min work, 5 min break",
+      "deepWork": "50 min work, 10 min break",
+      "flow": "90 min intense work",
+      "sprint": "15 min quick work"
+    },
+    "stats": {
+      "totalSessions": "Total Sessions",
+      "totalMinutes": "Focus Minutes",
+      "avgSession": "Avg Session",
+      "streakDays": "Streak Days"
+    }
+  },
+  "Search": {
+    "title": "Search",
+    "placeholder": "Search tasks, projects, habits...",
+    "placeholderWithAI": "Search with natural language (AI)",
+    "noResults": "No results found",
+    "noResultsDescription": "Try different terms or check your spelling",
+    "suggestions": "Suggestions",
+    "results": "results",
+    "navigate": "navigate",
+    "select": "select",
+    "close": "close",
+    "aiPowered": "AI Powered",
+    "types": {
+      "task": "Task",
+      "project": "Project",
+      "habit": "Habit"
+    },
+    "filters": {
+      "all": "All",
+      "tasks": "Tasks",
+      "projects": "Projects",
+      "habits": "Habits"
+    }
+  },
+  "Meetings": {
+    "title": "Meeting Assistant",
+    "subtitle": "Analyze transcripts and extract action items",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing...",
+    "transcriptPlaceholder": "Paste your meeting transcript here...",
+    "summary": "Summary",
+    "keyPoints": "Key Points",
+    "actionItems": "Action Items",
+    "decisions": "Decisions",
+    "participants": "Participants",
+    "topics": "Topics Discussed",
+    "sentiment": "Sentiment",
+    "followUpRequired": "Follow-up Required",
+    "convertToTasks": "Convert to Tasks",
+    "converting": "Converting...",
+    "tasksCreated": "{count} tasks created",
+    "noActionItems": "No action items found",
+    "sentiments": {
+      "POSITIVE": "Positive",
+      "NEUTRAL": "Neutral",
+      "NEGATIVE": "Negative",
+      "MIXED": "Mixed"
+    },
+    "summaryStyles": {
+      "executive": "Executive",
+      "detailed": "Detailed",
+      "bulletPoints": "Bullet Points"
+    }
+  },
+  "Workload": {
+    "title": "Workload",
+    "subtitle": "Monitor and balance team workload",
+    "myWorkload": "My Workload",
+    "teamWorkload": "Team Workload",
+    "assignedTasks": "Assigned Tasks",
+    "completedTasks": "Completed",
+    "overdueTasks": "Overdue",
+    "hoursThisWeek": "Hours this week",
+    "capacityRemaining": "Capacity remaining",
+    "workloadScore": "Workload Score",
+    "trend": "Trend",
+    "levels": {
+      "LOW": "Low",
+      "MODERATE": "Moderate",
+      "HIGH": "High",
+      "OVERLOADED": "Overloaded"
+    },
+    "trends": {
+      "INCREASING": "Increasing",
+      "STABLE": "Stable",
+      "DECREASING": "Decreasing"
+    },
+    "suggestions": {
+      "title": "Suggestions",
+      "redistribute": "Redistribute tasks",
+      "delegate": "Delegate",
+      "prioritize": "Prioritize"
+    },
+    "distribution": {
+      "overloaded": "Overloaded",
+      "balanced": "Balanced",
+      "underutilized": "Underutilized"
+    }
+  },
+  "Wellbeing": {
+    "title": "Wellbeing",
+    "subtitle": "Burnout prevention and work-life balance",
+    "burnoutRisk": "Burnout Risk",
+    "workLifeBalance": "Work-Life Balance",
+    "focusQuality": "Focus Quality",
+    "consistencyScore": "Consistency",
+    "riskLevels": {
+      "LOW": "Low",
+      "MODERATE": "Moderate",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "recommendations": {
+      "title": "Recommendations",
+      "takeBreak": "Take a break",
+      "endDay": "Consider ending your day",
+      "weekend": "Avoid working on weekends",
+      "lateNight": "Avoid working late at night"
+    },
+    "patterns": {
+      "title": "Work Patterns",
+      "lateNightWork": "Late Night Work",
+      "weekendWork": "Weekend Work",
+      "longSessions": "Long Sessions",
+      "avgHoursPerDay": "Avg Hours/Day"
+    },
+    "weeklySummary": "Weekly Summary",
+    "insights": "Insights",
+    "intervention": {
+      "gentleReminder": "Gentle Reminder",
+      "strongWarning": "Warning",
+      "criticalAlert": "Critical Alert"
+    }
   }
 }
 

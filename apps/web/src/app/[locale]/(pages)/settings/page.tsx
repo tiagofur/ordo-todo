@@ -2,14 +2,15 @@
 
 import { useTheme } from "next-themes";
 import { AppLayout } from "@/components/shared/app-layout";
-import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon } from "lucide-react";
-import { Label } from "@ordo-todo/ui";
+import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon, Sparkles, Brain, Heart, Headphones, Rocket, Play } from "lucide-react";
+import { Label, Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
+import { useAIFeaturesTour } from "@/components/onboarding/ai-features-tour";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -18,6 +19,7 @@ export default function SettingsPage() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const { showTour, hasSeenTour } = useAIFeaturesTour();
 
   // Accent color for styled headers
   const accentColor = "#06b6d4"; // Cyan
@@ -371,6 +373,205 @@ export default function SettingsPage() {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* AI Settings */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 text-purple-500">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <h2 className="text-lg font-semibold">Inteligencia Artificial</h2>
+            </div>
+
+            <div className="grid gap-4">
+              {/* AI Insights */}
+              <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="h-5 w-5 text-purple-500" />
+                  <Label className="text-base">AI Insights</Label>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Recibe sugerencias proactivas basadas en tus patrones de productividad
+                </p>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="aiInsightsEnabled">Habilitar insights de IA</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Muestra sugerencias personalizadas en el dashboard
+                      </p>
+                    </div>
+                    <input
+                      id="aiInsightsEnabled"
+                      type="checkbox"
+                      defaultChecked={true}
+                      className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="smartScheduling">Programación inteligente</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Sugiere horarios óptimos basados en tu productividad
+                      </p>
+                    </div>
+                    <input
+                      id="smartScheduling"
+                      type="checkbox"
+                      defaultChecked={true}
+                      className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Wellbeing & Burnout */}
+              <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="h-5 w-5 text-pink-500" />
+                  <Label className="text-base">Bienestar</Label>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Detección de riesgo de burnout y recomendaciones de descanso
+                </p>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="burnoutDetection">Detección de burnout</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Analiza patrones de trabajo para prevenir agotamiento
+                      </p>
+                    </div>
+                    <input
+                      id="burnoutDetection"
+                      type="checkbox"
+                      defaultChecked={true}
+                      className="h-5 w-5 rounded border-gray-300 text-pink-600 focus:ring-pink-600"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="restReminders">Recordatorios de descanso</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notificaciones suaves para tomar pausas
+                      </p>
+                    </div>
+                    <input
+                      id="restReminders"
+                      type="checkbox"
+                      defaultChecked={true}
+                      className="h-5 w-5 rounded border-gray-300 text-pink-600 focus:ring-pink-600"
+                    />
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-border/50">
+                    <Label>Sensibilidad de detección</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {["Baja", "Media", "Alta"].map((level) => (
+                        <button
+                          key={level}
+                          className={cn(
+                            "px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                            level === "Media"
+                              ? "bg-pink-500/10 border-2 border-pink-500/50 text-pink-600"
+                              : "bg-muted/50 border-2 border-transparent hover:bg-muted"
+                          )}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Focus Audio */}
+              <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Headphones className="h-5 w-5 text-cyan-500" />
+                  <Label className="text-base">Focus Audio</Label>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Sonidos ambient para mejorar la concentración durante sesiones de trabajo
+                </p>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="ambientAudio">Audio ambient automático</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Inicia audio al comenzar una sesión de focus
+                      </p>
+                    </div>
+                    <input
+                      id="ambientAudio"
+                      type="checkbox"
+                      defaultChecked={false}
+                      className="h-5 w-5 rounded border-gray-300 text-cyan-600 focus:ring-cyan-600"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="defaultVolume">Volumen por defecto</Label>
+                      <span className="text-sm text-muted-foreground">50%</span>
+                    </div>
+                    <input
+                      id="defaultVolume"
+                      type="range"
+                      min="0"
+                      max="100"
+                      defaultValue="50"
+                      className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Tour & Help */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/10 to-purple-500/10 text-cyan-500">
+                <Rocket className="h-5 w-5" />
+              </div>
+              <h2 className="text-lg font-semibold">Tour & Ayuda</h2>
+            </div>
+
+            <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Tour de Features de IA</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Revisa las nuevas funcionalidades de inteligencia artificial
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    showTour();
+                    toast.success("Iniciando tour de IA...");
+                  }}
+                  className="gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  {hasSeenTour ? "Ver de nuevo" : "Iniciar tour"}
+                </Button>
+              </div>
+
+              <div className="pt-4 border-t border-border/50">
+                <p className="text-xs text-muted-foreground">
+                  💡 El tour te guía por: Búsqueda Inteligente, Asistente de Reuniones, 
+                  Panel de Bienestar, Carga del Equipo y Focus Audio.
+                </p>
               </div>
             </div>
           </section>

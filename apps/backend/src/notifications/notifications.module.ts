@@ -6,10 +6,12 @@ import { NotificationsController } from './notifications.controller';
 import { SmartNotificationsService } from './smart-notifications.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { DatabaseModule } from '../database/database.module';
+import { AIModule } from '../ai/ai.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    forwardRef(() => AIModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -27,4 +29,5 @@ import { DatabaseModule } from '../database/database.module';
   ],
   exports: [NotificationsService, NotificationsGateway],
 })
-export class NotificationsModule {}
+export class NotificationsModule { }
+

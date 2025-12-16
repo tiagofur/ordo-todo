@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Play, Pause, Square, X, Check, SkipForward, Maximize2, Minimize2 } from "lucide-react";
+import { Play, Pause, Square, X, Check, SkipForward, Maximize2, Minimize2, Headphones } from "lucide-react";
 import { Button } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { useTimer } from "@/components/providers/timer-provider";
 import { useTask, useCompleteTask } from "@/lib/api-hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import { notify } from "@/lib/notify";
+import { AmbientAudioPlayer } from "@/components/focus/ambient-audio-player";
 
 export default function FocusPage() {
   const t = useTranslations('FocusMode');
   const tTimer = useTranslations('PomodoroTimer');
   const router = useRouter();
+  const [showAudioPanel, setShowAudioPanel] = useState(false);
 
   const {
     timeLeft,
@@ -69,6 +71,20 @@ export default function FocusPage() {
 
       {/* Top Controls */}
       <div className="absolute top-6 right-6 z-20 flex items-center gap-4">
+        {/* Audio Toggle (Compact) */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setShowAudioPanel(!showAudioPanel)} 
+          className={cn(
+            "hover:bg-accent/20 text-muted-foreground hover:text-foreground transition-colors",
+            showAudioPanel && "bg-accent/20 text-foreground"
+          )}
+          title="Ambiente Sonoro"
+        >
+          <Headphones className="w-6 h-6" />
+        </Button>
+        
         <Button 
           variant="ghost" 
           size="icon" 
@@ -88,6 +104,20 @@ export default function FocusPage() {
           <X className="w-8 h-8" />
         </Button>
       </div>
+
+      {/* Audio Panel (Floating) */}
+      <AnimatePresence>
+        {showAudioPanel && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="absolute top-20 right-6 z-30 w-80"
+          >
+            <AmbientAudioPlayer />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <div className="z-10 flex flex-col items-center w-full max-w-4xl mx-auto space-y-16">
@@ -196,3 +226,4 @@ export default function FocusPage() {
     </div>
   );
 }
+

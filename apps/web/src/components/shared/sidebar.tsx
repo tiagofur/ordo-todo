@@ -12,6 +12,10 @@ import {
   Download,
   Sparkles,
   Target,
+  MessageSquare,
+  Heart,
+  Users,
+  LayoutGrid,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
@@ -32,7 +36,11 @@ export function Sidebar() {
     { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
     { name: t("goals"), href: "/goals", icon: Target, color: "pink" },
     { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+    { name: t("eisenhower") || "Eisenhower", href: "/eisenhower", icon: LayoutGrid, color: "purple" },
     { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("meetings") || "Meetings", href: "/meetings", icon: MessageSquare, color: "purple" },
+    { name: t("wellbeing") || "Bienestar", href: "/wellbeing", icon: Heart, color: "pink" },
+    { name: t("workload") || "Carga", href: "/workload", icon: Users, color: "orange" },
     { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
     { name: t("tags"), href: "/tags", icon: Tags, color: "green" },
     { name: t("analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },

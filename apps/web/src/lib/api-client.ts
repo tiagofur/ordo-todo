@@ -524,4 +524,51 @@ export const apiClient = {
   deleteCustomField: (fieldId: string) => axiosInstance.delete(`/custom-fields/${fieldId}`).then((res) => res.data),
   getTaskCustomValues: (taskId: string) => axiosInstance.get(`/tasks/${taskId}/custom-values`).then((res) => res.data),
   setTaskCustomValues: (taskId: string, data: any) => axiosInstance.patch(`/tasks/${taskId}/custom-values`, data).then((res) => res.data),
+
+  // Semantic Search
+  semanticSearch: (query: string, options?: { types?: string; projectId?: string; limit?: number }) =>
+    axiosInstance.get('/search', { params: { q: query, ...options } }).then((res) => res.data),
+  searchSuggestions: (query: string) =>
+    axiosInstance.get('/search/suggestions', { params: { q: query } }).then((res) => res.data),
+  askAI: (question: string) =>
+    axiosInstance.get('/search/ask', { params: { q: question } }).then((res) => res.data),
+
+  // Meetings
+  analyzeMeetingTranscript: (transcript: string, options?: { meetingTitle?: string; participants?: string[]; duration?: number }) =>
+    axiosInstance.post('/meetings/analyze', { transcript, ...options }).then((res) => res.data),
+  extractMeetingActions: (transcript: string, projectContext?: string) =>
+    axiosInstance.post('/meetings/extract-actions', { transcript, projectContext }).then((res) => res.data),
+  generateMeetingSummary: (transcript: string, style?: 'executive' | 'detailed' | 'bullet-points') =>
+    axiosInstance.post('/meetings/summary', { transcript, style }).then((res) => res.data),
+  convertActionsToTasks: (actionItems: any[], options?: { projectId?: string }) =>
+    axiosInstance.post('/meetings/convert-to-tasks', { actionItems, ...options }).then((res) => res.data),
+  quickAnalyzeMeeting: (transcript: string, projectId?: string) =>
+    axiosInstance.post('/meetings/quick-analyze', { transcript, projectId }).then((res) => res.data),
+
+  // Focus Audio
+  getFocusTracks: () => axiosInstance.get('/focus/tracks').then((res) => res.data),
+  getRecommendedTracks: () => axiosInstance.get('/focus/tracks/recommended').then((res) => res.data),
+  getFocusModes: () => axiosInstance.get('/focus/modes').then((res) => res.data),
+  getFocusFavorites: () => axiosInstance.get('/focus/favorites').then((res) => res.data),
+  toggleFocusFavorite: (trackId: string) => axiosInstance.post(`/focus/favorites/${trackId}`).then((res) => res.data),
+  getFocusPreferences: () => axiosInstance.get('/focus/preferences').then((res) => res.data),
+  updateFocusPreferences: (data: any) => axiosInstance.patch('/focus/preferences', data).then((res) => res.data),
+  getFocusStats: () => axiosInstance.get('/focus/stats').then((res) => res.data),
+
+  // Team Workload
+  getWorkspaceWorkload: (workspaceId: string) => axiosInstance.get(`/workload/workspace/${workspaceId}`).then((res) => res.data),
+  getMemberWorkload: (userId: string, workspaceId?: string) =>
+    axiosInstance.get(`/workload/member/${userId}`, { params: { workspaceId } }).then((res) => res.data),
+  getMyWorkload: (workspaceId?: string) =>
+    axiosInstance.get('/workload/me', { params: { workspaceId } }).then((res) => res.data),
+  getWorkloadSuggestions: (workspaceId: string) =>
+    axiosInstance.get(`/workload/suggestions/${workspaceId}`).then((res) => res.data),
+
+  // Burnout Prevention
+  getBurnoutAnalysis: () => axiosInstance.get('/ai/burnout/analysis').then((res) => res.data),
+  getWorkPatterns: () => axiosInstance.get('/ai/burnout/patterns').then((res) => res.data),
+  getRestRecommendations: () => axiosInstance.get('/ai/burnout/recommendations').then((res) => res.data),
+  checkBurnoutIntervention: () => axiosInstance.get('/ai/burnout/intervention').then((res) => res.data),
+  getWeeklyWellbeingSummary: () => axiosInstance.get('/ai/burnout/weekly-summary').then((res) => res.data),
 };
+

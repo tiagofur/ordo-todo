@@ -4,6 +4,8 @@ import { ReactNode, useState } from "react";
 import { Sidebar } from "./sidebar";
 import { MobileSidebar } from "./mobile-sidebar";
 import { TopBar } from "./topbar";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { KeyboardShortcutsHelp } from "@/components/shortcuts/keyboard-shortcuts-help";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -11,6 +13,12 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const { showShortcutsHelp, setShowShortcutsHelp } = useKeyboardShortcuts({
+    enabled: true,
+    onToggleSidebar: () => setSidebarCollapsed((prev) => !prev),
+  });
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -25,6 +33,13 @@ export function AppLayout({ children }: AppLayoutProps) {
         <TopBar onMenuClick={() => setMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
       </div>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsHelp
+        open={showShortcutsHelp}
+        onOpenChange={setShowShortcutsHelp}
+      />
     </div>
   );
 }
+

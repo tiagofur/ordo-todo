@@ -24,6 +24,8 @@ interface TopBarProps {
   user?: TopBarUser | null;
   onLogout?: () => void;
   onSearchChange?: (query: string) => void;
+  /** Click handler for command palette style search */
+  onSearchClick?: () => void;
   onAICopilotClick?: () => void;
   onProfileClick?: () => void;
   onSettingsClick?: () => void;
@@ -59,6 +61,7 @@ export function TopBar({
   user,
   onLogout,
   onSearchChange,
+  onSearchClick,
   onAICopilotClick,
   onProfileClick,
   onSettingsClick,
@@ -93,21 +96,51 @@ export function TopBar({
       {/* Search */}
       <div className="flex flex-1 items-center gap-2">
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder={t.searchPlaceholder}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-            className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background hidden sm:block"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="sm:hidden h-10 w-10 rounded-xl"
-            title={t.searchPlaceholder}
-          >
-            <Search className="h-5 w-5" />
-          </Button>
+          {onSearchClick ? (
+            <>
+              {/* Clickable search trigger */}
+              <button
+                onClick={onSearchClick}
+                className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 text-left text-muted-foreground hidden sm:flex items-center justify-between group"
+              >
+                <span className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  <span>{t.searchPlaceholder}</span>
+                </span>
+                <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                  <span className="text-xs">⌘</span>K
+                </kbd>
+              </button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="sm:hidden h-10 w-10 rounded-xl"
+                title={t.searchPlaceholder}
+                onClick={onSearchClick}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            <>
+              {/* Original input-based search */}
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                placeholder={t.searchPlaceholder}
+                onChange={(e) => onSearchChange?.(e.target.value)}
+                className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background hidden sm:block"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="sm:hidden h-10 w-10 rounded-xl"
+                title={t.searchPlaceholder}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

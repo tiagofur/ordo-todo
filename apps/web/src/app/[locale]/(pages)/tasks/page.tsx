@@ -11,9 +11,11 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import { useTasks, useTags } from "@/lib/api-hooks";
+import { useTasks, useTags, useProjects } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
+import { QuickFilters, useQuickFilters, FilterPreset } from "@/components/tasks/quick-filters";
+import { ExportDataButton } from "@/components/data/export-data";
 import { motion } from "framer-motion";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
@@ -32,14 +34,20 @@ export default function TasksPage() {
   const tagId = searchParams.get("tag");
   const { data: tasks, isLoading } = useTasks();
   const { data: tags } = useTags(selectedWorkspaceId || "");
+  const { data: projects } = useProjects(selectedWorkspaceId || "");
+  const { filters, setFilters, applyFilters, hasActiveFilters } = useQuickFilters();
 
   // Filter tasks by tag if tagId is present
-  const filteredTasks =
-    tagId && tasks
-      ? tasks.filter((task: any) =>
-          task.tags?.some((tag: any) => tag.id === tagId)
-        )
-      : tasks;
+  let filteredTasks = tagId && tasks
+    ? tasks.filter((task: any) =>
+        task.tags?.some((tag: any) => tag.id === tagId)
+      )
+    : tasks;
+
+  // Apply quick filters
+  if (filteredTasks && hasActiveFilters) {
+    filteredTasks = applyFilters(filteredTasks);
+  }
 
   // Get the current tag info
   const currentTag =
@@ -47,6 +55,10 @@ export default function TasksPage() {
 
   const clearTagFilter = () => {
     router.push("/tasks");
+  };
+
+  const handlePresetSelect = (preset: FilterPreset) => {
+    setFilters(preset.filters);
   };
 
   return (
@@ -98,6 +110,12 @@ export default function TasksPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Export button */}
+            <ExportDataButton
+              data={{ tasks: tasks || [], projects: projects || [] }}
+              filename="ordo-tasks"
+            />
+
             {/* View mode toggle */}
             <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
               <button
@@ -135,6 +153,13 @@ export default function TasksPage() {
             </button>
           </div>
         </div>
+
+        {/* Quick Filters */}
+        <QuickFilters
+          activeFilters={filters}
+          onFiltersChange={setFilters}
+          onPresetSelect={handlePresetSelect}
+        />
 
         {/* Tasks Grid/List */}
         {isLoading ? (
@@ -188,20 +213,32 @@ export default function TasksPage() {
               <CheckSquare className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">
-              {currentTag ? t("noTasksWithTag") : t("allClear")}
+              {currentTag ? t("noTasksWithTag") : hasActiveFilters ? "Sin resultados" : t("allClear")}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
               {currentTag
                 ? t("noTasksWithTagDescription", { tagName: currentTag.name })
+                : hasActiveFilters
+                ? "No hay tareas que coincidan con los filtros seleccionados"
                 : t("noPendingTasks")}
             </p>
-            <button
-              onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105"
-            >
-              <Plus className="h-4 w-4" />
-              {t("newTask")}
-            </button>
+            {hasActiveFilters ? (
+              <button
+                onClick={() => setFilters({})}
+                className="flex items-center gap-2 rounded-xl bg-purple-500/10 text-purple-500 px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-purple-500/20"
+              >
+                <X className="h-4 w-4" />
+                Limpiar filtros
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowCreateTask(true)}
+                className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105"
+              >
+                <Plus className="h-4 w-4" />
+                {t("newTask")}
+              </button>
+            )}
           </motion.div>
         )}
       </div>
@@ -213,3 +250,4 @@ export default function TasksPage() {
     </AppLayout>
   );
 }
+

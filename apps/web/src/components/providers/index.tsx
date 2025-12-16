@@ -9,6 +9,7 @@ import { TimerProvider } from "./timer-provider";
 import { TimerSettingsProvider } from "./timer-settings-provider";
 import { DevToolsProvider } from "./devtools-provider";
 import { DevToolsPanel } from "@/components/devtools";
+import { AIFeaturesTourProvider } from "@/components/onboarding/ai-features-tour";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -41,8 +42,10 @@ export function Providers({ children }: ProvidersProps) {
           <TimerSettingsProvider>
             <TimerProvider>
               <DevToolsProvider>
-                {children}
-                <Toaster richColors position="top-right" />
+                <AIFeaturesTourProvider>
+                  {children}
+                  <Toaster richColors position="top-right" />
+                </AIFeaturesTourProvider>
                 {/* DevTools only in development */}
                 {process.env.NODE_ENV === 'development' && <DevToolsPanel />}
               </DevToolsProvider>

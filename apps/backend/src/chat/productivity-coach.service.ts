@@ -50,7 +50,7 @@ export class ProductivityCoachService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geminiAI: GeminiAIService,
-  ) {}
+  ) { }
 
   /**
    * Build comprehensive context for AI prompt
@@ -124,6 +124,7 @@ export class ProductivityCoachService {
 
   /**
    * Generate proactive insights based on user's current state
+   * Enhanced with more insight types for wellbeing and productivity
    */
   async getProactiveInsights(userId: string): Promise<
     Array<{
@@ -160,7 +161,29 @@ export class ProductivityCoachService {
       });
     }
 
-    // Check peak hours
+    // Check for workload imbalance (too many urgent tasks)
+    const urgentTasks = context.pendingTasks.filter(
+      (t) => t.priority === 'URGENT',
+    );
+    if (urgentTasks.length >= 5) {
+      insights.push({
+        type: 'WORKLOAD_IMBALANCE',
+        message: `Tienes ${urgentTasks.length} tareas urgentes. Considera priorizar o delegar algunas.`,
+        priority: 'HIGH',
+        actionable: true,
+        action: { type: 'SHOW_URGENT_TASKS', data: { count: urgentTasks.length } },
+      });
+    } else if (context.pendingTasks.length > 15) {
+      insights.push({
+        type: 'WORKLOAD_IMBALANCE',
+        message: `Tienes ${context.pendingTasks.length} tareas pendientes. ¿Quieres ayuda para priorizar?`,
+        priority: 'MEDIUM',
+        actionable: true,
+        action: { type: 'PRIORITIZE_TASKS', data: {} },
+      });
+    }
+
+    // Check peak hours for energy optimization
     const currentHour = new Date().getHours();
     if (context.profile.peakHours.includes(currentHour)) {
       const urgentTask = context.pendingTasks.find(
@@ -175,13 +198,27 @@ export class ProductivityCoachService {
           action: { type: 'START_TASK', data: { taskId: urgentTask.id } },
         });
       }
+    } else if (currentHour >= 14 && currentHour <= 16 && !context.activeTimer?.isActive) {
+      // Post-lunch energy dip suggestion
+      const easyTask = context.pendingTasks.find(
+        (t) => t.priority === 'LOW' || t.priority === 'MEDIUM',
+      );
+      if (easyTask && context.profile.peakHours.length > 0) {
+        insights.push({
+          type: 'ENERGY_OPTIMIZATION',
+          message: 'El bajón de energía post-almuerzo es normal. Considera tareas más ligeras ahora.',
+          priority: 'LOW',
+          actionable: true,
+          action: { type: 'SUGGEST_TASK', data: { taskId: easyTask.id } },
+        });
+      }
     }
 
     // Check for long work session
     if (context.activeTimer?.isActive && context.activeTimer.startedAt) {
       const sessionMinutes = Math.floor(
         (Date.now() - new Date(context.activeTimer.startedAt).getTime()) /
-          60000,
+        60000,
       );
       if (sessionMinutes > 90) {
         insights.push({
@@ -194,13 +231,44 @@ export class ProductivityCoachService {
       }
     }
 
+    // Rest suggestion for late hours
+    const lateHour = currentHour >= 22 || currentHour < 6;
+    if (lateHour && context.activeTimer?.isActive) {
+      insights.push({
+        type: 'REST_SUGGESTION',
+        message: 'Es tarde. El descanso es fundamental para la productividad de mañana.',
+        priority: 'HIGH',
+        actionable: true,
+        action: { type: 'END_DAY', data: {} },
+      });
+    } else if (currentHour >= 20 && context.timerStats.todayMinutes > 480) {
+      // More than 8 hours worked today
+      insights.push({
+        type: 'REST_SUGGESTION',
+        message: `Has trabajado ${Math.round(context.timerStats.todayMinutes / 60)} horas hoy. Es momento de desconectar.`,
+        priority: 'MEDIUM',
+        actionable: false,
+      });
+    }
+
     // Celebrate completions
     if (context.todayCompleted >= 5 && context.todayCompleted % 5 === 0) {
       insights.push({
-        type: 'CELEBRATION',
+        type: 'ACHIEVEMENT_CELEBRATION',
         message: `¡Excelente! Has completado ${context.todayCompleted} tareas hoy. ¡Sigue así! 🎉`,
         priority: 'LOW',
         actionable: false,
+      });
+    }
+
+    // First task of the day motivation
+    if (context.todayCompleted === 0 && context.pendingTasks.length > 0 && currentHour >= 8 && currentHour <= 11) {
+      insights.push({
+        type: 'STREAK_MOTIVATION',
+        message: '¡Buenos días! Completar una tarea temprano establece un buen ritmo para el día.',
+        priority: 'LOW',
+        actionable: true,
+        action: { type: 'START_FIRST_TASK', data: {} },
       });
     }
 
@@ -212,6 +280,17 @@ export class ProductivityCoachService {
       insights.push({
         type: 'STREAK_MILESTONE',
         message: `¡Racha de ${context.profile.currentStreak} días! Tu consistencia está pagando dividendos.`,
+        priority: 'LOW',
+        actionable: false,
+      });
+    }
+
+    // Weekly progress check (only on Fridays)
+    const dayOfWeek = new Date().getDay();
+    if (dayOfWeek === 5 && context.timerStats.weeklyHours >= 30) {
+      insights.push({
+        type: 'WEEKLY_ACCOMPLISHMENT',
+        message: `¡Gran semana! Has trabajado ${context.timerStats.weeklyHours.toFixed(1)} horas enfocadas.`,
         priority: 'LOW',
         actionable: false,
       });
@@ -236,12 +315,12 @@ CONTEXTO ACTUAL DEL USUARIO:
 
 TAREAS PENDIENTES PRIORITARIAS:
 ${context.pendingTasks
-  .slice(0, 5)
-  .map(
-    (t) =>
-      `- [${t.priority}] "${t.title}"${t.dueDate ? ` (vence: ${new Date(t.dueDate).toLocaleDateString()})` : ''}`,
-  )
-  .join('\n')}
+        .slice(0, 5)
+        .map(
+          (t) =>
+            `- [${t.priority}] "${t.title}"${t.dueDate ? ` (vence: ${new Date(t.dueDate).toLocaleDateString()})` : ''}`,
+        )
+        .join('\n')}
 
 TUS CAPACIDADES:
 1. Responder preguntas sobre productividad

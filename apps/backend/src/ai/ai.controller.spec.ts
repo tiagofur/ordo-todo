@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AIController } from './ai.controller';
 import { AIService } from './ai.service';
+import { BurnoutPreventionService } from './burnout-prevention.service';
 
 describe('AIController', () => {
   let controller: AIController;
@@ -27,12 +28,24 @@ describe('AIController', () => {
       getModelStats: jest.fn(),
     };
 
+    const mockBurnoutService = {
+      analyzeWorkPatterns: jest.fn(),
+      analyzeBurnoutRisk: jest.fn(),
+      getRestRecommendations: jest.fn(),
+      checkForIntervention: jest.fn(),
+      generateWeeklyWellbeingSummary: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AIController],
       providers: [
         {
           provide: AIService,
           useValue: mockAIService,
+        },
+        {
+          provide: BurnoutPreventionService,
+          useValue: mockBurnoutService,
         },
       ],
     }).compile();

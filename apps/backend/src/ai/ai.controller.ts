@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { AIService } from './ai.service';
+import { BurnoutPreventionService } from './burnout-prevention.service';
 import {
   AIChatDto,
   AIParseTaskDto,
@@ -22,7 +23,10 @@ import {
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
 export class AIController {
-  constructor(private readonly aiService: AIService) { }
+  constructor(
+    private readonly aiService: AIService,
+    private readonly burnoutService: BurnoutPreventionService,
+  ) { }
 
   // ============ AI CHAT ============
 
@@ -60,6 +64,53 @@ export class AIController {
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
     );
+  }
+
+  // ============ BURNOUT PREVENTION ============
+
+  /**
+   * Get comprehensive burnout risk analysis
+   * Returns risk level, score, patterns, warnings, and AI insights
+   */
+  @Get('burnout/analysis')
+  async getBurnoutAnalysis(@CurrentUser() user: RequestUser) {
+    return this.burnoutService.analyzeBurnoutRisk(user.id);
+  }
+
+  /**
+   * Get work pattern analysis for the last N days
+   */
+  @Get('burnout/patterns')
+  async getWorkPatterns(
+    @CurrentUser() user: RequestUser,
+    @Query('days') days?: string,
+  ) {
+    const parsedDays = days ? parseInt(days, 10) : 14;
+    return this.burnoutService.analyzeWorkPatterns(user.id, parsedDays);
+  }
+
+  /**
+   * Get personalized rest recommendations based on current state
+   */
+  @Get('burnout/recommendations')
+  async getRestRecommendations(@CurrentUser() user: RequestUser) {
+    return this.burnoutService.getRestRecommendations(user.id);
+  }
+
+  /**
+   * Check if user needs an intervention (for proactive notifications)
+   */
+  @Get('burnout/intervention')
+  async checkIntervention(@CurrentUser() user: RequestUser) {
+    return this.burnoutService.checkForIntervention(user.id);
+  }
+
+  /**
+   * Get weekly wellbeing summary with metrics and insights
+   */
+  @Get('burnout/weekly-summary')
+  async getWeeklyWellbeingSummary(@CurrentUser() user: RequestUser) {
+    return this.burnoutService.generateWeeklyWellbeingSummary(user.id);
   }
 
   // ============ WORKFLOW SUGGESTIONS ============

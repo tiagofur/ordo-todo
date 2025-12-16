@@ -1896,6 +1896,182 @@
       "EMAIL": "Email",
       "CHECKBOX": "Caixa de Seleção"
     }
+  },
+  "Focus": {
+    "title": "Foco",
+    "subtitle": "Sessões de trabalho focado com áudio ambiente",
+    "startSession": "Iniciar Sessão",
+    "endSession": "Encerrar Sessão",
+    "ambientAudio": "Áudio Ambiente",
+    "selectTrack": "Selecione um som",
+    "noTrack": "Sem som",
+    "volume": "Volume",
+    "favorites": "Favoritos",
+    "addToFavorites": "Adicionar aos favoritos",
+    "removeFromFavorites": "Remover dos favoritos",
+    "categories": {
+      "nature": "Natureza",
+      "cafe": "Café",
+      "whiteNoise": "Ruído Branco",
+      "binaural": "Binaural",
+      "music": "Música"
+    },
+    "tracks": {
+      "rain": "Chuva",
+      "thunderstorm": "Tempestade",
+      "forest": "Floresta",
+      "ocean": "Ondas do Mar",
+      "river": "Rio",
+      "cafe": "Café",
+      "library": "Biblioteca",
+      "whiteNoise": "Ruído Branco",
+      "pinkNoise": "Ruído Rosa",
+      "brownNoise": "Ruído Marrom",
+      "binaural": "Beats Binaurais",
+      "lofi": "Lo-Fi"
+    },
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "deepWork": "Trabalho Profundo",
+      "flow": "Estado de Flow",
+      "sprint": "Sprint"
+    },
+    "modeDescriptions": {
+      "pomodoro": "25 min trabalho, 5 min pausa",
+      "deepWork": "50 min trabalho, 10 min pausa",
+      "flow": "90 min trabalho intenso",
+      "sprint": "15 min trabalho rápido"
+    },
+    "stats": {
+      "totalSessions": "Total de Sessões",
+      "totalMinutes": "Minutos de Foco",
+      "avgSession": "Sessão Média",
+      "streakDays": "Dias de Sequência"
+    }
+  },
+  "Search": {
+    "title": "Busca",
+    "placeholder": "Buscar tarefas, projetos, hábitos...",
+    "placeholderWithAI": "Buscar com linguagem natural (IA)",
+    "noResults": "Nenhum resultado encontrado",
+    "noResultsDescription": "Tente outros termos ou verifique a ortografia",
+    "suggestions": "Sugestões",
+    "results": "resultados",
+    "navigate": "navegar",
+    "select": "selecionar",
+    "close": "fechar",
+    "aiPowered": "Potenciado por IA",
+    "types": {
+      "task": "Tarefa",
+      "project": "Projeto",
+      "habit": "Hábito"
+    },
+    "filters": {
+      "all": "Todos",
+      "tasks": "Tarefas",
+      "projects": "Projetos",
+      "habits": "Hábitos"
+    }
+  },
+  "Meetings": {
+    "title": "Assistente de Reuniões",
+    "subtitle": "Analise transcrições e extraia itens de ação",
+    "analyze": "Analisar",
+    "analyzing": "Analisando...",
+    "transcriptPlaceholder": "Cole a transcrição da sua reunião aqui...",
+    "summary": "Resumo",
+    "keyPoints": "Pontos Principais",
+    "actionItems": "Itens de Ação",
+    "decisions": "Decisões",
+    "participants": "Participantes",
+    "topics": "Tópicos Discutidos",
+    "sentiment": "Sentimento",
+    "followUpRequired": "Acompanhamento Necessário",
+    "convertToTasks": "Converter em Tarefas",
+    "converting": "Convertendo...",
+    "tasksCreated": "{count} tarefas criadas",
+    "noActionItems": "Nenhum item de ação encontrado",
+    "sentiments": {
+      "POSITIVE": "Positivo",
+      "NEUTRAL": "Neutro",
+      "NEGATIVE": "Negativo",
+      "MIXED": "Misto"
+    },
+    "summaryStyles": {
+      "executive": "Executivo",
+      "detailed": "Detalhado",
+      "bulletPoints": "Pontos"
+    }
+  },
+  "Workload": {
+    "title": "Carga de Trabalho",
+    "subtitle": "Monitore e equilibre a carga da equipe",
+    "myWorkload": "Minha Carga",
+    "teamWorkload": "Carga da Equipe",
+    "assignedTasks": "Tarefas Atribuídas",
+    "completedTasks": "Concluídas",
+    "overdueTasks": "Atrasadas",
+    "hoursThisWeek": "Horas esta semana",
+    "capacityRemaining": "Capacidade disponível",
+    "workloadScore": "Pontuação de Carga",
+    "trend": "Tendência",
+    "levels": {
+      "LOW": "Baixa",
+      "MODERATE": "Moderada",
+      "HIGH": "Alta",
+      "OVERLOADED": "Sobrecarregado"
+    },
+    "trends": {
+      "INCREASING": "Aumentando",
+      "STABLE": "Estável",
+      "DECREASING": "Diminuindo"
+    },
+    "suggestions": {
+      "title": "Sugestões",
+      "redistribute": "Redistribuir tarefas",
+      "delegate": "Delegar",
+      "prioritize": "Priorizar"
+    },
+    "distribution": {
+      "overloaded": "Sobrecarregados",
+      "balanced": "Equilibrados",
+      "underutilized": "Subutilizados"
+    }
+  },
+  "Wellbeing": {
+    "title": "Bem-Estar",
+    "subtitle": "Prevenção de burnout e equilíbrio vida-trabalho",
+    "burnoutRisk": "Risco de Burnout",
+    "workLifeBalance": "Equilíbrio Vida-Trabalho",
+    "focusQuality": "Qualidade do Foco",
+    "consistencyScore": "Consistência",
+    "riskLevels": {
+      "LOW": "Baixo",
+      "MODERATE": "Moderado",
+      "HIGH": "Alto",
+      "CRITICAL": "Crítico"
+    },
+    "recommendations": {
+      "title": "Recomendações",
+      "takeBreak": "Faça uma pausa",
+      "endDay": "Considere encerrar seu dia",
+      "weekend": "Evite trabalhar no fim de semana",
+      "lateNight": "Evite trabalhar tarde da noite"
+    },
+    "patterns": {
+      "title": "Padrões de Trabalho",
+      "lateNightWork": "Trabalho Noturno",
+      "weekendWork": "Trabalho no Fim de Semana",
+      "longSessions": "Sessões Longas",
+      "avgHoursPerDay": "Média de Horas/Dia"
+    },
+    "weeklySummary": "Resumo Semanal",
+    "insights": "Insights",
+    "intervention": {
+      "gentleReminder": "Lembrete Suave",
+      "strongWarning": "Aviso",
+      "criticalAlert": "Alerta Crítico"
+    }
   }
 }
 

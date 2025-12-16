@@ -32,6 +32,7 @@ import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-wid
 import { ProductivityStreakWidget } from "@/components/dashboard/productivity-streak-widget";
 import { HabitsWidget } from "@/components/dashboard/habits-widget";
 import { OkrWidget } from "@/components/dashboard/okr-widget";
+import { AIInsightsWidget } from "@/components/dashboard/ai-insights-widget";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useRouter } from "next/navigation";
@@ -356,6 +357,9 @@ export default function DashboardPage() {
           <HabitsWidget />
           <OkrWidget />
         </div>
+
+        {/* AI Insights Widget */}
+        <AIInsightsWidget className="w-full" />
 
         {/* Tasks Section */}
         <motion.div
