@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { motion } from "framer-motion";
 import { UsernameInput } from "@ordo-todo/ui";
 import { useUsernameValidation } from "@ordo-todo/hooks";
+import { apiClient } from "@/lib/api-client";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -38,10 +39,11 @@ export default function SignUpPage() {
     confirmPassword: "",
   });
 
-  // Mock API client for username validation - replace with actual API client
-  const mockApiClient = {} as any;
+  // Real API client for username validation
   const { validationResult } = useUsernameValidation({
-    apiClient: mockApiClient,
+    apiClient: {
+      checkUsernameAvailability: apiClient.checkUsernameAvailability,
+    },
   });
 
   // Password strength calculation
@@ -194,7 +196,9 @@ export default function SignUpPage() {
             <UsernameInput
               value={formData.username}
               onChange={(value) => setFormData({ ...formData, username: value })}
-              apiClient={mockApiClient}
+              apiClient={{
+                checkUsernameAvailability: apiClient.checkUsernameAvailability,
+              }}
               label="Nombre de Usuario"
               placeholder="usuario123"
               required={true}

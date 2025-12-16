@@ -74,13 +74,26 @@ export function SimpleUsernameInput({
         return;
       }
 
-      // Simulate API check with timeout
+      // Real API check with timeout for debouncing
       const timeout = setTimeout(async () => {
-        // For now, assume all valid usernames are available
-        // TODO: Implement real API call to check-username endpoint
-        setValidationMessage('Username is available');
-        setIsValid(true);
-        setIsValidating(false);
+        try {
+          const { apiClient } = await import('../../lib/api-client');
+          const result = await apiClient.checkUsernameAvailability(value);
+
+          if (result.available) {
+            setValidationMessage('Username is available');
+            setIsValid(true);
+          } else {
+            setValidationMessage(result.message || 'Username is not available');
+            setIsValid(false);
+          }
+        } catch (error) {
+          console.error('Error checking username availability:', error);
+          setValidationMessage('Could not verify username availability');
+          setIsValid(false);
+        } finally {
+          setIsValidating(false);
+        }
       }, 500);
 
       return () => clearTimeout(timeout);

@@ -319,6 +319,7 @@ export const apiClient = {
     return axiosInstance.post('/auth/logout').then((res) => res.data);
   },
   refreshToken: (data: RefreshTokenDto) => axiosInstance.post('/auth/refresh', data).then((res) => res.data),
+  checkUsernameAvailability: (username: string) => axiosInstance.post('/auth/check-username', { username }).then((res) => res.data),
 
   // User
   getCurrentUser: () => axiosInstance.get('/users/me').then((res) => res.data),
