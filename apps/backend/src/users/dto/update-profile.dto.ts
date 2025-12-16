@@ -4,6 +4,7 @@ import {
   MinLength,
   MaxLength,
   IsUrl,
+  Matches,
 } from 'class-validator';
 
 export class UpdateProfileDto {
@@ -16,7 +17,10 @@ export class UpdateProfileDto {
   @IsString()
   @IsOptional()
   @MinLength(3)
-  @MaxLength(30)
+  @MaxLength(20)
+  @Matches(/^[a-z0-9_-]+$/, {
+    message: 'Username can only contain lowercase letters, numbers, hyphens, and underscores',
+  })
   username?: string;
 
   @IsString()

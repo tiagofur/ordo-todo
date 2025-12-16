@@ -347,6 +347,15 @@ export class OrdoApiClient {
   }
 
   /**
+   * Check if a username is available
+   * POST /auth/check-username
+   */
+  async checkUsernameAvailability(username: string): Promise<{ available: boolean; message?: string }> {
+    const response = await this.axios.post<{ available: boolean; message?: string }>('/auth/check-username', { username });
+    return response.data;
+  }
+
+  /**
    * Logout (clear tokens from storage)
    * This is a client-side only operation
    */

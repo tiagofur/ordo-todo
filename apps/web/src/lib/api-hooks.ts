@@ -71,6 +71,7 @@ export const queryKeys = {
   userProfile: ['user', 'profile'] as const,
   userPreferences: ['user', 'preferences'] as const,
   userIntegrations: ['user', 'integrations'] as const,
+  usernameAvailability: (username: string) => ['auth', 'username', username] as const,
 
   // Workspaces
   workspaces: ['workspaces'] as const,
@@ -185,6 +186,16 @@ export function useUpdateProfile() {
       queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
       queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
     },
+  });
+}
+
+export function useCheckUsernameAvailability(username: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: queryKeys.usernameAvailability(username),
+    queryFn: () => apiClient.checkUsernameAvailability(username),
+    enabled: (options?.enabled ?? true) && username.length >= 3,
+    staleTime: 30000, // Consider fresh for 30 seconds
+    retry: false,
   });
 }
 

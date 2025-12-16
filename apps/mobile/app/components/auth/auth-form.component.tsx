@@ -25,6 +25,8 @@ import Logo from "../shared/logo.component";
 import CustomTextInput from "../shared/text-input.component";
 import PasswordInput from "../shared/password-input.component";
 import CustomButton from "../shared/button.component";
+import UsernameInput from "./username-input.component";
+import { apiClient } from "../../lib/api-client";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 
 export default function AuthForm() {
@@ -150,21 +152,13 @@ export default function AuthForm() {
                     />
                   </Animated.View>
 
-                  <Animated.View entering={FadeInDown.delay(50).springify()}>
-                    <CustomTextInput
-                      label="Nome de usuário"
-                      placeholder="usuario123"
-                      value={username}
-                      onChangeText={(text) => setUsername(text.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                      leftIcon={
-                        <Feather name="at-sign" size={20} color={colors.textMuted} />
-                      }
-                      autoCapitalize="none"
-                    />
-                    <Text style={[styles.helperText, { color: colors.textMuted }]}>
-                      Solo letras minúsculas, números, guiones y guiones bajos. Mínimo 3 caracteres.
-                    </Text>
-                  </Animated.View>
+                  <UsernameInput
+                    value={username}
+                    onChangeText={setUsername}
+                    label="Nome de usuário"
+                    placeholder="usuario123"
+                    checkAvailability={(username) => apiClient.checkUsernameAvailability(username)}
+                  />
                 </>
               )}
 
