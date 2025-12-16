@@ -66,4 +66,4 @@ async function bootstrap() {
   );
 }
 bootstrap();
-// CORS updated
+// Build: 2025-12-16 - rxjs dependency fix
