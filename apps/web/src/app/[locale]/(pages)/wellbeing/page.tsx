@@ -27,12 +27,14 @@ import { AppLayout } from "@/components/shared/app-layout";
 interface BurnoutAnalysis {
   riskScore: number;
   riskLevel: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
-  factors: {
-    factor: string;
-    impact: "POSITIVE" | "NEGATIVE" | "NEUTRAL";
-    description: string;
+  warnings: {
+    type: string;
+    severity: "MILD" | "MODERATE" | "SEVERE";
+    message: string;
+    recommendation: string;
   }[];
-  recommendations: string[];
+  aiInsights?: string;
+  patterns: any;
 }
 
 interface WorkPattern {
@@ -45,12 +47,11 @@ interface WorkPattern {
 }
 
 interface WeeklySummary {
-  weekNumber: number;
   overallScore: number;
   trend: "IMPROVING" | "STABLE" | "DECLINING";
   highlights: string[];
   concerns: string[];
-  tip: string;
+  recommendations: string[];
 }
 
 export default function WellbeingPage() {
@@ -60,7 +61,7 @@ export default function WellbeingPage() {
   const [burnout, setBurnout] = useState<BurnoutAnalysis | null>(null);
   const [patterns, setPatterns] = useState<WorkPattern | null>(null);
   const [weekly, setWeekly] = useState<WeeklySummary | null>(null);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   const fetchData = async () => {
     setIsRefreshing(true);
@@ -75,7 +76,7 @@ export default function WellbeingPage() {
       if (burnoutRes.status === "fulfilled") setBurnout(burnoutRes.value);
       if (patternsRes.status === "fulfilled") setPatterns(patternsRes.value);
       if (weeklyRes.status === "fulfilled") setWeekly(weeklyRes.value);
-      if (recsRes.status === "fulfilled") setRecommendations(recsRes.value.recommendations || []);
+      if (recsRes.status === "fulfilled") setRecommendations(Array.isArray(recsRes.value) ? recsRes.value : []);
     } catch (error) {
       console.error("Failed to fetch wellbeing data:", error);
     } finally {
@@ -219,16 +220,16 @@ export default function WellbeingPage() {
                 <div className="flex-1">
                   <h4 className="font-medium mb-2">Factores Detectados</h4>
                   <div className="space-y-2">
-                    {burnout.factors.slice(0, 3).map((factor, idx) => (
+                    {burnout.warnings.slice(0, 3).map((warning, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-sm">
-                        {factor.impact === "NEGATIVE" ? (
+                        {warning.severity === "SEVERE" ? (
                           <AlertTriangle className="h-4 w-4 text-red-500" />
-                        ) : factor.impact === "POSITIVE" ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        ) : warning.severity === "MODERATE" ? (
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
                         ) : (
-                          <Minus className="h-4 w-4 text-yellow-500" />
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
                         )}
-                        <span className="text-muted-foreground">{factor.factor}</span>
+                        <span className="text-muted-foreground">{warning.message}</span>
                       </div>
                     ))}
                   </div>
@@ -236,17 +237,17 @@ export default function WellbeingPage() {
               </div>
 
               {/* Quick recommendations */}
-              {burnout.recommendations.length > 0 && (
+              {burnout.warnings.length > 0 && (
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-2 flex items-center gap-2">
                     <Brain className="h-4 w-4" />
-                    Recomendaciones
+                    Sugerencias Inmediatas
                   </h4>
                   <ul className="grid gap-2">
-                    {burnout.recommendations.slice(0, 3).map((rec, idx) => (
+                    {burnout.warnings.slice(0, 3).map((warning, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                        {rec}
+                        {warning.recommendation}
                       </li>
                     ))}
                   </ul>
@@ -372,12 +373,12 @@ export default function WellbeingPage() {
                 )}
               </div>
 
-              {/* Tip */}
-              {weekly.tip && (
+              {/* Recommendations */}
+              {weekly.recommendations && weekly.recommendations.length > 0 && (
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <p className="text-sm flex items-start gap-2">
                     <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>{weekly.tip}</span>
+                    <span>{weekly.recommendations[0]}</span>
                   </p>
                 </div>
               )}
@@ -404,7 +405,12 @@ export default function WellbeingPage() {
                     <div className="p-2 rounded-full bg-primary/10">
                       <Heart className="h-4 w-4 text-primary" />
                     </div>
-                    <p className="text-sm text-muted-foreground flex-1">{rec}</p>
+                    <div>
+                      <p className="text-sm font-medium">{rec.message}</p>
+                      {rec.suggestedAction && (
+                        <p className="text-xs text-muted-foreground mt-1">{rec.suggestedAction}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -21,7 +21,11 @@
     "analytics": "Análises",
     "settings": "Configurações",
     "installApp": "Instalar App",
-    "goals": "Metas"
+    "goals": "Metas",
+    "eisenhower": "Eisenhower",
+    "meetings": "Reuniões",
+    "wellbeing": "Bem-estar",
+    "workload": "Carga de Trabalho"
   },
   "Settings": {
     "title": "Configurações",

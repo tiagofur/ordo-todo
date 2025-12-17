@@ -24,15 +24,15 @@ import { useWorkspaces } from "@/lib/api-hooks";
 
 interface MemberWorkload {
   userId: string;
-  name: string;
-  email: string;
-  image?: string;
+  userName: string;
+  userEmail: string;
+  avatarUrl?: string;
   workloadScore: number;
-  taskCount: number;
-  completedToday: number;
-  hoursLogged: number;
+  assignedTasks: number;
+  completedTasks: number;
+  hoursWorkedThisWeek: number;
   trend: "INCREASING" | "STABLE" | "DECREASING";
-  status: "UNDERLOADED" | "OPTIMAL" | "OVERLOADED" | "CRITICAL";
+  workloadLevel: "LOW" | "MODERATE" | "HIGH" | "OVERLOADED";
 }
 
 interface WorkloadSuggestion {
@@ -48,8 +48,8 @@ interface TeamWorkloadData {
   workspaceName: string;
   members: MemberWorkload[];
   averageWorkload: number;
-  balanceScore: number;
-  suggestions: WorkloadSuggestion[];
+  balanceScore?: number;
+  redistributionSuggestions: WorkloadSuggestion[];
 }
 
 export default function WorkloadPage() {
@@ -88,20 +88,20 @@ export default function WorkloadPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "UNDERLOADED": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-500/10" };
-      case "OPTIMAL": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-500/10" };
-      case "OVERLOADED": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-500/10" };
-      case "CRITICAL": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-500/10" };
+      case "LOW": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-500/10" };
+      case "MODERATE": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-500/10" };
+      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-500/10" };
+      case "OVERLOADED": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-500/10" };
       default: return { bg: "bg-gray-500", text: "text-gray-500", light: "bg-gray-500/10" };
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "UNDERLOADED": return "Baja carga";
-      case "OPTIMAL": return "Óptimo";
-      case "OVERLOADED": return "Sobrecargado";
-      case "CRITICAL": return "Crítico";
+      case "LOW": return "Baja carga";
+      case "MODERATE": return "Óptimo";
+      case "HIGH": return "Sobrecargado";
+      case "OVERLOADED": return "Crítico";
       default: return status;
     }
   };
@@ -214,17 +214,17 @@ export default function WorkloadPage() {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "p-2 rounded-lg",
-                    workloadData.balanceScore >= 70 ? "bg-green-500/10" : 
-                    workloadData.balanceScore >= 40 ? "bg-yellow-500/10" : "bg-red-500/10"
+                    (workloadData.balanceScore ?? 100) >= 70 ? "bg-green-500/10" : 
+                    (workloadData.balanceScore ?? 100) >= 40 ? "bg-yellow-500/10" : "bg-red-500/10"
                   )}>
                     <CheckCircle2 className={cn(
                       "h-5 w-5",
-                      workloadData.balanceScore >= 70 ? "text-green-500" : 
-                      workloadData.balanceScore >= 40 ? "text-yellow-500" : "text-red-500"
+                      (workloadData.balanceScore ?? 100) >= 70 ? "text-green-500" : 
+                      (workloadData.balanceScore ?? 100) >= 40 ? "text-yellow-500" : "text-red-500"
                     )} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{workloadData.balanceScore}%</p>
+                    <p className="text-2xl font-bold">{workloadData.balanceScore ?? 100}%</p>
                     <p className="text-xs text-muted-foreground">Balance del equipo</p>
                   </div>
                 </div>
@@ -232,7 +232,7 @@ export default function WorkloadPage() {
             </div>
 
             {/* AI Suggestions */}
-            {workloadData.suggestions.length > 0 && (
+            {workloadData.redistributionSuggestions && workloadData.redistributionSuggestions.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -242,29 +242,21 @@ export default function WorkloadPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {workloadData.suggestions.map((suggestion, idx) => (
+                    {workloadData.redistributionSuggestions.map((suggestion: any, idx) => (
                       <div
                         key={idx}
                         className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
                       >
                         <div className={cn(
-                          "p-2 rounded-lg",
-                          suggestion.type === "URGENT_HELP" ? "bg-red-500/10" :
-                          suggestion.type === "REDISTRIBUTE" ? "bg-orange-500/10" : "bg-blue-500/10"
+                          "p-2 rounded-lg bg-orange-500/10"
                         )}>
-                          {suggestion.type === "URGENT_HELP" ? (
-                            <AlertTriangle className="h-4 w-4 text-red-500" />
-                          ) : suggestion.type === "REDISTRIBUTE" ? (
-                            <Users className="h-4 w-4 text-orange-500" />
-                          ) : (
-                            <BarChart3 className="h-4 w-4 text-blue-500" />
-                          )}
+                          <Users className="h-4 w-4 text-orange-500" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm">{suggestion.message}</p>
-                          {suggestion.fromMember && suggestion.toMember && (
+                          <p className="text-sm">{suggestion.reason}</p>
+                          {suggestion.fromUserName && suggestion.toUserName && (
                             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                              {suggestion.fromMember} <ChevronRight className="h-3 w-3" /> {suggestion.toMember}
+                              {suggestion.fromUserName} <ChevronRight className="h-3 w-3" /> {suggestion.toUserName}
                               {suggestion.taskCount && ` (${suggestion.taskCount} tareas)`}
                             </p>
                           )}
@@ -296,15 +288,15 @@ export default function WorkloadPage() {
                     >
                       {/* Avatar */}
                       <div className="flex-shrink-0">
-                        {member.image ? (
+                        {member.avatarUrl ? (
                           <img
-                            src={member.image}
-                            alt={member.name}
+                            src={member.avatarUrl}
+                            alt={member.userName}
                             className="h-12 w-12 rounded-full object-cover"
                           />
                         ) : (
                           <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg">
-                            {member.name[0]?.toUpperCase()}
+                            {member.userName?.[0]?.toUpperCase()}
                           </div>
                         )}
                       </div>
@@ -312,24 +304,24 @@ export default function WorkloadPage() {
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-medium truncate">{member.name}</h3>
+                          <h3 className="font-medium truncate">{member.userName}</h3>
                           {getTrendIcon(member.trend)}
                         </div>
-                        <p className="text-sm text-muted-foreground truncate">{member.email}</p>
+                        <p className="text-sm text-muted-foreground truncate">{member.userEmail}</p>
                       </div>
 
                       {/* Stats */}
                       <div className="hidden sm:flex items-center gap-6 text-sm">
                         <div className="text-center">
-                          <p className="font-medium">{member.taskCount}</p>
+                          <p className="font-medium">{member.assignedTasks}</p>
                           <p className="text-xs text-muted-foreground">Tareas</p>
                         </div>
                         <div className="text-center">
-                          <p className="font-medium">{member.completedToday}</p>
+                          <p className="font-medium">{member.completedTasks}</p>
                           <p className="text-xs text-muted-foreground">Hoy</p>
                         </div>
                         <div className="text-center">
-                          <p className="font-medium">{member.hoursLogged}h</p>
+                          <p className="font-medium">{member.hoursWorkedThisWeek}h</p>
                           <p className="text-xs text-muted-foreground">Horas</p>
                         </div>
                       </div>
@@ -342,7 +334,7 @@ export default function WorkloadPage() {
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
-                            className={cn("h-full rounded-full transition-all", getStatusColor(member.status).bg)}
+                            className={cn("h-full rounded-full transition-all", getStatusColor(member.workloadLevel).bg)}
                             style={{ width: `${Math.min(member.workloadScore, 100)}%` }}
                           />
                         </div>
@@ -351,10 +343,10 @@ export default function WorkloadPage() {
                       {/* Status badge */}
                       <span className={cn(
                         "px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap",
-                        getStatusColor(member.status).light,
-                        getStatusColor(member.status).text
+                        getStatusColor(member.workloadLevel).light,
+                        getStatusColor(member.workloadLevel).text
                       )}>
-                        {getStatusLabel(member.status)}
+                        {getStatusLabel(member.workloadLevel)}
                       </span>
                     </motion.div>
                   ))}

@@ -3,10 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateHabitDialog } from '../create-habit-dialog';
 
 // Mock dependencies
-vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
-}));
-
 vi.mock('sonner', () => ({
   toast: {
     success: vi.fn(),
@@ -28,14 +24,6 @@ const mockCreateHabit = { mutateAsync: vi.fn().mockResolvedValue({}) };
 
 vi.mock('@/lib/api-hooks', () => ({
   useCreateHabit: () => mockCreateHabit,
-}));
-
-// Mock Icons
-vi.mock('lucide-react', () => ({
-  Sparkles: () => <div data-testid="sparkles-icon" />,
-  Sun: () => <div data-testid="sun-icon" />,
-  Moon: () => <div data-testid="moon-icon" />,
-  Sunset: () => <div data-testid="sunset-icon" />,
 }));
 
 describe('CreateHabitDialog Component', () => {

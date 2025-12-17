@@ -1,0 +1,63 @@
+npm warn Unknown cli config "--run". This will stop working in the next major version of npm.
+
+> @ordo-todo/web@0.1.0 test
+> vitest
+
+
+[1m[44m DEV [49m[22m [34mv4.0.15 [39m[90mC:/Users/tfurt/source/repos/ordo-todo/apps/web[39m
+
+ [32mÔ£ô[39m src/lib/__tests__/use-subtasks.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32mÔ£ô[39m src/stores/__tests__/use-workspace-store.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32mÔ£ô[39m src/contexts/__tests__/auth-context.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32mÔ£ô[39m src/data/hooks/__tests__/use-projects.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 195[2mms[22m[39m
+ [32mÔ£ô[39m src/lib/__tests__/use-tasks.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 555[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Suites 4 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  src/components/habit/__tests__/create-habit-dialog.test.tsx [ src/components/habit/__tests__/create-habit-dialog.test.tsx ]
+ FAIL  src/components/habit/__tests__/habit-detail-panel.test.tsx [ src/components/habit/__tests__/habit-detail-panel.test.tsx ]
+ FAIL  src/components/task/__tests__/task-card.test.tsx [ src/components/task/__tests__/task-card.test.tsx ]
+Error: [vitest] No "Circle" export is defined on the "lucide-react" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("lucide-react"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/4]ÔÄ»
+
+ FAIL  src/components/ui/__tests__/button.test.tsx [ src/components/ui/__tests__/button.test.tsx ]
+Error: [vitest] No "Film" export is defined on the "lucide-react" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("lucide-react"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/4]ÔÄ»
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+[2m   Start at [22m 16:36:05
+[2m   Duration [22m 8.96s[2m (transform 3.70s, setup 6.78s, import 1.37s, tests 864ms, environment 15.60s)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[31mCancelling test run. Press CTRL+c again to exit forcefully.
+[39m
+npm error Lifecycle script `test` failed with error:
+npm error code 130
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\web
+npm error workspace @ordo-todo/web@0.1.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\web
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vitest

@@ -3,10 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { HabitDetailPanel } from '../habit-detail-panel';
 
 // Mock dependencies
-vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
-}));
-
 vi.mock('sonner', () => ({
   toast: {
     success: vi.fn(),
@@ -52,21 +48,6 @@ vi.mock('@/lib/api-hooks', () => ({
   useDeleteHabit: () => mockDeleteHabit,
   usePauseHabit: () => mockPauseHabit,
   useResumeHabit: () => mockResumeHabit,
-}));
-
-// Mock Icons
-vi.mock('lucide-react', () => ({
-  Sparkles: () => <div data-testid="sparkles-icon" />,
-  Flame: () => <div data-testid="flame-icon" />,
-  TrendingUp: () => <div data-testid="trending-up-icon" />,
-  Calendar: () => <div data-testid="calendar-icon" />,
-  BarChart3: () => <div data-testid="chart-icon" />,
-  Trash2: () => <div data-testid="trash-icon" />,
-  Pause: () => <div data-testid="pause-icon" />,
-  Play: () => <div data-testid="play-icon" />,
-  Edit3: () => <div data-testid="edit-icon" />,
-  CheckCircle2: () => <div data-testid="check-icon" />,
-  X: () => <div data-testid="x-icon" />,
 }));
 
 describe('HabitDetailPanel Component', () => {

@@ -21,7 +21,11 @@
     "analytics": "Analytics",
     "goals": "Goals",
     "settings": "Settings",
-    "installApp": "Install App"
+    "installApp": "Install App",
+    "eisenhower": "Eisenhower",
+    "meetings": "Meetings",
+    "wellbeing": "Well-being",
+    "workload": "Workload"
   },
   "Settings": {
     "title": "Settings",

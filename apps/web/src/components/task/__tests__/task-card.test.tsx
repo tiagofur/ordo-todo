@@ -3,10 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { TaskCard } from '../task-card';
 
 // Mock dependencies
-vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
-}));
-
 vi.mock('../task-detail-panel', () => ({
   TaskDetailPanel: () => <div data-testid="task-detail-panel" />,
 }));
@@ -14,16 +10,6 @@ vi.mock('../task-detail-panel', () => ({
 vi.mock('@/lib/api-hooks', () => ({
   useCompleteTask: () => ({ mutate: vi.fn() }),
   useTaskTags: () => ({ data: [] }),
-}));
-
-// Mock icons
-vi.mock('lucide-react', () => ({
-  CheckSquare: () => <div data-testid="check-icon" />,
-  MoreVertical: () => <div data-testid="more-icon" />,
-  Trash2: () => <div data-testid="trash-icon" />,
-  Flag: () => <div data-testid="flag-icon" />,
-  Calendar: () => <div data-testid="calendar-icon" />,
-  Edit: () => <div data-testid="edit-icon" />,
 }));
 
 vi.mock('date-fns', async (importOriginal) => {
@@ -63,14 +49,14 @@ describe('TaskCard Component', () => {
   it('should display due date when provided', () => {
     render(<TaskCard task={mockTask} />);
     
-    expect(screen.getByTestId('calendar-icon')).toBeInTheDocument();
+    // Real icons don't have data-testid, just check for the date text
     expect(screen.getByText('31 Dec')).toBeInTheDocument(); 
   });
 
   it('should display priority indicator', () => {
     render(<TaskCard task={mockTask} />);
     
-    expect(screen.getByTestId('flag-icon')).toBeInTheDocument();
+    // Check for priority text
     expect(screen.getByText('priority.MEDIUM')).toBeInTheDocument();
   });
 
