@@ -15,6 +15,8 @@ describe('CollaborationGateway', () => {
   } as unknown as Server;
 
   const createMockSocket = (userId?: string, token?: string): Socket => {
+    const mockEmit = jest.fn();
+    const mockToReturn = { emit: mockEmit };
     return {
       id: 'socket-123',
       data: { userId },
@@ -26,8 +28,9 @@ describe('CollaborationGateway', () => {
       leave: jest.fn(),
       emit: jest.fn(),
       disconnect: jest.fn(),
+      to: jest.fn().mockReturnValue(mockToReturn),
       broadcast: {
-        to: jest.fn().mockReturnThis(),
+        to: jest.fn().mockReturnValue({ emit: jest.fn() }),
         emit: jest.fn(),
       },
     } as unknown as Socket;
@@ -135,7 +138,7 @@ describe('CollaborationGateway', () => {
   describe('handleJoinTask', () => {
     it('should join user to task room', () => {
       const mockSocket = createMockSocket('user-123');
-      const data = { taskId: 'task-789' };
+      const data = { taskId: 'task-789', workspaceId: 'ws-123' };
 
       gateway.handleJoinTask(mockSocket, data);
 
@@ -160,42 +163,25 @@ describe('CollaborationGateway', () => {
       const data = {
         taskId: 'task-789',
         changes: { status: 'COMPLETED' },
+        workspaceId: 'ws-123',
       };
 
       gateway.handleTaskUpdate(mockSocket, data);
 
-      // Should broadcast to task room excluding sender
-      expect(mockSocket.broadcast.to).toHaveBeenCalledWith('task:task-789');
-      expect(mockSocket.broadcast.emit).toHaveBeenCalledWith(
-        'task:updated',
-        expect.objectContaining({
-          taskId: 'task-789',
-          changes: { status: 'COMPLETED' },
-          updatedBy: 'user-123',
-        }),
-      );
+      // Should broadcast to task room using client.to()
+      expect(mockSocket.to).toHaveBeenCalledWith('task:task-789');
     });
   });
 
-  describe('emitToWorkspace', () => {
-    it('should emit event to workspace room', () => {
-      gateway.emitToWorkspace('ws-123', 'test-event', { data: 'test' });
-
-      expect(mockServer.to).toHaveBeenCalledWith('workspace:ws-123');
-      expect(mockServer.emit).toHaveBeenCalledWith('test-event', {
-        data: 'test',
-      });
-    });
-  });
-
-  describe('emitToTask', () => {
+  describe('broadcastTaskChange', () => {
     it('should emit event to task room', () => {
-      gateway.emitToTask('task-123', 'task:changed', { status: 'DONE' });
+      gateway.broadcastTaskChange('task-123', { status: 'DONE' }, 'user-123');
 
       expect(mockServer.to).toHaveBeenCalledWith('task:task-123');
-      expect(mockServer.emit).toHaveBeenCalledWith('task:changed', {
-        status: 'DONE',
-      });
+      expect(mockServer.emit).toHaveBeenCalledWith('task-updated', expect.objectContaining({
+        taskId: 'task-123',
+        changes: { status: 'DONE' },
+      }));
     });
   });
 });

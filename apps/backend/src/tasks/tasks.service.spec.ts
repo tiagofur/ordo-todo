@@ -3,6 +3,8 @@ import { NotFoundException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { GamificationService } from '../gamification/gamification.service';
 
 describe('TasksService', () => {
   let service: TasksService;
@@ -39,6 +41,18 @@ describe('TasksService', () => {
     logSubtaskAdded: jest.fn(),
   };
 
+  const mockNotificationsService = {
+    create: jest.fn(),
+    sendToUser: jest.fn(),
+    sendBulk: jest.fn(),
+  };
+
+  const mockGamificationService = {
+    onTaskCompleted: jest.fn(),
+    onSubtaskCompleted: jest.fn(),
+    getProgress: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -58,6 +72,14 @@ describe('TasksService', () => {
         {
           provide: ActivitiesService,
           useValue: mockActivitiesService,
+        },
+        {
+          provide: NotificationsService,
+          useValue: mockNotificationsService,
+        },
+        {
+          provide: GamificationService,
+          useValue: mockGamificationService,
         },
       ],
     }).compile();

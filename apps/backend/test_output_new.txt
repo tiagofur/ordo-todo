@@ -2,6 +2,8 @@
 > @ordo-todo/backend@1.0.0 test
 > jest
 
+PASS src/app.controller.spec.ts
+PASS src/repositories/timer.repository.spec.ts
 FAIL src/common/guards/ws-throttle.guard.spec.ts
   ÔùÅ WsThrottleGuard ÔÇ║ should be defined
 
@@ -255,588 +257,113 @@ FAIL src/common/guards/ws-throttle.guard.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (common/guards/ws-throttle.guard.spec.ts:30:35)
 
-  ÔùÅ WsThrottleGuardStrict ÔÇ║ should have stricter limits
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 20
-    Received: 10
-
-      119 |
-      120 |   it('should have stricter limits', () => {
-    > 121 |     expect((guard as any).limit).toBe(20);
-          |                                  ^
-      122 |     expect((guard as any).windowMs).toBe(60000);
-      123 |   });
-      124 | });
-
-      at Object.<anonymous> (common/guards/ws-throttle.guard.spec.ts:121:34)
-
-  ÔùÅ WsThrottleGuardRelaxed ÔÇ║ should have more relaxed limits
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 60000
-    Received: undefined
-
-      137 |   it('should have more relaxed limits', () => {
-      138 |     expect((guard as any).limit).toBe(100);
-    > 139 |     expect((guard as any).windowMs).toBe(60000);
-          |                                     ^
-      140 |   });
-      141 | });
-      142 |
-
-      at Object.<anonymous> (common/guards/ws-throttle.guard.spec.ts:139:37)
-
-PASS src/app.controller.spec.ts
-PASS src/notifications/notifications.gateway.spec.ts
-PASS src/repositories/timer.repository.spec.ts
 PASS src/tags/tags.service.spec.ts
 PASS src/auth/auth.service.spec.ts
+PASS src/analytics/analytics.controller.spec.ts
 PASS src/ai/gemini-ai.service.spec.ts
+PASS src/notifications/notifications.gateway.spec.ts
 PASS src/chat/chat.service.spec.ts
-FAIL src/analytics/analytics.controller.spec.ts
-  ÔùÅ AnalyticsController ÔÇ║ getDailyMetrics ÔÇ║ should return daily metrics for date range
+FAIL src/templates/templates.controller.spec.ts (5.06 s)
+  ÔùÅ TemplatesController ÔÇ║ create ÔÇ║ should create a new template
 
-    TypeError: this.analyticsService.getDateRangeMetrics is not a function
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-      22 |       const start = new Date(startDate);
-      23 |       const end = endDate ? new Date(endDate) : start;
-    > 24 |       return this.analyticsService.getDateRangeMetrics(user.id, start, end);
-         |                                    ^
-      25 |     }
-      26 |
-      27 |     // Convert string date to Date object if provided
+    Expected: "user-123", {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
+    Received: {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
 
-      at AnalyticsController.getDailyMetrics (analytics/analytics.controller.ts:24:36)
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:48:39)
+    Number of calls: 1
 
-  ÔùÅ AnalyticsController ÔÇ║ getProductivityTrends ÔÇ║ should return productivity trends
+      56 |       const result = await controller.create(createDto, mockUser);
+      57 |
+    > 58 |       expect(templatesService.create).toHaveBeenCalledWith(
+         |                                       ^
+      59 |         mockUser.id,
+      60 |         createDto,
+      61 |       );
 
-    TypeError: controller.getProductivityTrends is not a function
+      at Object.<anonymous> (templates/templates.controller.spec.ts:58:39)
 
-      110 |       analyticsService.getProductivityTrends.mockResolvedValue(mockTrends);
-      111 |
-    > 112 |       const result = await controller.getProductivityTrends(mockUser);
+  ÔùÅ TemplatesController ÔÇ║ findAll ÔÇ║ should return all templates for user
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "user-123"
+    Received: {"email": "test@example.com", "id": "user-123", "name": "Test"}
+
+    Number of calls: 1
+
+      74 |       const result = await controller.findAll(mockUser);
+      75 |
+    > 76 |       expect(templatesService.findAll).toHaveBeenCalledWith(mockUser.id);
+         |                                        ^
+      77 |       expect(result).toEqual(mockTemplates);
+      78 |     });
+      79 |   });
+
+      at Object.<anonymous> (templates/templates.controller.spec.ts:76:40)
+
+  ÔùÅ TemplatesController ÔÇ║ findOne ÔÇ║ should return template by id
+
+    TypeError: this.templatesService.findOne is not a function
+
+      35 |   @Get(':id')
+      36 |   findOne(@Param('id') id: string) {
+    > 37 |     return this.templatesService.findOne(id);
+         |                                  ^
+      38 |   }
+      39 |
+      40 |   @Patch(':id')
+
+      at TemplatesController.findOne (templates/templates.controller.ts:37:34)
+      at Object.<anonymous> (templates/templates.controller.spec.ts:86:39)
+
+  ÔùÅ TemplatesController ÔÇ║ update ÔÇ║ should update template
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "tmpl-123", "user-123", {"name": "Updated Template"}
+    Received: "tmpl-123", {"name": "Updated Template"}
+
+    Number of calls: 1
+
+      102 |       const result = await controller.update('tmpl-123', updateDto, mockUser);
+      103 |
+    > 104 |       expect(templatesService.update).toHaveBeenCalledWith(
           |                                       ^
-      113 |
-      114 |       expect(analyticsService.getProductivityTrends).toHaveBeenCalledWith(
-      115 |         mockUser.id,
+      105 |         'tmpl-123',
+      106 |         mockUser.id,
+      107 |         updateDto,
 
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:112:39)
+      at Object.<anonymous> (templates/templates.controller.spec.ts:104:39)
 
-  ÔùÅ AnalyticsController ÔÇ║ getTaskCompletionRate ÔÇ║ should return task completion statistics
+  ÔùÅ TemplatesController ÔÇ║ remove ÔÇ║ should delete template
 
-    TypeError: controller.getTaskCompletionRate is not a function
+    TypeError: this.templatesService.remove is not a function
 
-      128 |       analyticsService.getTaskCompletionRate.mockResolvedValue(mockRate);
-      129 |
-    > 130 |       const result = await controller.getTaskCompletionRate(mockUser);
+      48 |   @Delete(':id')
+      49 |   remove(@Param('id') id: string) {
+    > 50 |     return this.templatesService.remove(id);
+         |                                  ^
+      51 |   }
+      52 | }
+      53 |
+
+      at TemplatesController.remove (templates/templates.controller.ts:50:34)
+      at Object.<anonymous> (templates/templates.controller.spec.ts:117:24)
+
+  ÔùÅ TemplatesController ÔÇ║ createTask ÔÇ║ should create task from template
+
+    TypeError: controller.createTask is not a function
+
+      135 |       );
+      136 |
+    > 137 |       const result = await controller.createTask(
           |                                       ^
-      131 |
-      132 |       expect(analyticsService.getTaskCompletionRate).toHaveBeenCalledWith(
-      133 |         mockUser.id,
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:130:39)
-
-  ÔùÅ AnalyticsController ÔÇ║ getTimeDistribution ÔÇ║ should return time distribution by category
-
-    TypeError: controller.getTimeDistribution is not a function
-
-      146 |       analyticsService.getTimeDistribution.mockResolvedValue(mockDistribution);
-      147 |
-    > 148 |       const result = await controller.getTimeDistribution(
-          |                                       ^
-      149 |         mockUser,
-      150 |         '2024-01-01',
-      151 |         '2024-01-31',
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:148:39)
-
-  ÔùÅ AnalyticsController ÔÇ║ getPeakHours ÔÇ║ should return peak productivity hours
-
-    TypeError: controller.getPeakHours is not a function
-
-      170 |       analyticsService.getPeakHours.mockResolvedValue(mockPeakHours);
-      171 |
-    > 172 |       const result = await controller.getPeakHours(mockUser);
-          |                                       ^
-      173 |
-      174 |       expect(analyticsService.getPeakHours).toHaveBeenCalledWith(mockUser.id);
-      175 |       expect(result).toEqual(mockPeakHours);
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:172:39)
-
-  ÔùÅ AnalyticsController ÔÇ║ getStreak ÔÇ║ should return streak information
-
-    TypeError: controller.getStreak is not a function
-
-      186 |       analyticsService.getStreak.mockResolvedValue(mockStreak);
-      187 |
-    > 188 |       const result = await controller.getStreak(mockUser);
-          |                                       ^
-      189 |
-      190 |       expect(analyticsService.getStreak).toHaveBeenCalledWith(mockUser.id);
-      191 |       expect(result).toEqual(mockStreak);
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:188:39)
-
-[Nest] 16812  - 17/12/2025, 4:06:28 p.m.   ERROR [CollaborationGateway] Connection error: Invalid
-FAIL src/collaboration/collaboration.gateway.spec.ts
-  ÔùÅ CollaborationGateway ÔÇ║ handleTaskUpdate ÔÇ║ should broadcast task update to room
-
-    TypeError: client.to is not a function
-
-      163 |   ) {
-      164 |     // Broadcast to all users in the task room except sender
-    > 165 |     client.to(`task:${data.taskId}`).emit('task-updated', {
-          |            ^
-      166 |       taskId: data.taskId,
-      167 |       changes: data.changes,
-      168 |       updatedBy: {
-
-      at CollaborationGateway.handleTaskUpdate (collaboration/collaboration.gateway.ts:165:12)
-      at Object.<anonymous> (collaboration/collaboration.gateway.spec.ts:165:15)
-
-  ÔùÅ CollaborationGateway ÔÇ║ emitToWorkspace ÔÇ║ should emit event to workspace room
-
-    TypeError: gateway.emitToWorkspace is not a function
-
-      180 |   describe('emitToWorkspace', () => {
-      181 |     it('should emit event to workspace room', () => {
-    > 182 |       gateway.emitToWorkspace('ws-123', 'test-event', { data: 'test' });
-          |               ^
-      183 |
-      184 |       expect(mockServer.to).toHaveBeenCalledWith('workspace:ws-123');
-      185 |       expect(mockServer.emit).toHaveBeenCalledWith('test-event', {
-
-      at Object.<anonymous> (collaboration/collaboration.gateway.spec.ts:182:15)
-
-  ÔùÅ CollaborationGateway ÔÇ║ emitToTask ÔÇ║ should emit event to task room
-
-    TypeError: gateway.emitToTask is not a function
-
-      191 |   describe('emitToTask', () => {
-      192 |     it('should emit event to task room', () => {
-    > 193 |       gateway.emitToTask('task-123', 'task:changed', { status: 'DONE' });
-          |               ^
-      194 |
-      195 |       expect(mockServer.to).toHaveBeenCalledWith('task:task-123');
-      196 |       expect(mockServer.emit).toHaveBeenCalledWith('task:changed', {
-
-      at Object.<anonymous> (collaboration/collaboration.gateway.spec.ts:193:15)
-
-FAIL src/tasks/tasks.service.spec.ts
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should return all tasks for a user
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should filter out subtasks
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should filter by projectId when provided
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should filter by tags when provided
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOne ÔÇ║ should return a task by id
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOne ÔÇ║ should throw NotFoundException when task not found
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOne ÔÇ║ should include subtasks in the response
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOneWithDetails ÔÇ║ should return task with all relations
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOneWithDetails ÔÇ║ should throw NotFoundException when task not found
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ remove ÔÇ║ should delete a task
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
+      138 |         'tmpl-123',
+      139 |         createDto,
+      140 |         mockUser,
+
+      at Object.<anonymous> (templates/templates.controller.spec.ts:137:39)
 
 FAIL src/workflows/workflows.controller.spec.ts
   ÔùÅ WorkflowsController ÔÇ║ create ÔÇ║ should create a new workflow
@@ -939,8 +466,16 @@ FAIL src/workflows/workflows.controller.spec.ts
 
       at Object.<anonymous> (workflows/workflows.controller.spec.ts:137:39)
 
+PASS src/tasks/tasks.service.spec.ts (5.127 s)
 PASS src/projects/projects.service.spec.ts
-PASS src/users/users.controller.spec.ts
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\passport\dist\auth.guard.js:52
+            return context.switchToHttp().getResponse();
+                                          ^
+
+[TypeError: context.switchToHttp(...).getResponse is not a function]
+
+Node.js v22.17.0
+[Nest] 46172  - 17/12/2025, 4:10:24 p.m.   ERROR [CollaborationGateway] Connection error: Invalid
 FAIL src/gamification/gamification.service.spec.ts
   ÔùÅ GamificationService ÔÇ║ should be defined
 
@@ -1270,117 +805,9 @@ FAIL src/gamification/gamification.service.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (gamification/gamification.service.spec.ts:33:35)
 
-C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\passport\dist\auth.guard.js:52
-            return context.switchToHttp().getResponse();
-                                          ^
-
-[TypeError: context.switchToHttp(...).getResponse is not a function]
-
-Node.js v22.17.0
-FAIL src/templates/templates.controller.spec.ts
-  ÔùÅ TemplatesController ÔÇ║ create ÔÇ║ should create a new template
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "user-123", {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
-    Received: {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
-
-    Number of calls: 1
-
-      56 |       const result = await controller.create(createDto, mockUser);
-      57 |
-    > 58 |       expect(templatesService.create).toHaveBeenCalledWith(
-         |                                       ^
-      59 |         mockUser.id,
-      60 |         createDto,
-      61 |       );
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:58:39)
-
-  ÔùÅ TemplatesController ÔÇ║ findAll ÔÇ║ should return all templates for user
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "user-123"
-    Received: {"email": "test@example.com", "id": "user-123", "name": "Test"}
-
-    Number of calls: 1
-
-      74 |       const result = await controller.findAll(mockUser);
-      75 |
-    > 76 |       expect(templatesService.findAll).toHaveBeenCalledWith(mockUser.id);
-         |                                        ^
-      77 |       expect(result).toEqual(mockTemplates);
-      78 |     });
-      79 |   });
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:76:40)
-
-  ÔùÅ TemplatesController ÔÇ║ findOne ÔÇ║ should return template by id
-
-    TypeError: this.templatesService.findOne is not a function
-
-      35 |   @Get(':id')
-      36 |   findOne(@Param('id') id: string) {
-    > 37 |     return this.templatesService.findOne(id);
-         |                                  ^
-      38 |   }
-      39 |
-      40 |   @Patch(':id')
-
-      at TemplatesController.findOne (templates/templates.controller.ts:37:34)
-      at Object.<anonymous> (templates/templates.controller.spec.ts:86:39)
-
-  ÔùÅ TemplatesController ÔÇ║ update ÔÇ║ should update template
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "tmpl-123", "user-123", {"name": "Updated Template"}
-    Received: "tmpl-123", {"name": "Updated Template"}
-
-    Number of calls: 1
-
-      102 |       const result = await controller.update('tmpl-123', updateDto, mockUser);
-      103 |
-    > 104 |       expect(templatesService.update).toHaveBeenCalledWith(
-          |                                       ^
-      105 |         'tmpl-123',
-      106 |         mockUser.id,
-      107 |         updateDto,
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:104:39)
-
-  ÔùÅ TemplatesController ÔÇ║ remove ÔÇ║ should delete template
-
-    TypeError: this.templatesService.remove is not a function
-
-      48 |   @Delete(':id')
-      49 |   remove(@Param('id') id: string) {
-    > 50 |     return this.templatesService.remove(id);
-         |                                  ^
-      51 |   }
-      52 | }
-      53 |
-
-      at TemplatesController.remove (templates/templates.controller.ts:50:34)
-      at Object.<anonymous> (templates/templates.controller.spec.ts:117:24)
-
-  ÔùÅ TemplatesController ÔÇ║ createTask ÔÇ║ should create task from template
-
-    TypeError: controller.createTask is not a function
-
-      135 |       );
-      136 |
-    > 137 |       const result = await controller.createTask(
-          |                                       ^
-      138 |         'tmpl-123',
-      139 |         createDto,
-      140 |         mockUser,
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:137:39)
-
-PASS src/comments/comments.service.spec.ts
-FAIL src/workspaces/workspaces.controller.spec.ts
+PASS src/collaboration/collaboration.gateway.spec.ts (5.027 s)
+PASS src/users/users.controller.spec.ts (5.123 s)
+FAIL src/workspaces/workspaces.controller.spec.ts (5.151 s)
   ÔùÅ WorkspacesController ÔÇ║ should be defined
 
     Nest can't resolve dependencies of the WorkspaceGuard (Reflector, ?). Please make sure that the argument PrismaService at index [1] is available in the RootTestModule context.
@@ -1792,8 +1219,8 @@ FAIL src/workspaces/workspaces.controller.spec.ts
       at Object.<anonymous> (workspaces/workspaces.controller.spec.ts:26:35)
 
 PASS src/notifications/notifications.service.spec.ts
-PASS src/ai/ai.controller.spec.ts
-FAIL src/tasks/tasks.controller.spec.ts
+PASS src/comments/comments.service.spec.ts
+FAIL src/tasks/tasks.controller.spec.ts (5.654 s)
   ÔùÅ TasksController ÔÇ║ should be defined
 
     Nest can't resolve dependencies of the CreateTaskGuard (Reflector, ?). Please make sure that the argument PrismaService at index [1] is available in the RootTestModule context.
@@ -1876,9 +1303,10 @@ FAIL src/tasks/tasks.controller.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (tasks/tasks.controller.spec.ts:13:35)
 
-PASS src/timers/timers.controller.spec.ts
-PASS src/chat/chat.controller.spec.ts
-FAIL src/attachments/attachments.controller.spec.ts
+PASS src/chat/chat.controller.spec.ts (5.285 s)
+PASS src/ai/ai.controller.spec.ts (5.336 s)
+PASS src/timers/timers.controller.spec.ts (5.49 s)
+FAIL src/attachments/attachments.controller.spec.ts (5.665 s)
   ÔùÅ AttachmentsController ÔÇ║ upload ÔÇ║ should upload file and create attachment
 
     TypeError: controller.upload is not a function
@@ -2232,580 +1660,107 @@ FAIL common/guards/ws-throttle.guard.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (common/guards/ws-throttle.guard.spec.ts:30:35)
 
-  ÔùÅ WsThrottleGuardStrict ÔÇ║ should have stricter limits
+FAIL templates/templates.controller.spec.ts (5.06 s)
+  ÔùÅ TemplatesController ÔÇ║ create ÔÇ║ should create a new template
 
-    expect(received).toBe(expected) // Object.is equality
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: 20
-    Received: 10
+    Expected: "user-123", {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
+    Received: {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
 
-      119 |
-      120 |   it('should have stricter limits', () => {
-    > 121 |     expect((guard as any).limit).toBe(20);
-          |                                  ^
-      122 |     expect((guard as any).windowMs).toBe(60000);
-      123 |   });
-      124 | });
+    Number of calls: 1
 
-      at Object.<anonymous> (common/guards/ws-throttle.guard.spec.ts:121:34)
+      56 |       const result = await controller.create(createDto, mockUser);
+      57 |
+    > 58 |       expect(templatesService.create).toHaveBeenCalledWith(
+         |                                       ^
+      59 |         mockUser.id,
+      60 |         createDto,
+      61 |       );
 
-  ÔùÅ WsThrottleGuardRelaxed ÔÇ║ should have more relaxed limits
+      at Object.<anonymous> (templates/templates.controller.spec.ts:58:39)
 
-    expect(received).toBe(expected) // Object.is equality
+  ÔùÅ TemplatesController ÔÇ║ findAll ÔÇ║ should return all templates for user
 
-    Expected: 60000
-    Received: undefined
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-      137 |   it('should have more relaxed limits', () => {
-      138 |     expect((guard as any).limit).toBe(100);
-    > 139 |     expect((guard as any).windowMs).toBe(60000);
-          |                                     ^
-      140 |   });
-      141 | });
-      142 |
+    Expected: "user-123"
+    Received: {"email": "test@example.com", "id": "user-123", "name": "Test"}
 
-      at Object.<anonymous> (common/guards/ws-throttle.guard.spec.ts:139:37)
+    Number of calls: 1
 
-FAIL analytics/analytics.controller.spec.ts
-  ÔùÅ AnalyticsController ÔÇ║ getDailyMetrics ÔÇ║ should return daily metrics for date range
+      74 |       const result = await controller.findAll(mockUser);
+      75 |
+    > 76 |       expect(templatesService.findAll).toHaveBeenCalledWith(mockUser.id);
+         |                                        ^
+      77 |       expect(result).toEqual(mockTemplates);
+      78 |     });
+      79 |   });
 
-    TypeError: this.analyticsService.getDateRangeMetrics is not a function
+      at Object.<anonymous> (templates/templates.controller.spec.ts:76:40)
 
-      22 |       const start = new Date(startDate);
-      23 |       const end = endDate ? new Date(endDate) : start;
-    > 24 |       return this.analyticsService.getDateRangeMetrics(user.id, start, end);
-         |                                    ^
-      25 |     }
-      26 |
-      27 |     // Convert string date to Date object if provided
+  ÔùÅ TemplatesController ÔÇ║ findOne ÔÇ║ should return template by id
 
-      at AnalyticsController.getDailyMetrics (analytics/analytics.controller.ts:24:36)
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:48:39)
+    TypeError: this.templatesService.findOne is not a function
 
-  ÔùÅ AnalyticsController ÔÇ║ getProductivityTrends ÔÇ║ should return productivity trends
+      35 |   @Get(':id')
+      36 |   findOne(@Param('id') id: string) {
+    > 37 |     return this.templatesService.findOne(id);
+         |                                  ^
+      38 |   }
+      39 |
+      40 |   @Patch(':id')
 
-    TypeError: controller.getProductivityTrends is not a function
+      at TemplatesController.findOne (templates/templates.controller.ts:37:34)
+      at Object.<anonymous> (templates/templates.controller.spec.ts:86:39)
 
-      110 |       analyticsService.getProductivityTrends.mockResolvedValue(mockTrends);
-      111 |
-    > 112 |       const result = await controller.getProductivityTrends(mockUser);
+  ÔùÅ TemplatesController ÔÇ║ update ÔÇ║ should update template
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "tmpl-123", "user-123", {"name": "Updated Template"}
+    Received: "tmpl-123", {"name": "Updated Template"}
+
+    Number of calls: 1
+
+      102 |       const result = await controller.update('tmpl-123', updateDto, mockUser);
+      103 |
+    > 104 |       expect(templatesService.update).toHaveBeenCalledWith(
           |                                       ^
-      113 |
-      114 |       expect(analyticsService.getProductivityTrends).toHaveBeenCalledWith(
-      115 |         mockUser.id,
+      105 |         'tmpl-123',
+      106 |         mockUser.id,
+      107 |         updateDto,
 
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:112:39)
+      at Object.<anonymous> (templates/templates.controller.spec.ts:104:39)
 
-  ÔùÅ AnalyticsController ÔÇ║ getTaskCompletionRate ÔÇ║ should return task completion statistics
+  ÔùÅ TemplatesController ÔÇ║ remove ÔÇ║ should delete template
 
-    TypeError: controller.getTaskCompletionRate is not a function
+    TypeError: this.templatesService.remove is not a function
 
-      128 |       analyticsService.getTaskCompletionRate.mockResolvedValue(mockRate);
-      129 |
-    > 130 |       const result = await controller.getTaskCompletionRate(mockUser);
+      48 |   @Delete(':id')
+      49 |   remove(@Param('id') id: string) {
+    > 50 |     return this.templatesService.remove(id);
+         |                                  ^
+      51 |   }
+      52 | }
+      53 |
+
+      at TemplatesController.remove (templates/templates.controller.ts:50:34)
+      at Object.<anonymous> (templates/templates.controller.spec.ts:117:24)
+
+  ÔùÅ TemplatesController ÔÇ║ createTask ÔÇ║ should create task from template
+
+    TypeError: controller.createTask is not a function
+
+      135 |       );
+      136 |
+    > 137 |       const result = await controller.createTask(
           |                                       ^
-      131 |
-      132 |       expect(analyticsService.getTaskCompletionRate).toHaveBeenCalledWith(
-      133 |         mockUser.id,
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:130:39)
-
-  ÔùÅ AnalyticsController ÔÇ║ getTimeDistribution ÔÇ║ should return time distribution by category
-
-    TypeError: controller.getTimeDistribution is not a function
-
-      146 |       analyticsService.getTimeDistribution.mockResolvedValue(mockDistribution);
-      147 |
-    > 148 |       const result = await controller.getTimeDistribution(
-          |                                       ^
-      149 |         mockUser,
-      150 |         '2024-01-01',
-      151 |         '2024-01-31',
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:148:39)
-
-  ÔùÅ AnalyticsController ÔÇ║ getPeakHours ÔÇ║ should return peak productivity hours
-
-    TypeError: controller.getPeakHours is not a function
-
-      170 |       analyticsService.getPeakHours.mockResolvedValue(mockPeakHours);
-      171 |
-    > 172 |       const result = await controller.getPeakHours(mockUser);
-          |                                       ^
-      173 |
-      174 |       expect(analyticsService.getPeakHours).toHaveBeenCalledWith(mockUser.id);
-      175 |       expect(result).toEqual(mockPeakHours);
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:172:39)
-
-  ÔùÅ AnalyticsController ÔÇ║ getStreak ÔÇ║ should return streak information
-
-    TypeError: controller.getStreak is not a function
-
-      186 |       analyticsService.getStreak.mockResolvedValue(mockStreak);
-      187 |
-    > 188 |       const result = await controller.getStreak(mockUser);
-          |                                       ^
-      189 |
-      190 |       expect(analyticsService.getStreak).toHaveBeenCalledWith(mockUser.id);
-      191 |       expect(result).toEqual(mockStreak);
-
-      at Object.<anonymous> (analytics/analytics.controller.spec.ts:188:39)
-
-FAIL collaboration/collaboration.gateway.spec.ts
-  ÔùÅ CollaborationGateway ÔÇ║ handleTaskUpdate ÔÇ║ should broadcast task update to room
-
-    TypeError: client.to is not a function
-
-      163 |   ) {
-      164 |     // Broadcast to all users in the task room except sender
-    > 165 |     client.to(`task:${data.taskId}`).emit('task-updated', {
-          |            ^
-      166 |       taskId: data.taskId,
-      167 |       changes: data.changes,
-      168 |       updatedBy: {
-
-      at CollaborationGateway.handleTaskUpdate (collaboration/collaboration.gateway.ts:165:12)
-      at Object.<anonymous> (collaboration/collaboration.gateway.spec.ts:165:15)
-
-  ÔùÅ CollaborationGateway ÔÇ║ emitToWorkspace ÔÇ║ should emit event to workspace room
-
-    TypeError: gateway.emitToWorkspace is not a function
-
-      180 |   describe('emitToWorkspace', () => {
-      181 |     it('should emit event to workspace room', () => {
-    > 182 |       gateway.emitToWorkspace('ws-123', 'test-event', { data: 'test' });
-          |               ^
-      183 |
-      184 |       expect(mockServer.to).toHaveBeenCalledWith('workspace:ws-123');
-      185 |       expect(mockServer.emit).toHaveBeenCalledWith('test-event', {
-
-      at Object.<anonymous> (collaboration/collaboration.gateway.spec.ts:182:15)
-
-  ÔùÅ CollaborationGateway ÔÇ║ emitToTask ÔÇ║ should emit event to task room
-
-    TypeError: gateway.emitToTask is not a function
-
-      191 |   describe('emitToTask', () => {
-      192 |     it('should emit event to task room', () => {
-    > 193 |       gateway.emitToTask('task-123', 'task:changed', { status: 'DONE' });
-          |               ^
-      194 |
-      195 |       expect(mockServer.to).toHaveBeenCalledWith('task:task-123');
-      196 |       expect(mockServer.emit).toHaveBeenCalledWith('task:changed', {
-
-      at Object.<anonymous> (collaboration/collaboration.gateway.spec.ts:193:15)
-
-FAIL tasks/tasks.service.spec.ts
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should return all tasks for a user
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should filter out subtasks
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should filter by projectId when provided
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findAll ÔÇ║ should filter by tags when provided
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOne ÔÇ║ should return a task by id
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOne ÔÇ║ should throw NotFoundException when task not found
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOne ÔÇ║ should include subtasks in the response
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOneWithDetails ÔÇ║ should return task with all relations
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ findOneWithDetails ÔÇ║ should throw NotFoundException when task not found
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
-
-  ÔùÅ TasksService ÔÇ║ remove ÔÇ║ should delete a task
-
-    Nest can't resolve dependencies of the TasksService (TaskRepository, AnalyticsRepository, PrismaService, ActivitiesService, ?, GamificationService). Please make sure that the argument NotificationsService at index [4] is available in the RootTestModule context.
-
-    Potential solutions:
-    - Is RootTestModule a valid NestJS module?
-    - If NotificationsService is a provider, is it part of the current RootTestModule?
-    - If NotificationsService is exported from a separate @Module, is that module imported within RootTestModule?
-      @Module({
-        imports: [ /* the Module containing NotificationsService */ ]
-      })
-
-    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-
-      41 |
-      42 |   beforeEach(async () => {
-    > 43 |     const module: TestingModule = await Test.createTestingModule({
-         |                                   ^
-      44 |       providers: [
-      45 |         TasksService,
-      46 |         {
-
-      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:286:19)
-      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
-      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
-          at async Promise.all (index 4)
-      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
-      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
-      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
-          at async Promise.all (index 3)
-      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
-          at async Promise.all (index 1)
-      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-      at Object.<anonymous> (tasks/tasks.service.spec.ts:43:35)
+      138 |         'tmpl-123',
+      139 |         createDto,
+      140 |         mockUser,
+
+      at Object.<anonymous> (templates/templates.controller.spec.ts:137:39)
 
 FAIL workflows/workflows.controller.spec.ts
   ÔùÅ WorkflowsController ÔÇ║ create ÔÇ║ should create a new workflow
@@ -3237,109 +2192,7 @@ FAIL gamification/gamification.service.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (gamification/gamification.service.spec.ts:33:35)
 
-FAIL templates/templates.controller.spec.ts
-  ÔùÅ TemplatesController ÔÇ║ create ÔÇ║ should create a new template
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "user-123", {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
-    Received: {"description": "Template for weekly review task", "name": "Weekly Review", "taskData": {"estimatedMinutes": 30, "priority": "MEDIUM", "title": "Weekly Review"}}
-
-    Number of calls: 1
-
-      56 |       const result = await controller.create(createDto, mockUser);
-      57 |
-    > 58 |       expect(templatesService.create).toHaveBeenCalledWith(
-         |                                       ^
-      59 |         mockUser.id,
-      60 |         createDto,
-      61 |       );
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:58:39)
-
-  ÔùÅ TemplatesController ÔÇ║ findAll ÔÇ║ should return all templates for user
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "user-123"
-    Received: {"email": "test@example.com", "id": "user-123", "name": "Test"}
-
-    Number of calls: 1
-
-      74 |       const result = await controller.findAll(mockUser);
-      75 |
-    > 76 |       expect(templatesService.findAll).toHaveBeenCalledWith(mockUser.id);
-         |                                        ^
-      77 |       expect(result).toEqual(mockTemplates);
-      78 |     });
-      79 |   });
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:76:40)
-
-  ÔùÅ TemplatesController ÔÇ║ findOne ÔÇ║ should return template by id
-
-    TypeError: this.templatesService.findOne is not a function
-
-      35 |   @Get(':id')
-      36 |   findOne(@Param('id') id: string) {
-    > 37 |     return this.templatesService.findOne(id);
-         |                                  ^
-      38 |   }
-      39 |
-      40 |   @Patch(':id')
-
-      at TemplatesController.findOne (templates/templates.controller.ts:37:34)
-      at Object.<anonymous> (templates/templates.controller.spec.ts:86:39)
-
-  ÔùÅ TemplatesController ÔÇ║ update ÔÇ║ should update template
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: "tmpl-123", "user-123", {"name": "Updated Template"}
-    Received: "tmpl-123", {"name": "Updated Template"}
-
-    Number of calls: 1
-
-      102 |       const result = await controller.update('tmpl-123', updateDto, mockUser);
-      103 |
-    > 104 |       expect(templatesService.update).toHaveBeenCalledWith(
-          |                                       ^
-      105 |         'tmpl-123',
-      106 |         mockUser.id,
-      107 |         updateDto,
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:104:39)
-
-  ÔùÅ TemplatesController ÔÇ║ remove ÔÇ║ should delete template
-
-    TypeError: this.templatesService.remove is not a function
-
-      48 |   @Delete(':id')
-      49 |   remove(@Param('id') id: string) {
-    > 50 |     return this.templatesService.remove(id);
-         |                                  ^
-      51 |   }
-      52 | }
-      53 |
-
-      at TemplatesController.remove (templates/templates.controller.ts:50:34)
-      at Object.<anonymous> (templates/templates.controller.spec.ts:117:24)
-
-  ÔùÅ TemplatesController ÔÇ║ createTask ÔÇ║ should create task from template
-
-    TypeError: controller.createTask is not a function
-
-      135 |       );
-      136 |
-    > 137 |       const result = await controller.createTask(
-          |                                       ^
-      138 |         'tmpl-123',
-      139 |         createDto,
-      140 |         mockUser,
-
-      at Object.<anonymous> (templates/templates.controller.spec.ts:137:39)
-
-FAIL workspaces/workspaces.controller.spec.ts
+FAIL workspaces/workspaces.controller.spec.ts (5.151 s)
   ÔùÅ WorkspacesController ÔÇ║ should be defined
 
     Nest can't resolve dependencies of the WorkspaceGuard (Reflector, ?). Please make sure that the argument PrismaService at index [1] is available in the RootTestModule context.
@@ -3750,7 +2603,7 @@ FAIL workspaces/workspaces.controller.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (workspaces/workspaces.controller.spec.ts:26:35)
 
-FAIL tasks/tasks.controller.spec.ts
+FAIL tasks/tasks.controller.spec.ts (5.654 s)
   ÔùÅ TasksController ÔÇ║ should be defined
 
     Nest can't resolve dependencies of the CreateTaskGuard (Reflector, ?). Please make sure that the argument PrismaService at index [1] is available in the RootTestModule context.
@@ -3833,7 +2686,7 @@ FAIL tasks/tasks.controller.spec.ts
       at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
       at Object.<anonymous> (tasks/tasks.controller.spec.ts:13:35)
 
-FAIL attachments/attachments.controller.spec.ts
+FAIL attachments/attachments.controller.spec.ts (5.665 s)
   ÔùÅ AttachmentsController ÔÇ║ upload ÔÇ║ should upload file and create attachment
 
     TypeError: controller.upload is not a function
@@ -3913,10 +2766,10 @@ FAIL common/guards/jwt-auth.guard.spec.ts
       at ChildProcessWorker.initialize (../../../node_modules/jest-worker/build/index.js:805:21)
 
 
-Test Suites: 11 failed, 14 passed, 25 total
-Tests:       64 failed, 121 passed, 185 total
+Test Suites: 8 failed, 17 passed, 25 total
+Tests:       43 failed, 144 passed, 187 total
 Snapshots:   0 total
-Time:        10.228 s
+Time:        12.583 s
 Ran all test suites.
 npm error Lifecycle script `test` failed with error:
 npm error code 1

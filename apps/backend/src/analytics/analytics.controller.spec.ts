@@ -13,11 +13,13 @@ describe('AnalyticsController', () => {
       getDailyMetrics: jest.fn(),
       getWeeklyMetrics: jest.fn(),
       getMonthlyMetrics: jest.fn(),
-      getProductivityTrends: jest.fn(),
-      getTaskCompletionRate: jest.fn(),
-      getTimeDistribution: jest.fn(),
-      getPeakHours: jest.fn(),
-      getStreak: jest.fn(),
+      getDateRangeMetrics: jest.fn(),
+      getDashboardStats: jest.fn(),
+      getHeatmapData: jest.fn(),
+      getProjectTimeDistribution: jest.fn(),
+      getTaskStatusDistribution: jest.fn(),
+      getProductivityStreak: jest.fn(),
+      getTeamMetrics: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -38,20 +40,39 @@ describe('AnalyticsController', () => {
   });
 
   describe('getDailyMetrics', () => {
-    it('should return daily metrics for date range', async () => {
-      const mockMetrics = [
-        { date: '2024-01-01', tasksCompleted: 5, minutesWorked: 120 },
-        { date: '2024-01-02', tasksCompleted: 3, minutesWorked: 90 },
-      ];
+    it('should return daily metrics for a single date', async () => {
+      const mockMetrics = { tasksCompleted: 5, minutesWorked: 120 };
       analyticsService.getDailyMetrics.mockResolvedValue(mockMetrics as any);
 
       const result = await controller.getDailyMetrics(
         mockUser,
+        '2024-01-15',
+        undefined,
+        undefined,
+      );
+
+      expect(analyticsService.getDailyMetrics).toHaveBeenCalledWith(
+        mockUser.id,
+        expect.any(Date),
+      );
+      expect(result).toEqual(mockMetrics);
+    });
+
+    it('should return date range metrics when startDate is provided', async () => {
+      const mockMetrics = [
+        { date: '2024-01-01', tasksCompleted: 5, minutesWorked: 120 },
+        { date: '2024-01-02', tasksCompleted: 3, minutesWorked: 90 },
+      ];
+      analyticsService.getDateRangeMetrics.mockResolvedValue(mockMetrics as any);
+
+      const result = await controller.getDailyMetrics(
+        mockUser,
+        undefined,
         '2024-01-01',
         '2024-01-31',
       );
 
-      expect(analyticsService.getDailyMetrics).toHaveBeenCalledWith(
+      expect(analyticsService.getDateRangeMetrics).toHaveBeenCalledWith(
         mockUser.id,
         expect.any(Date),
         expect.any(Date),
@@ -100,95 +121,136 @@ describe('AnalyticsController', () => {
     });
   });
 
-  describe('getProductivityTrends', () => {
-    it('should return productivity trends', async () => {
-      const mockTrends = {
-        weeklyTrend: 'IMPROVING',
-        monthlyTrend: 'STABLE',
-        comparison: { lastWeek: 80, thisWeek: 85 },
-      };
-      analyticsService.getProductivityTrends.mockResolvedValue(mockTrends);
-
-      const result = await controller.getProductivityTrends(mockUser);
-
-      expect(analyticsService.getProductivityTrends).toHaveBeenCalledWith(
-        mockUser.id,
-      );
-      expect(result).toEqual(mockTrends);
-    });
-  });
-
-  describe('getTaskCompletionRate', () => {
-    it('should return task completion statistics', async () => {
-      const mockRate = {
-        overall: 75,
-        byPriority: { HIGH: 90, MEDIUM: 70, LOW: 60 },
-        byProject: [{ projectId: 'p1', rate: 80 }],
-      };
-      analyticsService.getTaskCompletionRate.mockResolvedValue(mockRate);
-
-      const result = await controller.getTaskCompletionRate(mockUser);
-
-      expect(analyticsService.getTaskCompletionRate).toHaveBeenCalledWith(
-        mockUser.id,
-      );
-      expect(result).toEqual(mockRate);
-    });
-  });
-
-  describe('getTimeDistribution', () => {
-    it('should return time distribution by category', async () => {
-      const mockDistribution = [
-        { category: 'Development', minutes: 300, percentage: 50 },
-        { category: 'Meetings', minutes: 120, percentage: 20 },
-        { category: 'Planning', minutes: 180, percentage: 30 },
+  describe('getDateRangeMetrics', () => {
+    it('should return date range metrics', async () => {
+      const mockMetrics = [
+        { date: '2024-01-01', tasksCompleted: 5 },
+        { date: '2024-01-02', tasksCompleted: 3 },
       ];
-      analyticsService.getTimeDistribution.mockResolvedValue(mockDistribution);
+      analyticsService.getDateRangeMetrics.mockResolvedValue(mockMetrics as any);
 
-      const result = await controller.getTimeDistribution(
+      const result = await controller.getDateRangeMetrics(
         mockUser,
         '2024-01-01',
         '2024-01-31',
       );
 
-      expect(analyticsService.getTimeDistribution).toHaveBeenCalledWith(
+      expect(analyticsService.getDateRangeMetrics).toHaveBeenCalledWith(
         mockUser.id,
         expect.any(Date),
         expect.any(Date),
+      );
+      expect(result).toEqual(mockMetrics);
+    });
+  });
+
+  describe('getDashboardStats', () => {
+    it('should return dashboard statistics', async () => {
+      const mockStats = {
+        tasksCompleted: 10,
+        tasksInProgress: 5,
+        overdue: 2,
+      };
+      analyticsService.getDashboardStats.mockResolvedValue(mockStats);
+
+      const result = await controller.getDashboardStats(mockUser);
+
+      expect(analyticsService.getDashboardStats).toHaveBeenCalledWith(
+        mockUser.id,
+      );
+      expect(result).toEqual(mockStats);
+    });
+  });
+
+  describe('getHeatmap', () => {
+    it('should return heatmap data', async () => {
+      const mockHeatmap = [
+        { date: '2024-01-01', count: 5 },
+        { date: '2024-01-02', count: 3 },
+      ];
+      analyticsService.getHeatmapData.mockResolvedValue(mockHeatmap);
+
+      const result = await controller.getHeatmap(mockUser);
+
+      expect(analyticsService.getHeatmapData).toHaveBeenCalledWith(mockUser.id);
+      expect(result).toEqual(mockHeatmap);
+    });
+  });
+
+  describe('getProjectDistribution', () => {
+    it('should return project distribution data', async () => {
+      const mockDistribution = [
+        { projectId: 'p1', projectName: 'Project 1', minutes: 300 },
+        { projectId: 'p2', projectName: 'Project 2', minutes: 200 },
+      ];
+      analyticsService.getProjectTimeDistribution.mockResolvedValue(mockDistribution);
+
+      const result = await controller.getProjectDistribution(mockUser);
+
+      expect(analyticsService.getProjectTimeDistribution).toHaveBeenCalledWith(
+        mockUser.id,
       );
       expect(result).toEqual(mockDistribution);
     });
   });
 
-  describe('getPeakHours', () => {
-    it('should return peak productivity hours', async () => {
-      const mockPeakHours = {
-        hours: [9, 10, 11, 14, 15],
-        bestDay: 'Tuesday',
-        heatmap: [],
-      };
-      analyticsService.getPeakHours.mockResolvedValue(mockPeakHours);
+  describe('getTaskStatusDistribution', () => {
+    it('should return task status distribution data', async () => {
+      const mockDistribution = [
+        { status: 'TODO', count: 10 },
+        { status: 'IN_PROGRESS', count: 5 },
+        { status: 'DONE', count: 20 },
+      ];
+      analyticsService.getTaskStatusDistribution.mockResolvedValue(mockDistribution);
 
-      const result = await controller.getPeakHours(mockUser);
+      const result = await controller.getTaskStatusDistribution(mockUser);
 
-      expect(analyticsService.getPeakHours).toHaveBeenCalledWith(mockUser.id);
-      expect(result).toEqual(mockPeakHours);
+      expect(analyticsService.getTaskStatusDistribution).toHaveBeenCalledWith(
+        mockUser.id,
+      );
+      expect(result).toEqual(mockDistribution);
     });
   });
 
-  describe('getStreak', () => {
+  describe('getProductivityStreak', () => {
     it('should return streak information', async () => {
       const mockStreak = {
         current: 7,
         longest: 15,
         lastActiveDate: '2024-01-15',
       };
-      analyticsService.getStreak.mockResolvedValue(mockStreak);
+      analyticsService.getProductivityStreak.mockResolvedValue(mockStreak);
 
-      const result = await controller.getStreak(mockUser);
+      const result = await controller.getProductivityStreak(mockUser);
 
-      expect(analyticsService.getStreak).toHaveBeenCalledWith(mockUser.id);
+      expect(analyticsService.getProductivityStreak).toHaveBeenCalledWith(
+        mockUser.id,
+      );
       expect(result).toEqual(mockStreak);
+    });
+  });
+
+  describe('getTeamMetrics', () => {
+    it('should return team metrics for a workspace', async () => {
+      const mockTeamMetrics = {
+        totalTasks: 50,
+        completedTasks: 30,
+        members: [],
+      };
+      analyticsService.getTeamMetrics.mockResolvedValue(mockTeamMetrics);
+
+      const result = await controller.getTeamMetrics(
+        'workspace-123',
+        '2024-01-01',
+        '2024-01-31',
+      );
+
+      expect(analyticsService.getTeamMetrics).toHaveBeenCalledWith(
+        'workspace-123',
+        expect.any(Date),
+        expect.any(Date),
+      );
+      expect(result).toEqual(mockTeamMetrics);
     });
   });
 });

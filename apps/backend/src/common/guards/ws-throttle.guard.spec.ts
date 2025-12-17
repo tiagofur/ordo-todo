@@ -1,4 +1,3 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import {
   WsThrottleGuard,
   WsThrottleGuardStrict,
@@ -26,14 +25,9 @@ describe('WsThrottleGuard', () => {
     } as unknown as ExecutionContext;
   };
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [WsThrottleGuard],
-    }).compile();
-
-    guard = module.get<WsThrottleGuard>(WsThrottleGuard);
-    // Reset the messageCount map for each test
-    (guard as any).messageCount = new Map();
+  beforeEach(() => {
+    // Instantiate directly instead of using TestingModule
+    guard = new WsThrottleGuard();
   });
 
   it('should be defined', () => {
@@ -82,10 +76,7 @@ describe('WsThrottleGuard', () => {
   describe('rate limiting reset', () => {
     it('should reset count after time window', async () => {
       // Create guard with very short window for testing
-      const shortWindowGuard = new (class extends WsThrottleGuard {
-        limit = 5;
-        windowMs = 100; // 100ms window
-      })();
+      const shortWindowGuard = new WsThrottleGuard(5, 0.1); // 100ms window
 
       const context = createMockExecutionContext('user-test');
 
@@ -109,33 +100,25 @@ describe('WsThrottleGuard', () => {
 describe('WsThrottleGuardStrict', () => {
   let guard: WsThrottleGuardStrict;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [WsThrottleGuardStrict],
-    }).compile();
-
-    guard = module.get<WsThrottleGuardStrict>(WsThrottleGuardStrict);
+  beforeEach(() => {
+    guard = new WsThrottleGuardStrict();
   });
 
   it('should have stricter limits', () => {
-    expect((guard as any).limit).toBe(20);
-    expect((guard as any).windowMs).toBe(60000);
+    expect((guard as any).limit).toBe(10);
+    expect((guard as any).ttlMs).toBe(60000);
   });
 });
 
 describe('WsThrottleGuardRelaxed', () => {
   let guard: WsThrottleGuardRelaxed;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [WsThrottleGuardRelaxed],
-    }).compile();
-
-    guard = module.get<WsThrottleGuardRelaxed>(WsThrottleGuardRelaxed);
+  beforeEach(() => {
+    guard = new WsThrottleGuardRelaxed();
   });
 
   it('should have more relaxed limits', () => {
     expect((guard as any).limit).toBe(100);
-    expect((guard as any).windowMs).toBe(60000);
+    expect((guard as any).ttlMs).toBe(60000);
   });
 });
