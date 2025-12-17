@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useObjectives } from '../../../hooks/api';
+import { useObjectives } from '@/app/lib/shared-hooks';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Loading from '../../../components/shared/loading.component';
 import { MaterialCommunityIcons } from '@expo/vector-icons';

@@ -1,8 +1,9 @@
 {
   "name": "@ordo-todo/styles",
   "version": "1.0.0",
-  "description": "Shared CSS styles and Tailwind theme for Ordo-Todo",
+  "description": "Shared CSS styles, Tailwind theme, and design tokens for Ordo-Todo",
   "main": "./src/index.css",
+  "types": "./src/tokens.ts",
   "exports": {
     ".": "./src/index.css",
     "./src/index.css": "./src/index.css",
@@ -13,7 +14,17 @@
     "./variables": "./src/variables.css",
     "./theme": "./src/theme.css",
     "./base": "./src/base.css",
-    "./components": "./src/components.css"
+    "./components": "./src/components.css",
+    "./tokens": {
+      "types": "./src/tokens.ts",
+      "import": "./src/tokens.ts",
+      "require": "./src/tokens.ts"
+    },
+    "./src/tokens": {
+      "types": "./src/tokens.ts",
+      "import": "./src/tokens.ts",
+      "require": "./src/tokens.ts"
+    }
   },
   "files": [
     "src"
@@ -22,7 +33,9 @@
     "ordo-todo",
     "styles",
     "tailwind",
-    "css"
+    "css",
+    "tokens",
+    "react-native"
   ],
   "peerDependencies": {
     "tailwindcss": "^4.0.0"

@@ -22,18 +22,14 @@ import UserAvatar from "../../../components/shared/user-avatar.component";
 import useSession from "../../../data/hooks/use-session.hook";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import Card from "@/app/components/shared/card.component";
+import { useTranslation } from "react-i18next";
 
-const PROFILE_OPTIONS = [
-  { icon: "bell", label: "Notificaciones", color: "#667EEA", hasSwitch: true },
-  { icon: "moon", label: "Tema Oscuro", color: "#9F7AEA", hasSwitch: true },
-  { icon: "settings", label: "Configuración", color: "#4299E1" },
-  { icon: "help-circle", label: "Ayuda y Soporte", color: "#48BB78" },
-  { icon: "info", label: "Acerca de", color: "#ED8936" },
-];
+// Profile options will be built with translations in the component
 
 export default function Profile() {
   const { user, endSession } = useSession();
   const colors = useThemeColors();
+  const { t } = useTranslation();
 
   const { data: stats } = useQuery({
     queryKey: ['dashboard-stats'],
@@ -41,38 +37,47 @@ export default function Profile() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  // Build profile options with translations
+  const PROFILE_OPTIONS = useMemo(() => [
+    { icon: "bell", label: t('Mobile.profileOptions.notifications'), color: "#667EEA", hasSwitch: true },
+    { icon: "moon", label: t('Mobile.profileOptions.darkMode'), color: "#9F7AEA", hasSwitch: true },
+    { icon: "settings", label: t('Mobile.profileOptions.settings'), color: "#4299E1" },
+    { icon: "help-circle", label: t('Mobile.profileOptions.help'), color: "#48BB78" },
+    { icon: "info", label: t('Mobile.profileOptions.about'), color: "#ED8936" },
+  ], [t]);
+
   const profileStats = useMemo(() => [
     { 
       icon: "check-circle", 
-      label: "Completadas", 
+      label: t('Mobile.profileOptions.completed'), 
       value: stats?.tasks?.toString() || "0", 
       color: "#48BB78" 
     },
     { 
       icon: "clock", 
-      label: "Minutos Foco", 
+      label: t('Mobile.profileOptions.focusMinutes'), 
       value: stats?.minutes?.toString() || "0", 
       color: "#ED8936" 
     },
     { 
       icon: "target", 
-      label: "Pomodoros", 
+      label: t('Mobile.profileOptions.pomodoros'), 
       value: stats?.pomodoros?.toString() || "0", 
       color: "#667EEA" 
     },
-  ], [stats]);
+  ], [stats, t]);
 
   const handleLogout = () => {
     Alert.alert(
-      "Cerrar Sesión",
-      "¿Estás seguro que deseas cerrar sesión?",
+      t('Mobile.profileOptions.logoutTitle'),
+      t('Mobile.profileOptions.logoutMessage'),
       [
         {
-          text: "Cancelar",
+          text: t('Mobile.profileOptions.cancel'),
           style: "cancel",
         },
         {
-          text: "Salir",
+          text: t('Mobile.profileOptions.exit'),
           style: "destructive",
           onPress: () => {
             endSession();
@@ -86,7 +91,7 @@ export default function Profile() {
   if (!user) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Cargando...</Text>
+        <Text style={{ color: colors.text }}>{t('Mobile.profileOptions.loading')}</Text>
       </View>
     );
   }
@@ -159,7 +164,7 @@ export default function Profile() {
         {/* Opciones del perfil */}
         <Animated.View entering={FadeInDown.delay(700)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Configuración
+            {t('Mobile.profileOptions.settings')}
           </Text>
 
           {PROFILE_OPTIONS.map((option, index) => (
@@ -219,7 +224,7 @@ export default function Profile() {
                   <Feather name="log-out" size={20} color={colors.error} />
                 </View>
                 <Text style={[styles.logoutText, { color: colors.error }]}>
-                  Cerrar Sesión
+                  {t('Mobile.profileOptions.logout')}
                 </Text>
               </View>
             </Card>
@@ -232,7 +237,7 @@ export default function Profile() {
           style={styles.versionContainer}
         >
           <Text style={[styles.versionText, { color: colors.textMuted }]}>
-            Versión 1.0.0
+            {t('Mobile.profileOptions.version')} 1.0.0
           </Text>
         </Animated.View>
       </ScrollView>

@@ -1,2 +1,0 @@
-hagame un analisis completo de la app @apps\desktop/ en busqueda de fallos, errores, errores de logica, errores de lint, si todas las funciones que debe de tener estan implementadas, puedes comparar con la app web que es la mas completa, pero ojo nuestra intencion es que la app desktop este alineada con la web, pero si hay algo mejor implementado en la app desktop que en la app web hazme saber, esto habiamos hecho aun lo tienes?
-

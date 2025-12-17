@@ -12,6 +12,9 @@ Bienvenido a la documentación de **Ordo-Todo**, una plataforma moderna de gesti
 docs/
 ├── README.md                    # Este archivo (índice principal)
 ├── ROADMAP.md                   # Roadmap de desarrollo actualizado
+├── COMPONENT_GUIDELINES.md      # Guías para crear componentes compartidos
+├── PRICING-STRATEGY.md          # Estrategia de pricing
+├── USER_GUIDE.md                # Guía de usuario final
 │
 ├── getting-started/             # 🚀 Comenzar aquí
 │   ├── QUICKSTART.md            # Setup rápido (5 minutos)
@@ -26,23 +29,53 @@ docs/
 │   └── DESIGN_GUIDELINES.md     # Guías de diseño visual
 │
 ├── packages/                    # 📦 Packages Compartidos
-│   └── README.md                # Core, DB, API Client, UI, Hooks
+│   ├── README.md                # Core, DB, API Client, UI, Hooks
+│   └── fases.md                 # Estado de migración de packages
+│
+├── mejoras-competencia/         # 🚀 Features Competitivos
+│   ├── README.md                # Índice de mejoras
+│   ├── COMPETITIVE-ANALYSIS.md  # Análisis de competencia
+│   ├── WEB-PRODUCTION-CHECKLIST.md # Checklist de producción
+│   ├── 01-HABIT-TRACKER.md      # Sistema de hábitos
+│   ├── 02-SMART-DATES.md        # Start/Scheduled/Due dates
+│   ├── 03-OKRS-GOALS.md         # Sistema OKRs
+│   ├── 04-TIME-BLOCKING.md      # Time blocking
+│   ├── 05-CUSTOM-FIELDS.md      # Campos personalizados
+│   └── 06-AI-FEATURES.md        # AI Features
 │
 ├── web/                         # 🌐 Web App (Next.js)
-│   └── README.md                # Setup, estructura, features
+│   ├── README.md                # Setup, estructura, features
+│   ├── ROADMAP.md               # Roadmap específico web
+│   ├── BEST-PRACTICES.md        # Mejores prácticas
+│   ├── PERFORMANCE-GUIDE.md     # Optimización rendimiento
+│   ├── MAINTENANCE.md           # Guía de mantenimiento
+│   └── TROUBLESHOOTING.md       # Solución de problemas
+│
+├── backend/                     # ⚙️ API (NestJS)
+│   ├── README.md                # Endpoints reference
+│   ├── ARCHITECTURE.md          # Arquitectura backend
+│   ├── SECURITY.md              # Seguridad backend
+│   ├── IMPROVEMENTS.md          # Mejoras planificadas
+│   └── ai-features.md           # Sistema de IA
 │
 ├── mobile/                      # 📱 Mobile App (React Native)
 │   └── README.md                # Setup, roadmap, estado
 │
 ├── desktop/                     # 🖥️ Desktop App (Electron)
-│   └── README.md                # Features nativos, build
+│   ├── README.md                # Features nativos, build
+│   ├── analysis-report.md       # Análisis de paridad
+│   └── developer-needs-assessment.md # Necesidades dev
 │
-├── backend/                     # ⚙️ API (NestJS)
-│   ├── README.md                # Endpoints reference
-│   └── ai-features.md           # Sistema de IA
+├── deployment/                  # 🚀 Deployment
+│   ├── DEPLOYMENT-STATUS.md     # Estado de deployment
+│   └── QUICK-COMMANDS.md        # Comandos rápidos
 │
-└── troubleshooting/             # 🔧 Solución de Problemas
-    └── hmr-errors.md            # Errores comunes
+├── troubleshooting/             # 🔧 Solución de Problemas
+│   └── hmr-errors.md            # Errores HMR
+│
+├── DEPENDENCY_MANAGEMENT.md     # 📦 Gestión de dependencias
+├── DEPENDABOT_CLEANUP.md        # 🤖 Guía Dependabot
+└── SECURITY_REPORT.md           # 🔒 Reporte de seguridad
 ```
 
 ---
@@ -61,12 +94,12 @@ docs/
 
 ### Trabajar en una app específica
 
-| App | Documentación |
-|-----|---------------|
-| 🌐 **Web** | [web/README.md](./web/README.md) |
-| 📱 **Mobile** | [mobile/README.md](./mobile/README.md) |
-| 🖥️ **Desktop** | [desktop/README.md](./desktop/README.md) |
-| ⚙️ **Backend** | [backend/README.md](./backend/README.md) |
+| App | Documentación | Estado |
+|-----|---------------|--------|
+| 🌐 **Web** | [web/README.md](./web/README.md) | ✅ Producción |
+| 📱 **Mobile** | [mobile/README.md](./mobile/README.md) | 🟡 En Progreso |
+| 🖥️ **Desktop** | [desktop/README.md](./desktop/README.md) | ✅ Funcional |
+| ⚙️ **Backend** | [backend/README.md](./backend/README.md) | ✅ Estable |
 
 ---
 
@@ -86,7 +119,8 @@ ordo-todo/
 │   ├── api-client/   # Cliente HTTP tipado
 │   ├── ui/           # Componentes UI compartidos
 │   ├── hooks/        # React Hooks compartidos
-│   └── i18n/         # Internacionalización
+│   ├── i18n/         # Internacionalización
+│   └── styles/       # Estilos compartidos (Tailwind v4)
 │
 └── docs/             # Esta documentación
 ```
@@ -103,6 +137,7 @@ ordo-todo/
 | **Frontend Desktop** | Electron, Vite, React |
 | **Backend** | NestJS, REST API |
 | **Base de Datos** | PostgreSQL 16 + Prisma ORM |
+| **IA** | Google Gemini (genai SDK) |
 | **Arquitectura** | DDD + Clean Architecture |
 
 ---
@@ -116,8 +151,34 @@ ordo-todo/
 | **Desktop** | ✅ Funcional | 85% |
 | **Mobile** | 🟡 En Progreso | 60% |
 | **Packages** | ✅ Estable | 90% |
+| **AI Features** | ✅ Implementado | 80% |
 
 Ver **[ROADMAP.md](./ROADMAP.md)** para detalles completos.
+
+---
+
+## ✅ Features Principales Implementados
+
+### Core
+- ✅ Gestión de tareas con subtareas
+- ✅ Proyectos y workspaces
+- ✅ Timer Pomodoro avanzado
+- ✅ Gamificación (XP, niveles, logros)
+- ✅ Vistas: Lista, Kanban, Calendario
+
+### Features Avanzados
+- ✅ [Habit Tracker](./mejoras-competencia/01-HABIT-TRACKER.md) - Sistema de hábitos con streaks
+- ✅ [Smart Dates](./mejoras-competencia/02-SMART-DATES.md) - Start/Scheduled/Due dates
+- ✅ [OKRs/Goals](./mejoras-competencia/03-OKRS-GOALS.md) - Objetivos con Key Results
+- ✅ [Time Blocking](./mejoras-competencia/04-TIME-BLOCKING.md) - Calendario con bloques
+- ✅ [Custom Fields](./mejoras-competencia/05-CUSTOM-FIELDS.md) - 8 tipos de campos
+
+### AI Features
+- ✅ Smart Semantic Search - Búsqueda en lenguaje natural
+- ✅ AI Meeting Assistant - Transcripción → Tareas
+- ✅ Burnout Prevention Engine - Detección de burnout
+- ✅ Focus Sessions Audio - Sonidos ambient
+- ✅ Weekly AI Reports - Reportes de productividad
 
 ---
 
@@ -127,8 +188,17 @@ Ver **[ROADMAP.md](./ROADMAP.md)** para detalles completos.
 |---------|-------------|
 | [QUICKSTART.md](./getting-started/QUICKSTART.md) | Comenzar en 5 minutos |
 | [ARCHITECTURE.md](./design/ARCHITECTURE.md) | Decisiones de arquitectura |
-| [packages/README.md](./packages/README.md) | Cómo usar los packages |
+| [COMPETITIVE-ANALYSIS.md](./mejoras-competencia/COMPETITIVE-ANALYSIS.md) | Análisis competitivo |
 | [ROADMAP.md](./ROADMAP.md) | Estado y próximos pasos |
+| [SECURITY_REPORT.md](./SECURITY_REPORT.md) | Reporte de seguridad |
+
+---
+
+## 🔒 Seguridad
+
+- **Vulnerabilidades críticas:** 0
+- **Última auditoría:** Diciembre 2025
+- Ver [SECURITY_REPORT.md](./SECURITY_REPORT.md) para más detalles.
 
 ---
 

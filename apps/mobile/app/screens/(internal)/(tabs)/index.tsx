@@ -9,14 +9,17 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import Card from "@/app/components/shared/card.component";
-import { useTasks, useCompleteTask, useObjectivesDashboardSummary } from "@/app/hooks/api";
+import { useTasks, useCompleteTask, useObjectivesDashboardSummary } from "@/app/lib/shared-hooks";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
-const FILTERS = ["Todas", "Hoy", "Próximas", "Completadas"];
+// Filter keys for translation
+const FILTER_KEYS = ["all", "today", "upcoming", "completed"] as const;
 
 export default function Home() {
   const colors = useThemeColors();
-  const [selectedFilter, setSelectedFilter] = useState("Todas");
+  const { t } = useTranslation();
+  const [selectedFilter, setSelectedFilter] = useState<typeof FILTER_KEYS[number]>("all");
   
   // Hooks
   const { data: tasks, isLoading, error, refetch } = useTasks();
@@ -80,15 +83,15 @@ export default function Home() {
   const filteredTasks = React.useMemo(() => {
     if (!tasks) return [];
     
-    if (selectedFilter === "Completadas") return tasks.filter(t => t.status === "COMPLETED");
-    if (selectedFilter === "Todas") return tasks.filter(t => t.status !== "COMPLETED");
+    if (selectedFilter === "completed") return tasks.filter(t => t.status === "COMPLETED");
+    if (selectedFilter === "all") return tasks.filter(t => t.status !== "COMPLETED");
     
     const today = new Date().toISOString().split('T')[0];
-    if (selectedFilter === "Hoy") {
+    if (selectedFilter === "today") {
       return tasks.filter(t => t.status !== "COMPLETED" && t.dueDate && new Date(t.dueDate).toISOString().startsWith(today));
     }
     
-    if (selectedFilter === "Próximas") {
+    if (selectedFilter === "upcoming") {
        return tasks.filter(t => t.status !== "COMPLETED" && t.dueDate && new Date(t.dueDate).toISOString().split('T')[0] > today);
     }
 
@@ -106,9 +109,9 @@ export default function Home() {
   if (error) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.error, marginBottom: 10 }}>Error al cargar tareas</Text>
+        <Text style={{ color: colors.error, marginBottom: 10 }}>{t('Mobile.home.loadError')}</Text>
         <Pressable onPress={() => refetch()} style={{ padding: 10, backgroundColor: colors.card, borderRadius: 8 }}>
-          <Text style={{ color: colors.primary, fontWeight: 'bold' }}>Reintentar</Text>
+          <Text style={{ color: colors.primary, fontWeight: 'bold' }}>{t('Mobile.home.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -130,8 +133,8 @@ export default function Home() {
         end={{ x: 1, y: 1 }}
       >
         <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>¡Hola! 👋</Text>
-          <Text style={styles.title}>Mis Tareas</Text>
+          <Text style={styles.greeting}>{t('Mobile.home.greeting')}</Text>
+          <Text style={styles.title}>{t('Mobile.home.myTasks')}</Text>
         </Animated.View>
 
         <Animated.View
@@ -140,15 +143,15 @@ export default function Home() {
         >
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{pendingCount}</Text>
-            <Text style={styles.statLabel}>Pendientes</Text>
+            <Text style={styles.statLabel}>{t('Mobile.home.pending')}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{completedCount}</Text>
-            <Text style={styles.statLabel}>Completadas</Text>
+            <Text style={styles.statLabel}>{t('Mobile.home.completed')}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{todayCount}</Text>
-            <Text style={styles.statLabel}>Hoy</Text>
+            <Text style={styles.statLabel}>{t('Mobile.home.today')}</Text>
           </View>
         </Animated.View>
 
@@ -190,10 +193,10 @@ export default function Home() {
           style={styles.filtersContainer}
           contentContainerStyle={styles.filtersContent}
         >
-          {FILTERS.map((filter, index) => (
+          {FILTER_KEYS.map((filterKey, index) => (
             <Pressable
-              key={filter}
-              onPress={() => setSelectedFilter(filter)}
+              key={filterKey}
+              onPress={() => setSelectedFilter(filterKey)}
             >
               <Animated.View
                 entering={FadeInRight.delay(300 + index * 50)}
@@ -201,7 +204,7 @@ export default function Home() {
                   styles.filterChip,
                   {
                     backgroundColor:
-                      selectedFilter === filter
+                      selectedFilter === filterKey
                         ? colors.primary
                         : colors.card,
                     borderColor: colors.border,
@@ -213,14 +216,14 @@ export default function Home() {
                     styles.filterText,
                     {
                       color:
-                        selectedFilter === filter
+                        selectedFilter === filterKey
                           ? colors.buttonPrimaryText
                           : colors.textSecondary,
-                      fontWeight: selectedFilter === filter ? "700" : "600",
+                      fontWeight: selectedFilter === filterKey ? "700" : "600",
                     },
                   ]}
                 >
-                  {filter}
+                  {t(`Mobile.filters.${filterKey}`)}
                 </Text>
               </Animated.View>
             </Pressable>
@@ -240,7 +243,7 @@ export default function Home() {
           <View style={{ padding: 40, alignItems: 'center' }}>
             <Feather name="check-circle" size={48} color={colors.textMuted} style={{ marginBottom: 10, opacity: 0.5 }} />
             <Text style={{ color: colors.textSecondary }}>
-              {selectedFilter === "Todas" ? "No tienes tareas pendientes" : "No hay tareas en esta vista"}
+              {selectedFilter === "all" ? t('Mobile.home.noTasks') : t('Mobile.home.noTasksInView')}
             </Text>
           </View>
         ) : (

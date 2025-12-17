@@ -10,15 +10,27 @@ import type {
 
 /**
  * Workspace Management Hooks
+ * 
+ * Re-exports shared hooks and implements desktop-specific ones.
  */
 
-export function useWorkspaces() {
-  return useQuery({
-    queryKey: ['workspaces'],
-    queryFn: () => apiClient.getWorkspaces(),
-  });
-}
+// Re-export standard hooks
+export {
+  useWorkspaces,
+  // useWorkspace, // Comentado por ahora si no estamos seguros de que existe en shared
+  useCreateWorkspace,
+  useUpdateWorkspace,
+  useDeleteWorkspace,
+  useAddWorkspaceMember,
+  useRemoveWorkspaceMember,
+  useWorkspaceMembers,
+  useWorkspaceInvitations,
+  useInviteMember,
+} from '@/lib/shared-hooks';
 
+// ============ DESKTOP SPECIFIC / NOT YET SHARED HOOKS ============
+
+// Verificar si useWorkspace existe en shared antes de habilitarlo
 export function useWorkspace(workspaceId: string) {
   return useQuery({
     queryKey: ['workspaces', workspaceId],
@@ -36,97 +48,6 @@ export function useWorkspaceBySlug(slug: string) {
   });
 }
 
-export function useCreateWorkspace() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateWorkspaceDto) => apiClient.createWorkspace(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-    },
-  });
-}
-
-export function useUpdateWorkspace() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: UpdateWorkspaceDto }) =>
-      apiClient.updateWorkspace(workspaceId, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      queryClient.invalidateQueries({ queryKey: ['workspaces', variables.workspaceId] });
-    },
-  });
-}
-
-export function useDeleteWorkspace() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (workspaceId: string) => apiClient.deleteWorkspace(workspaceId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-    },
-  });
-}
-
-// ============ MEMBER HOOKS ============
-
-export function useAddWorkspaceMember() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: AddMemberDto }) =>
-      apiClient.addWorkspaceMember(workspaceId, data),
-    onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId] });
-      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
-    },
-  });
-}
-
-export function useRemoveWorkspaceMember() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
-      apiClient.removeWorkspaceMember(workspaceId, userId),
-    onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId] });
-      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
-    },
-  });
-}
-
-export function useWorkspaceMembers(workspaceId: string) {
-  return useQuery({
-    queryKey: ['workspaces', workspaceId, 'members'],
-    queryFn: () => apiClient.getWorkspaceMembers(workspaceId),
-    enabled: !!workspaceId,
-  });
-}
-
-export function useWorkspaceInvitations(workspaceId: string) {
-  return useQuery({
-    queryKey: ['workspaces', workspaceId, 'invitations'],
-    queryFn: () => apiClient.getWorkspaceInvitations(workspaceId),
-    enabled: !!workspaceId,
-  });
-}
-
-export function useInviteMember() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: InviteMemberDto }) =>
-      apiClient.inviteWorkspaceMember(workspaceId, data),
-    onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'invitations'] });
-    },
-  });
-}
-
 export function useAcceptInvitation() {
   const queryClient = useQueryClient();
 
@@ -137,6 +58,7 @@ export function useAcceptInvitation() {
     },
   });
 }
+
 
 // ============ WORKSPACE SETTINGS HOOKS ============
 

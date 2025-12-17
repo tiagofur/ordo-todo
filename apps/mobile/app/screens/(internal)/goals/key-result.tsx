@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
-import { useAddKeyResult, useUpdateKeyResult, useObjective } from '@/app/hooks/api/use-objectives';
+import { useAddKeyResult, useUpdateKeyResult, useObjective } from '@/app/lib/shared-hooks';
 import CustomTextInput from '../../../components/shared/text-input.component';
 import CustomButton from '../../../components/shared/button.component';
 import { Feather } from '@expo/vector-icons';
@@ -73,7 +73,6 @@ export default function CreateKeyResultScreen() {
     try {
       if (isEditing && id) {
           await updateKeyResult.mutateAsync({
-              objectiveId,
               keyResultId: id,
               data: {
                   title,

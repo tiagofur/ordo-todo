@@ -11,6 +11,7 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import ThemeToggle from "@/app/components/template/theme-toggle.component";
+import { useTranslation } from "react-i18next";
 
 function TabBarIcon({
   name,
@@ -98,6 +99,7 @@ function FloatingActionButton() {
 
 export default function TabsLayout() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -134,7 +136,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Tareas",
+          title: t('Mobile.tabs.home'),
           tabBarIcon: ({ focused, color }) => (
             <TabBarIcon name="list" color={color} focused={focused} />
           ),
@@ -143,7 +145,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="calendar"
         options={{
-          title: "Calendario",
+          title: t('Mobile.tabs.calendar'),
           tabBarIcon: ({ focused, color }) => (
             <TabBarIcon name="calendar" color={color} focused={focused} />
           ),
@@ -152,7 +154,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="habits"
         options={{
-          title: "Hábitos",
+          title: t('Mobile.tabs.habits'),
           tabBarIcon: ({ focused, color }) => (
             <TabBarIcon name="star" color={color} focused={focused} />
           ),
@@ -179,7 +181,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Perfil",
+          title: t('Mobile.tabs.profile'),
           tabBarIcon: ({ focused, color }) => (
             <TabBarIcon name="user" color={color} focused={focused} />
           ),

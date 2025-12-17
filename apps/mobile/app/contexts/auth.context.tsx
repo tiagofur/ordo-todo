@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect } from 'react';
-import { useCurrentUser, useLogin, useRegister, useLogout } from '../hooks/api';
+import { useCurrentUser, useLogin, useRegister, useLogout } from '../lib/shared-hooks';
 import type { UserResponse, LoginDto, RegisterDto } from '@ordo-todo/api-client';
 import { useRouter } from 'expo-router';
 

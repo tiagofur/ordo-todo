@@ -9,11 +9,13 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import Card from "@/app/components/shared/card.component";
-import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/app/hooks/api";
+import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/app/lib/shared-hooks";
 import type { Habit } from "@ordo-todo/api-client";
+import { useTranslation } from "react-i18next";
 
 export default function Habits() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   
   // Hooks
   const { data: todayData, isLoading, error, refetch } = useTodayHabits();
@@ -39,15 +41,15 @@ export default function Habits() {
         
         // Show streak messages
         if (result.habit.currentStreak === 7) {
-          Alert.alert("🎉 Uma semana!", "Você completou uma semana de sequência!");
+          Alert.alert(t('Mobile.habits.oneWeek'), t('Mobile.habits.oneWeekMessage'));
         } else if (result.habit.currentStreak === 30) {
-          Alert.alert("🚀 Um mês!", "Você é imparável!");
+          Alert.alert(t('Mobile.habits.oneMonth'), t('Mobile.habits.oneMonthMessage'));
         } else if (result.habit.currentStreak === 100) {
-          Alert.alert("🏆 100 dias!", "Você é uma lenda!");
+          Alert.alert(t('Mobile.habits.hundredDays'), t('Mobile.habits.hundredDaysMessage'));
         }
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível atualizar o hábito");
+      Alert.alert(t('Mobile.common.error'), t('Mobile.habits.errorUpdating'));
     }
   };
 
@@ -62,9 +64,9 @@ export default function Habits() {
   if (error) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.error, marginBottom: 10 }}>Erro ao carregar hábitos</Text>
+        <Text style={{ color: colors.error, marginBottom: 10 }}>{t('Mobile.habits.loadError')}</Text>
         <Pressable onPress={() => refetch()} style={{ padding: 10, backgroundColor: colors.card, borderRadius: 8 }}>
-          <Text style={{ color: colors.primary, fontWeight: 'bold' }}>Tentar novamente</Text>
+          <Text style={{ color: colors.primary, fontWeight: 'bold' }}>{t('Mobile.habits.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -85,8 +87,8 @@ export default function Habits() {
         end={{ x: 1, y: 1 }}
       >
         <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>✨ Hábitos</Text>
-          <Text style={styles.title}>Progresso do Dia</Text>
+          <Text style={styles.greeting}>✨ {t('Mobile.tabs.habits')}</Text>
+          <Text style={styles.title}>{t('Mobile.habits.progress')}</Text>
         </Animated.View>
 
         <Animated.View
@@ -95,15 +97,15 @@ export default function Habits() {
         >
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{summary.completed}/{summary.total}</Text>
-            <Text style={styles.statLabel}>Concluídos</Text>
+            <Text style={styles.statLabel}>{t('Mobile.habits.completed')}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{summary.percentage}%</Text>
-            <Text style={styles.statLabel}>Progresso</Text>
+            <Text style={styles.statLabel}>{t('Mobile.habits.progress')}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{bestStreak}</Text>
-            <Text style={styles.statLabel}>🔥 Sequência</Text>
+            <Text style={styles.statLabel}>🔥 {t('Mobile.habits.streak')}</Text>
           </View>
         </Animated.View>
       </LinearGradient>
@@ -135,7 +137,7 @@ export default function Habits() {
           <View style={{ padding: 40, alignItems: 'center' }}>
             <Feather name="star" size={48} color={colors.textMuted} style={{ marginBottom: 10, opacity: 0.5 }} />
             <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>
-              Nenhum hábito ainda{"\n"}Crie seu primeiro hábito para começar!
+              {t('Mobile.habits.noHabits')}{"\n"}{t('Mobile.habits.createFirst')}
             </Text>
           </View>
         ) : (

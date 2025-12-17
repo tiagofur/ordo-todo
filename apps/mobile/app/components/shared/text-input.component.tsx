@@ -23,6 +23,7 @@ interface CustomTextInputProps extends TextInputProps {
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export default function CustomTextInput({
@@ -35,6 +36,7 @@ export default function CustomTextInput({
   error,
   leftIcon,
   rightIcon,
+  disabled = false,
   style,
   ...props
 }: CustomTextInputProps) {
@@ -109,6 +111,7 @@ export default function CustomTextInput({
           keyboardType={keyboardType}
           placeholderTextColor={colors.inputPlaceholder}
           autoCapitalize="none"
+          editable={!disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
           {...props}

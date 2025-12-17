@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/auth.context";
-import { useUpdateProfile } from "../../hooks/api";
+import { useUpdateProfile } from "@/app/lib/shared-hooks";
 import { User } from "@ordo-todo/core";
 
 export default function useProfile() {
   const { user: loggedUser } = useAuth();
   const updateProfileMutation = useUpdateProfile();
-  
+
   const [localName, setLocalName] = useState(loggedUser?.name ?? "");
 
   async function changeName() {

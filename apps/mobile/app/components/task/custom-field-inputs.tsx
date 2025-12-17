@@ -11,9 +11,58 @@ import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
 import {
   useCustomFields,
   useTaskCustomValues,
-  useCustomFieldForm,
-} from '@/app/hooks/api/use-custom-fields';
+  useSetTaskCustomValues,
+} from '@/app/lib/shared-hooks';
 import type { CustomField, CustomFieldValue } from '@ordo-todo/api-client';
+
+/**
+ * Hook helper to manage custom field values in a form
+ * This is a Mobile-specific hook that combines shared hooks with local form state
+ */
+export function useCustomFieldForm(projectId: string, taskId?: string) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const { data: fields } = useCustomFields(projectId);
+  const setTaskValues = useSetTaskCustomValues();
+
+  const handleChange = (fieldId: string, value: string) => {
+    setValues((prev) => ({ ...prev, [fieldId]: value }));
+  };
+
+  const getValuesForSubmit = () => {
+    return Object.entries(values)
+      .filter(([_, v]) => v !== '')
+      .map(([fieldId, value]) => ({ fieldId, value }));
+  };
+
+  const validateRequired = (): boolean => {
+    if (!fields) return true;
+    for (const field of fields) {
+      if (field.isRequired && !values[field.id]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const saveValues = async (targetTaskId: string) => {
+    const submitValues = getValuesForSubmit();
+    if (submitValues.length > 0) {
+      await setTaskValues.mutateAsync({
+        taskId: targetTaskId,
+        data: { values: submitValues },
+      });
+    }
+  };
+
+  return {
+    values,
+    handleChange,
+    getValuesForSubmit,
+    validateRequired,
+    saveValues,
+    isPending: setTaskValues.isPending,
+  };
+}
 
 interface CustomFieldInputsProps {
   projectId: string;
@@ -310,5 +359,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
-export { useCustomFieldForm };

@@ -23,7 +23,7 @@ import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { TaskCard } from "@/components/task/task-card";
 import { useTasks } from "@/hooks/api/use-tasks";
-import { useProjects } from "@/hooks/api/use-projects";
+import { useProjects, useAllProjects } from "@/hooks/api/use-projects";
 import { useDashboardStats, useDailyMetrics } from "@/hooks/api/use-analytics";
 import { PageTransition, SlideIn, StaggerList, StaggerItem } from "@/components/motion";
 import {
@@ -53,7 +53,7 @@ export function Dashboard() {
 
   // Data hooks
   const { data: tasksData } = useTasks();
-  const { data: projectsData } = useProjects();
+  const { data: projectsData } = useAllProjects();
   const { data: dashboardStats } = useDashboardStats();
 
   const tasks = tasksData ?? [];

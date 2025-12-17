@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { useObjective } from '../../../hooks/api';
+import { useObjective } from '@/app/lib/shared-hooks';
 import Loading from '../../../components/shared/loading.component';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';

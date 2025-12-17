@@ -43,6 +43,10 @@ import type {
   CreateKeyResultDto,
   UpdateKeyResultDto,
   LinkTaskDto,
+  // Custom Fields
+  CreateCustomFieldDto,
+  UpdateCustomFieldDto,
+  SetMultipleCustomFieldValuesDto,
 } from '@ordo-todo/api-client';
 import { queryKeys } from './query-keys';
 import type { ApiClient, CreateHooksConfig } from './types';
@@ -1445,6 +1449,73 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  // ==================== Custom Fields ====================
+
+  function useCustomFields(projectId: string) {
+    return useQuery({
+      queryKey: queryKeys.customFields(projectId),
+      queryFn: () => apiClient.getProjectCustomFields(projectId),
+      enabled: !!projectId,
+    });
+  }
+
+  function useCreateCustomField() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ projectId, data }: { projectId: string; data: CreateCustomFieldDto }) =>
+        apiClient.createCustomField(projectId, data),
+      onSuccess: (_, { projectId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.customFields(projectId) });
+      },
+    });
+  }
+
+  function useUpdateCustomField() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ fieldId, data, projectId }: { fieldId: string; data: UpdateCustomFieldDto; projectId: string }) =>
+        apiClient.updateCustomField(fieldId, data),
+      onSuccess: (_, { projectId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.customFields(projectId) });
+      },
+    });
+  }
+
+  function useDeleteCustomField() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ fieldId, projectId }: { fieldId: string; projectId: string }) =>
+        apiClient.deleteCustomField(fieldId),
+      onSuccess: (_, { projectId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.customFields(projectId) });
+      },
+    });
+  }
+
+  function useTaskCustomValues(taskId: string) {
+    return useQuery({
+      queryKey: queryKeys.taskCustomValues(taskId),
+      queryFn: () => apiClient.getTaskCustomValues(taskId),
+      enabled: !!taskId,
+    });
+  }
+
+  function useSetTaskCustomValues() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ taskId, data }: { taskId: string; data: SetMultipleCustomFieldValuesDto }) =>
+        apiClient.setTaskCustomValues(taskId, data),
+      onSuccess: (_, { taskId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.taskCustomValues(taskId) });
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      },
+    });
+  }
+
   // Return all hooks
   return {
     // Auth
@@ -1593,6 +1664,14 @@ export function createHooks(config: CreateHooksConfig) {
     useDeleteKeyResult,
     useLinkTaskToKeyResult,
     useUnlinkTaskFromKeyResult,
+
+    // Custom Fields
+    useCustomFields,
+    useCreateCustomField,
+    useUpdateCustomField,
+    useDeleteCustomField,
+    useTaskCustomValues,
+    useSetTaskCustomValues,
 
     // Utilities
     invalidateAllTasks,

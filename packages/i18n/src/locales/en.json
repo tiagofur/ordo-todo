@@ -2071,6 +2071,136 @@
       "strongWarning": "Warning",
       "criticalAlert": "Critical Alert"
     }
+  },
+  "Mobile": {
+    "home": {
+      "greeting": "Hello! 👋",
+      "myTasks": "My Tasks",
+      "pending": "Pending",
+      "completed": "Completed",
+      "today": "Today",
+      "loadError": "Error loading tasks",
+      "retry": "Retry",
+      "noTasks": "You have no pending tasks",
+      "noTasksInView": "No tasks in this view",
+      "okrsGoals": "OKRs & Goals",
+      "active": "active"
+    },
+    "filters": {
+      "all": "All",
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "completed": "Completed"
+    },
+    "tabs": {
+      "home": "Home",
+      "habits": "Habits",
+      "calendar": "Calendar",
+      "profile": "Profile"
+    },
+    "common": {
+      "loading": "Loading...",
+      "error": "Error",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "back": "Back",
+      "done": "Done",
+      "search": "Search",
+      "noResults": "No results"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "task": {
+      "newTask": "New Task",
+      "editTask": "Edit Task",
+      "title": "Title",
+      "description": "Description",
+      "project": "Project",
+      "priority": "Priority",
+      "dueDate": "Due date",
+      "estimatedMinutes": "Estimated minutes",
+      "noProject": "No project",
+      "selectProject": "Select project",
+      "taskCreated": "Task created",
+      "taskUpdated": "Task updated",
+      "createError": "Error creating task",
+      "updateError": "Error updating task"
+    },
+    "profile": {
+      "title": "Profile",
+      "settings": "Settings",
+      "logout": "Log out",
+      "logoutConfirm": "Are you sure you want to log out?",
+      "theme": "Theme",
+      "language": "Language",
+      "notifications": "Notifications",
+      "about": "About"
+    },
+    "workspaces": {
+      "title": "Workspaces",
+      "noWorkspaces": "No workspaces",
+      "createFirst": "Create your first workspace to get started"
+    },
+    "goals": {
+      "title": "Goals",
+      "newGoal": "New Goal",
+      "editGoal": "Edit Goal",
+      "noGoals": "No goals",
+      "createFirst": "Create your first goal to get started",
+      "keyResults": "Key Results",
+      "addKeyResult": "Add Result",
+      "progress": "Progress",
+      "startDate": "Start date",
+      "endDate": "End date"
+    },
+    "habits": {
+      "title": "My Habits",
+      "loadError": "Error loading habits",
+      "retry": "Retry",
+      "completed": "Completed",
+      "streak": "Streak",
+      "bestStreak": "Best",
+      "progress": "Progress",
+      "oneWeek": "One week!",
+      "oneWeekMessage": "You completed a week streak!",
+      "oneMonth": "One month!",
+      "oneMonthMessage": "You are unstoppable!",
+      "hundredDays": "100 days!",
+      "hundredDaysMessage": "You are a legend!",
+      "errorUpdating": "Could not update habit",
+      "noHabits": "You don't have any habits yet",
+      "createFirst": "Create your first habit to get started",
+      "days": "days"
+    },
+    "calendar": {
+      "title": "Time Blocking",
+      "subtitle": "Organize your time",
+      "noBlocks": "No blocks scheduled",
+      "noBlocksHint": "Schedule tasks with time and enable 'Time Block'"
+    },
+    "profileOptions": {
+      "notifications": "Notifications",
+      "darkMode": "Dark Mode",
+      "settings": "Settings",
+      "help": "Help & Support",
+      "about": "About",
+      "logout": "Log Out",
+      "logoutTitle": "Log Out",
+      "logoutMessage": "Are you sure you want to log out?",
+      "cancel": "Cancel",
+      "exit": "Log Out",
+      "version": "Version",
+      "completed": "Completed",
+      "focusMinutes": "Focus Minutes",
+      "pomodoros": "Pomodoros",
+      "loading": "Loading..."
+    }
   }
 }
 

@@ -1,13 +1,15 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useWorkspaceBySlug } from "@/app/hooks/api/use-workspaces";
-import { useProjects } from "@/app/hooks/api/use-projects";
+import { useWorkspaceBySlug, useProjects } from "@/app/lib/shared-hooks";
 import { Feather } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Card from "@/app/components/shared/card.component";
 import type { Project } from "@ordo-todo/api-client";
+import { useWorkspaceStore } from "@/app/lib/stores";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const TYPE_CONFIG = {
   PERSONAL: { color: "#06b6d4", icon: "briefcase" as const },
@@ -18,10 +20,19 @@ const TYPE_CONFIG = {
 export default function WorkspaceDetailScreen() {
   const colors = useThemeColors();
   const { username, slug } = useLocalSearchParams();
+  const { setSelectedWorkspaceId } = useWorkspaceStore();
+  const { t } = useTranslation();
 
   // Use workspace by slug (the backend endpoint supports username/slug)
   const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(username as string, slug as string);
-  const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace?.id);
+  const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace?.id || "");
+
+  // Update store when workspace is loaded
+  useEffect(() => {
+    if (workspace?.id) {
+      setSelectedWorkspaceId(workspace.id);
+    }
+  }, [workspace?.id, setSelectedWorkspaceId]);
 
   const handleProjectPress = (project: Project) => {
     // Navigate using username/slug/projects/projectSlug pattern
@@ -46,9 +57,9 @@ export default function WorkspaceDetailScreen() {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
         <Feather name="alert-circle" size={64} color={colors.error} />
-        <Text style={[styles.errorText, { color: colors.error }]}>Workspace no encontrado</Text>
+        <Text style={[styles.errorText, { color: colors.error }]}>{t('Mobile.common.error')}</Text>
         <Pressable onPress={handleBack} style={[styles.button, { backgroundColor: colors.primary }]}>
-          <Text style={styles.buttonText}>Volver</Text>
+          <Text style={styles.buttonText}>{t('Mobile.common.back')}</Text>
         </Pressable>
       </View>
     );

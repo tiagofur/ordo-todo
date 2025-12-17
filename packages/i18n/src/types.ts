@@ -2,6 +2,8 @@
  * Types for shared i18n package
  */
 
+import en from './locales/en.json';
+
 export type SupportedLocale = 'en' | 'es' | 'pt-br';
 
 export type InterpolationFormat = 'next-intl' | 'i18next';
@@ -23,6 +25,13 @@ export type TranslationValue = string | TranslationValue[] | { [key: string]: Tr
 export type Translations = {
   [key: string]: TranslationValue;
 };
+
+/**
+ * Type representing the full structure of the default locale (en)
+ * Use this for strict typing of translation keys.
+ */
+export type Dictionary = typeof en;
+
 
 export const SUPPORTED_LOCALES: SupportedLocale[] = ['en', 'es', 'pt-br'];
 

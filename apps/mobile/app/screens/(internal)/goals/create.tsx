@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
-import { useCreateObjective, useUpdateObjective, useObjective } from '@/app/hooks/api/use-objectives'; // Hook path
+import { useCreateObjective, useUpdateObjective, useObjective } from '@/app/lib/shared-hooks';
 import CustomTextInput from '../../../components/shared/text-input.component';
 import CustomButton from '../../../components/shared/button.component';
 import { Feather } from '@expo/vector-icons';
@@ -66,7 +66,7 @@ export default function CreateObjectiveScreen() {
     try {
       if (isEditing && id) {
         await updateObjective.mutateAsync({
-            id,
+            objectiveId: id,
             data: {
                 title,
                 description,

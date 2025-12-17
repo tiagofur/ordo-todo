@@ -1,4 +1,5 @@
-import { useTheme } from '../contexts/theme.context';
+import { useDesignTokens } from '../../lib/use-design-tokens';
+import { hexToRgba } from '@ordo-todo/styles/tokens';
 
 export interface ThemeColors {
   // Backgrounds - Vibrant and layered
@@ -75,157 +76,81 @@ export interface ThemeColors {
   shadowLight: string;
 }
 
-const lightColors: ThemeColors = {
-  // Backgrounds - Light and clean (SOLO ESTO CAMBIA)
-  background: '#F7F9FC',
-  backgroundSecondary: '#FFFFFF',
-  backgroundTertiary: '#F1F5F9',
-  surface: '#FFFFFF',
-  surfaceElevated: '#FFFFFF',
-
-  // Text - Dark on light (SOLO ESTO CAMBIA)
-  text: '#1A1F36',
-  textSecondary: '#475569',
-  textMuted: '#64748B',
-  textInverse: '#FFFFFF',
-
-  // Borders - Light borders (SOLO ESTO CAMBIA)
-  border: '#E2E8F0',
-  borderLight: '#F1F5F9',
-
-  // Cards - White surfaces (SOLO ESTO CAMBIA)
-  card: '#FFFFFF',
-  cardBorder: '#E2E8F0',
-
-  // Input - Light inputs (SOLO ESTO CAMBIA)
-  input: '#FFFFFF',
-  inputBorder: '#CBD5E0',
-  inputPlaceholder: '#94A3B8',
-  inputFocused: '#7C3AED',
-
-  // Buttons - MISMOS COLORES que dark mode
-  buttonPrimary: '#7C3AED',
-  buttonPrimaryText: '#FFFFFF',
-  buttonSecondary: '#334155',
-  buttonSecondaryText: '#FFFFFF',
-
-  // Status - MISMOS COLORES VIBRANTES que dark mode
-  success: '#10B981',
-  successLight: '#D1FAE5',
-  error: '#EF4444',
-  errorLight: '#FEE2E2',
-  warning: '#F59E0B',
-  warningLight: '#FEF3C7',
-  info: '#3B82F6',
-  infoLight: '#DBEAFE',
-
-  // Priority - MISMOS COLORES que dark mode
-  priorityLow: '#10B981',
-  priorityLowBg: '#D1FAE5',
-  priorityMedium: '#F59E0B',
-  priorityMediumBg: '#FEF3C7',
-  priorityHigh: '#EF4444',
-  priorityHighBg: '#FEE2E2',
-
-  // Tags - MISMO ESQUEMA que dark mode
-  tagBackground: '#EDE9FE',
-  tagText: '#7C3AED',
-
-  // Accent - MISMOS COLORES que dark mode
-  accent: '#7C3AED',
-  accentLight: '#A78BFA',
-  accentDark: '#6D28D9',
-
-  // Additional vibrant colors - MISMOS que dark mode
-  primary: '#7C3AED',
-  primaryLight: '#A78BFA',
-  primaryDark: '#6D28D9',
-  secondary: '#10B981',
-  secondaryLight: '#34D399',
-  tertiary: '#F59E0B',
-  tertiaryLight: '#FBBF24',
-
-  // Shadows - Adaptado para light mode
-  shadowColor: '#000000',
-  shadowLight: '#64748B',
-};
-
-const darkColors: ThemeColors = {
-  // Backgrounds - Deep dark (SOLO ESTO CAMBIA)
-  background: '#0F0F1E',
-  backgroundSecondary: '#1A1A2E',
-  backgroundTertiary: '#252540',
-  surface: '#1A1A2E',
-  surfaceElevated: '#252540',
-
-  // Text - Light on dark (SOLO ESTO CAMBIA)
-  text: '#F7FAFC',
-  textSecondary: '#CBD5E0',
-  textMuted: '#94A3B8',
-  textInverse: '#1A1F36',
-
-  // Borders - Dark borders (SOLO ESTO CAMBIA)
-  border: '#334155',
-  borderLight: '#1E293B',
-
-  // Cards - Dark surfaces (SOLO ESTO CAMBIA)
-  card: '#1A1A2E',
-  cardBorder: '#334155',
-
-  // Input - Dark inputs (SOLO ESTO CAMBIA)
-  input: '#252540',
-  inputBorder: '#475569',
-  inputPlaceholder: '#64748B',
-  inputFocused: '#7C3AED',
-
-  // Buttons - MISMOS COLORES que light mode
-  buttonPrimary: '#7C3AED',
-  buttonPrimaryText: '#FFFFFF',
-  buttonSecondary: '#334155',
-  buttonSecondaryText: '#FFFFFF',
-
-  // Status - MISMOS COLORES VIBRANTES que light mode
-  success: '#10B981',
-  successLight: '#064E3B',
-  error: '#EF4444',
-  errorLight: '#7F1D1D',
-  warning: '#F59E0B',
-  warningLight: '#78350F',
-  info: '#3B82F6',
-  infoLight: '#1E3A8A',
-
-  // Priority - MISMOS COLORES que light mode
-  priorityLow: '#10B981',
-  priorityLowBg: '#064E3B',
-  priorityMedium: '#F59E0B',
-  priorityMediumBg: '#78350F',
-  priorityHigh: '#EF4444',
-  priorityHighBg: '#7F1D1D',
-
-  // Tags - MISMO ESQUEMA que light mode
-  tagBackground: '#4C1D95',
-  tagText: '#C4B5FD',
-
-  // Accent - MISMOS COLORES que light mode
-  accent: '#7C3AED',
-  accentLight: '#A78BFA',
-  accentDark: '#6D28D9',
-
-  // Additional vibrant colors - MISMOS que light mode
-  primary: '#7C3AED',
-  primaryLight: '#A78BFA',
-  primaryDark: '#6D28D9',
-  secondary: '#10B981',
-  secondaryLight: '#34D399',
-  tertiary: '#F59E0B',
-  tertiaryLight: '#FBBF24',
-
-  // Shadows - Adaptado para dark mode
-  shadowColor: '#000000',
-  shadowLight: '#0F172A',
-};
-
 export function useThemeColors(): ThemeColors {
-  const { isDark } = useTheme();
-  return isDark ? darkColors : lightColors;
+  const { colors, isDark } = useDesignTokens();
+
+  return {
+    // Backgrounds
+    background: isDark ? colors.background : colors.sidebar, // Use sidebar (very light gray) for light bg to differentiate from pure white cards
+    backgroundSecondary: colors.card,
+    backgroundTertiary: colors.muted,
+    surface: colors.card,
+    surfaceElevated: colors.popover,
+
+    // Text
+    text: colors.foreground,
+    textSecondary: colors.mutedForeground,
+    textMuted: colors.mutedForeground,
+    textInverse: colors.background,
+
+    // Borders
+    border: colors.border,
+    borderLight: hexToRgba(colors.border, 0.5),
+
+    // Cards
+    card: colors.card,
+    cardBorder: colors.border,
+
+    // Input
+    input: colors.input,
+    inputBorder: colors.border,
+    inputPlaceholder: colors.mutedForeground,
+    inputFocused: colors.ring,
+
+    // Buttons
+    buttonPrimary: colors.primary,
+    buttonPrimaryText: colors.primaryForeground,
+    buttonSecondary: colors.secondary,
+    buttonSecondaryText: colors.secondaryForeground,
+
+    // Status
+    success: colors.semantic.success,
+    successLight: colors.semantic.successLight,
+    error: colors.semantic.error,
+    errorLight: colors.semantic.errorLight,
+    warning: colors.semantic.warning,
+    warningLight: colors.semantic.warningLight,
+    info: colors.semantic.info,
+    infoLight: colors.semantic.infoLight,
+
+    // Priority
+    priorityLow: colors.priority.LOW.foreground,
+    priorityLowBg: colors.priority.LOW.background,
+    priorityMedium: colors.priority.MEDIUM.foreground,
+    priorityMediumBg: colors.priority.MEDIUM.background,
+    priorityHigh: colors.priority.HIGH.foreground,
+    priorityHighBg: colors.priority.HIGH.background,
+
+    // Tags
+    tagBackground: colors.secondary,
+    tagText: colors.primary,
+
+    // Accent
+    accent: colors.primary,
+    accentLight: colors.semantic.purpleLight,
+    accentDark: colors.semantic.purpleDark,
+
+    // Additional vibrant colors
+    primary: colors.primary,
+    primaryLight: colors.semantic.purpleLight,
+    primaryDark: colors.semantic.purpleDark,
+    secondary: colors.semantic.green,
+    secondaryLight: colors.semantic.greenLight,
+    tertiary: colors.semantic.orange,
+    tertiaryLight: colors.semantic.orangeLight,
+
+    // Shadows
+    shadowColor: '#000000',
+    shadowLight: isDark ? '#000000' : '#94A3B8',
+  };
 }

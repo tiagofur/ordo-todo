@@ -10,363 +10,306 @@
 | Área | Estado | Progreso |
 |------|--------|----------|
 | **Backend API** | ✅ Estable | 95% |
-| **Web App** | ✅ Funcional | 90% |
+| **Web App** | ✅ Producción | 90% |
 | **Desktop App** | ✅ Funcional | 85% |
 | **Mobile App** | 🟡 En Progreso | 60% |
-| **Gamificación** | ✅ Backend Completo | 80% |
-| **AI Features** | 🟡 En Mejora | 50% → 80% (plan activo) |
-| **Backend Security** | 🟡 En Mejora | Fase 1 activa |
+| **Gamificación** | ✅ Completo | 90% |
+| **AI Features** | ✅ Implementado | 80% |
+| **Packages** | ✅ Consolidado | 90% |
 
 ---
 
 ## ✅ Sprints Completados
 
-### Sprint 1: Fundamentos ✅
+### Sprint 1-5: Fundamentos ✅
 - [x] Setup Jest/Vitest para testing
 - [x] Tests para use cases principales
 - [x] Sistema de asignación de tareas
 - [x] Dashboard Quick Actions (FAB)
-
-### Sprint 2: Subtareas ✅
-- [x] Endpoints CRUD `/tasks/:id/subtasks`
-- [x] Componente `SubtaskList` con progress tracking
-- [x] Barra de progreso visual
-- [x] Tests unitarios e integración
-
-### Sprint 3: Colaboración ✅
-- [x] Sistema de Notificaciones completo
-- [x] Comentarios con menciones (@usuario)
-- [x] Compartir tareas (link público)
-- [x] Workspace invitations
-
-### Sprint 4: Productividad ✅
+- [x] Subtareas con progress tracking
+- [x] Sistema de Notificaciones
+- [x] Comentarios con menciones
 - [x] Pomodoro Timer avanzado
-- [x] Gamificación básica (XP, niveles, logros)
-- [x] Vista Calendario
-- [x] Recurrencia de tareas
+- [x] Gamificación (XP, niveles, logros)
+- [x] Sistema de attachments
 
-### Sprint 5: Archivos ✅
-- [x] Sistema de attachments completo
-- [x] Drag & drop upload
-- [x] Preview de archivos
-- [x] Límites de tamaño configurables
+### Sprint 6: Features Competitivos ✅
+- [x] Habit Tracker integrado
+- [x] Smart Dates (Start/Scheduled/Due)
+- [x] OKRs/Goals System
+- [x] Time Blocking
+- [x] Custom Fields (8 tipos)
+
+### Sprint 7: AI Features ✅
+- [x] SDK Migration (`@google/generative-ai` → `@google/genai`)
+- [x] AI Productivity Chat
+- [x] Smart Semantic Search
+- [x] AI Meeting Assistant
+- [x] Burnout Prevention Engine
+- [x] Focus Sessions Audio
+- [x] Real-Time Notifications (WebSocket)
+- [x] Task Decomposition API
+
+### Sprint 8: Packages Consolidation ✅
+- [x] @ordo-todo/ui - 91+ componentes migrados
+- [x] @ordo-todo/hooks - 90+ hooks compartidos
+- [x] @ordo-todo/i18n - 3 idiomas (EN, ES, PT-BR)
+- [x] @ordo-todo/styles - Estilos centralizados (Tailwind v4)
+- [x] @ordo-todo/stores - Zustand stores compartidos
 
 ---
 
-## � Sprint Actual: Polish & Testing
+## 🚧 Sprint Actual: Quick Wins & Polish
 
-**Objetivo:** Preparar para release público.
+**Objetivo:** Completar features de alto impacto y bajo esfuerzo.
 
-### Testing E2E
-- [ ] Setup Playwright
-- [ ] Flujo completo: registro → workspace → proyecto → tarea
-- [ ] Tests de regresión visual
+### Quick Wins Implementados ✅
+- [x] Eisenhower Matrix view
+- [x] Batch task editing
+- [x] Quick filters presets
+- [x] Keyboard shortcut cheat sheet
+- [x] Export JSON/CSV
 
-### Performance
-- [ ] Auditoría Lighthouse (meta: 90+)
-- [ ] Lazy loading de componentes pesados
-- [ ] Optimización de queries Prisma
+### En Progreso 🟡
+- [ ] Daily/Weekly email digest
+- [ ] Location-based reminders (Mobile)
+- [ ] Public roadmap votable
 
-### Documentación Usuario
-- [ ] Guía de inicio rápido
-- [ ] FAQ
-- [ ] Videos tutoriales (opcional)
+---
+
+## 🔧 Sprint 9: Integración de Paquetes Compartidos (ACTIVO)
+
+**Objetivo:** Maximizar la reutilización de código entre plataformas para garantizar comportamiento consistente y reducir código duplicado.
+
+> **Documentación:** Ver [SHARED-CODE-ARCHITECTURE.md](./SHARED-CODE-ARCHITECTURE.md) para detalles de la arquitectura.
+
+### Fase 1: Mobile - Integrar Hooks Compartidos ✅ Completo
+
+**Estado:** Hooks compartidos integrados y hooks duplicados eliminados  
+**Objetivo:** Usar `@ordo-todo/hooks` con `createHooks()`
+
+| Tarea | Estado | Archivo(s) |
+|-------|--------|------------|
+| Crear wrapper `shared-hooks.ts` para Mobile | ✅ Completo | `apps/mobile/app/lib/shared-hooks.ts` |
+| Migrar componentes → shared hooks | ✅ Completo | auth, tabs, task, workspaces, goals |
+| Corregir errores de tipos | ✅ Completo | - |
+| Eliminar hooks duplicados | ✅ Completo | Eliminado `apps/mobile/app/hooks/api/` |
+| Agregar custom-fields a hooks compartidos | ✅ Completo | `packages/hooks/src/hooks.ts` |
+| Eliminar carpeta legacy | ✅ Completo | Eliminado `apps/mobile/app/hooks/legacy/` |
+
+### Fase 2: Mobile - Integrar Traducciones ✅ Completo
+
+**Estado:** Todas las pantallas principales de tabs migradas  
+**Objetivo:** Usar traducciones centralizadas con i18next
+
+| Tarea | Estado | Archivo(s) |
+|-------|--------|------------|
+| Configurar i18next con `@ordo-todo/i18n` | ✅ Completo | `apps/mobile/app/lib/i18n.ts` |
+| Crear provider de traducciones | ✅ Completo | `apps/mobile/app/providers/i18n-provider.tsx` |
+| Agregar traducciones Mobile a locales | ✅ Completo | `packages/i18n/src/locales/*.json` |
+| Migrar home screen | ✅ Completo | `(tabs)/index.tsx` |
+| Migrar tabs layout | ✅ Completo | `(tabs)/_layout.tsx` |
+| Migrar habits screen | ✅ Completo | `(tabs)/habits.tsx` |
+| Migrar calendar screen | ✅ Completo | `(tabs)/calendar.tsx` |
+| Migrar profile screen | ✅ Completo | `(tabs)/profile.tsx` |
+
+### Fase 3: Mobile - Integrar Stores ✅ Completo
+
+**Estado:** Configuración de persistencia con AsyncStorage y uso de WorkspaceStore implementado.
+**Objetivo:** Usar stores Zustand compartidos
+
+| Tarea | Estado | Archivo(s) |
+|-------|--------|------------|
+| Crear wrapper de stores compartidos y persistencia | ✅ Completo | `apps/mobile/app/lib/stores.ts` |
+| Inicializar stores en Root Layout | ✅ Completo | `apps/mobile/app/_layout.tsx` |
+| Integrar WorkspaceStore en selección de workspace | ✅ Completo | `(internal)/workspaces/index.tsx` |
+| Integrar WorkspaceStore en creación de tareas | ✅ Completo | `(internal)/task.tsx` |
+| Integrar WorkspaceStore en detalle de workspace | ✅ Completo | `(internal)/[username]/[slug].tsx` |
+
+
+### Fase 4: Tokens de Diseño para React Native ✅ Completo
+
+**Objetivo:** Exportar variables CSS como JS para React Native y usarlos en la app.
+
+| Tarea | Estado | Archivo(s) |
+|-------|--------|------------|
+| Crear `tokens.ts` en `@ordo-todo/styles` | ✅ Completo | `packages/styles/src/tokens.ts` |
+| Agregar colores, espaciado, radios en JS | ✅ Completo | - |
+| Agregar dependencia `@ordo-todo/styles` | ✅ Completo | `apps/mobile/package.json` |
+| Crear hook `useDesignTokens` | ✅ Completo | `apps/mobile/app/lib/use-design-tokens.ts` |
+| Migrar `useThemeColors` a tokens centralizados | ✅ Completo | `apps/mobile/app/data/hooks/use-theme-colors.hook.ts` |
+| Usar tokens en componentes Mobile | ✅ Completo | (Vía migración de hook) |
+
+### Fase 5: Desktop - Verificar Integración Completa ✅ Completo
+
+**Objetivo:** Asegurar que desktop usa los paquetes compartidos y detectar duplicaciones.
+
+| Tarea | Estado | Observaciones |
+|-------|--------|---------------|
+| Auditar uso de `@ordo-todo/stores` | ✅ Completo | Correctamente implementado via re-exports. |
+| Auditar uso de `@ordo-todo/i18n` | ✅ Completo | Correctamente configurado. |
+| Auditar uso de `@ordo-todo/styles` | ✅ Completo | `@import` CSS funcionando. |
+| Auditar uso de `@ordo-todo/hooks` | ✅ Completo | Duplicación detectada. Se creó `src/lib/shared-hooks.ts` para habilitar migración. |
+| Refactorizar `use-tasks.ts` a shared hooks | ✅ Completo | Se eliminó código duplicado en favor de shared hooks. |
+| Refactorizar otros hooks de API | ✅ Completo | Migrados `use-projects`, `use-workspaces`, `use-auth`. |
+
+### Fase 6: Mejoras de Imports 🟢 Baja Prioridad
+
+| Tarea | Estado |
+|-------|--------|
+| Configurar alias para imports de styles en Web | ✅ Completo | `globals.css` usa `@ordo-todo/styles` ahora. |
+| Agregar script de validación de traducciones | ✅ Completo | Implementado en `scripts/validate-translations.js`. |
+| Agregar tipos estrictos para claves i18n | ✅ Completo | `Dictionary` type exportado y aplicado en Desktop. |
 
 ---
 
 ## 🔮 Próximos Sprints
 
-### Sprint 7: Backend AI Enhancement 🔥 ACTIVO
+### Q1 2025: Mobile Parity & Integrations
 
-**Objetivo:** Transformar el backend en plataforma AI de clase mundial.
+| Feature | Prioridad | Estado |
+|---------|-----------|--------|
+| Autenticación OAuth (Mobile) | Alta | 📝 Planificado |
+| Paridad features Web → Mobile | Alta | 📝 Planificado |
+| Push notifications nativas | Alta | 📝 Planificado |
+| Offline sync mejorado | Media | 📝 Planificado |
+| Google Calendar sync | Media | 📝 Planificado |
+| Browser Extension | Media | 📝 Planificado |
 
-**Documentación completa:** [docs/backend/IMPROVEMENTS.md](./backend/IMPROVEMENTS.md)
+### Q2 2025: Enterprise & Performance
 
-#### Fase 1: Seguridad (Crítico)
-- [ ] Fix WebSocket CORS (`origin: '*'` → configurado)
-- [ ] WebSocket rate limiting guard
-- [ ] Enhanced audit logging
-
-#### Fase 2: SDK Migration ✅
-- [x] Migrar `@google/generative-ai` → `@google/genai`
-- [x] Actualizar GeminiAIService para nuevo SDK
-- [x] Agregar soporte de streaming (preparado)
-
-#### Fase 3: AI Productivity Chat ✅
-- [x] Schema: ChatConversation + ChatMessage
-- [x] Chat module (controller, service, repository)
-- [x] ProductivityCoachService con context awareness
-- [x] Persistencia de conversaciones
-
-#### Fase 4: Real-Time Notifications ✅
-- [x] NotificationsGateway WebSocket
-- [x] Push de notificaciones real-time
-- [x] Timer alerts via WebSocket
-- [x] Task reminders via WebSocket
-
-#### Fase 5: New Endpoints ✅
-- [x] POST /ai/decompose-task
-- [x] GET /chat/insights
-- [x] GET/POST/DELETE /chat/conversations
-- [x] WebSocket /notifications namespace
-- [x] Actualizar documentación de API
-
-### Sprint 8: Mobile Parity
-- [ ] Autenticación OAuth en mobile
-- [ ] Paridad completa de features web → mobile
-- [ ] Push notifications nativas
-- [ ] Offline sync
-
-### Sprint 9: Integraciones
-- [ ] Google Calendar sync
-- [ ] Slack integration
-- [ ] GitHub issues import
+| Feature | Prioridad | Estado |
+|---------|-----------|--------|
+| Mobile AI Features parity | Alta | 📝 Planificado |
+| Desktop AI Features parity | Alta | 📝 Planificado |
+| Performance audit | Alta | 📝 Planificado |
+| E2E Testing (Playwright) | Alta | 📝 Planificado |
+| Lighthouse 90+ | Media | 📝 Planificado |
 
 ---
 
-## 🔄 Consolidación de Código Compartido (Fase 2 Completada ✅)
+## 📦 Estado de Packages Compartidos
 
-**Objetivo:** Eliminar duplicación de código entre apps/web y apps/desktop.
+### @ordo-todo/ui
 
-### Estado de @ordo-todo/ui (Actualizado: 2024-12-06)
+| Categoría | Componentes | Estado |
+|-----------|-------------|--------|
+| **UI Base** | 31 | ✅ Completo |
+| **Timer** | 4 | ✅ Completo |
+| **Task** | 15 | ✅ Completo |
+| **Project** | 11 | ✅ Completo |
+| **Analytics** | 7 | ✅ Completo |
+| **Tag** | 3 | ✅ Completo |
+| **Workspace** | 3 | ✅ Completo |
+| **Auth** | 1 | ✅ Completo |
+| **AI** | 2 | ✅ Completo |
+| **Layout** | 2 | ✅ Completo |
+| **Shared** | 6 | ✅ Completo |
+| **Dashboard** | 5 | ✅ Completo |
 
-| Categoría | Migrados | Pendientes | Estado |
-|-----------|----------|------------|--------|
-| **UI Base** | 31 | 0 | ✅ Completo (+tooltip) |
-| **Timer** | 4 | 0 | ✅ Completo (props-driven) |
-| **Task** | 15 | 0 | ✅ Completo (props-driven) |
-| **Project** | 11 | 0 | ✅ Completo (props-driven) |
-| **Analytics** | 7 | 0 | ✅ Completo (props-driven) |
-| **Tag** | 3 | 0 | ✅ Completo |
-| **Workspace** | 3 | 0 | ✅ Completo (props-driven) |
-| **Auth** | 1 | 0 | ✅ Completo (props-driven) |
-| **AI** | 2 | 0 | ✅ Completo (+report-card) |
-| **Layout** | 2 | 0 | ✅ Completo (props-driven) |
-| **Shared** | 6 | 0 | ✅ Completo (+dialogs, sync) |
-| **Dashboard** | 5 | 0 | ✅ Completo (NEW from desktop) |
+**Total: 91+ componentes migrados**
 
-### Fases del Proceso
-
-- [x] **Fase 1:** Migrar 30 componentes UI base ✅
-- [x] **Fase 2:** Migrar componentes dominio (task, project, analytics, timer) ✅
-- [x] **Fase 3:** Migrar workspace, auth, ai, layout, shared, dashboard ✅ (incluyendo componentes de desktop)
-- [x] **Fase 4:** Integrar componentes en apps ✅ (wrappers creados, UI re-exports)
-- [x] **Fase 5:** Crear @ordo-todo/stores ✅ (workspace, timer, ui, sync stores)
-- [x] **Fase 6:** Migrar utilidades compartidas ✅ (ya existentes en core)
-- [~] **Fase 7:** Testing con Storybook + Documentación 🟡 (Storybook configurado)
-
-### Estado de @ordo-todo/hooks
+### @ordo-todo/hooks
 
 | Categoría | Hooks | Estado |
 |-----------|-------|--------|
-| **Auth** | useRegister, useLogin, useLogout | ✅ |
-| **User** | useCurrentUser, useUpdateProfile, useFullProfile, useUserPreferences, useUpdatePreferences, useUserIntegrations, useExportData, useDeleteAccount | ✅ |
-| **Workspace** | useWorkspaces, useWorkspace, useWorkspaceBySlug, useCreateWorkspace, useUpdateWorkspace, useDeleteWorkspace, useAddWorkspaceMember, useRemoveWorkspaceMember, useWorkspaceMembers, useWorkspaceInvitations, useInviteMember, useAcceptInvitation, useWorkspaceSettings, useUpdateWorkspaceSettings, useWorkspaceAuditLogs | ✅ |
-| **Project** | useProjects, useAllProjects, useProject, useCreateProject, useUpdateProject, useArchiveProject, useCompleteProject, useDeleteProject | ✅ |
-| **Task** | useTasks, useTask, useTaskDetails, useCreateTask, useUpdateTask, useCompleteTask, useDeleteTask, useCreateSubtask, useShareTask, usePublicTask | ✅ |
-| **Tag** | useTags, useTaskTags, useCreateTag, useUpdateTag, useAssignTagToTask, useRemoveTagFromTask, useDeleteTag | ✅ |
-| **Timer** | useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask, useSessionHistory, useTimerStats, useTaskTimeSessions + **useTimer** (standalone) | ✅ |
-| **Analytics** | useDailyMetrics, useWeeklyMetrics, useMonthlyMetrics, useDateRangeMetrics, useDashboardStats, useHeatmapData, useProjectDistribution, useTaskStatusDistribution | ✅ |
-| **AI** | useAIProfile, useOptimalSchedule, useTaskDurationPrediction, useGenerateWeeklyReport, useReports, useReport, useDeleteReport | ✅ |
-| **Comments** | useTaskComments, useCreateComment, useUpdateComment, useDeleteComment | ✅ |
-| **Attachments** | useTaskAttachments, useCreateAttachment, useDeleteAttachment, useProjectAttachments | ✅ |
-| **Notifications** | useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead | ✅ |
+| **Auth** | 3 | ✅ |
+| **User** | 8 | ✅ |
+| **Workspace** | 15 | ✅ |
+| **Project** | 8 | ✅ |
+| **Task** | 10 | ✅ |
+| **Tag** | 7 | ✅ |
+| **Timer** | 10 | ✅ |
+| **Analytics** | 8 | ✅ |
+| **AI** | 7 | ✅ |
+| **Comments** | 4 | ✅ |
+| **Attachments** | 4 | ✅ |
+| **Notifications** | 4 | ✅ |
 
-> **Patrón de uso:** `createHooks({ apiClient })` crea hooks ligados a un cliente API específico. Usado por `apps/web` y `apps/desktop`.
+**Total: 90+ hooks compartidos**
 
-### Estado de @ordo-todo/i18n
+### @ordo-todo/i18n
 
-| Idioma | Archivo | Usado por |
-|--------|---------|-----------|
-| **Inglés** | `locales/en.json` (43KB) | ✅ web, desktop |
-| **Español** | `locales/es.json` (46KB) | ✅ web, desktop |
-| **Portugués (BR)** | `locales/pt-br.json` (46KB) | ✅ web, desktop |
+| Idioma | Estado |
+|--------|--------|
+| Inglés (en) | ✅ |
+| Español (es) | ✅ |
+| Portugués BR (pt-br) | ✅ |
 
-**Funcionalidades:**
-- ✅ `transformTranslations()` - Convierte entre formatos next-intl y i18next
-- ✅ `flattenKeys()` - Aplana claves anidadas
-- ✅ `getByPath()` - Obtiene valor por ruta de puntos
-
-> **Patrón de uso:**
-> - **Web (next-intl):** Usa JSON directamente
-> - **Desktop (i18next):** Usa `transformTranslations(en, 'i18next')`
-
-### Estado de @ordo-todo/styles (NUEVO)
+### @ordo-todo/styles
 
 | Archivo | Descripción |
 |---------|-------------|
-| `variables.css` | Variables CSS (light & dark themes, colores vibrantes) |
+| `variables.css` | Variables CSS (light & dark themes) |
 | `theme.css` | Mapeo `@theme inline` para Tailwind v4 |
-| `base.css` | Estilos base (typography, scrollbars, accessibility) |
-| `components.css` | Utilidades, animaciones, shadows, hover effects |
-
-**Uso en apps:**
-```css
-@import "tailwindcss";
-@import "@ordo-todo/styles/src/variables.css";
-@import "@ordo-todo/styles/src/theme.css";
-@import "@ordo-todo/styles/src/base.css";
-@import "@ordo-todo/styles/src/components.css";
-```
-
-> **Beneficio:** Un solo lugar para cambiar colores, variables y estilos compartidos entre web y desktop.
-
-> **🎉 Consolidación de código compartido COMPLETADA.** Fases 1-6 listas. **90+ hooks + 3 idiomas + estilos centralizados**.
+| `base.css` | Estilos base (typography, scrollbars) |
+| `components.css` | Utilidades y animaciones |
 
 ---
 
-### 📋 Fase 4: Integrar Componentes en Apps (DETALLES)
+## 📱 Estado por Plataforma
 
-**Objetivo:** Reemplazar componentes locales duplicados con imports de `@ordo-todo/ui`.
-
-#### 4.1 Actualizar `apps/web`
-
-| Paso | Descripción | Estado |
-|------|-------------|--------|
-| 4.1.1 | Crear wrappers en `apps/web/src/components/` que importan de `@ordo-todo/ui` y pasan props | ✅ |
-| 4.1.2 | **Sidebar:** Importar `Sidebar` de ui y pasar `renderLink`, `pathname`, `renderTimerWidget` | ✅ |
-| 4.1.3 | **TopBar:** Importar `TopBar` de ui y conectar `useAuth()`, `useTranslations()` | ✅ |
-| 4.1.4 | **Breadcrumbs:** Importar de ui con Next.js Link | ✅ |
-| 4.1.5 | **ConfirmDelete:** Importar de ui con translations | ✅ |
-| 4.1.6 | **Auth components:** Conectar `signIn()` de next-auth | ✅ |
-| 4.1.7 | **AI GenerateReportDialog:** Conectar hooks y translations | ✅ |
-| 4.1.8 | **UI Components:** Re-exportar todos desde `@ordo-todo/ui` | ✅ (30 componentes) |
-| 4.1.9 | **Task/Project/Workspace components:** Mantienen lógica local con UI de @ordo-todo/ui | ✅ Híbrido |
-| 4.1.10 | Probar funcionamiento en navegador | ✅ Dashboard funciona |
-
-#### 4.2 Actualizar `apps/desktop`
-
-| Paso | Descripción | Estado |
-|------|-------------|--------|
-| 4.2.1 | Crear wrappers en `apps/desktop/src/components/` que importan de `@ordo-todo/ui` | ✅ En progreso |
-| 4.2.2 | **Sidebar:** Conectar con react-router y stores de desktop | ✅ |
-| 4.2.3 | **Dashboard widgets:** Re-exportar desde ui, mantener TimerWidget local | ✅ |
-| 4.2.4 | **AboutDialog:** Conectar useUIStore() y Electron version info | ✅ |
-| 4.2.5 | **ShortcutsDialog:** Usar UI component con shortcuts de desktop | ✅ |
-| 4.2.6 | **SyncStatusIndicator:** Conectar useSyncStore() | ✅ |
-| 4.2.7 | **Task/Project components:** Conectar API service y stores | 🔴 Pendiente |
-| 4.2.8 | Eliminar componentes locales duplicados | 🔴 Pendiente |
-| 4.2.9 | Probar funcionamiento en Electron | 🔴 Pendiente |
-
-#### 4.3 Patrón de Integración (Ejemplo)
-
-```tsx
-// apps/web/src/components/task/TaskCardWrapper.tsx
-import { TaskCard } from '@ordo-todo/ui';
-import { useUpdateTask, useDeleteTask } from '@/lib/api-hooks';
-import { useTranslations } from 'next-intl';
-
-export function TaskCardWrapper({ task }) {
-  const t = useTranslations('TaskCard');
-  const updateTask = useUpdateTask();
-  const deleteTask = useDeleteTask();
-
-  return (
-    <TaskCard
-      task={task}
-      onStatusChange={(status) => updateTask.mutate({ id: task.id, status })}
-      onDelete={() => deleteTask.mutate(task.id)}
-      labels={{
-        complete: t('complete'),
-        delete: t('delete'),
-        // ...
-      }}
-    />
-  );
-}
-```
-
----
-
-### 📋 Fase 5: Crear @ordo-todo/stores
-
-**Objetivo:** Compartir stores de Zustand entre apps.
-
-| Paso | Descripción | Estado |
-|------|-------------|--------|
-| 5.1 | Crear `packages/stores/` con estructura similar a ui | ✅ Ya existente |
-| 5.2 | Migrar `workspace-store` | ✅ |
-| 5.3 | Migrar `timer-store` | ✅ |
-| 5.4 | Migrar `ui-store` (dialogs, modals) | ✅ |
-| 5.5 | Migrar `sync-store` | ✅ Agregado |
-| 5.6 | Actualizar apps para usar stores compartidos | 🔴 Pendiente |
-
----
-
-### 📋 Fase 6: Migrar Utilidades Compartidas
-
-**Objetivo:** Consolidar funciones de utilidad.
-
-| Paso | Descripción | Estado |
-|------|-------------|--------|
-| 6.1 | Ampliar `packages/core/` con utilidades | ✅ Ya existente (date, time, string, calc, color) |
-| 6.2 | Mover `formatDate`, `formatDuration`, etc. | ✅ Existentes en core/shared/utils |
-| 6.3 | Mover `cn()` utility y verificar en ui pkg | ✅ |
-| 6.4 | Actualizar imports en apps | ✅ Apps usan @ordo-todo/core |
-
----
-
-### 📋 Fase 7: Testing + Documentación
-
-**Objetivo:** Garantizar calidad y facilitar adopción.
-
-| Paso | Descripción | Estado |
-|------|-------------|--------|
-| 7.1 | Configurar Storybook en `packages/ui` | ✅ Configurado (v10) |
-| 7.2 | Crear stories para componentes principales | ✅ Button, Badge, Card (iniciales) |
-| 7.3 | Agregar tests unitarios con Vitest | 🔴 Pendiente |
-| 7.4 | Documentar API de cada componente (props, labels) | 🟡 Autodocs via Storybook |
-| 7.5 | Crear guía de migración para desarrolladores | 🔴 Pendiente |
-
-
-## 📱 Desktop App - Estado
+### Desktop App
 
 | Feature | Estado |
 |---------|--------|
 | System Tray + Timer | ✅ Completo |
 | Global Shortcuts | ✅ Completo |
 | Native Notifications | ✅ Completo |
-| Dashboard Widgets (7) | ✅ Completo |
+| Dashboard Widgets | ✅ Completo |
 | Offline Mode | ✅ Completo |
 | Auto-updates | ✅ Completo |
-| Multi-window | ✅ Completo |
-| Kanban Board | ⚠️ Básico |
-| AI Reports | 🔴 Pendiente |
+| Quick Actions (Cmd+K) | ✅ Completo |
+| AI Reports | ✅ Completo |
+
+### Mobile App
+
+| Feature | Estado |
+|---------|--------|
+| Core UI | ✅ Completo |
+| Tasks CRUD | ✅ Completo |
+| Timer | ✅ Completo |
+| Habits | ✅ Completo |
+| Goals/OKRs | ✅ Completo |
+| OAuth Auth | 🟡 En Progreso |
+| Push Notifications | 📝 Planificado |
+| Offline Sync | 📝 Planificado |
 
 ---
 
-## � Métricas de Éxito
+## 📊 Métricas de Éxito
 
-| Métrica | Actual | Meta MVP |
-|---------|--------|----------|
+| Métrica | Actual | Meta |
+|---------|--------|------|
 | Test Coverage | ~40% | 60% |
 | Lighthouse Score | ~75 | 90+ |
-| Features Completos | 35+ | 40 |
+| Features Completos | 45+ | 50 |
 | Bugs Críticos | 0 | 0 |
+| Security Score | 98/100 | 100/100 |
 
 ---
 
 ## 🎯 Prioridades Inmediatas
 
-En orden de importancia:
-
-1. **Testing E2E** - Estabilidad antes de features
-2. **Mobile Auth** - Desbloquea adopción mobile
-3. **AI Suggestions** - Diferenciador competitivo
-4. **Performance** - Experiencia de usuario
+1. **Mobile OAuth** - Desbloquea adopción mobile
+2. **E2E Testing** - Estabilidad antes de más features
+3. **Performance** - Lighthouse 90+
+4. **Email Digest** - Retención de usuarios
 
 ---
 
-## 💡 Features Futuros (Post-MVP)
+## 💡 Features Futuros (Post-Q2 2025)
 
 | Feature | Prioridad | Notas |
 |---------|-----------|-------|
-| AI Suggestions | Alta | Requiere API key |
-| Google Calendar | Media | OAuth adicional |
 | Slack Integration | Media | Webhooks |
+| GitHub Integration | Media | Issues import |
 | Team Analytics | Baja | Para workspaces compartidos |
-| Browser Extension | Baja | Quick capture |
+| PWA Improvements | Media | Offline-first |
 
 ---
 
-**¿Comenzamos con el Sprint 6 (Polish & Testing)?**
+**Ver también:**
+- [Web Roadmap](./web/ROADMAP.md) - Roadmap detallado de la web app
+- [Competitive Analysis](./mejoras-competencia/COMPETITIVE-ANALYSIS.md) - Análisis de competencia
+- [Production Checklist](./mejoras-competencia/WEB-PRODUCTION-CHECKLIST.md) - Checklist de producción

@@ -1,13 +1,15 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useWorkspaces } from "@/app/hooks/api/use-workspaces";
+import { useWorkspaces } from "@/app/lib/shared-hooks";
 import { Feather } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Card from "@/app/components/shared/card.component";
 import { useState } from "react";
 import type { Workspace } from "@ordo-todo/api-client";
+import { useWorkspaceStore } from "@/app/lib/stores";
+import { useTranslation } from "react-i18next";
 
 const TYPE_CONFIG = {
   PERSONAL: { label: "Personal", color: "#06b6d4", icon: "briefcase" as const },
@@ -18,8 +20,12 @@ const TYPE_CONFIG = {
 export default function WorkspacesScreen() {
   const colors = useThemeColors();
   const { data: workspaces, isLoading } = useWorkspaces();
+  const { setSelectedWorkspaceId } = useWorkspaceStore();
+  const { t } = useTranslation();
 
   const handleWorkspacePress = (workspace: Workspace) => {
+    setSelectedWorkspaceId(workspace.id);
+    
     // Navigate using username/slug pattern
     if (workspace.owner?.username) {
       router.push(`/screens/(internal)/${workspace.owner.username}/${workspace.slug}`);
@@ -47,8 +53,7 @@ export default function WorkspacesScreen() {
         end={{ x: 1, y: 1 }}
       >
         <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>Mis Workspaces 🏢</Text>
-          <Text style={styles.title}>Espacios de Trabajo</Text>
+          <Text style={styles.greeting}>{t('Mobile.workspaces.title')} 🏢</Text>
         </Animated.View>
       </LinearGradient>
 
@@ -58,7 +63,7 @@ export default function WorkspacesScreen() {
           <View style={styles.emptyState}>
             <Feather name="briefcase" size={64} color={colors.textMuted} style={{ opacity: 0.5 }} />
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              No tienes workspaces aún
+              {t('Mobile.workspaces.noWorkspaces')}
             </Text>
           </View>
         ) : (

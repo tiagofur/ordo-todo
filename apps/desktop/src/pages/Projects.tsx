@@ -11,7 +11,7 @@ export function Projects() {
   const { t } = useTranslation();
   const [showCreateProject, setShowCreateProject] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: projects, isLoading } = useProjects(selectedWorkspaceId || undefined);
+  const { data: projects, isLoading } = useProjects(selectedWorkspaceId ?? "");
 
   // Accent color (pink like Web)
   const accentColor = "#ec4899"; // Pink-500

@@ -162,7 +162,7 @@ export function useUsernameValidation({
           message: formatValidation.message,
           isLoading: false,
         });
-        return validationResult;
+        return;
       }
 
       // Check availability for valid usernames
@@ -176,10 +176,8 @@ export function useUsernameValidation({
           isLoading: false,
         });
       }
-
-      return validationResult;
     },
-    [validateFormat, checkUsernameAvailability, minLength, validationResult]
+    [validateFormat, checkUsernameAvailability, minLength]
   );
 
   const resetValidation = useCallback(() => {

@@ -2072,6 +2072,136 @@
       "strongWarning": "Aviso",
       "criticalAlert": "Alerta Crítico"
     }
+  },
+  "Mobile": {
+    "home": {
+      "greeting": "Olá! 👋",
+      "myTasks": "Minhas Tarefas",
+      "pending": "Pendentes",
+      "completed": "Concluídas",
+      "today": "Hoje",
+      "loadError": "Erro ao carregar tarefas",
+      "retry": "Tentar novamente",
+      "noTasks": "Você não tem tarefas pendentes",
+      "noTasksInView": "Nenhuma tarefa nesta visualização",
+      "okrsGoals": "OKRs & Metas",
+      "active": "ativos"
+    },
+    "filters": {
+      "all": "Todas",
+      "today": "Hoje",
+      "upcoming": "Próximas",
+      "completed": "Concluídas"
+    },
+    "tabs": {
+      "home": "Início",
+      "habits": "Hábitos",
+      "calendar": "Calendário",
+      "profile": "Perfil"
+    },
+    "common": {
+      "loading": "Carregando...",
+      "error": "Erro",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "delete": "Excluir",
+      "edit": "Editar",
+      "create": "Criar",
+      "back": "Voltar",
+      "done": "Concluído",
+      "search": "Buscar",
+      "noResults": "Sem resultados"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "task": {
+      "newTask": "Nova Tarefa",
+      "editTask": "Editar Tarefa",
+      "title": "Título",
+      "description": "Descrição",
+      "project": "Projeto",
+      "priority": "Prioridade",
+      "dueDate": "Data de vencimento",
+      "estimatedMinutes": "Minutos estimados",
+      "noProject": "Sem projeto",
+      "selectProject": "Selecionar projeto",
+      "taskCreated": "Tarefa criada",
+      "taskUpdated": "Tarefa atualizada",
+      "createError": "Erro ao criar tarefa",
+      "updateError": "Erro ao atualizar tarefa"
+    },
+    "profile": {
+      "title": "Perfil",
+      "settings": "Configurações",
+      "logout": "Sair",
+      "logoutConfirm": "Tem certeza que deseja sair?",
+      "theme": "Tema",
+      "language": "Idioma",
+      "notifications": "Notificações",
+      "about": "Sobre"
+    },
+    "workspaces": {
+      "title": "Espaços de Trabalho",
+      "noWorkspaces": "Nenhum espaço de trabalho",
+      "createFirst": "Crie seu primeiro espaço de trabalho para começar"
+    },
+    "goals": {
+      "title": "Metas",
+      "newGoal": "Nova Meta",
+      "editGoal": "Editar Meta",
+      "noGoals": "Nenhuma meta",
+      "createFirst": "Crie sua primeira meta para começar",
+      "keyResults": "Resultados Chave",
+      "addKeyResult": "Adicionar Resultado",
+      "progress": "Progresso",
+      "startDate": "Data de início",
+      "endDate": "Data de término"
+    },
+    "habits": {
+      "title": "Meus Hábitos",
+      "loadError": "Erro ao carregar hábitos",
+      "retry": "Tentar novamente",
+      "completed": "Completados",
+      "streak": "Sequência",
+      "bestStreak": "Melhor",
+      "progress": "Progresso",
+      "oneWeek": "Uma semana!",
+      "oneWeekMessage": "Você completou uma semana de sequência!",
+      "oneMonth": "Um mês!",
+      "oneMonthMessage": "Você é imparável!",
+      "hundredDays": "100 dias!",
+      "hundredDaysMessage": "Você é uma lenda!",
+      "errorUpdating": "Não foi possível atualizar o hábito",
+      "noHabits": "Você não tem hábitos ainda",
+      "createFirst": "Crie seu primeiro hábito para começar",
+      "days": "dias"
+    },
+    "calendar": {
+      "title": "Time Blocking",
+      "subtitle": "Organize seu tempo",
+      "noBlocks": "Nenhum bloco agendado",
+      "noBlocksHint": "Agende tarefas com horário e ative 'Time Block'"
+    },
+    "profileOptions": {
+      "notifications": "Notificações",
+      "darkMode": "Tema Escuro",
+      "settings": "Configurações",
+      "help": "Ajuda e Suporte",
+      "about": "Sobre",
+      "logout": "Sair",
+      "logoutTitle": "Sair",
+      "logoutMessage": "Tem certeza de que deseja sair?",
+      "cancel": "Cancelar",
+      "exit": "Sair",
+      "version": "Versão",
+      "completed": "Completas",
+      "focusMinutes": "Minutos de Foco",
+      "pomodoros": "Pomodoros",
+      "loading": "Carregando..."
+    }
   }
 }
 

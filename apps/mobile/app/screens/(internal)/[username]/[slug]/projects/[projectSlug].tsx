@@ -1,27 +1,28 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useProjectBySlug } from "@/app/hooks/api/use-projects";
-import { useTasks } from "@/app/hooks/api/use-tasks";
+import { useAllProjects, useTasks } from "@/app/lib/shared-hooks";
 import { Feather } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import Card from "@/app/components/shared/card.component";
-import type { Task } from "@ordo-todo/api-client";
+import type { Task, Project } from "@ordo-todo/api-client";
 
 export default function ProjectDetailScreen() {
   const colors = useThemeColors();
   const { username, slug, projectSlug } = useLocalSearchParams();
 
-  const { data: project, isLoading: isLoadingProject } = useProjectBySlug(
-    username as string,
-    projectSlug as string
-  );
+  // Get all projects and find by slug
+  const { data: allProjects, isLoading: isLoadingProjects } = useAllProjects();
+  const project = allProjects?.find((p: Project) => p.slug === projectSlug) || null;
+  const isLoadingProject = isLoadingProjects;
+  
+  // Get all tasks to filter by project
   const { data: allTasks } = useTasks();
 
   // Filter tasks by project
   const projectTasks = allTasks?.filter(
-    (task: Task) => String(task.projectId) === String(project?.id)
+    (task: Task) => project && String(task.projectId) === String(project?.id)
   ) || [];
 
   const handleBack = () => {

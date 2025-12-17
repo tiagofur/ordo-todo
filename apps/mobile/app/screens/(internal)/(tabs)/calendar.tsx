@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { format, addDays, startOfWeek, isSameDay, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS, ptBR } from "date-fns/locale";
 import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import Animated, {
@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { apiClient } from "@/app/lib/api-client";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DAY_PILL_WIDTH = (SCREEN_WIDTH - 48) / 7;
@@ -65,10 +66,14 @@ function getBlockStyle(block: TimeBlockData): { top: number; height: number } {
 
 export default function CalendarScreen() {
   const colors = useThemeColors();
+  const { t, i18n } = useTranslation();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [selectedDay, setSelectedDay] = useState(new Date());
+
+  // Get locale for date formatting
+  const dateLocale = i18n.language === 'pt-br' ? ptBR : i18n.language === 'en' ? enUS : es;
 
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -122,10 +127,10 @@ export default function CalendarScreen() {
           </LinearGradient>
           <View>
             <Text style={[styles.title, { color: colors.text }]}>
-              Time Blocking
+              {t('Mobile.calendar.title')}
             </Text>
             <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-              Organiza tu tiempo
+              {t('Mobile.calendar.subtitle')}
             </Text>
           </View>
         </View>
@@ -140,8 +145,8 @@ export default function CalendarScreen() {
           <Feather name="chevron-left" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.weekText, { color: colors.text }]}>
-          {format(weekStart, "d MMM", { locale: es })} -{" "}
-          {format(weekEnd, "d MMM yyyy", { locale: es })}
+          {format(weekStart, "d MMM", { locale: dateLocale })} -{" "}
+          {format(weekEnd, "d MMM yyyy", { locale: dateLocale })}
         </Text>
         <Pressable onPress={goToNextWeek} style={styles.navButton}>
           <Feather name="chevron-right" size={24} color={colors.text} />
@@ -173,7 +178,7 @@ export default function CalendarScreen() {
                   { color: isSelected ? "#FFFFFF" : colors.textMuted },
                 ]}
               >
-                {format(day, "EEE", { locale: es }).slice(0, 2).toUpperCase()}
+                {format(day, "EEE", { locale: dateLocale }).slice(0, 2).toUpperCase()}
               </Text>
               <Text
                 style={[
@@ -277,10 +282,10 @@ export default function CalendarScreen() {
                 <View style={styles.emptyState}>
                   <Feather name="calendar" size={48} color={colors.textMuted} />
                   <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-                    No hay bloques programados
+                    {t('Mobile.calendar.noBlocks')}
                   </Text>
                   <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
-                    Programa tareas con hora y activa "Time Block"
+                    {t('Mobile.calendar.noBlocksHint')}
                   </Text>
                 </View>
               )}

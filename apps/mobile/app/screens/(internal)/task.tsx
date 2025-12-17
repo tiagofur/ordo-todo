@@ -11,12 +11,14 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useCreateTask, useUpdateTask, useTask, useWorkspaces, useProjects, useObjectives, useLinkTaskToKeyResult } from "@/app/hooks/api";
+import { useCreateTask, useUpdateTask, useTask, useWorkspaces, useProjects, useObjectives, useLinkTaskToKeyResult } from "@/app/lib/shared-hooks";
 import CustomTextInput from "../../components/shared/text-input.component";
 import CustomButton from "../../components/shared/button.component";
 import { Feather } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { CustomFieldInputs, useCustomFieldForm } from "@/app/components/task/custom-field-inputs";
+import { useWorkspaceStore } from "@/app/lib/stores";
+import { useTranslation } from "react-i18next";
 
 const PRIORITIES = [
   { value: "LOW", label: "Baja", color: "#48BB78" },
@@ -37,8 +39,11 @@ export default function TaskScreen() {
   
   // Workspace and Project fetching logic
   const { data: workspaces } = useWorkspaces();
-  const defaultWorkspaceId = workspaces?.[0]?.id;
-  const { data: projects } = useProjects(defaultWorkspaceId);
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { t } = useTranslation();
+  
+  const effectiveWorkspaceId = selectedWorkspaceId || workspaces?.[0]?.id;
+  const { data: projects } = useProjects(effectiveWorkspaceId || "");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -86,7 +91,7 @@ export default function TaskScreen() {
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert("Error", "El título es obligatorio");
+      Alert.alert(t('Mobile.common.error'), t('Mobile.task.title') + " " + t('Mobile.common.required')); // Fallback translation
       return;
     }
 
@@ -109,7 +114,7 @@ export default function TaskScreen() {
     try {
       if (isEditing && taskId) {
         await updateTask.mutateAsync({
-          id: taskId,
+          taskId: taskId,
           data: {
             title,
             description,

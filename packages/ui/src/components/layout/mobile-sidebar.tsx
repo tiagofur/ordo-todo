@@ -172,11 +172,11 @@ export function MobileSidebar({
           {/* Settings & PWA */}
           <div className="border-t border-border/50 p-3 space-y-1">
             {renderLink({
-              href: '/profile',
+              href: '/settings',
               onClick: handleLinkClick,
               className: cn(
                 'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                isActiveRoute('/profile')
+                isActiveRoute('/settings')
                   ? activeColorClasses.blue
                   : cn('text-muted-foreground hover:text-foreground', colorClasses.blue)
               ),
@@ -185,7 +185,7 @@ export function MobileSidebar({
                   <Settings
                     className={cn(
                       'h-5 w-5 transition-transform duration-200',
-                      isActiveRoute('/profile') ? '' : 'group-hover:scale-110'
+                      isActiveRoute('/settings') ? '' : 'group-hover:scale-110'
                     )}
                   />
                   {t.settings}

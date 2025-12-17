@@ -157,7 +157,7 @@ export default function AuthForm() {
                     onChangeText={setUsername}
                     label="Nome de usuário"
                     placeholder="usuario123"
-                    checkAvailability={(username) => apiClient.checkUsernameAvailability(username)}
+                    checkAvailability={(username) => (apiClient as any).checkUsernameAvailability(username)}
                   />
                 </>
               )}

@@ -98,4 +98,8 @@ export const queryKeys = {
   currentPeriodObjectives: ['objectives', 'current-period'] as const,
   objectivesDashboard: ['objectives', 'dashboard-summary'] as const,
   objective: (id: string) => ['objectives', id] as const,
+
+  // ============ Custom Fields ============
+  customFields: (projectId: string) => ['custom-fields', projectId] as const,
+  taskCustomValues: (taskId: string) => ['task-custom-values', taskId] as const,
 } as const;
