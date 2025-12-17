@@ -41,7 +41,7 @@ const DnDCalendar = withDragAndDrop<TaskEvent>(Calendar);
 
 // Custom Toolbar Component
 const CustomToolbar = (toolbar: any) => {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   
   const goToBack = () => {
     toolbar.onNavigate('PREV');
@@ -158,7 +158,7 @@ const CustomEvent = ({ event }: { event: TaskEvent }) => {
 
 
 export function TaskCalendar() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { data: tasks, isLoading } = useTasks();
   const updateTaskMutation = useUpdateTask(); // Desktop api hook might differ slightly from web wrapper, verify if useUpdateTask is exported or if I need useTask mutation
   const [view, setView] = useState<View>(Views.MONTH);

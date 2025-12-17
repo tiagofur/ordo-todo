@@ -18,7 +18,7 @@ interface WorkspaceSelectorProps {
 }
 
 export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const { data: workspaces } = useWorkspaces();
   const [showSettings, setShowSettings] = useState(false);

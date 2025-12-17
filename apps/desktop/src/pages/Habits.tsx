@@ -25,7 +25,7 @@ import { HabitDetailPanel } from "@/components/habit/habit-detail-panel";
 const accentColor = "#10B981"; // Emerald
 
 export function Habits() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
 
   // State
   const [showCreateHabit, setShowCreateHabit] = useState(false);

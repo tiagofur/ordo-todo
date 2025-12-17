@@ -14,7 +14,7 @@ interface BoardColumnProps {
 }
 
 export function BoardColumn({ id, title, color, tasks, onAddTask }: BoardColumnProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { setNodeRef } = useDroppable({
     id: id,
   });

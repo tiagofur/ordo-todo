@@ -823,9 +823,7 @@ Alertas: ${warnings.map((w) => w.type).join(', ') || 'Ninguna'}
 
 Responde solo con el consejo, sin explicaciones adicionales.`;
 
-            const response = await this.geminiAI.generateText(prompt, {
-                maxTokens: 100,
-            });
+            const response = await this.geminiAI.generate("", prompt);
 
             return response || '';
         } catch (error) {

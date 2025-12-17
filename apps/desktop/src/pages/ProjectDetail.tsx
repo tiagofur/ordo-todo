@@ -6,8 +6,7 @@ import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { TaskCard } from "@/components/task/task-card";
 import { ProjectBoard } from "@/components/project/project-board";
 import { toast } from "sonner";
-import { useProject, useArchiveProject, useDeleteProject } from "@/hooks/api/use-projects";
-import { useTasks } from "@/hooks/api/use-tasks";
+import { useProject, useArchiveProject, useDeleteProject, useTasks } from "@/lib/shared-hooks";
 
 type ViewMode = "list" | "grid" | "kanban";
 

@@ -25,7 +25,7 @@ export function SyncStatusIndicator({
   showLabel = false,
   size = "md",
 }: SyncStatusIndicatorProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { status, pendingChanges, failedChanges, isOnline, initialize, forceSync } =
     useSyncStore();
   const lastSyncFormatted = useLastSyncFormatted();
@@ -86,7 +86,7 @@ export function SyncStatusDot({ className }: { className?: string }) {
  * Sync status banner for offline mode
  */
 export function OfflineBanner() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { isOnline, pendingChanges } = useSyncStore();
 
   return (

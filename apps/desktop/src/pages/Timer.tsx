@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import { PageTransition, SlideIn } from "@/components/motion";
 
 export function Timer() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { mode } = useTimerContext();
 
   // Dynamic colors based on timer mode

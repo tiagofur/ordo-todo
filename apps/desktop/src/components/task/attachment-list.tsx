@@ -34,7 +34,7 @@ const FILE_ICONS = {
 };
 
 export function AttachmentList({ taskId, attachments = [] }: AttachmentListProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language;
   const deleteAttachment = useDeleteAttachment();
   const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);

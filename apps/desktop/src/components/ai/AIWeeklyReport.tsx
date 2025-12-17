@@ -165,7 +165,7 @@ const iconColors = {
 };
 
 export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className }: AIWeeklyReportProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [isGenerating, setIsGenerating] = useState(false);
   const [report, setReport] = useState<AIReportSection[]>([]);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);

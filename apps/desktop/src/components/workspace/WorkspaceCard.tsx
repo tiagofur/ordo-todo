@@ -42,7 +42,7 @@ const typeConfig = {
 };
 
 export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
   const { setSelectedWorkspaceId } = useWorkspaceStore();

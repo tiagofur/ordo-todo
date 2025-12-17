@@ -8,7 +8,7 @@ import { useProjects } from "@/hooks/api/use-projects";
 import { PageTransition, SlideIn, FadeIn } from "@/components/motion";
 
 export function Projects() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [showCreateProject, setShowCreateProject] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
   const { data: projects, isLoading } = useProjects(selectedWorkspaceId ?? "");

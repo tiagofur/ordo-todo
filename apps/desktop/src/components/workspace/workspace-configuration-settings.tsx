@@ -21,7 +21,7 @@ interface WorkspaceConfigurationSettingsProps {
 export function WorkspaceConfigurationSettings({
   workspaceId,
 }: WorkspaceConfigurationSettingsProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   
   const { data: settings, isLoading } = useWorkspaceSettings(workspaceId);
   const updateSettingsMutation = useUpdateWorkspaceSettings();

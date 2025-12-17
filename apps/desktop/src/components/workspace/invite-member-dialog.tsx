@@ -46,7 +46,7 @@ export function InviteMemberDialog({
   open,
   onOpenChange,
 }: InviteMemberDialogProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const inviteMemberMutation = useInviteMember();
   
   const [invitedToken, setInvitedToken] = useState<string | null>(null);

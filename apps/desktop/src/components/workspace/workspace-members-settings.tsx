@@ -34,7 +34,7 @@ interface WorkspaceMembersSettingsProps {
 }
 
 export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettingsProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   
   const { data: members = [], isLoading: isLoadingMembers } = useWorkspaceMembers(workspaceId);

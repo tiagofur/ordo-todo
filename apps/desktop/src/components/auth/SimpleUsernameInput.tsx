@@ -13,7 +13,7 @@ import {
   RefreshCw,
   Lightbulb
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface SimpleUsernameInputProps {
   value: string;
@@ -77,7 +77,7 @@ export function SimpleUsernameInput({
       // Real API check with timeout for debouncing
       const timeout = setTimeout(async () => {
         try {
-          const { apiClient } = await import('../../lib/api-client');
+          const { apiClient } = await import('@/lib/api-client');
           const result = await apiClient.checkUsernameAvailability(value);
 
           if (result.available) {

@@ -22,6 +22,13 @@ export class DesktopApiClient extends OrdoApiClient {
     return this.axios.defaults.baseURL || '';
   }
 
+  // ============ AUTH ============
+
+  async checkUsernameAvailability(username: string) {
+    const response = await this.axios.post('/auth/check-username', { username });
+    return response.data;
+  }
+
   // ============ TASK DEPENDENCIES (Desktop-specific for now) ============
 
   async addTaskDependency(blockedTaskId: string, blockingTaskId: string) {

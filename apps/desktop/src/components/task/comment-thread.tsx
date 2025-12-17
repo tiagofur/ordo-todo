@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Send, Edit2, Trash2, MoreVertical } from "lucide-react";
-import { useCreateComment, useUpdateComment, useDeleteComment } from "@/hooks/api/use-comments";
+import { useCreateComment, useUpdateComment, useDeleteComment } from "@/lib/shared-hooks";
 import { toast } from "sonner";
 import {
   cn,
@@ -39,7 +39,7 @@ interface CommentThreadProps {
 }
 
 export function CommentThread({ taskId, comments = [], currentUserId, workspaceId }: CommentThreadProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language;
   const [newComment, setNewComment] = useState("");
   const [editingId, setEditingId] = useState<string | number | null>(null);

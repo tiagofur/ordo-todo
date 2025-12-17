@@ -77,9 +77,15 @@ export const {
     useCompleteHabit,
 
     // Custom Fields
-    useCustomFields, // Check if exists
+    useCustomFields,
     useCreateCustomField,
     useUpdateCustomField,
     useDeleteCustomField,
+
+    // Comments
+    useTaskComments,
+    useCreateComment,
+    useUpdateComment,
+    useDeleteComment,
 
 } = createHooks({ apiClient });

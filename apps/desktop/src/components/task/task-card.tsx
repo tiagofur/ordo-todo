@@ -44,7 +44,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task: initialTask, isSelected, onOpenDetail, index = 0 }: TaskCardProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [showDetail, setShowDetail] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 

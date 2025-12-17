@@ -26,7 +26,7 @@ const activeColorClasses = {
 };
 
 export function Sidebar() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const location = useLocation();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
 

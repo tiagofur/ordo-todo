@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { CheckCircle2 } from "lucide-react";
 
 export function AboutDialog() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { aboutDialogOpen, closeAboutDialog } = useUIStore();
   const [version, setVersion] = useState("0.1.0");
   const [electronVersion, setElectronVersion] = useState("");

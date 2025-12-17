@@ -39,7 +39,7 @@ const createHabitSchema = z.object({
 type CreateHabitForm = z.infer<typeof createHabitSchema>;
 
 export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const createHabitMutation = useCreateHabit();
 
   const {

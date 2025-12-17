@@ -45,7 +45,7 @@ const typeConfig = {
 export function WorkspaceDetail() {
   const { workspaceSlug, username, slug } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
 
   // Determine which hook to use based on available params
   // If we have username and slug (new route), use by username and slug

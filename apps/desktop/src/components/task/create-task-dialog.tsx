@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useRouteColor, activeColorClasses } from "@/hooks/use-route-color";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateTask, useProjects, useTags, useWorkspaceMembers } from "@/hooks/api";
+import { useCreateTask, useProjects, useTags, useWorkspaceMembers } from "@/lib/shared-hooks";
 import { apiClient } from "@/lib/api-client";
 import {
   cn,
@@ -57,8 +57,8 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
   const [isEstimating, setIsEstimating] = useState(false);
 
-  const { data: projects, isLoading: isLoadingProjects } = useProjects();
-  const { data: tags } = useTags();
+  const { data: projects, isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
+  const { data: tags } = useTags(selectedWorkspaceId || "");
   const { data: members } = useWorkspaceMembers(selectedWorkspaceId || "");
 
   // Get the currently selected project ID for custom fields

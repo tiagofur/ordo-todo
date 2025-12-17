@@ -12,7 +12,7 @@ import {
 } from "../ui/dropdown-menu";
 
 export function TopBar() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { user, logout } = useAuth();
 
   return (

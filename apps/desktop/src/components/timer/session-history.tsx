@@ -52,7 +52,7 @@ const mockSessions: Session[] = [
 ];
 
 export function SessionHistory() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [filters, setFilters] = useState<SessionHistoryFilters>({
     type: "ALL",
     days: 7,

@@ -40,7 +40,7 @@ type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
 
 export function Dashboard() {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const navigate = useNavigate();
   
   // UI State

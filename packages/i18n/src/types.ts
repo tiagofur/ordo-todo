@@ -2,7 +2,7 @@
  * Types for shared i18n package
  */
 
-import en from './locales/en.json';
+import en from './locales/en.json' with { type: "json" };
 
 export type SupportedLocale = 'en' | 'es' | 'pt-br';
 

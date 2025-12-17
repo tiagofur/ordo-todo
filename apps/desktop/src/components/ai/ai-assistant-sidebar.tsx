@@ -20,7 +20,7 @@ interface AIAssistantSidebarProps {
 }
 
 export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",

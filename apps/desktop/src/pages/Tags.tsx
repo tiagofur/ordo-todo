@@ -17,7 +17,7 @@ import {
 } from "@ordo-todo/ui";
 
 export function Tags() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const navigate = useNavigate();
   const { selectedWorkspaceId } = useWorkspaceStore();
   const [showCreateTag, setShowCreateTag] = useState(false);

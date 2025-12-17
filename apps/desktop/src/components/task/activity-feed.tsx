@@ -120,7 +120,7 @@ export function ActivityFeed({
   activities = [], 
   maxItems = 20 
 }: ActivityFeedProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language;
 
   const getInitials = (name: string) => {

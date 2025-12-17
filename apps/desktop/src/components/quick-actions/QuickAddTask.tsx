@@ -4,9 +4,7 @@ import { Plus, X, Calendar, Clock, Tag, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger } from '@ordo-todo/ui';
-import { useTasks, useCreateTask } from '@/hooks/api/use-tasks';
-import { useProjects } from '@/hooks/api/use-projects';
-import { useTags } from '@/hooks/api/use-tags';
+import { useTasks, useCreateTask, useProjects, useTags } from '@/lib/shared-hooks';
 
 interface QuickAddTaskProps {
   isOpen: boolean;
@@ -23,8 +21,8 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: projects } = useProjects();
-  const { data: tags } = useTags();
+  const { data: projects } = useProjects("");
+  const { data: tags } = useTags("");
   const createTask = useCreateTask();
 
   // Auto-focus input when opened

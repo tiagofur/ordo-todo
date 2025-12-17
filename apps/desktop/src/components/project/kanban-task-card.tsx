@@ -31,7 +31,7 @@ interface KanbanTaskCardProps {
 }
 
 export function KanbanTaskCard({ task, index = 0 }: KanbanTaskCardProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [showDetail, setShowDetail] = useState(false);
   const isCompleted = task.status === "COMPLETED";
 

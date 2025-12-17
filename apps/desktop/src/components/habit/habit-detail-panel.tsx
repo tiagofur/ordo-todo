@@ -41,7 +41,7 @@ interface HabitDetailPanelProps {
 }
 
 export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPanelProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDescription, setEditedDescription] = useState("");

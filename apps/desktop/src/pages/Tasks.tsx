@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 type ViewMode = "list" | "grid";
 
 export function Tasks() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [searchParams, setSearchParams] = useSearchParams();
   const { selectedWorkspaceId } = useWorkspaceStore();
   const [showCreateTask, setShowCreateTask] = useState(false);

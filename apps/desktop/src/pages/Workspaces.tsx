@@ -8,7 +8,7 @@ import { WorkspaceCard } from "@/components/workspace/WorkspaceCard";
 import { useUIStore } from "@/stores/ui-store";
 
 export function Workspaces() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { createWorkspaceDialogOpen, openCreateWorkspaceDialog, closeCreateWorkspaceDialog } = useUIStore();
   const { data: workspaces, isLoading } = useWorkspaces();
 

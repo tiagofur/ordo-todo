@@ -7,7 +7,7 @@ import { Button, Progress, Card, CardHeader, CardTitle, CardContent, cn } from "
 export function GoalDetails() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { t } = useTranslation();
+    const { t } = (useTranslation as any)();
     const { data: objective, isLoading } = useObjective(id || "");
     
     if (isLoading) {

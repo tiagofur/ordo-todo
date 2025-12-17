@@ -8,7 +8,7 @@ import { useObjectives } from "@/hooks/api/use-objectives";
 import { useNavigate } from "react-router-dom";
 
 export function Goals() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const navigate = useNavigate();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { data: objectives, isLoading } = useObjectives();

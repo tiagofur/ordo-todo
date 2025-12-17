@@ -42,7 +42,7 @@ export function FileUpload({
   filesToUpload = [],
   onFilesHandled,
 }: FileUploadProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<
     Array<{ id: string; name: string; progress: number; error?: string }>

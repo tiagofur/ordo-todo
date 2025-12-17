@@ -25,7 +25,7 @@ interface ProjectBoardProps {
 }
 
 export function ProjectBoard({ projectId }: ProjectBoardProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { data: serverTasks, isLoading } = useTasks(projectId);
   const updateTaskMutation = useUpdateTask();
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);

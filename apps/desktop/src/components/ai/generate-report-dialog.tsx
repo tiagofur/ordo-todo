@@ -18,7 +18,7 @@ interface GenerateReportDialogProps {
 }
 
 export function GenerateReportDialog({ onSuccess, trigger }: GenerateReportDialogProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [open, setOpen] = useState(false);
   const generateReport = useGenerateWeeklyReport();
 

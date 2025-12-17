@@ -12,7 +12,7 @@ import { useElectron } from "@/hooks/use-electron";
 
 export function Settings() {
   const { setTheme, theme } = useTheme();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const { isElectron } = useElectron();
   const currentLang = getCurrentLanguage();
 

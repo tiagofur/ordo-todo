@@ -5,7 +5,7 @@ import { PageTransition, SlideIn } from "@/components/motion";
 import { UnscheduledTasks } from "@/components/calendar/unscheduled-tasks";
 
 export function Calendar() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
 
   // Accent color (blue for calendar)
   const accentColor = "#3b82f6"; // Blue-500

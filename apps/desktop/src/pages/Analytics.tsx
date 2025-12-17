@@ -25,7 +25,7 @@ import {
 } from "@/hooks/api/use-analytics";
 
 export function Analytics() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [dateRange, setDateRange] = useState("week");
   
   // Accent color (matching Web)

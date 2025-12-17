@@ -22,7 +22,7 @@ interface TaskSelectorProps {
 }
 
 export function TaskSelector({ selectedTaskId, onSelect, className }: TaskSelectorProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const [open, setOpen] = useState(false);
   
   // Fetch pending tasks

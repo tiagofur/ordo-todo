@@ -19,7 +19,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ className }: SidebarProps) {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const location = useLocation();
 
   const navItems: NavItem[] = [

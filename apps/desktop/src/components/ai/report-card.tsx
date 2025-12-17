@@ -31,7 +31,7 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report, onClick }: ReportCardProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language;
   
   const getScopeLabel = (scope: string): string => {

@@ -37,7 +37,7 @@ const shortcuts: ShortcutItem[] = [
 ];
 
 export function ShortcutsDialog() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const { shortcutsDialogOpen, closeShortcutsDialog } = useUIStore();
 
   return (

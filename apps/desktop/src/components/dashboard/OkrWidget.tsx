@@ -5,7 +5,7 @@ import { useObjectivesDashboardSummary } from "@/hooks/api/use-objectives";
 import { cn, Button } from "@ordo-todo/ui";
 
 export function OkrWidget() {
-  const { t } = useTranslation();
+  const { t } = (useTranslation as any)();
   const navigate = useNavigate();
   const { data: summary, isLoading } = useObjectivesDashboardSummary();
 

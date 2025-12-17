@@ -13,7 +13,7 @@ interface WorkspaceActivityLogProps {
 const ITEMS_PER_PAGE = 10;
 
 export function WorkspaceActivityLog({ workspaceId }: WorkspaceActivityLogProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = (useTranslation as any)();
   const locale = i18n.language === 'es' ? es : i18n.language === 'pt-BR' ? ptBR : enUS;
   const [page, setPage] = useState(0);
   
