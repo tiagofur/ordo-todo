@@ -143,6 +143,23 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="projects-nav"
+        options={{
+          title: "Proyectos",
+          tabBarIcon: ({ focused, color }) => (
+            <TabBarIcon name="folder" color={color} focused={focused} />
+          ),
+          tabBarButton: (props) => {
+              const { ref, ...rest } = props;
+              return (
+                <Pressable {...rest} ref={ref as any} onPress={() => router.push('/screens/(internal)/projects')}>
+                    {props.children}
+                </Pressable>
+              );
+          }
+        }}
+      />
+      <Tabs.Screen
         name="calendar"
         options={{
           title: t('Mobile.tabs.calendar'),

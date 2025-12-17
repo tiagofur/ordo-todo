@@ -1,31 +1,76 @@
-# Mobile Gap Analysis
+# Mobile Technical Gap Analysis & Implementation Strategy
 
-Este documento detalla las discrepancias funcionales entre las aplicaciones Web y Mobile de Ordo, basado en una auditoría de código del 17/12/2025.
+**Status:** Verified & Updated
+**Date:** 17/12/2025
+**Scope:** Comparison between `apps/web` (Feature Complete) and `apps/mobile` (Companion App).
 
-## Resumen Ejecutivo
+## 1. Executive Summary
 
-La aplicación Mobile actual actúa como un "Companion" enfocado en la ejecución diaria (Tareas, Hábitos, Ver Objetivos) y no tiene paridad completa con la plataforma Web, que actúa como el centro de mando (Gestión de Proyectos, Analytics, Configuración profunda).
+The current Mobile Application (`apps/mobile`) functions primarily as a task execution companion. It lacks core Project Management capabilities, advanced Task features (Subtasks, Comments), and productivity tools (Timer, Analytics) that are present in the Web application.
 
-## Matriz de Paridad
+To reach feature parity, a significant development effort is required, primarily focused on porting `apps/web` component logic to React Native.
 
-| Feature | Web | Mobile | Brecha Detectada | Prioridad Sugerida |
-| :--- | :---: | :---: | :--- | :--- |
-| **Tasks (Gestión)** | ✅ Completo | ⚠️ Parcial | La creación/edición existe, pero faltan características avanzadas como sub-tareas visuales, adjuntos, y comentarios en la vista de detalle. | Alta |
-| **Tasks (Vistas)** | ✅ Completo | ⚠️ Parcial | Web ofrece Tablero (Kanban), Lista, Calendario. Mobile se enfoca en Lista y Calendario. Falta Kanban. | Media |
-| **Proyectos** | ✅ Completo | ❌ No disponible | No hay interfaz dedicada para listar, crear o editar proyectos. Solo se pueden seleccionar al crear una tarea. | **Crítica** |
-| **Timer / Pomodoro** | ✅ Completo | ❌ No disponible | Feature totalmente ausente en Mobile. | Media |
-| **Hábitos** | ✅ Completo | ✅ Completo | Parece haber buena paridad funcional en el seguimiento de hábitos. | Baja |
-| **Objetivos (OKR)** | ✅ Completo | ✅ Completo | Paridad aparente en visualización y actualización de progreso. | Baja |
-| **Analytics** | ✅ Completo | ❌ No disponible | Web tiene widgets ricos (Time Worked, Streak, etc.). Mobile solo muestra resumen básico en Home. | Baja |
-| **Workspaces** | ✅ Completo | ⚠️ Parcial | Se puede seleccionar el workspace activo, pero no hay gestión (crear/editar/invitar miembros). | Baja |
-| **Configuración** | ✅ Completo | ⚠️ Parcial | Mobile solo ofrece edición básica de Perfil. Web ofrece configuración de notificaciones, integraciones, tema detallado, etc. | Baja |
-| **AI Features** | ✅ Sí | ⚠️ Parcial | Web tiene Chat AI contextual en tareas. Mobile tiene una pantalla `ai-chat.tsx` aislada, pero no integrada en el flujo de tareas. | Media |
+## 2. Parity Matrix & Technical Audit
 
-## Recomendaciones para Roadmap Mobile
+| Feature | Web Status | Mobile Status | Gap Description | Technical Effort | Key Dependencies |
+| :--- | :---: | :---: | :--- | :--- | :--- |
+| **Projects (CRUD)** | ✅ Complete | ✅ Complete | Full CRUD implemented (List, Create, Details). | 🟢 Done | `useProjects` |
+| **Task: Details** | ✅ Complete | ⚠️ Partial | Missing **Subtasks** (visual hierarchy), **Comments**, and **Attachments**. | 🟠 Medium | `useTask`, `SubtaskList` (adapt) |
+| **Task: Views** | ✅ Kanban/List | ⚠️ List Only | Missing Kanban Board. Calendar view exists but is basic. | 🔴 High | Drag & Drop Library |
+| **Timer / Pomodoro** | ✅ Complete | ❌ **Missing** | No timer functionality. Codebase completely absent in mobile. | 🟠 Medium | `TimerContext`, Background Service? |
+| **Analytics** | ✅ Complete | ❌ **Missing** | No charts or productivity stats. | 🟢 Low | `Recharts` (Web) -> `react-native-chart-kit` |
+| **Goals (OKR)** | ✅ Complete | ✅ Complete | Good parity in `screens/(internal)/goals`. | ⚪ None | `useObjectives` |
+| **Workspace** | ✅ Complete | ⚠️ Selection Only | Cannot create/edit workspaces or manage members. | 🟢 Low | `useWorkspaces` |
 
-Si el objetivo es la paridad completa, se recomienda la siguiente secuencia de implementación:
+## 3. Detailed Technical Implementation Strategy
 
-1.  **Fase 1: Gestión de Proyectos.** Crear pantalla de lista de proyectos y detalle/edición de proyecto.
-2.  **Fase 2: Enriquecimiento de Tareas.** Añadir soporte para Subtareas y Comentarios en la pantalla de detalle.
-3.  **Fase 3: Timer.** Implementar el Pomodoro Timer en Mobile (ideal para usar el teléfono como timer mientras se trabaja en desktop).
-4.  **Fase 4: Configuración y Analytics.**
+### Phase 1: Project Management (Highest Priority)
+**Goal:** Allow users to manage projects on the go.
+
+*   **New Screens Required:**
+    *   `screens/(internal)/projects/index.tsx`: List of projects (Card view).
+    *   `screens/(internal)/projects/[id].tsx`: Project Details (Stats, Tasks in project).
+    *   `screens/(internal)/projects/create.tsx` or Modal: Create/Edit Project.
+*   **Components to Adapt:**
+    *   `apps/web/src/components/project/project-card.tsx` -> `apps/mobile/components/project/project-card.component.tsx`.
+    *   Reuse existing `useProjects` hook (already works in mobile).
+
+### Phase 2: Task Checklists & Communication (Medium Priority)
+**Goal:** Enable better collaboration and breakdown of work.
+
+*   **Subtasks:**
+    *   Port logic from `apps/web/src/components/task/subtask-list.tsx`.
+    *   Create `MobileSubtaskItem` component with checkbox and indent.
+    *   Update `TaskScreen` (`task.tsx`) to render this list.
+*   **Comments:**
+    *   Port `apps/web/src/components/task/comment-thread.tsx`.
+    *   Implement a simple FlatList for comments + InputField at bottom.
+    *   Requires `useComments` hook (verify existence in shared package).
+
+### Phase 3: Pomodoro Timer (Productivity)
+**Goal:** Use the phone as a focus timer.
+
+*   **Architecture:**
+    *   Need a global `TimerProvider` in `apps/mobile/app/providers` (similar to Web).
+    *   **Challenge:** Background execution on Mobile. Might need minimal implementation (foreground only initially) or `expo-background-fetch` for complete parity.
+*   **UI:**
+    *   Floating Timer Widget or dedicated Tab?
+    *   Recommendation: Add Timer Floating Action Button (FAB) or Header icon.
+
+### Phase 4: Analytics & Kanban
+**Goal:** Visual management.
+
+*   **Analytics:** Low hanging fruit. Add a simplified "Stats" card to Home Screen using `apps/desktop` or `web` aggregations.
+*   **Kanban:** High complexity for mobile (screen real estate). Defer to last.
+
+## 4. Immediate Action Plan
+
+To address the "Need to make the gap analysis" request, the following Implementation Plan is proposed:
+
+1.  **Scaffold Project Screens** (`apps/mobile/app/screens/(internal)/projects/`).
+2.  **Implement Project List** using `useProjects`.
+3.  **Implement Project Details** listing tasks filtered by project.
+4.  **Refactor Task Detail** to support Subtasks (Checklist mode only initially).
+
+---
+*Generated by Antigravity Agent on 17/12/2025*
