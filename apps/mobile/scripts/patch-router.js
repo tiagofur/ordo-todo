@@ -34,23 +34,18 @@ files.forEach(file => {
   const filePath = path.join(routerPath, file);
   if (fs.existsSync(filePath)) {
     let content = fs.readFileSync(filePath, 'utf8');
-    if (content.includes('require.context(')) {
+    if (content.includes('process.env.EXPO_ROUTER_APP_ROOT')) {
       console.log(`Patching ${file}...`);
       
-      // Determine relative path based on where expo-router is located
       const isLocal = routerPath.includes('apps' + path.sep + 'mobile');
       const appRoot = isLocal ? '../../app' : '../../apps/mobile/app';
       
-      // Regex to match the require.context call and its arguments
-      // We replace the entire call to ensure both APP_ROOT and IMPORT_MODE are fixed
-      content = content.replace(
-        /require\.context\([^,]+,\s*true,\s*\/\. \*\/\s*(?:,\s*[^)]+)?\)/,
-        `require.context(${JSON.stringify(appRoot)}, true, /\. *\//, ${JSON.stringify('sync')})`
-      );
+      content = content.replace('process.env.EXPO_ROUTER_APP_ROOT', JSON.stringify(appRoot));
+      content = content.replace('process.env.EXPO_ROUTER_IMPORT_MODE', JSON.stringify('sync'));
       
       fs.writeFileSync(filePath, content);
     } else {
-        console.log(`${file} already patched or env var not found.`);
+        console.log(`${file} already patched or search string not found.`);
     }
   }
 });
