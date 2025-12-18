@@ -1,0 +1,1 @@
+{"version":3,"file":"sync-store.d.ts","sourceRoot":"","sources":["../src/sync-store.ts"],"names":[],"mappings":"AAAA;;;;;GAKG;AAGH,OAAO,KAAK,EAAc,SAAS,EAAE,cAAc,EAAE,MAAM,YAAY,CAAC;AAaxE;;GAEG;AACH,wBAAgB,eAAe,CAAC,SAAS,CAAC,EAAE,OAAO,CAAC,cAAc,CAAC,0EA0BlE;AAED;;;GAGG;AACH,eAAO,MAAM,YAAY,wEAAoB,CAAC;AAE9C;;GAEG;AACH,wBAAgB,kBAAkB,CAAC,YAAY,EAAE,MAAM,GAAG,IAAI,GAAG,MAAM,CAUtE"}
