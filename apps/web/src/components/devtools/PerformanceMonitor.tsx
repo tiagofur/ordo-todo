@@ -137,8 +137,7 @@ export function PerformanceMonitor({ isOpen = true, className }: PerformanceMoni
   if (!isOpen) return null;
 
   return (
-    <div className={cn("fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", className)}>
-      <Card className="w-full max-w-6xl max-h-[90vh] overflow-hidden">
+    <Card className={cn("w-full max-w-6xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900", className)}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -352,8 +351,7 @@ export function PerformanceMonitor({ isOpen = true, className }: PerformanceMoni
             )}
           </div>
         </CardContent>
-      </Card>
-    </div>
+    </Card>
   );
 }
 

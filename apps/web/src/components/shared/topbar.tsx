@@ -46,7 +46,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         }}
         onLogout={logout}
         onProfileClick={() => router.push("/profile")}
-        onSettingsClick={() => router.push("/profile")}
+        onSettingsClick={() => router.push("/settings")}
         onMenuClick={onMenuClick}
         onSearchClick={() => setIsSearchOpen(true)}
         onAICopilotClick={() => {

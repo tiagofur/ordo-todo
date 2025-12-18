@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AppLayout } from "@/components/shared/app-layout";
 import {
@@ -24,6 +24,29 @@ import { cn } from "@/lib/utils";
 type ViewMode = "list" | "grid";
 
 export default function TasksPage() {
+  return (
+    <Suspense fallback={<TasksPageSkeleton />}>
+      <TasksPageContent />
+    </Suspense>
+  );
+}
+
+function TasksPageSkeleton() {
+  return (
+    <AppLayout>
+      <div className="space-y-6">
+        <div className="h-12 w-48 bg-muted/50 rounded-lg animate-pulse" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="rounded-2xl bg-muted/50 animate-pulse h-48" />
+          ))}
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
+
+function TasksPageContent() {
   const t = useTranslations("Tasks");
   const router = useRouter();
   const searchParams = useSearchParams();

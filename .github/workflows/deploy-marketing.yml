@@ -1,0 +1,198 @@
+# =============================================================================
+# Deploy Marketing Website - Ordo-Todo
+# Builds and deploys the marketing website to ordotodo.com
+# =============================================================================
+
+name: Deploy Marketing
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'webpage/**'
+      - 'packages/ui/**'
+      - 'packages/styles/**'
+      - 'packages/core/**'
+      - 'packages/config/**'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (emergency deploy)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  MARKETING_BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/ordo-todo-marketing-backend
+  MARKETING_WEB_IMAGE: ghcr.io/${{ github.repository_owner }}/ordo-todo-marketing-web
+
+jobs:
+  # =============================================================================
+  # Build Marketing Backend Docker Image
+  # =============================================================================
+  build-marketing-backend:
+    name: Build Marketing Backend Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.MARKETING_BACKEND_IMAGE }}
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: webpage/backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # =============================================================================
+  # Build Marketing Web Docker Image
+  # =============================================================================
+  build-marketing-web:
+    name: Build Marketing Web Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.MARKETING_WEB_IMAGE }}
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: webpage/web/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.ordotodo.com
+            CACHEBUST=${{ github.run_id }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # =============================================================================
+  # Deploy Marketing Site to Production
+  # =============================================================================
+  deploy-marketing:
+    name: Deploy Marketing to Production
+    runs-on: ubuntu-latest
+    needs: [build-marketing-backend, build-marketing-web]
+    if: always() && needs.build-marketing-backend.result == 'success' && needs.build-marketing-web.result == 'success'
+    environment: production-marketing
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          envs: IMAGE_TAG,GITHUB_USER,GITHUB_TOKEN
+          script: |
+            set -euo pipefail
+            
+            cd /opt/ordo-todo-marketing
+            
+            echo "[$(date)] 🚀 Starting marketing site deployment..."
+            
+            # Export variables for docker-compose
+            export IMAGE_TAG=$IMAGE_TAG
+            export GITHUB_USER=$GITHUB_USER
+            export GITHUB_TOKEN=$GITHUB_TOKEN
+            
+            # Login to GitHub Container Registry
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+            
+            # Stop existing containers
+            echo "[$(date)] 🛑 Stopping existing containers..."
+            docker compose -f docker-compose.marketing.yml down --remove-orphans || true
+            
+            # Pull new images
+            echo "[$(date)] 📦 Pulling new images..."
+            docker compose -f docker-compose.marketing.yml pull
+            
+            # Deploy services
+            echo "[$(date)] 🔄 Deploying services..."
+            docker compose -f docker-compose.marketing.yml up -d
+            
+            # Wait for health checks
+            echo "[$(date)] ⏳ Waiting for services to be healthy..."
+            sleep 20
+            
+            # Verify deployment
+            echo "[$(date)] ✅ Verifying deployment..."
+            docker compose -f docker-compose.marketing.yml ps
+            
+            # Cleanup old images
+            echo "[$(date)] 🧹 Cleaning up..."
+            docker image prune -af --filter "until=168h" || true
+            
+            echo "[$(date)] ✅ Marketing site deployment completed!"
+
+      - name: Notify on Success
+        if: success()
+        run: |
+          echo "✅ Marketing site deployment successful!"
+          echo "Backend: https://api.ordotodo.com"
+          echo "Web: https://ordotodo.com"
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Marketing site deployment failed!"
+          echo "Check the logs above for details."

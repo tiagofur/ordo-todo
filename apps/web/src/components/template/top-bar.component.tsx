@@ -1,9 +1,10 @@
 "use client";
 import { IconBell, IconMenu2, IconSearch, IconUser, IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
+import { Link as LocalizedLink } from "@/i18n/navigation";
 import UserMenu from "./user-menu.component";
 import ThemeToggle from "./theme-toggle.component";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { Fragment } from "react";
 import { Button } from "@ordo-todo/ui";
 import { Sparkles } from "lucide-react";
@@ -47,9 +48,9 @@ export default function TopBar(props: TopBarProps) {
                         {crumb.isLast ? (
                             <span className="font-medium text-foreground">{crumb.label}</span>
                         ) : (
-                            <Link href={crumb.href} className="hover:text-foreground transition-colors">
+                            <LocalizedLink href={crumb.href} className="hover:text-foreground transition-colors">
                                 {crumb.label}
-                            </Link>
+                            </LocalizedLink>
                         )}
                     </Fragment>
                 ))
@@ -81,12 +82,6 @@ export default function TopBar(props: TopBarProps) {
         </Button>
         <ThemeToggle />
         <IconBell className="cursor-pointer text-black dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors" />
-        <Link
-          href="/profile"
-          className="text-black dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-        >
-          <IconUser />
-        </Link>
         <UserMenu />
       </div>
     </header>

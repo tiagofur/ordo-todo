@@ -1,0 +1,423 @@
+{
+  "Navigation": {
+    "guide": "Guía de Usuario",
+    "blog": "Blog",
+    "login": "Iniciar Sesión",
+    "register": "Empieza Gratis"
+  },
+  "Hero": {
+    "title": "Domina Tu Tiempo",
+    "highlight": "Logra Tus Metas",
+    "description": "Ordo Todo es la plataforma de productividad definitiva impulsada por IA. Organiza tareas, gestiona proyectos y optimiza tu flujo de trabajo.",
+    "cta_primary": "Empieza Gratis",
+    "cta_secondary": "Saber Más",
+    "badge": "Ahora con Asistente IA",
+    "features": {
+      "pomodoro": "Timer Pomodoro",
+      "ai": "Agenda con IA",
+      "cross": "Multiplataforma"
+    },
+    "social_proof": "usuarios productivos"
+  },
+  "Features": {
+    "title": "Todo lo que necesitas para ser productivo",
+    "subtitle": "Funciones potentes diseñadas para ayudarte a organizar tu trabajo y vida con facilidad.",
+    "badge": "Funciones Potentes",
+    "organization": {
+      "title": "Organización Inteligente",
+      "description": "Mantén tus tareas y proyectos estructurados con espacios de trabajo, etiquetas y prioridades."
+    },
+    "time_management": {
+      "title": "Gestión del Tiempo",
+      "description": "Temporizador Pomodoro integrado y bloqueo de tiempo para mantenerte enfocado."
+    },
+    "ai_powered": {
+      "title": "Asistente IA",
+      "description": "Sugerencias inteligentes para priorizar tareas y optimizar tu horario."
+    },
+    "cross_platform": {
+      "title": "Multiplataforma",
+      "description": "Sincroniza perfectamente entre Web, Desktop y dispositivos móviles."
+    },
+    "productivity": {
+      "title": "Insights de Productividad",
+      "description": "Rastrea tu progreso con análisis e informes detallados."
+    },
+    "privacy": {
+      "title": "Privado y Seguro",
+      "description": "Tus datos están encriptados y seguros. Valoramos tu privacidad."
+    },
+    "stats": {
+      "okr": "Seguimiento OKR",
+      "calendar": "Sincro Calendario",
+      "speed": "Velocidad",
+      "uptime": "Disponibilidad"
+    }
+  },
+  "ProductShowcase": {
+    "badge": "Tour del Producto",
+    "title": "Todo lo que necesitas para",
+    "highlight": "triunfar",
+    "subtitle": "Explora las potentes funciones que hacen de Ordo Todo el compañero de productividad definitivo.",
+    "learn_more": "Saber más",
+    "items": {
+      "tasks": {
+        "title": "Gestión de Tareas Inteligente",
+        "description": "Organiza tareas con proyectos, etiquetas, prioridades y fechas. Nuestra interfaz intuitiva facilita la gestión de flujos complejos.",
+        "features": ["Arrastrar y Soltar", "Subtareas", "Dependencias", "Etiquetas"]
+      },
+      "focus": {
+        "title": "Timer de Enfoque y Pomodoro",
+        "description": "Mantén el foco con nuestro timer Pomodoro integrado. Rastrea tus sesiones de trabajo profundo y toma descansos inteligentes.",
+        "features": ["Timers Personalizables", "Historial de Sesiones", "Analíticas de Foco", "Recordatorios de Descanso"]
+      },
+      "ai": {
+        "title": "Agenda con IA",
+        "description": "Deja que nuestro asistente IA te ayude a priorizar tareas y programar tu día para máxima productividad.",
+        "features": ["Sugerencias Inteligentes", "Auto-Programación", "Insights de Prioridad", "Balance de Carga"]
+      },
+      "analytics": {
+        "title": "Analíticas Hermosas",
+        "description": "Entiende tus patrones de productividad con gráficos detallados. Ve qué funciona y optimiza tu flujo.",
+        "features": ["Reportes Semanales", "Seguimiento de Tiempo", "Progreso de Metas", "Tendencias de Productividad"]
+      }
+    }
+  },
+  "Testimonials": {
+    "badge": "Amado por miles",
+    "title": "Lo que dicen nuestros usuarios",
+    "subtitle": "Únete a miles de profesionales que usan Ordo Todo para dominar su tiempo.",
+    "items": {
+      "user1": {
+        "name": "María García",
+        "role": "Product Manager",
+        "company": "TechCorp",
+        "content": "Ordo Todo transformó mi productividad. El asistente AI me ayuda a priorizar lo que realmente importa."
+      },
+      "user2": {
+        "name": "Carlos Ruiz",
+        "role": "Desarrollador de Software",
+        "company": "StartupXYZ",
+        "content": "El timer Pomodoro integrado es increíble. Nunca había sido tan productivo en mi vida."
+      },
+      "user3": {
+        "name": "Ana Martínez",
+        "role": "Diseñadora Freelance",
+        "company": "Autónoma",
+        "content": "La sincronización entre dispositivos es perfecta. Uso Ordo Todo en mi Mac, iPhone y iPad."
+      }
+    }
+  },
+  "CTA": {
+    "title": "¿Listo para organizarte?",
+    "description": "Únete a miles de usuarios que están dominando su tiempo con Ordo Todo. Empieza tu prueba gratuita hoy.",
+    "button_primary": "Empieza Gratis",
+    "button_secondary": "Iniciar Sesión",
+    "badge": "Plan Gratis para Siempre",
+    "trust": {
+      "no_card": "Sin tarjeta de crédito",
+      "free": "Plan gratis para siempre",
+      "cancel": "Cancela cuando quieras"
+    }
+  },
+  "Footer": {
+    "tagline": "Organiza tu vida con asistencia de IA.",
+    "product": "Producto",
+    "guide": "Guía de Usuario",
+    "blog": "Blog",
+    "pricing": "Precios",
+    "company": "Compañía",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "legal": "Legal",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "rights": "Todos los derechos reservados",
+    "made_with": "Hecho con",
+    "for_productivity": "para la productividad"
+  },
+  "Guide": {
+    "title": "Comenzando",
+    "description": "Aprende a usar Ordo Todo efectivamente y aumenta tu productividad.",
+    "header": {
+      "title": "Guía de Usuario",
+      "subtitle": "Todo lo que necesitas para dominar Ordo Todo"
+    },
+    "sidebar": {
+      "getting_started": "Comenzando",
+      "projects": "Proyectos y Tableros",
+      "tasks": "Gestión de Tareas",
+      "focus": "Timer de Enfoque",
+      "analytics": "Analíticas",
+      "need_help": "¿Necesitas más ayuda?",
+      "community_text": "Únete a nuestra comunidad para consejos y soporte.",
+      "community_link": "Unirse a la Comunidad"
+    },
+    "main": {
+      "badge": "Guía de Inicio Rápido",
+      "welcome": "Bienvenido a",
+      "welcome_text": "Esta guía te ayudará a comenzar en solo unos minutos. Nuestra app combina gestión de tareas potente con herramientas de enfoque para ayudarte a lograr tus metas.",
+      "quick_start_title": "Inicio Rápido de 5 Minutos",
+      "steps": {
+        "1": {
+          "title": "Crea tu cuenta",
+          "description": "Regístrate gratis y configura tu perfil. Elige tu zona horaria e idioma preferido."
+        },
+        "2": {
+          "title": "Crea un Espacio de Trabajo",
+          "description": "Los espacios de trabajo te ayudan a separar diferentes áreas de tu vida. Crea uno para Personal y otro para Trabajo."
+        },
+        "3": {
+          "title": "Añade tu primer Proyecto",
+          "description": "Los proyectos organizan tareas relacionadas. Crea un proyecto para cada meta o iniciativa importante."
+        },
+        "4": {
+          "title": "Crea Tareas",
+          "description": "Divide tus proyectos en tareas accionables. Añade fechas de vencimiento, prioridades y tiempo estimado."
+        },
+        "5": {
+          "title": "Inicia el Timer de Enfoque",
+          "description": "Selecciona una tarea e inicia el timer Pomodoro. Mantén el foco por 25 minutos, luego toma un descanso de 5 minutos."
+        }
+      },
+      "pro_tip": "Consejo Pro",
+      "pro_tip_text": "Usa el atajo de teclado",
+      "pro_tip_shortcut": "Cmd/Ctrl + N",
+      "pro_tip_end": "para crear tareas rápidamente desde cualquier lugar de la app!",
+      "explore_title": "Explorar Más",
+      "explore_text": "Profundiza en funciones específicas con estas guías detalladas:"
+    },
+    "cards": {
+      "projects": {
+        "title": "Proyectos y Tableros",
+        "description": "Aprende a organizar trabajo con tableros Kanban"
+      },
+      "tasks": {
+        "title": "Gestión de Tareas",
+        "description": "Domina subtareas, dependencias y prioridades"
+      },
+      "focus": {
+        "title": "Timer de Enfoque",
+        "description": "Aumenta productividad con técnica Pomodoro"
+      },
+      "analytics": {
+        "title": "Analíticas",
+        "description": "Rastrea y mejora tu productividad"
+      }
+    }
+  },
+  "GuideFocus": {
+    "badge": "Timer de Enfoque",
+    "title": "Timer de Enfoque y Pomodoro",
+    "subtitle": "Mantén el flujo con nuestro timer Pomodoro integrado.",
+    "pomodoro_title": "La Técnica Pomodoro",
+    "pomodoro_text": "La Técnica Pomodoro es un método de gestión del tiempo que divide el trabajo en intervalos enfocados (tradicionalmente 25 minutos) separados por descansos cortos. Está comprobado que mejora el enfoque y previene el agotamiento.",
+    "modes_title": "Modos del Timer",
+    "modes": {
+      "focus": {
+        "title": "Sesión de Enfoque",
+        "duration": "25 min",
+        "description": "Trabajo profundo en una sola tarea. Sin distracciones."
+      },
+      "short": {
+        "title": "Descanso Corto",
+        "duration": "5 min",
+        "description": "Descanso rápido para recargar. Estira, hidrátate, relájate."
+      },
+      "long": {
+        "title": "Descanso Largo",
+        "duration": "15-30 min",
+        "description": "Descanso extendido después de 4 sesiones. ¡Sal a caminar!"
+      }
+    },
+    "how_to_title": "Cómo Usar",
+    "steps": {
+      "1": "Selecciona una tarea de tu lista",
+      "2": "Haz clic en \"Iniciar Enfoque\" para comenzar el timer",
+      "3": "Trabaja hasta que el timer termine",
+      "4": "Toma tu descanso, ¡luego repite!"
+    },
+    "shortcuts_title": "Atajos de Teclado",
+    "shortcuts": {
+      "space": "Iniciar/Pausar timer",
+      "r": "Reiniciar timer",
+      "s": "Saltar a descanso"
+    },
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Activa el \"Modo Enfoque\" en configuración para ocultar notificaciones y distracciones durante tus sesiones. ¡Tu productividad te lo agradecerá!"
+  },
+  "GuideProjects": {
+    "badge": "Proyectos y Tableros",
+    "title": "Proyectos y Tableros Kanban",
+    "subtitle": "Organiza tu trabajo visualmente con tableros y listas flexibles.",
+    "managing_title": "Gestión de Proyectos",
+    "managing_text": "Los Proyectos en Ordo Todo te permiten agrupar tareas relacionadas. Ya sea lanzando un producto, planificando unas vacaciones o gestionando un equipo, los Proyectos mantienen todo organizado en un lugar.",
+    "creating_title": "Crear un Proyecto",
+    "creating_steps": {
+      "1": "Haz clic en el botón + Nuevo Proyecto en la barra lateral",
+      "2": "Dale a tu proyecto un nombre descriptivo",
+      "3": "Elige un color para fácil identificación",
+      "4": "Selecciona una plantilla de flujo de trabajo (o empieza en blanco)"
+    },
+    "views_title": "Vistas",
+    "views_text": "Cambia entre diferentes vistas para adaptar tu flujo de trabajo:",
+    "views": {
+      "kanban": {
+        "title": "Tablero Kanban",
+        "description": "Visualiza tu flujo de trabajo con columnas. Arrastra y suelta tarjetas para actualizar el estado."
+      },
+      "list": {
+        "title": "Vista de Lista",
+        "description": "Lista estructurada y densa perfecta para revisar muchas tareas. Ideal para ordenar y filtrar."
+      }
+    },
+    "advanced_title": "Funciones Avanzadas",
+    "features": {
+      "tags": {
+        "title": "Etiquetas",
+        "description": "Categoriza tareas con etiquetas de colores como \"Diseño\", \"Marketing\" o \"Backend\"."
+      },
+      "team": {
+        "title": "Colaboración en Equipo",
+        "description": "Invita miembros del equipo y asigna tareas. Todos se mantienen sincronizados."
+      }
+    },
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Usa el atajo de teclado",
+    "pro_tip_shortcut": "V",
+    "pro_tip_end": "para alternar rápidamente entre vistas Kanban y Lista!"
+  },
+  "GuideTasks": {
+    "badge": "Gestión de Tareas",
+    "title": "Gestión de Tareas",
+    "subtitle": "Domina tu lista de pendientes diaria con funciones potentes.",
+    "basics_title": "Lo Básico",
+    "basics_text": "Las tareas son los bloques fundamentales de Ordo Todo. Cada tarea puede ser tan simple como \"Comprar comida\" o tan compleja como \"Diseñar nueva página web\" con subtareas, adjuntos y comentarios.",
+    "creating_title": "Crear una Tarea",
+    "quick_add": "Añadir Rápido",
+    "quick_add_text": "Presiona",
+    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_end": "en cualquier lugar para crear una nueva tarea",
+    "or_click": "O haz clic en el botón \"+\" en cualquier proyecto para añadir una tarea directamente.",
+    "features_title": "Funciones de Tareas",
+    "features_text": "Haz clic en cualquier tarea para abrir el panel de detalles y acceder a estas funciones:",
+    "features": {
+      "subtasks": {
+        "title": "Subtareas",
+        "description": "Divide tareas complejas en pasos más pequeños"
+      },
+      "due_dates": {
+        "title": "Fechas de Vencimiento",
+        "description": "Establece plazos y recibe recordatorios"
+      },
+      "priorities": {
+        "title": "Prioridades",
+        "description": "Marca tareas como Baja, Media, Alta o Urgente"
+      },
+      "time": {
+        "title": "Estimación de Tiempo",
+        "description": "Planifica tu día estimando la duración de tareas"
+      },
+      "attachments": {
+        "title": "Adjuntos",
+        "description": "Añade archivos, enlaces y referencias"
+      },
+      "comments": {
+        "title": "Comentarios",
+        "description": "Colabora con notas y discusión"
+      }
+    },
+    "statuses_title": "Estados de Tareas",
+    "statuses_text": "Las tareas pasan por estos estados mientras trabajas:",
+    "statuses": {
+      "todo": "Por Hacer",
+      "in_progress": "En Progreso",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
+    },
+    "priority_title": "Niveles de Prioridad",
+    "priority_text": "Usa prioridades para enfocarte en lo que más importa:",
+    "priorities": {
+      "low": {
+        "label": "Baja",
+        "description": "Está bien hacerla, sin prisa"
+      },
+      "medium": {
+        "label": "Media",
+        "description": "Debería hacerse pronto"
+      },
+      "high": {
+        "label": "Alta",
+        "description": "Importante y urgente"
+      },
+      "urgent": {
+        "label": "Urgente",
+        "description": "¡Hazla inmediatamente!"
+      }
+    },
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Usa la vista Matriz de Eisenhower para ordenar tareas automáticamente por urgencia e importancia. ¡Encuéntrala en el menú de Vistas!"
+  },
+  "GuideAnalytics": {
+    "badge": "Analíticas",
+    "title": "Analíticas e Insights",
+    "subtitle": "Entiende tus patrones de productividad con visualización de datos detallada.",
+    "metrics_title": "Métricas Clave",
+    "metrics_text": "Rastrea estas métricas esenciales para entender y mejorar tu productividad:",
+    "metrics": {
+      "focus": {
+        "title": "Horas de Enfoque",
+        "description": "Tiempo total en sesiones de enfoque",
+        "example": "32h esta semana"
+      },
+      "tasks": {
+        "title": "Tareas Completadas",
+        "description": "Número de tareas finalizadas",
+        "example": "47 tareas"
+      },
+      "score": {
+        "title": "Puntuación de Productividad",
+        "description": "Calificación de eficiencia calculada por IA",
+        "example": "87%"
+      },
+      "streak": {
+        "title": "Días de Racha",
+        "description": "Días productivos consecutivos",
+        "example": "12 días"
+      }
+    },
+    "reports_title": "Reportes",
+    "reports_text": "Genera reportes detallados para revisar tu progreso:",
+    "reports": {
+      "daily": {
+        "title": "Resumen Diario",
+        "description": "Lo que lograste hoy"
+      },
+      "weekly": {
+        "title": "Reporte Semanal",
+        "description": "Tendencias y patrones de la semana"
+      },
+      "monthly": {
+        "title": "Resumen Mensual",
+        "description": "Progreso a largo plazo y metas"
+      },
+      "custom": {
+        "title": "Rango Personalizado",
+        "description": "Analiza cualquier período de tiempo"
+      }
+    },
+    "understanding_title": "Entendiendo tus Datos",
+    "understanding": {
+      "peak": "Horas Pico: Descubre cuándo eres más productivo durante el día",
+      "velocity": "Velocidad de Tareas: Rastrea qué tan rápido completas tareas",
+      "ratio": "Ratio de Enfoque: Compara tiempo de enfoque vs tiempo total de trabajo",
+      "goals": "Progreso de Metas: Ve qué tan cerca estás de tus metas semanales"
+    },
+    "pro_tip": "Consejo Pro",
+    "pro_tip_text": "Revisa tus analíticas cada domingo por la noche. ¡Usa los insights para planificar una semana más productiva!"
+  },
+  "Blog": {
+    "title": "Blog",
+    "description": "Últimas noticias y consejos de productividad."
+  }
+}

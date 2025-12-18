@@ -61,6 +61,7 @@ export function Sidebar() {
           <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
         )}
         renderInstallButton={() => <InstallPWAButton />}
+        showSettingsButton={false}
         labels={{
           appName: "Ordo",
           settings: t("settings"),

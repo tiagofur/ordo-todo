@@ -1,15 +1,16 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "OrdoTodo",
+    "slug": "ordo-todo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "ordotodo",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.creapolis.ordotodo"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,11 +21,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ordotodo.mobile",
-      "versionCode": 1,
-      "compileSdkVersion": 34,
-      "targetSdkVersion": 34,
-      "buildToolsVersion": "34.0.0"
+      "package": "dev.creapolis.ordotodo",
+      "versionCode": 1
     },
     "web": {
       "output": "static",
@@ -40,10 +38,26 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "1.9.24",
+            "packagingOptions": {
+              "pickFirst": ["**/libc++_shared.so"]
+            },
+             "gradleDsemon": false
+          }
+        }
       ]
     ],
-        "extra": {
-      "apiUrl": "http://localhost:3101/api/v1"
+    "extra": {
+      "apiUrl": "https://api.ordotodo.app/api/v1",
+      "router": {},
+      "eas": {
+        "projectId": "487ab558-6fa4-4d2f-9b74-cc67e5a1fcdf"
+      }
     }
   }
 }

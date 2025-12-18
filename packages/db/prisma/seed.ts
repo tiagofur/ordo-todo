@@ -12,6 +12,7 @@ async function main() {
         create: {
             name: "Demo User",
             email: "demo@ordo-todo.app",
+            username: "demo_user",
             preferences: {
                 create: {
                     theme: Theme.AUTO,
@@ -37,6 +38,7 @@ async function main() {
         workspace = await prisma.workspace.create({
             data: {
                 name: "Personal",
+                slug: "personal",
                 description: "My personal workspace",
                 color: "#6366f1",
                 type: WorkspaceType.PERSONAL,
@@ -81,6 +83,7 @@ async function main() {
         project = await prisma.project.create({
             data: {
                 name: "Getting Started",
+                slug: "getting-started",
                 description: "Learn how to use Ordo-Todo",
                 color: "#8b5cf6",
                 workspaceId: workspace.id,
@@ -161,6 +164,43 @@ async function main() {
         console.log(`✅ Created sample tasks`);
     } else {
         console.log(`ℹ️ Sample tasks already exist`);
+    }
+
+    // Create sample blog posts
+    const blogCount = await prisma.blogPost.count();
+
+    if (blogCount === 0) {
+        await Promise.all([
+            prisma.blogPost.create({
+                data: {
+                    slug: 'welcome-to-ordo-todo',
+                    title: 'Welcome to Ordo Todo',
+                    excerpt: 'Discover how Ordo Todo can transform your productivity.',
+                    content: 'Ordo Todo is more than just a task manager.',
+                    published: true,
+                    publishedAt: new Date(),
+                    author: 'Ordo Team',
+                    tags: ['Productivity', 'News'],
+                    coverImage: 'https://images.unsplash.com/photo-1499750310159-5b5f8ea37a85?auto=format&fit=crop&q=80',
+                }
+            }),
+            prisma.blogPost.create({
+                data: {
+                    slug: 'productivity-tips',
+                    title: '5 Tips to Boost Productivity',
+                    excerpt: 'Learn the secrets of highly productive people.',
+                    content: '1. Use a timer. 2. Prioritize tasks.',
+                    published: true,
+                    publishedAt: new Date(Date.now() - 86400000), // Yesterday
+                    author: 'Ordo Team',
+                    tags: ['Tips', 'Guide'],
+                    coverImage: 'https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80',
+                }
+            })
+        ]);
+        console.log(`✅ Created sample blog posts`);
+    } else {
+        console.log(`ℹ️ Sample blog posts already exist`);
     }
 
     console.log("🎉 Seeding completed!");

@@ -49,12 +49,35 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  if [ -f package-lock.json ]; then
-                    echo "package-lock.json found, using npm ci"
-                    npm ci
-                  else
-                    echo "No package-lock.json, using npm install"
-                    npm install
+                  # Force git to use HTTPS instead of SSH for GitHub dependencies
+                  git config --global url."https://github.com/".insteadOf "git@github.com:"
+                  git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+                  
+                  MAX_RETRIES=3
+                  RETRY_COUNT=0
+                  SUCCESS=false
+                  
+                  until [ $RETRY_COUNT -ge $MAX_RETRIES ] || [ "$SUCCESS" = true ]
+                  do
+                    echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
+                    if [ -f package-lock.json ]; then
+                      if npm ci; then SUCCESS=true; fi
+                    else
+                      if npm install; then SUCCESS=true; fi
+                    fi
+                    
+                    if [ "$SUCCESS" = true ]; then
+                      break
+                    fi
+                    
+                    RETRY_COUNT=$((RETRY_COUNT+1))
+                    echo "Installation failed. Waiting 15 seconds before retry..."
+                    sleep 15
+                  done
+                  
+                  if [ "$SUCCESS" != true ]; then
+                    echo "Failed to install dependencies after $MAX_RETRIES attempts."
+                    exit 1
                   fi
               env:
                   PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
@@ -135,12 +158,35 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  if [ -f package-lock.json ]; then
-                    echo "package-lock.json found, using npm ci"
-                    npm ci
-                  else
-                    echo "No package-lock.json, using npm install"
-                    npm install
+                  # Force git to use HTTPS instead of SSH for GitHub dependencies
+                  git config --global url."https://github.com/".insteadOf "git@github.com:"
+                  git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+                  
+                  MAX_RETRIES=3
+                  RETRY_COUNT=0
+                  SUCCESS=false
+                  
+                  until [ $RETRY_COUNT -ge $MAX_RETRIES ] || [ "$SUCCESS" = true ]
+                  do
+                    echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
+                    if [ -f package-lock.json ]; then
+                      if npm ci; then SUCCESS=true; fi
+                    else
+                      if npm install; then SUCCESS=true; fi
+                    fi
+                    
+                    if [ "$SUCCESS" = true ]; then
+                      break
+                    fi
+                    
+                    RETRY_COUNT=$((RETRY_COUNT+1))
+                    echo "Installation failed. Waiting 15 seconds before retry..."
+                    sleep 15
+                  done
+                  
+                  if [ "$SUCCESS" != true ]; then
+                    echo "Failed to install dependencies after $MAX_RETRIES attempts."
+                    exit 1
                   fi
               working-directory: .
               env:
@@ -206,12 +252,35 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  if [ -f package-lock.json ]; then
-                    echo "package-lock.json found, using npm ci"
-                    npm ci
-                  else
-                    echo "No package-lock.json, using npm install"
-                    npm install
+                  # Force git to use HTTPS instead of SSH for GitHub dependencies
+                  git config --global url."https://github.com/".insteadOf "git@github.com:"
+                  git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+                  
+                  MAX_RETRIES=3
+                  RETRY_COUNT=0
+                  SUCCESS=false
+                  
+                  until [ $RETRY_COUNT -ge $MAX_RETRIES ] || [ "$SUCCESS" = true ]
+                  do
+                    echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
+                    if [ -f package-lock.json ]; then
+                      if npm ci; then SUCCESS=true; fi
+                    else
+                      if npm install; then SUCCESS=true; fi
+                    fi
+                    
+                    if [ "$SUCCESS" = true ]; then
+                      break
+                    fi
+                    
+                    RETRY_COUNT=$((RETRY_COUNT+1))
+                    echo "Installation failed. Waiting 15 seconds before retry..."
+                    sleep 15
+                  done
+                  
+                  if [ "$SUCCESS" != true ]; then
+                    echo "Failed to install dependencies after $MAX_RETRIES attempts."
+                    exit 1
                   fi
               working-directory: .
               env:
@@ -268,12 +337,35 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  if [ -f package-lock.json ]; then
-                    echo "package-lock.json found, using npm ci"
-                    npm ci
-                  else
-                    echo "No package-lock.json, using npm install"
-                    npm install
+                  # Force git to use HTTPS instead of SSH for GitHub dependencies
+                  git config --global url."https://github.com/".insteadOf "git@github.com:"
+                  git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+                  
+                  MAX_RETRIES=3
+                  RETRY_COUNT=0
+                  SUCCESS=false
+                  
+                  until [ $RETRY_COUNT -ge $MAX_RETRIES ] || [ "$SUCCESS" = true ]
+                  do
+                    echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
+                    if [ -f package-lock.json ]; then
+                      if npm ci; then SUCCESS=true; fi
+                    else
+                      if npm install; then SUCCESS=true; fi
+                    fi
+                    
+                    if [ "$SUCCESS" = true ]; then
+                      break
+                    fi
+                    
+                    RETRY_COUNT=$((RETRY_COUNT+1))
+                    echo "Installation failed. Waiting 15 seconds before retry..."
+                    sleep 15
+                  done
+                  
+                  if [ "$SUCCESS" != true ]; then
+                    echo "Failed to install dependencies after $MAX_RETRIES attempts."
+                    exit 1
                   fi
               working-directory: .
               env:
@@ -325,12 +417,35 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  if [ -f package-lock.json ]; then
-                    echo "package-lock.json found, using npm ci"
-                    npm ci
-                  else
-                    echo "No package-lock.json, using npm install"
-                    npm install
+                  # Force git to use HTTPS instead of SSH for GitHub dependencies
+                  git config --global url."https://github.com/".insteadOf "git@github.com:"
+                  git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+                  
+                  MAX_RETRIES=3
+                  RETRY_COUNT=0
+                  SUCCESS=false
+                  
+                  until [ $RETRY_COUNT -ge $MAX_RETRIES ] || [ "$SUCCESS" = true ]
+                  do
+                    echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
+                    if [ -f package-lock.json ]; then
+                      if npm ci; then SUCCESS=true; fi
+                    else
+                      if npm install; then SUCCESS=true; fi
+                    fi
+                    
+                    if [ "$SUCCESS" = true ]; then
+                      break
+                    fi
+                    
+                    RETRY_COUNT=$((RETRY_COUNT+1))
+                    echo "Installation failed. Waiting 15 seconds before retry..."
+                    sleep 15
+                  done
+                  
+                  if [ "$SUCCESS" != true ]; then
+                    echo "Failed to install dependencies after $MAX_RETRIES attempts."
+                    exit 1
                   fi
               working-directory: .
               env:

@@ -38,6 +38,8 @@ interface MobileSidebarProps {
   logoHref?: string;
   /** Logo icon component */
   LogoIcon?: ElementType;
+  /** Whether to show the settings button (default: false) */
+  showSettingsButton?: boolean;
   labels?: {
     appName?: string;
     settings?: string;
@@ -82,6 +84,7 @@ export function MobileSidebar({
   renderInstallButton,
   logoHref = '/dashboard',
   LogoIcon,
+  showSettingsButton = false,
   labels = {},
 }: MobileSidebarProps) {
   const t = { ...DEFAULT_LABELS, ...labels };
@@ -99,7 +102,7 @@ export function MobileSidebar({
       <SheetContent side="left" className="w-[280px] p-0">
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center border-b border-border/50 px-6">
+          <div className="flex h-16 items-center border-b border-border/50 px-6 shrink-0">
             {renderLink({
               href: logoHref,
               className: 'flex items-center gap-3 group',
@@ -119,80 +122,85 @@ export function MobileSidebar({
             })}
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-            {navItems.map((item) => {
-              const isActive = isActiveRoute(item.href);
-              const color = item.color || 'cyan';
-              return (
-                <div key={item.href}>
-                  {renderLink({
-                    href: item.href,
-                    onClick: handleLinkClick,
-                    className: cn(
-                      'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                      isActive
-                        ? activeColorClasses[color]
-                        : cn(
-                            'text-muted-foreground hover:text-foreground',
-                            colorClasses[color]
-                          )
-                    ),
-                    children: (
-                      <>
-                        <item.icon
-                          className={cn(
-                            'h-5 w-5 transition-transform duration-200',
-                            isActive ? '' : 'group-hover:scale-110'
-                          )}
-                        />
-                        {item.name}
-                      </>
-                    ),
-                  })}
-                </div>
-              );
-            })}
-          </nav>
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Navigation */}
+            <nav className="space-y-1 px-3 py-4">
+              {navItems.map((item) => {
+                const isActive = isActiveRoute(item.href);
+                const color = item.color || 'cyan';
+                return (
+                  <div key={item.href}>
+                    {renderLink({
+                      href: item.href,
+                      onClick: handleLinkClick,
+                      className: cn(
+                        'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                        isActive
+                          ? activeColorClasses[color]
+                          : cn(
+                              'text-muted-foreground hover:text-foreground',
+                              colorClasses[color]
+                            )
+                      ),
+                      children: (
+                        <>
+                          <item.icon
+                            className={cn(
+                              'h-5 w-5 transition-transform duration-200',
+                              isActive ? '' : 'group-hover:scale-110'
+                            )}
+                          />
+                          {item.name}
+                        </>
+                      ),
+                    })}
+                  </div>
+                );
+              })}
+            </nav>
 
-          {/* Timer Widget */}
-          {renderTimerWidget && (
-            <div className="border-t border-border/50 p-3">
-              {renderTimerWidget()}
-            </div>
-          )}
+            {/* Timer Widget */}
+            {renderTimerWidget && (
+              <div className="border-t border-border/50 p-3">
+                {renderTimerWidget()}
+              </div>
+            )}
 
-          {/* Workspace Selector */}
-          {renderWorkspaceSelector && (
-            <div className="border-t border-border/50 p-3">
-              {renderWorkspaceSelector()}
-            </div>
-          )}
+            {/* Workspace Selector */}
+            {renderWorkspaceSelector && (
+              <div className="border-t border-border/50 p-3">
+                {renderWorkspaceSelector()}
+              </div>
+            )}
 
-          {/* Settings & PWA */}
-          <div className="border-t border-border/50 p-3 space-y-1">
-            {renderLink({
-              href: '/settings',
-              onClick: handleLinkClick,
-              className: cn(
-                'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                isActiveRoute('/settings')
-                  ? activeColorClasses.blue
-                  : cn('text-muted-foreground hover:text-foreground', colorClasses.blue)
-              ),
-              children: (
-                <>
-                  <Settings
-                    className={cn(
-                      'h-5 w-5 transition-transform duration-200',
-                      isActiveRoute('/settings') ? '' : 'group-hover:scale-110'
-                    )}
-                  />
-                  {t.settings}
-                </>
-              ),
-            })}
-            {renderInstallButton?.()}
+            {/* Settings & PWA */}
+            {(showSettingsButton || renderInstallButton) && (
+              <div className="border-t border-border/50 p-3 space-y-1">
+                {showSettingsButton && renderLink({
+                  href: '/settings',
+                  onClick: handleLinkClick,
+                  className: cn(
+                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                    isActiveRoute('/settings')
+                      ? activeColorClasses.blue
+                      : cn('text-muted-foreground hover:text-foreground', colorClasses.blue)
+                  ),
+                  children: (
+                    <>
+                      <Settings
+                        className={cn(
+                          'h-5 w-5 transition-transform duration-200',
+                          isActiveRoute('/settings') ? '' : 'group-hover:scale-110'
+                        )}
+                      />
+                      {t.settings}
+                    </>
+                  ),
+                })}
+                {renderInstallButton?.()}
+              </div>
+            )}
           </div>
         </div>
       </SheetContent>

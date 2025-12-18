@@ -1,0 +1,16 @@
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:03:16.137Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:05:14.860Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:05:15.571Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:10:04.396Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:10:04.480Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:10:04.498Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:10:23.511Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:10:23.549Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:10:23.827Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T19:18:40.405Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T20:54:17.142Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T20:54:17.148Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T20:54:17.149Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T20:54:34.458Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T20:54:34.830Z"}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::3101","stack":[null],"timestamp":"2025-12-18T20:54:35.541Z"}

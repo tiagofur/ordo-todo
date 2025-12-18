@@ -1,0 +1,423 @@
+{
+  "Navigation": {
+    "guide": "User Guide",
+    "blog": "Blog",
+    "login": "Login",
+    "register": "Start for Free"
+  },
+  "Hero": {
+    "title": "Master Your Time",
+    "highlight": "Achieve Your Goals",
+    "description": "Ordo Todo is the ultimate productivity platform powered by AI. Organize tasks, manage projects, and optimize your workflow.",
+    "cta_primary": "Get Started Free",
+    "cta_secondary": "Learn More",
+    "badge": "Now with AI Assistant",
+    "features": {
+      "pomodoro": "Pomodoro Timer",
+      "ai": "AI Scheduling",
+      "cross": "Cross-Platform"
+    },
+    "social_proof": "productive users"
+  },
+  "Features": {
+    "title": "Everything you need to be productive",
+    "subtitle": "Powerful features designed to help you organize your work and life with ease.",
+    "badge": "Powerful Features",
+    "organization": {
+      "title": "Smart Organization",
+      "description": "Keep your tasks and projects structured with workspaces, tags, and priorities."
+    },
+    "time_management": {
+      "title": "Time Management",
+      "description": "Built-in Pomodoro timer and time blocking to help you stay focused."
+    },
+    "ai_powered": {
+      "title": "AI Assistant",
+      "description": "Intelligent suggestions to prioritize tasks and optimize your schedule."
+    },
+    "cross_platform": {
+      "title": "Cross Platform",
+      "description": "Sync seamlessly across Web, Desktop, and Mobile devices."
+    },
+    "productivity": {
+      "title": "Productivity Insights",
+      "description": "Track your progress with detailed analytics and reports."
+    },
+    "privacy": {
+      "title": "Private & Secure",
+      "description": "Your data is encrypted and secure. We value your privacy."
+    },
+    "stats": {
+      "okr": "OKR Tracking",
+      "calendar": "Calendar Sync",
+      "speed": "Load Speed",
+      "uptime": "Uptime"
+    }
+  },
+  "ProductShowcase": {
+    "badge": "Product Tour",
+    "title": "Everything you need to",
+    "highlight": "succeed",
+    "subtitle": "Explore the powerful features that make Ordo Todo the ultimate productivity companion.",
+    "learn_more": "Learn more",
+    "items": {
+      "tasks": {
+        "title": "Smart Task Management",
+        "description": "Organize tasks with projects, tags, priorities, and due dates. Our intuitive interface makes managing complex workflows a breeze.",
+        "features": ["Drag & Drop", "Subtasks", "Dependencies", "Tags & Labels"]
+      },
+      "focus": {
+        "title": "Focus Timer & Pomodoro",
+        "description": "Stay focused with our built-in Pomodoro timer. Track your deep work sessions and take smart breaks to prevent burnout.",
+        "features": ["Customizable Timers", "Session History", "Focus Analytics", "Break Reminders"]
+      },
+      "ai": {
+        "title": "AI-Powered Scheduling",
+        "description": "Let our AI assistant help you prioritize tasks and schedule your day for maximum productivity.",
+        "features": ["Smart Suggestions", "Auto-Scheduling", "Priority Insights", "Workload Balancing"]
+      },
+      "analytics": {
+        "title": "Beautiful Analytics",
+        "description": "Understand your productivity patterns with detailed charts and insights. See what works and optimize your workflow.",
+        "features": ["Weekly Reports", "Time Tracking", "Goal Progress", "Productivity Trends"]
+      }
+    }
+  },
+  "Testimonials": {
+    "badge": "Loved by thousands",
+    "title": "What our users say",
+    "subtitle": "Join thousands of professionals who use Ordo Todo to master their time.",
+    "items": {
+      "user1": {
+        "name": "Maria Garcia",
+        "role": "Product Manager",
+        "company": "TechCorp",
+        "content": "Ordo Todo transformed my productivity. The AI assistant helps me prioritize what really matters."
+      },
+      "user2": {
+        "name": "Carlos Ruiz",
+        "role": "Software Developer",
+        "company": "StartupXYZ",
+        "content": "The built-in Pomodoro timer is amazing. I've never been this productive in my life."
+      },
+      "user3": {
+        "name": "Ana Martinez",
+        "role": "Freelance Designer",
+        "company": "Self-employed",
+        "content": "Syncing across devices is flawless. I use Ordo Todo on my Mac, iPhone, and iPad."
+      }
+    }
+  },
+  "CTA": {
+    "title": "Ready to get organized?",
+    "description": "Join thousands of users who are mastering their time with Ordo Todo. Start your free trial today.",
+    "button_primary": "Get Started for Free",
+    "button_secondary": "Log In",
+    "badge": "Free Forever Plan Available",
+    "trust": {
+      "no_card": "No credit card required",
+      "free": "Free plan forever",
+      "cancel": "Cancel anytime"
+    }
+  },
+  "Footer": {
+    "tagline": "Organize your life with AI assistance.",
+    "product": "Product",
+    "guide": "User Guide",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "company": "Company",
+    "about": "About Us",
+    "contact": "Contact",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "rights": "All rights reserved",
+    "made_with": "Made with",
+    "for_productivity": "for productivity"
+  },
+  "Guide": {
+    "title": "Getting Started",
+    "description": "Learn how to use Ordo Todo effectively and boost your productivity.",
+    "header": {
+      "title": "User Guide",
+      "subtitle": "Everything you need to master Ordo Todo"
+    },
+    "sidebar": {
+      "getting_started": "Getting Started",
+      "projects": "Projects & Boards",
+      "tasks": "Task Management",
+      "focus": "Focus Timer",
+      "analytics": "Analytics",
+      "need_help": "Need more help?",
+      "community_text": "Join our community for tips and support.",
+      "community_link": "Join Community"
+    },
+    "main": {
+      "badge": "Quick Start Guide",
+      "welcome": "Welcome to",
+      "welcome_text": "This guide will help you get up and running in just a few minutes. Our app combines powerful task management with focus tools to help you achieve your goals.",
+      "quick_start_title": "5-Minute Quick Start",
+      "steps": {
+        "1": {
+          "title": "Create your account",
+          "description": "Sign up for free and set up your profile. Choose your timezone and preferred language."
+        },
+        "2": {
+          "title": "Create a Workspace",
+          "description": "Workspaces help you separate different areas of your life. Create one for Personal and one for Work."
+        },
+        "3": {
+          "title": "Add your first Project",
+          "description": "Projects organize related tasks. Create a project for each major goal or initiative."
+        },
+        "4": {
+          "title": "Create Tasks",
+          "description": "Break down your projects into actionable tasks. Add due dates, priorities, and estimated time."
+        },
+        "5": {
+          "title": "Start the Focus Timer",
+          "description": "Select a task and start the Pomodoro timer. Stay focused for 25 minutes, then take a 5-minute break."
+        }
+      },
+      "pro_tip": "Pro Tip",
+      "pro_tip_text": "Use the keyboard shortcut",
+      "pro_tip_shortcut": "Cmd/Ctrl + N",
+      "pro_tip_end": "to quickly create new tasks from anywhere in the app!",
+      "explore_title": "Explore More",
+      "explore_text": "Dive deeper into specific features with these detailed guides:"
+    },
+    "cards": {
+      "projects": {
+        "title": "Projects & Boards",
+        "description": "Learn how to organize work with Kanban boards"
+      },
+      "tasks": {
+        "title": "Task Management",
+        "description": "Master subtasks, dependencies, and priorities"
+      },
+      "focus": {
+        "title": "Focus Timer",
+        "description": "Boost productivity with Pomodoro technique"
+      },
+      "analytics": {
+        "title": "Analytics",
+        "description": "Track and improve your productivity"
+      }
+    }
+  },
+  "GuideFocus": {
+    "badge": "Focus Timer",
+    "title": "Focus Timer & Pomodoro",
+    "subtitle": "Stay in the flow with our built-in Pomodoro timer.",
+    "pomodoro_title": "The Pomodoro Technique",
+    "pomodoro_text": "The Pomodoro Technique is a time management method that breaks work into focused intervals (traditionally 25 minutes) separated by short breaks. It's proven to improve focus and prevent burnout.",
+    "modes_title": "Timer Modes",
+    "modes": {
+      "focus": {
+        "title": "Focus Session",
+        "duration": "25 min",
+        "description": "Deep work on a single task. No distractions allowed."
+      },
+      "short": {
+        "title": "Short Break",
+        "duration": "5 min",
+        "description": "Quick rest to recharge. Stretch, hydrate, relax."
+      },
+      "long": {
+        "title": "Long Break",
+        "duration": "15-30 min",
+        "description": "Extended rest after 4 focus sessions. Go for a walk!"
+      }
+    },
+    "how_to_title": "How to Use",
+    "steps": {
+      "1": "Select a task from your list",
+      "2": "Click \"Start Focus\" to begin the timer",
+      "3": "Work until the timer completes",
+      "4": "Take your break, then repeat!"
+    },
+    "shortcuts_title": "Keyboard Shortcuts",
+    "shortcuts": {
+      "space": "Start/Pause timer",
+      "r": "Reset timer",
+      "s": "Skip to break"
+    },
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Enable \"Focus Mode\" in settings to hide all notifications and distractions during your focus sessions. Your productivity will thank you!"
+  },
+  "GuideProjects": {
+    "badge": "Projects & Boards",
+    "title": "Projects & Kanban Boards",
+    "subtitle": "Organize your work visually with flexible boards and lists.",
+    "managing_title": "Managing Projects",
+    "managing_text": "Projects in Ordo Todo allow you to group related tasks together. Whether you're launching a product, planning a vacation, or managing a team, Projects keep everything organized in one place.",
+    "creating_title": "Creating a Project",
+    "creating_steps": {
+      "1": "Click the + New Project button in the sidebar",
+      "2": "Give your project a descriptive name",
+      "3": "Choose a color for easy identification",
+      "4": "Select a workflow template (or start blank)"
+    },
+    "views_title": "Views",
+    "views_text": "Switch between different views to match your workflow:",
+    "views": {
+      "kanban": {
+        "title": "Kanban Board",
+        "description": "Visualize your workflow with columns. Drag and drop cards to update status instantly."
+      },
+      "list": {
+        "title": "List View",
+        "description": "A structured, dense list perfect for reviewing many tasks at once. Great for sorting and filtering."
+      }
+    },
+    "advanced_title": "Advanced Features",
+    "features": {
+      "tags": {
+        "title": "Tags & Labels",
+        "description": "Categorize tasks with colored tags like \"Design\", \"Marketing\", or \"Backend\"."
+      },
+      "team": {
+        "title": "Team Collaboration",
+        "description": "Invite team members and assign tasks. Everyone stays in sync."
+      }
+    },
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Use keyboard shortcut",
+    "pro_tip_shortcut": "V",
+    "pro_tip_end": "to quickly toggle between Kanban and List views!"
+  },
+  "GuideTasks": {
+    "badge": "Task Management",
+    "title": "Task Management",
+    "subtitle": "Master your daily to-do list with powerful task features.",
+    "basics_title": "The Basics",
+    "basics_text": "Tasks are the fundamental building blocks of Ordo Todo. Each task can be as simple as \"Buy groceries\" or as complex as \"Design new website homepage\" with subtasks, attachments, and comments.",
+    "creating_title": "Creating a Task",
+    "quick_add": "Quick Add",
+    "quick_add_text": "Press",
+    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_end": "anywhere to create a new task",
+    "or_click": "Or click the \"+\" button in any project to add a task directly to that project.",
+    "features_title": "Task Features",
+    "features_text": "Click on any task to open the detail panel and access these powerful features:",
+    "features": {
+      "subtasks": {
+        "title": "Subtasks",
+        "description": "Break complex tasks into smaller, manageable steps"
+      },
+      "due_dates": {
+        "title": "Due Dates",
+        "description": "Set deadlines and get timely reminders"
+      },
+      "priorities": {
+        "title": "Priorities",
+        "description": "Mark tasks as Low, Medium, High, or Urgent"
+      },
+      "time": {
+        "title": "Time Estimates",
+        "description": "Plan your day by estimating task duration"
+      },
+      "attachments": {
+        "title": "Attachments",
+        "description": "Add files, links, and references to tasks"
+      },
+      "comments": {
+        "title": "Comments",
+        "description": "Collaborate with notes and discussion"
+      }
+    },
+    "statuses_title": "Task Statuses",
+    "statuses_text": "Tasks move through these statuses as you work on them:",
+    "statuses": {
+      "todo": "To Do",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "priority_title": "Priority Levels",
+    "priority_text": "Use priorities to focus on what matters most:",
+    "priorities": {
+      "low": {
+        "label": "Low",
+        "description": "Nice to do, no rush"
+      },
+      "medium": {
+        "label": "Medium",
+        "description": "Should be done soon"
+      },
+      "high": {
+        "label": "High",
+        "description": "Important and time-sensitive"
+      },
+      "urgent": {
+        "label": "Urgent",
+        "description": "Do this immediately!"
+      }
+    },
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Use the Eisenhower Matrix view to automatically sort tasks by urgency and importance. Find it in the View menu!"
+  },
+  "GuideAnalytics": {
+    "badge": "Analytics",
+    "title": "Analytics & Insights",
+    "subtitle": "Understand your productivity patterns with detailed data visualization.",
+    "metrics_title": "Key Metrics",
+    "metrics_text": "Track these essential metrics to understand and improve your productivity:",
+    "metrics": {
+      "focus": {
+        "title": "Focus Hours",
+        "description": "Total time spent in focus sessions",
+        "example": "32h this week"
+      },
+      "tasks": {
+        "title": "Tasks Completed",
+        "description": "Number of tasks checked off",
+        "example": "47 tasks"
+      },
+      "score": {
+        "title": "Productivity Score",
+        "description": "AI-calculated efficiency rating",
+        "example": "87%"
+      },
+      "streak": {
+        "title": "Streak Days",
+        "description": "Consecutive productive days",
+        "example": "12 days"
+      }
+    },
+    "reports_title": "Reports",
+    "reports_text": "Generate detailed reports to review your progress:",
+    "reports": {
+      "daily": {
+        "title": "Daily Summary",
+        "description": "What you accomplished today"
+      },
+      "weekly": {
+        "title": "Weekly Report",
+        "description": "Trends and patterns over the week"
+      },
+      "monthly": {
+        "title": "Monthly Overview",
+        "description": "Long-term progress and goals"
+      },
+      "custom": {
+        "title": "Custom Range",
+        "description": "Analyze any time period"
+      }
+    },
+    "understanding_title": "Understanding Your Data",
+    "understanding": {
+      "peak": "Peak Hours: Find when you're most productive during the day",
+      "velocity": "Task Velocity: Track how fast you complete tasks over time",
+      "ratio": "Focus Ratio: Compare focus time vs total work time",
+      "goals": "Goal Progress: See how close you are to weekly goals"
+    },
+    "pro_tip": "Pro Tip",
+    "pro_tip_text": "Review your analytics every Sunday evening. Use the insights to plan a more productive week ahead!"
+  },
+  "Blog": {
+    "title": "Blog",
+    "description": "Latest news and productivity tips."
+  }
+}

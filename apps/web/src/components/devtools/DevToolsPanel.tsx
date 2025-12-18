@@ -24,7 +24,7 @@ interface Tool {
 }
 
 export function DevToolsPanel({ className, defaultPosition = 'floating' }: DevToolsPanelProps) {
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const [isLocked, setIsLocked] = useState(false);
   const [position, setPosition] = useState<'top-right' | 'bottom-right' | 'bottom-left'>('top-right');
   const [activeTool, setActiveTool] = useState<string | null>(null);
@@ -129,16 +129,8 @@ export function DevToolsPanel({ className, defaultPosition = 'floating' }: DevTo
     }
   }, [activeTool, isMinimized]);
 
-  // Auto-open performance monitor on initial load
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      // Start with performance monitor open
-      setTimeout(() => {
-        performanceMonitor.open();
-        setActiveTool('performance');
-      }, 2000);
-    }
-  }, []);
+  // REMOVED: Auto-open performance monitor - was blocking UI
+  // Users can open DevTools manually via Ctrl+Shift+D
 
   const getPositionClasses = () => {
     switch (position) {
@@ -159,9 +151,29 @@ export function DevToolsPanel({ className, defaultPosition = 'floating' }: DevTo
 
     if (!hook.isOpen) return null;
 
+    // Render tool in a closeable panel with close button
     return (
-      <div key={tool.id} className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <ToolComponent isOpen={true} />
+      <div key={tool.id} className="fixed inset-0 z-50" onClick={() => {
+        hook.close();
+        setActiveTool(null);
+      }}>
+        <div className="absolute inset-0 bg-black bg-opacity-50" />
+        <div className="relative h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="relative">
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute -top-2 -right-2 z-10 h-8 w-8 p-0 rounded-full bg-white dark:bg-gray-800 shadow-lg"
+              onClick={() => {
+                hook.close();
+                setActiveTool(null);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <ToolComponent isOpen={true} />
+          </div>
+        </div>
       </div>
     );
   };

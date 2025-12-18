@@ -1,4 +1,5 @@
 {
+
   "Calendar": {
     "title": "Calendário",
     "subtitle": "Visualize e gerencie suas tarefas ao longo do tempo",
@@ -1858,6 +1859,9 @@
     "averageProgress": "Progresso Médio",
     "viewAll": "Ver Tudo",
     "total": "Total",
+    "completed": "Concluídos",
+    "progress": "Progresso",
+    "dueDate": "Data limite",
     "okrsAtRisk": "OKRs em Risco",
     "left": "restantes"
   },

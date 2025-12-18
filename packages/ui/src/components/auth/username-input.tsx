@@ -60,6 +60,8 @@ export function UsernameInput({
   });
 
   // Validate username when value changes
+  // Note: validateUsername and resetValidation are intentionally excluded from deps
+  // They are stable callbacks that shouldn't trigger re-validation
   useEffect(() => {
     if (value && value.length >= 3) {
       validateUsername(value);
@@ -71,7 +73,8 @@ export function UsernameInput({
       setSuggestions([]);
       setShowSuggestionsList(false);
     }
-  }, [value, validateUsername, resetValidation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   // Generate suggestions when username is taken
   useEffect(() => {

@@ -1318,7 +1318,57 @@ export function useCompleteHabit() {
   return useMutation({
     mutationFn: ({ habitId, data }: { habitId: string; data?: Parameters<typeof apiClient.completeHabit>[1] }) =>
       apiClient.completeHabit(habitId, data),
-    onSuccess: (_, { habitId }) => {
+    onMutate: async ({ habitId }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: habitQueryKeys.today });
+      await queryClient.cancelQueries({ queryKey: habitQueryKeys.all });
+
+      // Snapshot the previous value
+      const previousTodayData = queryClient.getQueryData(habitQueryKeys.today);
+      const previousAllData = queryClient.getQueryData(habitQueryKeys.all);
+
+      // Optimistically update to show as completed
+      queryClient.setQueryData(habitQueryKeys.today, (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          habits: old.habits?.map((h: any) =>
+            h.id === habitId
+              ? { ...h, completions: [{ id: 'temp', habitId, completedAt: new Date().toISOString() }] }
+              : h
+          ),
+          summary: {
+            ...old.summary,
+            completed: (old.summary?.completed || 0) + 1,
+            remaining: Math.max((old.summary?.remaining || 0) - 1, 0),
+            percentage: old.summary?.total > 0
+              ? Math.round(((old.summary?.completed || 0) + 1) / old.summary.total * 100)
+              : 0,
+          },
+        };
+      });
+
+      queryClient.setQueryData(habitQueryKeys.all, (old: any) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.map((h: any) =>
+          h.id === habitId
+            ? { ...h, completions: [...(h.completions || []), { id: 'temp', habitId, completedAt: new Date().toISOString() }] }
+            : h
+        );
+      });
+
+      return { previousTodayData, previousAllData };
+    },
+    onError: (err, { habitId }, context) => {
+      // Rollback on error
+      if (context?.previousTodayData) {
+        queryClient.setQueryData(habitQueryKeys.today, context.previousTodayData);
+      }
+      if (context?.previousAllData) {
+        queryClient.setQueryData(habitQueryKeys.all, context.previousAllData);
+      }
+    },
+    onSettled: (_, __, { habitId }) => {
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.stats(habitId) });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
@@ -1332,7 +1382,54 @@ export function useUncompleteHabit() {
 
   return useMutation({
     mutationFn: (habitId: string) => apiClient.uncompleteHabit(habitId),
-    onSuccess: (habitId) => {
+    onMutate: async (habitId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: habitQueryKeys.today });
+      await queryClient.cancelQueries({ queryKey: habitQueryKeys.all });
+
+      // Snapshot the previous value
+      const previousTodayData = queryClient.getQueryData(habitQueryKeys.today);
+      const previousAllData = queryClient.getQueryData(habitQueryKeys.all);
+
+      // Optimistically update to show as not completed
+      queryClient.setQueryData(habitQueryKeys.today, (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          habits: old.habits?.map((h: any) =>
+            h.id === habitId ? { ...h, completions: [] } : h
+          ),
+          summary: {
+            ...old.summary,
+            completed: Math.max((old.summary?.completed || 0) - 1, 0),
+            remaining: (old.summary?.remaining || 0) + 1,
+            percentage: old.summary?.total > 0
+              ? Math.round((Math.max((old.summary?.completed || 0) - 1, 0)) / old.summary.total * 100)
+              : 0,
+          },
+        };
+      });
+
+      queryClient.setQueryData(habitQueryKeys.all, (old: any) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.map((h: any) =>
+          h.id === habitId ? { ...h, completions: [] } : h
+        );
+      });
+
+      return { previousTodayData, previousAllData };
+    },
+    onError: (err, habitId, context) => {
+      // Rollback on error
+      if (context?.previousTodayData) {
+        queryClient.setQueryData(habitQueryKeys.today, context.previousTodayData);
+      }
+      if (context?.previousAllData) {
+        queryClient.setQueryData(habitQueryKeys.all, context.previousAllData);
+      }
+    },
+    onSettled: (_, __, habitId) => {
+      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
     },

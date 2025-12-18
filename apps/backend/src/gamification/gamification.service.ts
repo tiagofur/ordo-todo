@@ -15,10 +15,14 @@ export class GamificationService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
-    await this.seedAchievements();
+    try {
+      await this.seedAchievements();
+    } catch (error) {
+      this.logger.warn('Could not seed achievements - database may be unavailable. This is non-fatal.');
+    }
   }
 
   private async seedAchievements() {

@@ -20,7 +20,7 @@ interface DevToolsConfig {
 
 export function useDevTools(config: DevToolsConfig = {}) {
   const {
-    autoStartPerformanceMonitor = true,
+    autoStartPerformanceMonitor = false,
     enableKeyboardShortcuts = true,
     showDevModeIndicator = true,
     logActions = false

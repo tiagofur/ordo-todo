@@ -221,7 +221,8 @@ export function ProfileTabs({
     } else if (!isEditingUsername) {
       resetValidation();
     }
-  }, [username, isEditingUsername, validateUsername, resetValidation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, isEditingUsername]);
 
   // Update form when profile loads
   useEffect(() => {
@@ -271,7 +272,7 @@ export function ProfileTabs({
   async function handleUpdateUsername() {
     if (!onUpdateUsername) return;
     if (!username || username.length < 3) {
-      addError("Username must be at least 3 characters");
+      addError?.("Username must be at least 3 characters");
       return;
     }
     if (username === profile?.username) {
@@ -282,10 +283,10 @@ export function ProfileTabs({
     setIsUpdatingUsername(true);
     try {
       await onUpdateUsername(username);
-      addSuccess("Username updated successfully!");
+      addSuccess?.("Username updated successfully!");
       setIsEditingUsername(false);
     } catch (error: any) {
-      addError(error.message || "Failed to update username");
+      addError?.(error.message || "Failed to update username");
     } finally {
       setIsUpdatingUsername(false);
     }
@@ -294,36 +295,36 @@ export function ProfileTabs({
   async function handleSaveProfile() {
     try {
       await onUpdateProfile(profileForm);
-      addSuccess("Profile updated successfully!");
+      addSuccess?.("Profile updated successfully!");
     } catch (error: any) {
-      addError(error.message || "Failed to update profile");
+      addError?.(error.message || "Failed to update profile");
     }
   }
 
   async function handleSaveAiPreferences() {
     try {
       await onUpdatePreferences(aiPreferences);
-      addSuccess("AI preferences updated successfully!");
+      addSuccess?.("AI preferences updated successfully!");
     } catch (error: any) {
-      addError(error.message || "Failed to update AI preferences");
+      addError?.(error.message || "Failed to update AI preferences");
     }
   }
 
   async function handleSavePrivacyPreferences() {
     try {
       await onUpdatePreferences(privacyPreferences);
-      addSuccess("Privacy preferences updated successfully!");
+      addSuccess?.("Privacy preferences updated successfully!");
     } catch (error: any) {
-      addError(error.message || "Failed to update privacy preferences");
+      addError?.(error.message || "Failed to update privacy preferences");
     }
   }
 
   async function handleExportData() {
     try {
       await onExportData();
-      addSuccess("Data export started! The download will begin shortly.");
+      addSuccess?.("Data export started! The download will begin shortly.");
     } catch (error: any) {
-      addError(error.message || "Failed to export data");
+      addError?.(error.message || "Failed to export data");
     }
   }
 
@@ -331,7 +332,7 @@ export function ProfileTabs({
     try {
       await onDeleteAccount();
     } catch (error: any) {
-      addError(error.message || "Failed to delete account");
+      addError?.(error.message || "Failed to delete account");
     }
   }
 

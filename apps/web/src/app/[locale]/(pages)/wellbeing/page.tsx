@@ -220,7 +220,7 @@ export default function WellbeingPage() {
                 <div className="flex-1">
                   <h4 className="font-medium mb-2">Factores Detectados</h4>
                   <div className="space-y-2">
-                    {burnout.warnings.slice(0, 3).map((warning, idx) => (
+                    {burnout.warnings?.slice(0, 3).map((warning, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-sm">
                         {warning.severity === "SEVERE" ? (
                           <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -237,14 +237,14 @@ export default function WellbeingPage() {
               </div>
 
               {/* Quick recommendations */}
-              {burnout.warnings.length > 0 && (
+              {burnout.warnings?.length > 0 && (
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-2 flex items-center gap-2">
                     <Brain className="h-4 w-4" />
                     Sugerencias Inmediatas
                   </h4>
                   <ul className="grid gap-2">
-                    {burnout.warnings.slice(0, 3).map((warning, idx) => (
+                    {burnout.warnings?.slice(0, 3).map((warning, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                         {warning.recommendation}
@@ -266,7 +266,7 @@ export default function WellbeingPage() {
                   <Clock className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{patterns.averageHoursPerDay.toFixed(1)}h</p>
+                  <p className="text-2xl font-bold">{(patterns.averageHoursPerDay ?? 0).toFixed(1)}h</p>
                   <p className="text-xs text-muted-foreground">Horas/día</p>
                 </div>
               </div>
@@ -277,7 +277,7 @@ export default function WellbeingPage() {
                   <Moon className="h-5 w-5 text-purple-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{patterns.nightWorkPercentage}%</p>
+                  <p className="text-2xl font-bold">{patterns.nightWorkPercentage ?? 0}%</p>
                   <p className="text-xs text-muted-foreground">Trabajo nocturno</p>
                 </div>
               </div>
@@ -288,7 +288,7 @@ export default function WellbeingPage() {
                   <Calendar className="h-5 w-5 text-orange-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{patterns.weekendWorkPercentage}%</p>
+                  <p className="text-2xl font-bold">{patterns.weekendWorkPercentage ?? 0}%</p>
                   <p className="text-xs text-muted-foreground">Fines de semana</p>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function WellbeingPage() {
                   <Coffee className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{patterns.averageBreakMinutes}m</p>
+                  <p className="text-2xl font-bold">{patterns.averageBreakMinutes ?? 0}m</p>
                   <p className="text-xs text-muted-foreground">Descansos</p>
                 </div>
               </div>

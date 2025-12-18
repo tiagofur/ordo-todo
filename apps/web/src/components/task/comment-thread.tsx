@@ -115,7 +115,8 @@ export function CommentThread({ taskId, comments = [], currentUserId, workspaceI
     setEditContent("");
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "U";
     return name
       .split(" ")
       .map((n) => n[0])
