@@ -27,7 +27,7 @@ COPY packages/db/prisma.config.ts ./packages/db/
 
 # Install dependencies (ignore postinstall errors, we'll generate Prisma client later)
 RUN npm ci --legacy-peer-deps --ignore-scripts
-RUN cd packages/db && npx prisma generate --schema=prisma/schema.prisma
+RUN cd packages/db && DATABASE_URL=postgresql://localhost npx prisma generate --schema=prisma/schema.prisma
 
 # =============================================================================
 # Stage 2: Builder
@@ -52,7 +52,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXTAUTH_URL=$NEXTAUTH_URL
 
 # Generate Prisma client
-RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
+RUN DATABASE_URL=postgresql://localhost npx prisma generate --schema=packages/db/prisma/schema.prisma
 
 # Build shared packages
 WORKDIR /app

@@ -28,7 +28,7 @@ COPY packages/db/prisma.config.ts ./packages/db/
 
 # Install all dependencies (ignore scripts, we'll generate Prisma client later)
 RUN npm ci --legacy-peer-deps --ignore-scripts
-RUN cd packages/db && npx prisma generate --schema=prisma/schema.prisma
+RUN cd packages/db && DATABASE_URL=postgresql://localhost npx prisma generate --schema=prisma/schema.prisma
 
 # =============================================================================
 # Stage 2: Builder
@@ -46,7 +46,7 @@ COPY apps/backend ./apps/backend
 COPY packages ./packages
 
 # Generate Prisma client
-RUN npx prisma generate --schema=packages/db/prisma/schema.prisma
+RUN DATABASE_URL=postgresql://localhost npx prisma generate --schema=packages/db/prisma/schema.prisma
 
 # Build shared packages first
 WORKDIR /app
