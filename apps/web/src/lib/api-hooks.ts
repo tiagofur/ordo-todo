@@ -206,7 +206,6 @@ export function useFullProfile() {
   return useQuery({
     queryKey: queryKeys.userProfile,
     queryFn: () => apiClient.getFullProfile(),
-    enabled: isAuthenticated(),
     retry: 1, // Allow one retry for token refresh scenarios
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
@@ -216,7 +215,6 @@ export function useUserPreferences() {
   return useQuery({
     queryKey: queryKeys.userPreferences,
     queryFn: () => apiClient.getPreferences(),
-    enabled: isAuthenticated(),
     retry: 1,
     staleTime: 5 * 60 * 1000,
   });
@@ -239,7 +237,6 @@ export function useUserIntegrations() {
   return useQuery({
     queryKey: queryKeys.userIntegrations,
     queryFn: () => apiClient.getIntegrations(),
-    enabled: isAuthenticated(),
     retry: 1,
     staleTime: 5 * 60 * 1000,
   });
