@@ -26,6 +26,22 @@ export default function InternalLayout() {
             presentation: 'modal'
           }}
         />
+        <Stack.Screen
+          name="wellbeing"
+          options={{
+            headerTitle: "Bienestar",
+            headerShown: false,
+            headerBackTitle: "Volver",
+          }}
+        />
+        <Stack.Screen
+          name="workload"
+          options={{
+            headerTitle: "Carga de Trabajo",
+            headerShown: false,
+            headerBackTitle: "Volver",
+          }}
+        />
       </Stack>
     </ForceAuthentication>
   );

@@ -1,0 +1,11 @@
+ PASS  app/components/shared/__tests__/button.component.test.tsx
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20
+    throw new Error("You must provide the string URL or ArrayBuffer contents " +
+          ^
+
+Error: You must provide the string URL or ArrayBuffer contents of lib/mappings.wasm by calling SourceMapConsumer.initialize({ 'lib/mappings.wasm': ... }) before using SourceMapConsumer
+    at readWasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20:11)
+    at wasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\wasm.js:25:16)
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\source-map-consumer.js:247:14
+
+Node.js v22.17.0

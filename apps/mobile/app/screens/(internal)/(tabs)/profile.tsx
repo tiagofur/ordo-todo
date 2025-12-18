@@ -39,6 +39,8 @@ export default function Profile() {
 
   // Build profile options with translations
   const PROFILE_OPTIONS = useMemo(() => [
+    { icon: "heart", label: "Bienestar", color: "#ec4899", route: "/screens/(internal)/wellbeing" },
+    { icon: "users", label: "Carga de Trabajo", color: "#f97316", route: "/screens/(internal)/workload" },
     { icon: "bell", label: t('Mobile.profileOptions.notifications'), color: "#667EEA", hasSwitch: true },
     { icon: "moon", label: t('Mobile.profileOptions.darkMode'), color: "#9F7AEA", hasSwitch: true },
     { icon: "settings", label: t('Mobile.profileOptions.settings'), color: "#4299E1" },
@@ -173,7 +175,13 @@ export default function Profile() {
               entering={FadeInDown.delay(800 + index * 80).springify()}
             >
               <Card
-                onPress={() => console.log(option.label)}
+                onPress={() => {
+                  if ((option as any).route) {
+                    router.push((option as any).route);
+                  } else {
+                    console.log(option.label);
+                  }
+                }}
                 style={styles.optionCard}
                 padding={16}
               >

@@ -1,0 +1,53 @@
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20
+    throw new Error("You must provide the string URL or ArrayBuffer contents " +
+          ^
+
+Error: You must provide the string URL or ArrayBuffer contents of lib/mappings.wasm by calling SourceMapConsumer.initialize({ 'lib/mappings.wasm': ... }) before using SourceMapConsumer
+    at readWasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20:11)
+    at wasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\wasm.js:25:16)
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\source-map-consumer.js:247:14
+
+Node.js v22.17.0
+ PASS  app/components/shared/__tests__/button.component.test.tsx
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20
+    throw new Error("You must provide the string URL or ArrayBuffer contents " +
+          ^
+
+Error: You must provide the string URL or ArrayBuffer contents of lib/mappings.wasm by calling SourceMapConsumer.initialize({ 'lib/mappings.wasm': ... }) before using SourceMapConsumer
+    at readWasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20:11)
+    at wasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\wasm.js:25:16)
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\source-map-consumer.js:247:14
+
+Node.js v22.17.0
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20
+    throw new Error("You must provide the string URL or ArrayBuffer contents " +
+          ^
+
+Error: You must provide the string URL or ArrayBuffer contents of lib/mappings.wasm by calling SourceMapConsumer.initialize({ 'lib/mappings.wasm': ... }) before using SourceMapConsumer
+    at readWasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20:11)
+    at wasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\wasm.js:25:16)
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\source-map-consumer.js:247:14
+
+Node.js v22.17.0
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20
+    throw new Error("You must provide the string URL or ArrayBuffer contents " +
+          ^
+
+Error: You must provide the string URL or ArrayBuffer contents of lib/mappings.wasm by calling SourceMapConsumer.initialize({ 'lib/mappings.wasm': ... }) before using SourceMapConsumer
+    at readWasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\read-wasm.js:20:11)
+    at wasm (C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\wasm.js:25:16)
+    at C:\Users\tfurt\source\repos\ordo-todo\node_modules\source-map\lib\source-map-consumer.js:247:14
+
+Node.js v22.17.0
+ FAIL  app/components/shared/__tests__/card.component.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Jest worker encountered 4 child process exceptions, exceeding retry limit
+
+      at ChildProcessWorker.initialize (node_modules/jest-worker/build/workers/ChildProcessWorker.js:181:21)
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        11.542 s
+Ran all test suites.

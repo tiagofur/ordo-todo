@@ -23,6 +23,8 @@ const LazyHabits = LazyLoad(() => import("./pages/Habits").then(m => ({ default:
 const LazyGoals = LazyLoad(() => import("./pages/goals/Goals").then(m => ({ default: m.Goals || m.default })));
 const LazyGoalDetails = LazyLoad(() => import("./pages/goals/GoalDetails").then(m => ({ default: m.GoalDetails || m.default })));
 const LazyFocusMode = LazyLoad(() => import("./pages/FocusMode").then(m => ({ default: m.FocusMode || m.default })));
+const LazyWellbeing = LazyLoad(() => import("./pages/Wellbeing").then(m => ({ default: m.Wellbeing || m.default })));
+const LazyWorkload = LazyLoad(() => import("./pages/Workload").then(m => ({ default: m.Workload || m.default })));
 
 // Create router configuration
 const router = createBrowserRouter([
@@ -113,6 +115,14 @@ const router = createBrowserRouter([
           {
             path: "settings",
             element: <LazySettings />,
+          },
+          {
+            path: "wellbeing",
+            element: <LazyWellbeing />,
+          },
+          {
+            path: "workload",
+            element: <LazyWorkload />,
           },
         ],
       },

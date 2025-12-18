@@ -10,4 +10,6 @@ export { Tags } from "./Tags";
 export { Settings } from "./Settings";
 export { Profile } from "./Profile";
 export { Auth } from "./Auth";
+export { Wellbeing } from "./Wellbeing";
+export { Workload } from "./Workload";
 

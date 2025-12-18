@@ -13,6 +13,8 @@
   },
   "devDependencies": {
     "prettier": "^3.6.2",
+    "react-native-web": "^0.21.2",
+    "react-test-renderer": "^19.2.0",
     "turbo": "^2.6.1",
     "typescript": "^5.9.3"
   },

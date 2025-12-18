@@ -1719,5 +1719,94 @@ export class OrdoApiClient {
     const response = await this.axios.patch<CustomFieldValue[]>(`/tasks/${taskId}/custom-values`, data);
     return response.data;
   }
+
+  // ============ BURNOUT PREVENTION / WELLBEING ENDPOINTS ============
+
+  /**
+   * Get burnout risk analysis for current user
+   * GET /ai/burnout/analysis
+   */
+  async getBurnoutAnalysis(): Promise<any> {
+    const response = await this.axios.get('/ai/burnout/analysis');
+    return response.data;
+  }
+
+  /**
+   * Get work patterns for current user
+   * GET /ai/burnout/patterns
+   */
+  async getWorkPatterns(): Promise<any> {
+    const response = await this.axios.get('/ai/burnout/patterns');
+    return response.data;
+  }
+
+  /**
+   * Get rest recommendations
+   * GET /ai/burnout/recommendations
+   */
+  async getRestRecommendations(): Promise<any[]> {
+    const response = await this.axios.get('/ai/burnout/recommendations');
+    return response.data;
+  }
+
+  /**
+   * Check for burnout intervention needs
+   * GET /ai/burnout/intervention
+   */
+  async checkBurnoutIntervention(): Promise<any> {
+    const response = await this.axios.get('/ai/burnout/intervention');
+    return response.data;
+  }
+
+  /**
+   * Get weekly wellbeing summary
+   * GET /ai/burnout/weekly-summary
+   */
+  async getWeeklyWellbeingSummary(): Promise<any> {
+    const response = await this.axios.get('/ai/burnout/weekly-summary');
+    return response.data;
+  }
+
+  // ============ TEAM WORKLOAD ENDPOINTS ============
+
+  /**
+   * Get workspace workload summary
+   * GET /workload/workspace/:workspaceId
+   */
+  async getWorkspaceWorkload(workspaceId: string): Promise<any> {
+    const response = await this.axios.get(`/workload/workspace/${workspaceId}`);
+    return response.data;
+  }
+
+  /**
+   * Get member workload details
+   * GET /workload/member/:userId
+   */
+  async getMemberWorkload(userId: string, workspaceId?: string): Promise<any> {
+    const response = await this.axios.get(`/workload/member/${userId}`, {
+      params: { workspaceId },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get current user's workload
+   * GET /workload/me
+   */
+  async getMyWorkload(workspaceId?: string): Promise<any> {
+    const response = await this.axios.get('/workload/me', {
+      params: { workspaceId },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get workload suggestions for redistribution
+   * GET /workload/suggestions/:workspaceId
+   */
+  async getWorkloadSuggestions(workspaceId: string): Promise<any[]> {
+    const response = await this.axios.get(`/workload/suggestions/${workspaceId}`);
+    return response.data;
+  }
 }
 
