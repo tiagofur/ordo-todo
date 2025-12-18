@@ -173,7 +173,10 @@ export function useCurrentUser() {
   return useQuery({
     queryKey: queryKeys.currentUser,
     queryFn: () => apiClient.getCurrentUser(),
-    retry: false,
+    // Note: No 'enabled' check here - AuthContext depends on this hook
+    // to determine auth status and needs it to run to detect 401 errors
+    retry: 1, // Allow one retry for token refresh scenarios
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 }
 
@@ -203,7 +206,9 @@ export function useFullProfile() {
   return useQuery({
     queryKey: queryKeys.userProfile,
     queryFn: () => apiClient.getFullProfile(),
-    retry: false,
+    enabled: isAuthenticated(),
+    retry: 1, // Allow one retry for token refresh scenarios
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 }
 
@@ -211,7 +216,9 @@ export function useUserPreferences() {
   return useQuery({
     queryKey: queryKeys.userPreferences,
     queryFn: () => apiClient.getPreferences(),
-    retry: false,
+    enabled: isAuthenticated(),
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -232,7 +239,9 @@ export function useUserIntegrations() {
   return useQuery({
     queryKey: queryKeys.userIntegrations,
     queryFn: () => apiClient.getIntegrations(),
-    retry: false,
+    enabled: isAuthenticated(),
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
