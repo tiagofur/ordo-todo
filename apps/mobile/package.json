@@ -13,7 +13,7 @@
     "lint": "expo lint",
     "check-types": "tsc --noEmit",
     "test": "jest --runInBand",
-    "eas-build-post-install": "cd ../.. && npm run build --workspace=@ordo-todo/core && npm run build --workspace=@ordo-todo/api-client && npm run build --workspace=@ordo-todo/stores && npm run build --workspace=@ordo-todo/i18n && npm run build --workspace=@ordo-todo/hooks && cd apps/mobile && node scripts/patch-router.js"
+    "eas-build-post-install": "node scripts/patch-router.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

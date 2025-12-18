@@ -25,7 +25,11 @@ Turbo
 .next/
 out/
 build
+
+# Dist folders (except packages which need to be pre-compiled for EAS)
 dist
+!packages/*/dist
+!packages/*/dist/**
 
 # tmp
 tmp
