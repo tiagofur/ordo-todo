@@ -14,7 +14,7 @@ export class SmartNotificationsService {
     private readonly prisma: PrismaService,
     @Optional() private readonly gateway?: NotificationsGateway,
     @Optional() private readonly burnoutService?: BurnoutPreventionService,
-  ) { }
+  ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async checkUpcomingTasks() {
@@ -180,7 +180,9 @@ export class SmartNotificationsService {
   @Cron('0 18 * * *')
   async checkBurnoutRisk() {
     if (!this.burnoutService) {
-      this.logger.warn('BurnoutPreventionService not available, skipping burnout check');
+      this.logger.warn(
+        'BurnoutPreventionService not available, skipping burnout check',
+      );
       return;
     }
 
@@ -191,7 +193,9 @@ export class SmartNotificationsService {
 
     for (const user of users) {
       try {
-        const intervention = await this.burnoutService.checkForIntervention(user.id);
+        const intervention = await this.burnoutService.checkForIntervention(
+          user.id,
+        );
 
         if (intervention && intervention.shouldNotify) {
           // Check if we already sent a burnout notification today
@@ -224,15 +228,14 @@ export class SmartNotificationsService {
               this.gateway.sendInsight(user.id, {
                 type: 'BURNOUT_WARNING',
                 message: intervention.message,
-                priority: intervention.type === 'CRITICAL_ALERT' ? 'HIGH' : 'MEDIUM',
+                priority:
+                  intervention.type === 'CRITICAL_ALERT' ? 'HIGH' : 'MEDIUM',
                 actionable: true,
                 action: { type: 'SHOW_WELLBEING', data: {} },
               });
             }
 
-            this.logger.log(
-              `Sent ${intervention.type} to user ${user.id}`,
-            );
+            this.logger.log(`Sent ${intervention.type} to user ${user.id}`);
           }
         }
       } catch (error) {
@@ -247,7 +250,9 @@ export class SmartNotificationsService {
   @Cron('0 20 * * 0')
   async sendWeeklyWellbeingReport() {
     if (!this.burnoutService) {
-      this.logger.warn('BurnoutPreventionService not available, skipping weekly report');
+      this.logger.warn(
+        'BurnoutPreventionService not available, skipping weekly report',
+      );
       return;
     }
 
@@ -258,15 +263,22 @@ export class SmartNotificationsService {
 
     for (const user of users) {
       try {
-        const summary = await this.burnoutService.generateWeeklyWellbeingSummary(user.id);
+        const summary =
+          await this.burnoutService.generateWeeklyWellbeingSummary(user.id);
 
         // Build a nice summary message
-        const scoreEmoji = summary.overallScore >= 80 ? '🌟' :
-          summary.overallScore >= 60 ? '👍' :
-            summary.overallScore >= 40 ? '⚠️' : '🔴';
+        const scoreEmoji =
+          summary.overallScore >= 80
+            ? '🌟'
+            : summary.overallScore >= 60
+              ? '👍'
+              : summary.overallScore >= 40
+                ? '⚠️'
+                : '🔴';
 
         const highlights = summary.highlights.slice(0, 2).join('. ');
-        const mainConcern = summary.concerns.length > 0 ? summary.concerns[0] : null;
+        const mainConcern =
+          summary.concerns.length > 0 ? summary.concerns[0] : null;
 
         let message = `${scoreEmoji} Tu puntaje de bienestar esta semana: ${summary.overallScore}/100. `;
         if (highlights) {
@@ -290,7 +302,10 @@ export class SmartNotificationsService {
 
         this.logger.log(`Sent weekly wellbeing report to user ${user.id}`);
       } catch (error) {
-        this.logger.error(`Failed to send weekly report to user ${user.id}`, error);
+        this.logger.error(
+          `Failed to send weekly report to user ${user.id}`,
+          error,
+        );
       }
     }
   }
@@ -323,9 +338,8 @@ export class SmartNotificationsService {
       if (sessionMinutes < 75) continue;
 
       try {
-        const recommendations = await this.burnoutService.getRestRecommendations(
-          session.userId,
-        );
+        const recommendations =
+          await this.burnoutService.getRestRecommendations(session.userId);
 
         const breakRec = recommendations.find(
           (r) => r.type === 'TAKE_BREAK' && r.priority === 'HIGH',
@@ -365,9 +379,11 @@ export class SmartNotificationsService {
           }
         }
       } catch (error) {
-        this.logger.error(`Smart break check failed for user ${session.userId}`, error);
+        this.logger.error(
+          `Smart break check failed for user ${session.userId}`,
+          error,
+        );
       }
     }
   }
 }
-

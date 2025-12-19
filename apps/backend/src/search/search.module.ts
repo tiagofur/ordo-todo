@@ -5,9 +5,9 @@ import { SearchController } from './search.controller';
 import { SemanticSearchService } from './semantic-search.service';
 
 @Module({
-    imports: [DatabaseModule, AIModule],
-    controllers: [SearchController],
-    providers: [SemanticSearchService],
-    exports: [SemanticSearchService],
+  imports: [DatabaseModule, AIModule],
+  controllers: [SearchController],
+  providers: [SemanticSearchService],
+  exports: [SemanticSearchService],
 })
-export class SearchModule { }
+export class SearchModule {}

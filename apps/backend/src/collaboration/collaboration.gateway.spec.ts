@@ -178,10 +178,13 @@ describe('CollaborationGateway', () => {
       gateway.broadcastTaskChange('task-123', { status: 'DONE' }, 'user-123');
 
       expect(mockServer.to).toHaveBeenCalledWith('task:task-123');
-      expect(mockServer.emit).toHaveBeenCalledWith('task-updated', expect.objectContaining({
-        taskId: 'task-123',
-        changes: { status: 'DONE' },
-      }));
+      expect(mockServer.emit).toHaveBeenCalledWith(
+        'task-updated',
+        expect.objectContaining({
+          taskId: 'task-123',
+          changes: { status: 'DONE' },
+        }),
+      );
     });
   });
 });

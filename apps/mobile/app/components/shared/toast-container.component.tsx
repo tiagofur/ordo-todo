@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
-import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
+import Toast, { BaseToast, ErrorToast, BaseToastProps } from "react-native-toast-message";
 
 const toastConfig = {
-  success: (props: any) => (
+  success: (props: BaseToastProps) => (
+    // @ts-expect-error - react-native-toast-message types are incompatible with React 19
     <BaseToast
       {...props}
       style={{ borderLeftColor: "#22c55e" }}
@@ -23,7 +24,8 @@ const toastConfig = {
       )}
     />
   ),
-  error: (props: any) => (
+  error: (props: BaseToastProps) => (
+    // @ts-expect-error - react-native-toast-message types are incompatible with React 19
     <ErrorToast
       {...props}
       style={{ borderLeftColor: "#ef4444" }}
@@ -42,7 +44,8 @@ const toastConfig = {
       )}
     />
   ),
-  info: (props: any) => (
+  info: (props: BaseToastProps) => (
+    // @ts-expect-error - react-native-toast-message types are incompatible with React 19
     <BaseToast
       {...props}
       style={{ borderLeftColor: "#3b82f6" }}
@@ -68,5 +71,6 @@ const toastConfig = {
 };
 
 export default function ToastContainer() {
+  // @ts-expect-error - react-native-toast-message types are incompatible with React 19
   return <Toast topOffset={70} config={toastConfig} />;
 }

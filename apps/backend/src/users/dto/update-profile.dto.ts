@@ -8,8 +8,6 @@ import {
 } from 'class-validator';
 
 export class UpdateProfileDto {
-  @IsString()
-  @IsOptional()
   @MinLength(1)
   @MaxLength(100)
   name?: string;
@@ -19,7 +17,8 @@ export class UpdateProfileDto {
   @MinLength(3)
   @MaxLength(20)
   @Matches(/^[a-z0-9_-]+$/, {
-    message: 'Username can only contain lowercase letters, numbers, hyphens, and underscores',
+    message:
+      'Username can only contain lowercase letters, numbers, hyphens, and underscores',
   })
   username?: string;
 

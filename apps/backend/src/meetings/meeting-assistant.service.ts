@@ -6,97 +6,97 @@ import { PrismaService } from '../database/prisma.service';
  * Extracted action item from a meeting
  */
 export interface ActionItem {
-    title: string;
-    description?: string;
-    assignee?: string;
-    dueDate?: string;
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-    context: string; // The part of the transcript that generated this
+  title: string;
+  description?: string;
+  assignee?: string;
+  dueDate?: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  context: string; // The part of the transcript that generated this
 }
 
 /**
  * Key decision made in a meeting
  */
 export interface KeyDecision {
-    decision: string;
-    context: string;
-    participants?: string[];
+  decision: string;
+  context: string;
+  participants?: string[];
 }
 
 /**
  * Meeting participant mentioned in transcript
  */
 export interface MeetingParticipant {
-    name: string;
-    role?: string;
-    speakingTime?: number; // percentage
+  name: string;
+  role?: string;
+  speakingTime?: number; // percentage
 }
 
 /**
  * Topics discussed in the meeting
  */
 export interface MeetingTopic {
-    topic: string;
-    duration?: number; // minutes
-    summary: string;
+  topic: string;
+  duration?: number; // minutes
+  summary: string;
 }
 
 /**
  * Full meeting analysis result
  */
 export interface MeetingAnalysis {
-    summary: string;
-    keyPoints: string[];
-    actionItems: ActionItem[];
-    decisions: KeyDecision[];
-    participants: MeetingParticipant[];
-    topics: MeetingTopic[];
-    sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE' | 'MIXED';
-    followUpRequired: boolean;
-    suggestedFollowUpDate?: string;
+  summary: string;
+  keyPoints: string[];
+  actionItems: ActionItem[];
+  decisions: KeyDecision[];
+  participants: MeetingParticipant[];
+  topics: MeetingTopic[];
+  sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE' | 'MIXED';
+  followUpRequired: boolean;
+  suggestedFollowUpDate?: string;
 }
 
 /**
  * Meeting record stored in database
  */
 export interface MeetingRecord {
-    id: string;
-    userId: string;
-    title: string;
-    date: Date;
-    duration: number; // minutes
-    transcript?: string;
-    audioUrl?: string;
-    analysis?: MeetingAnalysis;
-    projectId?: string;
-    createdAt: Date;
-    updatedAt: Date;
+  id: string;
+  userId: string;
+  title: string;
+  date: Date;
+  duration: number; // minutes
+  transcript?: string;
+  audioUrl?: string;
+  analysis?: MeetingAnalysis;
+  projectId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 @Injectable()
 export class MeetingAssistantService {
-    private readonly logger = new Logger(MeetingAssistantService.name);
+  private readonly logger = new Logger(MeetingAssistantService.name);
 
-    constructor(
-        private readonly geminiAI: GeminiAIService,
-        private readonly prisma: PrismaService,
-    ) { }
+  constructor(
+    private readonly geminiAI: GeminiAIService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-    /**
-     * Analyze a meeting transcript and extract insights
-     */
-    async analyzeTranscript(
-        transcript: string,
-        options: {
-            meetingTitle?: string;
-            participants?: string[];
-            duration?: number;
-            projectContext?: string;
-        } = {},
-    ): Promise<MeetingAnalysis> {
-        this.logger.log('Analyzing meeting transcript...');
+  /**
+   * Analyze a meeting transcript and extract insights
+   */
+  async analyzeTranscript(
+    transcript: string,
+    options: {
+      meetingTitle?: string;
+      participants?: string[];
+      duration?: number;
+      projectContext?: string;
+    } = {},
+  ): Promise<MeetingAnalysis> {
+    this.logger.log('Analyzing meeting transcript...');
 
-        const systemPrompt = `Eres un asistente de reuniones experto. Tu trabajo es analizar transcripciones de reuniones y extraer información útil.
+    const systemPrompt = `Eres un asistente de reuniones experto. Tu trabajo es analizar transcripciones de reuniones y extraer información útil.
 
 CONTEXTO DE LA REUNIÓN:
 ${options.meetingTitle ? `- Título: ${options.meetingTitle}` : ''}
@@ -157,51 +157,51 @@ Responde ÚNICAMENTE con JSON válido en este formato:
   "suggestedFollowUpDate": "YYYY-MM-DD o null"
 }`;
 
-        const userPrompt = `Analiza esta transcripción de reunión:\n\n${transcript}`;
+    const userPrompt = `Analiza esta transcripción de reunión:\n\n${transcript}`;
 
-        try {
-            const response = await this.geminiAI.generate(systemPrompt, userPrompt);
+    try {
+      const response = await this.geminiAI.generate(systemPrompt, userPrompt);
 
-            // Parse JSON response
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('No valid JSON found in response');
-            }
+      // Parse JSON response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in response');
+      }
 
-            const analysis = JSON.parse(jsonMatch[0]) as MeetingAnalysis;
+      const analysis = JSON.parse(jsonMatch[0]) as MeetingAnalysis;
 
-            // Validate and set defaults
-            return {
-                summary: analysis.summary || 'No se pudo generar un resumen',
-                keyPoints: analysis.keyPoints || [],
-                actionItems: (analysis.actionItems || []).map(item => ({
-                    ...item,
-                    priority: item.priority || 'MEDIUM',
-                    context: item.context || '',
-                })),
-                decisions: analysis.decisions || [],
-                participants: analysis.participants || [],
-                topics: analysis.topics || [],
-                sentiment: analysis.sentiment || 'NEUTRAL',
-                followUpRequired: analysis.followUpRequired ?? false,
-                suggestedFollowUpDate: analysis.suggestedFollowUpDate,
-            };
-        } catch (error) {
-            this.logger.error('Failed to analyze transcript', error);
-            throw new Error('Error al analizar la transcripción');
-        }
+      // Validate and set defaults
+      return {
+        summary: analysis.summary || 'No se pudo generar un resumen',
+        keyPoints: analysis.keyPoints || [],
+        actionItems: (analysis.actionItems || []).map((item) => ({
+          ...item,
+          priority: item.priority || 'MEDIUM',
+          context: item.context || '',
+        })),
+        decisions: analysis.decisions || [],
+        participants: analysis.participants || [],
+        topics: analysis.topics || [],
+        sentiment: analysis.sentiment || 'NEUTRAL',
+        followUpRequired: analysis.followUpRequired ?? false,
+        suggestedFollowUpDate: analysis.suggestedFollowUpDate,
+      };
+    } catch (error) {
+      this.logger.error('Failed to analyze transcript', error);
+      throw new Error('Error al analizar la transcripción');
     }
+  }
 
-    /**
-     * Extract only action items from a transcript (lighter analysis)
-     */
-    async extractActionItems(
-        transcript: string,
-        projectContext?: string,
-    ): Promise<ActionItem[]> {
-        this.logger.log('Extracting action items from transcript...');
+  /**
+   * Extract only action items from a transcript (lighter analysis)
+   */
+  async extractActionItems(
+    transcript: string,
+    projectContext?: string,
+  ): Promise<ActionItem[]> {
+    this.logger.log('Extracting action items from transcript...');
 
-        const systemPrompt = `Eres un asistente que extrae tareas y acciones de transcripciones de reuniones.
+    const systemPrompt = `Eres un asistente que extrae tareas y acciones de transcripciones de reuniones.
 
 ${projectContext ? `Contexto del proyecto: ${projectContext}` : ''}
 
@@ -222,192 +222,206 @@ Responde ÚNICAMENTE con un array JSON:
   }
 ]`;
 
-        try {
-            const response = await this.geminiAI.generate(systemPrompt, `Transcript:\n${transcript}`);
+    try {
+      const response = await this.geminiAI.generate(
+        systemPrompt,
+        `Transcript:\n${transcript}`,
+      );
 
-            const jsonMatch = response.match(/\[[\s\S]*\]/);
-            if (!jsonMatch) {
-                return [];
-            }
+      const jsonMatch = response.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        return [];
+      }
 
-            const items = JSON.parse(jsonMatch[0]) as ActionItem[];
-            return items.map(item => ({
-                ...item,
-                priority: item.priority || 'MEDIUM',
-                context: item.context || '',
-            }));
-        } catch (error) {
-            this.logger.error('Failed to extract action items', error);
-            return [];
-        }
+      const items = JSON.parse(jsonMatch[0]) as ActionItem[];
+      return items.map((item) => ({
+        ...item,
+        priority: item.priority || 'MEDIUM',
+        context: item.context || '',
+      }));
+    } catch (error) {
+      this.logger.error('Failed to extract action items', error);
+      return [];
     }
+  }
 
-    /**
-     * Generate a meeting summary from transcript
-     */
-    async generateSummary(
-        transcript: string,
-        style: 'executive' | 'detailed' | 'bullet-points' = 'executive',
-    ): Promise<string> {
-        this.logger.log(`Generating ${style} summary...`);
+  /**
+   * Generate a meeting summary from transcript
+   */
+  async generateSummary(
+    transcript: string,
+    style: 'executive' | 'detailed' | 'bullet-points' = 'executive',
+  ): Promise<string> {
+    this.logger.log(`Generating ${style} summary...`);
 
-        const styleInstructions = {
-            executive: 'Genera un resumen ejecutivo de 2-3 párrafos cortos. Enfócate en las decisiones clave y próximos pasos.',
-            detailed: 'Genera un resumen detallado que cubra todos los temas discutidos, decisiones tomadas, y acciones acordadas.',
-            'bullet-points': 'Genera un resumen en formato de puntos (bullets). Cada punto debe ser conciso y actionable.',
-        };
+    const styleInstructions = {
+      executive:
+        'Genera un resumen ejecutivo de 2-3 párrafos cortos. Enfócate en las decisiones clave y próximos pasos.',
+      detailed:
+        'Genera un resumen detallado que cubra todos los temas discutidos, decisiones tomadas, y acciones acordadas.',
+      'bullet-points':
+        'Genera un resumen en formato de puntos (bullets). Cada punto debe ser conciso y actionable.',
+    };
 
-        const systemPrompt = `Eres un asistente de reuniones. ${styleInstructions[style]}
+    const systemPrompt = `Eres un asistente de reuniones. ${styleInstructions[style]}
     
 El resumen debe estar en español y ser profesional pero accesible.`;
 
-        try {
-            const response = await this.geminiAI.generate(systemPrompt, `Transcript:\n\n${transcript}`);
-            return response;
-        } catch (error) {
-            this.logger.error('Failed to generate summary', error);
-            throw new Error('Error al generar el resumen');
-        }
+    try {
+      const response = await this.geminiAI.generate(
+        systemPrompt,
+        `Transcript:\n\n${transcript}`,
+      );
+      return response;
+    } catch (error) {
+      this.logger.error('Failed to generate summary', error);
+      throw new Error('Error al generar el resumen');
     }
+  }
 
-    /**
-     * Convert action items to tasks in the system
-     */
-    async convertToTasks(
-        userId: string,
-        actionItems: ActionItem[],
-        options: {
-            projectId?: string;
-            autoAssign?: boolean;
-        } = {},
-    ): Promise<{ created: number; tasks: Array<{ id: string; title: string }> }> {
-        this.logger.log(`Converting ${actionItems.length} action items to tasks...`);
+  /**
+   * Convert action items to tasks in the system
+   */
+  async convertToTasks(
+    userId: string,
+    actionItems: ActionItem[],
+    options: {
+      projectId?: string;
+      autoAssign?: boolean;
+    } = {},
+  ): Promise<{ created: number; tasks: Array<{ id: string; title: string }> }> {
+    this.logger.log(
+      `Converting ${actionItems.length} action items to tasks...`,
+    );
 
-        const createdTasks: Array<{ id: string; title: string }> = [];
+    const createdTasks: Array<{ id: string; title: string }> = [];
 
-        for (const item of actionItems) {
-            try {
-                // Build task data dynamically to handle optional fields
-                const taskData: any = {
-                    title: item.title,
-                    description: item.description
-                        ? `${item.description}\n\n---\n📝 Contexto de la reunión: "${item.context}"`
-                        : `📝 Contexto de la reunión: "${item.context}"`,
-                    priority: item.priority,
-                    status: 'TODO',
-                    creatorId: userId,
-                    metadata: {
-                        source: 'meeting',
-                        originalContext: item.context,
-                        suggestedAssignee: item.assignee,
-                    },
-                };
-
-                if (item.dueDate) {
-                    taskData.dueDate = new Date(item.dueDate);
-                }
-
-                if (options.projectId) {
-                    taskData.projectId = options.projectId;
-                }
-
-                const task = await this.prisma.task.create({
-                    data: taskData,
-                });
-                createdTasks.push({ id: task.id, title: task.title });
-            } catch (error) {
-                this.logger.error(`Failed to create task for action item: ${item.title}`, error);
-            }
-        }
-
-        return {
-            created: createdTasks.length,
-            tasks: createdTasks,
+    for (const item of actionItems) {
+      try {
+        // Build task data dynamically to handle optional fields
+        const taskData: any = {
+          title: item.title,
+          description: item.description
+            ? `${item.description}\n\n---\n📝 Contexto de la reunión: "${item.context}"`
+            : `📝 Contexto de la reunión: "${item.context}"`,
+          priority: item.priority,
+          status: 'TODO',
+          creatorId: userId,
+          metadata: {
+            source: 'meeting',
+            originalContext: item.context,
+            suggestedAssignee: item.assignee,
+          },
         };
-    }
 
-    /**
-     * Save a meeting record (for future reference)
-     */
-    async saveMeeting(
-        userId: string,
-        data: {
-            title: string;
-            date: Date;
-            duration: number;
-            transcript?: string;
-            audioUrl?: string;
-            analysis?: MeetingAnalysis;
-            projectId?: string;
-        },
-    ): Promise<any> {
-        // Note: This would require a Meeting model in Prisma schema
-        // For now, we'll store it in a JSON field or return the data
-        this.logger.log(`Saving meeting: ${data.title}`);
-
-        // In a full implementation, this would be:
-        // return this.prisma.meeting.create({ data: { ...data, userId } });
-
-        // For now, return the data as-is with a generated ID
-        return {
-            id: `meeting_${Date.now()}`,
-            userId,
-            ...data,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-    }
-
-    /**
-     * Suggest improvements for future meetings based on analysis
-     */
-    async getMeetingInsights(
-        analyses: MeetingAnalysis[],
-    ): Promise<{
-        patterns: string[];
-        improvements: string[];
-        actionItemTrends: string;
-    }> {
-        if (analyses.length === 0) {
-            return {
-                patterns: [],
-                improvements: [],
-                actionItemTrends: 'No hay suficientes datos',
-            };
+        if (item.dueDate) {
+          taskData.dueDate = new Date(item.dueDate);
         }
 
-        const totalActionItems = analyses.reduce(
-            (sum, a) => sum + a.actionItems.length,
-            0,
+        if (options.projectId) {
+          taskData.projectId = options.projectId;
+        }
+
+        const task = await this.prisma.task.create({
+          data: taskData,
+        });
+        createdTasks.push({ id: task.id, title: task.title });
+      } catch (error) {
+        this.logger.error(
+          `Failed to create task for action item: ${item.title}`,
+          error,
         );
-        const avgActionItems = Math.round(totalActionItems / analyses.length);
-
-        const patterns: string[] = [];
-        const improvements: string[] = [];
-
-        // Analyze patterns
-        const sentiments = analyses.map(a => a.sentiment);
-        const negativeCount = sentiments.filter(s => s === 'NEGATIVE').length;
-        if (negativeCount > analyses.length * 0.3) {
-            patterns.push('Tendencia hacia reuniones con sentimiento negativo');
-            improvements.push('Considerar incluir más tiempo para discusión abierta');
-        }
-
-        const followUpCount = analyses.filter(a => a.followUpRequired).length;
-        if (followUpCount > analyses.length * 0.7) {
-            patterns.push('La mayoría de reuniones requieren seguimiento');
-            improvements.push('Reservar tiempo al final para confirmar próximos pasos');
-        }
-
-        if (avgActionItems > 10) {
-            patterns.push('Alto número de action items por reunión');
-            improvements.push('Considerar reuniones más enfocadas con menos temas');
-        }
-
-        return {
-            patterns,
-            improvements,
-            actionItemTrends: `Promedio de ${avgActionItems} action items por reunión`,
-        };
+      }
     }
+
+    return {
+      created: createdTasks.length,
+      tasks: createdTasks,
+    };
+  }
+
+  /**
+   * Save a meeting record (for future reference)
+   */
+  async saveMeeting(
+    userId: string,
+    data: {
+      title: string;
+      date: Date;
+      duration: number;
+      transcript?: string;
+      audioUrl?: string;
+      analysis?: MeetingAnalysis;
+      projectId?: string;
+    },
+  ): Promise<any> {
+    // Note: This would require a Meeting model in Prisma schema
+    // For now, we'll store it in a JSON field or return the data
+    this.logger.log(`Saving meeting: ${data.title}`);
+
+    // In a full implementation, this would be:
+    // return this.prisma.meeting.create({ data: { ...data, userId } });
+
+    // For now, return the data as-is with a generated ID
+    return {
+      id: `meeting_${Date.now()}`,
+      userId,
+      ...data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+
+  /**
+   * Suggest improvements for future meetings based on analysis
+   */
+  async getMeetingInsights(analyses: MeetingAnalysis[]): Promise<{
+    patterns: string[];
+    improvements: string[];
+    actionItemTrends: string;
+  }> {
+    if (analyses.length === 0) {
+      return {
+        patterns: [],
+        improvements: [],
+        actionItemTrends: 'No hay suficientes datos',
+      };
+    }
+
+    const totalActionItems = analyses.reduce(
+      (sum, a) => sum + a.actionItems.length,
+      0,
+    );
+    const avgActionItems = Math.round(totalActionItems / analyses.length);
+
+    const patterns: string[] = [];
+    const improvements: string[] = [];
+
+    // Analyze patterns
+    const sentiments = analyses.map((a) => a.sentiment);
+    const negativeCount = sentiments.filter((s) => s === 'NEGATIVE').length;
+    if (negativeCount > analyses.length * 0.3) {
+      patterns.push('Tendencia hacia reuniones con sentimiento negativo');
+      improvements.push('Considerar incluir más tiempo para discusión abierta');
+    }
+
+    const followUpCount = analyses.filter((a) => a.followUpRequired).length;
+    if (followUpCount > analyses.length * 0.7) {
+      patterns.push('La mayoría de reuniones requieren seguimiento');
+      improvements.push(
+        'Reservar tiempo al final para confirmar próximos pasos',
+      );
+    }
+
+    if (avgActionItems > 10) {
+      patterns.push('Alto número de action items por reunión');
+      improvements.push('Considerar reuniones más enfocadas con menos temas');
+    }
+
+    return {
+      patterns,
+      improvements,
+      actionItemTrends: `Promedio de ${avgActionItems} action items por reunión`,
+    };
+  }
 }

@@ -16,7 +16,7 @@ model User {
   email         String    @unique
   username      String    @unique
   emailVerified DateTime?
-  name          String?
+  name          String
   image         String?
 
   // Extended Profile

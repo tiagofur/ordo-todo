@@ -26,7 +26,7 @@ export class AIController {
   constructor(
     private readonly aiService: AIService,
     private readonly burnoutService: BurnoutPreventionService,
-  ) { }
+  ) {}
 
   // ============ AI CHAT ============
 
@@ -41,9 +41,7 @@ export class AIController {
   // ============ NATURAL LANGUAGE TASK PARSING ============
 
   @Post('parse-task')
-  async parseTask(
-    @Body() parseDto: AIParseTaskDto,
-  ) {
+  async parseTask(@Body() parseDto: AIParseTaskDto) {
     return this.aiService.parseNaturalLanguageTask(
       parseDto.input,
       parseDto.projectId,
@@ -116,9 +114,7 @@ export class AIController {
   // ============ WORKFLOW SUGGESTIONS ============
 
   @Post('workflow-suggestion')
-  async suggestWorkflow(
-    @Body() suggestionDto: AIWorkflowSuggestionDto,
-  ) {
+  async suggestWorkflow(@Body() suggestionDto: AIWorkflowSuggestionDto) {
     return this.aiService.suggestWorkflow(
       suggestionDto.projectName,
       suggestionDto.projectDescription,

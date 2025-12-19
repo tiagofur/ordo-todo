@@ -4,9 +4,9 @@ import { FocusController } from './focus.controller';
 import { FocusAudioService } from './focus-audio.service';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [FocusController],
-    providers: [FocusAudioService],
-    exports: [FocusAudioService],
+  imports: [DatabaseModule],
+  controllers: [FocusController],
+  providers: [FocusAudioService],
+  exports: [FocusAudioService],
 })
-export class FocusModule { }
+export class FocusModule {}

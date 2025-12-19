@@ -30,5 +30,4 @@ import { DatabaseModule } from '../database/database.module';
   ],
   exports: [CollaborationGateway, TeamWorkloadService],
 })
-export class CollaborationModule { }
-
+export class CollaborationModule {}

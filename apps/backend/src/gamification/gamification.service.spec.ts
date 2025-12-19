@@ -116,7 +116,9 @@ describe('GamificationService', () => {
     it('should not fail if user not found', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.addXp('user-123', 50, 'Test')).resolves.not.toThrow();
+      await expect(
+        service.addXp('user-123', 50, 'Test'),
+      ).resolves.not.toThrow();
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });

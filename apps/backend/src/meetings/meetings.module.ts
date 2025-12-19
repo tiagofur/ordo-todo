@@ -5,9 +5,9 @@ import { MeetingsController } from './meetings.controller';
 import { MeetingAssistantService } from './meeting-assistant.service';
 
 @Module({
-    imports: [DatabaseModule, AIModule],
-    controllers: [MeetingsController],
-    providers: [MeetingAssistantService],
-    exports: [MeetingAssistantService],
+  imports: [DatabaseModule, AIModule],
+  controllers: [MeetingsController],
+  providers: [MeetingAssistantService],
+  exports: [MeetingAssistantService],
 })
-export class MeetingsModule { }
+export class MeetingsModule {}

@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class CustomFieldsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Get all custom fields for a project

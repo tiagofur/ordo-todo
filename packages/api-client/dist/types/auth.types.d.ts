@@ -5,7 +5,7 @@ export interface RegisterDto {
     email: string;
     username: string;
     password: string;
-    name?: string;
+    name: string;
 }
 export interface LoginDto {
     email: string;
@@ -18,7 +18,7 @@ export interface AuthResponse {
         id: string;
         email: string;
         username: string;
-        name: string | null;
+        name: string;
     };
 }
 export interface RefreshTokenDto {

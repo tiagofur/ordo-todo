@@ -9,6 +9,7 @@ describe('UsersController', () => {
   const mockUser = {
     id: 'user-123',
     email: 'test@example.com',
+    username: 'testuser',
     name: 'Test User',
   };
 
@@ -43,6 +44,7 @@ describe('UsersController', () => {
       const mockUserData = {
         id: 'user-123',
         email: 'test@example.com',
+        username: 'testuser',
         name: 'Test User',
       };
       usersService.getMe.mockResolvedValue(mockUserData as any);
@@ -59,6 +61,7 @@ describe('UsersController', () => {
       const mockProfile = {
         id: 'user-123',
         email: 'test@example.com',
+        username: 'testuser',
         name: 'Test User',
         preferences: { theme: 'dark' },
         subscription: null,

@@ -1,8 +1,8 @@
 export class UserResponseDto {
   id: string;
   email: string;
-  username: string | null;
-  name: string | null;
+  username: string;
+  name: string;
   emailVerified: Date | null;
   image: string | null;
 

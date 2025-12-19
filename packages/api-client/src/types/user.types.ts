@@ -5,8 +5,8 @@
 export interface User {
   id: string;
   email: string;
-  username: string | null;
-  name: string | null;
+  username: string;
+  name: string;
   image: string | null;
   emailVerified: Date | null;
   phone: string | null;
@@ -35,8 +35,8 @@ export interface UpdateProfileDto {
 export interface UserResponse {
   id: string;
   email: string;
-  username: string | null;
-  name: string | null;
+  username: string;
+  name: string;
   image: string | null;
 }
 

@@ -13,5 +13,4 @@ import { BurnoutPreventionService } from './burnout-prevention.service';
   providers: [AIService, GeminiAIService, BurnoutPreventionService],
   exports: [AIService, GeminiAIService, BurnoutPreventionService],
 })
-export class AIModule { }
-
+export class AIModule {}

@@ -5,13 +5,13 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaUser: PrismaUser): User {
     return new User({
       id: prismaUser.id,
-      name: prismaUser.name ?? undefined,
-      username: prismaUser.username ?? '',
+      name: prismaUser.name,
+      username: prismaUser.username,
       email: prismaUser.email,
       password: (prismaUser as any).hashedPassword ?? undefined,
       createdAt: prismaUser.createdAt,

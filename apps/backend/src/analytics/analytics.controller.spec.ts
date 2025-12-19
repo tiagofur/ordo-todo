@@ -63,7 +63,9 @@ describe('AnalyticsController', () => {
         { date: '2024-01-01', tasksCompleted: 5, minutesWorked: 120 },
         { date: '2024-01-02', tasksCompleted: 3, minutesWorked: 90 },
       ];
-      analyticsService.getDateRangeMetrics.mockResolvedValue(mockMetrics as any);
+      analyticsService.getDateRangeMetrics.mockResolvedValue(
+        mockMetrics as any,
+      );
 
       const result = await controller.getDailyMetrics(
         mockUser,
@@ -127,7 +129,9 @@ describe('AnalyticsController', () => {
         { date: '2024-01-01', tasksCompleted: 5 },
         { date: '2024-01-02', tasksCompleted: 3 },
       ];
-      analyticsService.getDateRangeMetrics.mockResolvedValue(mockMetrics as any);
+      analyticsService.getDateRangeMetrics.mockResolvedValue(
+        mockMetrics as any,
+      );
 
       const result = await controller.getDateRangeMetrics(
         mockUser,
@@ -183,7 +187,9 @@ describe('AnalyticsController', () => {
         { projectId: 'p1', projectName: 'Project 1', minutes: 300 },
         { projectId: 'p2', projectName: 'Project 2', minutes: 200 },
       ];
-      analyticsService.getProjectTimeDistribution.mockResolvedValue(mockDistribution);
+      analyticsService.getProjectTimeDistribution.mockResolvedValue(
+        mockDistribution,
+      );
 
       const result = await controller.getProjectDistribution(mockUser);
 
@@ -201,7 +207,9 @@ describe('AnalyticsController', () => {
         { status: 'IN_PROGRESS', count: 5 },
         { status: 'DONE', count: 20 },
       ];
-      analyticsService.getTaskStatusDistribution.mockResolvedValue(mockDistribution);
+      analyticsService.getTaskStatusDistribution.mockResolvedValue(
+        mockDistribution,
+      );
 
       const result = await controller.getTaskStatusDistribution(mockUser);
 

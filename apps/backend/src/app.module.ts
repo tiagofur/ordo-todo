@@ -88,4 +88,4 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
