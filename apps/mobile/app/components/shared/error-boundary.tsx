@@ -1,7 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Updates from 'expo-updates';
 
 interface Props {
   children: ReactNode;
@@ -39,13 +38,9 @@ export class ErrorBoundary extends Component<Props, State> {
     });
   }
 
-  handleRestart = async () => {
-    try {
-      await Updates.reloadAsync();
-    } catch (e) {
-      // Fallback if expo-updates is not available (e.g. dev client)
-      this.setState({ hasError: false, error: null, errorInfo: null });
-    }
+  handleRestart = () => {
+    // Clear the error state to allow re-rendering
+    this.setState({ hasError: false, error: null, errorInfo: null });
   };
 
   render() {
