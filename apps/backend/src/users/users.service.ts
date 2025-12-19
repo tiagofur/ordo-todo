@@ -29,85 +29,97 @@ export class UsersService {
    * Get full user profile with subscription, integrations, and preferences
    */
   async getFullProfile(email: string): Promise<UserProfileResponseDto> {
-    // Use explicit select to avoid issues with missing columns in database
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        name: true,
-        emailVerified: true,
-        image: true,
-        phone: true,
-        jobTitle: true,
-        department: true,
-        bio: true,
-        timezone: true,
-        locale: true,
-        lastUsernameChangeAt: true,
-        createdAt: true,
-        updatedAt: true,
-        subscription: true,
-        integrations: true,
-        preferences: true,
-      },
-    });
+    try {
+      // Use explicit select to avoid issues with missing columns in database
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          name: true,
+          emailVerified: true,
+          image: true,
+          phone: true,
+          jobTitle: true,
+          department: true,
+          bio: true,
+          timezone: true,
+          locale: true,
+          lastUsernameChangeAt: true,
+          createdAt: true,
+          updatedAt: true,
+          subscription: true,
+          integrations: true,
+          preferences: true,
+        },
+      });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        emailVerified: user.emailVerified,
+        image: user.image,
+        phone: user.phone,
+        jobTitle: user.jobTitle,
+        department: user.department,
+        bio: user.bio,
+        timezone: user.timezone,
+        locale: user.locale,
+        lastUsernameChangeAt: user.lastUsernameChangeAt ?? null,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        subscription: user.subscription
+          ? {
+            plan: user.subscription.plan as 'FREE' | 'PRO' | 'TEAM' | 'ENTERPRISE',
+            status: user.subscription.status,
+            expiresAt: user.subscription.stripeCurrentPeriodEnd,
+          }
+          : null,
+        integrations: (user.integrations ?? []).map((integration) => ({
+          provider: String(integration.provider),
+          isActive: integration.isActive,
+          providerEmail: integration.providerEmail,
+          lastSyncAt: integration.lastSyncAt,
+        })),
+        preferences: user.preferences
+          ? {
+            enableAI: user.preferences.enableAI,
+            aiAggressiveness: user.preferences.aiAggressiveness,
+            aiSuggestTaskDurations: user.preferences.aiSuggestTaskDurations,
+            aiSuggestPriorities: user.preferences.aiSuggestPriorities,
+            aiSuggestScheduling: user.preferences.aiSuggestScheduling,
+            aiWeeklyReports: user.preferences.aiWeeklyReports,
+            morningEnergy: String(user.preferences.morningEnergy),
+            afternoonEnergy: String(user.preferences.afternoonEnergy),
+            eveningEnergy: String(user.preferences.eveningEnergy),
+            shareAnalytics: user.preferences.shareAnalytics,
+            showActivityStatus: user.preferences.showActivityStatus,
+            taskRemindersEmail: user.preferences.taskRemindersEmail,
+            weeklyDigestEmail: user.preferences.weeklyDigestEmail,
+            marketingEmail: user.preferences.marketingEmail,
+            completedTasksRetention: user.preferences.completedTasksRetention,
+            timeSessionsRetention: user.preferences.timeSessionsRetention,
+          }
+          : null,
+      };
+    } catch (error) {
+      // Re-throw known exceptions
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Log unexpected errors with details for debugging
+      console.error('[UsersService.getFullProfile] Error loading profile for:', email, error);
+      throw new BadRequestException(
+        `Failed to load profile data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
-
-    return {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      name: user.name,
-      emailVerified: user.emailVerified,
-      image: user.image,
-      phone: user.phone,
-      jobTitle: user.jobTitle,
-      department: user.department,
-      bio: user.bio,
-      timezone: user.timezone,
-      locale: user.locale,
-      lastUsernameChangeAt: user.lastUsernameChangeAt ?? null,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      subscription: user.subscription
-        ? {
-          plan: user.subscription.plan as 'FREE' | 'PRO' | 'TEAM' | 'ENTERPRISE',
-          status: user.subscription.status,
-          expiresAt: user.subscription.stripeCurrentPeriodEnd,
-        }
-        : null,
-      integrations: (user.integrations ?? []).map((integration) => ({
-        provider: String(integration.provider),
-        isActive: integration.isActive,
-        providerEmail: integration.providerEmail,
-        lastSyncAt: integration.lastSyncAt,
-      })),
-      preferences: user.preferences
-        ? {
-          enableAI: user.preferences.enableAI,
-          aiAggressiveness: user.preferences.aiAggressiveness,
-          aiSuggestTaskDurations: user.preferences.aiSuggestTaskDurations,
-          aiSuggestPriorities: user.preferences.aiSuggestPriorities,
-          aiSuggestScheduling: user.preferences.aiSuggestScheduling,
-          aiWeeklyReports: user.preferences.aiWeeklyReports,
-          morningEnergy: String(user.preferences.morningEnergy),
-          afternoonEnergy: String(user.preferences.afternoonEnergy),
-          eveningEnergy: String(user.preferences.eveningEnergy),
-          shareAnalytics: user.preferences.shareAnalytics,
-          showActivityStatus: user.preferences.showActivityStatus,
-          taskRemindersEmail: user.preferences.taskRemindersEmail,
-          weeklyDigestEmail: user.preferences.weeklyDigestEmail,
-          marketingEmail: user.preferences.marketingEmail,
-          completedTasksRetention: user.preferences.completedTasksRetention,
-          timeSessionsRetention: user.preferences.timeSessionsRetention,
-        }
-        : null,
-    };
   }
 
   async updateProfile(email: string, updateProfileDto: UpdateProfileDto) {

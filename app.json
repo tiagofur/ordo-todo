@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "487ab558-6fa4-4d2f-9b74-cc67e5a1fcdf"
+      }
+    },
+    "android": {
+      "package": "dev.creapolis.ordotodo"
+    }
+  }
+}
