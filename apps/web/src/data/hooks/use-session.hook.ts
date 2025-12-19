@@ -7,7 +7,7 @@ const useSession = () => {
     const user = authUser
         ? new User({
             id: authUser.id,
-            username: authUser.username,
+            username: authUser.username ?? '',
             name: authUser.name ?? undefined,
             email: authUser.email,
         })

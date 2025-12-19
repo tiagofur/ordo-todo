@@ -27,7 +27,7 @@ interface WorkspaceCardProps {
     icon?: string | null;
     owner?: {
       id: string;
-      username: string;
+      username: string | null;
       name: string | null;
       email: string;
     } | null;

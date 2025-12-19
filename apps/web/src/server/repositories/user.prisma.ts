@@ -8,7 +8,7 @@ export class PrismaUserRepository implements UserRepository {
         // Assuming prismaUser.hashedPassword stores the hashed password
         return new User({
             id: prismaUser.id,
-            username: prismaUser.username,
+            username: prismaUser.username ?? '',
             name: prismaUser.name ?? undefined,
             email: prismaUser.email,
             password: (prismaUser as any).hashedPassword ?? undefined,

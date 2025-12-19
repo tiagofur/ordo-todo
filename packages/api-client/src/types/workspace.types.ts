@@ -16,7 +16,7 @@ export interface Workspace {
   ownerId: string | null;
   owner?: {
     id: string;
-    username: string;
+    username: string | null;
     name: string | null;
     email: string;
   };
