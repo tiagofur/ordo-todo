@@ -16,7 +16,8 @@
     "test": "jest --runInBand",
     "test:e2e": "detox test --configuration android.emu.debug",
     "test:e2e:build": "detox build --configuration android.emu.debug",
-    "eas-build-post-install": "node scripts/patch-router.js"
+    "eas-build-pre-install": "cd ../.. && npm install",
+    "eas-build-post-install": "node scripts/patch-router.js && node scripts/fix-metro-resolution.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~4.0.0",
@@ -37,6 +38,8 @@
     "@tanstack/react-query": "^5.90.11",
     "expo": "~52.0.0",
     "expo-asset": "~11.0.5",
+    "@expo/metro-config": "~0.19.0",
+    "metro": "~0.81.0",
     "expo-build-properties": "~0.13.1",
     "expo-constants": "~17.0.3",
     "expo-font": "~13.0.1",
