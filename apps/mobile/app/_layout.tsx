@@ -7,32 +7,35 @@ import { QueryProvider } from "./providers/query-provider";
 import { AuthProvider } from "./contexts/auth.context";
 import { I18nProvider } from "./providers/i18n-provider";
 import { initializeStores } from "./lib/stores";
+import { ErrorBoundary } from "./components/shared/error-boundary";
 
 // Initialize shared stores persistence with AsyncStorage
 initializeStores();
 
 export default function RootLayout() {
   return (
-    <QueryProvider>
-      <I18nProvider>
-        <ThemeProvider>
-          <MessageProvider>
-            <AuthProvider>
-              <MobileFeaturesProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}
-                >
-                  <Stack.Screen name="screens" />
-                  <Stack.Screen name="index" />
-                </Stack>
-                <ToastContainer />
-              </MobileFeaturesProvider>
-            </AuthProvider>
-          </MessageProvider>
-        </ThemeProvider>
-      </I18nProvider>
-    </QueryProvider>
+    <ErrorBoundary>
+      <QueryProvider>
+        <I18nProvider>
+          <ThemeProvider>
+            <MessageProvider>
+              <AuthProvider>
+                <MobileFeaturesProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                    }}
+                  >
+                    <Stack.Screen name="screens" />
+                    <Stack.Screen name="index" />
+                  </Stack>
+                  <ToastContainer />
+                </MobileFeaturesProvider>
+              </AuthProvider>
+            </MessageProvider>
+          </ThemeProvider>
+        </I18nProvider>
+      </QueryProvider>
+    </ErrorBoundary>
   );
 }
