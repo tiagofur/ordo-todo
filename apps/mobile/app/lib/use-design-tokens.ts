@@ -12,7 +12,7 @@ import {
     priorityColors,
     statusColors,
     timerColors
-} from '@ordo-todo/styles/tokens';
+} from './design-tokens';
 
 /**
  * Hook to access shared design tokens adapted for the current theme (light/dark).
