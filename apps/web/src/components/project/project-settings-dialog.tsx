@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Palette, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { PROJECT_COLORS, updateProjectSchema } from "@ordo-todo/core";
+import { TAG_COLORS, updateProjectSchema } from "@ordo-todo/core";
 
 interface ProjectSettingsDialogProps {
   projectId: string;
@@ -21,7 +21,7 @@ interface ProjectSettingsDialogProps {
 export function ProjectSettingsDialog({ projectId, open, onOpenChange }: ProjectSettingsDialogProps) {
   const t = useTranslations('ProjectSettingsDialog');
   const { data: project } = useProject(projectId);
-  const [selectedColor, setSelectedColor] = useState<typeof PROJECT_COLORS[number]>(PROJECT_COLORS[3]);
+  const [selectedColor, setSelectedColor] = useState<typeof TAG_COLORS[number]>(TAG_COLORS[3]);
 
   const formSchema = updateProjectSchema.extend({
     name: z.string().min(1, t('form.name.required')),
@@ -46,7 +46,7 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
         description: project.description || "",
         color: project.color,
       });
-      setSelectedColor((project.color || PROJECT_COLORS[3]) as typeof PROJECT_COLORS[number]);
+      setSelectedColor((project.color || TAG_COLORS[3]) as typeof TAG_COLORS[number]);
     }
   }, [project, reset]);
 
@@ -71,8 +71,8 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 space-y-6">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">
               {t('title')}
@@ -81,30 +81,29 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
               {t('description')}
             </DialogDescription>
           </DialogHeader>
+        </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex-1 overflow-y-auto px-6">
+          <form id="project-settings-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
             {/* Color Picker */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Palette className="w-4 h-4" /> {t('form.color.label')}
               </Label>
-              <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
-                {PROJECT_COLORS.map((color) => (
+              <div className="flex flex-wrap gap-2">
+                {TAG_COLORS.map((color) => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setSelectedColor(color)}
-                    className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                      selectedColor === color 
-                        ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110" 
-                        : "hover:opacity-80"
+                    className={`h-10 w-10 rounded-lg transition-all ${
+                      selectedColor === color
+                        ? "scale-110 ring-2 ring-offset-2 ring-primary"
+                        : "hover:scale-105"
                     }`}
                     style={{ backgroundColor: color }}
-                  >
-                    {selectedColor === color && (
-                      <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    )}
-                  </button>
+                    aria-label={`Select color ${color}`}
+                  />
                 ))}
               </div>
             </div>
@@ -133,24 +132,27 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
                 placeholder={t('form.description.placeholder')}
               />
             </div>
-
-            <DialogFooter className="pt-2">
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t('actions.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={updateProjectMutation.isPending}
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                {updateProjectMutation.isPending ? t('actions.saving') : t('actions.save')}
-              </button>
-            </DialogFooter>
           </form>
+        </div>
+
+        <div className="p-6 pt-4 border-t bg-background">
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('actions.cancel')}
+            </button>
+            <button
+              type="submit"
+              form="project-settings-form"
+              disabled={updateProjectMutation.isPending}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              {updateProjectMutation.isPending ? t('actions.saving') : t('actions.save')}
+            </button>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>
