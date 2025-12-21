@@ -30,10 +30,10 @@ export default function WorkspacesPage() {
         </div>
         <button
           onClick={() => setShowCreateDialog(true)}
-          className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:bg-orange-600 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30"
+          className="flex items-center gap-2 rounded-xl bg-orange-500 px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:bg-orange-600 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30"
         >
           <Plus className="h-4 w-4" />
-          {t('newWorkspace')}
+          <span className="hidden sm:inline">{t('newWorkspace')}</span>
         </button>
       </div>
 
