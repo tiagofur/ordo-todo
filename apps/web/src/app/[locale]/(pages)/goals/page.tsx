@@ -82,9 +82,9 @@ export default function GoalsPage() {
             </h1>
             <p className="text-muted-foreground mt-2 text-lg">{t("subtitle")}</p>
           </div>
-          <Button size="lg" className="shadow-lg hover:shadow-xl transition-all" onClick={() => setIsCreateOpen(true)}>
-            <Plus className="mr-2 h-5 w-5" />
-            {t("createObjective")}
+          <Button size="lg" className="shadow-lg hover:shadow-xl transition-all px-2.5 sm:px-4" onClick={() => setIsCreateOpen(true)}>
+            <Plus className="h-5 w-5 sm:mr-2" />
+            <span className="hidden sm:inline">{t("createObjective")}</span>
           </Button>
         </div>
 
