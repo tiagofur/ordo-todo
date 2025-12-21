@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useObjectives } from "@/lib/api-hooks";
 import { Plus, Target, Sparkles, KeyRound, Link2, TrendingUp, Rocket } from "lucide-react";
-import { Button, Skeleton, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { Skeleton, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { motion } from "framer-motion";
 import { CreateObjectiveDialog } from "@/components/goals/create-objective-dialog";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/shared/app-layout";
@@ -68,6 +69,8 @@ export default function GoalsPage() {
     setShowOnboarding(false);
   };
 
+  const accentColor = "#8b5cf6"; // Purple
+
   return (
     <AppLayout>
       <div className="flex h-full flex-col max-w-7xl mx-auto w-full space-y-6">
@@ -75,17 +78,35 @@ export default function GoalsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg">
-                <Target className="h-6 w-6" />
-              </div>
+              <motion.div
+                initial={{ rotate: -10, scale: 0.9 }}
+                animate={{ rotate: 0, scale: 1 }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                style={{
+                  backgroundColor: accentColor,
+                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+                }}
+              >
+                <Target className="h-5 w-5 sm:h-6 sm:w-6" />
+              </motion.div>
               {t("listTitle")}
             </h1>
-            <p className="text-muted-foreground mt-2 text-lg">{t("subtitle")}</p>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">{t("subtitle")}</p>
           </div>
-          <Button size="lg" className="shadow-lg hover:shadow-xl transition-all px-2.5 sm:px-4" onClick={() => setIsCreateOpen(true)}>
-            <Plus className="h-5 w-5 sm:mr-2" />
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsCreateOpen(true)}
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
+            style={{
+              backgroundColor: accentColor,
+              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+            }}
+          >
+            <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("createObjective")}</span>
-          </Button>
+          </motion.button>
         </div>
 
         {isLoading ? (
@@ -96,15 +117,27 @@ export default function GoalsPage() {
           </div>
         ) : !objectives || objectives.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 text-center min-h-[400px] bg-muted/10 rounded-3xl border-2 border-dashed border-muted mx-auto w-full max-w-3xl py-12">
-              <div className="bg-primary/10 p-6 rounded-full mb-6">
-                  <Target className="h-12 w-12 text-primary" />
+              <div
+                className="p-6 rounded-full mb-6"
+                style={{ backgroundColor: `${accentColor}15` }}
+              >
+                  <Target className="h-12 w-12" style={{ color: accentColor }} />
               </div>
               <h3 className="text-2xl font-bold tracking-tight">{t("noObjectives")}</h3>
               <p className="text-muted-foreground mt-3 max-w-md text-lg">{t("noObjectivesDescription")}</p>
-              <Button className="mt-8" size="lg" onClick={() => setIsCreateOpen(true)}>
-                <Plus className="mr-2 h-5 w-5" />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsCreateOpen(true)}
+                className="mt-8 flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200"
+                style={{
+                  backgroundColor: accentColor,
+                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+                }}
+              >
+                <Plus className="h-5 w-5" />
                 {t("createObjective")}
-              </Button>
+              </motion.button>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
