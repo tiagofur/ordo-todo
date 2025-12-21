@@ -79,10 +79,10 @@ export default function TagsPage() {
           <button
             onClick={() => setShowCreateTag(true)}
             style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40` }}
-            className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
           >
             <Plus className="h-4 w-4" />
-            {t('newTag')}
+            <span className="hidden sm:inline">{t('newTag')}</span>
           </button>
         </div>
 

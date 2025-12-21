@@ -169,10 +169,10 @@ function TasksPageContent() {
 
             <button
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30"
+              className="flex items-center gap-2 rounded-xl bg-purple-500 px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30"
             >
               <Plus className="h-4 w-4" />
-              {t("newTask")}
+              <span className="hidden sm:inline">{t("newTask")}</span>
             </button>
           </div>
         </div>

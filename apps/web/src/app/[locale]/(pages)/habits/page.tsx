@@ -149,14 +149,14 @@ export default function HabitsPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateHabit(true)}
-            className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
             style={{
               backgroundColor: accentColor,
               boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
             }}
           >
             <Plus className="h-4 w-4" />
-            {t("newHabit")}
+            <span className="hidden sm:inline">{t("newHabit")}</span>
           </motion.button>
         </div>
 
@@ -331,25 +331,26 @@ export default function HabitsPage() {
                       <div className="flex-1 min-w-0">
                         <h3
                           className={cn(
-                            "font-medium truncate transition-all duration-300",
+                            "font-medium transition-all duration-300",
+                            "line-clamp-2 sm:line-clamp-1",
                             isCompleted && "line-through opacity-60"
                           )}
                         >
                           {habit.name}
                         </h3>
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Flame className="h-3.5 w-3.5 text-orange-500" />
                             {habit.currentStreak || 0}
                           </span>
-                          <span>•</span>
+                          <span className="hidden xs:inline">•</span>
                           <span>
                             {t(`frequency.${habit.frequency}`)}
                           </span>
                           {habit.timeOfDay && (
                             <>
-                              <span>•</span>
-                              <span>{t(`timeOfDay.${habit.timeOfDay}`)}</span>
+                              <span className="hidden sm:inline">•</span>
+                              <span className="hidden sm:inline">{t(`timeOfDay.${habit.timeOfDay}`)}</span>
                             </>
                           )}
                         </div>
