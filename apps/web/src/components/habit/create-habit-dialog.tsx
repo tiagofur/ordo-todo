@@ -112,8 +112,8 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 space-y-6">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 pb-0">
           <DialogHeader>
             <div className="flex items-center gap-3">
               <div
@@ -132,13 +132,16 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               </div>
             </div>
           </DialogHeader>
+        </div>
 
+        <div className="flex-1 overflow-y-auto px-6">
           <form
+            id="habit-form"
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit(onSubmit)(e);
             }}
-            className="space-y-5"
+            className="space-y-5 py-4"
           >
             {/* Name */}
             <div className="space-y-2">
@@ -281,23 +284,27 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               />
             </div>
 
-            <DialogFooter className="pt-2">
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t("form.cancel")}
-              </button>
-              <button
-                type="submit"
-                disabled={createHabitMutation.isPending}
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                {createHabitMutation.isPending ? t("form.creating") : t("form.create")}
-              </button>
-            </DialogFooter>
           </form>
+        </div>
+
+        <div className="p-6 pt-4 border-t bg-background">
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t("form.cancel")}
+            </button>
+            <button
+              type="submit"
+              form="habit-form"
+              disabled={createHabitMutation.isPending}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              {createHabitMutation.isPending ? t("form.creating") : t("form.create")}
+            </button>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

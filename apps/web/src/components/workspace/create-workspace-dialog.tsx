@@ -107,8 +107,8 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 space-y-6">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">
               {t('title')}
@@ -117,8 +117,10 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
               {t('description')}
             </DialogDescription>
           </DialogHeader>
+        </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex-1 overflow-y-auto px-6">
+          <form id="workspace-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
             {/* Workspace Type */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground">{t('form.type')}</Label>
@@ -192,23 +194,27 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
               />
             </div>
 
-            <DialogFooter className="pt-2">
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t('buttons.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={createWorkspace.isPending}
-                className="inline-flex items-center justify-center rounded-md text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl h-10 px-6 py-2"
-              >
-                {createWorkspace.isPending ? t('buttons.creating') : t('buttons.create')}
-              </button>
-            </DialogFooter>
           </form>
+        </div>
+
+        <div className="p-6 pt-4 border-t bg-background">
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('buttons.cancel')}
+            </button>
+            <button
+              type="submit"
+              form="workspace-form"
+              disabled={createWorkspace.isPending}
+              className="inline-flex items-center justify-center rounded-md text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl h-10 px-6 py-2"
+            >
+              {createWorkspace.isPending ? t('buttons.creating') : t('buttons.create')}
+            </button>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

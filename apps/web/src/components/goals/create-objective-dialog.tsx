@@ -68,14 +68,16 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
-                    <DialogTitle>{t("createObjective")}</DialogTitle>
-                    <DialogDescription>{t("createDescription")}</DialogDescription>
-                </DialogHeader>
-                
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
+                <div className="p-6 pb-0">
+                    <DialogHeader>
+                        <DialogTitle>{t("createObjective")}</DialogTitle>
+                        <DialogDescription>{t("createDescription")}</DialogDescription>
+                    </DialogHeader>
+                </div>
+
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form id="objective-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                         <FormField
                             control={form.control}
                             name="title"
@@ -179,16 +181,19 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
                             />
                         </div>
 
+                    </form>
+
+                    <div className="p-6 pt-4 border-t bg-background">
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 {t("cancel")}
                             </Button>
-                            <Button type="submit" disabled={createObjective.isPending}>
+                            <Button type="submit" form="objective-form" disabled={createObjective.isPending}>
                                 {createObjective.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 {t("create")}
                             </Button>
                         </DialogFooter>
-                    </form>
+                    </div>
                 </Form>
             </DialogContent>
         </Dialog>
