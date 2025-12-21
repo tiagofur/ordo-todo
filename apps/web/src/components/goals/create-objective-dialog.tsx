@@ -5,13 +5,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useCreateObjective } from "@/lib/api-hooks";
-import { 
+import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
     Button, Input, Textarea, Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@ordo-todo/ui";
 import { Loader2 } from "lucide-react";
 import { OKRPeriod } from "@ordo-todo/api-client";
+import { TAG_COLORS } from "@ordo-todo/core";
 
 const periodValues = ["WEEKLY", "MONTHLY", "QUARTERLY", "YEARLY", "CUSTOM"] as const;
 
@@ -103,50 +104,51 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
                             )}
                         />
                         
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="period"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("form.period")}</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select period" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="QUARTERLY">{t("periods.QUARTERLY")}</SelectItem>
-                                                <SelectItem value="YEARLY">{t("periods.YEARLY")}</SelectItem>
-                                                <SelectItem value="CUSTOM">{t("periods.CUSTOM")}</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="color"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("form.color")}</FormLabel>
-                                        <div className="flex gap-2">
-                                            {["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6"].map(color => (
-                                                <div 
-                                                    key={color}
-                                                    className={`w-8 h-8 rounded-full cursor-pointer border-2 transition-all ${field.value === color ? 'border-foreground scale-110' : 'border-transparent'}`}
-                                                    style={{ backgroundColor: color }}
-                                                    onClick={() => field.onChange(color)}
-                                                />
-                                            ))}
-                                        </div>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <FormField
+                            control={form.control}
+                            name="period"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("form.period")}</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select period" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="QUARTERLY">{t("periods.QUARTERLY")}</SelectItem>
+                                            <SelectItem value="YEARLY">{t("periods.YEARLY")}</SelectItem>
+                                            <SelectItem value="CUSTOM">{t("periods.CUSTOM")}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="color"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("form.color")}</FormLabel>
+                                    <div className="flex flex-wrap gap-2">
+                                        {TAG_COLORS.map(color => (
+                                            <button
+                                                key={color}
+                                                type="button"
+                                                className={`h-10 w-10 rounded-lg transition-all ${field.value === color ? 'scale-110 ring-2 ring-offset-2 ring-primary' : 'hover:scale-105'}`}
+                                                style={{ backgroundColor: color }}
+                                                onClick={() => field.onChange(color)}
+                                                aria-label={`Select color ${color}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         
                         <div className="grid grid-cols-2 gap-4">
                              <FormField

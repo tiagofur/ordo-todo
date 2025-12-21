@@ -14,11 +14,11 @@ import {
 } from "@/lib/api-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Briefcase, Check, Palette, LayoutTemplate } from "lucide-react";
+import { Briefcase, Palette, LayoutTemplate } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PROJECT_TEMPLATES, ProjectTemplate } from "@/data/project-templates";
 
-import { PROJECT_COLORS, createProjectSchema } from "@ordo-todo/core";
+import { TAG_COLORS, createProjectSchema } from "@ordo-todo/core";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -33,7 +33,7 @@ export function CreateProjectDialog({
 }: CreateProjectDialogProps) {
   const t = useTranslations("CreateProjectDialog");
   const queryClient = useQueryClient();
-  const [selectedColor, setSelectedColor] = useState<typeof PROJECT_COLORS[number]>(PROJECT_COLORS[3]);
+  const [selectedColor, setSelectedColor] = useState<typeof TAG_COLORS[number]>(TAG_COLORS[3]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<ProjectTemplate | null>(null);
@@ -63,7 +63,7 @@ export function CreateProjectDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       workspaceId: workspaceId || "",
-      color: PROJECT_COLORS[3],
+      color: TAG_COLORS[3],
       workflowId: "",
     },
   });
@@ -105,7 +105,7 @@ export function CreateProjectDialog({
   const handleTemplateSelect = (template: ProjectTemplate) => {
     setValue("name", template.name);
     setValue("description", template.description);
-    setSelectedColor(template.color as typeof PROJECT_COLORS[number]);
+    setSelectedColor(template.color as typeof TAG_COLORS[number]);
     setSelectedTemplate(template);
     setShowTemplates(false);
     toast.success(t("toast.templateSelected", { name: template.name }));
@@ -258,23 +258,20 @@ export function CreateProjectDialog({
                   <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                     <Palette className="w-4 h-4" /> {t("form.color")}
                   </Label>
-                  <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
-                    {PROJECT_COLORS.map((color) => (
+                  <div className="flex flex-wrap gap-2">
+                    {TAG_COLORS.map((color) => (
                       <button
                         key={color}
                         type="button"
                         onClick={() => setSelectedColor(color)}
-                        className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
+                        className={`h-10 w-10 rounded-lg transition-all ${
                           selectedColor === color
-                            ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110"
-                            : "hover:opacity-80"
+                            ? "scale-110 ring-2 ring-offset-2 ring-primary"
+                            : "hover:scale-105"
                         }`}
                         style={{ backgroundColor: color }}
-                      >
-                        {selectedColor === color && (
-                          <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                        )}
-                      </button>
+                        aria-label={`Select color ${color}`}
+                      />
                     ))}
                   </div>
                 </div>

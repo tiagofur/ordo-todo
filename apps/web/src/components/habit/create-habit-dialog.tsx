@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Label,
   Dialog,
@@ -17,6 +16,7 @@ import { useCreateHabit } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { Sparkles, Sun, Moon, Sunset } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { TAG_COLORS } from "@ordo-todo/core";
 
 interface CreateHabitDialogProps {
   open: boolean;
@@ -52,7 +52,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
     defaultValues: {
       frequency: "daily",
       timeOfDay: "anytime",
-      color: "#10B981",
+      color: TAG_COLORS[2], // Emerald
     },
   });
 
@@ -99,16 +99,6 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
     { value: "anytime", label: t("timeOfDay.anytime"), icon: Moon },
   ];
 
-  const colors = [
-    "#10B981", // Emerald
-    "#f59e0b", // Amber
-    "#8b5cf6", // Violet
-    "#ec4899", // Pink
-    "#06b6d4", // Cyan
-    "#3b82f6", // Blue
-    "#ef4444", // Red
-    "#84cc16", // Lime
-  ];
 
   const weekDays = [
     { label: "L", value: 1 },
@@ -260,18 +250,19 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
             {/* Color Selection */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-foreground">{t("form.color")}</Label>
-              <div className="flex gap-2">
-                {colors.map((color) => (
+              <div className="flex flex-wrap gap-2">
+                {TAG_COLORS.map((color) => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setValue("color", color)}
-                    className={`h-8 w-8 rounded-full transition-all duration-200 ${
+                    className={`h-10 w-10 rounded-lg transition-all duration-200 ${
                       currentColor === color
                         ? "ring-2 ring-offset-2 ring-primary scale-110"
                         : "hover:scale-105"
                     }`}
                     style={{ backgroundColor: color }}
+                    aria-label={`Select color ${color}`}
                   />
                 ))}
               </div>
