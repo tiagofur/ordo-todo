@@ -78,25 +78,25 @@ export default function TimerPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
                 style={{
                   backgroundColor: accentColor,
                   boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
                 {isPomodoro ? (
-                  <TomatoIcon className="h-6 w-6" />
+                  <TomatoIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                 ) : (
-                  <Clock className="h-6 w-6" />
+                  <Clock className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </div>
               {isPomodoro ? "Pomodoro" : "Timer"}
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
               Mantén el foco y rastrea tu tiempo de trabajo.
             </p>
           </div>

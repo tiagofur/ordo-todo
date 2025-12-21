@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
+import { Input, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -85,17 +85,19 @@ export function InviteMemberDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>
-            {t("description")}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 pb-0">
+          <DialogHeader>
+            <DialogTitle>{t("title")}</DialogTitle>
+            <DialogDescription>
+              {t("description")}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
         {!invitedToken ? (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form id="invite-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -135,8 +137,10 @@ export function InviteMemberDialog({
                   </FormItem>
                 )}
               />
+            </form>
 
-              <div className="flex justify-end gap-2 pt-4">
+            <div className="p-6 pt-4 border-t bg-background">
+              <DialogFooter>
                 <Button
                   type="button"
                   variant="outline"
@@ -144,35 +148,39 @@ export function InviteMemberDialog({
                 >
                   {t("cancel")}
                 </Button>
-                <Button type="submit" disabled={inviteMemberMutation.isPending}>
+                <Button type="submit" form="invite-form" disabled={inviteMemberMutation.isPending}>
                   {inviteMemberMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   {t("invite")}
                 </Button>
-              </div>
-            </form>
+              </DialogFooter>
+            </div>
           </Form>
         ) : (
-          <div className="space-y-4">
-            <div className="rounded-md bg-muted p-4">
-              <p className="text-sm font-medium mb-2">{t("inviteLink")}</p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 rounded bg-background p-2 text-xs font-mono border">
-                  {`${window.location.origin}/invitations/accept?token=${invitedToken}`}
-                </code>
-                <Button size="icon" variant="outline" onClick={copyToClipboard}>
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
+          <>
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              <div className="rounded-md bg-muted p-4">
+                <p className="text-sm font-medium mb-2">{t("inviteLink")}</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 rounded bg-background p-2 text-xs font-mono border break-all">
+                    {`${window.location.origin}/invitations/accept?token=${invitedToken}`}
+                  </code>
+                  <Button size="icon" variant="outline" onClick={copyToClipboard}>
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {t("devTokenNote")}
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {t("devTokenNote")}
-              </p>
             </div>
-            <div className="flex justify-end">
-              <Button onClick={handleClose}>{t("done")}</Button>
+            <div className="p-6 pt-4 border-t bg-background">
+              <DialogFooter>
+                <Button onClick={handleClose}>{t("done")}</Button>
+              </DialogFooter>
             </div>
-          </div>
+          </>
         )}
       </DialogContent>
     </Dialog>
