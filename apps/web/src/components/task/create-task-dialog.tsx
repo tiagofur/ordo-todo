@@ -147,8 +147,8 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 space-y-6">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 pb-0">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-semibold text-foreground">
@@ -162,20 +162,22 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
               >
                 <Sparkles className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : "animate-pulse"}`} />
                 {isGenerating ? t('ai.generating') : t('ai.magic')}
-
               </button>
             </div>
             <DialogDescription className="text-muted-foreground">
               {t('description')}
             </DialogDescription>
           </DialogHeader>
+        </div>
 
-          <form 
+        <div className="flex-1 overflow-y-auto px-6">
+          <form
+            id="task-form"
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit(onSubmit)(e);
-            }} 
-            className="space-y-6"
+            }}
+            className="space-y-6 py-4"
           >
             {/* Title */}
             <div className="space-y-2">
@@ -312,24 +314,27 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                 onChange={customFieldsForm.handleChange}
               />
             )}
-
-            <DialogFooter className="pt-2">
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {t('buttons.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={createTaskMutation.isPending}
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                {createTaskMutation.isPending ? t('buttons.creating') : t('buttons.create')}
-              </button>
-            </DialogFooter>
           </form>
+        </div>
+
+        <div className="p-6 pt-4 border-t bg-background">
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('buttons.cancel')}
+            </button>
+            <button
+              type="submit"
+              form="task-form"
+              disabled={createTaskMutation.isPending}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              {createTaskMutation.isPending ? t('buttons.creating') : t('buttons.create')}
+            </button>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>
