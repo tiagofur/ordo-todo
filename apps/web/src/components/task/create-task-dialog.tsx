@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Label, EmptyState, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@ordo-todo/ui";
+import { Label, EmptyState, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Avatar, AvatarFallback, AvatarImage, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createTaskSchema } from "@ordo-todo/core";
-import { useCreateTask, useAllProjects } from "@/lib/api-hooks";
+import { useCreateTask, useAllProjects, useWorkspaceMembers } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
-import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from "lucide-react";
+import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock, User, Check, UserPlus } from "lucide-react";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useTranslations } from "next-intl";
 import { RecurrenceSelector } from "./recurrence-selector";
 import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { cn } from "@/lib/utils";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -23,8 +25,23 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const t = useTranslations('CreateTaskDialog');
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
+  const [assigneePopoverOpen, setAssigneePopoverOpen] = useState(false);
 
+  const { selectedWorkspaceId } = useWorkspaceStore();
   const { data: projects, isLoading: isLoadingProjects } = useAllProjects();
+  const { data: members = [] } = useWorkspaceMembers(selectedWorkspaceId || "");
+
+  // Only show assignee selector if workspace has more than 1 member
+  const showAssigneeSelector = members.length > 1;
+
+  // Get selected assignee from members
+  const selectedAssignee = members.find((m: any) => m.user?.id === selectedAssigneeId);
+
+  const getInitials = (name?: string) => {
+    if (!name) return "?";
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  };
 
   const formSchema = createTaskSchema.extend({
     title: z.string().min(1, t('validation.titleRequired')),
@@ -78,16 +95,19 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         estimatedTime: estimatedMinutes ?? undefined,
         recurrence: taskData.recurrence,
+        // Include assigneeId if selected (otherwise backend auto-assigns to creator)
+        assigneeId: selectedAssigneeId || undefined,
       };
       const createdTask = await createTaskMutation.mutateAsync(cleanedData);
-      
+
       // Save custom field values if any
       if (customFieldsForm.getValuesForSubmit().length > 0 && createdTask?.id) {
         await customFieldsForm.saveValues(createdTask.id);
       }
-      
+
       notify.success(t('toast.success'));
       reset();
+      setSelectedAssigneeId(null);
       onOpenChange(false);
     } catch (error: any) {
       notify.error(error?.message || t('toast.error'));
@@ -218,6 +238,121 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
             {/* Hidden project ID if provided */}
             {projectId && <input type="hidden" {...register("projectId")} />}
+
+            {/* Assignee Selector - only show if workspace has multiple members */}
+            {showAssigneeSelector && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {t('form.assignee') || 'Asignar a'}
+                </Label>
+                <Popover open={assigneePopoverOpen} onOpenChange={setAssigneePopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex h-10 w-full items-center gap-3 rounded-md border border-input bg-background px-3 py-2 text-sm",
+                        "hover:bg-muted/50 transition-colors text-left"
+                      )}
+                    >
+                      {selectedAssignee ? (
+                        <>
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={selectedAssignee.user?.image} />
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                              {getInitials(selectedAssignee.user?.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="flex-1 truncate">
+                            {selectedAssignee.user?.name || selectedAssignee.user?.email}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {t('form.selectAssignee') || 'Seleccionar miembro (opcional)'}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-2" align="start">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground px-2 py-1">
+                        {t('form.workspaceMembers') || 'Miembros del workspace'}
+                      </p>
+
+                      {/* Option to not assign / auto-assign to me */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedAssigneeId(null);
+                          setAssigneePopoverOpen(false);
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left",
+                          !selectedAssigneeId ? "bg-primary/10 text-primary" : "hover:bg-muted/80"
+                        )}
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
+                          <User className="h-3 w-3" />
+                        </div>
+                        <span className="text-sm">
+                          {t('form.assignToMe') || 'Asignarme a mí (por defecto)'}
+                        </span>
+                        {!selectedAssigneeId && <Check className="h-4 w-4 ml-auto" />}
+                      </button>
+
+                      <div className="border-t border-border/50 my-1" />
+
+                      {/* Members list */}
+                      {members.map((member: any) => (
+                        <button
+                          type="button"
+                          key={member.id}
+                          onClick={() => {
+                            setSelectedAssigneeId(member.user?.id);
+                            setAssigneePopoverOpen(false);
+                          }}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left",
+                            selectedAssigneeId === member.user?.id
+                              ? "bg-primary/10 text-primary"
+                              : "hover:bg-muted/80"
+                          )}
+                        >
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={member.user?.image} />
+                            <AvatarFallback
+                              className={cn(
+                                "text-xs",
+                                selectedAssigneeId === member.user?.id
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted"
+                              )}
+                            >
+                              {getInitials(member.user?.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {member.user?.name || member.user?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {member.role}
+                            </p>
+                          </div>
+                          {selectedAssigneeId === member.user?.id && (
+                            <Check className="h-4 w-4 shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
             {/* Description */}
             <div className="space-y-2">
