@@ -84,7 +84,7 @@
     "cross-env": "^7.0.3",
     "detox": "^20.46.0",
     "detox-expo-helpers": "^0.6.0",
-    "eslint": "^8.57.1",
+    "eslint": "^9.39.2",
     "eslint-config-expo": "~8.0.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
