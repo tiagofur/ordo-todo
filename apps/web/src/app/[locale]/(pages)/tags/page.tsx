@@ -53,6 +53,14 @@ export default function TagsPage() {
     setShowCreateTag(true);
   };
 
+  const handleOpenCreateDialog = () => {
+    if (!selectedWorkspaceId) {
+      notify.error(t('selectWorkspaceFirst') || 'Please select a workspace first');
+      return;
+    }
+    setShowCreateTag(true);
+  };
+
   const handleTagClick = (tagId: string) => {
     router.push(`/tasks?tag=${tagId}`);
   };
@@ -81,7 +89,7 @@ export default function TagsPage() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowCreateTag(true)}
+            onClick={handleOpenCreateDialog}
             style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40` }}
             className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
           >
@@ -180,7 +188,7 @@ export default function TagsPage() {
               {t('noTagsDescription')}
             </p>
             <button
-              onClick={() => setShowCreateTag(true)}
+              onClick={handleOpenCreateDialog}
               style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40` }}
               className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
             >
