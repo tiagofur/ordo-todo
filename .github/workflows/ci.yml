@@ -92,7 +92,7 @@ jobs:
               run: npm run build
 
             - name: Cache packages
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       packages/*/dist
@@ -149,7 +149,7 @@ jobs:
                   sudo apt-get install -y build-essential
 
             - name: Restore packages cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       packages/*/dist
@@ -243,7 +243,7 @@ jobs:
                   sudo apt-get install -y build-essential
 
             - name: Restore packages cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       packages/*/dist
@@ -328,7 +328,7 @@ jobs:
                   sudo apt-get install -y build-essential
 
             - name: Restore packages cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       packages/*/dist
@@ -408,7 +408,7 @@ jobs:
                   sudo apt-get install -y build-essential
 
             - name: Restore packages cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       packages/*/dist
