@@ -42,7 +42,7 @@ export function ProjectTimeChart({ data, className }: { data: { name: string, va
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                          </Pie>
-                         <Tooltip formatter={(value: number) => [`${value} min`, 'Tiempo']} itemStyle={{ color: 'var(--foreground)' }} contentStyle={{ backgroundColor: 'var(--popover)', borderColor: 'var(--border)' }} />
+                         <Tooltip formatter={(value) => [`${value} min`, 'Tiempo']} itemStyle={{ color: 'var(--foreground)' }} contentStyle={{ backgroundColor: 'var(--popover)', borderColor: 'var(--border)' }} />
                          <Legend />
                      </PieChart>
                  </ResponsiveContainer>
