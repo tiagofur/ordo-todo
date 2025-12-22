@@ -16,14 +16,14 @@ const goalsOnboardingSteps: OnboardingStep[] = [
   {
     id: "welcome",
     icon: Sparkles,
-    color: "#8b5cf6",
+    color: "#ec4899",
     title: "Objetivos y OKRs",
     description: "Define metas ambiciosas y mide tu progreso con la metodología OKR (Objectives and Key Results) usada por Google.",
   },
   {
     id: "objectives",
     icon: Target,
-    color: "#8b5cf6",
+    color: "#ec4899",
     title: "¿Qué son los Objetivos?",
     description: "Un objetivo es una meta inspiracional y cualitativa. Ejemplo: 'Mejorar la salud física' o 'Lanzar un producto exitoso'.",
   },
@@ -69,7 +69,7 @@ export default function GoalsPage() {
     setShowOnboarding(false);
   };
 
-  const accentColor = "#8b5cf6"; // Purple
+  const accentColor = "#ec4899"; // Pink (matches sidebar)
 
   return (
     <AppLayout>
