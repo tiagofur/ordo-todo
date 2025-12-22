@@ -73,7 +73,7 @@ export function ProjectTimeChart({
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number) => [`${value} min`, tooltipLabel]}
+              formatter={(value) => [`${value} min`, tooltipLabel]}
               itemStyle={{ color: 'var(--foreground)' }}
               contentStyle={{
                 backgroundColor: 'var(--popover)',
