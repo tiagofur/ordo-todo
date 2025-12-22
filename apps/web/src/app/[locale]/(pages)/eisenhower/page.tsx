@@ -98,20 +98,22 @@ export default function EisenhowerPage() {
       >
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="space-y-2">
+          <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lg"
+              <motion.div
+                initial={{ rotate: -10, scale: 0.9 }}
+                animate={{ rotate: 0, scale: 1 }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
                 style={{
                   backgroundColor: accentColor,
                   boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
                 <Target className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
+              </motion.div>
               Matriz de Eisenhower
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
               Prioriza tus tareas por urgencia e importancia
             </p>
           </div>

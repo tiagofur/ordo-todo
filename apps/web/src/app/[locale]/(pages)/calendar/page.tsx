@@ -7,6 +7,7 @@ import { TaskCalendar } from "@/components/calendar/task-calendar";
 import { useTranslations } from "next-intl";
 import { Calendar, Sparkles, GripVertical, Clock, LayoutGrid, Rocket } from "lucide-react";
 import { FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { motion } from "framer-motion";
 
 const CALENDAR_ONBOARDING_KEY = "calendar-onboarding-seen";
 
@@ -51,6 +52,7 @@ const calendarOnboardingSteps: OnboardingStep[] = [
 export default function CalendarPage() {
   const t = useTranslations("Calendar");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const accentColor = "#0ea5e9"; // Sky blue
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem(CALENDAR_ONBOARDING_KEY);
@@ -69,8 +71,21 @@ export default function CalendarPage() {
       <div className="space-y-6 h-full flex flex-col">
         <div className="flex items-center justify-between shrink-0">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+              <motion.div
+                initial={{ rotate: -10, scale: 0.9 }}
+                animate={{ rotate: 0, scale: 1 }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                style={{
+                  backgroundColor: accentColor,
+                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+                }}
+              >
+                <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
+              </motion.div>
+              {t("title")}
+            </h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
               {t("subtitle")}
             </p>
           </div>

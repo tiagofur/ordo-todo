@@ -91,9 +91,17 @@ function TasksPageContent() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-lg shadow-purple-500/20">
+              <motion.div
+                initial={{ rotate: -10, scale: 0.9 }}
+                animate={{ rotate: 0, scale: 1 }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                style={{
+                  backgroundColor: "#a855f7",
+                  boxShadow: `0 10px 15px -3px #a855f740, 0 4px 6px -4px #a855f740`,
+                }}
+              >
                 <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
+              </motion.div>
               {t("title")}
             </h1>
             <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">{t("subtitle")}</p>
@@ -167,13 +175,19 @@ function TasksPageContent() {
               </button>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-500 px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30"
+              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
+              style={{
+                backgroundColor: "#a855f7",
+                boxShadow: `0 10px 15px -3px #a855f740, 0 4px 6px -4px #a855f740`,
+              }}
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t("newTask")}</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 
