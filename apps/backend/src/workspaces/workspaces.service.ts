@@ -455,8 +455,11 @@ export class WorkspacesService {
 
     // If owner is not in members, add them (for legacy workspaces created before fix)
     if (ownerId && !ownerIsMember) {
-      // Create the member record for the owner
-      await this.workspaceRepository.addMember(workspaceId, ownerId, 'OWNER');
+      // Create the member record for the owner using the use case
+      const addMemberUseCase = new AddMemberToWorkspaceUseCase(
+        this.workspaceRepository,
+      );
+      await addMemberUseCase.execute(workspaceId, ownerId, 'OWNER');
       // Refresh members list
       const updatedMembers = await this.workspaceRepository.listMembers(workspaceId);
       const membersWithUser = await Promise.all(
@@ -469,7 +472,6 @@ export class WorkspacesService {
                   id: user.id,
                   name: user.props.name,
                   email: user.props.email,
-                  image: user.props.image,
                 }
               : null,
           };
@@ -488,7 +490,6 @@ export class WorkspacesService {
                 id: user.id,
                 name: user.props.name,
                 email: user.props.email,
-                image: user.props.image,
               }
             : null,
         };
