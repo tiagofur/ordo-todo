@@ -37,7 +37,7 @@ export class WorkspaceGuard implements CanActivate {
     }
 
     // 2. Check Membership
-    const membership = await this.prisma.workspaceMember.findUnique({
+    let membership = await this.prisma.workspaceMember.findUnique({
       where: {
         workspaceId_userId: {
           workspaceId,
@@ -46,8 +46,25 @@ export class WorkspaceGuard implements CanActivate {
       },
     });
 
+    // If no membership found, check if user is the workspace owner (legacy workspace without member record)
     if (!membership) {
-      throw new ForbiddenException('You are not a member of this workspace');
+      const workspace = await this.prisma.workspace.findUnique({
+        where: { id: workspaceId },
+        select: { ownerId: true },
+      });
+
+      if (workspace?.ownerId === user.id) {
+        // Auto-repair: Add owner as a member for legacy workspaces
+        membership = await this.prisma.workspaceMember.create({
+          data: {
+            workspaceId,
+            userId: user.id,
+            role: MemberRole.OWNER,
+          },
+        });
+      } else {
+        throw new ForbiddenException('You are not a member of this workspace');
+      }
     }
 
     // 3. Check Role Permissions (if defined)

@@ -17,6 +17,8 @@ interface AssigneeSelectorProps {
   } | null;
   onAssigneeChange?: (assigneeId: string | null) => void;
   variant?: "compact" | "full";
+  /** Override workspace ID - uses task's workspace instead of global store */
+  workspaceId?: string;
 }
 
 export function AssigneeSelector({
@@ -24,11 +26,14 @@ export function AssigneeSelector({
   currentAssignee,
   onAssigneeChange,
   variant = "compact",
+  workspaceId: propWorkspaceId,
 }: AssigneeSelectorProps) {
   const [open, setOpen] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
+  // Use prop workspace ID if provided (from task), otherwise fall back to global store
+  const effectiveWorkspaceId = propWorkspaceId || selectedWorkspaceId || "";
   const { data: members = [], isLoading } = useWorkspaceMembers(
-    selectedWorkspaceId || ""
+    effectiveWorkspaceId
   );
   const updateTask = useUpdateTask();
 

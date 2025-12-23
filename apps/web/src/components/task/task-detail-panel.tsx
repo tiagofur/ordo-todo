@@ -678,6 +678,7 @@ export function TaskDetailPanel({
                           taskId={taskId}
                           currentAssignee={task?.assignee}
                           variant="full"
+                          workspaceId={task?.project?.workspaceId}
                         />
                         
                         <Separator className="my-3" />
@@ -685,6 +686,35 @@ export function TaskDetailPanel({
                         {/* Link to Goal */}
                         <div className="space-y-2">
                            <Label className="text-xs font-medium text-muted-foreground">{t('details.linkToGoal') || "Link to Goal"}</Label>
+
+                           {/* Show currently linked key results */}
+                           {task?.linkedKeyResults && task.linkedKeyResults.length > 0 && (
+                             <div className="space-y-1.5">
+                               {task.linkedKeyResults.map((lkr: any) => (
+                                 <div
+                                   key={lkr.id}
+                                   className="flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-200/30"
+                                 >
+                                   <Target className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+                                   <div className="flex-1 min-w-0">
+                                     <p className="text-xs font-medium truncate">{lkr.title}</p>
+                                     <p className="text-[10px] text-muted-foreground truncate">
+                                       {lkr.objective?.title}
+                                     </p>
+                                   </div>
+                                   <Badge
+                                     variant="secondary"
+                                     className="text-[10px] shrink-0"
+                                     style={{ backgroundColor: lkr.objective?.color + '20', color: lkr.objective?.color }}
+                                   >
+                                     OKR
+                                   </Badge>
+                                 </div>
+                               ))}
+                             </div>
+                           )}
+
+                           {/* Select to add/change linked key result */}
                            <Select onValueChange={(krid) => {
                                if(!taskId) return;
                                linkTaskToKR.mutate({ keyResultId: krid, data: { taskId, weight: 1 } }, {
@@ -694,7 +724,11 @@ export function TaskDetailPanel({
                            }}>
                              <SelectTrigger className={cn("w-full h-9 text-xs justify-start gap-2 bg-background/60 border border-border/50")}>
                                <Target className="w-3.5 h-3.5 text-pink-500" />
-                               <span className="truncate">Select Objective Key Result</span>
+                               <span className="truncate">
+                                 {task?.linkedKeyResults?.length > 0
+                                   ? t('details.addAnotherGoal') || "Add another goal link"
+                                   : t('details.selectGoal') || "Select Objective Key Result"}
+                               </span>
                              </SelectTrigger>
                              <SelectContent>
                                {objectives?.map((obj) => (
@@ -702,15 +736,23 @@ export function TaskDetailPanel({
                                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/30">
                                      {obj.title}
                                    </div>
-                                   {obj.keyResults?.map((kr) => (
-                                     <SelectItem key={kr.id} value={kr.id} className="pl-4 text-xs">
-                                       {kr.title}
-                                     </SelectItem>
-                                   ))}
+                                   {obj.keyResults?.map((kr) => {
+                                     const isLinked = task?.linkedKeyResults?.some((lkr: any) => lkr.id === kr.id);
+                                     return (
+                                       <SelectItem
+                                         key={kr.id}
+                                         value={kr.id}
+                                         className="pl-4 text-xs"
+                                         disabled={isLinked}
+                                       >
+                                         {kr.title} {isLinked && "(linked)"}
+                                       </SelectItem>
+                                     );
+                                   })}
                                  </div>
                                ))}
                                {(!objectives || objectives.length === 0) && (
-                                   <div className="p-2 text-xs text-muted-foreground">No active objectives found</div>
+                                   <div className="p-2 text-xs text-muted-foreground">{t('details.noActiveObjectives') || "No active objectives found"}</div>
                                )}
                              </SelectContent>
                            </Select>
