@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "echo 'Skipping marketing-web build - network issues'",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
