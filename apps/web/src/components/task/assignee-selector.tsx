@@ -105,9 +105,13 @@ export function AssigneeSelector({
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
               </div>
             ) : members.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No hay miembros en este workspace
-              </p>
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  {currentAssignee
+                    ? `Asignado a: ${currentAssignee.name}`
+                    : "Este workspace no tiene miembros configurados"}
+                </p>
+              </div>
             ) : (
               <div className="space-y-1">
                 {/* Unassign option */}
@@ -225,9 +229,13 @@ export function AssigneeSelector({
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
               </div>
             ) : members.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                No hay miembros en este workspace
-              </p>
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground">
+                  {currentAssignee
+                    ? `Asignado a: ${currentAssignee.name}`
+                    : "Este workspace no tiene miembros configurados"}
+                </p>
+              </div>
             ) : (
               <div className="space-y-1">
                 {currentAssignee && (
