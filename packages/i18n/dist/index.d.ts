@@ -3369,6 +3369,9 @@ export declare const locales: {
                 scheduledDate: string;
                 estimation: string;
                 linkToGoal: string;
+                addAnotherGoal: string;
+                selectGoal: string;
+                noActiveObjectives: string;
             };
             tabs: {
                 subtasks: string;
@@ -4034,6 +4037,8 @@ export declare const locales: {
             noObjectivesDescription: string;
             listTitle: string;
             backToList: string;
+            notFound: string;
+            edit: string;
             createDescription: string;
             cancel: string;
             create: string;
@@ -4069,12 +4074,42 @@ export declare const locales: {
             };
             keyResults: {
                 title: string;
+                subtitle: string;
                 add: string;
+                addFirst: string;
+                empty: string;
+                createTitle: string;
+                createDescription: string;
                 name: string;
                 target: string;
                 current: string;
                 unit: string;
                 metricType: string;
+                confirmDelete: string;
+                deleted: string;
+                form: {
+                    title: string;
+                    titlePlaceholder: string;
+                    description: string;
+                    descriptionPlaceholder: string;
+                    metricType: string;
+                    startValue: string;
+                    targetValue: string;
+                    unit: string;
+                    unitPlaceholder: string;
+                };
+                actions: {
+                    cancel: string;
+                    create: string;
+                    creating: string;
+                };
+                validation: {
+                    titleRequired: string;
+                };
+                toast: {
+                    created: string;
+                    error: string;
+                };
                 types: {
                     PERCENTAGE: string;
                     NUMBER: string;

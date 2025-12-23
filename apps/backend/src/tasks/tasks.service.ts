@@ -350,6 +350,36 @@ export class TasksService {
         tags: {
           include: { tag: true },
         },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            workspaceId: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        keyResults: {
+          include: {
+            keyResult: {
+              include: {
+                objective: {
+                  select: {
+                    id: true,
+                    title: true,
+                    color: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -361,6 +391,13 @@ export class TasksService {
       ...task,
       tags: task.tags.map((t) => t.tag),
       estimatedTime: task.estimatedMinutes,
+      // Flatten keyResults for easier access
+      linkedKeyResults: task.keyResults.map((krt) => ({
+        id: krt.keyResult.id,
+        title: krt.keyResult.title,
+        weight: krt.weight,
+        objective: krt.keyResult.objective,
+      })),
     };
   }
 
