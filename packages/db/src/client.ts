@@ -1,20 +1,16 @@
-// @ts-expect-error - PrismaClient may not be generated yet
 import { PrismaClient } from "@prisma/client";
 
-type PrismaClientType = typeof PrismaClient extends new () => infer T ? T : any;
-
 const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClientType | undefined;
+    prisma: PrismaClient | undefined;
 };
 
 /**
  * Singleton Prisma Client
  * Prevents multiple instances in development hot reloading
- * Note: Run `npx prisma generate` to generate the Prisma client
  */
-export const prisma: PrismaClientType =
+export const prisma =
     globalForPrisma.prisma ??
-    (PrismaClient ? new PrismaClient() : null);
+    new PrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prisma = prisma;
