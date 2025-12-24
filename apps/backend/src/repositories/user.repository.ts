@@ -14,6 +14,7 @@ export class PrismaUserRepository implements UserRepository {
       username: prismaUser.username,
       email: prismaUser.email,
       password: (prismaUser as any).hashedPassword ?? undefined,
+      image: (prismaUser as any).image ?? null,
       createdAt: prismaUser.createdAt,
       updatedAt: prismaUser.updatedAt,
     });
