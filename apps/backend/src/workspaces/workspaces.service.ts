@@ -444,60 +444,101 @@ export class WorkspacesService {
   }
 
   async getMembers(workspaceId: string) {
-    const members = await this.workspaceRepository.listMembers(workspaceId);
-
-    // Get workspace to check owner
+    // Get workspace to find owner
     const workspace = await this.workspaceRepository.findById(workspaceId);
-    const ownerId = workspace?.props.ownerId;
-
-    // Check if owner is already in members list
-    const ownerIsMember = members.some(m => m.props.userId === ownerId);
-
-    // If owner is not in members, add them (for legacy workspaces created before fix)
-    if (ownerId && !ownerIsMember) {
-      // Create the member record for the owner using the use case
-      const addMemberUseCase = new AddMemberToWorkspaceUseCase(
-        this.workspaceRepository,
-      );
-      await addMemberUseCase.execute(workspaceId, ownerId, 'OWNER');
-      // Refresh members list
-      const updatedMembers = await this.workspaceRepository.listMembers(workspaceId);
-      const membersWithUser = await Promise.all(
-        updatedMembers.map(async (member) => {
-          const user = await this.userRepository.findById(member.props.userId);
-          return {
-            ...member.props,
-            user: user
-              ? {
-                  id: user.id,
-                  name: user.props.name,
-                  email: user.props.email,
-                  image: user.props.image,
-                }
-              : null,
-          };
-        }),
-      );
-      return membersWithUser;
+    if (!workspace) {
+      return [];
     }
 
-    const membersWithUser = await Promise.all(
-      members.map(async (member) => {
-        const user = await this.userRepository.findById(member.props.userId);
-        return {
-          ...member.props,
-          user: user
-            ? {
-                id: user.id,
-                name: user.props.name,
-                email: user.props.email,
-                image: user.props.image,
-              }
-            : null,
-        };
-      }),
-    );
-    return membersWithUser;
+    const ownerId = workspace.props.ownerId;
+
+    // Get members from database
+    const members = await this.workspaceRepository.listMembers(workspaceId);
+
+    // Check if owner is in the members list
+    const ownerInMembers = members.find((m) => m.props.userId === ownerId);
+
+    // Build the result list
+    const result: Array<{
+      id: string;
+      workspaceId: string;
+      userId: string;
+      role: string;
+      joinedAt: Date;
+      user: { id: string; name: string; email: string; image?: string | null } | null;
+    }> = [];
+
+    // If owner exists but is NOT in members table, add them as a virtual OWNER member
+    // This ensures backwards compatibility for workspaces created before the fix
+    if (ownerId && !ownerInMembers) {
+      const ownerUser = await this.userRepository.findById(ownerId);
+      if (ownerUser) {
+        result.push({
+          id: `owner-${ownerId}`,
+          workspaceId,
+          userId: ownerId,
+          role: 'OWNER',
+          joinedAt: workspace.props.createdAt || new Date(),
+          user: {
+            id: ownerUser.id,
+            name: ownerUser.props.name || ownerUser.props.username || 'Usuario',
+            email: ownerUser.props.email || '',
+            image: ownerUser.props.image,
+          },
+        });
+
+        // Also try to persist the owner as member (non-blocking, fire and forget)
+        this.ensureOwnerIsMember(workspaceId, ownerId).catch(() => {
+          // Silently ignore errors - the virtual member will still show
+        });
+      }
+    }
+
+    // Add all members from the database
+    for (const member of members) {
+      const user = await this.userRepository.findById(member.props.userId);
+      result.push({
+        id: member.id as string,
+        workspaceId: member.props.workspaceId,
+        userId: member.props.userId,
+        role: member.props.role,
+        joinedAt: member.props.joinedAt,
+        user: user
+          ? {
+              id: user.id,
+              name: user.props.name || user.props.username || 'Usuario',
+              email: user.props.email || '',
+              image: user.props.image,
+            }
+          : null,
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * Helper to persist owner as workspace member (for legacy workspaces)
+   * This is fire-and-forget to not block the getMembers response
+   */
+  private async ensureOwnerIsMember(
+    workspaceId: string,
+    ownerId: string,
+  ): Promise<void> {
+    try {
+      const existingMember = await this.workspaceRepository.findMember(
+        workspaceId,
+        ownerId,
+      );
+      if (!existingMember) {
+        const addMemberUseCase = new AddMemberToWorkspaceUseCase(
+          this.workspaceRepository,
+        );
+        await addMemberUseCase.execute(workspaceId, ownerId, 'OWNER');
+      }
+    } catch {
+      // Ignore errors - the owner will still appear via virtual member
+    }
   }
 
   async getInvitations(workspaceId: string) {
