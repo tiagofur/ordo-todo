@@ -59,6 +59,12 @@ export interface WorkspaceMembersSettingsLabels {
   invitationsTitle?: string;
   invitationsDescription?: string;
   unknownUser?: string;
+  roles?: {
+    owner?: string;
+    admin?: string;
+    member?: string;
+    viewer?: string;
+  };
   inviteDialog?: {
     title?: string;
     description?: string;
@@ -83,6 +89,23 @@ export interface WorkspaceMembersSettingsProps {
   labels?: WorkspaceMembersSettingsLabels;
   baseUrl?: string;
   onInviteCopied?: () => void;
+}
+
+const defaultRoleLabels: Record<string, string> = {
+  OWNER: "Creator",
+  ADMIN: "Admin",
+  MEMBER: "Member",
+  VIEWER: "Viewer",
+};
+
+function getRoleLabel(role: string, roleLabels?: WorkspaceMembersSettingsLabels["roles"]): string {
+  if (roleLabels) {
+    const key = role.toLowerCase() as keyof typeof roleLabels;
+    if (roleLabels[key]) {
+      return roleLabels[key] as string;
+    }
+  }
+  return defaultRoleLabels[role] || role.toLowerCase();
 }
 
 export function WorkspaceMembersSettings({
@@ -155,8 +178,8 @@ export function WorkspaceMembersSettings({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="capitalize">
-                    {member.role.toLowerCase()}
+                  <Badge variant="outline">
+                    {getRoleLabel(member.role, labels.roles)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -224,8 +247,8 @@ export function WorkspaceMembersSettings({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {invitation.role.toLowerCase()}
+                      <Badge variant="outline">
+                        {getRoleLabel(invitation.role, labels.roles)}
                       </Badge>
                     </TableCell>
                     <TableCell>

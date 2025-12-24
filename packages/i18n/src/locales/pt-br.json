@@ -896,7 +896,13 @@
     "invitationsDescription": "Convites enviados que ainda não foram aceitos.",
     "email": "Email",
     "status": "Status",
-    "sent": "Enviado"
+    "sent": "Enviado",
+    "roles": {
+      "owner": "Criador",
+      "admin": "Administrador",
+      "member": "Membro",
+      "viewer": "Visualizador"
+    }
   },
   "AcceptInvitationPage": {
     "title": "Aceitar Convite",
