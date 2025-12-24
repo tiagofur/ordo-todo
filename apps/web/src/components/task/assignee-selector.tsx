@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { User, Check, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,10 +13,13 @@ interface AssigneeSelectorProps {
   currentAssignee?: {
     id: string;
     name: string;
+    email?: string;
     image?: string;
   } | null;
   onAssigneeChange?: (assigneeId: string | null) => void;
   variant?: "compact" | "full";
+  /** Override workspace ID - uses task's workspace instead of global store */
+  workspaceId?: string;
 }
 
 export function AssigneeSelector({
@@ -24,13 +27,43 @@ export function AssigneeSelector({
   currentAssignee,
   onAssigneeChange,
   variant = "compact",
+  workspaceId: propWorkspaceId,
 }: AssigneeSelectorProps) {
   const [open, setOpen] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: members = [], isLoading } = useWorkspaceMembers(
-    selectedWorkspaceId || ""
+  // Use prop workspace ID if provided (from task), otherwise fall back to global store
+  const effectiveWorkspaceId = propWorkspaceId || selectedWorkspaceId || "";
+  const { data: membersData = [], isLoading } = useWorkspaceMembers(
+    effectiveWorkspaceId
   );
   const updateTask = useUpdateTask();
+
+  // Ensure currentAssignee is always included in members list if present
+  const members = useMemo(() => {
+    if (!currentAssignee) return membersData;
+
+    // Check if currentAssignee is already in the members list
+    const isAssigneeInMembers = membersData.some(
+      (m: any) => m.user?.id === currentAssignee.id
+    );
+
+    if (isAssigneeInMembers) return membersData;
+
+    // Add currentAssignee as a synthetic member if not in list
+    return [
+      {
+        id: `synthetic-${currentAssignee.id}`,
+        role: "ASSIGNED",
+        user: {
+          id: currentAssignee.id,
+          name: currentAssignee.name,
+          email: currentAssignee.email,
+          image: currentAssignee.image,
+        },
+      },
+      ...membersData,
+    ];
+  }, [membersData, currentAssignee]);
 
   const handleSelectAssignee = async (userId: string | null) => {
     try {
@@ -99,7 +132,7 @@ export function AssigneeSelector({
               <div className="flex items-center justify-center py-4">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
               </div>
-            ) : members.length === 0 ? (
+            ) : members.length === 0 && !currentAssignee ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No hay miembros en este workspace
               </p>
@@ -219,7 +252,7 @@ export function AssigneeSelector({
               <div className="flex items-center justify-center py-6">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
               </div>
-            ) : members.length === 0 ? (
+            ) : members.length === 0 && !currentAssignee ? (
               <p className="text-sm text-muted-foreground text-center py-6">
                 No hay miembros en este workspace
               </p>

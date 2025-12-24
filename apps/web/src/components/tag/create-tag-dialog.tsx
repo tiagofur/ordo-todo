@@ -26,13 +26,21 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId, tagToEdit }: 
   const updateTag = useUpdateTag();
 
   const handleSubmit = (data: TagFormData, isEdit: boolean) => {
+    const resolvedWorkspaceId = data.workspaceId || workspaceId;
+
+    // Validate workspaceId is present
+    if (!resolvedWorkspaceId) {
+      notify.error(t('toast.workspaceRequired') || 'Please select a workspace first');
+      return;
+    }
+
     // Cast TagFormData to API types
     const tagData = {
       name: data.name,
       color: data.color,
-      workspaceId: data.workspaceId || workspaceId,
+      workspaceId: resolvedWorkspaceId,
     };
-    
+
     if (isEdit && tagToEdit) {
       updateTag.mutate({ tagId: tagToEdit.id, data: tagData as any }, {
         onSuccess: () => {

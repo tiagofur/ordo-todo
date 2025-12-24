@@ -83,6 +83,12 @@ export class WorkspacesService {
       ownerId: userId,
     });
 
+    // Add creator as workspace member with OWNER role
+    const addMemberUseCase = new AddMemberToWorkspaceUseCase(
+      this.workspaceRepository,
+    );
+    await addMemberUseCase.execute(workspace.id as string, userId, 'OWNER');
+
     // Create default workflow
     const createWorkflowUseCase = new CreateWorkflowUseCase(
       this.workflowRepository,
@@ -439,6 +445,41 @@ export class WorkspacesService {
 
   async getMembers(workspaceId: string) {
     const members = await this.workspaceRepository.listMembers(workspaceId);
+
+    // Get workspace to check owner
+    const workspace = await this.workspaceRepository.findById(workspaceId);
+    const ownerId = workspace?.props.ownerId;
+
+    // Check if owner is already in members list
+    const ownerIsMember = members.some(m => m.props.userId === ownerId);
+
+    // If owner is not in members, add them (for legacy workspaces created before fix)
+    if (ownerId && !ownerIsMember) {
+      // Create the member record for the owner using the use case
+      const addMemberUseCase = new AddMemberToWorkspaceUseCase(
+        this.workspaceRepository,
+      );
+      await addMemberUseCase.execute(workspaceId, ownerId, 'OWNER');
+      // Refresh members list
+      const updatedMembers = await this.workspaceRepository.listMembers(workspaceId);
+      const membersWithUser = await Promise.all(
+        updatedMembers.map(async (member) => {
+          const user = await this.userRepository.findById(member.props.userId);
+          return {
+            ...member.props,
+            user: user
+              ? {
+                  id: user.id,
+                  name: user.props.name,
+                  email: user.props.email,
+                }
+              : null,
+          };
+        }),
+      );
+      return membersWithUser;
+    }
+
     const membersWithUser = await Promise.all(
       members.map(async (member) => {
         const user = await this.userRepository.findById(member.props.userId);
@@ -446,6 +487,7 @@ export class WorkspacesService {
           ...member.props,
           user: user
             ? {
+                id: user.id,
                 name: user.props.name,
                 email: user.props.email,
               }

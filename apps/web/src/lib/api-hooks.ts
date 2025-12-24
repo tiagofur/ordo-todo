@@ -1591,9 +1591,11 @@ export function useLinkTaskToKeyResult() {
   return useMutation({
     mutationFn: ({ keyResultId, data }: { keyResultId: string; data: LinkTaskDto }) =>
       apiClient.linkTaskToKeyResult(keyResultId, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
-      // Ideally we would invalidate specific objective but we don't have ID here easily
+      // Also invalidate the task details to show the newly linked key result
+      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(variables.data.taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.task(variables.data.taskId) });
     },
   });
 }

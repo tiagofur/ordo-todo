@@ -1131,7 +1131,10 @@
             "startDate": "Fecha de inicio",
             "scheduledDate": "Programado",
             "estimation": "Tiempo estimado (min)",
-            "linkToGoal": "Vincular a Objetivo"
+            "linkToGoal": "Vincular a Objetivo",
+            "addAnotherGoal": "Vincular otro objetivo",
+            "selectGoal": "Seleccionar Resultado Clave",
+            "noActiveObjectives": "No hay objetivos activos"
         },
         "tabs": {
             "subtasks": "Subtareas",
@@ -1797,6 +1800,8 @@
         "noObjectivesDescription": "Define tus objetivos para mantenerte enfocado en lo que más importa.",
         "listTitle": "Objetivos y Resultados Clave",
         "backToList": "Volver a Objetivos",
+        "notFound": "Objetivo no encontrado",
+        "edit": "Editar",
         "createDescription": "Crea un nuevo objetivo para rastrear tus metas.",
         "cancel": "Cancelar",
         "create": "Crear Objetivo",
@@ -1832,12 +1837,42 @@
         },
         "keyResults": {
             "title": "Resultados Clave",
+            "subtitle": "Define métricas para medir tu progreso",
             "add": "Agregar Resultado Clave",
+            "addFirst": "Agregar primer resultado clave",
+            "empty": "No hay resultados clave. Agrega uno para empezar a medir tu progreso.",
+            "createTitle": "Agregar Resultado Clave",
+            "createDescription": "Define un resultado medible para tu objetivo",
             "name": "Título",
             "target": "Objetivo",
             "current": "Actual",
             "unit": "Unidad",
             "metricType": "Tipo",
+            "confirmDelete": "¿Eliminar este resultado clave?",
+            "deleted": "Resultado clave eliminado",
+            "form": {
+                "title": "Título",
+                "titlePlaceholder": "Ej: Aumentar ventas mensuales",
+                "description": "Descripción",
+                "descriptionPlaceholder": "Describe cómo medirás el progreso...",
+                "metricType": "Tipo de métrica",
+                "startValue": "Valor inicial",
+                "targetValue": "Valor objetivo",
+                "unit": "Unidad",
+                "unitPlaceholder": "Ej: ventas, usuarios, horas"
+            },
+            "actions": {
+                "cancel": "Cancelar",
+                "create": "Crear",
+                "creating": "Creando..."
+            },
+            "validation": {
+                "titleRequired": "El título es requerido"
+            },
+            "toast": {
+                "created": "Resultado clave creado",
+                "error": "Error al crear resultado clave"
+            },
             "types": {
                 "PERCENTAGE": "Porcentaje",
                 "NUMBER": "Número",
