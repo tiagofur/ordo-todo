@@ -80,6 +80,11 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   // Get selected assignee from members
   const selectedAssignee = members.find((m: any) => m.user?.id === selectedAssigneeId);
 
+  const getInitials = (name?: string) => {
+    if (!name) return "?";
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  };
+
   // Custom fields form state
   const customFieldsForm = useCustomFieldForm(selectedProjectId || "");
 
