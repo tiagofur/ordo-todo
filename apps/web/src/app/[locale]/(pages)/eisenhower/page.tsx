@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Target, RefreshCw } from "lucide-react";
+import { LayoutGrid, RefreshCw } from "lucide-react";
 import { Button } from "@ordo-todo/ui";
 import { AppLayout } from "@/components/shared/app-layout";
 import { EisenhowerMatrix } from "@/components/tasks/eisenhower-matrix";
@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function EisenhowerPage() {
-  const accentColor = "#8b5cf6"; // Purple
+  const accentColor = "#a855f7"; // Purple (matches sidebar)
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -109,7 +109,7 @@ export default function EisenhowerPage() {
                   boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
-                <Target className="h-5 w-5 sm:h-6 sm:w-6" />
+                <LayoutGrid className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
               Matriz de Eisenhower
             </h1>
