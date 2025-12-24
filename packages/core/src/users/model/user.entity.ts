@@ -7,6 +7,7 @@ export interface UserProps extends EntityProps<string> {
   username: string;
   email?: string;
   password?: string;
+  image?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
