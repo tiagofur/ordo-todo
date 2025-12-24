@@ -32,6 +32,11 @@ export interface Task {
     name: string;
     image?: string;
   } | null;
+  creator?: {
+    id: string;
+    name: string;
+    image?: string;
+  } | null;
   parentTaskId: string | null;
   position: number;
   createdAt: Date;
