@@ -108,11 +108,11 @@ export function WorkspaceSettingsDialog({
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-4">
-              <TabsTrigger value="general">{t('tabs.general')}</TabsTrigger>
-              <TabsTrigger value="members">{t('tabs.members')}</TabsTrigger>
-              <TabsTrigger value="configuration">{t('tabs.configuration')}</TabsTrigger>
-              <TabsTrigger value="activity">{t('tabs.activity')}</TabsTrigger>
+            <TabsList className="flex w-full mb-4 overflow-x-auto scrollbar-none">
+              <TabsTrigger value="general" className="flex-shrink-0">{t('tabs.general')}</TabsTrigger>
+              <TabsTrigger value="members" className="flex-shrink-0">{t('tabs.members')}</TabsTrigger>
+              <TabsTrigger value="configuration" className="flex-shrink-0">{t('tabs.configuration')}</TabsTrigger>
+              <TabsTrigger value="activity" className="flex-shrink-0">{t('tabs.activity')}</TabsTrigger>
             </TabsList>
             
             <div className="overflow-y-auto max-h-[50vh] pr-1">

@@ -259,11 +259,11 @@ export function TaskDetailPanel({
         ) : (
           <div className="flex flex-col h-full animate-in fade-in duration-300">
             {/* Header Area */}
-            <div className="px-6 py-5 border-b bg-muted/10">
-              <div className="flex items-start justify-between gap-6">
-                <div className="flex-1 space-y-4">
+            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-muted/10">
+              {/* Action buttons row - always visible at top on mobile */}
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2 flex-wrap">
                   {/* Status & Priority Badges */}
-                  <div className="flex items-center gap-2">
                     <Select
                       value={formData.status}
                       onValueChange={(value) => {
@@ -329,9 +329,33 @@ export function TaskDetailPanel({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                </div>
 
-                  {/* Title */}
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {isEditing ? (
+                    <Button size="sm" onClick={handleSave} disabled={updateTask.isPending} className="h-8">
+                      <Save className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">{t('buttons.save')}</span>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="h-8 w-8">
+                        <Layout className="w-4 h-4 text-muted-foreground" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={handleShare} className="h-8 w-8">
+                        <Share2 className="w-4 h-4 text-muted-foreground" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="h-8 w-8">
+                        <X className="w-4 h-4 text-muted-foreground" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="space-y-3">
                   {isEditing ? (
                     <Input
                       value={formData.title}
@@ -461,29 +485,7 @@ export function TaskDetailPanel({
                     </Popover>
                   </div>
                 </div>
-
-                <div className="flex items-start gap-2 pt-1">
-                  {isEditing ? (
-                    <Button size="sm" onClick={handleSave} disabled={updateTask.isPending} className="h-9">
-                      <Save className="w-4 h-4 mr-2" />
-                      {t('buttons.save')}
-                    </Button>
-                  ) : (
-                    <>
-                      <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="h-9 w-9">
-                        <Layout className="w-4 h-4 text-muted-foreground" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={handleShare} className="h-9 w-9">
-                        <Share2 className="w-4 h-4 text-muted-foreground" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="h-9 w-9">
-                        <X className="w-4 h-4 text-muted-foreground" />
-                      </Button>
-                    </>
-                  )}
-                </div>
               </div>
-            </div>
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto">
@@ -782,7 +784,7 @@ export function TaskDetailPanel({
 
                 {/* Tabs Section */}
                 <div className="space-y-5">
-                  <div className="flex items-center gap-1.5 p-1.5 bg-muted/40 rounded-lg w-fit border border-border/30">
+                  <div className="flex items-center gap-1.5 p-1.5 bg-muted/40 rounded-lg w-full overflow-x-auto border border-border/30 scrollbar-none">
                     <TabButton 
                       active={activeTab === "subtasks"} 
                       onClick={() => setActiveTab("subtasks")}
@@ -915,16 +917,16 @@ export function TaskDetailPanel({
   );
 }
 
-function TabButton({ 
-  active, 
-  onClick, 
-  icon: Icon, 
-  label, 
-  count 
-}: { 
-  active: boolean; 
-  onClick: () => void; 
-  icon: any; 
+function TabButton({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+  count
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: any;
   label: string;
   count?: number;
 }) {
@@ -932,16 +934,16 @@ function TabButton({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
-        active 
-          ? "bg-background text-foreground shadow-sm" 
+        "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap",
+        active
+          ? "bg-background text-foreground shadow-sm"
           : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
       )}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-4 h-4 flex-shrink-0" />
       {label}
       {count !== undefined && count > 0 && (
-        <span className="bg-muted-foreground/10 text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full">
+        <span className="bg-muted-foreground/10 text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
           {count}
         </span>
       )}
