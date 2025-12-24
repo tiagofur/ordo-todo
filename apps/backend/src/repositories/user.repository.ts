@@ -54,6 +54,7 @@ export class PrismaUserRepository implements UserRepository {
     email: true,
     username: true,
     name: true,
+    image: true,
     hashedPassword: true,
     createdAt: true,
     updatedAt: true,
