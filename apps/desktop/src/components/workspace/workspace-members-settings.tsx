@@ -43,6 +43,11 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
   
   const locale = i18n.language === 'es' ? es : i18n.language === 'pt-BR' ? ptBR : enUS;
 
+  const getRoleLabel = (role: string): string => {
+    const key = role.toLowerCase() as "owner" | "admin" | "member" | "viewer";
+    return t(`WorkspaceMembersSettings.roles.${key}`);
+  };
+
   const handleRemoveMember = async (userId: string) => {
     if (confirm(t("WorkspaceMembersSettings.confirmRemove"))) {
       try {
@@ -109,8 +114,8 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="capitalize">
-                      {member.role.toLowerCase()}
+                    <Badge variant="outline">
+                      {getRoleLabel(member.role)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
@@ -173,8 +178,8 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {invitation.role.toLowerCase()}
+                      <Badge variant="outline">
+                        {getRoleLabel(invitation.role)}
                       </Badge>
                     </TableCell>
                     <TableCell>

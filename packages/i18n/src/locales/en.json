@@ -962,7 +962,13 @@
     "invitationsDescription": "Invitations sent but not yet accepted.",
     "email": "Email",
     "status": "Status",
-    "sent": "Sent"
+    "sent": "Sent",
+    "roles": {
+      "owner": "Creator",
+      "admin": "Admin",
+      "member": "Member",
+      "viewer": "Viewer"
+    }
   },
   "AcceptInvitationPage": {
     "title": "Accept Invitation",

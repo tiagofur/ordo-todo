@@ -16,10 +16,15 @@ interface WorkspaceMembersSettingsProps {
 export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettingsProps) {
   const t = useTranslations("WorkspaceMembersSettings");
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
-  
+
   const { data: members, isLoading: isLoadingMembers } = useWorkspaceMembers(workspaceId);
   const { data: invitations, isLoading: isLoadingInvitations } = useWorkspaceInvitations(workspaceId);
   const removeMemberMutation = useRemoveWorkspaceMember();
+
+  const getRoleLabel = (role: string): string => {
+    const key = role.toLowerCase() as "owner" | "admin" | "member" | "viewer";
+    return t(`roles.${key}`);
+  };
 
   const handleRemoveMember = async (userId: string) => {
     if (confirm(t("confirmRemove"))) {
@@ -75,8 +80,8 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="capitalize">
-                    {member.role.toLowerCase()}
+                  <Badge variant="outline">
+                    {getRoleLabel(member.role)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -138,8 +143,8 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {invitation.role.toLowerCase()}
+                      <Badge variant="outline">
+                        {getRoleLabel(invitation.role)}
                       </Badge>
                     </TableCell>
                     <TableCell>

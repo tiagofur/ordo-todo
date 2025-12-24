@@ -965,7 +965,13 @@
     "invitationsDescription": "Invitaciones enviadas que aún no han sido aceptadas.",
     "email": "Correo",
     "status": "Estado",
-    "sent": "Enviado"
+    "sent": "Enviado",
+    "roles": {
+      "owner": "Creador",
+      "admin": "Administrador",
+      "member": "Miembro",
+      "viewer": "Observador"
+    }
   },
   "AcceptInvitationPage": {
     "title": "Aceptar Invitación",
