@@ -73,9 +73,9 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   // Get workspace members using the project's workspace
   const { data: members = [] } = useWorkspaceMembers(effectiveWorkspaceId);
 
-  // Only show assignee selector if workspace has MORE than 1 member (is shared)
-  // If only 1 member (creator), auto-assign to creator without showing selector
-  const showAssigneeSelector = members.length > 1;
+  // Always show assignee selector if there are members (even if just 1)
+  // This allows users to see who can be assigned and explicitly set assignee
+  const showAssigneeSelector = members.length > 0;
 
   // Get selected assignee from members
   const selectedAssignee = members.find((m: any) => m.user?.id === selectedAssigneeId);

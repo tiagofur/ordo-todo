@@ -472,6 +472,7 @@ export class WorkspacesService {
                   id: user.id,
                   name: user.props.name,
                   email: user.props.email,
+                  image: user.props.image,
                 }
               : null,
           };
@@ -490,6 +491,7 @@ export class WorkspacesService {
                 id: user.id,
                 name: user.props.name,
                 email: user.props.email,
+                image: user.props.image,
               }
             : null,
         };
