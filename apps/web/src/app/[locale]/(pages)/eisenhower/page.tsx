@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function EisenhowerPage() {
-  const accentColor = "#a855f7"; // Purple (matches sidebar)
+  const accentColor = "#a855f7"; // Purple (matches sidebar purple-500)
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
