@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Label, EmptyState, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Avatar, AvatarFallback, AvatarImage, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +13,6 @@ import { CreateProjectDialog } from "@/components/project/create-project-dialog"
 import { useTranslations } from "next-intl";
 import { RecurrenceSelector } from "./recurrence-selector";
 import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
-import { useWorkspaceStore } from "@/stores/workspace-store";
 import { cn } from "@/lib/utils";
 
 interface CreateTaskDialogProps {
@@ -28,20 +27,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
   const [assigneePopoverOpen, setAssigneePopoverOpen] = useState(false);
 
-  const { selectedWorkspaceId } = useWorkspaceStore();
   const { data: projects, isLoading: isLoadingProjects } = useAllProjects();
-  const { data: members = [] } = useWorkspaceMembers(selectedWorkspaceId || "");
-
-  // Only show assignee selector if workspace has members (including creator)
-  const showAssigneeSelector = members.length > 0;
-
-  // Get selected assignee from members
-  const selectedAssignee = members.find((m: any) => m.user?.id === selectedAssigneeId);
-
-  const getInitials = (name?: string) => {
-    if (!name) return "?";
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  };
 
   const formSchema = createTaskSchema.extend({
     title: z.string().min(1, t('validation.titleRequired')),
@@ -75,6 +61,29 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
 
   // Get selected project ID for custom fields (after watch is available)
   const selectedProjectId = projectId || watch("projectId");
+
+  // Get workspace ID from selected project
+  const selectedProject = useMemo(() => {
+    if (!projects || !selectedProjectId) return null;
+    return projects.find((p: any) => p.id === selectedProjectId);
+  }, [projects, selectedProjectId]);
+
+  const effectiveWorkspaceId = selectedProject?.workspaceId || "";
+
+  // Get workspace members using the project's workspace
+  const { data: members = [] } = useWorkspaceMembers(effectiveWorkspaceId);
+
+  // Only show assignee selector if workspace has MORE than 1 member (is shared)
+  // If only 1 member (creator), auto-assign to creator without showing selector
+  const showAssigneeSelector = members.length > 1;
+
+  // Get selected assignee from members
+  const selectedAssignee = members.find((m: any) => m.user?.id === selectedAssigneeId);
+
+  const getInitials = (name?: string) => {
+    if (!name) return "?";
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  };
 
   // Custom fields form state
   const customFieldsForm = useCustomFieldForm(selectedProjectId || "");
