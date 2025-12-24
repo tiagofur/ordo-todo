@@ -69,27 +69,27 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm">
-        <div 
-          className="absolute left-0 top-0 bottom-0 w-1.5" 
-          style={{ backgroundColor: typeInfo.hexColor }} 
+      <div className="relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1.5"
+          style={{ backgroundColor: typeInfo.hexColor }}
         />
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm transition-transform hover:scale-105"
+              className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl shadow-sm transition-transform hover:scale-105 flex-shrink-0"
               style={{
                 backgroundColor: `${typeInfo.hexColor}15`,
                 color: typeInfo.hexColor,
               }}
             >
-              <TypeIcon className="h-8 w-8" />
+              <TypeIcon className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{workspace.name}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <span 
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">{workspace.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span
+                  className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium"
                   style={{
                     backgroundColor: `${typeInfo.hexColor}20`,
                     color: typeInfo.hexColor,
@@ -98,7 +98,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                   {typeInfo.label}
                 </span>
                 {workspace.description && (
-                  <span className="text-muted-foreground text-sm border-l pl-2 ml-2">
+                  <span className="text-muted-foreground text-xs sm:text-sm hidden sm:inline border-l pl-2 ml-2">
                     {workspace.description}
                   </span>
                 )}
@@ -106,11 +106,12 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button 
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button
               onClick={() => setShowCreateProject(true)}
-              className="gap-2 shadow-md transition-all hover:scale-105"
-              style={{ 
+              className="gap-2 shadow-md transition-all hover:scale-105 flex-1 sm:flex-initial"
+              size="sm"
+              style={{
                 backgroundColor: typeInfo.hexColor,
                 borderColor: typeInfo.hexColor,
               }}
@@ -120,7 +121,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -297,13 +298,13 @@ function StatCard({ title, value, icon: Icon, color }: { title: string, value: n
 
   return (
     <Card>
-      <CardContent className="p-6 flex items-center gap-4">
-        <div className={cn("p-3 rounded-xl", colorStyles[color as keyof typeof colorStyles])}>
-          <Icon className="h-6 w-6" />
+      <CardContent className="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
+        <div className={cn("p-2.5 sm:p-3 rounded-lg sm:rounded-xl", colorStyles[color as keyof typeof colorStyles])}>
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <h3 className="text-2xl font-bold">{value}</h3>
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</p>
+          <h3 className="text-xl sm:text-2xl font-bold">{value}</h3>
         </div>
       </CardContent>
     </Card>

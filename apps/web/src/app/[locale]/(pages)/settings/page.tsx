@@ -78,42 +78,42 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   {t("selectTheme") || "Selecciona el tema de la interfaz"}
                 </p>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:pb-0">
                   <button
                     onClick={() => setTheme("light")}
                     className={cn(
-                      "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
+                      "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[90px] flex-shrink-0 sm:min-w-0",
                       theme === "light"
                         ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
                         : "border-transparent bg-muted/50"
                     )}
                   >
-                    <Sun className="h-6 w-6" />
-                    <span className="text-sm font-medium">{t("themes.light") || "Claro"}</span>
+                    <Sun className="h-5 w-5 sm:h-6 sm:w-6" />
+                    <span className="text-xs sm:text-sm font-medium">{t("themes.light") || "Claro"}</span>
                   </button>
                   <button
                     onClick={() => setTheme("dark")}
                     className={cn(
-                      "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
+                      "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[90px] flex-shrink-0 sm:min-w-0",
                       theme === "dark"
                         ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
                         : "border-transparent bg-muted/50"
                     )}
                   >
-                    <Moon className="h-6 w-6" />
-                    <span className="text-sm font-medium">{t("themes.dark") || "Oscuro"}</span>
+                    <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
+                    <span className="text-xs sm:text-sm font-medium">{t("themes.dark") || "Oscuro"}</span>
                   </button>
                   <button
                     onClick={() => setTheme("system")}
                     className={cn(
-                      "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
+                      "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[90px] flex-shrink-0 sm:min-w-0",
                       theme === "system"
                         ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
                         : "border-transparent bg-muted/50"
                     )}
                   >
-                    <Laptop className="h-6 w-6" />
-                    <span className="text-sm font-medium">{t("themes.system") || "Sistema"}</span>
+                    <Laptop className="h-5 w-5 sm:h-6 sm:w-6" />
+                    <span className="text-xs sm:text-sm font-medium">{t("themes.system") || "Sistema"}</span>
                   </button>
                 </div>
               </div>
@@ -134,42 +134,42 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground mb-4">
                 {t("languageDescription") || "Selecciona el idioma de la interfaz"}
               </p>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:pb-0">
                 <button
                   onClick={() => handleLanguageChange("es")}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
+                    "flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[120px] flex-shrink-0 sm:min-w-0",
                     locale === "es"
                       ? "border-green-500 bg-green-50/50 dark:bg-green-950/20"
                       : "border-transparent bg-muted/50"
                   )}
                 >
-                  <span className="text-2xl">🇪🇸</span>
-                  <span className="text-sm font-medium">Español</span>
+                  <span className="text-xl sm:text-2xl">🇪🇸</span>
+                  <span className="text-xs sm:text-sm font-medium">Español</span>
                 </button>
                 <button
                   onClick={() => handleLanguageChange("en")}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
+                    "flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[120px] flex-shrink-0 sm:min-w-0",
                     locale === "en"
                       ? "border-green-500 bg-green-50/50 dark:bg-green-950/20"
                       : "border-transparent bg-muted/50"
                   )}
                 >
-                  <span className="text-2xl">🇺🇸</span>
-                  <span className="text-sm font-medium">English</span>
+                  <span className="text-xl sm:text-2xl">🇺🇸</span>
+                  <span className="text-xs sm:text-sm font-medium">English</span>
                 </button>
                 <button
                   onClick={() => handleLanguageChange("pt-br")}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
+                    "flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[120px] flex-shrink-0 sm:min-w-0",
                     locale === "pt-br"
                       ? "border-green-500 bg-green-50/50 dark:bg-green-950/20"
                       : "border-transparent bg-muted/50"
                   )}
                 >
-                  <span className="text-2xl">🇧🇷</span>
-                  <span className="text-sm font-medium">Português</span>
+                  <span className="text-xl sm:text-2xl">🇧🇷</span>
+                  <span className="text-xs sm:text-sm font-medium">Português</span>
                 </button>
               </div>
             </div>
@@ -621,7 +621,7 @@ export default function SettingsPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between py-2">
                   <span className="text-muted-foreground">{t("version") || "Versión"}</span>
-                  <span className="font-medium">1.0.0 (Web)</span>
+                  <span className="font-medium">0.1.0 (Beta)</span>
                 </div>
                 <div className="flex justify-between py-2">
                   <span className="text-muted-foreground">{t("platform") || "Plataforma"}</span>
