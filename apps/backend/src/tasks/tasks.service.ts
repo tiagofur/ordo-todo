@@ -619,7 +619,7 @@ export class TasksService {
         tags: {
           include: { tag: true },
         },
-        creator: { select: { id: true, name: true, image: true } },
+        owner: { select: { id: true, name: true, image: true } },
         assignee: { select: { id: true, name: true, image: true } },
         project: { select: { id: true, name: true, color: true } },
       },

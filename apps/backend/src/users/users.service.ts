@@ -340,7 +340,7 @@ export class UsersService {
             workspace: true,
           },
         },
-        createdTasks: {
+        ownedTasks: {
           take: 1000, // Limit for performance
         },
         activities: {
@@ -375,7 +375,7 @@ export class UsersService {
         role: wm.role,
         joinedAt: wm.joinedAt,
       })),
-      tasks: user.createdTasks,
+      tasks: user.ownedTasks,
       activities: user.activities,
       exportedAt: new Date().toISOString(),
     };
