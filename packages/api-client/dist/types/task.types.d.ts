@@ -22,9 +22,14 @@ export interface Task {
     estimatedTime: number | null;
     actualTime: number | null;
     projectId: string;
-    creatorId: string;
+    ownerId: string;
     assigneeId: string | null;
     assignee?: {
+        id: string;
+        name: string;
+        image?: string;
+    } | null;
+    owner?: {
         id: string;
         name: string;
         image?: string;

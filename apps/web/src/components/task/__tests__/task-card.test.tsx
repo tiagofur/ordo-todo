@@ -29,7 +29,7 @@ describe('TaskCard Component', () => {
     priority: 'MEDIUM',
     dueDate: '2024-12-31',
     projectId: 'project-1',
-    creatorId: 'user-1',
+    ownerId: 'user-1',
     tags: [],
   };
 

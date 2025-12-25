@@ -518,7 +518,7 @@ export function TaskDetailPanel({
                       <CommentThread 
                         taskId={taskId} 
                         comments={(task?.comments || []) as any}
-                        currentUserId={task?.creatorId}
+                        currentUserId={task?.ownerId}
                       />
                     )}
                     {activeTab === "attachments" && (

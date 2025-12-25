@@ -13,7 +13,7 @@ export class PrismaTaskRepository implements TaskRepository {
             priority: this.mapPriorityToDomain(prismaTask.priority),
             dueDate: prismaTask.dueDate ?? undefined,
             projectId: prismaTask.projectId,
-            creatorId: prismaTask.creatorId,
+            ownerId: prismaTask.ownerId,
             parentTaskId: prismaTask.parentTaskId ?? undefined,
             subTasks: prismaTask.subTasks?.map(st => this.toDomain(st)),
             estimatedTime: prismaTask.estimatedMinutes ?? undefined,
@@ -72,7 +72,7 @@ export class PrismaTaskRepository implements TaskRepository {
             dueDate: task.props.dueDate,
             estimatedMinutes: task.props.estimatedTime,
             projectId: task.props.projectId,
-            creatorId: task.props.creatorId,
+            ownerId: task.props.ownerId,
             parentTaskId: task.props.parentTaskId ?? null,
         };
 
@@ -113,8 +113,8 @@ export class PrismaTaskRepository implements TaskRepository {
         return this.toDomain(task);
     }
 
-    async findByCreatorId(creatorId: string): Promise<Task[]> {
-        const tasks = await this.prisma.task.findMany({ where: { creatorId } });
+    async findByOwnerId(ownerId: string): Promise<Task[]> {
+        const tasks = await this.prisma.task.findMany({ where: { ownerId } });
         return tasks.map(t => this.toDomain(t));
     }
 

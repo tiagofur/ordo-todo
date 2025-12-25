@@ -10,7 +10,7 @@ describe('CreateTaskUseCase', () => {
         repository = {
             save: jest.fn(),
             findById: jest.fn(),
-            findByCreatorId: jest.fn(),
+            findByOwnerId: jest.fn(),
             update: jest.fn(),
             delete: jest.fn(),
         };
@@ -21,7 +21,7 @@ describe('CreateTaskUseCase', () => {
         const input = {
             title: 'Test Task',
             projectId: 'project-1',
-            creatorId: 'user-1',
+            ownerId: 'user-1',
         };
 
         const task = await useCase.execute(input);
@@ -35,7 +35,7 @@ describe('CreateTaskUseCase', () => {
         const input = {
             title: '',
             projectId: 'project-1',
-            creatorId: 'user-1',
+            ownerId: 'user-1',
         };
 
         await expect(useCase.execute(input)).rejects.toThrow('Title is required');
