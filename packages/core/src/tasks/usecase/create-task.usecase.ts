@@ -8,7 +8,7 @@ export interface CreateTaskInput {
     priority?: TaskPriority;
     dueDate?: Date;
     projectId: string;
-    creatorId: string;
+    ownerId: string;
     assigneeId?: string;
     parentTaskId?: string;
     recurrence?: RecurrenceProps;
@@ -28,7 +28,7 @@ export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
             priority: input.priority ?? "MEDIUM",
             dueDate: input.dueDate,
             projectId: input.projectId,
-            creatorId: input.creatorId,
+            ownerId: input.ownerId,
             assigneeId: input.assigneeId,
             parentTaskId: input.parentTaskId,
             recurrence: input.recurrence,

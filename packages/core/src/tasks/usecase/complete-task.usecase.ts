@@ -4,7 +4,7 @@ import { TaskRepository } from "../provider/task.repository";
 
 export interface CompleteTaskInput {
     taskId: string;
-    creatorId: string;
+    ownerId: string;
 }
 
 export class CompleteTaskUseCase implements UseCase<CompleteTaskInput, Task> {
@@ -17,7 +17,7 @@ export class CompleteTaskUseCase implements UseCase<CompleteTaskInput, Task> {
             throw new Error("Task not found");
         }
 
-        if (task.props.creatorId !== input.creatorId) {
+        if (task.props.ownerId !== input.ownerId) {
             throw new Error("Unauthorized");
         }
 

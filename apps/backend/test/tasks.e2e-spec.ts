@@ -61,7 +61,7 @@ describe('Tasks API (e2e)', () => {
   afterAll(async () => {
     // Cleanup: Delete test data
     await prisma.task.deleteMany({
-      where: { creatorId: userId },
+      where: { ownerId: userId },
     });
     await prisma.project.deleteMany({
       where: { workspaceId },

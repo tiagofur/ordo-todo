@@ -16,8 +16,8 @@ class MockTaskRepository implements TaskRepository {
         return this.tasks.find(t => t.id === id) || null;
     }
 
-    async findByCreatorId(creatorId: string): Promise<Task[]> {
-        return this.tasks.filter(t => t.props.creatorId === creatorId);
+    async findByOwnerId(ownerId: string): Promise<Task[]> {
+        return this.tasks.filter(t => t.props.ownerId === ownerId);
     }
 
     async update(task: Task): Promise<void> {
@@ -55,7 +55,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: "Test Task",
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
@@ -63,7 +63,7 @@ describe("CreateTaskUseCase", () => {
             expect(task).toBeInstanceOf(Task);
             expect(task.props.title).toBe(input.title);
             expect(task.props.projectId).toBe(input.projectId);
-            expect(task.props.creatorId).toBe(input.creatorId);
+            expect(task.props.ownerId).toBe(input.ownerId);
             expect(task.props.status).toBe("TODO");
             expect(task.props.priority).toBe("MEDIUM");
             expect(repository.getSaveCalls()).toHaveLength(1);
@@ -77,7 +77,7 @@ describe("CreateTaskUseCase", () => {
                 priority: "HIGH",
                 dueDate,
                 projectId: "project-456",
-                creatorId: "user-456",
+                ownerId: "user-456",
                 parentTaskId: "parent-task-123",
             };
 
@@ -94,7 +94,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: "",
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             await expect(useCase.execute(input)).rejects.toThrow("Title is required");
@@ -104,7 +104,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: "   ",
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             // Note: Current implementation doesn't trim, so this should pass
@@ -117,7 +117,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: "Repository Test",
                 projectId: "project-789",
-                creatorId: "user-789",
+                ownerId: "user-789",
             };
 
             const task = await useCase.execute(input);
@@ -131,13 +131,13 @@ describe("CreateTaskUseCase", () => {
             const input1: CreateTaskInput = {
                 title: "Task 1",
                 projectId: "project-1",
-                creatorId: "user-1",
+                ownerId: "user-1",
             };
 
             const input2: CreateTaskInput = {
                 title: "Task 2",
                 projectId: "project-1",
-                creatorId: "user-1",
+                ownerId: "user-1",
             };
 
             const task1 = await useCase.execute(input1);
@@ -153,7 +153,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: "Default Priority Task",
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
@@ -170,7 +170,7 @@ describe("CreateTaskUseCase", () => {
                     title: `${priority} Priority Task`,
                     priority,
                     projectId: "project-123",
-                    creatorId: "user-123",
+                    ownerId: "user-123",
                 };
 
                 const task = await useCase.execute(input);
@@ -182,7 +182,7 @@ describe("CreateTaskUseCase", () => {
             const parentInput: CreateTaskInput = {
                 title: "Parent Task",
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const parentTask = await useCase.execute(parentInput);
@@ -190,7 +190,7 @@ describe("CreateTaskUseCase", () => {
             const subtaskInput: CreateTaskInput = {
                 title: "Subtask",
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
                 parentTaskId: parentTask.id,
             };
 
@@ -206,7 +206,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: longTitle,
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
@@ -218,7 +218,7 @@ describe("CreateTaskUseCase", () => {
             const input: CreateTaskInput = {
                 title: specialTitle,
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
@@ -231,7 +231,7 @@ describe("CreateTaskUseCase", () => {
                 title: "Formatted Task",
                 description,
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
@@ -244,7 +244,7 @@ describe("CreateTaskUseCase", () => {
                 title: "Past Due Task",
                 dueDate: pastDate,
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
@@ -257,7 +257,7 @@ describe("CreateTaskUseCase", () => {
                 title: "Future Task",
                 dueDate: futureDate,
                 projectId: "project-123",
-                creatorId: "user-123",
+                ownerId: "user-123",
             };
 
             const task = await useCase.execute(input);
