@@ -126,7 +126,7 @@ export class GamificationService implements OnModuleInit {
     if (type === 'TASK') {
       const completedTasks = await this.prisma.task.count({
         where: {
-          creatorId: userId,
+          ownerId: userId,
           status: 'COMPLETED',
         },
       });

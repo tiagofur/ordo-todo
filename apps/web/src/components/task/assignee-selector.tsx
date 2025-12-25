@@ -17,7 +17,7 @@ interface AssigneeSelectorProps {
     image?: string;
   } | null;
   /** Creator of the task - shown as fallback when no assignee */
-  creator?: {
+  owner?: {
     id: string;
     name: string;
     image?: string;
@@ -31,7 +31,7 @@ interface AssigneeSelectorProps {
 export function AssigneeSelector({
   taskId,
   currentAssignee,
-  creator,
+  owner,
   onAssigneeChange,
   variant = "compact",
   workspaceId: propWorkspaceId,
@@ -45,34 +45,34 @@ export function AssigneeSelector({
   );
   const updateTask = useUpdateTask();
 
-  // Use assignee if exists, otherwise fallback to creator
-  const effectiveAssignee = currentAssignee || (creator ? {
-    id: creator.id,
-    name: creator.name,
-    image: creator.image,
+  // Use assignee if exists, otherwise fallback to owner
+  const effectiveAssignee = currentAssignee || (owner ? {
+    id: owner.id,
+    name: owner.name,
+    image: owner.image,
   } : null);
 
-  // Determine if showing creator as fallback (no explicit assignee)
-  const isShowingCreatorFallback = !currentAssignee && !!creator;
+  // Determine if showing owner as fallback (no explicit assignee)
+  const isShowingCreatorFallback = !currentAssignee && !!owner;
 
-  // Ensure both currentAssignee and creator are always included in members list
+  // Ensure both currentAssignee and owner are always included in members list
   const members = useMemo(() => {
     let result = [...membersData];
 
-    // Add creator if not in members list
-    if (creator) {
+    // Add owner if not in members list
+    if (owner) {
       const isCreatorInMembers = membersData.some(
-        (m: any) => m.user?.id === creator.id
+        (m: any) => m.user?.id === owner.id
       );
       if (!isCreatorInMembers) {
         result = [
           {
-            id: `creator-${creator.id}`,
+            id: `owner-${owner.id}`,
             role: "OWNER",
             user: {
-              id: creator.id,
-              name: creator.name,
-              image: creator.image,
+              id: owner.id,
+              name: owner.name,
+              image: owner.image,
             },
           },
           ...result,
@@ -103,7 +103,7 @@ export function AssigneeSelector({
     }
 
     return result;
-  }, [membersData, currentAssignee, creator]);
+  }, [membersData, currentAssignee, owner]);
 
   const handleSelectAssignee = async (userId: string | null) => {
     try {

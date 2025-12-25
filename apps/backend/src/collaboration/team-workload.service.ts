@@ -215,7 +215,7 @@ export class TeamWorkloadService {
 
     // Build task filter
     const taskFilter: any = {
-      OR: [{ creatorId: userId }, { assignee: { id: userId } }],
+      OR: [{ ownerId: userId }, { assignee: { id: userId } }],
     };
 
     if (workspaceId) {
@@ -391,14 +391,14 @@ export class TeamWorkloadService {
     const [thisWeekTasks, lastWeekTasks] = await Promise.all([
       this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assignee: { id: userId } }],
+          OR: [{ ownerId: userId }, { assignee: { id: userId } }],
           createdAt: { gte: weekStart },
           status: { notIn: ['COMPLETED', 'CANCELLED'] },
         },
       }),
       this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assignee: { id: userId } }],
+          OR: [{ ownerId: userId }, { assignee: { id: userId } }],
           createdAt: { gte: lastWeekStart, lt: weekStart },
           status: { notIn: ['COMPLETED', 'CANCELLED'] },
         },

@@ -146,14 +146,14 @@ export default function PublicTaskPage() {
                 </div>
               )}
 
-              {task.creator && (
+              {task.owner && (
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
                   <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary mt-0.5">
-                    {task.creator.name?.[0] || 'U'}
+                    {task.owner.name?.[0] || 'U'}
                   </div>
                   <div>
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Created By</p>
-                    <p className="font-medium mt-0.5">{task.creator.name || 'Unknown'}</p>
+                    <p className="font-medium mt-0.5">{task.owner.name || 'Unknown'}</p>
                   </div>
                 </div>
               )}

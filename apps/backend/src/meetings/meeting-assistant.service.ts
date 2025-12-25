@@ -306,7 +306,7 @@ El resumen debe estar en español y ser profesional pero accesible.`;
             : `📝 Contexto de la reunión: "${item.context}"`,
           priority: item.priority,
           status: 'TODO',
-          creatorId: userId,
+          ownerId: userId,
           metadata: {
             source: 'meeting',
             originalContext: item.context,

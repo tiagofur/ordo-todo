@@ -16,7 +16,7 @@ export interface TaskProps extends EntityProps {
     isTimeBlocked?: boolean;    // Whether task is time blocked in calendar
     completedAt?: Date;
     projectId: string;
-    creatorId: string;
+    ownerId: string;
     assigneeId?: string | null;
     parentTaskId?: string;
     subTasks?: Task[];
@@ -24,7 +24,7 @@ export interface TaskProps extends EntityProps {
     tags?: any[]; // Using any[] to avoid circular dependency for now, or import Tag
     project?: { id: string; name: string; color: string }; // Project information for display
     assignee?: { id: string; name: string; image?: string }; // Assignee information for display
-    creator?: { id: string; name: string; image?: string }; // Creator information for display
+    owner?: { id: string; name: string; image?: string }; // Owner information for display
     createdAt?: Date;
     updatedAt?: Date;
     recurrence?: RecurrenceProps;
@@ -72,7 +72,7 @@ export class Task extends Entity<TaskProps> {
         });
     }
 
-    update(props: Partial<Omit<TaskProps, "id" | "creatorId" | "createdAt">>): Task {
+    update(props: Partial<Omit<TaskProps, "id" | "ownerId" | "createdAt">>): Task {
         return this.clone({
             ...props,
             updatedAt: new Date(),

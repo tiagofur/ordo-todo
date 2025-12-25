@@ -40,7 +40,7 @@ export class CommentsService {
     // Fetch task to get assignee and creator
     const task = await this.prisma.task.findUnique({
       where: { id: createCommentDto.taskId },
-      select: { title: true, creatorId: true, assigneeId: true },
+      select: { title: true, ownerId: true, assigneeId: true },
     });
 
     if (task) {
@@ -58,9 +58,9 @@ export class CommentsService {
       }
 
       // Notify Creator (if not assignee and not comment author)
-      if (task.creatorId !== userId && task.creatorId !== task.assigneeId) {
+      if (task.ownerId !== userId && task.ownerId !== task.assigneeId) {
         await this.notificationsService.create({
-          userId: task.creatorId,
+          userId: task.ownerId,
           type: NotificationType.COMMENT_ADDED,
           title: 'New comment on task',
           message: `${comment.author.name} commented on "${task.title}"`,

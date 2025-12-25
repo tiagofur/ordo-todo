@@ -40,7 +40,7 @@ model User {
   // Relationships
   workspaces    WorkspaceMember[]
   ownedWorkspaces Workspace[]     @relation("OwnedWorkspaces")
-  createdTasks  Task[]            @relation("CreatedTasks")
+  ownedTasks    Task[]            @relation("CreatedTasks")
   assignedTasks Task[]            @relation("AssignedTasks")
   ownedProjects Project[]
   comments      Comment[]
@@ -590,8 +590,8 @@ model Task {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
-  creator   User   @relation("CreatedTasks", fields: [creatorId], references: [id])
-  creatorId String
+  owner   User   @relation("CreatedTasks", fields: [ownerId], references: [id])
+  ownerId String
 
   // Assignee (optional)
   assignee   User?   @relation("AssignedTasks", fields: [assigneeId], references: [id])
@@ -636,7 +636,7 @@ model Task {
   updatedAt DateTime @updatedAt
 
   @@index([projectId])
-  @@index([creatorId])
+  @@index([ownerId])
   @@index([assigneeId])
   @@index([status])
   @@index([dueDate])

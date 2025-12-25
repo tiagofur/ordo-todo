@@ -123,7 +123,7 @@ export class TasksController {
 
   @Get()
   // List filtering is usually done by service (only return tasks user can see).
-  // The service currently filters by 'creatorId' which is WRONG for a team app (should be workspace based).
+  // The service currently filters by 'ownerId' which is WRONG for a team app (should be workspace based).
   // But fixing the service logic is a bigger refactor of the 'findAll' method.
   // For now, let's keep it but ideally we should update findAll to filter by workspace permissions.
   findAll(

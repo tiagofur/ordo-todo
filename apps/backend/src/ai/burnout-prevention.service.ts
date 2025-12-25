@@ -234,14 +234,14 @@ export class BurnoutPreventionService {
     const [urgentTasks, overdueTasks] = await Promise.all([
       this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assigneeId: userId }],
+          OR: [{ ownerId: userId }, { assigneeId: userId }],
           priority: 'URGENT',
           status: { notIn: ['COMPLETED', 'CANCELLED'] },
         },
       }),
       this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assigneeId: userId }],
+          OR: [{ ownerId: userId }, { assigneeId: userId }],
           status: { notIn: ['COMPLETED', 'CANCELLED'] },
           dueDate: { lt: new Date() },
         },
@@ -487,7 +487,7 @@ export class BurnoutPreventionService {
     // Get week's completed tasks
     const completedTasks = await this.prisma.task.count({
       where: {
-        OR: [{ creatorId: userId }, { assigneeId: userId }],
+        OR: [{ ownerId: userId }, { assigneeId: userId }],
         status: 'COMPLETED',
         completedAt: { gte: weekStart, lte: weekEnd },
       },
@@ -753,13 +753,13 @@ export class BurnoutPreventionService {
     const [recentTasks, previousTasks] = await Promise.all([
       this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assigneeId: userId }],
+          OR: [{ ownerId: userId }, { assigneeId: userId }],
           createdAt: { gte: sevenDaysAgo },
         },
       }),
       this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assigneeId: userId }],
+          OR: [{ ownerId: userId }, { assigneeId: userId }],
           createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
         },
       }),
@@ -787,26 +787,26 @@ export class BurnoutPreventionService {
       await Promise.all([
         this.prisma.task.count({
           where: {
-            OR: [{ creatorId: userId }, { assigneeId: userId }],
+            OR: [{ ownerId: userId }, { assigneeId: userId }],
             createdAt: { gte: sevenDaysAgo },
           },
         }),
         this.prisma.task.count({
           where: {
-            OR: [{ creatorId: userId }, { assigneeId: userId }],
+            OR: [{ ownerId: userId }, { assigneeId: userId }],
             status: 'COMPLETED',
             completedAt: { gte: sevenDaysAgo },
           },
         }),
         this.prisma.task.count({
           where: {
-            OR: [{ creatorId: userId }, { assigneeId: userId }],
+            OR: [{ ownerId: userId }, { assigneeId: userId }],
             createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
           },
         }),
         this.prisma.task.count({
           where: {
-            OR: [{ creatorId: userId }, { assigneeId: userId }],
+            OR: [{ ownerId: userId }, { assigneeId: userId }],
             status: 'COMPLETED',
             completedAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
           },

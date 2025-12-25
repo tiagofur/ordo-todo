@@ -21,7 +21,7 @@ export class PrismaTaskRepository implements TaskRepository {
       subTasks?: PrismaTask[];
       project?: any;
       assignee?: any;
-      creator?: any;
+      owner?: any;
       recurrence?: any;
     },
   ): Task {
@@ -38,7 +38,7 @@ export class PrismaTaskRepository implements TaskRepository {
       scheduledEndTime: prismaTask.scheduledEndTime ?? undefined,
       isTimeBlocked: prismaTask.isTimeBlocked,
       projectId: prismaTask.projectId,
-      creatorId: prismaTask.creatorId,
+      ownerId: (prismaTask as any).ownerId,
       assigneeId: prismaTask.assigneeId ?? undefined,
       parentTaskId: prismaTask.parentTaskId ?? undefined,
       subTasks: prismaTask.subTasks?.map((st) => this.toDomain(st)),
@@ -80,12 +80,12 @@ export class PrismaTaskRepository implements TaskRepository {
       };
     }
 
-    // Include creator information if available
-    if ((prismaTask as any).creator) {
-      taskData.creator = {
-        id: (prismaTask as any).creator.id,
-        name: (prismaTask as any).creator.name,
-        image: (prismaTask as any).creator.image,
+    // Include owner information if available
+    if ((prismaTask as any).owner) {
+      taskData.owner = {
+        id: (prismaTask as any).owner.id,
+        name: (prismaTask as any).owner.name,
+        image: (prismaTask as any).owner.image,
       };
     }
 
@@ -167,7 +167,7 @@ export class PrismaTaskRepository implements TaskRepository {
       isTimeBlocked: task.props.isTimeBlocked,
       estimatedMinutes: task.props.estimatedTime,
       projectId: task.props.projectId,
-      creatorId: task.props.creatorId,
+      ownerId: task.props.ownerId,
       parentTaskId: task.props.parentTaskId ?? null,
     };
 
@@ -232,7 +232,7 @@ export class PrismaTaskRepository implements TaskRepository {
             image: true,
           },
         },
-        creator: {
+        owner: {
           select: {
             id: true,
             name: true,
@@ -245,11 +245,11 @@ export class PrismaTaskRepository implements TaskRepository {
     return this.toDomain(task);
   }
 
-  async findByCreatorId(
-    creatorId: string,
+  async findByOwnerId(
+    ownerId: string,
     filters?: { projectId?: string; tags?: string[] },
   ): Promise<Task[]> {
-    const where: any = { creatorId };
+    const where: any = { ownerId };
 
     if (filters?.projectId) {
       where.projectId = filters.projectId;
@@ -287,7 +287,7 @@ export class PrismaTaskRepository implements TaskRepository {
             image: true,
           },
         },
-        creator: {
+        owner: {
           select: {
             id: true,
             name: true,
@@ -313,7 +313,7 @@ export class PrismaTaskRepository implements TaskRepository {
       isTimeBlocked: task.props.isTimeBlocked,
       estimatedMinutes: task.props.estimatedTime,
       projectId: task.props.projectId,
-      creatorId: task.props.creatorId,
+      ownerId: task.props.ownerId,
       parentTaskId: task.props.parentTaskId ?? null,
     };
 

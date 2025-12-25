@@ -363,7 +363,7 @@ REGLAS:
   private async getPendingTasks(userId: string) {
     const tasks = await this.prisma.task.findMany({
       where: {
-        OR: [{ creatorId: userId }, { assigneeId: userId }],
+        OR: [{ ownerId: userId }, { assigneeId: userId }],
         status: { notIn: ['COMPLETED', 'CANCELLED'] },
       },
       orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
@@ -392,7 +392,7 @@ REGLAS:
 
     return this.prisma.task.count({
       where: {
-        OR: [{ creatorId: userId }, { assigneeId: userId }],
+        OR: [{ ownerId: userId }, { assigneeId: userId }],
         status: 'COMPLETED',
         completedAt: { gte: today },
       },
@@ -478,13 +478,13 @@ REGLAS:
       await Promise.all([
         this.prisma.task.count({
           where: {
-            OR: [{ creatorId: userId }, { assigneeId: userId }],
+            OR: [{ ownerId: userId }, { assigneeId: userId }],
             createdAt: { gte: thirtyDaysAgo },
           },
         }),
         this.prisma.task.count({
           where: {
-            OR: [{ creatorId: userId }, { assigneeId: userId }],
+            OR: [{ ownerId: userId }, { assigneeId: userId }],
             status: 'COMPLETED',
             completedAt: { gte: thirtyDaysAgo },
           },
@@ -525,7 +525,7 @@ REGLAS:
 
       const count = await this.prisma.task.count({
         where: {
-          OR: [{ creatorId: userId }, { assigneeId: userId }],
+          OR: [{ ownerId: userId }, { assigneeId: userId }],
           status: 'COMPLETED',
           completedAt: {
             gte: dayStart,
