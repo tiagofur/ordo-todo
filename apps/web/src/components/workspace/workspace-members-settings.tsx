@@ -1,25 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
-import { Plus, Mail, User, Shield, Trash2, MoreHorizontal } from "lucide-react";
+import { Plus, Mail, User, Shield, Trash2, MoreHorizontal, Crown } from "lucide-react";
 import { format } from "date-fns";
 
 import { useWorkspaceMembers, useWorkspaceInvitations, useRemoveWorkspaceMember } from "@/lib/api-hooks";
 import { InviteMemberDialog } from "./invite-member-dialog";
 
-interface WorkspaceMembersSettingsProps {
-  workspaceId: string;
+interface WorkspaceOwner {
+  id: string;
+  name: string | null;
+  email: string;
+  image?: string | null;
 }
 
-export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettingsProps) {
+interface WorkspaceMembersSettingsProps {
+  workspaceId: string;
+  owner?: WorkspaceOwner | null;
+  workspaceCreatedAt?: Date | string;
+}
+
+export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedAt }: WorkspaceMembersSettingsProps) {
   const t = useTranslations("WorkspaceMembersSettings");
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   const { data: members, isLoading: isLoadingMembers } = useWorkspaceMembers(workspaceId);
   const { data: invitations, isLoading: isLoadingInvitations } = useWorkspaceInvitations(workspaceId);
   const removeMemberMutation = useRemoveWorkspaceMember();
+
+  // Combine owner with members list
+  const allMembers = useMemo(() => {
+    const membersList = members || [];
+
+    // Check if owner is already in members list
+    const ownerAlreadyInList = membersList.some(
+      (m: any) => m.userId === owner?.id || m.role === "OWNER"
+    );
+
+    if (owner && !ownerAlreadyInList) {
+      // Create a virtual owner member entry
+      const ownerMember = {
+        id: `owner-${owner.id}`,
+        userId: owner.id,
+        role: "OWNER" as const,
+        joinedAt: workspaceCreatedAt || new Date().toISOString(),
+        user: {
+          name: owner.name,
+          email: owner.email,
+          image: owner.image,
+        },
+      };
+      return [ownerMember, ...membersList];
+    }
+
+    return membersList;
+  }, [members, owner, workspaceCreatedAt]);
 
   const getRoleLabel = (role: string): string => {
     const key = role.toLowerCase() as "owner" | "admin" | "member" | "viewer";
@@ -45,9 +82,9 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
             {t("membersDescription")}
           </p>
         </div>
-        <Button onClick={() => setIsInviteDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t("inviteMember")}
+        <Button onClick={() => setIsInviteDialogOpen(true)} size="icon" className="sm:w-auto sm:px-4">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t("inviteMember")}</span>
         </Button>
       </div>
 
@@ -63,7 +100,7 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
             </TableRow>
           </TableHeader>
           <TableBody>
-            {members?.map((member: any) => (
+            {allMembers.map((member: any) => (
               <TableRow key={member.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -80,7 +117,8 @@ export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettin
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">
+                  <Badge variant={member.role === "OWNER" ? "default" : "outline"} className={member.role === "OWNER" ? "bg-amber-500/10 text-amber-600 border-amber-500/30" : ""}>
+                    {member.role === "OWNER" && <Crown className="mr-1 h-3 w-3" />}
                     {getRoleLabel(member.role)}
                   </Badge>
                 </TableCell>

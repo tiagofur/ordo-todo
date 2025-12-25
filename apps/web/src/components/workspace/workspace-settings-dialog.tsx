@@ -233,7 +233,11 @@ export function WorkspaceSettingsDialog({
               </TabsContent>
 
               <TabsContent value="members" className="mt-0">
-                <WorkspaceMembersSettings workspaceId={workspaceId} />
+                <WorkspaceMembersSettings
+                  workspaceId={workspaceId}
+                  owner={workspace?.owner}
+                  workspaceCreatedAt={workspace?.createdAt}
+                />
               </TabsContent>
 
               <TabsContent value="configuration" className="mt-0">
