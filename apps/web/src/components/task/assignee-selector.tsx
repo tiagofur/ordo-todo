@@ -16,6 +16,12 @@ interface AssigneeSelectorProps {
     email?: string;
     image?: string;
   } | null;
+  /** Creator of the task - shown as fallback when no assignee */
+  creator?: {
+    id: string;
+    name: string;
+    image?: string;
+  } | null;
   onAssigneeChange?: (assigneeId: string | null) => void;
   variant?: "compact" | "full";
   /** Override workspace ID - uses task's workspace instead of global store */
@@ -25,6 +31,7 @@ interface AssigneeSelectorProps {
 export function AssigneeSelector({
   taskId,
   currentAssignee,
+  creator,
   onAssigneeChange,
   variant = "compact",
   workspaceId: propWorkspaceId,
@@ -38,32 +45,65 @@ export function AssigneeSelector({
   );
   const updateTask = useUpdateTask();
 
-  // Ensure currentAssignee is always included in members list if present
+  // Use assignee if exists, otherwise fallback to creator
+  const effectiveAssignee = currentAssignee || (creator ? {
+    id: creator.id,
+    name: creator.name,
+    image: creator.image,
+  } : null);
+
+  // Determine if showing creator as fallback (no explicit assignee)
+  const isShowingCreatorFallback = !currentAssignee && !!creator;
+
+  // Ensure both currentAssignee and creator are always included in members list
   const members = useMemo(() => {
-    if (!currentAssignee) return membersData;
+    let result = [...membersData];
 
-    // Check if currentAssignee is already in the members list
-    const isAssigneeInMembers = membersData.some(
-      (m: any) => m.user?.id === currentAssignee.id
-    );
+    // Add creator if not in members list
+    if (creator) {
+      const isCreatorInMembers = membersData.some(
+        (m: any) => m.user?.id === creator.id
+      );
+      if (!isCreatorInMembers) {
+        result = [
+          {
+            id: `creator-${creator.id}`,
+            role: "OWNER",
+            user: {
+              id: creator.id,
+              name: creator.name,
+              image: creator.image,
+            },
+          },
+          ...result,
+        ];
+      }
+    }
 
-    if (isAssigneeInMembers) return membersData;
+    // Add currentAssignee if not in members list
+    if (currentAssignee) {
+      const isAssigneeInMembers = result.some(
+        (m: any) => m.user?.id === currentAssignee.id
+      );
+      if (!isAssigneeInMembers) {
+        result = [
+          {
+            id: `assignee-${currentAssignee.id}`,
+            role: "ASSIGNED",
+            user: {
+              id: currentAssignee.id,
+              name: currentAssignee.name,
+              email: currentAssignee.email,
+              image: currentAssignee.image,
+            },
+          },
+          ...result,
+        ];
+      }
+    }
 
-    // Add currentAssignee as a synthetic member if not in list
-    return [
-      {
-        id: `synthetic-${currentAssignee.id}`,
-        role: "ASSIGNED",
-        user: {
-          id: currentAssignee.id,
-          name: currentAssignee.name,
-          email: currentAssignee.email,
-          image: currentAssignee.image,
-        },
-      },
-      ...membersData,
-    ];
-  }, [membersData, currentAssignee]);
+    return result;
+  }, [membersData, currentAssignee, creator]);
 
   const handleSelectAssignee = async (userId: string | null) => {
     try {
@@ -97,22 +137,33 @@ export function AssigneeSelector({
             className={cn(
               "flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all duration-200",
               "hover:bg-muted/80 border border-transparent hover:border-border/50",
-              currentAssignee
+              effectiveAssignee
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {currentAssignee ? (
+            {effectiveAssignee ? (
               <>
                 <Avatar className="h-5 w-5">
-                  <AvatarImage src={currentAssignee.image} />
-                  <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                    {getInitials(currentAssignee.name)}
+                  <AvatarImage src={effectiveAssignee.image} />
+                  <AvatarFallback className={cn(
+                    "text-[10px]",
+                    isShowingCreatorFallback
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-primary/10 text-primary"
+                  )}>
+                    {getInitials(effectiveAssignee.name)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="max-w-[100px] truncate">
-                  {currentAssignee.name}
+                <span className={cn(
+                  "max-w-[100px] truncate",
+                  isShowingCreatorFallback && "text-muted-foreground"
+                )}>
+                  {effectiveAssignee.name}
                 </span>
+                {isShowingCreatorFallback && (
+                  <span className="text-[10px] text-muted-foreground">(creador)</span>
+                )}
               </>
             ) : (
               <>
@@ -132,13 +183,13 @@ export function AssigneeSelector({
               <div className="flex items-center justify-center py-4">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
               </div>
-            ) : members.length === 0 && !currentAssignee ? (
+            ) : members.length === 0 && !effectiveAssignee ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No hay miembros en este workspace
               </p>
             ) : (
               <div className="space-y-1">
-                {/* Unassign option */}
+                {/* Unassign option - only show if there's an explicit assignee */}
                 {currentAssignee && (
                   <button
                     onClick={() => handleSelectAssignee(null)}
@@ -216,17 +267,28 @@ export function AssigneeSelector({
               "hover:bg-muted/50 hover:border-border transition-all duration-200 text-left"
             )}
           >
-            {currentAssignee ? (
+            {effectiveAssignee ? (
               <>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={currentAssignee.image} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                    {getInitials(currentAssignee.name)}
+                  <AvatarImage src={effectiveAssignee.image} />
+                  <AvatarFallback className={cn(
+                    "text-sm",
+                    isShowingCreatorFallback
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-primary/10 text-primary"
+                  )}>
+                    {getInitials(effectiveAssignee.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {currentAssignee.name}
+                  <p className={cn(
+                    "text-sm font-medium truncate",
+                    isShowingCreatorFallback && "text-muted-foreground"
+                  )}>
+                    {effectiveAssignee.name}
+                    {isShowingCreatorFallback && (
+                      <span className="text-xs ml-1">(creador)</span>
+                    )}
                   </p>
                 </div>
               </>
@@ -247,17 +309,18 @@ export function AssigneeSelector({
             <p className="text-xs font-medium text-muted-foreground px-2 py-1">
               Seleccionar miembro
             </p>
-            
+
             {isLoading ? (
               <div className="flex items-center justify-center py-6">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
               </div>
-            ) : members.length === 0 && !currentAssignee ? (
+            ) : members.length === 0 && !effectiveAssignee ? (
               <p className="text-sm text-muted-foreground text-center py-6">
                 No hay miembros en este workspace
               </p>
             ) : (
               <div className="space-y-1">
+                {/* Only show unassign option if there's an explicit assignee */}
                 {currentAssignee && (
                   <button
                     onClick={() => handleSelectAssignee(null)}

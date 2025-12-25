@@ -24,6 +24,7 @@ export interface TaskProps extends EntityProps {
     tags?: any[]; // Using any[] to avoid circular dependency for now, or import Tag
     project?: { id: string; name: string; color: string }; // Project information for display
     assignee?: { id: string; name: string; image?: string }; // Assignee information for display
+    creator?: { id: string; name: string; image?: string }; // Creator information for display
     createdAt?: Date;
     updatedAt?: Date;
     recurrence?: RecurrenceProps;

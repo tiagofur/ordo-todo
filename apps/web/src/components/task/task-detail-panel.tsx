@@ -679,6 +679,7 @@ export function TaskDetailPanel({
                         <AssigneeSelector
                           taskId={taskId}
                           currentAssignee={task?.assignee}
+                          creator={task?.creator}
                           variant="full"
                           workspaceId={task?.project?.workspaceId}
                         />

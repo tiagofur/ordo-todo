@@ -21,6 +21,7 @@ export class PrismaTaskRepository implements TaskRepository {
       subTasks?: PrismaTask[];
       project?: any;
       assignee?: any;
+      creator?: any;
       recurrence?: any;
     },
   ): Task {
@@ -76,6 +77,15 @@ export class PrismaTaskRepository implements TaskRepository {
         id: (prismaTask as any).assignee.id,
         name: (prismaTask as any).assignee.name,
         image: (prismaTask as any).assignee.image,
+      };
+    }
+
+    // Include creator information if available
+    if ((prismaTask as any).creator) {
+      taskData.creator = {
+        id: (prismaTask as any).creator.id,
+        name: (prismaTask as any).creator.name,
+        image: (prismaTask as any).creator.image,
       };
     }
 
@@ -222,6 +232,13 @@ export class PrismaTaskRepository implements TaskRepository {
             image: true,
           },
         },
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
       },
     });
     if (!task) return null;
@@ -264,6 +281,13 @@ export class PrismaTaskRepository implements TaskRepository {
           },
         },
         assignee: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        creator: {
           select: {
             id: true,
             name: true,
