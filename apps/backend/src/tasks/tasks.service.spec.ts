@@ -12,7 +12,7 @@ describe('TasksService', () => {
   let activitiesService: ActivitiesService;
 
   const mockTaskRepository = {
-    findByCreatorId: jest.fn(),
+    findByOwnerId: jest.fn(),
     findById: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
@@ -101,7 +101,7 @@ describe('TasksService', () => {
           props: {
             id: 'task-1',
             title: 'Task 1',
-            creatorId: userId,
+            ownerId: userId,
             parentTaskId: null,
           },
         },
@@ -109,17 +109,17 @@ describe('TasksService', () => {
           props: {
             id: 'task-2',
             title: 'Task 2',
-            creatorId: userId,
+            ownerId: userId,
             parentTaskId: null,
           },
         },
       ];
 
-      mockTaskRepository.findByCreatorId.mockResolvedValue(mockTasks);
+      mockTaskRepository.findByOwnerId.mockResolvedValue(mockTasks);
 
       const result = await service.findAll(userId);
 
-      expect(mockTaskRepository.findByCreatorId).toHaveBeenCalledWith(userId, {
+      expect(mockTaskRepository.findByOwnerId).toHaveBeenCalledWith(userId, {
         projectId: undefined,
         tags: undefined,
       });
@@ -134,7 +134,7 @@ describe('TasksService', () => {
           props: {
             id: 'task-1',
             title: 'Task 1',
-            creatorId: userId,
+            ownerId: userId,
             parentTaskId: null,
           },
         },
@@ -142,13 +142,13 @@ describe('TasksService', () => {
           props: {
             id: 'subtask-1',
             title: 'Subtask 1',
-            creatorId: userId,
+            ownerId: userId,
             parentTaskId: 'task-1',
           },
         },
       ];
 
-      mockTaskRepository.findByCreatorId.mockResolvedValue(mockTasks);
+      mockTaskRepository.findByOwnerId.mockResolvedValue(mockTasks);
 
       const result = await service.findAll(userId);
 
@@ -160,11 +160,11 @@ describe('TasksService', () => {
       const userId = 'user-123';
       const projectId = 'project-123';
 
-      mockTaskRepository.findByCreatorId.mockResolvedValue([]);
+      mockTaskRepository.findByOwnerId.mockResolvedValue([]);
 
       await service.findAll(userId, projectId);
 
-      expect(mockTaskRepository.findByCreatorId).toHaveBeenCalledWith(userId, {
+      expect(mockTaskRepository.findByOwnerId).toHaveBeenCalledWith(userId, {
         projectId,
         tags: undefined,
       });
@@ -174,11 +174,11 @@ describe('TasksService', () => {
       const userId = 'user-123';
       const tags = ['urgent', 'bug'];
 
-      mockTaskRepository.findByCreatorId.mockResolvedValue([]);
+      mockTaskRepository.findByOwnerId.mockResolvedValue([]);
 
       await service.findAll(userId, undefined, tags);
 
-      expect(mockTaskRepository.findByCreatorId).toHaveBeenCalledWith(userId, {
+      expect(mockTaskRepository.findByOwnerId).toHaveBeenCalledWith(userId, {
         projectId: undefined,
         tags,
       });

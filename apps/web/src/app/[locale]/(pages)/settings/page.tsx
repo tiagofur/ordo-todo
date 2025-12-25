@@ -621,7 +621,7 @@ export default function SettingsPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between py-2">
                   <span className="text-muted-foreground">{t("version") || "Versión"}</span>
-                  <span className="font-medium">0.1.0 (Beta)</span>
+                  <span className="font-medium">0.1.2 (Beta)</span>
                 </div>
                 <div className="flex justify-between py-2">
                   <span className="text-muted-foreground">{t("platform") || "Plataforma"}</span>

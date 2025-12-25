@@ -43,7 +43,7 @@ export class AttachmentsService {
       include: {
         task: {
           select: {
-            creatorId: true,
+            ownerId: true,
           },
         },
       },
@@ -56,7 +56,7 @@ export class AttachmentsService {
     // Allow deletion if user uploaded it or owns the task
     if (
       attachment.uploadedById !== userId &&
-      attachment.task.creatorId !== userId
+      attachment.task.ownerId !== userId
     ) {
       throw new ForbiddenException(
         'You can only delete your own attachments or attachments on your tasks',

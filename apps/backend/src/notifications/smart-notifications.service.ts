@@ -35,9 +35,9 @@ export class SmartNotificationsService {
     });
 
     for (const task of tasks) {
-      if (!task.assigneeId && !task.creatorId) continue;
+      if (!task.assigneeId && !task.ownerId) continue;
 
-      const targetUserId = task.assigneeId || task.creatorId;
+      const targetUserId = task.assigneeId || task.ownerId;
 
       const existing = await this.prisma.notification.findFirst({
         where: {
@@ -138,7 +138,7 @@ export class SmartNotificationsService {
     for (const user of users) {
       const tasksCreatedToday = await this.prisma.task.count({
         where: {
-          creatorId: user.id,
+          ownerId: user.id,
           createdAt: {
             gte: today,
           },

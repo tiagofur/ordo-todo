@@ -41,7 +41,7 @@ export class TasksService {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
     const task = await createTaskUseCase.execute({
       ...createTaskDto,
-      creatorId: userId,
+      ownerId: userId,
       // Auto-assign to creator if no assignee specified
       assigneeId: createTaskDto.assigneeId ?? userId,
     });
@@ -86,7 +86,7 @@ export class TasksService {
     const completeTaskUseCase = new CompleteTaskUseCase(this.taskRepository);
     const task = await completeTaskUseCase.execute({
       taskId: id,
-      creatorId: userId,
+      ownerId: userId,
     });
 
     // Log activity
@@ -135,7 +135,7 @@ export class TasksService {
     this.logger.debug(
       `Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`,
     );
-    const tasks = await this.taskRepository.findByCreatorId(userId, {
+    const tasks = await this.taskRepository.findByOwnerId(userId, {
       projectId,
       tags,
     });
@@ -170,7 +170,7 @@ export class TasksService {
 
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         status: { not: 'COMPLETED' },
         parentTaskId: null, // Only main tasks
       },
@@ -231,7 +231,7 @@ export class TasksService {
 
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         scheduledDate: {
           gte: startOfDay,
           lte: endOfDay,
@@ -261,7 +261,7 @@ export class TasksService {
 
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         status: { not: 'COMPLETED' },
         parentTaskId: null,
         isTimeBlocked: { not: true }, // Exclude scheduled blocks
@@ -289,7 +289,7 @@ export class TasksService {
   async findTimeBlocks(userId: string, startDate: Date, endDate: Date) {
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         isTimeBlocked: true,
         scheduledDate: {
           gte: startDate,
@@ -567,7 +567,7 @@ export class TasksService {
     const subtask = await createTaskUseCase.execute({
       ...createSubtaskDto,
       projectId: createSubtaskDto.projectId || parentTask.props.projectId,
-      creatorId: userId,
+      ownerId: userId,
       // Auto-assign to creator if no assignee specified
       assigneeId: createSubtaskDto.assigneeId ?? userId,
       parentTaskId,

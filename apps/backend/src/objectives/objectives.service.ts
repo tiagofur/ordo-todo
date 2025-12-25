@@ -397,7 +397,7 @@ export class ObjectivesService {
 
     // Verify task exists and belongs to user
     const task = await this.prisma.client.task.findFirst({
-      where: { id: linkDto.taskId, creatorId: userId },
+      where: { id: linkDto.taskId, ownerId: userId },
     });
 
     if (!task) {

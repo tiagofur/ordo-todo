@@ -43,7 +43,7 @@ export class AIService {
     // Get user's current tasks for context
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         status: { in: ['TODO', 'IN_PROGRESS'] },
       },
       take: 10,
@@ -87,7 +87,7 @@ export class AIService {
                     ? new Date(action.data.dueDate)
                     : null,
                   projectId: defaultProject.id,
-                  creatorId: userId,
+                  ownerId: userId,
                 },
               });
               action.result = { taskId: task.id, success: true };

@@ -367,7 +367,7 @@ Responde ÚNICAMENTE con JSON:
 
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         ...filters,
         ...keywordConditions,
       },
@@ -628,7 +628,7 @@ Responde ÚNICAMENTE con JSON:
     // Get recent task titles that match
     const tasks = await this.prisma.task.findMany({
       where: {
-        creatorId: userId,
+        ownerId: userId,
         title: { contains: partialQuery, mode: 'insensitive' },
       },
       select: { title: true },
@@ -670,23 +670,23 @@ Responde ÚNICAMENTE con JSON:
 
     const [totalTasks, pendingTasks, overdueTasks, completedToday] =
       await Promise.all([
-        this.prisma.task.count({ where: { creatorId: userId } }),
+        this.prisma.task.count({ where: { ownerId: userId } }),
         this.prisma.task.count({
           where: {
-            creatorId: userId,
+            ownerId: userId,
             status: { notIn: ['COMPLETED', 'CANCELLED'] },
           },
         }),
         this.prisma.task.count({
           where: {
-            creatorId: userId,
+            ownerId: userId,
             status: { notIn: ['COMPLETED', 'CANCELLED'] },
             dueDate: { lt: new Date() },
           },
         }),
         this.prisma.task.count({
           where: {
-            creatorId: userId,
+            ownerId: userId,
             status: 'COMPLETED',
             completedAt: { gte: today },
           },

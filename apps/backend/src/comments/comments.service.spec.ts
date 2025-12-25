@@ -82,7 +82,7 @@ describe('CommentsService', () => {
       const task = {
         id: taskId,
         title: 'Task 1',
-        creatorId: userId,
+        ownerId: userId,
         assigneeId: assigneeId,
       };
 
@@ -129,7 +129,7 @@ describe('CommentsService', () => {
       const task = {
         id: taskId,
         title: 'Task 1',
-        creatorId: userId,
+        ownerId: userId,
         assigneeId: userId, // Assigned to self, so no assignee notification
       };
 
