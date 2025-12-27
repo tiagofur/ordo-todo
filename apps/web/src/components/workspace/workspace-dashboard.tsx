@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Button, Card, CardContent, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { useRouter } from "next/navigation";
-import { 
-  FolderKanban, 
-  CheckSquare, 
-  Users, 
-  Plus, 
-  Clock, 
+import {
+  FolderKanban,
+  CheckSquare,
+  Users,
+  Plus,
+  Clock,
   ArrowRight,
   MoreHorizontal,
   Settings,
@@ -26,9 +26,13 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useTranslations } from "next-intl";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import type { Workspace, WorkspaceAuditLog } from "@ordo-todo/api-client";
+import type { LucideIcon } from "lucide-react";
 
 interface WorkspaceDashboardProps {
-  workspace: any;
+  workspace: Workspace;
 }
 
 const typeConfig = {
@@ -46,8 +50,11 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
 
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace.id);
   const { data: activityData, isLoading: isLoadingActivity } = useWorkspaceAuditLogs(workspace.id, { limit: 5 });
-  
+
   const deleteWorkspace = useDeleteWorkspace();
+
+  // Check permissions for current user
+  const permissions = useWorkspacePermissions(workspace);
 
   const handleDelete = () => {
     if (confirm(t('deleteConfirmation'))) {
@@ -55,6 +62,9 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
         onSuccess: () => {
           toast.success(t('deleteSuccess'));
           router.push("/workspaces");
+        },
+        onError: (error) => {
+          toast.error(getErrorMessage(error, t('deleteError')));
         }
       });
     }
@@ -107,35 +117,43 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Button
-              onClick={() => setShowCreateProject(true)}
-              className="gap-2 shadow-md transition-all hover:scale-105 flex-1 sm:flex-initial"
-              size="sm"
-              style={{
-                backgroundColor: typeInfo.hexColor,
-                borderColor: typeInfo.hexColor,
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              {t('newProject')}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setShowSettings(true)}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  {t('settings')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  {t('delete')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {permissions.canCreateProjects && (
+              <Button
+                onClick={() => setShowCreateProject(true)}
+                className="gap-2 shadow-md transition-all hover:scale-105 flex-1 sm:flex-initial"
+                size="sm"
+                style={{
+                  backgroundColor: typeInfo.hexColor,
+                  borderColor: typeInfo.hexColor,
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                {t('newProject')}
+              </Button>
+            )}
+            {(permissions.canViewSettings || permissions.canDelete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {permissions.canViewSettings && (
+                    <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      {t('settings')}
+                    </DropdownMenuItem>
+                  )}
+                  {permissions.canDelete && (
+                    <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {t('delete')}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
@@ -196,17 +214,17 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
             <EmptyProjectsState onCreate={() => setShowCreateProject(true)} />
           ) : (
             <div className={cn(
-              viewMode === "grid" 
+              viewMode === "grid"
                 ? "grid gap-4 sm:grid-cols-2"
                 : "space-y-3"
             )}>
-              {projects.map((project: any, index: number) => (
+              {projects.map((project, index: number) => (
                 <ProjectCard
                   key={project.id}
                   project={project}
                   index={index}
                   workspaceSlug={workspace.slug}
-                  ownerUsername={workspace.owner?.username}
+                  ownerUsername={workspace.owner?.username ?? undefined}
                 />
               ))}
             </div>
@@ -242,7 +260,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                 </div>
               ) : (
                 <div className="divide-y">
-                  {logs.map((log: any) => (
+                  {logs.map((log: WorkspaceAuditLog) => (
                     <div key={log.id} className="flex gap-3 p-4 hover:bg-muted/50 transition-colors">
                       <div className="mt-0.5 text-lg">
                         {getActionIcon(log.action)}
@@ -289,8 +307,15 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) {
-  const colorStyles = {
+interface StatCardProps {
+  title: string;
+  value: number;
+  icon: LucideIcon;
+  color: 'blue' | 'green' | 'purple';
+}
+
+function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
+  const colorStyles: Record<StatCardProps['color'], string> = {
     blue: "bg-blue-500/10 text-blue-600",
     green: "bg-green-500/10 text-green-600",
     purple: "bg-purple-500/10 text-purple-600",
@@ -299,7 +324,7 @@ function StatCard({ title, value, icon: Icon, color }: { title: string, value: n
   return (
     <Card>
       <CardContent className="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
-        <div className={cn("p-2.5 sm:p-3 rounded-lg sm:rounded-xl", colorStyles[color as keyof typeof colorStyles])}>
+        <div className={cn("p-2.5 sm:p-3 rounded-lg sm:rounded-xl", colorStyles[color])}>
           <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
         <div>

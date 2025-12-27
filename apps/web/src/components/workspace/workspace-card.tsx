@@ -16,23 +16,12 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { WorkspaceSettingsDialog } from "./workspace-settings-dialog";
 import { useTranslations } from "next-intl";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import type { Workspace } from "@ordo-todo/api-client";
 
 interface WorkspaceCardProps {
-  workspace: {
-    id: string;
-    slug: string;
-    name: string;
-    description?: string | null;
-    type: "PERSONAL" | "WORK" | "TEAM";
-    color: string;
-    icon?: string | null;
-    owner?: {
-      id: string;
-      username: string;
-      name: string | null;
-      email: string;
-    } | null;
-  };
+  workspace: Workspace;
   index?: number;
 }
 
@@ -52,8 +41,9 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   const t = useTranslations('WorkspaceCard');
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
-  
+
   const deleteWorkspaceMutation = useDeleteWorkspace();
+  const permissions = useWorkspacePermissions(workspace);
 
   const handleCardClick = () => {
     // Navigate to workspace detail page using username/slug pattern
@@ -71,8 +61,8 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
       try {
         await deleteWorkspaceMutation.mutateAsync(workspace.id);
         toast.success(t('toast.deleted'));
-      } catch (error: any) {
-        toast.error(error?.message || t('toast.deleteError'));
+      } catch (error) {
+        toast.error(getErrorMessage(error, t('toast.deleteError')));
       }
     }
   };
@@ -145,29 +135,35 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
             </div>
 
             {/* Actions Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <button
-                  className={cn(
-                    "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-                    "rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground"
+            {(permissions.canViewSettings || permissions.canDelete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className={cn(
+                      "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+                      "rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {permissions.canViewSettings && (
+                    <DropdownMenuItem onClick={handleSettings}>
+                      <SettingsIcon className="mr-2 h-4 w-4" />
+                      {t('actions.settings')}
+                    </DropdownMenuItem>
                   )}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleSettings}>
-                  <SettingsIcon className="mr-2 h-4 w-4" />
-                  {t('actions.settings')}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t('actions.delete')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {permissions.canViewSettings && permissions.canDelete && <DropdownMenuSeparator />}
+                  {permissions.canDelete && (
+                    <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {t('actions.delete')}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {workspace.description && (

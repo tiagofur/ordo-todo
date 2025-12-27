@@ -8,6 +8,9 @@ export * from "./id.vo";
 export * from "./entity";
 export * from "./required-string.vo";
 
+// Services
+export * from "./services/hash.service";
+
 // Constants - Named exports to avoid conflicts
 export * from "./constants/colors.constants";
 export * from "./constants/priorities.constants";

@@ -10,18 +10,10 @@ import { useTasks } from "@/lib/api-hooks";
 import { cn } from "@/lib/utils";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
+import type { Workspace, WorkspaceType } from "@ordo-todo/api-client";
 
 interface WorkspaceSelectorProps {
   onCreateClick?: () => void;
-}
-
-interface WorkspaceWithStats {
-  id: string;
-  name: string;
-  type: "PERSONAL" | "WORK" | "TEAM";
-  color: string;
-  projectCount: number;
-  taskCount: number;
 }
 
 export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
@@ -37,14 +29,14 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
   const filteredWorkspaces = useMemo(() => {
     if (!workspaces) return [];
     if (!searchQuery) return workspaces;
-    return workspaces.filter((w: any) =>
+    return workspaces.filter((w: Workspace) =>
       w.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [workspaces, searchQuery]);
 
   // Group workspaces by type
   const groupedWorkspaces = useMemo(() => {
-    const groups: Record<string, any[]> = {
+    const groups: Record<WorkspaceType, Workspace[]> = {
       PERSONAL: [],
       WORK: [],
       TEAM: [],
@@ -52,7 +44,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
 
     if (!filteredWorkspaces) return groups;
 
-    filteredWorkspaces.forEach((workspace: any) => {
+    filteredWorkspaces.forEach((workspace: Workspace) => {
       if (groups[workspace.type]) {
         groups[workspace.type].push(workspace);
       } else {
@@ -64,9 +56,9 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
     return groups;
   }, [filteredWorkspaces]);
 
-  const selectedWorkspace = workspaces?.find((w: any) => w.id === selectedWorkspaceId) || workspaces?.[0];
+  const selectedWorkspace = workspaces?.find((w: Workspace) => w.id === selectedWorkspaceId) || workspaces?.[0];
 
-  const getWorkspaceIcon = (type: string) => {
+  const getWorkspaceIcon = (type: WorkspaceType) => {
     switch (type) {
       case "PERSONAL":
         return User;
@@ -79,7 +71,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
     }
   };
 
-  const getWorkspaceColor = (type: string) => {
+  const getWorkspaceColor = (type: WorkspaceType) => {
     switch (type) {
       case "PERSONAL":
         return "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20";
@@ -92,7 +84,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
     }
   };
 
-  const getTypeLabel = (type: string) => {
+  const getTypeLabel = (type: WorkspaceType) => {
     switch (type) {
       case "PERSONAL":
         return t('types.personal');
@@ -196,8 +188,8 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
                         onClick={() => {
                           setSelectedWorkspaceId(workspace.id);
                           // Use username/slug pattern for navigation
-                          if ((workspace as any).owner?.username) {
-                            router.push(`/${(workspace as any).owner.username}/${workspace.slug}`);
+                          if (workspace.owner?.username) {
+                            router.push(`/${workspace.owner.username}/${workspace.slug}`);
                           } else {
                             router.push(`/workspaces/${workspace.slug}`);
                           }

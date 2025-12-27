@@ -5,9 +5,13 @@ import { Button, Avatar, AvatarFallback, AvatarImage, Badge, DropdownMenu, Dropd
 import { useTranslations } from "next-intl";
 import { Plus, Mail, User, Shield, Trash2, MoreHorizontal, Crown } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
-import { useWorkspaceMembers, useWorkspaceInvitations, useRemoveWorkspaceMember } from "@/lib/api-hooks";
+import { useWorkspaceMembers, useWorkspaceInvitations, useRemoveWorkspaceMember, useWorkspace } from "@/lib/api-hooks";
 import { InviteMemberDialog } from "./invite-member-dialog";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import type { WorkspaceMember, WorkspaceInvitation } from "@ordo-todo/api-client";
 
 interface WorkspaceOwner {
   id: string;
@@ -26,37 +30,54 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
   const t = useTranslations("WorkspaceMembersSettings");
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
+  const { data: workspace } = useWorkspace(workspaceId);
   const { data: members, isLoading: isLoadingMembers } = useWorkspaceMembers(workspaceId);
   const { data: invitations, isLoading: isLoadingInvitations } = useWorkspaceInvitations(workspaceId);
   const removeMemberMutation = useRemoveWorkspaceMember();
+  const permissions = useWorkspacePermissions(workspace);
 
   // Combine owner with members list
   const allMembers = useMemo(() => {
     const membersList = members || [];
 
+    // Get owner from prop or from workspace data
+    const workspaceOwner = owner || workspace?.owner;
+    const ownerCreatedAt = workspaceCreatedAt || workspace?.createdAt;
+
     // Check if owner is already in members list
     const ownerAlreadyInList = membersList.some(
-      (m: any) => m.userId === owner?.id || m.role === "OWNER"
+      (m: WorkspaceMember) => m.userId === workspaceOwner?.id || m.role === "OWNER"
     );
 
-    if (owner && !ownerAlreadyInList) {
+    // If owner exists and is not in the list, add them at the beginning
+    if (workspaceOwner && !ownerAlreadyInList) {
       // Create a virtual owner member entry
       const ownerMember = {
-        id: `owner-${owner.id}`,
-        userId: owner.id,
+        id: `owner-${workspaceOwner.id}`,
+        userId: workspaceOwner.id,
         role: "OWNER" as const,
-        joinedAt: workspaceCreatedAt || new Date().toISOString(),
+        joinedAt: ownerCreatedAt || new Date().toISOString(),
         user: {
-          name: owner.name,
-          email: owner.email,
-          image: owner.image,
+          name: workspaceOwner.name,
+          email: workspaceOwner.email,
+          image: workspaceOwner.image,
         },
       };
       return [ownerMember, ...membersList];
     }
 
+    // If owner is already in the list, ensure they appear first
+    if (workspaceOwner && ownerAlreadyInList) {
+      const ownerMember = membersList.find(m => m.role === "OWNER");
+      const otherMembers = membersList.filter(m => m.role !== "OWNER");
+
+      if (ownerMember) {
+        return [ownerMember, ...otherMembers];
+      }
+    }
+
     return membersList;
-  }, [members, owner, workspaceCreatedAt]);
+  }, [members, owner, workspace, workspaceCreatedAt]);
 
   const getRoleLabel = (role: string): string => {
     const key = role.toLowerCase() as "owner" | "admin" | "member" | "viewer";
@@ -65,7 +86,12 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
 
   const handleRemoveMember = async (userId: string) => {
     if (confirm(t("confirmRemove"))) {
-      await removeMemberMutation.mutateAsync({ workspaceId, userId });
+      try {
+        await removeMemberMutation.mutateAsync({ workspaceId, userId });
+        toast.success(t("removeSuccess"));
+      } catch (error) {
+        toast.error(getErrorMessage(error, t("removeError")));
+      }
     }
   };
 
@@ -82,10 +108,12 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
             {t("membersDescription")}
           </p>
         </div>
-        <Button onClick={() => setIsInviteDialogOpen(true)} size="icon" className="sm:w-auto sm:px-4">
-          <Plus className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">{t("inviteMember")}</span>
-        </Button>
+        {permissions.canInvite && (
+          <Button onClick={() => setIsInviteDialogOpen(true)} size="icon" className="sm:w-auto sm:px-4">
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">{t("inviteMember")}</span>
+          </Button>
+        )}
       </div>
 
       {/* Members List */}
@@ -100,7 +128,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
             </TableRow>
           </TableHeader>
           <TableBody>
-            {allMembers.map((member: any) => (
+            {allMembers.map((member: WorkspaceMember) => (
               <TableRow key={member.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -126,7 +154,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                   {format(new Date(member.joinedAt), "MMM d, yyyy")}
                 </TableCell>
                 <TableCell>
-                  {member.role !== "OWNER" && (
+                  {member.role !== "OWNER" && permissions.canManageMembers && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -134,7 +162,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="text-red-600 focus:text-red-600"
                           onClick={() => handleRemoveMember(member.userId)}
                         >
@@ -172,7 +200,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invitations.map((invitation: any) => (
+                {invitations.map((invitation: WorkspaceInvitation) => (
                   <TableRow key={invitation.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">

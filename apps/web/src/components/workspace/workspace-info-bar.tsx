@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@ordo-todo/ui";
 import { WorkspaceSettingsDialog } from "./workspace-settings-dialog";
 import { useTranslations } from "next-intl";
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import type { Task } from "@ordo-todo/api-client";
 
 interface WorkspaceInfoBarProps {
   onCreateProject?: () => void;
@@ -21,6 +23,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
   const [showSettings, setShowSettings] = useState(false);
 
   const { data: workspace } = useWorkspace(selectedWorkspaceId as string);
+  const permissions = useWorkspacePermissions(workspace);
 
   const { data: projects } = useProjects(selectedWorkspaceId as string);
 
@@ -62,7 +65,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
 
   const projectCount = projects?.length || 0;
   const taskCount = tasks?.length || 0;
-  const activeTaskCount = tasks?.filter((t: any) => t.status !== "COMPLETED").length || 0;
+  const activeTaskCount = tasks?.filter((t: Task) => t.status !== "COMPLETED").length || 0;
 
   return (
     <div
@@ -152,7 +155,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
-          {onCreateProject && (
+          {onCreateProject && permissions.canCreateProjects && (
             <Button
               onClick={onCreateProject}
               size="sm"
@@ -167,7 +170,7 @@ export function WorkspaceInfoBar({ onCreateProject, onOpenSettings }: WorkspaceI
             </Button>
           )}
 
-          {onOpenSettings && (
+          {onOpenSettings && permissions.canViewSettings && (
             <Button
               onClick={() => setShowSettings(true)}
               size="sm"

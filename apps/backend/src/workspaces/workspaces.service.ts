@@ -10,6 +10,7 @@ import type {
   WorkspaceSettingsRepository,
   WorkspaceAuditLogRepository,
   WorkflowRepository,
+  HashService,
 } from '@ordo-todo/core';
 import {
   CreateWorkspaceUseCase,
@@ -46,6 +47,8 @@ export class WorkspacesService {
     private readonly auditLogRepository: WorkspaceAuditLogRepository,
     @Inject('WorkflowRepository')
     private readonly workflowRepository: WorkflowRepository,
+    @Inject('HashService')
+    private readonly hashService: HashService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -378,6 +381,7 @@ export class WorkspacesService {
     const inviteMemberUseCase = new InviteMemberUseCase(
       this.workspaceRepository,
       this.invitationRepository,
+      this.hashService,
     );
 
     try {
@@ -400,6 +404,7 @@ export class WorkspacesService {
         message: 'Invitation created',
         invitationId: result.invitation.id,
         // Returning token for dev purposes/MVP so we can test without email service
+        // IMPORTANT: The token is hashed in the database, this plain token should only be sent via email
         devToken: result.token,
       };
     } catch (error) {
@@ -414,16 +419,28 @@ export class WorkspacesService {
     const acceptInvitationUseCase = new AcceptInvitationUseCase(
       this.workspaceRepository,
       this.invitationRepository,
+      this.hashService,
     );
 
     try {
-      // Get invitation first to extract workspaceId for audit log
-      const invitation = await this.invitationRepository.findByToken(token);
-      if (!invitation) {
+      // Get all pending invitations to find the matching one
+      // We can't use findByToken directly because tokens are now hashed
+      const pendingInvitations = await this.invitationRepository.findPendingInvitations();
+
+      let matchedInvitation = null;
+      for (const invitation of pendingInvitations) {
+        const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
+        if (isValid) {
+          matchedInvitation = invitation;
+          break;
+        }
+      }
+
+      if (!matchedInvitation) {
         throw new NotFoundException('Invalid invitation token');
       }
 
-      const workspaceId = invitation.props.workspaceId;
+      const workspaceId = matchedInvitation.props.workspaceId;
 
       await acceptInvitationUseCase.execute(token, userId);
 
