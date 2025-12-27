@@ -122,17 +122,30 @@ export class PrismaWorkspaceInvitationRepository implements WorkspaceInvitationR
     return this.toDomain(invitation);
   }
 
+  /**
+   * @deprecated Use findPendingInvitations() instead and compare hashes manually
+   * This method is kept for backward compatibility but won't work with hashed tokens
+   */
   async findByToken(tokenHash: string): Promise<WorkspaceInvitation | null> {
-    // Note: If we were hashing, we'd need to hash the input token here before searching.
-    // Since we are storing the token directly (as per MVP decision), we search directly.
-    // However, usually findByToken implies searching by the token string.
-    // If the DB stores the hash, we can't search by token unless we hash it.
-    // But here tokenHash IS the token (MVP).
+    // This method is deprecated because with bcrypt hashes, we can't search directly
+    // Keep for backward compatibility with legacy data
     const invitation = await this.prisma.workspaceInvitation.findFirst({
       where: { tokenHash },
     });
     if (!invitation) return null;
     return this.toDomain(invitation);
+  }
+
+  async findPendingInvitations(): Promise<WorkspaceInvitation[]> {
+    const invitations = await this.prisma.workspaceInvitation.findMany({
+      where: {
+        status: 'PENDING',
+        expiresAt: {
+          gt: new Date(), // Only non-expired invitations
+        },
+      },
+    });
+    return invitations.map((i) => this.toDomain(i));
   }
 
   async findByWorkspaceId(workspaceId: string): Promise<WorkspaceInvitation[]> {

@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import { Button, Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
 import { Save } from "lucide-react";
-import { useWorkspaceSettings, useUpdateWorkspaceSettings } from "@/lib/api-hooks";
+import { useWorkspaceSettings, useUpdateWorkspaceSettings, useWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import type { ViewType } from "@ordo-todo/api-client";
 
 interface WorkspaceConfigurationSettingsProps {
   workspaceId: string;
@@ -15,11 +18,13 @@ export function WorkspaceConfigurationSettings({
   workspaceId,
 }: WorkspaceConfigurationSettingsProps) {
   const t = useTranslations('WorkspaceConfigurationSettings');
+  const { data: workspace } = useWorkspace(workspaceId);
   const { data: settings, isLoading } = useWorkspaceSettings(workspaceId);
   const updateSettingsMutation = useUpdateWorkspaceSettings();
+  const permissions = useWorkspacePermissions(workspace);
 
   const [formData, setFormData] = useState({
-    defaultView: "LIST" as "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS",
+    defaultView: "LIST" as ViewType,
     defaultDueTime: 540, // 9:00 AM in minutes
     timezone: "",
     locale: "",
@@ -45,8 +50,8 @@ export function WorkspaceConfigurationSettings({
         data: formData,
       });
       toast.success(t('toast.updated'));
-    } catch (error: any) {
-      toast.error(error?.message || t('toast.updateError'));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t('toast.updateError')));
     }
   };
 
@@ -68,7 +73,8 @@ export function WorkspaceConfigurationSettings({
           </Label>
           <Select
             value={formData.defaultView}
-            onValueChange={(value) => setFormData({ ...formData, defaultView: value as any })}
+            onValueChange={(value) => setFormData({ ...formData, defaultView: value as ViewType })}
+            disabled={!permissions.canUpdateSettings}
           >
             <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
               <SelectValue />
@@ -119,6 +125,7 @@ export function WorkspaceConfigurationSettings({
               const [hours, minutes] = e.target.value.split(':').map(Number);
               setFormData({ ...formData, defaultDueTime: hours * 60 + minutes });
             }}
+            disabled={!permissions.canUpdateSettings}
             className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30"
           />
           <p className="text-[0.8rem] text-muted-foreground">
@@ -134,6 +141,7 @@ export function WorkspaceConfigurationSettings({
           <Select
             value={formData.timezone}
             onValueChange={(value) => setFormData({ ...formData, timezone: value })}
+            disabled={!permissions.canUpdateSettings}
           >
             <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
               <SelectValue placeholder={t('form.timezone.placeholder')} />
@@ -164,6 +172,7 @@ export function WorkspaceConfigurationSettings({
           <Select
             value={formData.locale}
             onValueChange={(value) => setFormData({ ...formData, locale: value })}
+            disabled={!permissions.canUpdateSettings}
           >
             <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
               <SelectValue placeholder={t('form.locale.placeholder')} />
@@ -186,16 +195,18 @@ export function WorkspaceConfigurationSettings({
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end pt-4">
-        <Button
-          type="submit"
-          disabled={updateSettingsMutation.isPending}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          {updateSettingsMutation.isPending ? t('actions.saving') : t('actions.save')}
-        </Button>
-      </div>
+      {permissions.canUpdateSettings && (
+        <div className="flex justify-end pt-4">
+          <Button
+            type="submit"
+            disabled={updateSettingsMutation.isPending}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {updateSettingsMutation.isPending ? t('actions.saving') : t('actions.save')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

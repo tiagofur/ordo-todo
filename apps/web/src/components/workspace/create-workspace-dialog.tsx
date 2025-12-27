@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { Building2, Home, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createWorkspaceSchema, WORKSPACE_TYPES, generateSlug } from "@ordo-todo/core";
+import { getErrorMessage } from "@/lib/error-handler";
+import type { WorkspaceType } from "@ordo-todo/api-client";
 
 interface CreateWorkspaceDialogProps {
   open: boolean;
@@ -22,7 +24,7 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
   const router = useRouter();
   const { user } = useAuth();
   const t = useTranslations('CreateWorkspaceDialog');
-  const [selectedType, setSelectedType] = useState<"PERSONAL" | "WORK" | "TEAM">("PERSONAL");
+  const [selectedType, setSelectedType] = useState<WorkspaceType>("PERSONAL");
 
   const formSchema = createWorkspaceSchema.extend({
     name: z.string().min(1, t('validation.nameRequired')),
@@ -66,8 +68,8 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
           router.push(`/workspaces/${workspace.slug}`);
         }
       },
-      onError: (error: any) => {
-        toast.error(error.message || t('toast.error'));
+      onError: (error) => {
+        toast.error(getErrorMessage(error, t('toast.error')));
       }
     });
   };

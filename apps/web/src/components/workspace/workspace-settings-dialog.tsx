@@ -6,6 +6,9 @@ import { Trash2, Save, X } from "lucide-react";
 import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import type { WorkspaceType } from "@ordo-todo/api-client";
 
 import { WorkspaceMembersSettings } from "./workspace-members-settings";
 import { WorkspaceConfigurationSettings } from "./workspace-configuration-settings";
@@ -28,10 +31,13 @@ export function WorkspaceSettingsDialog({
 
   const { data: workspace, isLoading } = useWorkspace(workspaceId);
 
+  // Check permissions for current user
+  const permissions = useWorkspacePermissions(workspace);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type: "PERSONAL" as "PERSONAL" | "WORK" | "TEAM",
+    type: "PERSONAL" as WorkspaceType,
   });
 
   // Update form when workspace data loads
@@ -57,8 +63,8 @@ export function WorkspaceSettingsDialog({
       });
       toast.success(t('toast.updated'));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.message || t('toast.updateError'));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t('toast.updateError')));
     }
   };
 
@@ -73,8 +79,8 @@ export function WorkspaceSettingsDialog({
       onOpenChange(false);
       // Redirect to first available workspace or create new one
       window.location.href = "/workspaces";
-    } catch (error: any) {
-      toast.error(error?.message || t('toast.deleteError'));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t('toast.deleteError')));
     }
   };
 
@@ -110,9 +116,15 @@ export function WorkspaceSettingsDialog({
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="flex w-full mb-4 overflow-x-auto scrollbar-none">
               <TabsTrigger value="general" className="flex-shrink-0">{t('tabs.general')}</TabsTrigger>
-              <TabsTrigger value="members" className="flex-shrink-0">{t('tabs.members')}</TabsTrigger>
-              <TabsTrigger value="configuration" className="flex-shrink-0">{t('tabs.configuration')}</TabsTrigger>
-              <TabsTrigger value="activity" className="flex-shrink-0">{t('tabs.activity')}</TabsTrigger>
+              {permissions.canManageMembers && (
+                <TabsTrigger value="members" className="flex-shrink-0">{t('tabs.members')}</TabsTrigger>
+              )}
+              {permissions.canUpdateSettings && (
+                <TabsTrigger value="configuration" className="flex-shrink-0">{t('tabs.configuration')}</TabsTrigger>
+              )}
+              {permissions.canViewAuditLogs && (
+                <TabsTrigger value="activity" className="flex-shrink-0">{t('tabs.activity')}</TabsTrigger>
+              )}
             </TabsList>
             
             <div className="overflow-y-auto max-h-[50vh] pr-1">
@@ -130,6 +142,7 @@ export function WorkspaceSettingsDialog({
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder={t('form.name.placeholder')}
                         required
+                        disabled={!permissions.canEdit}
                         className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30 font-medium"
                       />
                     </div>
@@ -145,6 +158,7 @@ export function WorkspaceSettingsDialog({
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder={t('form.description.placeholder')}
                         rows={3}
+                        disabled={!permissions.canEdit}
                         className="bg-muted/30 border-input focus-visible:ring-primary/30 resize-none"
                       />
                     </div>
@@ -157,6 +171,7 @@ export function WorkspaceSettingsDialog({
                       <Select
                         value={formData.type}
                         onValueChange={(value) => setFormData({ ...formData, type: value as any })}
+                        disabled={!permissions.canEdit}
                       >
                         <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
                           <SelectValue />
@@ -186,49 +201,51 @@ export function WorkspaceSettingsDialog({
                   </div>
 
                   {/* Danger Zone */}
-                  <div className="rounded-lg border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4 mt-8">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-medium text-red-900 dark:text-red-200">{t('dangerZone.title')}</h4>
-                        <p className="text-xs text-red-700 dark:text-red-300/70">
-                          {t('dangerZone.description')}
-                        </p>
-                      </div>
-                      {!showDeleteConfirm ? (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleDelete}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t('dangerZone.delete')}
-                        </Button>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={handleDelete}
-                            disabled={deleteWorkspaceMutation.isPending}
-                          >
-                            {deleteWorkspaceMutation.isPending ? t('dangerZone.deleting') : t('dangerZone.confirm')}
-                          </Button>
+                  {permissions.canDelete && (
+                    <div className="rounded-lg border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4 mt-8">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-medium text-red-900 dark:text-red-200">{t('dangerZone.title')}</h4>
+                          <p className="text-xs text-red-700 dark:text-red-300/70">
+                            {t('dangerZone.description')}
+                          </p>
+                        </div>
+                        {!showDeleteConfirm ? (
                           <Button
                             type="button"
                             variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => setShowDeleteConfirm(false)}
+                            size="sm"
+                            onClick={handleDelete}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
                           >
-                            <X className="h-4 w-4" />
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {t('dangerZone.delete')}
                           </Button>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleDelete}
+                              disabled={deleteWorkspaceMutation.isPending}
+                            >
+                              {deleteWorkspaceMutation.isPending ? t('dangerZone.deleting') : t('dangerZone.confirm')}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setShowDeleteConfirm(false)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </form>
               </TabsContent>
 
@@ -261,7 +278,7 @@ export function WorkspaceSettingsDialog({
           >
             {t('actions.cancel')}
           </Button>
-          {activeTab === "general" && (
+          {activeTab === "general" && permissions.canUpdateSettings && (
             <Button
               type="submit"
               form="workspace-settings-form"

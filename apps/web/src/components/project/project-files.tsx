@@ -5,6 +5,14 @@ import { Button, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, 
 import { format } from "date-fns";
 import { FileIcon, Download, Trash2, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { Attachment } from "@ordo-todo/api-client";
+
+interface AttachmentWithTask extends Attachment {
+  task?: {
+    id: string;
+    title: string;
+  } | null;
+}
 
 interface ProjectFilesProps {
   projectId: string;
@@ -50,7 +58,7 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {attachments.map((file: any) => {
+          {attachments.map((file: AttachmentWithTask) => {
              const fullUrl = getFullUrl(file.url);
              return (
             <TableRow key={file.id}>

@@ -9,6 +9,7 @@ import { useUpdateProject, useProject } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { Palette, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { getErrorMessage } from "@/lib/error-handler";
 
 import { TAG_COLORS, updateProjectSchema } from "@ordo-todo/core";
 
@@ -64,8 +65,8 @@ export function ProjectSettingsDialog({ projectId, open, onOpenChange }: Project
 
       toast.success(t('toast.updated'));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t('toast.updateError'));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t('toast.updateError')));
     }
   };
 

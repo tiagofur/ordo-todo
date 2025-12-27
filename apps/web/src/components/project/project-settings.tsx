@@ -14,18 +14,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Palette, Check, Archive, Trash2, AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useProjectPermissions } from "@/hooks/use-project-permissions";
+import type { Project } from "@ordo-todo/api-client";
 
 import { PROJECT_COLORS, updateProjectSchema } from "@ordo-todo/core";
 
 interface ProjectSettingsProps {
-  project: {
-    id: string;
-    name: string;
-    description?: string | null;
-    color: string;
-    archived?: boolean;
-    slug?: string;
-  };
+  project: Project;
   workspaceSlug: string;
   ownerUsername?: string;
 }
@@ -74,6 +70,9 @@ export function ProjectSettings({
   const archiveProjectMutation = useArchiveProject();
   const deleteProjectMutation = useDeleteProject();
 
+  // Permission checks
+  const { canEdit, canArchive, canDelete } = useProjectPermissions(project);
+
   const onSubmit = async (data: UpdateProjectForm) => {
     try {
       await updateProjectMutation.mutateAsync({
@@ -85,8 +84,8 @@ export function ProjectSettings({
       });
 
       toast.success(t("toast.updated"));
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t("toast.updateError"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toast.updateError")));
     }
   };
 
@@ -96,8 +95,8 @@ export function ProjectSettings({
       toast.success(
         project.archived ? t("toast.unarchived") : t("toast.archived")
       );
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t("toast.archiveError"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toast.archiveError")));
     }
   };
 
@@ -111,8 +110,8 @@ export function ProjectSettings({
       } else {
         router.push(`/workspaces/${workspaceSlug}`);
       }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t("toast.deleteError"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toast.deleteError")));
     }
   };
 
@@ -192,6 +191,7 @@ export function ProjectSettings({
             <button
               type="submit"
               disabled={
+                !canEdit ||
                 updateProjectMutation.isPending ||
                 (!isDirty && selectedColor === project.color)
               }
@@ -205,82 +205,88 @@ export function ProjectSettings({
         </form>
       </div>
 
-      {/* Danger Zone */}
-      <div className="rounded-xl border border-destructive/50 bg-card text-card-foreground shadow-sm">
-        <div className="p-6 border-b border-destructive/50">
-          <h3 className="text-lg font-semibold text-destructive flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5" />
-            {t("danger.title")}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {t("danger.description")}
-          </p>
-        </div>
-        <div className="p-6 space-y-4">
-          {/* Archive */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/20">
-            <div>
-              <h4 className="font-medium">
-                {project.archived
-                  ? t("danger.unarchive.title")
-                  : t("danger.archive.title")}
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                {project.archived
-                  ? t("danger.unarchive.description")
-                  : t("danger.archive.description")}
-              </p>
-            </div>
-            <button
-              onClick={handleArchive}
-              disabled={archiveProjectMutation.isPending}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2"
-            >
-              <Archive className="w-4 h-4" />
-              {project.archived ? t("actions.unarchive") : t("actions.archive")}
-            </button>
+      {/* Danger Zone - Only show if user has archive or delete permissions */}
+      {(canArchive || canDelete) && (
+        <div className="rounded-xl border border-destructive/50 bg-card text-card-foreground shadow-sm">
+          <div className="p-6 border-b border-destructive/50">
+            <h3 className="text-lg font-semibold text-destructive flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              {t("danger.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t("danger.description")}
+            </p>
           </div>
-
-          {/* Delete */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/30 bg-destructive/5">
-            <div>
-              <h4 className="font-medium text-destructive">
-                {t("danger.delete.title")}
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                {t("danger.delete.description")}
-              </p>
-            </div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2 gap-2">
-                  <Trash2 className="w-4 h-4" />
-                  {t("actions.delete")}
+          <div className="p-6 space-y-4">
+            {/* Archive - Only show if user can archive */}
+            {canArchive && (
+              <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/20">
+                <div>
+                  <h4 className="font-medium">
+                    {project.archived
+                      ? t("danger.unarchive.title")
+                      : t("danger.archive.title")}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    {project.archived
+                      ? t("danger.unarchive.description")
+                      : t("danger.archive.description")}
+                  </p>
+                </div>
+                <button
+                  onClick={handleArchive}
+                  disabled={archiveProjectMutation.isPending}
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2"
+                >
+                  <Archive className="w-4 h-4" />
+                  {project.archived ? t("actions.unarchive") : t("actions.archive")}
                 </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t("deleteDialog.title")}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("deleteDialog.description")}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>
-                    {t("deleteDialog.cancel")}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {t("deleteDialog.confirm")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              </div>
+            )}
+
+            {/* Delete - Only show if user can delete */}
+            {canDelete && (
+              <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/30 bg-destructive/5">
+                <div>
+                  <h4 className="font-medium text-destructive">
+                    {t("danger.delete.title")}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    {t("danger.delete.description")}
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2 gap-2">
+                      <Trash2 className="w-4 h-4" />
+                      {t("actions.delete")}
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("deleteDialog.title")}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t("deleteDialog.description")}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>
+                        {t("deleteDialog.cancel")}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {t("deleteDialog.confirm")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -3,16 +3,22 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  NotFoundException,
-  Inject,
+  BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../database/prisma.service';
 import { MemberRole } from '@prisma/client';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import {
+  WORKSPACE_CONTEXT_KEY,
+  WorkspaceContextConfig,
+} from '../decorators/workspace-context.decorator';
 
 @Injectable()
 export class WorkspaceGuard implements CanActivate {
+  private readonly logger = new Logger(WorkspaceGuard.name);
+
   constructor(
     private reflector: Reflector,
     private prisma: PrismaService,
@@ -21,22 +27,37 @@ export class WorkspaceGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    if (!user) return false;
 
-    // 1. Identify Workspace Context
-    // We look for workspaceId in params, query, or body.
-    // Or we infer it from other resources (like projectId or taskId).
-    const workspaceId = await this.extractWorkspaceId(request);
+    if (!user) {
+      this.logger.warn('WorkspaceGuard: No user in request');
+      return false;
+    }
 
-    if (!workspaceId) {
-      // If endpoint doesn't relate to a workspace, we might skip this guard or
-      // assume it's a general endpoint. However, if this guard is applied,
-      // we usually expect a workspace context.
-      // For list endpoints that return "all workspaces", we shouldn't use this guard.
+    // 1. Extract workspace context configuration
+    const workspaceConfig = this.reflector.get<WorkspaceContextConfig>(
+      WORKSPACE_CONTEXT_KEY,
+      context.getHandler(),
+    );
+
+    // If no workspace context is configured, allow (guard not applicable)
+    if (!workspaceConfig) {
+      this.logger.debug('WorkspaceGuard: No workspace context configured');
       return true;
     }
 
-    // 2. Check Membership
+    // 2. Extract workspace ID based on configuration
+    const workspaceId = await this.extractWorkspaceId(
+      request,
+      workspaceConfig,
+    );
+
+    if (!workspaceId) {
+      throw new BadRequestException(
+        'Workspace context could not be determined',
+      );
+    }
+
+    // 3. Check workspace membership
     let membership = await this.prisma.workspaceMember.findUnique({
       where: {
         workspaceId_userId: {
@@ -46,69 +67,136 @@ export class WorkspaceGuard implements CanActivate {
       },
     });
 
-    // If no membership found, check if user is the workspace owner (legacy workspace without member record)
+    // 4. Auto-repair for legacy workspaces (owner without membership)
     if (!membership) {
-      const workspace = await this.prisma.workspace.findUnique({
-        where: { id: workspaceId },
-        select: { ownerId: true },
-      });
-
-      if (workspace?.ownerId === user.id) {
-        // Auto-repair: Add owner as a member for legacy workspaces
-        membership = await this.prisma.workspaceMember.create({
-          data: {
-            workspaceId,
-            userId: user.id,
-            role: MemberRole.OWNER,
-          },
-        });
-      } else {
-        throw new ForbiddenException('You are not a member of this workspace');
-      }
+      membership = await this.handleLegacyWorkspace(workspaceId, user.id);
     }
 
-    // 3. Check Role Permissions (if defined)
+    if (!membership) {
+      this.logger.warn(
+        `WorkspaceGuard: User ${user.id} is not a member of workspace ${workspaceId}`,
+      );
+      throw new ForbiddenException('You are not a member of this workspace');
+    }
+
+    // 5. Check role permissions (if defined)
     const requiredRoles = this.reflector.getAllAndOverride<MemberRole[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );
 
     if (requiredRoles && !requiredRoles.includes(membership.role)) {
+      this.logger.warn(
+        `WorkspaceGuard: User ${user.id} has role ${membership.role} but needs one of: ${requiredRoles.join(', ')}`,
+      );
       throw new ForbiddenException(
         `Insufficient permissions. Required: ${requiredRoles.join(', ')}`,
       );
     }
 
-    // Attach membership to request for easier access in controller
+    // 6. Attach membership to request for easier access in controller
     request.workspaceMember = membership;
+    request.workspaceId = workspaceId;
+
+    this.logger.debug(
+      `WorkspaceGuard: Access granted to user ${user.id} for workspace ${workspaceId}`,
+    );
+
     return true;
   }
 
-  private async extractWorkspaceId(request: any): Promise<string | null> {
+  /**
+   * Extracts workspace ID based on context configuration
+   */
+  private async extractWorkspaceId(
+    request: any,
+    config: WorkspaceContextConfig,
+  ): Promise<string | null> {
     const params = request.params || {};
-    const query = request.query || {};
-    const body = request.body || {};
 
-    // Direct Workspace ID
-    if (params.workspaceId) return params.workspaceId;
-    if (query.workspaceId) return query.workspaceId;
-    if (body.workspaceId) return body.workspaceId;
+    switch (config.type) {
+      case 'direct':
+        // Workspace ID is directly in params
+        const paramName = config.paramName || 'id';
+        return params[paramName] || null;
 
-    // Sometimes it's passed as 'id' in WorkspacesController
-    // We need to be careful not to mistake a taskId for a workspaceId.
-    // This logic depends on where the guard is used.
-    // Strategy: We will create specialized Guards if needed, or rely on naming conventions.
+      case 'from-project':
+        // Need to lookup workspace from project
+        const projectId = params[config.paramName || 'projectId'];
+        if (!projectId) return null;
 
-    // Ideally, we should fetch the resource to find the workspace ID if it's not direct.
-    // But doing DB calls here for every resource type (Project, Task) makes this guard complex.
-    // Better approach:
-    // - WorkspaceGuard: expects 'workspaceId' in param/query OR 'id' if the controller is WorkspacesController.
-    // - ProjectGuard: extends WorkspaceGuard or uses it, extracts workspaceId from Project.
-    // - TaskGuard: extracts workspaceId from Task.
+        const project = await this.prisma.project.findUnique({
+          where: { id: projectId },
+          select: { workspaceId: true },
+        });
 
-    // For now, let's keep it simple and focus on explicit 'workspaceId' or 'id' if route is /workspaces/:id
-    if (request.route.path.includes('/workspaces/:id')) {
-      return params.id;
+        return project?.workspaceId || null;
+
+      case 'from-task':
+        // Need to lookup workspace from task
+        const taskId = params[config.paramName || 'taskId'];
+        if (!taskId) return null;
+
+        const task = await this.prisma.task.findUnique({
+          where: { id: taskId },
+          include: {
+            project: {
+              select: { workspaceId: true },
+            },
+          },
+        });
+
+        return task?.project?.workspaceId || null;
+
+      default:
+        this.logger.error(
+          `Unknown workspace context type: ${(config as any).type}`,
+        );
+        return null;
+    }
+  }
+
+  /**
+   * Handles legacy workspaces where owner is not in members table
+   */
+  private async handleLegacyWorkspace(
+    workspaceId: string,
+    userId: string,
+  ): Promise<any | null> {
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: { ownerId: true },
+    });
+
+    if (workspace?.ownerId === userId) {
+      this.logger.log(
+        `WorkspaceGuard: Auto-repairing legacy workspace ${workspaceId} - adding owner as member`,
+      );
+
+      try {
+        // Auto-repair: Add owner as a member
+        return await this.prisma.workspaceMember.create({
+          data: {
+            workspaceId,
+            userId,
+            role: MemberRole.OWNER,
+          },
+        });
+      } catch (error) {
+        // If creation fails (e.g., race condition), try to fetch again
+        this.logger.error(
+          `WorkspaceGuard: Failed to auto-repair workspace ${workspaceId}`,
+          error,
+        );
+        return await this.prisma.workspaceMember.findUnique({
+          where: {
+            workspaceId_userId: {
+              workspaceId,
+              userId,
+            },
+          },
+        });
+      }
     }
 
     return null;

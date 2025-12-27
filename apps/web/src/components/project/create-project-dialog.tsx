@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { Briefcase, Palette, LayoutTemplate } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PROJECT_TEMPLATES, ProjectTemplate } from "@/data/project-templates";
+import { getErrorMessage } from "@/lib/error-handler";
+import type { Workspace, Workflow } from "@ordo-todo/api-client";
 
 import { TAG_COLORS, createProjectSchema } from "@ordo-todo/core";
 
@@ -119,7 +121,7 @@ export function CreateProjectDialog({
       if (!finalWorkflowId || finalWorkflowId === "NEW") {
         // 1. Try to find an existing "General" workflow in the current list
         const generalWorkflow = workflows?.find(
-          (w: any) => w.name === "General"
+          (w: Workflow) => w.name === "General"
         );
 
         if (generalWorkflow) {
@@ -166,8 +168,8 @@ export function CreateProjectDialog({
       reset();
       setSelectedTemplate(null);
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t("toast.error"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toast.error")));
     }
   };
 
@@ -314,7 +316,7 @@ export function CreateProjectDialog({
                       {...register("workspaceId")}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {workspaces?.map((ws: any) => (
+                      {workspaces?.map((ws: Workspace) => (
                         <option key={ws.id} value={ws.id}>
                           {ws.name}
                         </option>

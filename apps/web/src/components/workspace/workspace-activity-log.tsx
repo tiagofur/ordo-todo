@@ -6,6 +6,7 @@ import { useWorkspaceAuditLogs } from "@/lib/api-hooks";
 import { Button } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 import { formatDistanceToNow } from "date-fns";
+import type { WorkspaceAuditLog } from "@ordo-todo/api-client";
 
 interface WorkspaceActivityLogProps {
   workspaceId: string;
@@ -92,7 +93,7 @@ export function WorkspaceActivityLog({ workspaceId }: WorkspaceActivityLogProps)
     <div className="space-y-4">
       {/* Activity List */}
       <div className="space-y-3">
-        {logs.map((log: any) => (
+        {logs.map((log: WorkspaceAuditLog) => (
           <div
             key={log.id}
             className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors"
