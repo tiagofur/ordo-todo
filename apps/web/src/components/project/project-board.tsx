@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { ProjectBoard as ProjectBoardUI } from "@ordo-todo/ui";
+import type { UpdateTaskDto } from "@ordo-todo/api-client";
 
 interface ProjectBoardProps {
   projectId: string;
@@ -17,7 +18,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const updateTaskMutation = useUpdateTask();
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
-  const handleUpdateTask = (taskId: string, data: any) => {
+  const handleUpdateTask = (taskId: string, data: UpdateTaskDto) => {
     updateTaskMutation.mutate({ taskId, data });
   };
 

@@ -4,6 +4,7 @@ import { useTasks } from "@/lib/api-hooks";
 import { Loader2, Calendar, Circle } from "lucide-react";
 import { format, isSameDay, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
+import type { Task } from "@ordo-todo/api-client";
 
 interface ProjectTimelineProps {
   projectId: string;
@@ -22,8 +23,8 @@ export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
 
   // Filter tasks with due dates and sort them
   const timelineTasks = tasks
-    ?.filter((t: any) => t.dueDate)
-    .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) || [];
+    ?.filter((t: Task) => t.dueDate)
+    .sort((a: Task, b: Task) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()) || [];
 
   if (timelineTasks.length === 0) {
     return (
@@ -40,8 +41,8 @@ export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
   return (
     <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
       <div className="relative border-l-2 border-muted ml-3 space-y-8 py-2">
-        {timelineTasks.map((task: any, index: number) => {
-          const date = new Date(task.dueDate);
+        {timelineTasks.map((task: Task, index: number) => {
+          const date = new Date(task.dueDate!);
           const isCompleted = task.status === "COMPLETED";
           
           return (

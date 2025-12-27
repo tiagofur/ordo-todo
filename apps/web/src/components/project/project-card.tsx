@@ -15,18 +15,12 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { calculateProgress } from "@ordo-todo/core";
+import { getErrorMessage } from "@/lib/error-handler";
+import { useProjectPermissions } from "@/hooks/use-project-permissions";
+import type { Project, Task } from "@ordo-todo/api-client";
 
 interface ProjectCardProps {
-  project: {
-    id?: string | number;
-    name: string;
-    description?: string | null;
-    color: string;
-    archived: boolean;
-    slug?: string;
-    tasksCount?: number;
-    completedTasksCount?: number;
-  };
+  project: Project;
   index?: number;
   workspaceSlug?: string;
   ownerUsername?: string;
@@ -43,15 +37,16 @@ export function ProjectCard({
 
   const { data: tasks } = useTasks();
   const projectTasks =
-    tasks?.filter((t: any) => String(t.projectId) === String(project.id)) || [];
-  const totalTasks = project.tasksCount ?? projectTasks.length;
-  const completedTasks =
-    project.completedTasksCount ??
-    projectTasks.filter((t: any) => t.status === "DONE").length;
+    tasks?.filter((t: Task) => String(t.projectId) === String(project.id)) || [];
+  const totalTasks = projectTasks.length;
+  const completedTasks = projectTasks.filter((t: Task) => t.status === "DONE").length;
   const progressPercent = calculateProgress(completedTasks, totalTasks);
 
   const archiveProjectMutation = useArchiveProject();
   const deleteProjectMutation = useDeleteProject();
+
+  // Permission checks
+  const { canArchive, canDelete } = useProjectPermissions(project);
 
   const handleCardClick = () => {
     // Navigate using username/slug pattern for projects
@@ -74,8 +69,8 @@ export function ProjectCard({
       toast.success(
         project.archived ? t("toast.unarchived") : t("toast.archived")
       );
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t("toast.archiveError"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("toast.archiveError")));
     }
   };
 
@@ -86,8 +81,8 @@ export function ProjectCard({
       try {
         await deleteProjectMutation.mutateAsync(String(project.id));
         toast.success(t("toast.deleted"));
-      } catch (error: any) {
-        toast.error(error?.response?.data?.message || t("toast.deleteError"));
+      } catch (error) {
+        toast.error(getErrorMessage(error, t("toast.deleteError")));
       }
     }
   };
@@ -129,34 +124,40 @@ export function ProjectCard({
             </div>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <button
-                className={cn(
-                  "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-                  "rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground"
+          {(canArchive || canDelete) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <button
+                  className={cn(
+                    "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+                    "rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {canArchive && (
+                  <DropdownMenuItem onClick={handleArchive}>
+                    <Archive className="mr-2 h-4 w-4" />
+                    {project.archived
+                      ? t("actions.unarchive")
+                      : t("actions.archive")}
+                  </DropdownMenuItem>
                 )}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={handleArchive}>
-                <Archive className="mr-2 h-4 w-4" />
-                {project.archived
-                  ? t("actions.unarchive")
-                  : t("actions.archive")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t("actions.delete")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {canArchive && canDelete && <DropdownMenuSeparator />}
+                {canDelete && (
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {t("actions.delete")}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {project.description && (

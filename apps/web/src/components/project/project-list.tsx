@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
+import type { Task } from "@ordo-todo/api-client";
 
 interface ProjectListProps {
   projectId: string;
@@ -37,7 +38,7 @@ export function ProjectList({ projectId }: ProjectListProps) {
     );
   }
 
-  const handleStatusToggle = (task: any) => {
+  const handleStatusToggle = (task: Task) => {
     const newStatus = task.status === "COMPLETED" ? "TODO" : "COMPLETED";
     updateTaskMutation.mutate({
       taskId: task.id,
@@ -82,7 +83,7 @@ export function ProjectList({ projectId }: ProjectListProps) {
         </div>
 
         <div className="divide-y divide-border">
-          {tasks?.map((task: any) => (
+          {tasks?.map((task: Task) => (
             <div
               key={task.id}
               className="grid grid-cols-[auto_1fr_auto_auto] gap-4 p-4 items-center hover:bg-muted/30 transition-colors cursor-pointer group"
