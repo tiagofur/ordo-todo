@@ -933,6 +933,7 @@
     "roleLabel": "Role",
     "rolePlaceholder": "Select a role",
     "roles": {
+      "owner": "Creator",
       "admin": "Admin",
       "member": "Member",
       "viewer": "Viewer"

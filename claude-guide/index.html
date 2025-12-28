@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordo-Todo Claude Code - Guía Interactiva</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🚀 Ordo-Todo Claude Code</h1>
+            <p class="subtitle">Guía Interactiva del Sistema de Desarrollo con IA</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab active" onclick="showSection('inicio')">🏠 Inicio</button>
+            <button class="tab" onclick="showSection('agentes')">🤖 Agentes</button>
+            <button class="tab" onclick="showSection('reglas')">📋 Reglas</button>
+            <button class="tab" onclick="showSection('prompts')">🎯 Prompts</button>
+            <button class="tab" onclick="showSection('mcps')">🚀 MCPs</button>
+            <button class="tab" onclick="showSection('tokens')">💰 Tokens</button>
+            <button class="tab" onclick="showSection('config')">⚙️ Config</button>
+        </nav>
+
+        <!-- Sections -->
+        <div class="content">
+            <!-- INICIO -->
+            <section id="inicio" class="section active">
+                <h2>🎯 Bienvenido al Sistema de Desarrollo con IA</h2>
+
+                <div class="card highlight">
+                    <h3>📊 ¿Qué tienes?</h3>
+                    <ul>
+                        <li><strong>8 Agentes Especialistas</strong> - Expertos en cada área</li>
+                        <li><strong>4 Archivos de Reglas</strong> - Calidad garantizada siempre</li>
+                        <li><strong>13 MCP Servers</strong> - Superpoderes para los agentes</li>
+                        <li><strong>6 Guías de Optimización</strong> - Ahorra tiempo y dinero</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 ¿Por dónde empezar?</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <p>Lee la sección <strong>"Agentes"</strong> para conocer a tus expertos</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <p>Revisa <strong>"Reglas"</strong> para entender los estándares</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <p>Usa los <strong>"Prompts"</strong> listos para copiar y pegar</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <p>Configura <strong>"MCPs"</strong> para dar superpoderes</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">5</span>
+                            <p>¡Disfruta del desarrollo más eficiente! 🚀</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card success">
+                    <h3>💡 Tip Rápido</h3>
+                    <p>Empieza usando los <strong>prompts de ejemplo</strong> en la sección "Prompts". Solo copia, pega, y adapta a tu necesidad.</p>
+                </div>
+            </section>
+
+            <!-- AGENTES -->
+            <section id="agentes" class="section">
+                <h2>🤖 Tus 8 Agentes Especialistas</h2>
+
+                <div class="agent-grid">
+                    <div class="agent-card backend">
+                        <div class="agent-icon">🔴</div>
+                        <h3>NestJS Backend</h3>
+                        <p>Experto en APIs REST, controladores, servicios y bases de datos NestJS</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Crear endpoints CRUD</li>
+                                <li>Implementar validación</li>
+                                <li>Conectar a PostgreSQL</li>
+                                <li>Escribir tests de backend</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('backend')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card frontend">
+                        <div class="agent-icon">🔵</div>
+                        <h3>Next.js Frontend</h3>
+                        <p>Experto en React 19, Next.js 15, Server Components y UI moderna</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Crear componentes React</li>
+                                <li>Páginas con App Router</li>
+                                <li>UI responsiva y accesible</li>
+                                <li>State management</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('frontend')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card mobile">
+                        <div class="agent-icon">📱</div>
+                        <h3>React Native</h3>
+                        <p>Experto en apps móviles con Expo y React Native</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Screens móviles</li>
+                                <li>Navegación móvil</li>
+                                <li>Features nativas</li>
+                                <li>Optimización móvil</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('mobile')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card desktop">
+                        <div class="agent-icon">💻</div>
+                        <h3>Electron</h3>
+                        <p>Experto en aplicaciones desktop con Electron</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Features desktop</li>
+                                <li>IPC communication</li>
+                                <li>Native OS integration</li>
+                                <li>Desktop security</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('desktop')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card database">
+                        <div class="agent-icon">🗄️</div>
+                        <h3>PostgreSQL</h3>
+                        <p>Experto en diseño de bases de datos PostgreSQL y Prisma</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Diseñar tablas</li>
+                                <li>Crear migrations</li>
+                                <li>Optimizar queries</li>
+                                <li>Database indexes</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('database')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card testing">
+                        <div class="agent-icon">🧪</div>
+                        <h3>Testing Specialist</h3>
+                        <p>Experto en testing completo (unit, integration, E2E)</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Unit tests (Jest/Vitest)</li>
+                                <li>Integration tests</li>
+                                <li>E2E tests (Playwright)</li>
+                                <li>100% coverage</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('testing')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card docs">
+                        <div class="agent-icon">📚</div>
+                        <h3>Documentation</h3>
+                        <p>Experto en documentación técnica y API docs</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Swagger/OpenAPI</li>
+                                <li>README files</li>
+                                <li>JSDoc comments</li>
+                                <li>Architecture diagrams</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('docs')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+
+                    <div class="agent-card refactor">
+                        <div class="agent-icon">🔄</div>
+                        <h3>Refactoring</h3>
+                        <p>Experto en mejora de código y SOLID principles</p>
+                        <div class="use-case">
+                            <strong>Usar para:</strong>
+                            <ul>
+                                <li>Refactorizar código legacy</li>
+                                <li>Aplicar SOLID principles</li>
+                                <li>Eliminar code smells</li>
+                                <li>Mejorar maintainability</li>
+                            </ul>
+                        </div>
+                        <button class="btn-prompt" onclick="copyPrompt('refactor')">
+                            📋 Copiar Prompt Ejemplo
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REGLAS -->
+            <section id="reglas" class="section">
+                <h2>📋 Reglas del Proyecto</h2>
+
+                <div class="card warning">
+                    <h3>⚠️ REGLAS DE ORO (Innegociables)</h3>
+                    <ul>
+                        <li>✅ <strong>TODOS</strong> los tests deben pasar (100%)</li>
+                        <li>✅ <strong>CERO</strong> errores de TypeScript</li>
+                        <li>✅ <strong>CERO</strong> warnings de ESLint</li>
+                        <li>✅ <strong>NUNCA</strong> usar transparencias</li>
+                        <li>✅ <strong>NUNCA</strong> usar gradientes</li>
+                        <li>✅ <strong>SIEMPRE</strong> responsividad perfecta</li>
+                        <li>✅ <strong>SIEMPRE</strong> dark mode support</li>
+                        <li>✅ <strong>SIEMPRE</strong> accesibilidad WCAG AA</li>
+                    </ul>
+                </div>
+
+                <h3>📦 ¿Dónde va el código?</h3>
+                <div class="decision-tree">
+                    <div class="tree-node">
+                        <p class="question">¿Usado por 2+ apps?</p>
+                        <div class="tree-branch">
+                            <span class="yes">SÍ → packages/</span>
+                            <ul>
+                                <li>🧠 Business logic → <code>packages/core</code></li>
+                                <li>🎨 UI Component → <code>packages/ui</code></li>
+                                <li>🪝 Data fetching → <code>packages/hooks</code></li>
+                                <li>📊 State → <code>packages/stores</code></li>
+                                <li>🌐 API calls → <code>packages/api-client</code></li>
+                                <li>🌍 i18n → <code>packages/i18n</code></li>
+                            </ul>
+                        </div>
+                        <div class="tree-branch">
+                            <span class="no">NO → App local</span>
+                            <p><code>apps/backend</code> o <code>apps/web</code></p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🎨 Reglas UI/UX</h3>
+                <div class="rules-grid">
+                    <div class="rule-card forbidden">
+                        <h4>❌ PROHIBIDO</h4>
+                        <ul>
+                            <li><code>rgba(255,255,255,0.5)</code> - Transparencias</li>
+                            <li><code>opacity: 0.9</code> - Opacidad</li>
+                            <li><code>linear-gradient(...)</code> - Gradientes</li>
+                            <li><code>radial-gradient(...)</code> - Gradientes</li>
+                        </ul>
+                    </div>
+                    <div class="rule-card required">
+                        <h4>✅ REQUERIDO</h4>
+                        <ul>
+                            <li><code>bg-blue-500</code> - Colores sólidos</li>
+                            <li><code>grid-cols-1 md:grid-cols-2 lg:grid-cols-3</code> - Responsive</li>
+                            <li><code>dark:bg-gray-900</code> - Dark mode</li>
+                            <li><code>aria-label</code> - Accessibility</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>🧪 Testing Requirements</h3>
+                <div class="card">
+                    <table class="coverage-table">
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Porcentaje</th>
+                            <th>Qué probar</th>
+                        </tr>
+                        <tr class="critical">
+                            <td>💀 Critical Paths</td>
+                            <td>100%</td>
+                            <td>Auth, payments, data</td>
+                        </tr>
+                        <tr class="overall">
+                            <td>📊 Overall</td>
+                            <td>>80%</td>
+                            <td>Todo el código</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PROMPTS -->
+            <section id="prompts" class="section">
+                <h2>🎯 Prompts Listos para Usar</h2>
+
+                <div class="prompt-container">
+                    <div class="prompt-category">
+                        <h3>🔴 Backend Prompts</h3>
+
+                        <div class="prompt-card">
+                            <h4>CRUD API Completo</h4>
+                            <pre><code>Use nestjs-backend agent to create [Resource] CRUD API:
+- Pattern: apps/backend/src/tasks/
+- Location: apps/backend/src/[resources]/
+- Entity: [EntityName] from @ordo-todo/core
+
+Requirements:
+- Controller (GET, POST, PATCH, DELETE)
+- Service with business logic
+- Repository using Prisma
+- DTOs with class-validator
+- Unit tests (Jest)
+- Integration tests (supertest)
+- Swagger documentation
+- JSDoc comments
+
+Rules: .claude/rules/backend.md
+
+Quality Gates (must pass):
+✅ npm run lint
+✅ npm run check-types
+✅ npm run test
+✅ npm run build</code></pre>
+                            <button class="btn-copy" onclick="copyToClipboard(this)">
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-category">
+                        <h3>🔵 Frontend Prompts</h3>
+
+                        <div class="prompt-card">
+                            <h4>Componente UI</h4>
+                            <pre><code>Use nextjs-frontend agent to create [ComponentName]:
+
+Location: packages/ui/src/components/[domain]/[component].tsx
+Pattern: packages/ui/src/components/task/task-card.tsx
+
+Props:
+- [propName]: [type]
+- on[Action]: (id: string) => void
+- labels?: { [key]: string }
+
+Requirements:
+- Platform-agnostic (no hooks)
+- TypeScript strict
+- Accessibility: WCAG AA
+- Responsive: mobile/tablet/desktop
+- Dark mode: dark: variants
+- Styling: TailwindCSS (solid colors, no gradients)
+
+Tests: React Testing Library
+Docs: Storybook + JSDoc
+
+Rules: .claude/rules/packages.md</code></pre>
+                            <button class="btn-copy" onclick="copyToClipboard(this)">
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-category">
+                        <h3>🧪 Testing Prompts</h3>
+
+                        <div class="prompt-card">
+                            <h4>Tests Completos</h4>
+                            <pre><code>Use testing-specialist agent to test [feature]:
+
+Target: [file path]
+Type: [Service|Component|Hook]
+
+Framework: Jest/Vitest
+Coverage target: 100%
+
+Requirements:
+- Test all public methods
+- Test edge cases
+- Test error handling
+- Mock external dependencies
+- Arrange-Act-Assert pattern
+- Clear test names
+
+Location: [file].spec.ts or __tests__/</code></pre>
+                            <button class="btn-copy" onclick="copyToClipboard(this)">
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-category">
+                        <h3>🚀 Feature Completa</h3>
+
+                        <div class="prompt-card featured">
+                            <h4>⭐ Full-Stack Feature (TODO EN UNO)</h4>
+                            <pre><code>Create [feature] end-to-end:
+
+1️⃣ DATABASE (postgres-specialist):
+   - Design tables in packages/db/prisma/schema.prisma
+   - Create migration
+   - Generate Prisma client
+
+2️⃣ BACKEND (nestjs-backend):
+   - Create CRUD API in apps/backend/src/[feature]/
+   - DTOs with validation
+   - Service with domain entities
+   - Tests (unit + integration)
+   - Swagger docs
+
+3️⃣ FRONTEND (nextjs-frontend):
+   - Create components in packages/ui/src/components/[feature]/
+   - Create pages in apps/web/app/[feature]/
+   - Create hooks in packages/hooks/src/[feature].ts
+   - Responsive design
+   - Dark mode
+   - Accessibility
+
+4️⃣ TESTS (testing-specialist):
+   - Unit tests (all components)
+   - Integration tests (API)
+   - E2E tests (user flow)
+
+5️⃣ DOCS (documentation-specialist):
+   - API documentation (Swagger)
+   - Component documentation (Storybook)
+   - JSDoc comments
+   - README updates
+
+Quality Gates (all must pass):
+✅ npm run lint (0 errors, 0 warnings)
+✅ npm run check-types (0 errors)
+✅ npm run test (100% pass)
+✅ npm run build (success)</code></pre>
+                            <button class="btn-copy" onclick="copyToClipboard(this)">
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MCPS -->
+            <section id="mcps" class="section">
+                <h2>🚀 MCP Servers - Superpoderes para tus Agentes</h2>
+
+                <div class="card highlight">
+                    <h3>¿Qué son los MCPs?</h3>
+                    <p>Los MCPs (Model Context Protocol servers) dan a tus agentes <strong>superpoderes</strong> como leer archivos, buscar en internet, automatizar GitHub, y más.</p>
+                </div>
+
+                <h3>🌟 MCPs Esenciales (Must-Have)</h3>
+                <div class="mcp-grid">
+                    <div class="mcp-card essential">
+                        <div class="mcp-status">⭐⭐⭐⭐⭐</div>
+                        <h4>📁 Filesystem</h4>
+                        <p>Leer y escribir archivos del proyecto</p>
+                        <div class="install">
+                            <code>npm install -g @modelcontextprotocol/server-filesystem</code>
+                        </div>
+                        <p class="use-for">Usar para: Crear/modificar archivos</p>
+                    </div>
+
+                    <div class="mcp-card essential">
+                        <div class="mcp-status">⭐⭐⭐⭐⭐</div>
+                        <h4>🐙 GitHub</h4>
+                        <p>Automatizar TODO de GitHub</p>
+                        <div class="install">
+                            <code>npm install -g @modelcontextprotocol/server-github</code>
+                        </div>
+                        <p class="use-for">Usar para: PRs, issues, branches</p>
+                    </div>
+
+                    <div class="mcp-card essential">
+                        <div class="mcp-status">⭐⭐⭐⭐⭐</div>
+                        <h4>🌐 Fetch</h4>
+                        <p>Hacer requests HTTP</p>
+                        <div class="install">
+                            <code>npm install -g @modelcontextprotocol/server-fetch</code>
+                        </div>
+                        <p class="use-for">Usar para: Buscar info, APIs</p>
+                    </div>
+
+                    <div class="mcp-card essential">
+                        <div class="mcp-status">⭐⭐⭐⭐⭐</div>
+                        <h4>🧠 Memory</h4>
+                        <p>Memoria persistente entre sesiones</p>
+                        <div class="install">
+                            <code>npm install -g @modelcontextprotocol/server-memory</code>
+                        </div>
+                        <p class="use-for">Usar para: Recordar contexto</p>
+                    </div>
+
+                    <div class="mcp-card essential">
+                        <div class="mcp-status">⭐⭐⭐⭐⭐</div>
+                        <h4>📚 Context7</h4>
+                        <p>Documentación en tiempo real</p>
+                        <div class="install">
+                            <code>npm install -g @upstash/mcp-server-context7</code>
+                        </div>
+                        <p class="use-for">Usar para: Docs actualizadas</p>
+                    </div>
+                </div>
+
+                <h3>⚙️ Configuración Rápida</h3>
+                <div class="card">
+                    <h4>Archivo de Configuración:</h4>
+                    <p><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></p>
+                    <p><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></p>
+                    <p><strong>Linux:</strong> <code>~/.config/Claude/claude_desktop_config.json</code></p>
+
+                    <pre><code>{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\path\\to\\repos"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {"GITHUB_TOKEN": "your_token"}
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- TOKENS -->
+            <section id="tokens" class="section">
+                <h2>💰 Optimización de Tokens</h2>
+
+                <div class="card success">
+                    <h3>🎉 Tu Sistema Ahorra 87% en Tokens!</h3>
+                    <p>Antes: 28,000 tokens por tarea | Ahora: 3,500 tokens por tarea</p>
+                </div>
+
+                <h3>📊 Comparación</h3>
+                <div class="comparison">
+                    <div class="before">
+                        <h4>❌ SIN OPTIMIZAR</h4>
+                        <ul>
+                            <li>Leer TODO el código: 15,000 tokens</li>
+                            <li>Leer TODAS las reglas: 3,000 tokens</li>
+                            <li>Implementar: 10,000 tokens</li>
+                            <li class="total">Total: 28,000 tokens</li>
+                            <li class="cost">Costo: ~$0.42</li>
+                        </ul>
+                    </div>
+                    <div class="after">
+                        <h4>✅ OPTIMIZADO</h4>
+                        <ul>
+                            <li>Contexto esencial: 500 tokens</li>
+                            <li>Reglas específicas: 800 tokens</li>
+                            <li>Referencias: 200 tokens</li>
+                            <li>Implementar: 2,000 tokens</li>
+                            <li class="total">Total: 3,500 tokens</li>
+                            <li class="cost">Costo: ~$0.05</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>💡 Estrategias de Ahorro</h3>
+                <div class="strategies">
+                    <div class="strategy">
+                        <h4>1. Referencias > Contenido</h4>
+                        <pre class="example-bad">❌ MAL: "Lee todo el backend y entiéndelo"</pre>
+                        <pre class="example-good">✅ BIEN: "Sigue el patrón de apps/backend/src/tasks/"</pre>
+                    </div>
+
+                    <div class="strategy">
+                        <h4>2. Específico > General</h4>
+                        <pre class="example-bad">❌ MAL: "Crea algo como el otro"</pre>
+                        <pre class="example-good">✅ BIEN: "Crea ProjectCard siguiendo TaskCard pattern"</pre>
+                    </div>
+
+                    <div class="strategy">
+                        <h4>3. Prompts Cortos > Largos</h4>
+                        <pre class="example-bad">❌ MAL: 500 líneas explicando todo</pre>
+                        <pre class="example-good">✅ BIEN: 5 líneas con referencias claras</pre>
+                    </div>
+                </div>
+
+                <div class="card warning">
+                    <h3>🎯 Objetivos de Eficiencia</h3>
+                    <ul>
+                        <li>⏱️ Prompt: <strong>&lt; 30 segundos</strong> de leer</li>
+                        <li>📏 Longitud: <strong>&lt; 5,000 tokens</strong> por tarea típica</li>
+                        <li>🚀 Tiempo: <strong>50% más rápido</strong></li>
+                        <li>💰 Costo: <strong>87% menos</strong></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- CONFIG -->
+            <section id="config" class="section">
+                <h2>⚙️ Configuración de VSCode</h2>
+
+                <div class="card">
+                    <h3>📁 Crear archivo de configuración</h3>
+                    <p>Ubicación: <code>.vscode/settings.json</code></p>
+
+                    <pre><code>{
+  // Claude Code Settings
+  "claudeCode.enabled": true,
+  "claudeCode.model": "claude-sonnet-4-5",
+  "claudeCode.temperature": 0.7,
+
+  // Context Optimization
+  "claudeCode.maxContextFiles": 10,
+  "claudeCode.excludePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.next/**",
+    "**/coverage/**"
+  ],
+
+  // UI
+  "claudeCode.showInlineDiffs": true,
+  "claudeCode.enableStatusIndicator": true,
+
+  // Performance
+  "claudeCode.throttleRequests": true,
+  "claudeCode.cacheResponses": true
+}</code></pre>
+                </div>
+
+                <h3>🎯 Workflow de Uso Recomendado</h3>
+                <div class="workflow">
+                    <div class="workflow-step">
+                        <span class="step-number">1</span>
+                        <h4>Elige el Agente</h4>
+                        <p>Revisa la sección "Agentes" y selecciona el especialista que necesitas</p>
+                    </div>
+                    <div class="workflow-step">
+                        <span class="step-number">2</span>
+                        <h4>Copia el Prompt</h4>
+                        <p>Ve a "Prompts" y copia el template que mejor se ajuste a tu tarea</p>
+                    </div>
+                    <div class="workflow-step">
+                        <span class="step-number">3</span>
+                        <h4>Adapta y Ejecuta</h4>
+                        <p>Modifica los [placeholders] con tu contexto específico y ejecuta</p>
+                    </div>
+                    <div class="workflow-step">
+                        <span class="step-number">4</span>
+                        <h4>Verifica Quality Gates</h4>
+                        <p>Asegúrate de que todos los tests pasen y no haya errores</p>
+                    </div>
+                    <div class="workflow-step">
+                        <span class="step-number">5</span>
+                        <h4>¡Listo!</h4>
+                        <p>El agente te entrega código perfecto, probado y documentado 🎉</p>
+                    </div>
+                </div>
+
+                <h3>🔗 Archivos de Referencia Rápida</h3>
+                <div class="references">
+                    <div class="ref-card">
+                        <h4>.claude/OPTIMIZATION.md</h4>
+                        <p>Contexto base del proyecto (léelo primero)</p>
+                    </div>
+                    <div class="ref-card">
+                        <h4>.claude/rules.md</h4>
+                        <p>Reglas generales del proyecto</p>
+                    </div>
+                    <div class="ref-card">
+                        <h4>.claude/rules/backend.md</h4>
+                        <p>Reglas específicas de backend</p>
+                    </div>
+                    <div class="ref-card">
+                        <h4>.claude/rules/frontend.md</h4>
+                        <p>Reglas específicas de frontend</p>
+                    </div>
+                    <div class="ref-card">
+                        <h4>.claude/PROMPTS.md</h4>
+                        <p>Más prompts optimizados</p>
+                    </div>
+                    <div class="ref-card">
+                        <h4>.claude/MCP-SERVERS.md</h4>
+                        <p>Guía completa de MCPs</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Creado con ❤️ para Ordo-Todo | Sistema de Desarrollo con IA más avanzado del universo 🚀</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

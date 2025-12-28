@@ -42,6 +42,8 @@ export type ApiClient = OrdoApiClient | {
   getWorkspaceSettings?: OrdoApiClient['getWorkspaceSettings'];
   updateWorkspaceSettings?: OrdoApiClient['updateWorkspaceSettings'];
   getWorkspaceAuditLogs?: OrdoApiClient['getWorkspaceAuditLogs'];
+  createAuditLog?: OrdoApiClient['createAuditLog'];
+  archiveWorkspace?: OrdoApiClient['archiveWorkspace'];
 
   // Workflow
   getWorkflows: OrdoApiClient['getWorkflows'];

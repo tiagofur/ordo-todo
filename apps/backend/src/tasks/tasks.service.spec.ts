@@ -5,11 +5,10 @@ import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { GamificationService } from '../gamification/gamification.service';
+import { CreateTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
 
 describe('TasksService', () => {
   let service: TasksService;
-  let prismaService: PrismaService;
-  let activitiesService: ActivitiesService;
 
   const mockTaskRepository = {
     findByOwnerId: jest.fn(),
@@ -297,6 +296,242 @@ describe('TasksService', () => {
 
       expect(mockTaskRepository.delete).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ success: true });
+    });
+  });
+
+  describe('create', () => {
+    it('should create task with auto-assignee to creator when not specified', async () => {
+      const userId = 'user-123';
+      const createTaskDto = {
+        title: 'New Task',
+        projectId: 'project-123',
+        description: 'Test task',
+        priority: 'HIGH',
+        dueDate: new Date(),
+      };
+
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: userId,
+          assigneeId: userId, // Should be auto-assigned to creator
+          projectId: 'project-123',
+          description: 'Test task',
+          priority: 'HIGH',
+          dueDate: createTaskDto.dueDate,
+        },
+      };
+
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      // Mock the use case execution
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTask);
+
+      const result = await service.create(createTaskDto, userId);
+
+      // Verify CreateTaskUseCase was called with assigneeId set to userId
+      expect(executeSpy).toHaveBeenCalledWith({
+        ...createTaskDto,
+        ownerId: userId,
+        assigneeId: userId, // Auto-assigned to creator
+      });
+
+      expect(result).toEqual(mockTask.props);
+    });
+
+    it('should create task with specified assignee when provided', async () => {
+      const userId = 'user-123';
+      const assigneeId = 'user-456';
+      const createTaskDto = {
+        title: 'New Task',
+        projectId: 'project-123',
+        assigneeId: assigneeId, // Explicit assignee
+      };
+
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: userId,
+          assigneeId: assigneeId, // Should use specified assignee
+          projectId: 'project-123',
+        },
+      };
+
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockNotificationsService.create = jest.fn().mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      // Mock the use case execution
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTask);
+
+      const result = await service.create(createTaskDto, userId);
+
+      // Verify CreateTaskUseCase was called with the specified assigneeId
+      expect(executeSpy).toHaveBeenCalledWith({
+        ...createTaskDto,
+        ownerId: userId,
+        assigneeId: assigneeId,
+      });
+
+      // Verify notification was sent to assignee (different from creator)
+      expect(mockNotificationsService.create).toHaveBeenCalledWith({
+        userId: assigneeId,
+        type: 'TASK_ASSIGNED',
+        title: 'Task assigned to you',
+        message: 'You were assigned to task "New Task"',
+        resourceId: 'task-123',
+        resourceType: 'TASK',
+      });
+
+      expect(result).toEqual(mockTask.props);
+    });
+
+    it('should not send notification when assignee is the creator', async () => {
+      const userId = 'user-123';
+      const createTaskDto = {
+        title: 'New Task',
+        projectId: 'project-123',
+        assigneeId: userId, // Same as creator
+      };
+
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: userId,
+          assigneeId: userId,
+          projectId: 'project-123',
+        },
+      };
+
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTask);
+
+      await service.create(createTaskDto, userId);
+
+      // Verify notification was NOT sent (assignee == creator)
+      expect(mockNotificationsService.create).not.toHaveBeenCalled();
+    });
+
+    it('should update daily metrics when creating task', async () => {
+      const userId = 'user-123';
+      const createTaskDto = {
+        title: 'New Task',
+        projectId: 'project-123',
+      };
+
+      const mockTask = {
+        id: 'task-123',
+        props: {
+          id: 'task-123',
+          title: 'New Task',
+          ownerId: userId,
+          assigneeId: userId,
+          projectId: 'project-123',
+        },
+      };
+
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTask);
+
+      await service.create(createTaskDto, userId);
+
+      // Verify UpdateDailyMetricsUseCase was called
+      const updateMetricsSpy = jest.spyOn(
+        UpdateDailyMetricsUseCase.prototype,
+        'execute',
+      );
+      expect(updateMetricsSpy).toHaveBeenCalledWith({
+        userId,
+        date: expect.any(Date),
+        tasksCreated: 1,
+      });
+    });
+  });
+
+  describe('createSubtask', () => {
+    it('should auto-assign subtask to creator when not specified', async () => {
+      const userId = 'user-123';
+      const parentTaskId = 'task-parent';
+      const createSubtaskDto = {
+        title: 'New Subtask',
+        projectId: 'project-123',
+      };
+
+      const mockParentTask = {
+        id: parentTaskId,
+        props: {
+          id: parentTaskId,
+          projectId: 'project-123',
+        },
+      };
+
+      const mockSubtask = {
+        id: 'subtask-123',
+        props: {
+          id: 'subtask-123',
+          title: 'New Subtask',
+          ownerId: userId,
+          assigneeId: userId, // Auto-assigned
+          parentTaskId: parentTaskId,
+          projectId: 'project-123',
+        },
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockParentTask);
+      mockTaskRepository.save = jest.fn().mockResolvedValue(undefined);
+      mockActivitiesService.logSubtaskAdded = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockActivitiesService.logTaskCreated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+
+      const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockSubtask);
+
+      const result = await service.createSubtask(
+        parentTaskId,
+        createSubtaskDto,
+        userId,
+      );
+
+      // Verify CreateTaskUseCase was called with auto-assignee
+      expect(executeSpy).toHaveBeenCalledWith({
+        ...createSubtaskDto,
+        projectId: 'project-123',
+        ownerId: userId,
+        assigneeId: userId, // Auto-assigned to creator
+        parentTaskId: parentTaskId,
+      });
+
+      expect(result).toEqual(mockSubtask.props);
     });
   });
 });

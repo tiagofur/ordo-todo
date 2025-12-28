@@ -908,6 +908,22 @@ class OrdoApiClient {
         });
         return response.data;
     }
+    /**
+     * Create an audit log entry
+     * POST /workspaces/:id/audit-logs
+     */
+    async createAuditLog(workspaceId, action, payload) {
+        const response = await this.axios.post(`/workspaces/${workspaceId}/audit-logs`, { action, payload });
+        return response.data;
+    }
+    /**
+     * Archive a workspace
+     * POST /workspaces/:id/archive
+     */
+    async archiveWorkspace(workspaceId) {
+        const response = await this.axios.post(`/workspaces/${workspaceId}/archive`);
+        return response.data;
+    }
     // ============ EXTENDED TAG ENDPOINTS ============
     /**
      * Update a tag

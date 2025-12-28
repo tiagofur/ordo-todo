@@ -14,7 +14,9 @@ export class AddMemberToWorkspaceUseCase {
         // Check if user is already a member
         const existingMember = await this.workspaceRepository.findMember(workspaceId, userId);
         if (existingMember) {
-            throw new Error("User is already a member of this workspace");
+            // If already a member, return existing member (idempotent operation)
+            // This handles the case where the repository already added the owner as member during workspace creation
+            return existingMember;
         }
 
         const member = WorkspaceMember.create({

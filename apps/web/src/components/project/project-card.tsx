@@ -39,7 +39,7 @@ export function ProjectCard({
   const projectTasks =
     tasks?.filter((t: Task) => String(t.projectId) === String(project.id)) || [];
   const totalTasks = projectTasks.length;
-  const completedTasks = projectTasks.filter((t: Task) => t.status === "DONE").length;
+  const completedTasks = projectTasks.filter((t: Task) => t.status === "COMPLETED").length;
   const progressPercent = calculateProgress(completedTasks, totalTasks);
 
   const archiveProjectMutation = useArchiveProject();

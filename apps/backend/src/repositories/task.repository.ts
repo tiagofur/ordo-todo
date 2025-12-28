@@ -168,6 +168,7 @@ export class PrismaTaskRepository implements TaskRepository {
       estimatedMinutes: task.props.estimatedTime,
       projectId: task.props.projectId,
       ownerId: task.props.ownerId,
+      assigneeId: task.props.assigneeId ?? null,
       parentTaskId: task.props.parentTaskId ?? null,
     };
 

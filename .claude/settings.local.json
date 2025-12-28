@@ -53,7 +53,15 @@
       "Bash(build-without-sdk.bat:*)",
       "Bash(npm start dev)",
       "Bash(./build-without-sdk.bat)",
-      "Bash(NODE_ENV=development npm start)"
+      "Bash(NODE_ENV=development npm start)",
+      "Bash(wc:*)",
+      "Bash(cat:*)",
+      "Bash(npm test:*)",
+      "Bash(npx jest:*)",
+      "Bash(curl:*)",
+      "Bash(move:*)",
+      "Bash(grep:*)",
+      "Bash(done:*)"
     ],
     "deny": [],
     "ask": []

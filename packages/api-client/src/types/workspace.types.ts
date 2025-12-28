@@ -4,6 +4,7 @@
 
 export type WorkspaceType = 'PERSONAL' | 'WORK' | 'TEAM';
 export type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
+export type ViewType = 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
 
 export interface Workspace {
   id: string;
@@ -117,15 +118,21 @@ export interface UpdateWorkspaceSettingsDto {
 export interface WorkspaceAuditLog {
   id: string;
   workspaceId: string;
-  userId: string;
+  actorId?: string | null;
   action: string;
-  entityType: string;
-  entityId: string;
-  details: Record<string, unknown>;
+  payload?: Record<string, unknown> | null;
   createdAt: Date;
-  user?: {
+  actor?: {
     id: string;
     name: string | null;
     email: string;
   };
+}
+
+/**
+ * Paginated audit logs response
+ */
+export interface WorkspaceAuditLogsResponse {
+  logs: WorkspaceAuditLog[];
+  total: number;
 }

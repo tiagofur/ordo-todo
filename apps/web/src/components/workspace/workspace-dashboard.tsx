@@ -49,7 +49,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace.id);
-  const { data: activityData, isLoading: isLoadingActivity } = useWorkspaceAuditLogs(workspace.id, { limit: 5 });
+  const { data: auditLogData, isLoading: isLoadingActivity } = useWorkspaceAuditLogs(workspace.id, { limit: 5 });
 
   const deleteWorkspace = useDeleteWorkspace();
 
@@ -74,7 +74,8 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
 
   const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
   const TypeIcon = typeInfo.icon;
-  const logs = activityData || [];
+  // Backend returns { logs: [...], total: number }, extract the logs array
+  const logs = auditLogData?.logs || [];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -218,10 +219,10 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                 ? "grid gap-4 sm:grid-cols-2"
                 : "space-y-3"
             )}>
-              {projects.map((project, index: number) => (
+              {projects.map((project: { id: string; slug?: string; name: string; description?: string | null; color?: string; archived?: boolean }, index: number) => (
                 <ProjectCard
                   key={project.id}
-                  project={project}
+                  project={project as Parameters<typeof ProjectCard>[0]['project']}
                   index={index}
                   workspaceSlug={workspace.slug}
                   ownerUsername={workspace.owner?.username ?? undefined}

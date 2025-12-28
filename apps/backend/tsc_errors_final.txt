@@ -1,0 +1,131 @@
+src/ai/ai.controller.spec.ts(72,53): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/ai/ai.controller.spec.ts(96,59): error TS2554: Expected 1 arguments, but got 2.
+src/ai/ai.controller.spec.ts(115,9): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/ai/ai.controller.spec.ts(132,52): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/ai/ai.controller.spec.ts(157,60): error TS2554: Expected 1 arguments, but got 2.
+src/ai/ai.controller.spec.ts(183,58): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/ai/ai.controller.spec.ts(201,46): error TS2345: Argument of type '{ peakHours: number[]; avgSessionDuration: number; }' is not assignable to parameter of type 'Readonly<AIProfileProps> | Promise<Readonly<AIProfileProps> | null> | null'.
+  Type '{ peakHours: number[]; avgSessionDuration: number; }' is missing the following properties from type 'Readonly<AIProfileProps>': userId, peakDays, avgTaskDuration, completionRate, categoryPreferences
+src/ai/ai.controller.spec.ts(203,50): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(48,9): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(71,9): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(94,59): error TS2345: Argument of type '{ totalTasks: number; totalMinutes: number; avgTasksPerDay: number; completionRate: number; }' is not assignable to parameter of type 'Readonly<DailyMetricsProps>[] | Promise<Readonly<DailyMetricsProps>[]>'.
+src/analytics/analytics.controller.spec.ts(96,56): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(114,60): error TS2345: Argument of type '{ totalTasks: number; totalMinutes: number; avgTasksPerDay: number; daysWorked: number; }' is not assignable to parameter of type 'Readonly<DailyMetricsProps>[] | Promise<Readonly<DailyMetricsProps>[]>'.
+src/analytics/analytics.controller.spec.ts(116,57): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(137,9): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(158,60): error TS2345: Argument of type '{ tasksCompleted: number; tasksInProgress: number; overdue: number; }' is not assignable to parameter of type '{ avgPerDay: number; trends: { pomodoros: number; tasks: number; minutes: number; }; pomodoros: any; tasks: any; minutes: any; } | Promise<{ avgPerDay: number; trends: { pomodoros: number; tasks: number; minutes: number; }; pomodoros: any; tasks: any; minutes: any; }>'.
+src/analytics/analytics.controller.spec.ts(160,57): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(175,57): error TS2345: Argument of type '{ date: string; count: number; }[]' is not assignable to parameter of type '{ day: string; hours: { hour: number; value: number; }[]; }[] | Promise<{ day: string; hours: { hour: number; value: number; }[]; }[]>'.
+  Type '{ date: string; count: number; }[]' is not assignable to type '{ day: string; hours: { hour: number; value: number; }[]; }[]'.
+    Type '{ date: string; count: number; }' is missing the following properties from type '{ day: string; hours: { hour: number; value: number; }[]; }': day, hours
+src/analytics/analytics.controller.spec.ts(177,50): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(191,9): error TS2345: Argument of type '{ projectId: string; projectName: string; minutes: number; }[]' is not assignable to parameter of type '{ name: string; value: number; }[] | Promise<{ name: string; value: number; }[]>'.
+  Type '{ projectId: string; projectName: string; minutes: number; }[]' is not assignable to type '{ name: string; value: number; }[]'.
+    Type '{ projectId: string; projectName: string; minutes: number; }' is missing the following properties from type '{ name: string; value: number; }': name, value
+src/analytics/analytics.controller.spec.ts(194,62): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(211,9): error TS2345: Argument of type '{ status: string; count: number; }[]' is not assignable to parameter of type '{ status: TaskStatus; count: number; }[] | Promise<{ status: TaskStatus; count: number; }[]>'.
+  Type '{ status: string; count: number; }[]' is not assignable to type '{ status: TaskStatus; count: number; }[]'.
+    Type '{ status: string; count: number; }' is not assignable to type '{ status: $Enums.TaskStatus; count: number; }'.
+      Types of property 'status' are incompatible.
+        Type 'string' is not assignable to type 'TaskStatus'.
+src/analytics/analytics.controller.spec.ts(214,65): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(230,64): error TS2345: Argument of type '{ current: number; longest: number; lastActiveDate: string; }' is not assignable to parameter of type '{ currentStreak: number; longestStreak: number; productiveDaysLast90: number; avgDailyTasks: number; streakStatus: string; } | Promise<{ currentStreak: number; longestStreak: number; productiveDaysLast90: number; avgDailyTasks: number; streakStatus: string; }>'.
+src/analytics/analytics.controller.spec.ts(232,61): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/analytics/analytics.controller.spec.ts(248,57): error TS2345: Argument of type '{ totalTasks: number; completedTasks: number; members: never[]; }' is not assignable to parameter of type '{ period: { start: Date; end: Date; }; teamTotals: { totalTasksCompleted: number; totalMinutesWorked: number; totalPomodoros: number; avgFocusScore: number; activeMembersCount: number; }; memberBreakdown: { ...; }[]; topPerformers: { ...; }[]; } | Promise<...>'.
+src/attachments/attachments.controller.spec.ts(55,39): error TS2339: Property 'upload' does not exist on type 'AttachmentsController'.
+src/attachments/attachments.controller.spec.ts(74,39): error TS2339: Property 'findByTask' does not exist on type 'AttachmentsController'.
+src/attachments/attachments.controller.spec.ts(87,26): error TS2339: Property 'findById' does not exist on type 'Mocked<AttachmentsService>'.
+src/attachments/attachments.controller.spec.ts(89,39): error TS2339: Property 'findOne' does not exist on type 'AttachmentsController'.
+src/attachments/attachments.controller.spec.ts(91,33): error TS2339: Property 'findById' does not exist on type 'Mocked<AttachmentsService>'.
+src/attachments/attachments.controller.spec.ts(101,26): error TS2339: Property 'delete' does not exist on type 'Mocked<AttachmentsService>'.
+src/attachments/attachments.controller.spec.ts(103,42): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/attachments/attachments.controller.spec.ts(105,33): error TS2339: Property 'delete' does not exist on type 'Mocked<AttachmentsService>'.
+src/attachments/attachments.controller.spec.ts(115,26): error TS2339: Property 'getDownloadUrl' does not exist on type 'Mocked<AttachmentsService>'.
+src/attachments/attachments.controller.spec.ts(117,39): error TS2339: Property 'download' does not exist on type 'AttachmentsController'.
+src/attachments/attachments.controller.spec.ts(119,33): error TS2339: Property 'getDownloadUrl' does not exist on type 'Mocked<AttachmentsService>'.
+src/chat/chat.service.spec.ts(141,57): error TS2345: Argument of type '{ conversations: { id: string; title: string; messageCount: number; }[]; total: number; limit: number; offset: number; }' is not assignable to parameter of type '{ conversations: { id: string; title: string | null; context: JsonValue; messageCount: number; lastMessage: string; createdAt: Date; updatedAt: Date; }[]; total: number; limit: number; offset: number; } | Promise<...>'.
+  Type '{ conversations: { id: string; title: string; messageCount: number; }[]; total: number; limit: number; offset: number; }' is not assignable to type '{ conversations: { id: string; title: string | null; context: Prisma.JsonValue; messageCount: number; lastMessage: string; createdAt: Date; updatedAt: Date; }[]; total: number; limit: number; offset: number; }'.
+    Types of property 'conversations' are incompatible.
+      Type '{ id: string; title: string; messageCount: number; }[]' is not assignable to type '{ id: string; title: string | null; context: JsonValue; messageCount: number; lastMessage: string; createdAt: Date; updatedAt: Date; }[]'.
+        Type '{ id: string; title: string; messageCount: number; }' is missing the following properties from type '{ id: string; title: string | null; context: JsonValue; messageCount: number; lastMessage: string; createdAt: Date; updatedAt: Date; }': context, lastMessage, createdAt, updatedAt
+src/notifications/notifications.gateway.spec.ts(218,15): error TS2540: Cannot assign to 'id' because it is a read-only property.
+src/templates/templates.controller.spec.ts(56,57): error TS2554: Expected 1 arguments, but got 2.
+src/templates/templates.controller.spec.ts(74,47): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'string'.
+src/templates/templates.controller.spec.ts(84,24): error TS2339: Property 'findById' does not exist on type 'Mocked<TemplatesService>'.
+src/templates/templates.controller.spec.ts(86,59): error TS2554: Expected 1 arguments, but got 2.
+src/templates/templates.controller.spec.ts(88,31): error TS2339: Property 'findById' does not exist on type 'Mocked<TemplatesService>'.
+src/templates/templates.controller.spec.ts(102,69): error TS2554: Expected 2 arguments, but got 3.
+src/templates/templates.controller.spec.ts(115,24): error TS2339: Property 'delete' does not exist on type 'Mocked<TemplatesService>'.
+src/templates/templates.controller.spec.ts(117,43): error TS2554: Expected 1 arguments, but got 2.
+src/templates/templates.controller.spec.ts(119,31): error TS2339: Property 'delete' does not exist on type 'Mocked<TemplatesService>'.
+src/templates/templates.controller.spec.ts(133,24): error TS2339: Property 'createTaskFromTemplate' does not exist on type 'Mocked<TemplatesService>'.
+src/templates/templates.controller.spec.ts(137,39): error TS2339: Property 'createTask' does not exist on type 'TemplatesController'.
+src/templates/templates.controller.spec.ts(143,31): error TS2339: Property 'createTaskFromTemplate' does not exist on type 'Mocked<TemplatesService>'.
+src/timers/timers.controller.spec.ts(45,57): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(57,49): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(66,49): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(82,56): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(95,57): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(108,58): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(124,62): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(145,60): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/timers/timers.controller.spec.ts(161,63): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/workflows/workflows.controller.spec.ts(52,57): error TS2554: Expected 1 arguments, but got 2.
+src/workflows/workflows.controller.spec.ts(70,57): error TS2554: Expected 1 arguments, but got 2.
+src/workflows/workflows.controller.spec.ts(83,24): error TS2339: Property 'findById' does not exist on type 'Mocked<WorkflowsService>'.
+src/workflows/workflows.controller.spec.ts(85,39): error TS2339: Property 'findOne' does not exist on type 'WorkflowsController'.
+src/workflows/workflows.controller.spec.ts(87,31): error TS2339: Property 'findById' does not exist on type 'Mocked<WorkflowsService>'.
+src/workflows/workflows.controller.spec.ts(101,67): error TS2554: Expected 2 arguments, but got 3.
+src/workflows/workflows.controller.spec.ts(114,24): error TS2339: Property 'delete' does not exist on type 'Mocked<WorkflowsService>'.
+src/workflows/workflows.controller.spec.ts(116,41): error TS2554: Expected 1 arguments, but got 2.
+src/workflows/workflows.controller.spec.ts(118,31): error TS2339: Property 'delete' does not exist on type 'Mocked<WorkflowsService>'.
+src/workflows/workflows.controller.spec.ts(135,24): error TS2339: Property 'reorder' does not exist on type 'Mocked<WorkflowsService>'.
+src/workflows/workflows.controller.spec.ts(137,39): error TS2339: Property 'reorder' does not exist on type 'WorkflowsController'.
+src/workflows/workflows.controller.spec.ts(139,31): error TS2339: Property 'reorder' does not exist on type 'Mocked<WorkflowsService>'.
+src/workspaces/workspaces.controller.spec.ts(56,46): error TS2345: Argument of type '{ name: string; description: string; }' is not assignable to parameter of type 'CreateWorkspaceDto'.
+  Type '{ name: string; description: string; }' is missing the following properties from type 'CreateWorkspaceDto': slug, type
+src/workspaces/workspaces.controller.spec.ts(74,47): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/workspaces/workspaces.controller.spec.ts(84,25): error TS2339: Property 'findById' does not exist on type 'Mocked<WorkspacesService>'.
+src/workspaces/workspaces.controller.spec.ts(86,57): error TS2554: Expected 1 arguments, but got 2.
+src/workspaces/workspaces.controller.spec.ts(88,32): error TS2339: Property 'findById' does not exist on type 'Mocked<WorkspacesService>'.
+src/workspaces/workspaces.controller.spec.ts(102,67): error TS2554: Expected 2 arguments, but got 3.
+src/workspaces/workspaces.controller.spec.ts(115,25): error TS2339: Property 'delete' does not exist on type 'Mocked<WorkspacesService>'.
+src/workspaces/workspaces.controller.spec.ts(117,41): error TS2345: Argument of type '{ id: string; email: string; name: string; }' is not assignable to parameter of type 'RequestUser'.
+  Property 'username' is missing in type '{ id: string; email: string; name: string; }' but required in type 'RequestUser'.
+src/workspaces/workspaces.controller.spec.ts(119,32): error TS2339: Property 'delete' does not exist on type 'Mocked<WorkspacesService>'.
+src/workspaces/workspaces.controller.spec.ts(134,60): error TS2554: Expected 1 arguments, but got 2.
+src/workspaces/workspaces.controller.spec.ts(153,9): error TS2554: Expected 2 arguments, but got 3.
+src/workspaces/workspaces.controller.spec.ts(169,25): error TS2339: Property 'updateMember' does not exist on type 'Mocked<WorkspacesService>'.
+src/workspaces/workspaces.controller.spec.ts(171,39): error TS2339: Property 'updateMember' does not exist on type 'WorkspacesController'.
+src/workspaces/workspaces.controller.spec.ts(178,32): error TS2339: Property 'updateMember' does not exist on type 'Mocked<WorkspacesService>'.
+src/workspaces/workspaces.controller.spec.ts(190,56): error TS2345: Argument of type 'undefined' is not assignable to parameter of type '{ success: boolean; } | Promise<{ success: boolean; }>'.
+src/workspaces/workspaces.controller.spec.ts(192,59): error TS2554: Expected 2 arguments, but got 3.
+src/workspaces/workspaces.service.ts(434,11): error TS2322: Type 'WorkspaceInvitation' is not assignable to type 'null'.
+src/workspaces/workspaces.service.ts(443,45): error TS2339: Property 'props' does not exist on type 'never'.

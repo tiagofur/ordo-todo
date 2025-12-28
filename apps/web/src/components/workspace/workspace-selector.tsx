@@ -175,7 +175,7 @@ export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
             return (
               <div key={type} className="mb-3 last:mb-0">
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {getTypeLabel(type)}
+                  {getTypeLabel(type as WorkspaceType)}
                 </div>
                 <div className="space-y-1">
                   {workspaces.map((workspace) => {

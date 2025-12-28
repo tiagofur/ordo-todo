@@ -41,10 +41,22 @@ export class AcceptInvitationUseCase {
             throw new Error("Invitation expired");
         }
 
+        const workspaceId = matchedInvitation.props.workspaceId;
+
+        // Check if user is already a member of the workspace
+        const existingMember = await this.workspaceRepository.findMember(workspaceId, userId);
+        if (existingMember) {
+            // User is already a member - just mark the invitation as accepted and return
+            // This makes the operation idempotent and allows accepting invitations multiple times safely
+            const acceptedInvitation = matchedInvitation.accept();
+            await this.invitationRepository.update(acceptedInvitation);
+            return;
+        }
+
         // Add member to workspace
         const member = WorkspaceMember.create({
-            workspaceId: matchedInvitation.props.workspaceId,
-            userId: userId,
+            workspaceId,
+            userId,
             role: matchedInvitation.props.role,
         });
 

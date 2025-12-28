@@ -21,6 +21,7 @@ import type {
   WorkspaceInvitation,
   WorkspaceSettings,
   WorkspaceAuditLog,
+  WorkspaceAuditLogsResponse,
   CreateWorkspaceDto,
   UpdateWorkspaceDto,
   UpdateWorkspaceSettingsDto,
@@ -1219,10 +1220,35 @@ export class OrdoApiClient {
   async getWorkspaceAuditLogs(
     workspaceId: string,
     params?: { limit?: number; offset?: number }
-  ): Promise<WorkspaceAuditLog[]> {
-    const response = await this.axios.get<WorkspaceAuditLog[]>(`/workspaces/${workspaceId}/audit-logs`, {
+  ): Promise<WorkspaceAuditLogsResponse> {
+    const response = await this.axios.get<WorkspaceAuditLogsResponse>(`/workspaces/${workspaceId}/audit-logs`, {
       params,
     });
+    return response.data;
+  }
+
+  /**
+   * Create an audit log entry
+   * POST /workspaces/:id/audit-logs
+   */
+  async createAuditLog(
+    workspaceId: string,
+    action: string,
+    payload?: Record<string, unknown>
+  ): Promise<WorkspaceAuditLog> {
+    const response = await this.axios.post<WorkspaceAuditLog>(
+      `/workspaces/${workspaceId}/audit-logs`,
+      { action, payload }
+    );
+    return response.data;
+  }
+
+  /**
+   * Archive a workspace
+   * POST /workspaces/:id/archive
+   */
+  async archiveWorkspace(workspaceId: string): Promise<Workspace> {
+    const response = await this.axios.post<Workspace>(`/workspaces/${workspaceId}/archive`);
     return response.data;
   }
 

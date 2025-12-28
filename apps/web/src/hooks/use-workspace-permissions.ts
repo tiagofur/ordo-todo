@@ -91,7 +91,7 @@ export function useWorkspacePermissions(
     const isOwner = workspace.ownerId === user.id;
 
     // Find user's membership
-    const membership = members?.find((m) => m.userId === user.id);
+    const membership = members?.find((m: { userId: string; role: MemberRole }) => m.userId === user.id);
     const userRole = membership?.role ?? null;
     const isMember = !!membership;
 
@@ -158,7 +158,7 @@ export function useWorkspaceMembership(workspaceId: string | null | undefined) {
       return null;
     }
 
-    return members.find((m) => m.userId === user.id) ?? null;
+    return members.find((m: { userId: string; role: MemberRole }) => m.userId === user.id) ?? null;
   }, [user, isAuthenticated, members]);
 
   return {

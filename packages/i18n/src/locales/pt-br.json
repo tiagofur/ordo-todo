@@ -867,6 +867,7 @@
     "roleLabel": "Função",
     "rolePlaceholder": "Selecione uma função",
     "roles": {
+      "owner": "Criador",
       "admin": "Admin",
       "member": "Membro",
       "viewer": "Visualizador"

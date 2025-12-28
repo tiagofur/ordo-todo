@@ -957,6 +957,7 @@ export declare const locales: {
             roleLabel: string;
             rolePlaceholder: string;
             roles: {
+                owner: string;
                 admin: string;
                 member: string;
                 viewer: string;
@@ -987,6 +988,12 @@ export declare const locales: {
             email: string;
             status: string;
             sent: string;
+            roles: {
+                owner: string;
+                admin: string;
+                member: string;
+                viewer: string;
+            };
         };
         AcceptInvitationPage: {
             title: string;
@@ -3168,6 +3175,7 @@ export declare const locales: {
             roleLabel: string;
             rolePlaceholder: string;
             roles: {
+                owner: string;
                 admin: string;
                 member: string;
                 viewer: string;
@@ -3201,6 +3209,12 @@ export declare const locales: {
             email: string;
             status: string;
             sent: string;
+            roles: {
+                owner: string;
+                admin: string;
+                member: string;
+                viewer: string;
+            };
         };
         AcceptInvitationPage: {
             title: string;
@@ -5351,6 +5365,7 @@ export declare const locales: {
             roleLabel: string;
             rolePlaceholder: string;
             roles: {
+                owner: string;
                 admin: string;
                 member: string;
                 viewer: string;
@@ -5381,6 +5396,12 @@ export declare const locales: {
             email: string;
             status: string;
             sent: string;
+            roles: {
+                owner: string;
+                admin: string;
+                member: string;
+                viewer: string;
+            };
         };
         AcceptInvitationPage: {
             title: string;

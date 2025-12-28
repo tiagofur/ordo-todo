@@ -933,6 +933,7 @@
     "roleLabel": "Rol",
     "rolePlaceholder": "Selecciona un rol",
     "roles": {
+      "owner": "Creador",
       "admin": "Admin",
       "member": "Miembro",
       "viewer": "Visualizador"

@@ -369,6 +369,47 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  function useCreateAuditLog() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({
+        workspaceId,
+        action,
+        payload,
+      }: {
+        workspaceId: string;
+        action: string;
+        payload?: Record<string, unknown>;
+      }) => {
+        if (!apiClient.createAuditLog) {
+          throw new Error('createAuditLog not implemented in API client');
+        }
+        return apiClient.createAuditLog(workspaceId, action, payload);
+      },
+      onSuccess: (_, { workspaceId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
+      },
+    });
+  }
+
+  function useArchiveWorkspace() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (workspaceId: string) => {
+        if (!apiClient.archiveWorkspace) {
+          throw new Error('archiveWorkspace not implemented in API client');
+        }
+        return apiClient.archiveWorkspace(workspaceId);
+      },
+      onSuccess: (_, workspaceId) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
+      },
+    });
+  }
+
   // ============ WORKFLOW HOOKS ============
 
   function useWorkflows(workspaceId: string) {
@@ -1540,6 +1581,7 @@ export function createHooks(config: CreateHooksConfig) {
     useCreateWorkspace,
     useUpdateWorkspace,
     useDeleteWorkspace,
+    useArchiveWorkspace,
     useAddWorkspaceMember,
     useRemoveWorkspaceMember,
     useWorkspaceMembers,
@@ -1549,6 +1591,7 @@ export function createHooks(config: CreateHooksConfig) {
     useWorkspaceSettings,
     useUpdateWorkspaceSettings,
     useWorkspaceAuditLogs,
+    useCreateAuditLog,
 
     // Workflow
     useWorkflows,

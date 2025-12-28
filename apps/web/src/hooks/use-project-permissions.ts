@@ -102,7 +102,7 @@ export function useProjectPermissions(
     const isProjectOwner = project.ownerId === user.id;
 
     // Find user's membership in the workspace
-    const membership = members?.find((m) => m.userId === user.id);
+    const membership = members?.find((m: { userId: string; role: MemberRole }) => m.userId === user.id);
     const workspaceRole = membership?.role ?? null;
     const isMember = !!membership;
 

@@ -2,6 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🤖 Specialized Agents System
+
+This project uses **elite specialist agents** for autonomous development. Each agent is highly specialized and follows a complete workflow: research → implement → test → document → validate.
+
+**Available Agents** (see [`.claude/agents/README.md`](.claude/agents/README.md) for complete guide):
+
+1. **[NestJS Backend](.claude/agents/nestjs-backend.md)** - REST APIs, services, controllers (NestJS 11+)
+2. **[Next.js Frontend](.claude/agents/nextjs-frontend.md)** - React components, pages, hooks (Next.js 15+, React 19)
+3. **[React Native](.claude/agents/react-native-specialist.md)** - Mobile screens, native modules
+4. **[Electron](.claude/agents/electron-specialist.md)** - Desktop features, IPC communication
+5. **[PostgreSQL](.claude/agents/postgres-specialist.md)** - Database schema, migrations, optimization
+6. **[Testing Specialist](.claude/agents/testing-specialist.md)** - Unit, integration, E2E tests (100% coverage)
+7. **[Documentation Specialist](.claude/agents/documentation-specialist.md)** - API docs, README, diagrams
+8. **[Refactoring Specialist](.claude/agents/refactoring-specialist.md)** - Code quality, SOLID principles
+
+**All agents**:
+- ✅ Search for latest versions and best practices
+- ✅ Write comprehensive tests (unit + integration + E2E)
+- ✅ Generate complete documentation
+- ✅ Validate quality gates (type check, lint, coverage)
+- ✅ Iterate until everything is perfect
+
 ## Project Overview
 
 **Ordo-Todo** is a modern task organization platform built with **DDD (Domain-Driven Design) + Clean Architecture** in a **Turborepo monorepo**. The project features:

@@ -1,0 +1,4 @@
+
+> @ordo-todo/backend@1.0.0 check-types
+> tsc --noEmit -p tsconfig.build.json
+

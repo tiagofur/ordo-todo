@@ -52,7 +52,8 @@ export class ProjectsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new project',
-    description: 'Creates a new project within a workspace. User must be OWNER, ADMIN, or MEMBER of the workspace.',
+    description:
+      'Creates a new project within a workspace. User must be OWNER, ADMIN, or MEMBER of the workspace.',
   })
   @ApiBody({ type: CreateProjectDto })
   @ApiResponse({
@@ -61,7 +62,8 @@ export class ProjectsController {
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'User does not have permission to create projects in this workspace',
+    description:
+      'User does not have permission to create projects in this workspace',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -83,7 +85,8 @@ export class ProjectsController {
   )
   @ApiOperation({
     summary: 'Get all projects in a workspace',
-    description: 'Retrieves all projects for the specified workspace. User must be a member of the workspace.',
+    description:
+      'Retrieves all projects for the specified workspace. User must be a member of the workspace.',
   })
   @ApiQuery({
     name: 'workspaceId',
@@ -107,7 +110,8 @@ export class ProjectsController {
   @Get('all')
   @ApiOperation({
     summary: 'Get all projects for current user',
-    description: 'Retrieves all projects across all workspaces where the user is a member.',
+    description:
+      'Retrieves all projects across all workspaces where the user is a member.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -127,7 +131,8 @@ export class ProjectsController {
   )
   @ApiOperation({
     summary: 'Get project by ID',
-    description: 'Retrieves a single project by its ID. User must have access to the workspace.',
+    description:
+      'Retrieves a single project by its ID. User must have access to the workspace.',
   })
   @ApiParam({
     name: 'id',
@@ -152,7 +157,8 @@ export class ProjectsController {
   @Get('by-slug/:workspaceSlug/:projectSlug')
   @ApiOperation({
     summary: 'Get project by workspace and project slugs',
-    description: 'Retrieves a project using human-readable slugs for both workspace and project.',
+    description:
+      'Retrieves a project using human-readable slugs for both workspace and project.',
   })
   @ApiParam({
     name: 'workspaceSlug',
@@ -186,7 +192,8 @@ export class ProjectsController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @ApiOperation({
     summary: 'Update project',
-    description: 'Updates an existing project. User must be OWNER, ADMIN, or MEMBER of the workspace.',
+    description:
+      'Updates an existing project. User must be OWNER, ADMIN, or MEMBER of the workspace.',
   })
   @ApiParam({
     name: 'id',
@@ -214,7 +221,8 @@ export class ProjectsController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @ApiOperation({
     summary: 'Archive/unarchive project',
-    description: 'Toggles the archived status of a project. Only OWNER and ADMIN can archive projects.',
+    description:
+      'Toggles the archived status of a project. Only OWNER and ADMIN can archive projects.',
   })
   @ApiParam({
     name: 'id',
@@ -242,7 +250,8 @@ export class ProjectsController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @ApiOperation({
     summary: 'Mark project as complete',
-    description: 'Marks a project as completed. User must be OWNER, ADMIN, or MEMBER.',
+    description:
+      'Marks a project as completed. User must be OWNER, ADMIN, or MEMBER.',
   })
   @ApiParam({
     name: 'id',
@@ -271,7 +280,8 @@ export class ProjectsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete project',
-    description: 'Permanently deletes a project and all its tasks. Only OWNER and ADMIN can delete projects.',
+    description:
+      'Permanently deletes a project and all its tasks. Only OWNER and ADMIN can delete projects.',
   })
   @ApiParam({
     name: 'id',

@@ -46,10 +46,7 @@ export class WorkspaceGuard implements CanActivate {
     }
 
     // 2. Extract workspace ID based on configuration
-    const workspaceId = await this.extractWorkspaceId(
-      request,
-      workspaceConfig,
-    );
+    const workspaceId = await this.extractWorkspaceId(request, workspaceConfig);
 
     if (!workspaceId) {
       throw new BadRequestException(
@@ -115,12 +112,13 @@ export class WorkspaceGuard implements CanActivate {
     const params = request.params || {};
 
     switch (config.type) {
-      case 'direct':
+      case 'direct': {
         // Workspace ID is directly in params
         const paramName = config.paramName || 'id';
         return params[paramName] || null;
+      }
 
-      case 'from-project':
+      case 'from-project': {
         // Need to lookup workspace from project
         const projectId = params[config.paramName || 'projectId'];
         if (!projectId) return null;
@@ -131,8 +129,9 @@ export class WorkspaceGuard implements CanActivate {
         });
 
         return project?.workspaceId || null;
+      }
 
-      case 'from-task':
+      case 'from-task': {
         // Need to lookup workspace from task
         const taskId = params[config.paramName || 'taskId'];
         if (!taskId) return null;
@@ -147,10 +146,11 @@ export class WorkspaceGuard implements CanActivate {
         });
 
         return task?.project?.workspaceId || null;
+      }
 
       default:
         this.logger.error(
-          `Unknown workspace context type: ${(config as any).type}`,
+          `Unknown workspace context type: ${String(config.type)}`,
         );
         return null;
     }
@@ -162,7 +162,13 @@ export class WorkspaceGuard implements CanActivate {
   private async handleLegacyWorkspace(
     workspaceId: string,
     userId: string,
-  ): Promise<any | null> {
+  ): Promise<{
+    id: string;
+    userId: string;
+    workspaceId: string;
+    role: MemberRole;
+    joinedAt: Date;
+  } | null> {
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
       select: { ownerId: true },

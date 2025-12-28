@@ -1,0 +1,15 @@
+
+> @ordo-todo/web@0.1.0 check-types
+> tsc --noEmit
+
+src/components/project/create-project-dialog.tsx(141,66): error TS2345: Argument of type '{ workflowId: string; color: "#EF4444" | "#F59E0B" | "#10B981" | "#3B82F6" | "#8B5CF6" | "#EC4899" | "#06B6D4" | "#F43F5E" | "#84CC16" | "#6366F1"; name: string; workspaceId: string; icon?: string | undefined; description?: string | undefined; startDate?: string | ... 1 more ... | undefined; endDate?: string | ... 1...' is not assignable to parameter of type 'CreateProjectDto'.
+  Types of property 'startDate' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | Date | undefined'.
+      Type 'null' is not assignable to type 'string | Date | undefined'.
+npm error Lifecycle script `check-types` failed with error:
+npm error code 2
+npm error path C:\Users\Usuario\source\repos\ordo-todo\apps\web
+npm error workspace @ordo-todo/web@0.1.0
+npm error location C:\Users\Usuario\source\repos\ordo-todo\apps\web
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit

@@ -68,8 +68,8 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
 
     // If owner is already in the list, ensure they appear first
     if (workspaceOwner && ownerAlreadyInList) {
-      const ownerMember = membersList.find(m => m.role === "OWNER");
-      const otherMembers = membersList.filter(m => m.role !== "OWNER");
+      const ownerMember = membersList.find((m: { role: string }) => m.role === "OWNER");
+      const otherMembers = membersList.filter((m: { role: string }) => m.role !== "OWNER");
 
       if (ownerMember) {
         return [ownerMember, ...otherMembers];
@@ -133,7 +133,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={member.user?.image} />
+                      <AvatarImage src={member.user?.image ?? undefined} />
                       <AvatarFallback>
                         {member.user?.name?.charAt(0) || member.user?.email?.charAt(0) || "?"}
                       </AvatarFallback>

@@ -52,13 +52,20 @@ export class WorkspacesService {
     private readonly prisma: PrismaService,
   ) {}
 
+  /**
+   * Creates a new workspace with the user as owner
+   *
+   * The workspace is created with a default workflow named "General".
+   * The creator is automatically added as a WorkspaceMember with OWNER role
+   * within the same transaction (handled by the repository).
+   *
+   * @param createWorkspaceDto - Workspace creation data
+   * @param userId - ID of the user creating the workspace
+   * @returns The created workspace
+   * @throws ForbiddenException if user already has a workspace with the same slug
+   */
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
-    // Check if user has a username to namespace the workspace
-    const user = await this.userRepository.findById(userId);
-    // If we were enforcing username presence, we would check it here.
-    // For now, workspace creation proceeds. Uniqueness will be checked by DB constraint if ownerId is set.
-
-    // Also check for slug uniqueness per owner manually if needed, or rely on Prisma error
+    // Check for slug uniqueness per owner manually if needed, or rely on Prisma error
     if (userId) {
       const existing = await this.prisma.workspace.findUnique({
         where: {
@@ -86,11 +93,9 @@ export class WorkspacesService {
       ownerId: userId,
     });
 
-    // Add creator as workspace member with OWNER role
-    const addMemberUseCase = new AddMemberToWorkspaceUseCase(
-      this.workspaceRepository,
-    );
-    await addMemberUseCase.execute(workspace.id as string, userId, 'OWNER');
+    // Note: The workspace repository already adds the creator as a WorkspaceMember with OWNER role
+    // in the same transaction during workspace creation (see PrismaWorkspaceRepository.create)
+    // So we don't need to call AddMemberToWorkspaceUseCase here
 
     // Create default workflow
     const createWorkflowUseCase = new CreateWorkflowUseCase(
@@ -116,6 +121,15 @@ export class WorkspacesService {
     return workspace.props;
   }
 
+  /**
+   * Lists all workspaces accessible to the user
+   *
+   * Returns workspaces where the user is either the owner or a member.
+   * Includes statistics like project count, member count, and task count.
+   *
+   * @param userId - ID of the user
+   * @returns Array of workspaces with statistics
+   */
   async findAll(userId: string) {
     // Fetch workspaces with owner information using Prisma directly
     const workspaces = await this.prisma.workspace.findMany({
@@ -182,6 +196,13 @@ export class WorkspacesService {
     });
   }
 
+  /**
+   * Gets a workspace by ID
+   *
+   * @param id - Workspace ID
+   * @returns Workspace data
+   * @throws NotFoundException if workspace not found or deleted
+   */
   async findOne(id: string) {
     const workspace = await this.workspaceRepository.findById(id);
     if (!workspace || workspace.props.isDeleted) {
@@ -340,6 +361,16 @@ export class WorkspacesService {
     }
   }
 
+  /**
+   * Adds a member to a workspace
+   *
+   * This operation is idempotent - if the user is already a member,
+   * their existing membership is returned without changes.
+   *
+   * @param workspaceId - ID of the workspace
+   * @param addMemberDto - Member data (userId and optional role)
+   * @returns The created or existing workspace member
+   */
   async addMember(workspaceId: string, addMemberDto: AddMemberDto) {
     const addMemberToWorkspaceUseCase = new AddMemberToWorkspaceUseCase(
       this.workspaceRepository,
@@ -359,6 +390,16 @@ export class WorkspacesService {
     return member.props;
   }
 
+  /**
+   * Removes a member from a workspace
+   *
+   * The workspace owner cannot be removed.
+   *
+   * @param workspaceId - ID of the workspace
+   * @param userId - ID of the user to remove
+   * @returns Success indicator
+   * @throws Error if workspace not found, user not a member, or attempting to remove owner
+   */
   async removeMember(workspaceId: string, userId: string) {
     const removeMemberFromWorkspaceUseCase =
       new RemoveMemberFromWorkspaceUseCase(this.workspaceRepository);
@@ -372,6 +413,19 @@ export class WorkspacesService {
     return { success: true };
   }
 
+  /**
+   * Creates an invitation for a user to join a workspace
+   *
+   * Generates a secure token, hashes it, and stores the invitation.
+   * The plain token is returned for development/testing (in production, this would be sent via email).
+   *
+   * @param workspaceId - ID of the workspace
+   * @param userId - ID of the user creating the invitation
+   * @param email - Email address of the user to invite
+   * @param role - Role to assign when invitation is accepted
+   * @returns Invitation data with dev token (for testing only)
+   * @throws NotFoundException if workspace not found
+   */
   async inviteMember(
     workspaceId: string,
     userId: string,
@@ -415,6 +469,18 @@ export class WorkspacesService {
     }
   }
 
+  /**
+   * Accepts a workspace invitation
+   *
+   * Validates the token, adds the user as a workspace member with the invited role,
+   * and marks the invitation as accepted. This operation is idempotent - if the user
+   * is already a member, the invitation is simply marked as accepted.
+   *
+   * @param token - Plain invitation token (from email)
+   * @param userId - ID of the user accepting the invitation
+   * @returns Success indicator
+   * @throws NotFoundException if token is invalid or invitation expired
+   */
   async acceptInvitation(token: string, userId: string) {
     const acceptInvitationUseCase = new AcceptInvitationUseCase(
       this.workspaceRepository,
@@ -425,11 +491,19 @@ export class WorkspacesService {
     try {
       // Get all pending invitations to find the matching one
       // We can't use findByToken directly because tokens are now hashed
-      const pendingInvitations = await this.invitationRepository.findPendingInvitations();
+      const pendingInvitations =
+        await this.invitationRepository.findPendingInvitations();
 
-      let matchedInvitation = null;
+      let matchedInvitation:
+        | Awaited<
+            ReturnType<typeof this.invitationRepository.findPendingInvitations>
+          >[number]
+        | null = null;
       for (const invitation of pendingInvitations) {
-        const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
+        const isValid = await this.hashService.compare(
+          token,
+          invitation.props.tokenHash,
+        );
         if (isValid) {
           matchedInvitation = invitation;
           break;
@@ -460,6 +534,18 @@ export class WorkspacesService {
     }
   }
 
+  /**
+   * Gets all members of a workspace, including the owner
+   *
+   * This method handles both regular workspaces (where owner is in the members table)
+   * and legacy workspaces (where owner exists only in workspace.ownerId).
+   *
+   * For legacy workspaces, it creates a virtual owner entry and attempts auto-repair
+   * by adding the owner to the members table asynchronously.
+   *
+   * @param workspaceId - The workspace ID
+   * @returns Array of workspace members with user information
+   */
   async getMembers(workspaceId: string) {
     // Get workspace to find owner
     const workspace = await this.workspaceRepository.findById(workspaceId);
@@ -482,7 +568,12 @@ export class WorkspacesService {
       userId: string;
       role: string;
       joinedAt: Date;
-      user: { id: string; name: string; email: string; image?: string | null } | null;
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        image?: string | null;
+      } | null;
     }> = [];
 
     // If owner exists but is NOT in members table, add them as a virtual OWNER member
@@ -514,7 +605,8 @@ export class WorkspacesService {
     // Add all members from the database
     for (const member of members) {
       const user = await this.userRepository.findById(member.props.userId);
-      result.push({
+
+      const memberData = {
         id: member.id as string,
         workspaceId: member.props.workspaceId,
         userId: member.props.userId,
@@ -528,7 +620,8 @@ export class WorkspacesService {
               image: user.props.image,
             }
           : null,
-      });
+      };
+      result.push(memberData);
     }
 
     return result;

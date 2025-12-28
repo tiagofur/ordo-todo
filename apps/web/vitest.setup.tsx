@@ -47,3 +47,27 @@ vi.mock('next-intl', () => ({
 
 
 
+
+// Mock navigator.clipboard
+Object.defineProperty(global, 'navigator', {
+    value: {
+        clipboard: {
+            writeText: vi.fn(() => Promise.resolve()),
+        },
+    },
+    writable: true,
+});
+
+// Mock window.Image for avatar components
+class MockImage {
+    src = '';
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    constructor() {
+        setTimeout(() => {
+            if (this.onload) this.onload();
+        }, 0);
+    }
+}
+
+global.Image = MockImage as any;

@@ -19,6 +19,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
 
+    console.log(
+      '🔍 [GlobalExceptionFilter] Exception caught:',
+      exception instanceof Error ? exception.message : exception,
+    );
+    console.log(
+      '🔍 [GlobalExceptionFilter] Exception type:',
+      exception?.constructor?.name,
+    );
+    if (exception instanceof Error) {
+      console.log('🔍 [GlobalExceptionFilter] Stack trace:', exception.stack);
+    }
+
     let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let error = 'Internal Server Error';
