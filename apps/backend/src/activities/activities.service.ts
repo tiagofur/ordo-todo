@@ -27,7 +27,7 @@ export class ActivitiesService {
           taskId: data.taskId,
           userId: data.userId,
           type: data.type,
-          metadata: (data.metadata || {}) as Prisma.JsonValue,
+          metadata: (data.metadata || {}) as Prisma.InputJsonValue,
         },
       });
 

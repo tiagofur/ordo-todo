@@ -339,7 +339,7 @@ export class AIService {
         recommendations: report.recommendations,
         patterns: report.patterns,
         productivityScore: report.productivityScore,
-        metricsSnapshot: metricsSnapshot as Prisma.JsonValue,
+        metricsSnapshot: metricsSnapshot as Prisma.InputJsonValue,
         aiModel: 'gemini-1.5-pro',
       },
     });
@@ -419,7 +419,7 @@ export class AIService {
         recommendations: report.recommendations,
         patterns: report.patterns,
         productivityScore: report.productivityScore,
-        metricsSnapshot: metricsSnapshot as Prisma.JsonValue,
+        metricsSnapshot: metricsSnapshot as Prisma.InputJsonValue,
         aiModel: 'gemini-2.0-flash-exp',
       },
     });
