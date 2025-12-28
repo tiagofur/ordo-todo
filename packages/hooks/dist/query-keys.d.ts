@@ -11,6 +11,7 @@ export declare const queryKeys: {
     readonly userPreferences: readonly ["user", "preferences"];
     readonly userIntegrations: readonly ["user", "integrations"];
     readonly workspaces: readonly ["workspaces"];
+    readonly deletedWorkspaces: readonly ["workspaces", "deleted"];
     readonly workspace: (id: string) => readonly ["workspaces", string];
     readonly workspaceMembers: (id: string) => readonly ["workspaces", string, "members"];
     readonly workspaceInvitations: (id: string) => readonly ["workspaces", string, "invitations"];
@@ -26,6 +27,7 @@ export declare const queryKeys: {
     readonly projects: (workspaceId: string) => readonly ["projects", string];
     readonly allProjects: readonly ["projects", "all"];
     readonly project: (id: string) => readonly ["projects", string];
+    readonly projectBySlugs: (workspaceSlug: string, projectSlug: string) => readonly ["projects", "by-slug", string, string];
     readonly tasks: (projectId?: string) => readonly ["tasks", string] | readonly ["tasks"];
     readonly task: (id: string) => readonly ["tasks", string];
     readonly taskDetails: (id: string) => readonly ["tasks", string, "details"];

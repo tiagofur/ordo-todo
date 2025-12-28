@@ -11,6 +11,10 @@ import {
   CreateTaskUseCase,
   CompleteTaskUseCase,
   UpdateDailyMetricsUseCase,
+  SoftDeleteTaskUseCase,
+  RestoreTaskUseCase,
+  PermanentDeleteTaskUseCase,
+  GetDeletedTasksUseCase,
 } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -549,7 +553,31 @@ export class TasksService {
   }
 
   async remove(id: string) {
-    await this.taskRepository.delete(id);
+    const softDeleteTaskUseCase = new SoftDeleteTaskUseCase(
+      this.taskRepository,
+    );
+    await softDeleteTaskUseCase.execute(id);
+    return { success: true };
+  }
+
+  async getDeleted(projectId: string) {
+    const getDeletedTasksUseCase = new GetDeletedTasksUseCase(
+      this.taskRepository,
+    );
+    return getDeletedTasksUseCase.execute(projectId);
+  }
+
+  async restore(id: string) {
+    const restoreTaskUseCase = new RestoreTaskUseCase(this.taskRepository);
+    await restoreTaskUseCase.execute(id);
+    return { success: true };
+  }
+
+  async permanentDelete(id: string) {
+    const permanentDeleteTaskUseCase = new PermanentDeleteTaskUseCase(
+      this.taskRepository,
+    );
+    await permanentDeleteTaskUseCase.execute(id);
     return { success: true };
   }
 

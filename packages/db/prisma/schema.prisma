@@ -471,6 +471,10 @@ model Project {
   completed   Boolean   @default(false)
   completedAt DateTime?
 
+  // Soft Delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
   // Content
   tasks Task[]
 
@@ -487,7 +491,6 @@ model Project {
   // Timestamps
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
 
   @@unique([workspaceId, slug])
   @@index([workspaceId])
@@ -631,9 +634,13 @@ model Task {
   // Productivity Reports
   reports ProductivityReport[]
 
+  // Soft Delete
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
   // Timestamps
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime  @updatedAt
 
   @@index([projectId])
   @@index([ownerId])

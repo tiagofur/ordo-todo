@@ -21,6 +21,8 @@ export class PrismaProjectRepository implements ProjectRepository {
       archived: prismaProject.archived,
       completed: prismaProject.completed,
       completedAt: prismaProject.completedAt ?? undefined,
+      isDeleted: prismaProject.isDeleted,
+      deletedAt: prismaProject.deletedAt ?? undefined,
       createdAt: prismaProject.createdAt,
       updatedAt: prismaProject.updatedAt,
     });
@@ -117,5 +119,39 @@ export class PrismaProjectRepository implements ProjectRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.project.delete({ where: { id } });
+  }
+
+  async softDelete(id: string): Promise<void> {
+    await this.prisma.project.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  async restore(id: string): Promise<void> {
+    await this.prisma.project.update({
+      where: { id },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+  }
+
+  async permanentDelete(id: string): Promise<void> {
+    await this.prisma.project.delete({ where: { id } });
+  }
+
+  async findDeleted(workspaceId: string): Promise<Project[]> {
+    const projects = await this.prisma.project.findMany({
+      where: {
+        workspaceId,
+        isDeleted: true,
+      },
+    });
+    return projects.map((p) => this.toDomain(p));
   }
 }

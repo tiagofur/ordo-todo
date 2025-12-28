@@ -2,31 +2,59 @@ import { Workspace, WorkspaceProps } from "../model/workspace.entity";
 import { WorkspaceRepository } from "../provider/workspace.repository";
 
 export class CreateWorkspaceUseCase {
-    constructor(private workspaceRepository: WorkspaceRepository) { }
+  constructor(
+    private workspaceRepository: WorkspaceRepository,
+    private ownerUsername?: string,
+  ) {}
 
-    async execute(props: Omit<WorkspaceProps, "id" | "slug" | "createdAt" | "updatedAt" | "isArchived" | "isDeleted" | "deletedAt">): Promise<Workspace> {
-        const baseSlug = this.generateSlug(props.name);
-        let slug = baseSlug;
-        let counter = 1;
+  async execute(
+    props: Omit<
+      WorkspaceProps,
+      | "id"
+      | "slug"
+      | "createdAt"
+      | "updatedAt"
+      | "isArchived"
+      | "isDeleted"
+      | "deletedAt"
+    >,
+    ownerUsername?: string,
+  ): Promise<Workspace> {
+    const username = ownerUsername || this.ownerUsername;
+    const workspaceNameSlug = this.generateSlug(props.name);
 
-        while (await this.workspaceRepository.findBySlug(slug)) {
-            slug = `${baseSlug}-${counter}`;
-            counter++;
-        }
-
-        const workspace = Workspace.create({
-            ...props,
-            slug,
-        });
-        return this.workspaceRepository.create(workspace);
+    let slug: string;
+    if (username) {
+      slug = `${username}/${workspaceNameSlug}`;
+    } else {
+      slug = workspaceNameSlug;
     }
 
-    private generateSlug(name: string): string {
-        return name
-            .toLowerCase()
-            .trim()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/[\s_-]+/g, '-')
-            .replace(/^-+|-+$/g, '');
+    let finalSlug = slug;
+    let counter = 1;
+
+    while (await this.workspaceRepository.findBySlug(finalSlug)) {
+      if (username) {
+        finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
+      } else {
+        finalSlug = `${workspaceNameSlug}-${counter}`;
+      }
+      counter++;
     }
+
+    const workspace = Workspace.create({
+      ...props,
+      slug: finalSlug,
+    });
+    return this.workspaceRepository.create(workspace);
+  }
+
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
 }

@@ -5,6 +5,16 @@ import { BaseResourceGuard } from './base-resource.guard';
 export class ProjectGuard extends BaseResourceGuard {
   protected async getWorkspaceId(request: any): Promise<string | null> {
     const projectId = request.params.id;
+    const workspaceSlug = request.params.workspaceSlug;
+
+    // If workspaceSlug is present (for /by-slug/:workspaceSlug/:projectSlug endpoint)
+    if (workspaceSlug) {
+      const workspace = await this.prisma.workspace.findFirst({
+        where: { slug: workspaceSlug },
+        select: { id: true },
+      });
+      return workspace?.id || null;
+    }
 
     // Check if it's a create request with workspaceId in body
     if (!projectId) {

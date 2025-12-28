@@ -15,6 +15,7 @@ exports.queryKeys = {
     userIntegrations: ['user', 'integrations'],
     // ============ Workspaces ============
     workspaces: ['workspaces'],
+    deletedWorkspaces: ['workspaces', 'deleted'],
     workspace: (id) => ['workspaces', id],
     workspaceMembers: (id) => ['workspaces', id, 'members'],
     workspaceInvitations: (id) => ['workspaces', id, 'invitations'],
@@ -26,6 +27,7 @@ exports.queryKeys = {
     projects: (workspaceId) => ['projects', workspaceId],
     allProjects: ['projects', 'all'],
     project: (id) => ['projects', id],
+    projectBySlugs: (workspaceSlug, projectSlug) => ['projects', 'by-slug', workspaceSlug, projectSlug],
     // ============ Tasks ============
     tasks: (projectId) => projectId ? ['tasks', projectId] : ['tasks'],
     task: (id) => ['tasks', id],

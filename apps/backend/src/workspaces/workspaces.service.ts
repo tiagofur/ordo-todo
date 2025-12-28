@@ -17,6 +17,9 @@ import {
   AddMemberToWorkspaceUseCase,
   RemoveMemberFromWorkspaceUseCase,
   SoftDeleteWorkspaceUseCase,
+  RestoreWorkspaceUseCase,
+  PermanentDeleteWorkspaceUseCase,
+  GetDeletedWorkspacesUseCase,
   ArchiveWorkspaceUseCase,
   InviteMemberUseCase,
   AcceptInvitationUseCase,
@@ -27,6 +30,7 @@ import {
   CreateWorkflowUseCase,
 } from '@ordo-todo/core';
 import type { WorkspaceInvitationRepository } from '@ordo-todo/core';
+import type { Workspace } from '@ordo-todo/core';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
@@ -65,33 +69,28 @@ export class WorkspacesService {
    * @throws ForbiddenException if user already has a workspace with the same slug
    */
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
-    // Check for slug uniqueness per owner manually if needed, or rely on Prisma error
-    if (userId) {
-      const existing = await this.prisma.workspace.findUnique({
-        where: {
-          ownerId_slug: {
-            ownerId: userId,
-            slug: createWorkspaceDto.slug,
-          },
-        },
-      });
-      if (existing) {
-        throw new ForbiddenException(
-          'You already have a workspace with this slug',
-        );
-      }
+    // Get user to retrieve username for slug generation
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+    const username = user.props.username;
 
+    // The CreateWorkspaceUseCase will generate slug automatically as username/workspace-name
     const createWorkspaceUseCase = new CreateWorkspaceUseCase(
       this.workspaceRepository,
+      username,
     );
 
-    const workspace = await createWorkspaceUseCase.execute({
-      ...createWorkspaceDto,
-      tier: 'FREE',
-      color: createWorkspaceDto.color ?? '#2563EB',
-      ownerId: userId,
-    });
+    const workspace = await createWorkspaceUseCase.execute(
+      {
+        ...createWorkspaceDto,
+        tier: 'FREE',
+        color: createWorkspaceDto.color ?? '#2563EB',
+        ownerId: userId,
+      },
+      username,
+    );
 
     // Note: The workspace repository already adds the creator as a WorkspaceMember with OWNER role
     // in the same transaction during workspace creation (see PrismaWorkspaceRepository.create)
@@ -330,6 +329,77 @@ export class WorkspacesService {
       if (error.message === 'Unauthorized') {
         throw new ForbiddenException(
           'No tienes permisos para eliminar este workspace',
+        );
+      }
+      throw error;
+    }
+  }
+
+  async getDeleted(userId: string) {
+    const getDeletedUseCase = new GetDeletedWorkspacesUseCase(
+      this.workspaceRepository,
+    );
+
+    try {
+      const workspaces = await getDeletedUseCase.execute(userId);
+      return workspaces.map((w: Workspace) => ({
+        ...w.props,
+        id: w.id,
+      }));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async restore(id: string, userId: string) {
+    const restoreUseCase = new RestoreWorkspaceUseCase(
+      this.workspaceRepository,
+    );
+
+    try {
+      await restoreUseCase.execute(id, userId);
+
+      // Log workspace restoration
+      await this.createAuditLog(id, 'WORKSPACE_RESTORED', userId);
+
+      return { success: true };
+    } catch (error) {
+      if (error.message === 'Workspace not found') {
+        throw new NotFoundException(error.message);
+      }
+      if (error.message === 'Unauthorized') {
+        throw new ForbiddenException(
+          'No tienes permisos para restaurar este workspace',
+        );
+      }
+      throw error;
+    }
+  }
+
+  async permanentDelete(id: string, userId: string) {
+    const permanentDeleteUseCase = new PermanentDeleteWorkspaceUseCase(
+      this.workspaceRepository,
+    );
+
+    try {
+      await permanentDeleteUseCase.execute(id, userId);
+
+      // Log permanent deletion
+      await this.createAuditLog(id, 'WORKSPACE_PERMANENTLY_DELETED', userId);
+
+      return { success: true };
+    } catch (error) {
+      if (error.message === 'Workspace not found') {
+        throw new NotFoundException(error.message);
+      }
+      if (error.message === 'Unauthorized') {
+        throw new ForbiddenException(
+          'No tienes permisos para eliminar este workspace permanentemente',
+        );
+      }
+      if (error.message === 'Workspace must be soft deleted first') {
+        throw new ForbiddenException(
+          'El workspace debe ser eliminado temporalmente primero',
         );
       }
       throw error;
@@ -731,5 +801,64 @@ export class WorkspacesService {
     });
 
     return log.props;
+  }
+
+  /**
+   * DEBUG: Método temporal para marcar workspaces "Carros" como eliminados
+   */
+  async debugFixCarrosWorkspaces(userId: string) {
+    // Buscar todos los workspaces del usuario que contengan "carros" (case insensitive)
+    const workspaces = await this.prisma.workspace.findMany({
+      where: {
+        ownerId: userId,
+        name: {
+          contains: 'carros',
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isDeleted: true,
+        deletedAt: true,
+      },
+    });
+
+    const results: Array<{
+      id: string;
+      name: string;
+      status: 'marked_as_deleted' | 'already_deleted';
+    }> = [];
+
+    // Marcar cada workspace como eliminado si no lo está
+    for (const ws of workspaces) {
+      if (!ws.isDeleted) {
+        await this.prisma.workspace.update({
+          where: { id: ws.id },
+          data: {
+            isDeleted: true,
+            deletedAt: new Date(),
+          },
+        });
+        results.push({
+          id: ws.id,
+          name: ws.name,
+          status: 'marked_as_deleted',
+        });
+      } else {
+        results.push({
+          id: ws.id,
+          name: ws.name,
+          status: 'already_deleted',
+        });
+      }
+    }
+
+    return {
+      total: workspaces.length,
+      updated: results.filter((r) => r.status === 'marked_as_deleted').length,
+      workspaces: results,
+    };
   }
 }

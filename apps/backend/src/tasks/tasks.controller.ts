@@ -145,7 +145,7 @@ export class TasksController {
     );
   }
 
-  @Get(':id')
+  @Get('deleted')
   @UseGuards(TaskGuard)
   @Roles(
     MemberRole.OWNER,
@@ -153,31 +153,8 @@ export class TasksController {
     MemberRole.MEMBER,
     MemberRole.VIEWER,
   )
-  findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(id);
-  }
-
-  @Get(':id/details')
-  @UseGuards(TaskGuard)
-  @Roles(
-    MemberRole.OWNER,
-    MemberRole.ADMIN,
-    MemberRole.MEMBER,
-    MemberRole.VIEWER,
-  )
-  findOneWithDetails(@Param('id') id: string) {
-    return this.tasksService.findOneWithDetails(id);
-  }
-
-  @Put(':id')
-  @UseGuards(TaskGuard)
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
-  update(
-    @Param('id') id: string,
-    @Body() updateTaskDto: UpdateTaskDto,
-    @CurrentUser() user: RequestUser,
-  ) {
-    return this.tasksService.update(id, updateTaskDto, user.id);
+  getDeleted(@Query('projectId') projectId: string) {
+    return this.tasksService.getDeleted(projectId);
   }
 
   @Delete(':id')
@@ -186,6 +163,22 @@ export class TasksController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.tasksService.remove(id);
+  }
+
+  @Post(':id/restore')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  restore(@Param('id') id: string) {
+    return this.tasksService.restore(id);
+  }
+
+  @Delete(':id/permanent')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  permanentDelete(@Param('id') id: string) {
+    return this.tasksService.permanentDelete(id);
   }
 
   @Post(':id/subtasks')

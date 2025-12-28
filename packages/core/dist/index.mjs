@@ -1,1 +1,3731 @@
-var v=class t{_value;constructor(e){this._value=e}static create(e){let r=e?.trim?.().toLowerCase();return this.validate(r),new t(r)}static validate(e){if(!e||typeof e!="string")throw new Error("O email n\xE3o pode estar vazio");if(e.length>254)throw new Error("O email deve ter no m\xE1ximo 254 caracteres");if(!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-\u00A0-\uFFFF]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/.test(e))throw new Error("O formato do email \xE9 inv\xE1lido");let[o,s]=e.split("@");if(o&&o.includes(".."))throw new Error("O email n\xE3o pode conter pontos consecutivos na parte local");if(o&&(o.startsWith(".")||o.endsWith(".")))throw new Error("O email n\xE3o pode come\xE7ar ou terminar com ponto na parte local")}get value(){return this._value}get localPart(){return this._value.split("@")[0]}get domain(){return this._value.split("@")[1]}equals(e){return e instanceof t?this._value===e._value:!1}toString(){return this._value}toJSON(){return this._value}};var O=class t{_value;constructor(e){this._value=e}static create(e){return this.validate(e),new t(e.trim())}static validate(e){if(!e||typeof e!="string")throw new Error("O hash da senha n\xE3o pode estar vazio");let r=e.trim();if(r.length===0)throw new Error("O hash da senha n\xE3o pode estar vazio");if(!/^\$2[abxy]\$\d{2}\$[A-Za-z0-9.\/]{53}$/.test(r))throw new Error("A senha deve estar criptografada")}get value(){return this._value}get algorithm(){return this._value.split("$")[1]}get cost(){return parseInt(this._value.split("$")[2],10)}equals(e){return e instanceof t?this._value===e._value:!1}toString(){return this._value}toJSON(){return this._value}};var D=class t{_value;constructor(e){this._value=e}static create(e){return this.validate(e),new t(e.trim())}static validate(e){if(!e||typeof e!="string")throw new Error("O nome \xE9 obrigat\xF3rio e deve ser uma string");let r=e.trim();if(r.length<3)throw new Error("O nome deve ter pelo menos 3 caracteres");if(r.length>120)throw new Error("O nome deve ter no m\xE1ximo 120 caracteres");if(!/^[a-zA-ZÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\s'-]+$/.test(r))throw new Error("O nome cont\xE9m caracteres inv\xE1lidos. Apenas letras, espa\xE7os, ap\xF3strofes e h\xEDfens s\xE3o permitidos");if(r.split(/\s+/).filter(n=>n.length>0).length<2)throw new Error("O nome deve conter pelo menos um nome e um sobrenome");if(/\s{2,}/.test(r))throw new Error("O nome n\xE3o pode conter espa\xE7os m\xFAltiplos consecutivos");if(/^[-'\s]|[-'\s]$/.test(r))throw new Error("O nome n\xE3o pode come\xE7ar ou terminar com espa\xE7os, h\xEDfens ou ap\xF3strofes")}get value(){return this._value}get firstName(){return this._value.split(" ")[0]}get lastName(){let e=this._value.split(" ");return e[e.length-1]}get fullName(){return this._value}get initials(){let e=this.value.trim().split(/\s+/).filter(r=>r.length>0);return(this.firstName.charAt(0)+this.lastName.charAt(0)).toUpperCase()}equals(e){return e instanceof t?this._value.toLowerCase()===e._value.toLowerCase():!1}toString(){return this._value}toJSON(){return this._value}toFormattedString(){return this._value.split(" ").map(e=>e.charAt(0).toUpperCase()+e.slice(1).toLowerCase()).join(" ")}};import{v4 as st,validate as nt}from"uuid";var L=class t{_value;constructor(e){this._value=e}static create(e){let r=e?.trim().toLowerCase()??st();return this.validate(r),new t(r)}static validate(e){if(!nt(e))throw new Error("O id fornecido n\xE3o \xE9 um UUID v\xE1lido.")}get value(){return this._value}equals(e){return e instanceof t&&this._value===e._value}toString(){return this._value}toJSON(){return this._value}};var m=class t{props;mode="valid";id;constructor(e,r="valid"){if(this.props=Object.freeze({...e,id:e.id?e.id:L.create().value}),this.mode=r,this.id=this.props.id,e.props)throw new Error("Props should not contain 'props' property")}get data(){return this.props}isDraft(){return this.mode==="draft"}isValid(){return this.mode==="valid"}equals(e){return e==null||!(e instanceof t)?!1:this===e?!0:this.constructor!==e.constructor?!1:this.sameId(e)}notEquals(e){return!this.equals(e)}sameId(e){let r=this.id;return this.id===e.id}asDraft(){return this.clone(this.props,"draft")}asValid(){return this.clone(this.props,"valid")}clone(e,r=this.mode){return new this.constructor({...this.props,...e},r)}};var pe=class t{_value;constructor(e){this._value=e}static create(e,r){return this.validate(e,r),new t(e.trim())}static validate(e,r){let o=r?.errorMessage||`${r?.attributeName??"Valor"} \xE9 obrigat\xF3rio`;if(!e||typeof e!="string")throw new Error(o);let s=e.trim();if(s.length===0)throw new Error(o);if(r?.minLength&&s.length<r.minLength)throw new Error(`${r.attributeName??`"${e}"`} deve ter pelo menos ${r.minLength} caracteres`);if(r?.maxLength&&s.length>r.maxLength)throw new Error(`${r.attributeName??`"${e}"`} deve ter no m\xE1ximo ${r.maxLength} caracteres`)}get value(){return this._value}equals(e){return e instanceof t&&this._value===e._value}toString(){return this._value}toJSON(){return this._value}};var Dt=["#EF4444","#F59E0B","#10B981","#3B82F6","#8B5CF6","#EC4899","#6B7280"],Et=["#EF4444","#F59E0B","#10B981","#3B82F6","#8B5CF6","#EC4899","#06B6D4","#F43F5E","#84CC16","#6366F1"],At={PERSONAL:"#06B6D4",WORK:"#8B5CF6",TEAM:"#EC4899"};var te={LOW:{value:"LOW",label:"Low",color:"#10B981",order:1},MEDIUM:{value:"MEDIUM",label:"Medium",color:"#F59E0B",order:2},HIGH:{value:"HIGH",label:"High",color:"#EF4444",order:3}},W=["LOW","MEDIUM","HIGH"];function Rt(t){return te[t]}function It(t){return te[t].color}function Mt(t){return te[t].label}var re={TODO:{value:"TODO",label:"To Do",color:"#6B7280",order:1},IN_PROGRESS:{value:"IN_PROGRESS",label:"In Progress",color:"#3B82F6",order:2},IN_REVIEW:{value:"IN_REVIEW",label:"In Review",color:"#F59E0B",order:3},DONE:{value:"DONE",label:"Done",color:"#10B981",order:4},CANCELLED:{value:"CANCELLED",label:"Cancelled",color:"#EF4444",order:5}},H=["TODO","IN_PROGRESS","IN_REVIEW","DONE","CANCELLED"],Ot={ACTIVE:{value:"ACTIVE",label:"Active",color:"#10B981"},ARCHIVED:{value:"ARCHIVED",label:"Archived",color:"#6B7280"},ON_HOLD:{value:"ON_HOLD",label:"On Hold",color:"#F59E0B"}},Ct=["ACTIVE","ARCHIVED","ON_HOLD"];function _t(t){return re[t]}function Nt(t){return re[t].color}function Lt(t){return re[t].label}function Wt(t){return t==="DONE"}function Ht(t){return t==="IN_PROGRESS"||t==="IN_REVIEW"}var U={WORK:{value:"WORK",label:"Work",color:"#EF4444",defaultDuration:25},SHORT_BREAK:{value:"SHORT_BREAK",label:"Short Break",color:"#10B981",defaultDuration:5},LONG_BREAK:{value:"LONG_BREAK",label:"Long Break",color:"#059669",defaultDuration:15},CONTINUOUS:{value:"CONTINUOUS",label:"Continuous",color:"#3B82F6",defaultDuration:0}},Bt=["WORK","SHORT_BREAK","LONG_BREAK","CONTINUOUS"],at={workDuration:25,shortBreakDuration:5,longBreakDuration:15,pomodorosUntilLongBreak:4,autoStartBreaks:!1,autoStartPomodoros:!1,soundEnabled:!0,notificationsEnabled:!0},jt={MIN_DURATION:1,MAX_DURATION:120,MIN_POMODOROS_UNTIL_LONG_BREAK:2,MAX_POMODOROS_UNTIL_LONG_BREAK:10};function Gt(t){return U[t]}function $t(t){return U[t].color}function Ft(t){return U[t].label}function zt(t){return U[t].defaultDuration}function Vt(t,e=at.pomodorosUntilLongBreak){return t>0&&t%e===0}var b={TITLE_MIN_LENGTH:1,TITLE_MAX_LENGTH:200,DESCRIPTION_MAX_LENGTH:5e3,MIN_ESTIMATED_MINUTES:1,MAX_ESTIMATED_MINUTES:480,MAX_SUBTASKS:50,MAX_TAGS_PER_TASK:10,MAX_ATTACHMENTS_PER_TASK:20},E={NAME_MIN_LENGTH:1,NAME_MAX_LENGTH:100,DESCRIPTION_MAX_LENGTH:2e3,MAX_PROJECTS_PER_WORKSPACE:100,MAX_TASKS_PER_PROJECT:1e3},A={NAME_MIN_LENGTH:1,NAME_MAX_LENGTH:100,DESCRIPTION_MAX_LENGTH:500,MAX_MEMBERS:50,MAX_WORKSPACES_PER_USER:20,SLUG_MIN_LENGTH:3,SLUG_MAX_LENGTH:50},C={NAME_MIN_LENGTH:1,NAME_MAX_LENGTH:30,MAX_TAGS_PER_WORKSPACE:100},B={CONTENT_MIN_LENGTH:1,CONTENT_MAX_LENGTH:2e3,MAX_COMMENTS_PER_TASK:500},oe={MAX_FILE_SIZE:10*1024*1024,MAX_IMAGE_SIZE:5*1024*1024,MAX_TOTAL_STORAGE_PER_WORKSPACE:1024*1024*1024,ALLOWED_IMAGE_TYPES:["image/jpeg","image/png","image/gif","image/webp"],ALLOWED_DOCUMENT_TYPES:["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]},g={NAME_MIN_LENGTH:2,NAME_MAX_LENGTH:100,PASSWORD_MIN_LENGTH:6,PASSWORD_MAX_LENGTH:128,BIO_MAX_LENGTH:500},Xt={DEFAULT_PAGE_SIZE:20,MAX_PAGE_SIZE:100,MIN_PAGE_SIZE:5};function Yt(t){if(t===0)return"0 Bytes";let e=1024,r=["Bytes","KB","MB","GB"],o=Math.floor(Math.log(t)/Math.log(e));return Math.round(t/Math.pow(e,o)*100)/100+" "+r[o]}function qt(t){return[...oe.ALLOWED_IMAGE_TYPES,...oe.ALLOWED_DOCUMENT_TYPES].includes(t)}function Jt(t){return oe.ALLOWED_IMAGE_TYPES.includes(t)}function Qt(t,e="en-US"){return(typeof t=="string"?new Date(t):t).toLocaleDateString(e,{year:"numeric",month:"long",day:"numeric"})}function ce(t,e="en-US"){return(typeof t=="string"?new Date(t):t).toLocaleDateString(e,{year:"numeric",month:"short",day:"numeric"})}function er(t,e="en-US"){let r=typeof t=="string"?new Date(t):t,o=new Date,s=r.getTime()-o.getTime(),n=Math.round(s/1e3),a=Math.round(n/60),i=Math.round(a/60),p=Math.round(i/24);return Math.abs(n)<60?n>=0?"in a few seconds":"a few seconds ago":Math.abs(a)<60?a>=0?`in ${a} minute${a!==1?"s":""}`:`${Math.abs(a)} minute${Math.abs(a)!==1?"s":""} ago`:Math.abs(i)<24?i>=0?`in ${i} hour${i!==1?"s":""}`:`${Math.abs(i)} hour${Math.abs(i)!==1?"s":""} ago`:Math.abs(p)<30?p>=0?`in ${p} day${p!==1?"s":""}`:`${Math.abs(p)} day${Math.abs(p)!==1?"s":""} ago`:ce(r,e)}function _(t){let e=typeof t=="string"?new Date(t):t,r=new Date;return e.getDate()===r.getDate()&&e.getMonth()===r.getMonth()&&e.getFullYear()===r.getFullYear()}function it(t){return(typeof t=="string"?new Date(t):t).getTime()<new Date().getTime()}function tr(t){return(typeof t=="string"?new Date(t):t).getTime()>new Date().getTime()}function rr(t){if(!t)return!1;let e=typeof t=="string"?new Date(t):t;return it(e)&&!_(e)}function or(t,e){let r=typeof t=="string"?new Date(t):t,s=(typeof e=="string"?new Date(e):e).getTime()-r.getTime();return Math.floor(s/(1e3*60*60*24))}function pt(t){let e=typeof t=="string"?new Date(t):new Date(t);return e.setHours(0,0,0,0),e}function sr(t){let e=typeof t=="string"?new Date(t):new Date(t);return e.setHours(23,59,59,999),e}function nr(t){let e=typeof t=="string"?new Date(t):new Date(t),r=e.getDay(),o=e.getDate()-r+(r===0?-6:1),s=new Date(e.setDate(o));return s.setHours(0,0,0,0),s}function ar(t){let e=typeof t=="string"?new Date(t):new Date(t),r=e.getDay(),o=e.getDate()+(r===0?0:7-r),s=new Date(e.setDate(o));return s.setHours(23,59,59,999),s}function ir(t,e){let r=typeof t=="string"?new Date(t):new Date(t);return r.setDate(r.getDate()+e),r}function pr(t,e){let r=typeof t=="string"?new Date(t):new Date(t);return r.setHours(r.getHours()+e),r}function cr(t,e){let r=typeof t=="string"?new Date(t):new Date(t);return r.setMinutes(r.getMinutes()+e),r}function ct(){return pt(new Date)}function ut(t,e){let r=typeof t=="string"?new Date(t):t,o=typeof e=="string"?new Date(e):e;return r.getTime()<o.getTime()}function ur(t,e){let r=typeof t=="string"?new Date(t):t,o=typeof e=="string"?new Date(e):e;return r.getTime()>o.getTime()}function se(t){return t.startDate?(typeof t.startDate=="string"?new Date(t.startDate):t.startDate)<=new Date:!0}function mt(t){return t.scheduledDate?_(t.scheduledDate):!1}function mr(t){return t.dueDate?_(t.dueDate):!1}function lr(t){let e=ct();return{overdue:t.filter(r=>r.dueDate&&ut(r.dueDate,e)&&r.status!=="COMPLETED"),dueToday:t.filter(r=>r.dueDate&&_(r.dueDate)),scheduledToday:t.filter(r=>r.scheduledDate&&_(r.scheduledDate)),available:t.filter(r=>se(r)&&!mt(r)&&r.status!=="COMPLETED"),notYetAvailable:t.filter(r=>!se(r))}}function dr(t){return t.filter(e=>se(e)&&e.status!=="COMPLETED"&&e.status!=="CANCELLED")}function fr(t,e,r="en-US"){if(!t)return null;let o=ce(t,r);return e?`${o} at ${e}`:o}function yr(t){if(t<60)return`${t}m`;let e=Math.floor(t/60),r=t%60;return r>0?`${e}h ${r}m`:`${e}h`}function hr(t){let e=Math.floor(t/3600),r=Math.floor(t%3600/60),o=t%60,s=[];return e>0&&s.push(`${e}h`),r>0&&s.push(`${r}m`),(o>0||s.length===0)&&s.push(`${o}s`),s.join(" ")}function wr(t){let e=Math.floor(t/60),r=t%60;return`${e.toString().padStart(2,"0")}:${r.toString().padStart(2,"0")}`}function br(t){let e=Math.floor(t/3600),r=Math.floor(t%3600/60),o=t%60;return`${e.toString().padStart(2,"0")}:${r.toString().padStart(2,"0")}:${o.toString().padStart(2,"0")}`}function kr(t){return Math.round(t/60*100)/100}function xr(t){return Math.round(t*60)}function Sr(t){return Math.round(t/60)}function Tr(t){return t*60}function Dr(t){let e=t.match(/(\d+)h/),r=t.match(/(\d+)m/),o=e?parseInt(e[1],10):0,s=r?parseInt(r[1],10):0;return o*60+s}function Er(t){return t.reduce((e,r)=>e+r.duration,0)}function Ar(t,e){return e===0?0:Math.round(t/e)}function Pr(t,e=!1){let[r,o]=t.split(":").map(Number);if(e)return`${(r||0).toString().padStart(2,"0")}:${(o||0).toString().padStart(2,"0")}`;let s=(r||0)>=12?"PM":"AM";return`${(r||0)%12||12}:${(o||0).toString().padStart(2,"0")} ${s}`}function Rr(){let t=new Date;return`${t.getHours().toString().padStart(2,"0")}:${t.getMinutes().toString().padStart(2,"0")}`}function Ir(t=new Date,e=9,r=18){let o=t.getHours();return o>=e&&o<r}function vr(t){return t.toLowerCase().trim().replace(/[^\w\s-]/g,"").replace(/[\s_-]+/g,"-").replace(/^-+|-+$/g,"")}function Or(t,e,r="..."){return t.length<=e?t:t.slice(0,e-r.length)+r}function ue(t){return t&&t.charAt(0).toUpperCase()+t.slice(1).toLowerCase()}function Cr(t){return t.split(" ").map(e=>ue(e)).join(" ")}function _r(t){let e=t.replace(/([A-Z])/g," $1");return e.charAt(0).toUpperCase()+e.slice(1)}function Nr(t){return t.split("_").map(e=>ue(e)).join(" ")}function Lr(t,e=2){return t.trim().split(/\s+/).map(s=>s.charAt(0).toUpperCase()).join("").slice(0,e)}function Wr(t){let e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",r="";for(let o=0;o<t;o++)r+=e.charAt(Math.floor(Math.random()*e.length));return r}function Hr(t){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)}function Ur(t){try{return new URL(t),!0}catch{return!1}}function Br(t){let e={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#x27;","/":"&#x2F;"};return t.replace(/[&<>"'/]/g,r=>e[r]||r)}function jr(t){return t.replace(/\s+/g," ").trim()}function Gr(t){return t.trim().split(/\s+/).filter(Boolean).length}function $r(t,e,r){return e===1?t:r||`${t}s`}function Fr(t){return t.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}function zr(){return`${Date.now()}-${Math.random().toString(36).substr(2,9)}`}function Vr(t){return/^[a-zA-Z0-9]+$/.test(t)}function Kr(t){return t.replace(/<[^>]*>/g,"")}function Xr(t,e){if(!e)return t;let r=new RegExp(`(${e})`,"gi");return t.replace(r,"<mark>$1</mark>")}function qr(t,e){return e===0?0:Math.round(t/e*100)}function Jr(t,e){return e===0?0:Math.round(t/e*100*10)/10}function Zr(t,e,r,o=240){if(e===0&&r===0)return 0;let s=e>0?t/e*50:0,n=Math.min(r/o*50,50);return Math.round(s+n)}function Qr(t,e=8){return e===0?0:Math.min(Math.round(t/e*100),100)}function eo(t){let e=t.filter(o=>o.completedAt!=null);if(e.length===0)return 0;let r=e.reduce((o,s)=>{if(!s.completedAt)return o;let n=typeof s.createdAt=="string"?new Date(s.createdAt):s.createdAt,a=typeof s.completedAt=="string"?new Date(s.completedAt):s.completedAt;return o+(a.getTime()-n.getTime())},0);return Math.round(r/e.length/(1e3*60))}function to(t,e){return e===0?0:Math.round(t/e*10)/10}function ro(t,e){if(e===0)return null;let r=Math.ceil(t/e),o=new Date;return o.setDate(o.getDate()+r),o}function oo(t,e,r){if(r===0)return 0;let o=t-e;return Math.round(o/r*10)/10}function so(t,e,r,o,s=2){if(e===0)return 100;let n=t/e*40,a=Math.max(0,30-r/e*30),i=Math.min(o/s*30,30);return Math.round(n+a+i)}function no(t,e){return e===0?0:Math.round(t/e*100)}function ao(t,e){if(e===0)return 0;let r=t/e*60;return Math.round(r*100)/100}function io(t){if(t.length===0)return 0;let e=t.map(a=>typeof a=="string"?new Date(a):a).sort((a,i)=>i.getTime()-a.getTime()),r=1,o=new Date;o.setHours(0,0,0,0);let s=new Date(e[0]);if(s.setHours(0,0,0,0),Math.floor((o.getTime()-s.getTime())/(1e3*60*60*24))>1)return 0;for(let a=1;a<e.length;a++){let i=new Date(e[a]);i.setHours(0,0,0,0);let p=new Date(e[a-1]);if(p.setHours(0,0,0,0),Math.floor((p.getTime()-i.getTime())/(1e3*60*60*24))===1)r++;else break}return r}function po(t,e){if(e.length===0)return 0;let r=[...e].sort((s,n)=>s-n),o=r.findIndex(s=>s>=t);return o===-1?100:Math.round(o/r.length*100)}function co(t){if(t.length===0)return 0;let e=t.reduce((o,s)=>o+s.weight,0);if(e===0)return 0;let r=t.reduce((o,s)=>o+s.value*s.weight,0);return Math.round(r/e*100)/100}function T(t){let e=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(t);return e?{r:parseInt(e[1],16),g:parseInt(e[2],16),b:parseInt(e[3],16)}:null}function ne(t,e,r){let o=s=>{let n=s.toString(16);return n.length===1?"0"+n:n};return"#"+o(t)+o(e)+o(r)}function mo(t){let e=T(t);return e?(.299*e.r+.587*e.g+.114*e.b)/255>.5?"#000000":"#FFFFFF":"#000000"}function me(t,e){let r=T(t);if(!r)return t;let o=Math.round(2.55*e),s=Math.min(255,r.r+o),n=Math.min(255,r.g+o),a=Math.min(255,r.b+o);return ne(s,n,a)}function le(t,e){let r=T(t);if(!r)return t;let o=Math.round(2.55*e),s=Math.max(0,r.r-o),n=Math.max(0,r.g-o),a=Math.max(0,r.b-o);return ne(s,n,a)}function lo(t,e){if(!T(t))return t;let o=Math.round(Math.min(Math.max(e,0),1)*255);return`${t}${o.toString(16).padStart(2,"0")}`}function lt(t,e=1){let r=T(t);return r?`rgba(${r.r}, ${r.g}, ${r.b}, ${e})`:`rgba(0, 0, 0, ${e})`}function fo(){return"#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,"0")}function dt(t){let e=T(t);return e?(.299*e.r+.587*e.g+.114*e.b)/255>.5:!1}function go(t){return!dt(t)}function yo(t,e,r=.5){let o=T(t),s=T(e);if(!o||!s)return t;let n=Math.max(0,Math.min(1,r)),a=Math.round(o.r*(1-n)+s.r*n),i=Math.round(o.g*(1-n)+s.g*n),p=Math.round(o.b*(1-n)+s.b*n);return ne(a,i,p)}function ho(t){return{lighter:me(t,40),light:me(t,20),base:t,dark:le(t,20),darker:le(t,40)}}function wo(t,e=.1){return lt(t,e)}import{z as c}from"zod";var ae=c.object({title:c.string().min(b.TITLE_MIN_LENGTH,"Title is required").max(b.TITLE_MAX_LENGTH,`Title must be less than ${b.TITLE_MAX_LENGTH} characters`),description:c.string().max(b.DESCRIPTION_MAX_LENGTH,`Description must be less than ${b.DESCRIPTION_MAX_LENGTH} characters`).optional(),priority:c.enum(W),status:c.enum(H).optional(),dueDate:c.string().optional().nullable(),startDate:c.string().optional().nullable(),scheduledDate:c.string().optional().nullable(),scheduledTime:c.string().regex(/^\d{2}:\d{2}$/,"Time must be in HH:mm format").optional().nullable(),isTimeBlocked:c.boolean().optional(),estimatedMinutes:c.union([c.number().int().min(b.MIN_ESTIMATED_MINUTES).max(b.MAX_ESTIMATED_MINUTES),c.nan()]).optional().nullable().transform(t=>Number.isNaN(t)?void 0:t)}),Do=ae.refine(t=>t.startDate&&t.dueDate?new Date(t.startDate)<=new Date(t.dueDate):!0,{message:"Start date must be before or equal to due date",path:["startDate"]}).refine(t=>t.scheduledDate&&t.dueDate?new Date(t.scheduledDate)<=new Date(t.dueDate):!0,{message:"Scheduled date must be before or equal to due date",path:["scheduledDate"]}),Eo=ae.extend({projectId:c.string().min(1,"Project is required"),parentTaskId:c.string().optional().nullable(),assigneeId:c.string().optional().nullable(),tagIds:c.array(c.string()).max(b.MAX_TAGS_PER_TASK).optional()}),Ao=ae.partial().extend({assigneeId:c.string().optional().nullable(),tagIds:c.array(c.string()).max(b.MAX_TAGS_PER_TASK).optional(),completedAt:c.string().datetime().optional().nullable()}),Po=c.object({projectId:c.string().optional(),status:c.enum(H).optional(),priority:c.enum(W).optional(),assigneeId:c.string().optional(),tagIds:c.array(c.string()).optional(),search:c.string().optional(),dueDate:c.object({from:c.string().datetime().optional(),to:c.string().datetime().optional()}).optional(),isOverdue:c.boolean().optional()}),Ro=c.object({taskIds:c.array(c.string()).min(1,"At least one task is required"),updates:c.object({status:c.enum(H).optional(),priority:c.enum(W).optional(),assigneeId:c.string().optional().nullable(),projectId:c.string().optional()})}),Io=c.object({taskId:c.string(),newOrder:c.number().int().min(0),projectId:c.string()});import{z as f}from"zod";var de=f.object({name:f.string().min(E.NAME_MIN_LENGTH,"Project name is required").max(E.NAME_MAX_LENGTH,`Project name must be less than ${E.NAME_MAX_LENGTH} characters`),description:f.string().max(E.DESCRIPTION_MAX_LENGTH,`Description must be less than ${E.DESCRIPTION_MAX_LENGTH} characters`).optional(),color:f.string().optional(),icon:f.string().optional()}),Co=de.extend({workspaceId:f.string().min(1,"Workspace is required"),workflowId:f.string().optional(),startDate:f.string().datetime().optional().nullable(),endDate:f.string().datetime().optional().nullable()}),_o=de.partial().extend({startDate:f.string().datetime().optional().nullable(),endDate:f.string().datetime().optional().nullable(),isArchived:f.boolean().optional()}),No=f.object({workspaceId:f.string().optional(),search:f.string().optional(),isArchived:f.boolean().optional(),color:f.string().optional()}),Lo=f.object({isArchived:f.boolean()}),Wo=f.object({name:f.string().min(E.NAME_MIN_LENGTH),includeTasks:f.boolean().default(!1),includeMembers:f.boolean().default(!1)});import{z as l}from"zod";var fe=["PERSONAL","WORK","TEAM"],ge=["OWNER","ADMIN","MEMBER","VIEWER"],ye=l.object({name:l.string().min(A.NAME_MIN_LENGTH,"Workspace name is required").max(A.NAME_MAX_LENGTH,`Workspace name must be less than ${A.NAME_MAX_LENGTH} characters`),description:l.string().max(A.DESCRIPTION_MAX_LENGTH,`Description must be less than ${A.DESCRIPTION_MAX_LENGTH} characters`).optional(),type:l.enum(fe),color:l.string().optional(),icon:l.string().optional()}),jo=ye,Go=ye.partial(),$o=l.object({defaultTaskPriority:l.enum(["LOW","MEDIUM","HIGH"]).optional(),defaultTaskStatus:l.enum(["TODO","IN_PROGRESS","IN_REVIEW","DONE","CANCELLED"]).optional(),enableNotifications:l.boolean().optional(),enableEmailDigest:l.boolean().optional(),timezone:l.string().optional()}),Fo=l.object({email:l.string().email("Invalid email address"),role:l.enum(ge),message:l.string().max(500).optional()}),zo=l.object({role:l.enum(ge)}),Vo=l.object({token:l.string().min(1,"Invitation token is required")}),Ko=l.object({newOwnerId:l.string().min(1,"New owner is required")}),Xo=l.object({type:l.enum(fe).optional(),search:l.string().optional()});import{z as k}from"zod";var he=k.object({name:k.string().min(C.NAME_MIN_LENGTH,"Tag name is required").max(C.NAME_MAX_LENGTH,`Tag name must be less than ${C.NAME_MAX_LENGTH} characters`),color:k.string().optional()}),Zo=he.extend({workspaceId:k.string().min(1,"Workspace is required")}),Qo=he.partial(),es=k.object({workspaceId:k.string().optional(),search:k.string().optional()}),ts=k.object({tagIds:k.array(k.string()).max(C.NAME_MAX_LENGTH)});import{z as u}from"zod";var ns=u.object({name:u.string().min(g.NAME_MIN_LENGTH,`Name must be at least ${g.NAME_MIN_LENGTH} characters`).max(g.NAME_MAX_LENGTH,`Name must be less than ${g.NAME_MAX_LENGTH} characters`),username:u.string().min(3,"Username must be at least 3 characters").max(20,"Username must be less than 20 characters").regex(/^[a-z0-9_-]+$/,"Username can only contain lowercase letters, numbers, hyphens, and underscores"),email:u.string().email("Invalid email address"),password:u.string().min(g.PASSWORD_MIN_LENGTH,`Password must be at least ${g.PASSWORD_MIN_LENGTH} characters`).max(g.PASSWORD_MAX_LENGTH,`Password must be less than ${g.PASSWORD_MAX_LENGTH} characters`)}),as=u.object({email:u.string().email("Invalid email address"),password:u.string().min(1,"Password is required")}),is=u.object({name:u.string().min(g.NAME_MIN_LENGTH).max(g.NAME_MAX_LENGTH).optional(),bio:u.string().max(g.BIO_MAX_LENGTH).optional(),avatar:u.string().url().optional().nullable(),timezone:u.string().optional(),language:u.enum(["en","es","pt-BR"]).optional()}),ps=u.object({currentPassword:u.string().min(1,"Current password is required"),newPassword:u.string().min(g.PASSWORD_MIN_LENGTH,`Password must be at least ${g.PASSWORD_MIN_LENGTH} characters`).max(g.PASSWORD_MAX_LENGTH)}),cs=u.object({email:u.string().email("Invalid email address")}),us=u.object({token:u.string().min(1,"Reset token is required"),newPassword:u.string().min(g.PASSWORD_MIN_LENGTH,`Password must be at least ${g.PASSWORD_MIN_LENGTH} characters`).max(g.PASSWORD_MAX_LENGTH)}),ms=u.object({theme:u.enum(["light","dark","system"]).optional(),language:u.enum(["en","es","pt-BR"]).optional(),timezone:u.string().optional(),notifications:u.object({email:u.boolean().optional(),push:u.boolean().optional(),desktop:u.boolean().optional()}).optional(),pomodoro:u.object({workDuration:u.number().int().min(1).max(120).optional(),shortBreakDuration:u.number().int().min(1).max(30).optional(),longBreakDuration:u.number().int().min(1).max(60).optional(),pomodorosUntilLongBreak:u.number().int().min(2).max(10).optional(),autoStartBreaks:u.boolean().optional(),autoStartPomodoros:u.boolean().optional(),soundEnabled:u.boolean().optional()}).optional()}),ls=u.object({username:u.string().min(3,"Username must be at least 3 characters").max(20,"Username must be less than 20 characters").regex(/^[a-z0-9_-]+$/,"Username can only contain lowercase letters, numbers, hyphens, and underscores")});import{z as x}from"zod";var we=x.object({content:x.string().min(B.CONTENT_MIN_LENGTH,"Comment cannot be empty").max(B.CONTENT_MAX_LENGTH,`Comment must be less than ${B.CONTENT_MAX_LENGTH} characters`)}),ys=we.extend({taskId:x.string().min(1,"Task is required"),parentCommentId:x.string().optional().nullable(),mentions:x.array(x.string()).optional()}),hs=we,ws=x.object({taskId:x.string().optional(),userId:x.string().optional(),parentCommentId:x.string().optional().nullable()});var N=class t extends m{name;username;email;password;constructor(e,r="valid"){super(e),this.name=r==="draft"?e?.name??"":D.create(e?.name??"").value,this.username=e.username,this.email=r==="draft"?e?.email??"":v.create(e?.email??"").value,this.password=e?.password?O.create(e.password).value:void 0}withoutPassword(){return this.clone({password:void 0})}static draft(e={username:""}){return new t(e,"draft")}get $name(){return D.create(this.name)}get $email(){return v.create(this.email)}get $password(){return this.password?O.create(this.password):void 0}};var j=class{constructor(e){this.repo=e}async execute(e,r){let o=D.create(e).value,s=await this.repo.findByEmail(r.email);if(!s)throw new Error("Usu\xE1rio n\xE3o encontrado");await this.repo.updateProps(s,{name:o})}};var G=class{constructor(e,r){this.repo=e;this.crypto=r}async execute(e){if(await this.repo.findByEmail(e.email))throw new Error("Usu\xE1rio j\xE1 existe");if(await this.repo.findByUsername(e.username))throw new Error("Nome de usu\xE1rio j\xE1 est\xE1 em uso");if(!e.password)throw new Error("Senha \xE9 obrigat\xF3ria");if(!e.username||e.username.length<3)throw new Error("Nome de usu\xE1rio deve ter pelo menos 3 caracteres");if(e.name?.length<3)throw new Error("Nome deve ter pelo menos 3 caracteres");let s=await this.crypto.encrypt(e.password),n=new N({name:e.name,username:e.username,email:e.email,password:s});await this.repo.save(n)}};var $=class{constructor(e){this.repo=e}async execute(e){let r=await this.repo.findByEmail(e?.toLowerCase?.());if(!r)throw new Error("Usu\xE1rio n\xE3o encontrado");return r.withoutPassword()}};var F=class{constructor(e,r){this.repo=e;this.crypto=r}async execute(e){let{email:r,password:o}=e,n=await this.repo.findByEmail(r,!0);if(!n)throw new Error("Usu\xE1rio n\xE3o encontrado");if(!await this.crypto.compare(o,n.password))throw new Error("Senha incorreta");return n.withoutPassword()}};var z=class t extends m{constructor(e){super({...e,status:e.status??"TODO",priority:e.priority??"MEDIUM",subTasks:e.subTasks??[],createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,status:"TODO",priority:e.priority??"MEDIUM"})}complete(){return this.clone({status:"COMPLETED",updatedAt:new Date})}updateStatus(e){return this.clone({status:e,updatedAt:new Date})}update(e){return this.clone({...e,updatedAt:new Date})}};var be=class{constructor(e){this.repository=e}async execute(e){if(!e.title)throw new Error("Title is required");let r=z.create({title:e.title,description:e.description,priority:e.priority??"MEDIUM",dueDate:e.dueDate,projectId:e.projectId,ownerId:e.ownerId,assigneeId:e.assigneeId,parentTaskId:e.parentTaskId,recurrence:e.recurrence});return await this.repository.save(r),r}};var ke=class{constructor(e){this.repository=e}async execute(e){let r=await this.repository.findById(e.taskId);if(!r)throw new Error("Task not found");if(r.props.ownerId!==e.ownerId)throw new Error("Unauthorized");let o=r.complete();return await this.repository.update(o),o}};var V=class t extends m{constructor(e){super({...e,tier:e.tier??"FREE",isArchived:e.isArchived??!1,isDeleted:e.isDeleted??!1,color:e.color??"#2563EB",createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,tier:e.tier??"FREE",isArchived:!1,isDeleted:!1,color:e.color??"#2563EB"})}update(e){return this.clone({...e,updatedAt:new Date})}softDelete(){return this.clone({isDeleted:!0,deletedAt:new Date,updatedAt:new Date})}archive(){return this.clone({isArchived:!0,updatedAt:new Date})}unarchive(){return this.clone({isArchived:!1,updatedAt:new Date})}setStats(e){return this.clone({stats:e})}};var P=class t extends m{constructor(e){super({...e,joinedAt:e.joinedAt??new Date})}static create(e){return new t({...e,joinedAt:new Date})}};var K=class t extends m{constructor(e){super({...e,defaultView:e.defaultView??"LIST",createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,defaultView:e.defaultView??"LIST"})}update(e){return this.clone({...e,updatedAt:new Date})}};var X=class t extends m{constructor(e){super({...e,createdAt:e.createdAt??new Date})}static create(e){return new t(e)}};var xe=class{constructor(e){this.workspaceRepository=e}async execute(e){let r=this.generateSlug(e.name),o=r,s=1;for(;await this.workspaceRepository.findBySlug(o);)o=`${r}-${s}`,s++;let n=V.create({...e,slug:o});return this.workspaceRepository.create(n)}generateSlug(e){return e.toLowerCase().trim().replace(/[^\w\s-]/g,"").replace(/[\s_-]+/g,"-").replace(/^-+|-+$/g,"")}};var Se=class{constructor(e){this.workspaceRepository=e}async execute(e,r,o="MEMBER"){if(!await this.workspaceRepository.findById(e))throw new Error("Workspace not found");let n=await this.workspaceRepository.findMember(e,r);if(n)return n;let a=P.create({workspaceId:e,userId:r,role:o});return this.workspaceRepository.addMember(a)}};var Te=class{constructor(e){this.workspaceRepository=e}async execute(e,r){let o=await this.workspaceRepository.findById(e);if(!o)throw new Error("Workspace not found");if(!await this.workspaceRepository.findMember(e,r))throw new Error("User is not a member of this workspace");if(o.props.ownerId===r)throw new Error("Cannot remove the owner from the workspace");await this.workspaceRepository.removeMember(e,r)}};var De=class{constructor(e){this.workspaceRepository=e}async execute(e,r){let o=await this.workspaceRepository.findById(e);if(!o)throw new Error("Workspace not found");if(o.props.ownerId!==r)throw new Error("Unauthorized");let s=o.softDelete();await this.workspaceRepository.update(s)}};var Ee=class{constructor(e){this.workspaceRepository=e}async execute(e,r){let o=await this.workspaceRepository.findById(e);if(!o)throw new Error("Workspace not found");if(o.props.ownerId!==r)throw new Error("Unauthorized");let s=o.archive();return this.workspaceRepository.update(s)}};var Y=class t extends m{constructor(e){super({...e,status:e.status??"PENDING",role:e.role??"MEMBER",createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,status:"PENDING"})}accept(){return this.clone({status:"ACCEPTED",acceptedAt:new Date,updatedAt:new Date})}cancel(){return this.clone({status:"CANCELLED",updatedAt:new Date})}isExpired(){return this.props.expiresAt<new Date}};import{v4 as ft}from"uuid";var Ae=class{constructor(e,r,o){this.workspaceRepository=e;this.invitationRepository=r;this.hashService=o}async execute(e,r,o,s){if(!await this.workspaceRepository.findById(e))throw new Error("Workspace not found");let a=ft(),i=await this.hashService.hash(a),p=new Date;p.setDate(p.getDate()+7);let d=Y.create({workspaceId:e,email:r,tokenHash:i,role:o,invitedById:s,expiresAt:p});return{invitation:await this.invitationRepository.create(d),token:a}}};var Pe=class{constructor(e,r,o){this.workspaceRepository=e;this.invitationRepository=r;this.hashService=o}async execute(e,r){let o=await this.invitationRepository.findPendingInvitations();if(o.length===0)throw new Error("Invalid invitation token");let s=null;for(let d of o)if(await this.hashService.compare(e,d.props.tokenHash)){s=d;break}if(!s)throw new Error("Invalid invitation token");if(s.isExpired())throw new Error("Invitation expired");let n=s.props.workspaceId;if(await this.workspaceRepository.findMember(n,r)){let d=s.accept();await this.invitationRepository.update(d);return}let i=P.create({workspaceId:n,userId:r,role:s.props.role});await this.workspaceRepository.addMember(i);let p=s.accept();await this.invitationRepository.update(p)}};var Re=class{constructor(e){this.settingsRepository=e}async execute(e){let r=await this.settingsRepository.findByWorkspaceId(e.workspaceId),o;return r?o=r.update({defaultView:e.defaultView,defaultDueTime:e.defaultDueTime,timezone:e.timezone,locale:e.locale}):o=K.create({workspaceId:e.workspaceId,defaultView:e.defaultView,defaultDueTime:e.defaultDueTime,timezone:e.timezone,locale:e.locale}),this.settingsRepository.upsert(o)}};var Ie=class{constructor(e){this.settingsRepository=e}async execute(e){return this.settingsRepository.findByWorkspaceId(e.workspaceId)}};var Me=class{constructor(e){this.auditLogRepository=e}async execute(e){let r=X.create({workspaceId:e.workspaceId,actorId:e.actorId,action:e.action,payload:e.payload});return this.auditLogRepository.create(r)}};var ve=class{constructor(e){this.auditLogRepository=e}async execute(e){let r=e.limit??50,o=e.offset??0,[s,n]=await Promise.all([this.auditLogRepository.findByWorkspaceId(e.workspaceId,r,o),this.auditLogRepository.countByWorkspaceId(e.workspaceId)]);return{logs:s,total:n}}};var q=class t extends m{constructor(e){super({...e,color:e.color??"#6B7280",position:e.position??0,archived:e.archived??!1,completed:e.completed??!1,createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,position:0,archived:!1,completed:!1})}update(e){return this.clone({...e,updatedAt:new Date})}archive(){return this.clone({archived:!0,updatedAt:new Date})}unarchive(){return this.clone({archived:!1,updatedAt:new Date})}complete(){return this.clone({completed:!0,completedAt:new Date,updatedAt:new Date})}uncomplete(){return this.clone({completed:!1,completedAt:void 0,updatedAt:new Date})}};var Oe=class{constructor(e){this.projectRepository=e}async execute(e){let r=q.create(e);return this.projectRepository.create(r)}};var Ce=class{constructor(e){this.projectRepository=e}async execute(e,r){let o=await this.projectRepository.findById(e);if(!o)throw new Error("Project not found");let s=o.update(r);return this.projectRepository.update(s)}};var _e=class{constructor(e){this.projectRepository=e}async execute(e){let r=await this.projectRepository.findById(e);if(!r)throw new Error("Project not found");console.log("\u{1F50D} Current archived status:",r.props.archived);let o=r.props.archived?r.unarchive():r.archive();return console.log("\u{1F504} New archived status:",o.props.archived),this.projectRepository.update(o)}};var Ne=class{constructor(e){this.projectRepository=e}async execute(e){if(!await this.projectRepository.findById(e))throw new Error("Project not found");await this.projectRepository.delete(e)}};var J=class t extends m{constructor(e){super({...e,color:e.color??"#6B7280",position:e.position??0,createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,position:0})}update(e){return this.clone({...e,updatedAt:new Date})}};var Le=class{constructor(e){this.workflowRepository=e}async execute(e){let r=J.create({name:e.name,description:e.description,color:e.color??"#6B7280",icon:e.icon,workspaceId:e.workspaceId});return await this.workflowRepository.save(r),r}};var We=class{constructor(e){this.workflowRepository=e}async execute(e){return this.workflowRepository.findByWorkspaceId(e)}};var He=class{constructor(e){this.workflowRepository=e}async execute(e){let r=await this.workflowRepository.findById(e.id);if(!r)throw new Error("Workflow not found");let o=r.update({name:e.name,description:e.description,color:e.color,icon:e.icon,position:e.position});return await this.workflowRepository.update(o),o}};var Ue=class{constructor(e){this.workflowRepository=e}async execute(e){await this.workflowRepository.delete(e)}};var Z=class t extends m{constructor(e){super({...e,color:e.color??"#6B7280",createdAt:e.createdAt??new Date})}static create(e){return new t({...e})}update(e){return this.clone({...e})}};var Be=class{constructor(e){this.tagRepository=e}async execute(e){let r=Z.create(e);return this.tagRepository.create(r)}};var je=class{constructor(e){this.tagRepository=e}async execute(e,r){if(!await this.tagRepository.findById(e))throw new Error("Tag not found");await this.tagRepository.assignToTask(e,r)}};var Ge=class{constructor(e){this.tagRepository=e}async execute(e,r){await this.tagRepository.removeFromTask(e,r)}};var $e=class{constructor(e){this.tagRepository=e}async execute(e,r){let o=await this.tagRepository.findById(e);if(!o)throw new Error("Tag not found");let s=o.update(r);return this.tagRepository.update(s)}};var R=class t extends m{constructor(e){super({...e,type:e.type??"WORK",wasCompleted:e.wasCompleted??!1,wasInterrupted:e.wasInterrupted??!1,pauseCount:e.pauseCount??0,totalPauseTime:e.totalPauseTime??0,pauseData:e.pauseData??[],createdAt:e.createdAt??new Date})}static create(e){return new t({...e,wasCompleted:!1,wasInterrupted:!1,pauseCount:0,totalPauseTime:0,pauseData:[],currentPauseStart:void 0})}pause(e=new Date){return this.clone({pauseCount:(this.props.pauseCount??0)+1,currentPauseStart:e})}resume(e,r=new Date){let o=this.props.currentPauseStart??e,s=Math.floor((r.getTime()-o.getTime())/1e3),n={startedAt:o,endedAt:r,duration:s};return this.clone({totalPauseTime:(this.props.totalPauseTime??0)+s,pauseData:[...this.props.pauseData??[],n],currentPauseStart:void 0})}stop(e=new Date,r=!1,o=!1){let s=0;this.props.currentPauseStart&&(s=Math.floor((e.getTime()-this.props.currentPauseStart.getTime())/1e3));let n=e.getTime()-this.props.startedAt.getTime(),i=Math.floor(n/1e3)-(this.props.totalPauseTime??0)-s,p=Math.round(i/60);return this.clone({endedAt:e,duration:p,wasCompleted:r,wasInterrupted:o,currentPauseStart:void 0,totalPauseTime:(this.props.totalPauseTime??0)+s})}split(e=new Date,r=!0,o="TASK_SWITCH"){let s=0;this.props.currentPauseStart&&(s=Math.floor((e.getTime()-this.props.currentPauseStart.getTime())/1e3));let n=e.getTime()-this.props.startedAt.getTime(),i=Math.floor(n/1e3)-(this.props.totalPauseTime??0)-s,p=Math.round(i/60);return this.clone({endedAt:e,duration:p,wasCompleted:r,wasInterrupted:!1,splitReason:o,currentPauseStart:void 0,totalPauseTime:(this.props.totalPauseTime??0)+s})}};var Fe=class{constructor(e,r){this.timerRepository=e;this.taskRepository=r}async execute(e,r,o="WORK"){let s=await this.timerRepository.findActiveSession(e);if(s){let i=s.stop(new Date,!1,!0);await this.timerRepository.update(i)}let n=R.create({userId:e,taskId:r,startedAt:new Date,type:o}),a=await this.timerRepository.create(n);if(o==="WORK"&&r){let i=await this.taskRepository.findById(r);if(i&&i.props.status==="TODO"){let p=i.updateStatus("IN_PROGRESS");await this.taskRepository.update(p)}}return a}};var ze=class{constructor(e){this.timerRepository=e}async execute(e,r=!1){let o=await this.timerRepository.findActiveSession(e);if(!o)throw new Error("No active timer session found");let s=o.stop(new Date,r,!r);return this.timerRepository.update(s)}};var Ve=class{constructor(e){this.timerRepository=e}async execute(e,r=new Date){let o=await this.timerRepository.findActiveSession(e);if(!o)throw new Error("No active timer session found");let s=o.pause(r);return this.timerRepository.update(s)}};var Ke=class{constructor(e){this.timerRepository=e}async execute(e,r,o=new Date){let s=await this.timerRepository.findActiveSession(e);if(!s)throw new Error("No active timer session found");let n=s.resume(r,o);return this.timerRepository.update(n)}};var Xe=class{constructor(e){this.timerRepository=e}async execute(e,r,o="WORK",s="TASK_SWITCH"){let n=await this.timerRepository.findActiveSession(e);if(!n)throw new Error("No active timer session found");let a=n.split(new Date,!0,s);await this.timerRepository.update(a);let i=R.create({userId:e,taskId:r,startedAt:new Date,type:o,parentSessionId:a.id}),p=await this.timerRepository.create(i);return{oldSession:a,newSession:p}}};var I=class t extends m{constructor(e){super({...e,tasksCreated:e.tasksCreated??0,tasksCompleted:e.tasksCompleted??0,subtasksCompleted:e.subtasksCompleted??0,minutesWorked:e.minutesWorked??0,pomodorosCompleted:e.pomodorosCompleted??0,shortBreaksCompleted:e.shortBreaksCompleted??0,longBreaksCompleted:e.longBreaksCompleted??0,breakMinutes:e.breakMinutes??0,createdAt:e.createdAt??new Date})}static create(e){return new t({...e,tasksCreated:0,tasksCompleted:0,subtasksCompleted:0,minutesWorked:0,pomodorosCompleted:0,shortBreaksCompleted:0,longBreaksCompleted:0,breakMinutes:0})}incrementTasksCreated(){return this.clone({tasksCreated:this.props.tasksCreated+1})}incrementTasksCompleted(){return this.clone({tasksCompleted:this.props.tasksCompleted+1})}decrementTasksCompleted(){return this.clone({tasksCompleted:Math.max(0,this.props.tasksCompleted-1)})}incrementSubtasksCompleted(){return this.clone({subtasksCompleted:this.props.subtasksCompleted+1})}decrementSubtasksCompleted(){return this.clone({subtasksCompleted:Math.max(0,this.props.subtasksCompleted-1)})}addMinutesWorked(e){return this.clone({minutesWorked:this.props.minutesWorked+e})}incrementPomodoros(){return this.clone({pomodorosCompleted:this.props.pomodorosCompleted+1})}updateFocusScore(e){return this.clone({focusScore:Math.max(0,Math.min(1,e))})}incrementShortBreaks(){return this.clone({shortBreaksCompleted:this.props.shortBreaksCompleted+1})}incrementLongBreaks(){return this.clone({longBreaksCompleted:this.props.longBreaksCompleted+1})}addBreakMinutes(e){return this.clone({breakMinutes:this.props.breakMinutes+e})}};var Ye=class{constructor(e){this.analyticsRepository=e}async execute(e,r=new Date){let o=await this.analyticsRepository.findByDate(e,r);return o||(o=I.create({userId:e,date:r})),o}};var qe=class{constructor(e){this.analyticsRepository=e}async execute(e){let r=new Date(e.date);r.setHours(0,0,0,0);let o=await this.analyticsRepository.findByDate(e.userId,r);if(o||(o=I.create({userId:e.userId,date:r})),e.tasksCreated)for(let s=0;s<e.tasksCreated;s++)o=o.incrementTasksCreated();if(e.tasksCompleted)for(let s=0;s<Math.abs(e.tasksCompleted);s++)e.tasksCompleted>0?o=o.incrementTasksCompleted():o=o.decrementTasksCompleted();if(e.subtasksCompleted)for(let s=0;s<Math.abs(e.subtasksCompleted);s++)e.subtasksCompleted>0?o=o.incrementSubtasksCompleted():o=o.decrementSubtasksCompleted();if(e.minutesWorked&&(o=o.addMinutesWorked(e.minutesWorked)),e.pomodorosCompleted)for(let s=0;s<e.pomodorosCompleted;s++)o=o.incrementPomodoros();if(e.shortBreaksCompleted)for(let s=0;s<e.shortBreaksCompleted;s++)o=o.incrementShortBreaks();if(e.longBreaksCompleted)for(let s=0;s<e.longBreaksCompleted;s++)o=o.incrementLongBreaks();return e.breakMinutes&&(o=o.addBreakMinutes(e.breakMinutes)),e.focusScore!==void 0&&(o=o.updateFocusScore(e.focusScore)),await this.analyticsRepository.save(o),o}};var Je=class{execute(e){let{totalWorkSeconds:r,totalPauseSeconds:o,pauseCount:s}=e;if(r<=0)return 0;let n=r+o,a=r/n,i=Math.min(s*.02,.2),p=a-i;return p=Math.max(0,Math.min(1,p)),p}};var Ze=class t extends m{constructor(e){super({...e,peakHours:e.peakHours??{},peakDays:e.peakDays??{},avgTaskDuration:e.avgTaskDuration??30,completionRate:e.completionRate??.7,categoryPreferences:e.categoryPreferences??{},updatedAt:e.updatedAt??new Date})}static create(e){return new t({userId:e,peakHours:{},peakDays:{},avgTaskDuration:30,completionRate:.7,categoryPreferences:{}})}updatePeakHour(e,r){if(e<0||e>23)throw new Error("Hour must be between 0 and 23");if(r<0||r>1)throw new Error("Score must be between 0 and 1");let s=(this.props.peakHours[e]??.5)*.7+r*.3;return this.clone({peakHours:{...this.props.peakHours,[e]:s},updatedAt:new Date})}updatePeakDay(e,r){if(e<0||e>6)throw new Error("Day of week must be between 0 and 6");if(r<0||r>1)throw new Error("Score must be between 0 and 1");let s=(this.props.peakDays[e]??.5)*.7+r*.3;return this.clone({peakDays:{...this.props.peakDays,[e]:s},updatedAt:new Date})}recalculateAvgDuration(e){if(e.length===0)return this;let r=e.reduce((s,n)=>s+n,0)/e.length,o=this.props.avgTaskDuration*.6+r*.4;return this.clone({avgTaskDuration:Math.round(o),updatedAt:new Date})}updateCompletionRate(e,r){if(r===0)return this;if(e>r)throw new Error("Completed tasks cannot exceed total tasks");let o=e/r,s=this.props.completionRate*.8+o*.2;return this.clone({completionRate:Math.max(0,Math.min(1,s)),updatedAt:new Date})}updateCategoryPreference(e,r){if(r<0||r>1)throw new Error("Score must be between 0 and 1");let s=(this.props.categoryPreferences[e]??.5)*.7+r*.3;return this.clone({categoryPreferences:{...this.props.categoryPreferences,[e]:s},updatedAt:new Date})}getTopPeakHours(e=3){return Object.entries(this.props.peakHours).sort(([,r],[,o])=>o-r).slice(0,e).map(([r])=>parseInt(r))}getTopPeakDays(e=3){return Object.entries(this.props.peakDays).sort(([,r],[,o])=>o-r).slice(0,e).map(([r])=>parseInt(r))}getTopCategories(e=5){return Object.entries(this.props.categoryPreferences).sort(([,r],[,o])=>o-r).slice(0,e).map(([r])=>r)}isPeakHour(e){return(this.props.peakHours[e]??0)>.7}isPeakDay(e){return(this.props.peakDays[e]??0)>.7}};var Q=class t extends m{constructor(e){if(super({...e,strengths:e.strengths??[],weaknesses:e.weaknesses??[],recommendations:e.recommendations??[],patterns:e.patterns??[],productivityScore:Math.min(100,Math.max(0,e.productivityScore??0)),metricsSnapshot:e.metricsSnapshot??{},generatedAt:e.generatedAt??new Date,aiModel:e.aiModel??"gemini-2.0-flash-exp"}),e.productivityScore<0||e.productivityScore>100)throw new Error("Productivity score must be between 0 and 100");if(!e.summary||e.summary.trim().length===0)throw new Error("Summary cannot be empty")}static create(e){return new t({...e,generatedAt:new Date,aiModel:"gemini-2.0-flash-exp"})}getScopeLabel(){switch(this.props.scope){case"TASK_COMPLETION":return"Task Completion Report";case"PROJECT_SUMMARY":return"Project Summary";case"PERSONAL_ANALYSIS":return"Personal Analysis";case"WEEKLY_SCHEDULED":return"Weekly Report";case"MONTHLY_SCHEDULED":return"Monthly Report";default:return"Report"}}getScoreColor(){return this.props.productivityScore>=80?"green":this.props.productivityScore>=60?"yellow":"red"}isGoodScore(){return this.props.productivityScore>=70}getMetricsSummary(){let e=this.props.metricsSnapshot,r=[];if(e.tasksCompleted!==void 0&&r.push(`${e.tasksCompleted} tasks completed`),e.minutesWorked!==void 0){let o=Math.floor(e.minutesWorked/60),s=e.minutesWorked%60;o>0?r.push(`${o}h ${s}m worked`):r.push(`${s}m worked`)}return e.pomodorosCompleted!==void 0&&e.pomodorosCompleted>0&&r.push(`${e.pomodorosCompleted} pomodoros`),r.join(", ")||"No metrics available"}hasRecommendations(){return this.props.recommendations.length>0}getTopRecommendations(e=3){return this.props.recommendations.slice(0,e)}};var Qe=class{constructor(e){this.aiProfileRepository=e}async execute(e){let{session:r}=e;if(!r.props.wasCompleted)throw new Error("Can only learn from completed sessions");if(r.props.type!=="WORK"&&r.props.type!=="CONTINUOUS")throw new Error("Can only learn from WORK or CONTINUOUS sessions");let o=await this.aiProfileRepository.findOrCreate(r.props.userId),s=r.props.startedAt,n=s.getHours(),a=s.getDay(),i=this.calculateProductivityScore(r),p=o.updatePeakHour(n,i).updatePeakDay(a,i);return r.props.taskId&&r.props.duration&&(p=p.recalculateAvgDuration([r.props.duration])),await this.aiProfileRepository.update(p)}calculateProductivityScore(e){let r=e.props.duration??0,o=e.props.pauseCount??0,s=e.props.totalPauseTime??0,n=e.props.wasCompleted,a=.5;n&&(a+=.2),r>=25&&r<=50?a+=.2:(r>=10&&r<25||r>50)&&(a+=.1);let i=Math.min(o*.05,.3);if(a-=i,r>0){let p=r*60+s,d=r*60/p;d>=.9?a+=.2:d>=.8?a+=.15:d>=.7?a+=.1:d<.5&&(a-=.2)}return Math.max(0,Math.min(1,a))}};var gt=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],et=class{constructor(e){this.aiProfileRepository=e}async execute(e){let{userId:r,topN:o=5}=e,s=await this.aiProfileRepository.findByUserId(r);if(!s)return{peakHours:[],peakDays:[],recommendation:"Start tracking your work sessions to get personalized productivity insights!"};let n=this.getTopPeakHours(s,o),a=this.getTopPeakDays(s,3),i=this.generateRecommendation(s,n,a);return{peakHours:n,peakDays:a,recommendation:i}}getTopPeakHours(e,r){let o=e.props.peakHours;return Object.entries(o).map(([s,n])=>({hour:parseInt(s),score:n,label:this.formatHour(parseInt(s))})).sort((s,n)=>n.score-s.score).slice(0,r)}getTopPeakDays(e,r){let o=e.props.peakDays;return Object.entries(o).map(([s,n])=>{let a=parseInt(s);return{day:a,score:n,label:gt[a]||"Unknown"}}).sort((s,n)=>n.score-s.score).slice(0,r)}formatHour(e){let r=e>=12?"PM":"AM";return`${e===0?12:e>12?e-12:e}:00 ${r}`}generateRecommendation(e,r,o){if(r.length===0&&o.length===0)return"Keep tracking your work sessions to discover your peak productivity times!";let s=[];if(r.length>0){let i=r[0];if(i&&i.score>.7){let p=r.slice(0,3).map(d=>d.label).join(", ");s.push(`Your peak productivity hours are ${p}.`)}else i&&i.score>.5&&s.push(`You work well during ${i.label}.`)}if(o.length>0){let i=o[0];if(i&&i.score>.7){let p=o.slice(0,2).map(d=>d.label).join(" and ");s.push(`You're most productive on ${p}.`)}}let n=e.props.avgTaskDuration;n>0&&s.push(`Your average focused work session is ${n} minutes.`);let a=e.props.completionRate;return a>=.8?s.push(`You have an excellent task completion rate of ${Math.round(a*100)}%!`):a<.5&&s.push(`Try breaking tasks into smaller chunks to improve your ${Math.round(a*100)}% completion rate.`),s.join(" ")||"Keep working to build your productivity profile!"}};var tt=class{constructor(e){this.aiProfileRepository=e}async execute(e){let{userId:r,taskTitle:o,taskDescription:s,category:n,priority:a}=e,i=await this.aiProfileRepository.findByUserId(r);if(!i)return{estimatedMinutes:30,confidence:"LOW",reasoning:"Using default estimate of 30 minutes. Complete more tasks to get personalized predictions!"};let p=i.props.avgTaskDuration,d="MEDIUM",y=[];if(n&&i.props.categoryPreferences[n]){let ee=i.props.categoryPreferences[n];ee>.7?(p*=.85,y.push(`You're efficient with ${n} tasks (-15%)`),d="HIGH"):ee<.4&&(p*=1.2,y.push(`${n} tasks typically take you longer (+20%)`),d="MEDIUM")}if(a)switch(a){case"URGENT":p*=.9,y.push("Urgent priority tends to increase focus (-10%)");break;case"HIGH":p*=1.1,y.push("High priority suggests complexity (+10%)");break;case"LOW":p*=.85,y.push("Low priority typically means simpler tasks (-15%)");break}let w=`${o||""} ${s||""}`.toLowerCase();this.containsComplexityKeywords(w,["refactor","redesign","architecture","migration"])?(p*=1.5,y.push("Complex task keywords detected (+50%)")):this.containsComplexityKeywords(w,["fix","bug","issue","debug"])?(p*=1.2,y.push("Debugging tasks can be unpredictable (+20%)")):this.containsComplexityKeywords(w,["simple","quick","minor","small"])&&(p*=.75,y.push("Simple task indicators found (-25%)")),p=Math.round(p/5)*5,p=Math.max(10,p);let M=`Based on your average of ${i.props.avgTaskDuration} minutes`;return y.length>0?M+=`. ${y.join(". ")}.`:M+=".",!n&&!a&&!o&&!s&&(d="LOW"),{estimatedMinutes:p,confidence:d,reasoning:M}}containsComplexityKeywords(e,r){return r.some(o=>e.includes(o))}};var rt=class{constructor(e,r,o,s,n){this.reportRepository=e;this.analyticsRepository=r;this.timerRepository=o;this.aiProfileRepository=s;this.generateReportData=n}async execute(e){let{userId:r,weekStart:o}=e,s=o||this.getWeekStart(new Date),n=new Date(s);n.setDate(n.getDate()+6);let a=await this.reportRepository.findLatestByScope(r,"WEEKLY_SCHEDULED");if(a&&this.isSameWeek(a.props.generatedAt,s))return{report:a,isNew:!1};let[i,p,d]=await Promise.all([this.analyticsRepository.getRange(r,s,n),this.timerRepository.findByUserIdAndDateRange(r,s,n),this.aiProfileRepository.findByUserId(r)]),y={tasksCreated:i.reduce((h,S)=>h+S.props.tasksCreated,0),tasksCompleted:i.reduce((h,S)=>h+S.props.tasksCompleted,0),minutesWorked:i.reduce((h,S)=>h+S.props.minutesWorked,0),pomodorosCompleted:i.reduce((h,S)=>h+S.props.pomodorosCompleted,0),focusScore:i.length>0?i.reduce((h,S)=>h+(S.props.focusScore??0),0)/i.length:0,sessionsCount:p.length},w=await this.generateReportData({userId:r,scope:"WEEKLY_SCHEDULED",metricsSnapshot:y,sessions:p.map(h=>h.props),profile:d?.props}),M=Q.create({userId:r,scope:"WEEKLY_SCHEDULED",summary:w.summary,strengths:w.strengths,weaknesses:w.weaknesses,recommendations:w.recommendations,patterns:w.patterns,productivityScore:w.productivityScore,metricsSnapshot:y});return{report:await this.reportRepository.save(M),isNew:!0}}getWeekStart(e){let r=new Date(e),o=r.getDay(),s=r.getDate()-o+(o===0?-6:1);return new Date(r.setDate(s))}isSameWeek(e,r){let o=this.getWeekStart(e),s=this.getWeekStart(r);return o.getTime()===s.getTime()}};var ie=class{async suggestTaskDetails(e){await new Promise(n=>setTimeout(n,1e3));let r=e.toLowerCase(),o="MEDIUM";r.includes("urgente")||r.includes("asap")?o="URGENT":r.includes("importante")&&(o="HIGH");let s;if(r.includes("ma\xF1ana")){let n=new Date;n.setDate(n.getDate()+1),s=n}else r.includes("hoy")&&(s=new Date);return{title:e,description:"Generated by Ordo AI based on your input.",priority:o,dueDate:s}}async chat(e,r){return await new Promise(o=>setTimeout(o,1e3)),`I am Ordo AI. You said: "${e}". I am currently in development mode.`}},fp=new ie;var ot=class t extends m{constructor(e){super({...e,frequency:e.frequency??"DAILY",targetDaysOfWeek:e.targetDaysOfWeek??[0,1,2,3,4,5,6],targetCount:e.targetCount??1,color:e.color??"#10B981",currentStreak:e.currentStreak??0,longestStreak:e.longestStreak??0,totalCompletions:e.totalCompletions??0,isActive:e.isActive??!0,isPaused:e.isPaused??!1,completions:e.completions??[],createdAt:e.createdAt??new Date,updatedAt:e.updatedAt??new Date})}static create(e){return new t({...e,currentStreak:0,longestStreak:0,totalCompletions:0,isActive:!0,isPaused:!1})}isScheduledForDay(e){return this.props.frequency==="DAILY"?!0:this.props.frequency==="SPECIFIC_DAYS"?this.props.targetDaysOfWeek.includes(e):!0}complete(e=!0){let r=this.props.totalCompletions+1,o=e?this.props.currentStreak+1:1,s=Math.max(this.props.longestStreak,o);return this.clone({totalCompletions:r,currentStreak:o,longestStreak:s,updatedAt:new Date})}resetStreak(){return this.clone({currentStreak:0,updatedAt:new Date})}pause(){return this.clone({isPaused:!0,pausedAt:new Date,updatedAt:new Date})}resume(){return this.clone({isPaused:!1,pausedAt:void 0,updatedAt:new Date})}archive(){return this.clone({isActive:!1,archivedAt:new Date,updatedAt:new Date})}update(e){return this.clone({...e,updatedAt:new Date})}};export{Ze as AIProfile,Pe as AcceptInvitationUseCase,Se as AddMemberToWorkspaceUseCase,_e as ArchiveProjectUseCase,Ee as ArchiveWorkspaceUseCase,je as AssignTagToTaskUseCase,B as COMMENT_LIMITS,Je as CalculateFocusScoreUseCase,j as ChangeUserName,ke as CompleteTaskUseCase,Me as CreateAuditLogUseCase,Oe as CreateProjectUseCase,Be as CreateTagUseCase,be as CreateTaskUseCase,Le as CreateWorkflowUseCase,xe as CreateWorkspaceUseCase,at as DEFAULT_POMODORO_SETTINGS,I as DailyMetrics,Ne as DeleteProjectUseCase,Ue as DeleteWorkflowUseCase,v as Email,m as Entity,oe as FILE_LIMITS,rt as GenerateWeeklyReportUseCase,Ye as GetDailyMetricsUseCase,et as GetOptimalScheduleUseCase,ve as GetWorkspaceAuditLogsUseCase,Ie as GetWorkspaceSettingsUseCase,ot as Habit,O as HashPassword,L as Id,Ae as InviteMemberUseCase,Qe as LearnFromSessionUseCase,We as ListWorkflowsUseCase,ge as MEMBER_ROLES,ie as MockAIService,Xt as PAGINATION_LIMITS,W as PRIORITY_VALUES,Dt as PROJECT_COLORS,E as PROJECT_LIMITS,Ot as PROJECT_STATUS,Ct as PROJECT_STATUS_VALUES,Ve as PauseTimerUseCase,D as PersonName,tt as PredictTaskDurationUseCase,Q as ProductivityReport,q as Project,G as RegisterUser,Te as RemoveMemberFromWorkspaceUseCase,Ge as RemoveTagFromTaskUseCase,pe as RequiredString,Ke as ResumeTimerUseCase,De as SoftDeleteWorkspaceUseCase,Fe as StartTimerUseCase,ze as StopTimerUseCase,Xe as SwitchTaskUseCase,Et as TAG_COLORS,C as TAG_LIMITS,b as TASK_LIMITS,te as TASK_PRIORITIES,re as TASK_STATUS,H as TASK_STATUS_VALUES,jt as TIMER_LIMITS,U as TIMER_MODES,Bt as TIMER_MODE_VALUES,Z as Tag,z as Task,R as TimeSession,g as USER_LIMITS,qe as UpdateDailyMetricsUseCase,Ce as UpdateProjectUseCase,$e as UpdateTagUseCase,He as UpdateWorkflowUseCase,Re as UpdateWorkspaceSettingsUseCase,N as User,$ as UserByEmail,F as UserLogin,At as WORKSPACE_COLORS,A as WORKSPACE_LIMITS,fe as WORKSPACE_TYPES,J as Workflow,V as Workspace,X as WorkspaceAuditLog,Y as WorkspaceInvitation,P as WorkspaceMember,K as WorkspaceSettings,Vo as acceptInvitationSchema,lo as addAlpha,ir as addDays,pr as addHours,cr as addMinutes,fp as aiService,Lo as archiveProjectSchema,ts as assignTagsSchema,Ro as bulkUpdateTasksSchema,eo as calculateAverageCompletionTime,Ar as calculateAverageTime,oo as calculateBurndownRate,Jr as calculateCompletionRate,ao as calculateEfficiency,ro as calculateEstimatedCompletion,Qr as calculateFocusScore,po as calculatePercentile,Zr as calculateProductivityScore,qr as calculateProgress,so as calculateProjectHealth,io as calculateStreak,no as calculateTimeUtilization,Er as calculateTotalTimeWorked,to as calculateVelocity,co as calculateWeightedAverage,_r as camelToTitle,ue as capitalize,Cr as capitalizeWords,lr as categorizeTasksByAvailability,ps as changePasswordSchema,we as commentBaseSchema,ws as commentFilterSchema,Gr as countWords,ys as createCommentSchema,Co as createProjectSchema,Zo as createTagSchema,Eo as createTaskSchema,jo as createWorkspaceSchema,le as darkenColor,Wo as duplicateProjectSchema,sr as endOfDay,ar as endOfWeek,Qt as formatDate,ce as formatDateShort,yr as formatDuration,hr as formatDurationFromSeconds,Yt as formatFileSize,Fr as formatNumber,er as formatRelativeTime,fr as formatScheduledDateTime,Pr as formatTimeOfDay,wr as formatTimerDisplay,br as formatTimerDisplayExtended,zr as generateId,ho as generatePalette,Wr as generateRandomString,vr as generateSlug,wo as getColorWithOpacity,mo as getContrastColor,Rr as getCurrentTime,or as getDaysDiff,Lr as getInitials,It as getPriorityColor,Rt as getPriorityConfig,Mt as getPriorityLabel,Nt as getTaskStatusColor,_t as getTaskStatusConfig,Lt as getTaskStatusLabel,$t as getTimerModeColor,Gt as getTimerModeConfig,zt as getTimerModeDefaultDuration,Ft as getTimerModeLabel,dr as getWorkableTasks,T as hexToRgb,lt as hexToRgba,Xr as highlightSearchTerms,xr as hoursToMinutes,Fo as inviteMemberSchema,ur as isAfter,qt as isAllowedFileType,Vr as isAlphanumeric,ut as isBefore,go as isDarkColor,mr as isDueToday,tr as isFuture,Jt as isImageFile,dt as isLightColor,rr as isOverdue,it as isPast,mt as isScheduledForToday,se as isTaskAvailable,Wt as isTaskCompleted,Ht as isTaskInProgress,_ as isToday,Hr as isValidEmail,Ur as isValidUrl,Ir as isWorkingHours,me as lightenColor,as as loginUserSchema,kr as minutesToHours,Tr as minutesToSeconds,yo as mixColors,jr as normalizeWhitespace,Dr as parseDuration,$r as pluralize,de as projectBaseSchema,No as projectFilterSchema,fo as randomColor,ns as registerUserSchema,Io as reorderTasksSchema,cs as resetPasswordRequestSchema,us as resetPasswordSchema,ne as rgbToHex,Br as sanitizeHtml,Sr as secondsToMinutes,Vt as shouldTakeLongBreak,Nr as snakeToTitle,pt as startOfDay,ct as startOfToday,nr as startOfWeek,Kr as stripHtmlTags,he as tagBaseSchema,es as tagFilterSchema,ae as taskBaseSchema,Do as taskDatesSchema,Po as taskFilterSchema,Ko as transferOwnershipSchema,Or as truncate,hs as updateCommentSchema,zo as updateMemberRoleSchema,_o as updateProjectSchema,Qo as updateTagSchema,Ao as updateTaskSchema,is as updateUserProfileSchema,Go as updateWorkspaceSchema,ms as userPreferencesSchema,ls as usernameValidationSchema,ye as workspaceBaseSchema,Xo as workspaceFilterSchema,$o as workspaceSettingsSchema};
+// src/shared/email.vo.ts
+var Email = class _Email {
+  _value;
+  constructor(value) {
+    this._value = value;
+  }
+  static create(email) {
+    const finalEmail = email?.trim?.().toLowerCase();
+    this.validate(finalEmail);
+    return new _Email(finalEmail);
+  }
+  static validate(email) {
+    if (!email || typeof email !== "string") {
+      throw new Error("O email n\xE3o pode estar vazio");
+    }
+    if (email.length > 254) {
+      throw new Error("O email deve ter no m\xE1ximo 254 caracteres");
+    }
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-\u00A0-\uFFFF]+@[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?(?:\.[a-zA-Z0-9\u00A0-\uFFFF](?:[a-zA-Z0-9\u00A0-\uFFFF-]{0,61}[a-zA-Z0-9\u00A0-\uFFFF])?)*$/;
+    if (!emailRegex.test(email)) {
+      throw new Error("O formato do email \xE9 inv\xE1lido");
+    }
+    const [localPart, domainPart] = email.split("@");
+    if (localPart && localPart.includes("..")) {
+      throw new Error(
+        "O email n\xE3o pode conter pontos consecutivos na parte local"
+      );
+    }
+    if (localPart && (localPart.startsWith(".") || localPart.endsWith("."))) {
+      throw new Error(
+        "O email n\xE3o pode come\xE7ar ou terminar com ponto na parte local"
+      );
+    }
+  }
+  get value() {
+    return this._value;
+  }
+  get localPart() {
+    return this._value.split("@")[0];
+  }
+  get domain() {
+    return this._value.split("@")[1];
+  }
+  equals(other) {
+    if (!(other instanceof _Email)) {
+      return false;
+    }
+    return this._value === other._value;
+  }
+  toString() {
+    return this._value;
+  }
+  toJSON() {
+    return this._value;
+  }
+};
+
+// src/shared/hash-password.vo.ts
+var HashPassword = class _HashPassword {
+  _value;
+  constructor(value) {
+    this._value = value;
+  }
+  static create(hashPassword) {
+    this.validate(hashPassword);
+    return new _HashPassword(hashPassword.trim());
+  }
+  static validate(hashPassword) {
+    if (!hashPassword || typeof hashPassword !== "string") {
+      throw new Error("O hash da senha n\xE3o pode estar vazio");
+    }
+    const trimmedHash = hashPassword.trim();
+    if (trimmedHash.length === 0) {
+      throw new Error("O hash da senha n\xE3o pode estar vazio");
+    }
+    const bcryptRegex = /^\$2[abxy]\$\d{2}\$[A-Za-z0-9.\/]{53}$/;
+    if (!bcryptRegex.test(trimmedHash)) {
+      throw new Error("A senha deve estar criptografada");
+    }
+  }
+  get value() {
+    return this._value;
+  }
+  get algorithm() {
+    return this._value.split("$")[1];
+  }
+  get cost() {
+    return parseInt(this._value.split("$")[2], 10);
+  }
+  equals(other) {
+    if (!(other instanceof _HashPassword)) {
+      return false;
+    }
+    return this._value === other._value;
+  }
+  toString() {
+    return this._value;
+  }
+  toJSON() {
+    return this._value;
+  }
+};
+
+// src/shared/person-name.vo.ts
+var PersonName = class _PersonName {
+  _value;
+  constructor(value) {
+    this._value = value;
+  }
+  static create(name) {
+    this.validate(name);
+    return new _PersonName(name.trim());
+  }
+  static validate(name) {
+    if (!name || typeof name !== "string") {
+      throw new Error("O nome \xE9 obrigat\xF3rio e deve ser uma string");
+    }
+    const trimmedName = name.trim();
+    if (trimmedName.length < 3) {
+      throw new Error("O nome deve ter pelo menos 3 caracteres");
+    }
+    if (trimmedName.length > 120) {
+      throw new Error("O nome deve ter no m\xE1ximo 120 caracteres");
+    }
+    const validNameRegex = /^[a-zA-ZÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\s'-]+$/;
+    if (!validNameRegex.test(trimmedName)) {
+      throw new Error(
+        "O nome cont\xE9m caracteres inv\xE1lidos. Apenas letras, espa\xE7os, ap\xF3strofes e h\xEDfens s\xE3o permitidos"
+      );
+    }
+    const nameParts = trimmedName.split(/\s+/).filter((part) => part.length > 0);
+    if (nameParts.length < 2) {
+      throw new Error("O nome deve conter pelo menos um nome e um sobrenome");
+    }
+    if (/\s{2,}/.test(trimmedName)) {
+      throw new Error("O nome n\xE3o pode conter espa\xE7os m\xFAltiplos consecutivos");
+    }
+    if (/^[-'\s]|[-'\s]$/.test(trimmedName)) {
+      throw new Error(
+        "O nome n\xE3o pode come\xE7ar ou terminar com espa\xE7os, h\xEDfens ou ap\xF3strofes"
+      );
+    }
+  }
+  get value() {
+    return this._value;
+  }
+  get firstName() {
+    const firstName = this._value.split(" ")[0];
+    return firstName;
+  }
+  get lastName() {
+    const parts = this._value.split(" ");
+    const lastName = parts[parts.length - 1];
+    return lastName;
+  }
+  get fullName() {
+    return this._value;
+  }
+  get initials() {
+    const nameParts = this.value.trim().split(/\s+/).filter((part) => part.length > 0);
+    return (this.firstName.charAt(0) + this.lastName.charAt(0)).toUpperCase();
+  }
+  equals(other) {
+    if (!(other instanceof _PersonName)) {
+      return false;
+    }
+    return this._value.toLowerCase() === other._value.toLowerCase();
+  }
+  toString() {
+    return this._value;
+  }
+  toJSON() {
+    return this._value;
+  }
+  toFormattedString() {
+    return this._value.split(" ").map((name) => name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()).join(" ");
+  }
+};
+
+// src/shared/id.vo.ts
+import { v4 as uuidv4, validate as isUuid } from "uuid";
+var Id = class _Id {
+  _value;
+  constructor(value) {
+    this._value = value;
+  }
+  static create(id) {
+    const value = id?.trim().toLowerCase() ?? uuidv4();
+    this.validate(value);
+    return new _Id(value);
+  }
+  static validate(id) {
+    if (!isUuid(id)) {
+      throw new Error("O id fornecido n\xE3o \xE9 um UUID v\xE1lido.");
+    }
+  }
+  get value() {
+    return this._value;
+  }
+  equals(other) {
+    return other instanceof _Id && this._value === other._value;
+  }
+  toString() {
+    return this._value;
+  }
+  toJSON() {
+    return this._value;
+  }
+};
+
+// src/shared/entity.ts
+var Entity = class _Entity {
+  props;
+  mode = "valid";
+  id;
+  constructor(props, mode = "valid") {
+    this.props = Object.freeze({
+      ...props,
+      id: props.id ? props.id : Id.create().value
+    });
+    this.mode = mode;
+    this.id = this.props.id;
+    if (props.props) {
+      throw new Error("Props should not contain 'props' property");
+    }
+  }
+  get data() {
+    return this.props;
+  }
+  isDraft() {
+    return this.mode === "draft";
+  }
+  isValid() {
+    return this.mode === "valid";
+  }
+  equals(entity) {
+    if (entity == null) return false;
+    if (!(entity instanceof _Entity)) return false;
+    if (this === entity) return true;
+    if (this.constructor !== entity.constructor) return false;
+    return this.sameId(entity);
+  }
+  notEquals(entity) {
+    return !this.equals(entity);
+  }
+  sameId(other) {
+    const id = this.id;
+    return this.id === other.id;
+  }
+  asDraft() {
+    return this.clone(this.props, "draft");
+  }
+  asValid() {
+    return this.clone(this.props, "valid");
+  }
+  clone(newProps, newMode = this.mode) {
+    return new this.constructor(
+      {
+        ...this.props,
+        ...newProps
+      },
+      newMode
+    );
+  }
+};
+
+// src/shared/required-string.vo.ts
+var RequiredString = class _RequiredString {
+  _value;
+  constructor(value) {
+    this._value = value;
+  }
+  static create(value, options) {
+    this.validate(value, options);
+    return new _RequiredString(value.trim());
+  }
+  static validate(value, options) {
+    const errorMessage = options?.errorMessage || `${options?.attributeName ?? "Valor"} \xE9 obrigat\xF3rio`;
+    if (!value || typeof value !== "string") {
+      throw new Error(errorMessage);
+    }
+    const trimmedValue = value.trim();
+    if (trimmedValue.length === 0) {
+      throw new Error(errorMessage);
+    }
+    if (options?.minLength && trimmedValue.length < options.minLength) {
+      throw new Error(
+        `${options.attributeName ?? `"${value}"`} deve ter pelo menos ${options.minLength} caracteres`
+      );
+    }
+    if (options?.maxLength && trimmedValue.length > options.maxLength) {
+      throw new Error(
+        `${options.attributeName ?? `"${value}"`} deve ter no m\xE1ximo ${options.maxLength} caracteres`
+      );
+    }
+  }
+  get value() {
+    return this._value;
+  }
+  equals(other) {
+    return other instanceof _RequiredString && this._value === other._value;
+  }
+  toString() {
+    return this._value;
+  }
+  toJSON() {
+    return this._value;
+  }
+};
+
+// src/shared/constants/colors.constants.ts
+var PROJECT_COLORS = [
+  "#EF4444",
+  // red
+  "#F59E0B",
+  // amber
+  "#10B981",
+  // emerald
+  "#3B82F6",
+  // blue
+  "#8B5CF6",
+  // violet
+  "#EC4899",
+  // pink
+  "#6B7280"
+  // gray
+];
+var TAG_COLORS = [
+  "#EF4444",
+  // red
+  "#F59E0B",
+  // amber
+  "#10B981",
+  // emerald
+  "#3B82F6",
+  // blue
+  "#8B5CF6",
+  // violet
+  "#EC4899",
+  // pink
+  "#06B6D4",
+  // cyan
+  "#F43F5E",
+  // rose
+  "#84CC16",
+  // lime
+  "#6366F1"
+  // indigo
+];
+var WORKSPACE_COLORS = {
+  PERSONAL: "#06B6D4",
+  // cyan
+  WORK: "#8B5CF6",
+  // violet/purple
+  TEAM: "#EC4899"
+  // pink
+};
+
+// src/shared/constants/priorities.constants.ts
+var TASK_PRIORITIES = {
+  LOW: {
+    value: "LOW",
+    label: "Low",
+    color: "#10B981",
+    // emerald
+    order: 1
+  },
+  MEDIUM: {
+    value: "MEDIUM",
+    label: "Medium",
+    color: "#F59E0B",
+    // amber
+    order: 2
+  },
+  HIGH: {
+    value: "HIGH",
+    label: "High",
+    color: "#EF4444",
+    // red
+    order: 3
+  }
+};
+var PRIORITY_VALUES = ["LOW", "MEDIUM", "HIGH"];
+function getPriorityConfig(priority) {
+  return TASK_PRIORITIES[priority];
+}
+function getPriorityColor(priority) {
+  return TASK_PRIORITIES[priority].color;
+}
+function getPriorityLabel(priority) {
+  return TASK_PRIORITIES[priority].label;
+}
+
+// src/shared/constants/status.constants.ts
+var TASK_STATUS = {
+  TODO: {
+    value: "TODO",
+    label: "To Do",
+    color: "#6B7280",
+    // gray
+    order: 1
+  },
+  IN_PROGRESS: {
+    value: "IN_PROGRESS",
+    label: "In Progress",
+    color: "#3B82F6",
+    // blue
+    order: 2
+  },
+  IN_REVIEW: {
+    value: "IN_REVIEW",
+    label: "In Review",
+    color: "#F59E0B",
+    // amber
+    order: 3
+  },
+  DONE: {
+    value: "DONE",
+    label: "Done",
+    color: "#10B981",
+    // emerald
+    order: 4
+  },
+  CANCELLED: {
+    value: "CANCELLED",
+    label: "Cancelled",
+    color: "#EF4444",
+    // red
+    order: 5
+  }
+};
+var TASK_STATUS_VALUES = [
+  "TODO",
+  "IN_PROGRESS",
+  "IN_REVIEW",
+  "DONE",
+  "CANCELLED"
+];
+var PROJECT_STATUS = {
+  ACTIVE: {
+    value: "ACTIVE",
+    label: "Active",
+    color: "#10B981"
+    // emerald
+  },
+  ARCHIVED: {
+    value: "ARCHIVED",
+    label: "Archived",
+    color: "#6B7280"
+    // gray
+  },
+  ON_HOLD: {
+    value: "ON_HOLD",
+    label: "On Hold",
+    color: "#F59E0B"
+    // amber
+  }
+};
+var PROJECT_STATUS_VALUES = ["ACTIVE", "ARCHIVED", "ON_HOLD"];
+function getTaskStatusConfig(status) {
+  return TASK_STATUS[status];
+}
+function getTaskStatusColor(status) {
+  return TASK_STATUS[status].color;
+}
+function getTaskStatusLabel(status) {
+  return TASK_STATUS[status].label;
+}
+function isTaskCompleted(status) {
+  return status === "DONE";
+}
+function isTaskInProgress(status) {
+  return status === "IN_PROGRESS" || status === "IN_REVIEW";
+}
+
+// src/shared/constants/timer.constants.ts
+var TIMER_MODES = {
+  WORK: {
+    value: "WORK",
+    label: "Work",
+    color: "#EF4444",
+    // red
+    defaultDuration: 25
+    // minutes
+  },
+  SHORT_BREAK: {
+    value: "SHORT_BREAK",
+    label: "Short Break",
+    color: "#10B981",
+    // light green
+    defaultDuration: 5
+    // minutes
+  },
+  LONG_BREAK: {
+    value: "LONG_BREAK",
+    label: "Long Break",
+    color: "#059669",
+    // dark green
+    defaultDuration: 15
+    // minutes
+  },
+  CONTINUOUS: {
+    value: "CONTINUOUS",
+    label: "Continuous",
+    color: "#3B82F6",
+    // blue
+    defaultDuration: 0
+    // no limit
+  }
+};
+var TIMER_MODE_VALUES = [
+  "WORK",
+  "SHORT_BREAK",
+  "LONG_BREAK",
+  "CONTINUOUS"
+];
+var DEFAULT_POMODORO_SETTINGS = {
+  workDuration: 25,
+  // minutes
+  shortBreakDuration: 5,
+  // minutes
+  longBreakDuration: 15,
+  // minutes
+  pomodorosUntilLongBreak: 4,
+  // number of work sessions
+  autoStartBreaks: false,
+  autoStartPomodoros: false,
+  soundEnabled: true,
+  notificationsEnabled: true
+};
+var TIMER_LIMITS = {
+  MIN_DURATION: 1,
+  // minutes
+  MAX_DURATION: 120,
+  // minutes
+  MIN_POMODOROS_UNTIL_LONG_BREAK: 2,
+  MAX_POMODOROS_UNTIL_LONG_BREAK: 10
+};
+function getTimerModeConfig(mode) {
+  return TIMER_MODES[mode];
+}
+function getTimerModeColor(mode) {
+  return TIMER_MODES[mode].color;
+}
+function getTimerModeLabel(mode) {
+  return TIMER_MODES[mode].label;
+}
+function getTimerModeDefaultDuration(mode) {
+  return TIMER_MODES[mode].defaultDuration;
+}
+function shouldTakeLongBreak(completedPomodoros, pomodorosUntilLongBreak = DEFAULT_POMODORO_SETTINGS.pomodorosUntilLongBreak) {
+  return completedPomodoros > 0 && completedPomodoros % pomodorosUntilLongBreak === 0;
+}
+
+// src/shared/constants/limits.constants.ts
+var TASK_LIMITS = {
+  TITLE_MIN_LENGTH: 1,
+  TITLE_MAX_LENGTH: 200,
+  DESCRIPTION_MAX_LENGTH: 5e3,
+  MIN_ESTIMATED_MINUTES: 1,
+  MAX_ESTIMATED_MINUTES: 480,
+  // 8 hours
+  MAX_SUBTASKS: 50,
+  MAX_TAGS_PER_TASK: 10,
+  MAX_ATTACHMENTS_PER_TASK: 20
+};
+var PROJECT_LIMITS = {
+  NAME_MIN_LENGTH: 1,
+  NAME_MAX_LENGTH: 100,
+  DESCRIPTION_MAX_LENGTH: 2e3,
+  MAX_PROJECTS_PER_WORKSPACE: 100,
+  MAX_TASKS_PER_PROJECT: 1e3
+};
+var WORKSPACE_LIMITS = {
+  NAME_MIN_LENGTH: 1,
+  NAME_MAX_LENGTH: 100,
+  DESCRIPTION_MAX_LENGTH: 500,
+  MAX_MEMBERS: 50,
+  MAX_WORKSPACES_PER_USER: 20,
+  SLUG_MIN_LENGTH: 3,
+  SLUG_MAX_LENGTH: 50
+};
+var TAG_LIMITS = {
+  NAME_MIN_LENGTH: 1,
+  NAME_MAX_LENGTH: 30,
+  MAX_TAGS_PER_WORKSPACE: 100
+};
+var COMMENT_LIMITS = {
+  CONTENT_MIN_LENGTH: 1,
+  CONTENT_MAX_LENGTH: 2e3,
+  MAX_COMMENTS_PER_TASK: 500
+};
+var FILE_LIMITS = {
+  MAX_FILE_SIZE: 10 * 1024 * 1024,
+  // 10 MB
+  MAX_IMAGE_SIZE: 5 * 1024 * 1024,
+  // 5 MB
+  MAX_TOTAL_STORAGE_PER_WORKSPACE: 1024 * 1024 * 1024,
+  // 1 GB
+  ALLOWED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  ALLOWED_DOCUMENT_TYPES: [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  ]
+};
+var USER_LIMITS = {
+  NAME_MIN_LENGTH: 2,
+  NAME_MAX_LENGTH: 100,
+  PASSWORD_MIN_LENGTH: 6,
+  PASSWORD_MAX_LENGTH: 128,
+  BIO_MAX_LENGTH: 500
+};
+var PAGINATION_LIMITS = {
+  DEFAULT_PAGE_SIZE: 20,
+  MAX_PAGE_SIZE: 100,
+  MIN_PAGE_SIZE: 5
+};
+function formatFileSize(bytes) {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+}
+function isAllowedFileType(mimeType) {
+  return [
+    ...FILE_LIMITS.ALLOWED_IMAGE_TYPES,
+    ...FILE_LIMITS.ALLOWED_DOCUMENT_TYPES
+  ].includes(mimeType);
+}
+function isImageFile(mimeType) {
+  return FILE_LIMITS.ALLOWED_IMAGE_TYPES.includes(mimeType);
+}
+
+// src/shared/utils/date.utils.ts
+function formatDate(date, locale = "en-US") {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+function formatDateShort(date, locale = "en-US") {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+function formatRelativeTime(date, locale = "en-US") {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const now = /* @__PURE__ */ new Date();
+  const diffMs = d.getTime() - now.getTime();
+  const diffSec = Math.round(diffMs / 1e3);
+  const diffMin = Math.round(diffSec / 60);
+  const diffHour = Math.round(diffMin / 60);
+  const diffDay = Math.round(diffHour / 24);
+  if (Math.abs(diffSec) < 60) {
+    return diffSec >= 0 ? "in a few seconds" : "a few seconds ago";
+  } else if (Math.abs(diffMin) < 60) {
+    return diffMin >= 0 ? `in ${diffMin} minute${diffMin !== 1 ? "s" : ""}` : `${Math.abs(diffMin)} minute${Math.abs(diffMin) !== 1 ? "s" : ""} ago`;
+  } else if (Math.abs(diffHour) < 24) {
+    return diffHour >= 0 ? `in ${diffHour} hour${diffHour !== 1 ? "s" : ""}` : `${Math.abs(diffHour)} hour${Math.abs(diffHour) !== 1 ? "s" : ""} ago`;
+  } else if (Math.abs(diffDay) < 30) {
+    return diffDay >= 0 ? `in ${diffDay} day${diffDay !== 1 ? "s" : ""}` : `${Math.abs(diffDay)} day${Math.abs(diffDay) !== 1 ? "s" : ""} ago`;
+  } else {
+    return formatDateShort(d, locale);
+  }
+}
+function isToday(date) {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const today = /* @__PURE__ */ new Date();
+  return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+}
+function isPast(date) {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.getTime() < (/* @__PURE__ */ new Date()).getTime();
+}
+function isFuture(date) {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.getTime() > (/* @__PURE__ */ new Date()).getTime();
+}
+function isOverdue(dueDate) {
+  if (!dueDate) return false;
+  const d = typeof dueDate === "string" ? new Date(dueDate) : dueDate;
+  return isPast(d) && !isToday(d);
+}
+function getDaysDiff(date1, date2) {
+  const d1 = typeof date1 === "string" ? new Date(date1) : date1;
+  const d2 = typeof date2 === "string" ? new Date(date2) : date2;
+  const diffMs = d2.getTime() - d1.getTime();
+  return Math.floor(diffMs / (1e3 * 60 * 60 * 24));
+}
+function startOfDay(date) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function endOfDay(date) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+function startOfWeek(date) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const startDate = new Date(d.setDate(diff));
+  startDate.setHours(0, 0, 0, 0);
+  return startDate;
+}
+function endOfWeek(date) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() + (day === 0 ? 0 : 7 - day);
+  const endDate = new Date(d.setDate(diff));
+  endDate.setHours(23, 59, 59, 999);
+  return endDate;
+}
+function addDays(date, days) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function addHours(date, hours) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  d.setHours(d.getHours() + hours);
+  return d;
+}
+function addMinutes(date, minutes) {
+  const d = typeof date === "string" ? new Date(date) : new Date(date);
+  d.setMinutes(d.getMinutes() + minutes);
+  return d;
+}
+function startOfToday() {
+  return startOfDay(/* @__PURE__ */ new Date());
+}
+function isBefore(date1, date2) {
+  const d1 = typeof date1 === "string" ? new Date(date1) : date1;
+  const d2 = typeof date2 === "string" ? new Date(date2) : date2;
+  return d1.getTime() < d2.getTime();
+}
+function isAfter(date1, date2) {
+  const d1 = typeof date1 === "string" ? new Date(date1) : date1;
+  const d2 = typeof date2 === "string" ? new Date(date2) : date2;
+  return d1.getTime() > d2.getTime();
+}
+function isTaskAvailable(task) {
+  if (!task.startDate) return true;
+  const startDate = typeof task.startDate === "string" ? new Date(task.startDate) : task.startDate;
+  return startDate <= /* @__PURE__ */ new Date();
+}
+function isScheduledForToday(task) {
+  if (!task.scheduledDate) return false;
+  return isToday(task.scheduledDate);
+}
+function isDueToday(task) {
+  if (!task.dueDate) return false;
+  return isToday(task.dueDate);
+}
+function categorizeTasksByAvailability(tasks) {
+  const today = startOfToday();
+  return {
+    overdue: tasks.filter(
+      (t) => t.dueDate && isBefore(t.dueDate, today) && t.status !== "COMPLETED"
+    ),
+    dueToday: tasks.filter(
+      (t) => t.dueDate && isToday(t.dueDate)
+    ),
+    scheduledToday: tasks.filter(
+      (t) => t.scheduledDate && isToday(t.scheduledDate)
+    ),
+    available: tasks.filter(
+      (t) => isTaskAvailable(t) && !isScheduledForToday(t) && t.status !== "COMPLETED"
+    ),
+    notYetAvailable: tasks.filter(
+      (t) => !isTaskAvailable(t)
+    )
+  };
+}
+function getWorkableTasks(tasks) {
+  return tasks.filter(
+    (t) => isTaskAvailable(t) && t.status !== "COMPLETED" && t.status !== "CANCELLED"
+  );
+}
+function formatScheduledDateTime(scheduledDate, scheduledTime, locale = "en-US") {
+  if (!scheduledDate) return null;
+  const dateStr = formatDateShort(scheduledDate, locale);
+  if (scheduledTime) {
+    return `${dateStr} at ${scheduledTime}`;
+  }
+  return dateStr;
+}
+
+// src/shared/utils/time.utils.ts
+function formatDuration(minutes) {
+  if (minutes < 60) {
+    return `${minutes}m`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+}
+function formatDurationFromSeconds(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor(seconds % 3600 / 60);
+  const secs = seconds % 60;
+  const parts = [];
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
+  return parts.join(" ");
+}
+function formatTimerDisplay(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+function formatTimerDisplayExtended(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor(seconds % 3600 / 60);
+  const secs = seconds % 60;
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
+function minutesToHours(minutes) {
+  return Math.round(minutes / 60 * 100) / 100;
+}
+function hoursToMinutes(hours) {
+  return Math.round(hours * 60);
+}
+function secondsToMinutes(seconds) {
+  return Math.round(seconds / 60);
+}
+function minutesToSeconds(minutes) {
+  return minutes * 60;
+}
+function parseDuration(duration) {
+  const hourMatch = duration.match(/(\d+)h/);
+  const minMatch = duration.match(/(\d+)m/);
+  const hours = hourMatch ? parseInt(hourMatch[1], 10) : 0;
+  const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
+  return hours * 60 + minutes;
+}
+function calculateTotalTimeWorked(timeEntries) {
+  return timeEntries.reduce((total, entry) => total + entry.duration, 0);
+}
+function calculateAverageTime(totalMinutes, taskCount) {
+  if (taskCount === 0) return 0;
+  return Math.round(totalMinutes / taskCount);
+}
+function formatTimeOfDay(time, use24Hour = false) {
+  const [hours, minutes] = time.split(":").map(Number);
+  if (use24Hour) {
+    return `${(hours || 0).toString().padStart(2, "0")}:${(minutes || 0).toString().padStart(2, "0")}`;
+  }
+  const period = (hours || 0) >= 12 ? "PM" : "AM";
+  const displayHours = (hours || 0) % 12 || 12;
+  return `${displayHours}:${(minutes || 0).toString().padStart(2, "0")} ${period}`;
+}
+function getCurrentTime() {
+  const now = /* @__PURE__ */ new Date();
+  return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+}
+function isWorkingHours(date = /* @__PURE__ */ new Date(), startHour = 9, endHour = 18) {
+  const hour = date.getHours();
+  return hour >= startHour && hour < endHour;
+}
+
+// src/shared/utils/string.utils.ts
+function generateSlug(text) {
+  return text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function truncate(text, maxLength, ellipsis = "...") {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - ellipsis.length) + ellipsis;
+}
+function capitalize(text) {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+function capitalizeWords(text) {
+  return text.split(" ").map((word) => capitalize(word)).join(" ");
+}
+function camelToTitle(text) {
+  const result = text.replace(/([A-Z])/g, " $1");
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}
+function snakeToTitle(text) {
+  return text.split("_").map((word) => capitalize(word)).join(" ");
+}
+function getInitials(name, maxLength = 2) {
+  const words = name.trim().split(/\s+/);
+  const initials = words.map((word) => word.charAt(0).toUpperCase()).join("");
+  return initials.slice(0, maxLength);
+}
+function generateRandomString(length) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function sanitizeHtml(text) {
+  const map = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#x27;",
+    "/": "&#x2F;"
+  };
+  return text.replace(/[&<>"'/]/g, (char) => map[char] || char);
+}
+function normalizeWhitespace(text) {
+  return text.replace(/\s+/g, " ").trim();
+}
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+function pluralize(word, count, plural) {
+  if (count === 1) return word;
+  return plural || `${word}s`;
+}
+function formatNumber(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function generateId() {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+function isAlphanumeric(text) {
+  return /^[a-zA-Z0-9]+$/.test(text);
+}
+function stripHtmlTags(html) {
+  return html.replace(/<[^>]*>/g, "");
+}
+function highlightSearchTerms(text, searchTerm) {
+  if (!searchTerm) return text;
+  const regex = new RegExp(`(${searchTerm})`, "gi");
+  return text.replace(regex, "<mark>$1</mark>");
+}
+
+// src/shared/utils/calculation.utils.ts
+function calculateProgress(completed, total) {
+  if (total === 0) return 0;
+  return Math.round(completed / total * 100);
+}
+function calculateCompletionRate(completed, total) {
+  if (total === 0) return 0;
+  return Math.round(completed / total * 100 * 10) / 10;
+}
+function calculateProductivityScore(completedTasks, totalTasks, focusMinutes, targetFocusMinutes = 240) {
+  if (totalTasks === 0 && focusMinutes === 0) return 0;
+  const taskScore = totalTasks > 0 ? completedTasks / totalTasks * 50 : 0;
+  const focusScore = Math.min(focusMinutes / targetFocusMinutes * 50, 50);
+  return Math.round(taskScore + focusScore);
+}
+function calculateFocusScore(completedPomodoros, targetPomodoros = 8) {
+  if (targetPomodoros === 0) return 0;
+  return Math.min(Math.round(completedPomodoros / targetPomodoros * 100), 100);
+}
+function calculateAverageCompletionTime(tasks) {
+  const completedTasks = tasks.filter((t) => t.completedAt != null);
+  if (completedTasks.length === 0) return 0;
+  const totalTime = completedTasks.reduce((sum, task) => {
+    if (!task.completedAt) return sum;
+    const created = typeof task.createdAt === "string" ? new Date(task.createdAt) : task.createdAt;
+    const completed = typeof task.completedAt === "string" ? new Date(task.completedAt) : task.completedAt;
+    return sum + (completed.getTime() - created.getTime());
+  }, 0);
+  return Math.round(totalTime / completedTasks.length / (1e3 * 60));
+}
+function calculateVelocity(completedTasks, days) {
+  if (days === 0) return 0;
+  return Math.round(completedTasks / days * 10) / 10;
+}
+function calculateEstimatedCompletion(remainingTasks, velocity) {
+  if (velocity === 0) return null;
+  const daysNeeded = Math.ceil(remainingTasks / velocity);
+  const completionDate = /* @__PURE__ */ new Date();
+  completionDate.setDate(completionDate.getDate() + daysNeeded);
+  return completionDate;
+}
+function calculateBurndownRate(initialTasks, remainingTasks, elapsedDays) {
+  if (elapsedDays === 0) return 0;
+  const completedTasks = initialTasks - remainingTasks;
+  return Math.round(completedTasks / elapsedDays * 10) / 10;
+}
+function calculateProjectHealth(completedTasks, totalTasks, overdueTasks, velocity, targetVelocity = 2) {
+  if (totalTasks === 0) return 100;
+  const progressScore = completedTasks / totalTasks * 40;
+  const overdueScore = Math.max(0, 30 - overdueTasks / totalTasks * 30);
+  const velocityScore = Math.min(velocity / targetVelocity * 30, 30);
+  return Math.round(progressScore + overdueScore + velocityScore);
+}
+function calculateTimeUtilization(actualMinutes, estimatedMinutes) {
+  if (estimatedMinutes === 0) return 0;
+  return Math.round(actualMinutes / estimatedMinutes * 100);
+}
+function calculateEfficiency(completedTasks, totalMinutesWorked) {
+  if (totalMinutesWorked === 0) return 0;
+  const tasksPerHour = completedTasks / totalMinutesWorked * 60;
+  return Math.round(tasksPerHour * 100) / 100;
+}
+function calculateStreak(activityDates) {
+  if (activityDates.length === 0) return 0;
+  const sortedDates = activityDates.map((d) => typeof d === "string" ? new Date(d) : d).sort((a, b) => b.getTime() - a.getTime());
+  let streak = 1;
+  const today = /* @__PURE__ */ new Date();
+  today.setHours(0, 0, 0, 0);
+  const mostRecent = new Date(sortedDates[0]);
+  mostRecent.setHours(0, 0, 0, 0);
+  const daysDiff = Math.floor((today.getTime() - mostRecent.getTime()) / (1e3 * 60 * 60 * 24));
+  if (daysDiff > 1) return 0;
+  for (let i = 1; i < sortedDates.length; i++) {
+    const current = new Date(sortedDates[i]);
+    current.setHours(0, 0, 0, 0);
+    const previous = new Date(sortedDates[i - 1]);
+    previous.setHours(0, 0, 0, 0);
+    const diff = Math.floor((previous.getTime() - current.getTime()) / (1e3 * 60 * 60 * 24));
+    if (diff === 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+function calculatePercentile(value, values) {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = sorted.findIndex((v) => v >= value);
+  if (index === -1) return 100;
+  return Math.round(index / sorted.length * 100);
+}
+function calculateWeightedAverage(values) {
+  if (values.length === 0) return 0;
+  const totalWeight = values.reduce((sum, item) => sum + item.weight, 0);
+  if (totalWeight === 0) return 0;
+  const weightedSum = values.reduce((sum, item) => sum + item.value * item.weight, 0);
+  return Math.round(weightedSum / totalWeight * 100) / 100;
+}
+
+// src/shared/utils/color.utils.ts
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+function rgbToHex(r, g, b) {
+  const toHex = (x) => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  };
+  return "#" + toHex(r) + toHex(g) + toHex(b);
+}
+function getContrastColor(hexColor) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return "#000000";
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.5 ? "#000000" : "#FFFFFF";
+}
+function lightenColor(hexColor, percent) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return hexColor;
+  const amount = Math.round(2.55 * percent);
+  const r = Math.min(255, rgb.r + amount);
+  const g = Math.min(255, rgb.g + amount);
+  const b = Math.min(255, rgb.b + amount);
+  return rgbToHex(r, g, b);
+}
+function darkenColor(hexColor, percent) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return hexColor;
+  const amount = Math.round(2.55 * percent);
+  const r = Math.max(0, rgb.r - amount);
+  const g = Math.max(0, rgb.g - amount);
+  const b = Math.max(0, rgb.b - amount);
+  return rgbToHex(r, g, b);
+}
+function addAlpha(hexColor, alpha) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return hexColor;
+  const a = Math.round(Math.min(Math.max(alpha, 0), 1) * 255);
+  return `${hexColor}${a.toString(16).padStart(2, "0")}`;
+}
+function hexToRgba(hexColor, alpha = 1) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return `rgba(0, 0, 0, ${alpha})`;
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+function randomColor() {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
+}
+function isLightColor(hexColor) {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return false;
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.5;
+}
+function isDarkColor(hexColor) {
+  return !isLightColor(hexColor);
+}
+function mixColors(color1, color2, weight = 0.5) {
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
+  if (!rgb1 || !rgb2) return color1;
+  const w = Math.max(0, Math.min(1, weight));
+  const r = Math.round(rgb1.r * (1 - w) + rgb2.r * w);
+  const g = Math.round(rgb1.g * (1 - w) + rgb2.g * w);
+  const b = Math.round(rgb1.b * (1 - w) + rgb2.b * w);
+  return rgbToHex(r, g, b);
+}
+function generatePalette(baseColor) {
+  return {
+    lighter: lightenColor(baseColor, 40),
+    light: lightenColor(baseColor, 20),
+    base: baseColor,
+    dark: darkenColor(baseColor, 20),
+    darker: darkenColor(baseColor, 40)
+  };
+}
+function getColorWithOpacity(hexColor, opacity = 0.1) {
+  return hexToRgba(hexColor, opacity);
+}
+
+// src/shared/validation/task.validation.ts
+import { z } from "zod";
+var taskBaseSchema = z.object({
+  title: z.string().min(TASK_LIMITS.TITLE_MIN_LENGTH, "Title is required").max(TASK_LIMITS.TITLE_MAX_LENGTH, `Title must be less than ${TASK_LIMITS.TITLE_MAX_LENGTH} characters`),
+  description: z.string().max(TASK_LIMITS.DESCRIPTION_MAX_LENGTH, `Description must be less than ${TASK_LIMITS.DESCRIPTION_MAX_LENGTH} characters`).optional(),
+  priority: z.enum(PRIORITY_VALUES),
+  status: z.enum(TASK_STATUS_VALUES).optional(),
+  dueDate: z.string().optional().nullable(),
+  startDate: z.string().optional().nullable(),
+  scheduledDate: z.string().optional().nullable(),
+  scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, "Time must be in HH:mm format").optional().nullable(),
+  isTimeBlocked: z.boolean().optional(),
+  estimatedMinutes: z.union([
+    z.number().int().min(TASK_LIMITS.MIN_ESTIMATED_MINUTES).max(TASK_LIMITS.MAX_ESTIMATED_MINUTES),
+    z.nan()
+  ]).optional().nullable().transform((val) => Number.isNaN(val) ? void 0 : val)
+});
+var taskDatesSchema = taskBaseSchema.refine(
+  (data) => {
+    if (data.startDate && data.dueDate) {
+      return new Date(data.startDate) <= new Date(data.dueDate);
+    }
+    return true;
+  },
+  { message: "Start date must be before or equal to due date", path: ["startDate"] }
+).refine(
+  (data) => {
+    if (data.scheduledDate && data.dueDate) {
+      return new Date(data.scheduledDate) <= new Date(data.dueDate);
+    }
+    return true;
+  },
+  { message: "Scheduled date must be before or equal to due date", path: ["scheduledDate"] }
+);
+var createTaskSchema = taskBaseSchema.extend({
+  projectId: z.string().min(1, "Project is required"),
+  parentTaskId: z.string().optional().nullable(),
+  assigneeId: z.string().optional().nullable(),
+  tagIds: z.array(z.string()).max(TASK_LIMITS.MAX_TAGS_PER_TASK).optional()
+});
+var updateTaskSchema = taskBaseSchema.partial().extend({
+  assigneeId: z.string().optional().nullable(),
+  tagIds: z.array(z.string()).max(TASK_LIMITS.MAX_TAGS_PER_TASK).optional(),
+  completedAt: z.string().datetime().optional().nullable()
+});
+var taskFilterSchema = z.object({
+  projectId: z.string().optional(),
+  status: z.enum(TASK_STATUS_VALUES).optional(),
+  priority: z.enum(PRIORITY_VALUES).optional(),
+  assigneeId: z.string().optional(),
+  tagIds: z.array(z.string()).optional(),
+  search: z.string().optional(),
+  dueDate: z.object({
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional()
+  }).optional(),
+  isOverdue: z.boolean().optional()
+});
+var bulkUpdateTasksSchema = z.object({
+  taskIds: z.array(z.string()).min(1, "At least one task is required"),
+  updates: z.object({
+    status: z.enum(TASK_STATUS_VALUES).optional(),
+    priority: z.enum(PRIORITY_VALUES).optional(),
+    assigneeId: z.string().optional().nullable(),
+    projectId: z.string().optional()
+  })
+});
+var reorderTasksSchema = z.object({
+  taskId: z.string(),
+  newOrder: z.number().int().min(0),
+  projectId: z.string()
+});
+
+// src/shared/validation/project.validation.ts
+import { z as z2 } from "zod";
+var projectBaseSchema = z2.object({
+  name: z2.string().min(PROJECT_LIMITS.NAME_MIN_LENGTH, "Project name is required").max(PROJECT_LIMITS.NAME_MAX_LENGTH, `Project name must be less than ${PROJECT_LIMITS.NAME_MAX_LENGTH} characters`),
+  description: z2.string().max(PROJECT_LIMITS.DESCRIPTION_MAX_LENGTH, `Description must be less than ${PROJECT_LIMITS.DESCRIPTION_MAX_LENGTH} characters`).optional(),
+  color: z2.string().optional(),
+  icon: z2.string().optional()
+});
+var createProjectSchema = projectBaseSchema.extend({
+  workspaceId: z2.string().min(1, "Workspace is required"),
+  workflowId: z2.string().optional(),
+  startDate: z2.string().datetime().optional().nullable(),
+  endDate: z2.string().datetime().optional().nullable()
+});
+var updateProjectSchema = projectBaseSchema.partial().extend({
+  startDate: z2.string().datetime().optional().nullable(),
+  endDate: z2.string().datetime().optional().nullable(),
+  isArchived: z2.boolean().optional()
+});
+var projectFilterSchema = z2.object({
+  workspaceId: z2.string().optional(),
+  search: z2.string().optional(),
+  isArchived: z2.boolean().optional(),
+  color: z2.string().optional()
+});
+var archiveProjectSchema = z2.object({
+  isArchived: z2.boolean()
+});
+var duplicateProjectSchema = z2.object({
+  name: z2.string().min(PROJECT_LIMITS.NAME_MIN_LENGTH),
+  includeTasks: z2.boolean().default(false),
+  includeMembers: z2.boolean().default(false)
+});
+
+// src/shared/validation/workspace.validation.ts
+import { z as z3 } from "zod";
+var WORKSPACE_TYPES = ["PERSONAL", "WORK", "TEAM"];
+var MEMBER_ROLES = ["OWNER", "ADMIN", "MEMBER", "VIEWER"];
+var workspaceBaseSchema = z3.object({
+  name: z3.string().min(WORKSPACE_LIMITS.NAME_MIN_LENGTH, "Workspace name is required").max(
+    WORKSPACE_LIMITS.NAME_MAX_LENGTH,
+    `Workspace name must be less than ${WORKSPACE_LIMITS.NAME_MAX_LENGTH} characters`
+  ),
+  slug: z3.string().min(1, "Slug must be at least 1 character").regex(
+    /^[a-z0-9-]+$/,
+    "Slug must only contain lowercase letters, numbers, and hyphens"
+  ).optional(),
+  description: z3.string().max(
+    WORKSPACE_LIMITS.DESCRIPTION_MAX_LENGTH,
+    `Description must be less than ${WORKSPACE_LIMITS.DESCRIPTION_MAX_LENGTH} characters`
+  ).optional(),
+  type: z3.enum(WORKSPACE_TYPES),
+  color: z3.string().optional(),
+  icon: z3.string().optional()
+});
+var createWorkspaceSchema = workspaceBaseSchema;
+var updateWorkspaceSchema = workspaceBaseSchema.partial();
+var workspaceSettingsSchema = z3.object({
+  defaultTaskPriority: z3.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  defaultTaskStatus: z3.enum(["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]).optional(),
+  enableNotifications: z3.boolean().optional(),
+  enableEmailDigest: z3.boolean().optional(),
+  timezone: z3.string().optional()
+});
+var inviteMemberSchema = z3.object({
+  email: z3.string().email("Invalid email address"),
+  role: z3.enum(MEMBER_ROLES),
+  message: z3.string().max(500).optional()
+});
+var updateMemberRoleSchema = z3.object({
+  role: z3.enum(MEMBER_ROLES)
+});
+var acceptInvitationSchema = z3.object({
+  token: z3.string().min(1, "Invitation token is required")
+});
+var transferOwnershipSchema = z3.object({
+  newOwnerId: z3.string().min(1, "New owner is required")
+});
+var workspaceFilterSchema = z3.object({
+  type: z3.enum(WORKSPACE_TYPES).optional(),
+  search: z3.string().optional()
+});
+
+// src/shared/validation/tag.validation.ts
+import { z as z4 } from "zod";
+var tagBaseSchema = z4.object({
+  name: z4.string().min(TAG_LIMITS.NAME_MIN_LENGTH, "Tag name is required").max(TAG_LIMITS.NAME_MAX_LENGTH, `Tag name must be less than ${TAG_LIMITS.NAME_MAX_LENGTH} characters`),
+  color: z4.string().optional()
+});
+var createTagSchema = tagBaseSchema.extend({
+  workspaceId: z4.string().min(1, "Workspace is required")
+});
+var updateTagSchema = tagBaseSchema.partial();
+var tagFilterSchema = z4.object({
+  workspaceId: z4.string().optional(),
+  search: z4.string().optional()
+});
+var assignTagsSchema = z4.object({
+  tagIds: z4.array(z4.string()).max(TAG_LIMITS.NAME_MAX_LENGTH)
+});
+
+// src/shared/validation/user.validation.ts
+import { z as z5 } from "zod";
+var registerUserSchema = z5.object({
+  name: z5.string().min(USER_LIMITS.NAME_MIN_LENGTH, `Name must be at least ${USER_LIMITS.NAME_MIN_LENGTH} characters`).max(USER_LIMITS.NAME_MAX_LENGTH, `Name must be less than ${USER_LIMITS.NAME_MAX_LENGTH} characters`),
+  username: z5.string().min(3, "Username must be at least 3 characters").max(20, "Username must be less than 20 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, hyphens, and underscores"),
+  email: z5.string().email("Invalid email address"),
+  password: z5.string().min(USER_LIMITS.PASSWORD_MIN_LENGTH, `Password must be at least ${USER_LIMITS.PASSWORD_MIN_LENGTH} characters`).max(USER_LIMITS.PASSWORD_MAX_LENGTH, `Password must be less than ${USER_LIMITS.PASSWORD_MAX_LENGTH} characters`)
+});
+var loginUserSchema = z5.object({
+  email: z5.string().email("Invalid email address"),
+  password: z5.string().min(1, "Password is required")
+});
+var updateUserProfileSchema = z5.object({
+  name: z5.string().min(USER_LIMITS.NAME_MIN_LENGTH).max(USER_LIMITS.NAME_MAX_LENGTH).optional(),
+  bio: z5.string().max(USER_LIMITS.BIO_MAX_LENGTH).optional(),
+  avatar: z5.string().url().optional().nullable(),
+  timezone: z5.string().optional(),
+  language: z5.enum(["en", "es", "pt-BR"]).optional()
+});
+var changePasswordSchema = z5.object({
+  currentPassword: z5.string().min(1, "Current password is required"),
+  newPassword: z5.string().min(USER_LIMITS.PASSWORD_MIN_LENGTH, `Password must be at least ${USER_LIMITS.PASSWORD_MIN_LENGTH} characters`).max(USER_LIMITS.PASSWORD_MAX_LENGTH)
+});
+var resetPasswordRequestSchema = z5.object({
+  email: z5.string().email("Invalid email address")
+});
+var resetPasswordSchema = z5.object({
+  token: z5.string().min(1, "Reset token is required"),
+  newPassword: z5.string().min(USER_LIMITS.PASSWORD_MIN_LENGTH, `Password must be at least ${USER_LIMITS.PASSWORD_MIN_LENGTH} characters`).max(USER_LIMITS.PASSWORD_MAX_LENGTH)
+});
+var userPreferencesSchema = z5.object({
+  theme: z5.enum(["light", "dark", "system"]).optional(),
+  language: z5.enum(["en", "es", "pt-BR"]).optional(),
+  timezone: z5.string().optional(),
+  notifications: z5.object({
+    email: z5.boolean().optional(),
+    push: z5.boolean().optional(),
+    desktop: z5.boolean().optional()
+  }).optional(),
+  pomodoro: z5.object({
+    workDuration: z5.number().int().min(1).max(120).optional(),
+    shortBreakDuration: z5.number().int().min(1).max(30).optional(),
+    longBreakDuration: z5.number().int().min(1).max(60).optional(),
+    pomodorosUntilLongBreak: z5.number().int().min(2).max(10).optional(),
+    autoStartBreaks: z5.boolean().optional(),
+    autoStartPomodoros: z5.boolean().optional(),
+    soundEnabled: z5.boolean().optional()
+  }).optional()
+});
+var usernameValidationSchema = z5.object({
+  username: z5.string().min(3, "Username must be at least 3 characters").max(20, "Username must be less than 20 characters").regex(/^[a-z0-9_-]+$/, "Username can only contain lowercase letters, numbers, hyphens, and underscores")
+});
+
+// src/shared/validation/comment.validation.ts
+import { z as z6 } from "zod";
+var commentBaseSchema = z6.object({
+  content: z6.string().min(COMMENT_LIMITS.CONTENT_MIN_LENGTH, "Comment cannot be empty").max(COMMENT_LIMITS.CONTENT_MAX_LENGTH, `Comment must be less than ${COMMENT_LIMITS.CONTENT_MAX_LENGTH} characters`)
+});
+var createCommentSchema = commentBaseSchema.extend({
+  taskId: z6.string().min(1, "Task is required"),
+  parentCommentId: z6.string().optional().nullable(),
+  // For threaded comments
+  mentions: z6.array(z6.string()).optional()
+  // User IDs mentioned in comment
+});
+var updateCommentSchema = commentBaseSchema;
+var commentFilterSchema = z6.object({
+  taskId: z6.string().optional(),
+  userId: z6.string().optional(),
+  parentCommentId: z6.string().optional().nullable()
+});
+
+// src/users/model/user.entity.ts
+var User = class _User extends Entity {
+  name;
+  username;
+  email;
+  password;
+  constructor(props, mode = "valid") {
+    super(props);
+    this.name = mode === "draft" ? props?.name ?? "" : PersonName.create(props?.name ?? "").value;
+    this.username = props.username;
+    this.email = mode === "draft" ? props?.email ?? "" : Email.create(props?.email ?? "").value;
+    this.password = props?.password ? HashPassword.create(props.password).value : void 0;
+  }
+  withoutPassword() {
+    return this.clone({ password: void 0 });
+  }
+  static draft(props = { username: "" }) {
+    return new _User(props, "draft");
+  }
+  get $name() {
+    return PersonName.create(this.name);
+  }
+  get $email() {
+    return Email.create(this.email);
+  }
+  get $password() {
+    return this.password ? HashPassword.create(this.password) : void 0;
+  }
+};
+
+// src/users/usecase/change-user-name.usecase.ts
+var ChangeUserName = class {
+  constructor(repo) {
+    this.repo = repo;
+  }
+  async execute(newName, loggedUser) {
+    const validName = PersonName.create(newName).value;
+    const existingUser = await this.repo.findByEmail(loggedUser.email);
+    if (!existingUser) {
+      throw new Error("Usu\xE1rio n\xE3o encontrado");
+    }
+    await this.repo.updateProps(existingUser, { name: validName });
+  }
+};
+
+// src/users/usecase/register-user.usecase.ts
+var RegisterUser = class {
+  constructor(repo, crypto) {
+    this.repo = repo;
+    this.crypto = crypto;
+  }
+  async execute(user) {
+    const existingUser = await this.repo.findByEmail(user.email);
+    if (existingUser) {
+      throw new Error("Usu\xE1rio j\xE1 existe");
+    }
+    const existingUsername = await this.repo.findByUsername(user.username);
+    if (existingUsername) {
+      throw new Error("Nome de usu\xE1rio j\xE1 est\xE1 em uso");
+    }
+    if (!user.password) {
+      throw new Error("Senha \xE9 obrigat\xF3ria");
+    }
+    if (!user.username || user.username.length < 3) {
+      throw new Error("Nome de usu\xE1rio deve ter pelo menos 3 caracteres");
+    }
+    if (user.name?.length < 3) {
+      throw new Error("Nome deve ter pelo menos 3 caracteres");
+    }
+    const hashedPassword = await this.crypto.encrypt(user.password);
+    const newUser = new User({
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      password: hashedPassword
+    });
+    await this.repo.save(newUser);
+  }
+};
+
+// src/users/usecase/user-by-email.usecase.ts
+var UserByEmail = class {
+  constructor(repo) {
+    this.repo = repo;
+  }
+  async execute(email) {
+    const user = await this.repo.findByEmail(email?.toLowerCase?.());
+    if (!user) throw new Error("Usu\xE1rio n\xE3o encontrado");
+    return user.withoutPassword();
+  }
+};
+
+// src/users/usecase/user-login.usecase.ts
+var UserLogin = class {
+  constructor(repo, crypto) {
+    this.repo = repo;
+    this.crypto = crypto;
+  }
+  async execute(input) {
+    const { email, password } = input;
+    const withPassword = true;
+    const user = await this.repo.findByEmail(email, withPassword);
+    if (!user) throw new Error("Usu\xE1rio n\xE3o encontrado");
+    const samePassword = await this.crypto.compare(password, user.password);
+    if (!samePassword) throw new Error("Senha incorreta");
+    return user.withoutPassword();
+  }
+};
+
+// src/tasks/model/task.entity.ts
+var Task = class _Task extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      status: props.status ?? "TODO",
+      priority: props.priority ?? "MEDIUM",
+      subTasks: props.subTasks ?? [],
+      isDeleted: props.isDeleted ?? false,
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _Task({
+      ...props,
+      status: "TODO",
+      priority: props.priority ?? "MEDIUM"
+    });
+  }
+  complete() {
+    return this.clone({
+      status: "COMPLETED",
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  updateStatus(status) {
+    return this.clone({
+      status,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  update(props) {
+    return this.clone({
+      ...props,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  softDelete() {
+    return this.clone({
+      isDeleted: true,
+      deletedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  restore() {
+    return this.clone({
+      isDeleted: false,
+      deletedAt: void 0,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+};
+
+// src/tasks/usecase/create-task.usecase.ts
+var CreateTaskUseCase = class {
+  constructor(repository) {
+    this.repository = repository;
+  }
+  async execute(input) {
+    if (!input.title) {
+      throw new Error("Title is required");
+    }
+    const task = Task.create({
+      title: input.title,
+      description: input.description,
+      priority: input.priority ?? "MEDIUM",
+      dueDate: input.dueDate,
+      projectId: input.projectId,
+      ownerId: input.ownerId,
+      assigneeId: input.assigneeId,
+      parentTaskId: input.parentTaskId,
+      recurrence: input.recurrence
+    });
+    await this.repository.save(task);
+    return task;
+  }
+};
+
+// src/tasks/usecase/complete-task.usecase.ts
+var CompleteTaskUseCase = class {
+  constructor(repository) {
+    this.repository = repository;
+  }
+  async execute(input) {
+    const task = await this.repository.findById(input.taskId);
+    if (!task) {
+      throw new Error("Task not found");
+    }
+    if (task.props.ownerId !== input.ownerId) {
+      throw new Error("Unauthorized");
+    }
+    const completedTask = task.complete();
+    await this.repository.update(completedTask);
+    return completedTask;
+  }
+};
+
+// src/tasks/usecase/soft-delete-task.usecase.ts
+var SoftDeleteTaskUseCase = class {
+  constructor(taskRepository) {
+    this.taskRepository = taskRepository;
+  }
+  async execute(id) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new Error("Task not found");
+    }
+    await this.taskRepository.softDelete(id);
+  }
+};
+
+// src/tasks/usecase/restore-task.usecase.ts
+var RestoreTaskUseCase = class {
+  constructor(taskRepository) {
+    this.taskRepository = taskRepository;
+  }
+  async execute(id) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new Error("Task not found");
+    }
+    if (!task.props.isDeleted) {
+      throw new Error("Task is not deleted");
+    }
+    await this.taskRepository.restore(id);
+  }
+};
+
+// src/tasks/usecase/permanent-delete-task.usecase.ts
+var PermanentDeleteTaskUseCase = class {
+  constructor(taskRepository) {
+    this.taskRepository = taskRepository;
+  }
+  async execute(id) {
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new Error("Task not found");
+    }
+    if (!task.props.isDeleted) {
+      throw new Error("Task must be soft deleted first");
+    }
+    await this.taskRepository.permanentDelete(id);
+  }
+};
+
+// src/tasks/usecase/get-deleted-tasks.usecase.ts
+var GetDeletedTasksUseCase = class {
+  constructor(taskRepository) {
+    this.taskRepository = taskRepository;
+  }
+  async execute(projectId) {
+    const tasks = await this.taskRepository.findDeleted(projectId);
+    return tasks.map((t) => t.props);
+  }
+};
+
+// src/workspaces/model/workspace.entity.ts
+var Workspace = class _Workspace extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      tier: props.tier ?? "FREE",
+      isArchived: props.isArchived ?? false,
+      isDeleted: props.isDeleted ?? false,
+      color: props.color ?? "#2563EB",
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _Workspace({
+      ...props,
+      tier: props.tier ?? "FREE",
+      isArchived: false,
+      isDeleted: false,
+      color: props.color ?? "#2563EB"
+    });
+  }
+  update(props) {
+    return this.clone({
+      ...props,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  softDelete() {
+    return this.clone({
+      isDeleted: true,
+      deletedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  restore() {
+    return this.clone({
+      isDeleted: false,
+      deletedAt: void 0,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  archive() {
+    return this.clone({
+      isArchived: true,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  unarchive() {
+    return this.clone({
+      isArchived: false,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  setStats(stats) {
+    return this.clone({
+      stats
+    });
+  }
+};
+
+// src/workspaces/model/workspace-member.entity.ts
+var WorkspaceMember = class _WorkspaceMember extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      joinedAt: props.joinedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _WorkspaceMember({
+      ...props,
+      joinedAt: /* @__PURE__ */ new Date()
+    });
+  }
+};
+
+// src/workspaces/model/workspace-settings.entity.ts
+var WorkspaceSettings = class _WorkspaceSettings extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      defaultView: props.defaultView ?? "LIST",
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _WorkspaceSettings({
+      ...props,
+      defaultView: props.defaultView ?? "LIST"
+    });
+  }
+  update(props) {
+    return this.clone({
+      ...props,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+};
+
+// src/workspaces/model/workspace-audit-log.entity.ts
+var WorkspaceAuditLog = class _WorkspaceAuditLog extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _WorkspaceAuditLog(props);
+  }
+};
+
+// src/workspaces/usecase/create-workspace.usecase.ts
+var CreateWorkspaceUseCase = class {
+  constructor(workspaceRepository, ownerUsername) {
+    this.workspaceRepository = workspaceRepository;
+    this.ownerUsername = ownerUsername;
+  }
+  async execute(props, ownerUsername) {
+    const username = ownerUsername || this.ownerUsername;
+    const workspaceNameSlug = this.generateSlug(props.name);
+    let slug;
+    if (username) {
+      slug = `${username}/${workspaceNameSlug}`;
+    } else {
+      slug = workspaceNameSlug;
+    }
+    let finalSlug = slug;
+    let counter = 1;
+    while (await this.workspaceRepository.findBySlug(finalSlug)) {
+      if (username) {
+        finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
+      } else {
+        finalSlug = `${workspaceNameSlug}-${counter}`;
+      }
+      counter++;
+    }
+    const workspace = Workspace.create({
+      ...props,
+      slug: finalSlug
+    });
+    return this.workspaceRepository.create(workspace);
+  }
+  generateSlug(name) {
+    return name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+};
+
+// src/workspaces/usecase/add-member-to-workspace.usecase.ts
+var AddMemberToWorkspaceUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(workspaceId, userId, role = "MEMBER") {
+    const workspace = await this.workspaceRepository.findById(workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    const existingMember = await this.workspaceRepository.findMember(workspaceId, userId);
+    if (existingMember) {
+      return existingMember;
+    }
+    const member = WorkspaceMember.create({
+      workspaceId,
+      userId,
+      role
+    });
+    return this.workspaceRepository.addMember(member);
+  }
+};
+
+// src/workspaces/usecase/remove-member-from-workspace.usecase.ts
+var RemoveMemberFromWorkspaceUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(workspaceId, userId) {
+    const workspace = await this.workspaceRepository.findById(workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    const member = await this.workspaceRepository.findMember(workspaceId, userId);
+    if (!member) {
+      throw new Error("User is not a member of this workspace");
+    }
+    if (workspace.props.ownerId === userId) {
+      throw new Error("Cannot remove the owner from the workspace");
+    }
+    await this.workspaceRepository.removeMember(workspaceId, userId);
+  }
+};
+
+// src/workspaces/usecase/soft-delete-workspace.usecase.ts
+var SoftDeleteWorkspaceUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(id, userId) {
+    const workspace = await this.workspaceRepository.findById(id);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    if (workspace.props.ownerId !== userId) {
+      throw new Error("Unauthorized");
+    }
+    const deletedWorkspace = workspace.softDelete();
+    await this.workspaceRepository.update(deletedWorkspace);
+  }
+};
+
+// src/workspaces/usecase/restore-workspace.usecase.ts
+var RestoreWorkspaceUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(id, userId) {
+    const workspace = await this.workspaceRepository.findById(id);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    if (workspace.props.ownerId !== userId) {
+      throw new Error("Unauthorized");
+    }
+    const restoredWorkspace = workspace.restore();
+    await this.workspaceRepository.update(restoredWorkspace);
+  }
+};
+
+// src/workspaces/usecase/permanent-delete-workspace.usecase.ts
+var PermanentDeleteWorkspaceUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(id, userId) {
+    const workspace = await this.workspaceRepository.findById(id);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    if (workspace.props.ownerId !== userId) {
+      throw new Error("Unauthorized");
+    }
+    if (!workspace.props.isDeleted) {
+      throw new Error("Workspace must be soft deleted first");
+    }
+    await this.workspaceRepository.permanentDelete(id);
+  }
+};
+
+// src/workspaces/usecase/get-deleted-workspaces.usecase.ts
+var GetDeletedWorkspacesUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(userId) {
+    return this.workspaceRepository.findDeleted(userId);
+  }
+};
+
+// src/workspaces/usecase/archive-workspace.usecase.ts
+var ArchiveWorkspaceUseCase = class {
+  constructor(workspaceRepository) {
+    this.workspaceRepository = workspaceRepository;
+  }
+  async execute(id, userId) {
+    const workspace = await this.workspaceRepository.findById(id);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    if (workspace.props.ownerId !== userId) {
+      throw new Error("Unauthorized");
+    }
+    const archivedWorkspace = workspace.archive();
+    return this.workspaceRepository.update(archivedWorkspace);
+  }
+};
+
+// src/workspaces/model/workspace-invitation.entity.ts
+var WorkspaceInvitation = class _WorkspaceInvitation extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      status: props.status ?? "PENDING",
+      role: props.role ?? "MEMBER",
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _WorkspaceInvitation({
+      ...props,
+      status: "PENDING"
+    });
+  }
+  accept() {
+    return this.clone({
+      status: "ACCEPTED",
+      acceptedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  cancel() {
+    return this.clone({
+      status: "CANCELLED",
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  isExpired() {
+    return this.props.expiresAt < /* @__PURE__ */ new Date();
+  }
+};
+
+// src/workspaces/usecase/invite-member.usecase.ts
+import { v4 as uuidv42 } from "uuid";
+var InviteMemberUseCase = class {
+  constructor(workspaceRepository, invitationRepository, hashService) {
+    this.workspaceRepository = workspaceRepository;
+    this.invitationRepository = invitationRepository;
+    this.hashService = hashService;
+  }
+  async execute(workspaceId, email, role, invitedById) {
+    const workspace = await this.workspaceRepository.findById(workspaceId);
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+    const token = uuidv42();
+    const tokenHash = await this.hashService.hash(token);
+    const expiresAt = /* @__PURE__ */ new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    const invitation = WorkspaceInvitation.create({
+      workspaceId,
+      email,
+      tokenHash,
+      role,
+      invitedById,
+      expiresAt
+    });
+    const savedInvitation = await this.invitationRepository.create(invitation);
+    return { invitation: savedInvitation, token };
+  }
+};
+
+// src/workspaces/usecase/accept-invitation.usecase.ts
+var AcceptInvitationUseCase = class {
+  constructor(workspaceRepository, invitationRepository, hashService) {
+    this.workspaceRepository = workspaceRepository;
+    this.invitationRepository = invitationRepository;
+    this.hashService = hashService;
+  }
+  async execute(token, userId) {
+    const pendingInvitations = await this.invitationRepository.findPendingInvitations();
+    if (pendingInvitations.length === 0) {
+      throw new Error("Invalid invitation token");
+    }
+    let matchedInvitation = null;
+    for (const invitation of pendingInvitations) {
+      const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
+      if (isValid) {
+        matchedInvitation = invitation;
+        break;
+      }
+    }
+    if (!matchedInvitation) {
+      throw new Error("Invalid invitation token");
+    }
+    if (matchedInvitation.isExpired()) {
+      throw new Error("Invitation expired");
+    }
+    const workspaceId = matchedInvitation.props.workspaceId;
+    const existingMember = await this.workspaceRepository.findMember(workspaceId, userId);
+    if (existingMember) {
+      const acceptedInvitation2 = matchedInvitation.accept();
+      await this.invitationRepository.update(acceptedInvitation2);
+      return;
+    }
+    const member = WorkspaceMember.create({
+      workspaceId,
+      userId,
+      role: matchedInvitation.props.role
+    });
+    await this.workspaceRepository.addMember(member);
+    const acceptedInvitation = matchedInvitation.accept();
+    await this.invitationRepository.update(acceptedInvitation);
+  }
+};
+
+// src/workspaces/usecase/update-workspace-settings.usecase.ts
+var UpdateWorkspaceSettingsUseCase = class {
+  constructor(settingsRepository) {
+    this.settingsRepository = settingsRepository;
+  }
+  async execute(input) {
+    const existing = await this.settingsRepository.findByWorkspaceId(input.workspaceId);
+    let settings;
+    if (existing) {
+      settings = existing.update({
+        defaultView: input.defaultView,
+        defaultDueTime: input.defaultDueTime,
+        timezone: input.timezone,
+        locale: input.locale
+      });
+    } else {
+      settings = WorkspaceSettings.create({
+        workspaceId: input.workspaceId,
+        defaultView: input.defaultView,
+        defaultDueTime: input.defaultDueTime,
+        timezone: input.timezone,
+        locale: input.locale
+      });
+    }
+    return this.settingsRepository.upsert(settings);
+  }
+};
+
+// src/workspaces/usecase/get-workspace-settings.usecase.ts
+var GetWorkspaceSettingsUseCase = class {
+  constructor(settingsRepository) {
+    this.settingsRepository = settingsRepository;
+  }
+  async execute(input) {
+    return this.settingsRepository.findByWorkspaceId(input.workspaceId);
+  }
+};
+
+// src/workspaces/usecase/create-audit-log.usecase.ts
+var CreateAuditLogUseCase = class {
+  constructor(auditLogRepository) {
+    this.auditLogRepository = auditLogRepository;
+  }
+  async execute(input) {
+    const log = WorkspaceAuditLog.create({
+      workspaceId: input.workspaceId,
+      actorId: input.actorId,
+      action: input.action,
+      payload: input.payload
+    });
+    return this.auditLogRepository.create(log);
+  }
+};
+
+// src/workspaces/usecase/get-workspace-audit-logs.usecase.ts
+var GetWorkspaceAuditLogsUseCase = class {
+  constructor(auditLogRepository) {
+    this.auditLogRepository = auditLogRepository;
+  }
+  async execute(input) {
+    const limit = input.limit ?? 50;
+    const offset = input.offset ?? 0;
+    const [logs, total] = await Promise.all([
+      this.auditLogRepository.findByWorkspaceId(input.workspaceId, limit, offset),
+      this.auditLogRepository.countByWorkspaceId(input.workspaceId)
+    ]);
+    return { logs, total };
+  }
+};
+
+// src/projects/model/project.entity.ts
+var Project = class _Project extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      color: props.color ?? "#6B7280",
+      position: props.position ?? 0,
+      archived: props.archived ?? false,
+      completed: props.completed ?? false,
+      isDeleted: props.isDeleted ?? false,
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _Project({
+      ...props,
+      position: 0,
+      archived: false,
+      completed: false
+    });
+  }
+  update(props) {
+    return this.clone({
+      ...props,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  archive() {
+    return this.clone({
+      archived: true,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  unarchive() {
+    return this.clone({
+      archived: false,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  complete() {
+    return this.clone({
+      completed: true,
+      completedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  uncomplete() {
+    return this.clone({
+      completed: false,
+      completedAt: void 0,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  softDelete() {
+    return this.clone({
+      isDeleted: true,
+      deletedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  restore() {
+    return this.clone({
+      isDeleted: false,
+      deletedAt: void 0,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+};
+
+// src/projects/usecase/create-project.usecase.ts
+var CreateProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(props) {
+    const project = Project.create(props);
+    return this.projectRepository.create(project);
+  }
+};
+
+// src/projects/usecase/update-project.usecase.ts
+var UpdateProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(id, props) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    const updatedProject = project.update(props);
+    return this.projectRepository.update(updatedProject);
+  }
+};
+
+// src/projects/usecase/archive-project.usecase.ts
+var ArchiveProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(id) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    const updatedProject = project.props.archived ? project.unarchive() : project.archive();
+    return this.projectRepository.update(updatedProject);
+  }
+};
+
+// src/projects/usecase/delete-project.usecase.ts
+var DeleteProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(id) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    await this.projectRepository.delete(id);
+  }
+};
+
+// src/projects/usecase/soft-delete-project.usecase.ts
+var SoftDeleteProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(id) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    await this.projectRepository.softDelete(id);
+  }
+};
+
+// src/projects/usecase/restore-project.usecase.ts
+var RestoreProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(id) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    if (!project.props.isDeleted) {
+      throw new Error("Project is not deleted");
+    }
+    await this.projectRepository.restore(id);
+  }
+};
+
+// src/projects/usecase/permanent-delete-project.usecase.ts
+var PermanentDeleteProjectUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(id) {
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    if (!project.props.isDeleted) {
+      throw new Error("Project must be soft deleted first");
+    }
+    await this.projectRepository.permanentDelete(id);
+  }
+};
+
+// src/projects/usecase/get-deleted-projects.usecase.ts
+var GetDeletedProjectsUseCase = class {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+  async execute(workspaceId) {
+    const projects = await this.projectRepository.findDeleted(workspaceId);
+    return projects.map((p) => p.props);
+  }
+};
+
+// src/workflows/model/workflow.entity.ts
+var Workflow = class _Workflow extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      color: props.color ?? "#6B7280",
+      position: props.position ?? 0,
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _Workflow({
+      ...props,
+      position: 0
+    });
+  }
+  update(props) {
+    return this.clone({
+      ...props,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+};
+
+// src/workflows/usecase/create-workflow.usecase.ts
+var CreateWorkflowUseCase = class {
+  constructor(workflowRepository) {
+    this.workflowRepository = workflowRepository;
+  }
+  async execute(input) {
+    const workflow = Workflow.create({
+      name: input.name,
+      description: input.description,
+      color: input.color ?? "#6B7280",
+      icon: input.icon,
+      workspaceId: input.workspaceId
+    });
+    await this.workflowRepository.save(workflow);
+    return workflow;
+  }
+};
+
+// src/workflows/usecase/list-workflows.usecase.ts
+var ListWorkflowsUseCase = class {
+  constructor(workflowRepository) {
+    this.workflowRepository = workflowRepository;
+  }
+  async execute(workspaceId) {
+    return this.workflowRepository.findByWorkspaceId(workspaceId);
+  }
+};
+
+// src/workflows/usecase/update-workflow.usecase.ts
+var UpdateWorkflowUseCase = class {
+  constructor(workflowRepository) {
+    this.workflowRepository = workflowRepository;
+  }
+  async execute(input) {
+    const workflow = await this.workflowRepository.findById(input.id);
+    if (!workflow) {
+      throw new Error("Workflow not found");
+    }
+    const updatedWorkflow = workflow.update({
+      name: input.name,
+      description: input.description,
+      color: input.color,
+      icon: input.icon,
+      position: input.position
+    });
+    await this.workflowRepository.update(updatedWorkflow);
+    return updatedWorkflow;
+  }
+};
+
+// src/workflows/usecase/delete-workflow.usecase.ts
+var DeleteWorkflowUseCase = class {
+  constructor(workflowRepository) {
+    this.workflowRepository = workflowRepository;
+  }
+  async execute(id) {
+    await this.workflowRepository.delete(id);
+  }
+};
+
+// src/tags/model/tag.entity.ts
+var Tag = class _Tag extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      color: props.color ?? "#6B7280",
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _Tag({
+      ...props
+    });
+  }
+  update(props) {
+    return this.clone({
+      ...props
+    });
+  }
+};
+
+// src/tags/usecase/create-tag.usecase.ts
+var CreateTagUseCase = class {
+  constructor(tagRepository) {
+    this.tagRepository = tagRepository;
+  }
+  async execute(props) {
+    const tag = Tag.create(props);
+    return this.tagRepository.create(tag);
+  }
+};
+
+// src/tags/usecase/assign-tag-to-task.usecase.ts
+var AssignTagToTaskUseCase = class {
+  constructor(tagRepository) {
+    this.tagRepository = tagRepository;
+  }
+  async execute(tagId, taskId) {
+    const tag = await this.tagRepository.findById(tagId);
+    if (!tag) {
+      throw new Error("Tag not found");
+    }
+    await this.tagRepository.assignToTask(tagId, taskId);
+  }
+};
+
+// src/tags/usecase/remove-tag-from-task.usecase.ts
+var RemoveTagFromTaskUseCase = class {
+  constructor(tagRepository) {
+    this.tagRepository = tagRepository;
+  }
+  async execute(tagId, taskId) {
+    await this.tagRepository.removeFromTask(tagId, taskId);
+  }
+};
+
+// src/tags/usecase/update-tag.usecase.ts
+var UpdateTagUseCase = class {
+  constructor(tagRepository) {
+    this.tagRepository = tagRepository;
+  }
+  async execute(id, props) {
+    const tag = await this.tagRepository.findById(id);
+    if (!tag) {
+      throw new Error("Tag not found");
+    }
+    const updatedTag = tag.update(props);
+    return this.tagRepository.update(updatedTag);
+  }
+};
+
+// src/timer/model/time-session.entity.ts
+var TimeSession = class _TimeSession extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      type: props.type ?? "WORK",
+      wasCompleted: props.wasCompleted ?? false,
+      wasInterrupted: props.wasInterrupted ?? false,
+      pauseCount: props.pauseCount ?? 0,
+      totalPauseTime: props.totalPauseTime ?? 0,
+      pauseData: props.pauseData ?? [],
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _TimeSession({
+      ...props,
+      wasCompleted: false,
+      wasInterrupted: false,
+      pauseCount: 0,
+      totalPauseTime: 0,
+      pauseData: [],
+      currentPauseStart: void 0
+    });
+  }
+  pause(pauseStartedAt = /* @__PURE__ */ new Date()) {
+    return this.clone({
+      pauseCount: (this.props.pauseCount ?? 0) + 1,
+      currentPauseStart: pauseStartedAt
+    });
+  }
+  resume(pauseStartedAt, pauseEndedAt = /* @__PURE__ */ new Date()) {
+    const actualPauseStart = this.props.currentPauseStart ?? pauseStartedAt;
+    const pauseDuration = Math.floor((pauseEndedAt.getTime() - actualPauseStart.getTime()) / 1e3);
+    const pauseRecord = {
+      startedAt: actualPauseStart,
+      endedAt: pauseEndedAt,
+      duration: pauseDuration
+    };
+    return this.clone({
+      totalPauseTime: (this.props.totalPauseTime ?? 0) + pauseDuration,
+      pauseData: [...this.props.pauseData ?? [], pauseRecord],
+      currentPauseStart: void 0
+    });
+  }
+  stop(endedAt = /* @__PURE__ */ new Date(), wasCompleted = false, wasInterrupted = false) {
+    let extraPauseTime = 0;
+    if (this.props.currentPauseStart) {
+      extraPauseTime = Math.floor((endedAt.getTime() - this.props.currentPauseStart.getTime()) / 1e3);
+    }
+    const totalMs = endedAt.getTime() - this.props.startedAt.getTime();
+    const totalSeconds = Math.floor(totalMs / 1e3);
+    const activeSeconds = totalSeconds - (this.props.totalPauseTime ?? 0) - extraPauseTime;
+    const durationMinutes = Math.round(activeSeconds / 60);
+    return this.clone({
+      endedAt,
+      duration: durationMinutes,
+      wasCompleted,
+      wasInterrupted,
+      currentPauseStart: void 0,
+      // Clear pause state
+      totalPauseTime: (this.props.totalPauseTime ?? 0) + extraPauseTime
+    });
+  }
+  split(endedAt = /* @__PURE__ */ new Date(), wasCompleted = true, splitReason = "TASK_SWITCH") {
+    let extraPauseTime = 0;
+    if (this.props.currentPauseStart) {
+      extraPauseTime = Math.floor((endedAt.getTime() - this.props.currentPauseStart.getTime()) / 1e3);
+    }
+    const totalMs = endedAt.getTime() - this.props.startedAt.getTime();
+    const totalSeconds = Math.floor(totalMs / 1e3);
+    const activeSeconds = totalSeconds - (this.props.totalPauseTime ?? 0) - extraPauseTime;
+    const durationMinutes = Math.round(activeSeconds / 60);
+    return this.clone({
+      endedAt,
+      duration: durationMinutes,
+      wasCompleted,
+      wasInterrupted: false,
+      splitReason,
+      currentPauseStart: void 0,
+      totalPauseTime: (this.props.totalPauseTime ?? 0) + extraPauseTime
+    });
+  }
+};
+
+// src/timer/usecase/start-timer.usecase.ts
+var StartTimerUseCase = class {
+  constructor(timerRepository, taskRepository) {
+    this.timerRepository = timerRepository;
+    this.taskRepository = taskRepository;
+  }
+  async execute(userId, taskId, type = "WORK") {
+    const activeSession = await this.timerRepository.findActiveSession(userId);
+    if (activeSession) {
+      const stoppedSession = activeSession.stop(/* @__PURE__ */ new Date(), false, true);
+      await this.timerRepository.update(stoppedSession);
+    }
+    const session = TimeSession.create({
+      userId,
+      taskId,
+      startedAt: /* @__PURE__ */ new Date(),
+      type
+    });
+    const createdSession = await this.timerRepository.create(session);
+    if (type === "WORK" && taskId) {
+      const task = await this.taskRepository.findById(taskId);
+      if (task && task.props.status === "TODO") {
+        const updatedTask = task.updateStatus("IN_PROGRESS");
+        await this.taskRepository.update(updatedTask);
+      }
+    }
+    return createdSession;
+  }
+};
+
+// src/timer/usecase/stop-timer.usecase.ts
+var StopTimerUseCase = class {
+  constructor(timerRepository) {
+    this.timerRepository = timerRepository;
+  }
+  async execute(userId, wasCompleted = false) {
+    const activeSession = await this.timerRepository.findActiveSession(userId);
+    if (!activeSession) {
+      throw new Error("No active timer session found");
+    }
+    const stoppedSession = activeSession.stop(/* @__PURE__ */ new Date(), wasCompleted, !wasCompleted);
+    return this.timerRepository.update(stoppedSession);
+  }
+};
+
+// src/timer/usecase/pause-timer.usecase.ts
+var PauseTimerUseCase = class {
+  constructor(timerRepository) {
+    this.timerRepository = timerRepository;
+  }
+  async execute(userId, pauseStartedAt = /* @__PURE__ */ new Date()) {
+    const activeSession = await this.timerRepository.findActiveSession(userId);
+    if (!activeSession) {
+      throw new Error("No active timer session found");
+    }
+    const pausedSession = activeSession.pause(pauseStartedAt);
+    return this.timerRepository.update(pausedSession);
+  }
+};
+
+// src/timer/usecase/resume-timer.usecase.ts
+var ResumeTimerUseCase = class {
+  constructor(timerRepository) {
+    this.timerRepository = timerRepository;
+  }
+  async execute(userId, pauseStartedAt, pauseEndedAt = /* @__PURE__ */ new Date()) {
+    const activeSession = await this.timerRepository.findActiveSession(userId);
+    if (!activeSession) {
+      throw new Error("No active timer session found");
+    }
+    const resumedSession = activeSession.resume(pauseStartedAt, pauseEndedAt);
+    return this.timerRepository.update(resumedSession);
+  }
+};
+
+// src/timer/usecase/switch-task.usecase.ts
+var SwitchTaskUseCase = class {
+  constructor(timerRepository) {
+    this.timerRepository = timerRepository;
+  }
+  async execute(userId, newTaskId, type = "WORK", splitReason = "TASK_SWITCH") {
+    const activeSession = await this.timerRepository.findActiveSession(userId);
+    if (!activeSession) {
+      throw new Error("No active timer session found");
+    }
+    const stoppedSession = activeSession.split(/* @__PURE__ */ new Date(), true, splitReason);
+    await this.timerRepository.update(stoppedSession);
+    const newSession = TimeSession.create({
+      userId,
+      taskId: newTaskId,
+      startedAt: /* @__PURE__ */ new Date(),
+      type,
+      parentSessionId: stoppedSession.id
+    });
+    const createdSession = await this.timerRepository.create(newSession);
+    return {
+      oldSession: stoppedSession,
+      newSession: createdSession
+    };
+  }
+};
+
+// src/analytics/model/daily-metrics.entity.ts
+var DailyMetrics = class _DailyMetrics extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      tasksCreated: props.tasksCreated ?? 0,
+      tasksCompleted: props.tasksCompleted ?? 0,
+      subtasksCompleted: props.subtasksCompleted ?? 0,
+      minutesWorked: props.minutesWorked ?? 0,
+      pomodorosCompleted: props.pomodorosCompleted ?? 0,
+      shortBreaksCompleted: props.shortBreaksCompleted ?? 0,
+      longBreaksCompleted: props.longBreaksCompleted ?? 0,
+      breakMinutes: props.breakMinutes ?? 0,
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _DailyMetrics({
+      ...props,
+      tasksCreated: 0,
+      tasksCompleted: 0,
+      subtasksCompleted: 0,
+      minutesWorked: 0,
+      pomodorosCompleted: 0,
+      shortBreaksCompleted: 0,
+      longBreaksCompleted: 0,
+      breakMinutes: 0
+    });
+  }
+  incrementTasksCreated() {
+    return this.clone({ tasksCreated: this.props.tasksCreated + 1 });
+  }
+  incrementTasksCompleted() {
+    return this.clone({ tasksCompleted: this.props.tasksCompleted + 1 });
+  }
+  decrementTasksCompleted() {
+    return this.clone({ tasksCompleted: Math.max(0, this.props.tasksCompleted - 1) });
+  }
+  incrementSubtasksCompleted() {
+    return this.clone({ subtasksCompleted: this.props.subtasksCompleted + 1 });
+  }
+  decrementSubtasksCompleted() {
+    return this.clone({ subtasksCompleted: Math.max(0, this.props.subtasksCompleted - 1) });
+  }
+  addMinutesWorked(minutes) {
+    return this.clone({ minutesWorked: this.props.minutesWorked + minutes });
+  }
+  incrementPomodoros() {
+    return this.clone({ pomodorosCompleted: this.props.pomodorosCompleted + 1 });
+  }
+  updateFocusScore(score) {
+    return this.clone({ focusScore: Math.max(0, Math.min(1, score)) });
+  }
+  incrementShortBreaks() {
+    return this.clone({ shortBreaksCompleted: this.props.shortBreaksCompleted + 1 });
+  }
+  incrementLongBreaks() {
+    return this.clone({ longBreaksCompleted: this.props.longBreaksCompleted + 1 });
+  }
+  addBreakMinutes(minutes) {
+    return this.clone({ breakMinutes: this.props.breakMinutes + minutes });
+  }
+};
+
+// src/analytics/usecase/get-daily-metrics.usecase.ts
+var GetDailyMetricsUseCase = class {
+  constructor(analyticsRepository) {
+    this.analyticsRepository = analyticsRepository;
+  }
+  async execute(userId, date = /* @__PURE__ */ new Date()) {
+    let metrics = await this.analyticsRepository.findByDate(userId, date);
+    if (!metrics) {
+      metrics = DailyMetrics.create({
+        userId,
+        date
+      });
+    }
+    return metrics;
+  }
+};
+
+// src/analytics/usecase/update-daily-metrics.usecase.ts
+var UpdateDailyMetricsUseCase = class {
+  constructor(analyticsRepository) {
+    this.analyticsRepository = analyticsRepository;
+  }
+  async execute(input) {
+    const normalizedDate = new Date(input.date);
+    normalizedDate.setHours(0, 0, 0, 0);
+    let metrics = await this.analyticsRepository.findByDate(input.userId, normalizedDate);
+    if (!metrics) {
+      metrics = DailyMetrics.create({
+        userId: input.userId,
+        date: normalizedDate
+      });
+    }
+    if (input.tasksCreated) {
+      for (let i = 0; i < input.tasksCreated; i++) {
+        metrics = metrics.incrementTasksCreated();
+      }
+    }
+    if (input.tasksCompleted) {
+      for (let i = 0; i < Math.abs(input.tasksCompleted); i++) {
+        if (input.tasksCompleted > 0) {
+          metrics = metrics.incrementTasksCompleted();
+        } else {
+          metrics = metrics.decrementTasksCompleted();
+        }
+      }
+    }
+    if (input.subtasksCompleted) {
+      for (let i = 0; i < Math.abs(input.subtasksCompleted); i++) {
+        if (input.subtasksCompleted > 0) {
+          metrics = metrics.incrementSubtasksCompleted();
+        } else {
+          metrics = metrics.decrementSubtasksCompleted();
+        }
+      }
+    }
+    if (input.minutesWorked) {
+      metrics = metrics.addMinutesWorked(input.minutesWorked);
+    }
+    if (input.pomodorosCompleted) {
+      for (let i = 0; i < input.pomodorosCompleted; i++) {
+        metrics = metrics.incrementPomodoros();
+      }
+    }
+    if (input.shortBreaksCompleted) {
+      for (let i = 0; i < input.shortBreaksCompleted; i++) {
+        metrics = metrics.incrementShortBreaks();
+      }
+    }
+    if (input.longBreaksCompleted) {
+      for (let i = 0; i < input.longBreaksCompleted; i++) {
+        metrics = metrics.incrementLongBreaks();
+      }
+    }
+    if (input.breakMinutes) {
+      metrics = metrics.addBreakMinutes(input.breakMinutes);
+    }
+    if (input.focusScore !== void 0) {
+      metrics = metrics.updateFocusScore(input.focusScore);
+    }
+    await this.analyticsRepository.save(metrics);
+    return metrics;
+  }
+};
+
+// src/analytics/usecase/calculate-focus-score.usecase.ts
+var CalculateFocusScoreUseCase = class {
+  execute(input) {
+    const { totalWorkSeconds, totalPauseSeconds, pauseCount } = input;
+    if (totalWorkSeconds <= 0) {
+      return 0;
+    }
+    const totalTime = totalWorkSeconds + totalPauseSeconds;
+    const workRatio = totalWorkSeconds / totalTime;
+    const pausePenalty = Math.min(pauseCount * 0.02, 0.2);
+    let focusScore = workRatio - pausePenalty;
+    focusScore = Math.max(0, Math.min(1, focusScore));
+    return focusScore;
+  }
+};
+
+// src/ai/model/ai-profile.entity.ts
+var AIProfile = class _AIProfile extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      peakHours: props.peakHours ?? {},
+      peakDays: props.peakDays ?? {},
+      avgTaskDuration: props.avgTaskDuration ?? 30,
+      completionRate: props.completionRate ?? 0.7,
+      categoryPreferences: props.categoryPreferences ?? {},
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(userId) {
+    return new _AIProfile({
+      userId,
+      peakHours: {},
+      peakDays: {},
+      avgTaskDuration: 30,
+      completionRate: 0.7,
+      categoryPreferences: {}
+    });
+  }
+  /**
+   * Update productivity score for a specific hour of the day (0-23)
+   * Uses exponential moving average to smooth out variations
+   */
+  updatePeakHour(hour, score) {
+    if (hour < 0 || hour > 23) {
+      throw new Error("Hour must be between 0 and 23");
+    }
+    if (score < 0 || score > 1) {
+      throw new Error("Score must be between 0 and 1");
+    }
+    const currentScore = this.props.peakHours[hour] ?? 0.5;
+    const newScore = currentScore * 0.7 + score * 0.3;
+    return this.clone({
+      peakHours: {
+        ...this.props.peakHours,
+        [hour]: newScore
+      },
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Update productivity score for a specific day of the week (0=Sunday, 6=Saturday)
+   * Uses exponential moving average to smooth out variations
+   */
+  updatePeakDay(dayOfWeek, score) {
+    if (dayOfWeek < 0 || dayOfWeek > 6) {
+      throw new Error("Day of week must be between 0 and 6");
+    }
+    if (score < 0 || score > 1) {
+      throw new Error("Score must be between 0 and 1");
+    }
+    const currentScore = this.props.peakDays[dayOfWeek] ?? 0.5;
+    const newScore = currentScore * 0.7 + score * 0.3;
+    return this.clone({
+      peakDays: {
+        ...this.props.peakDays,
+        [dayOfWeek]: newScore
+      },
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Recalculate average task duration based on recent completed tasks
+   * Uses exponential moving average to give more weight to recent data
+   */
+  recalculateAvgDuration(recentDurations) {
+    if (recentDurations.length === 0) {
+      return this;
+    }
+    const avgRecent = recentDurations.reduce((sum, d) => sum + d, 0) / recentDurations.length;
+    const newAvg = this.props.avgTaskDuration * 0.6 + avgRecent * 0.4;
+    return this.clone({
+      avgTaskDuration: Math.round(newAvg),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Update completion rate based on completed and total tasks
+   * Uses exponential moving average
+   */
+  updateCompletionRate(completed, total) {
+    if (total === 0) {
+      return this;
+    }
+    if (completed > total) {
+      throw new Error("Completed tasks cannot exceed total tasks");
+    }
+    const newRate = completed / total;
+    const updatedRate = this.props.completionRate * 0.8 + newRate * 0.2;
+    return this.clone({
+      completionRate: Math.max(0, Math.min(1, updatedRate)),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Update preference score for a category
+   * Higher score means user works better/prefers this category
+   */
+  updateCategoryPreference(category, score) {
+    if (score < 0 || score > 1) {
+      throw new Error("Score must be between 0 and 1");
+    }
+    const currentScore = this.props.categoryPreferences[category] ?? 0.5;
+    const newScore = currentScore * 0.7 + score * 0.3;
+    return this.clone({
+      categoryPreferences: {
+        ...this.props.categoryPreferences,
+        [category]: newScore
+      },
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Get the top N most productive hours
+   */
+  getTopPeakHours(limit = 3) {
+    return Object.entries(this.props.peakHours).sort(([, a], [, b]) => b - a).slice(0, limit).map(([hour]) => parseInt(hour));
+  }
+  /**
+   * Get the top N most productive days
+   */
+  getTopPeakDays(limit = 3) {
+    return Object.entries(this.props.peakDays).sort(([, a], [, b]) => b - a).slice(0, limit).map(([day]) => parseInt(day));
+  }
+  /**
+   * Get the top N preferred categories
+   */
+  getTopCategories(limit = 5) {
+    return Object.entries(this.props.categoryPreferences).sort(([, a], [, b]) => b - a).slice(0, limit).map(([category]) => category);
+  }
+  /**
+   * Check if a specific hour is a peak productivity hour (score > 0.7)
+   */
+  isPeakHour(hour) {
+    return (this.props.peakHours[hour] ?? 0) > 0.7;
+  }
+  /**
+   * Check if a specific day is a peak productivity day (score > 0.7)
+   */
+  isPeakDay(dayOfWeek) {
+    return (this.props.peakDays[dayOfWeek] ?? 0) > 0.7;
+  }
+};
+
+// src/ai/model/productivity-report.entity.ts
+var ProductivityReport = class _ProductivityReport extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      strengths: props.strengths ?? [],
+      weaknesses: props.weaknesses ?? [],
+      recommendations: props.recommendations ?? [],
+      patterns: props.patterns ?? [],
+      productivityScore: Math.min(100, Math.max(0, props.productivityScore ?? 0)),
+      metricsSnapshot: props.metricsSnapshot ?? {},
+      generatedAt: props.generatedAt ?? /* @__PURE__ */ new Date(),
+      aiModel: props.aiModel ?? "gemini-2.0-flash-exp"
+    });
+    if (props.productivityScore < 0 || props.productivityScore > 100) {
+      throw new Error("Productivity score must be between 0 and 100");
+    }
+    if (!props.summary || props.summary.trim().length === 0) {
+      throw new Error("Summary cannot be empty");
+    }
+  }
+  static create(props) {
+    return new _ProductivityReport({
+      ...props,
+      generatedAt: /* @__PURE__ */ new Date(),
+      aiModel: "gemini-2.0-flash-exp"
+    });
+  }
+  /**
+   * Get a human-readable label for the scope
+   */
+  getScopeLabel() {
+    switch (this.props.scope) {
+      case "TASK_COMPLETION":
+        return "Task Completion Report";
+      case "PROJECT_SUMMARY":
+        return "Project Summary";
+      case "PERSONAL_ANALYSIS":
+        return "Personal Analysis";
+      case "WEEKLY_SCHEDULED":
+        return "Weekly Report";
+      case "MONTHLY_SCHEDULED":
+        return "Monthly Report";
+      default:
+        return "Report";
+    }
+  }
+  /**
+   * Get a color for the productivity score
+   */
+  getScoreColor() {
+    if (this.props.productivityScore >= 80) return "green";
+    if (this.props.productivityScore >= 60) return "yellow";
+    return "red";
+  }
+  /**
+   * Check if this is a good productivity score
+   */
+  isGoodScore() {
+    return this.props.productivityScore >= 70;
+  }
+  /**
+   * Get a summary of the metrics snapshot
+   */
+  getMetricsSummary() {
+    const m = this.props.metricsSnapshot;
+    const parts = [];
+    if (m.tasksCompleted !== void 0) {
+      parts.push(`${m.tasksCompleted} tasks completed`);
+    }
+    if (m.minutesWorked !== void 0) {
+      const hours = Math.floor(m.minutesWorked / 60);
+      const mins = m.minutesWorked % 60;
+      if (hours > 0) {
+        parts.push(`${hours}h ${mins}m worked`);
+      } else {
+        parts.push(`${mins}m worked`);
+      }
+    }
+    if (m.pomodorosCompleted !== void 0 && m.pomodorosCompleted > 0) {
+      parts.push(`${m.pomodorosCompleted} pomodoros`);
+    }
+    return parts.join(", ") || "No metrics available";
+  }
+  /**
+   * Check if this report has actionable recommendations
+   */
+  hasRecommendations() {
+    return this.props.recommendations.length > 0;
+  }
+  /**
+   * Get the top N recommendations
+   */
+  getTopRecommendations(limit = 3) {
+    return this.props.recommendations.slice(0, limit);
+  }
+};
+
+// src/ai/usecase/learn-from-session.usecase.ts
+var LearnFromSessionUseCase = class {
+  constructor(aiProfileRepository) {
+    this.aiProfileRepository = aiProfileRepository;
+  }
+  async execute(input) {
+    const { session } = input;
+    if (!session.props.wasCompleted) {
+      throw new Error("Can only learn from completed sessions");
+    }
+    if (session.props.type !== "WORK" && session.props.type !== "CONTINUOUS") {
+      throw new Error("Can only learn from WORK or CONTINUOUS sessions");
+    }
+    const profile = await this.aiProfileRepository.findOrCreate(session.props.userId);
+    const startedAt = session.props.startedAt;
+    const hour = startedAt.getHours();
+    const dayOfWeek = startedAt.getDay();
+    const productivityScore = this.calculateProductivityScore(session);
+    let updatedProfile = profile.updatePeakHour(hour, productivityScore).updatePeakDay(dayOfWeek, productivityScore);
+    if (session.props.taskId && session.props.duration) {
+      updatedProfile = updatedProfile.recalculateAvgDuration([session.props.duration]);
+    }
+    return await this.aiProfileRepository.update(updatedProfile);
+  }
+  /**
+   * Calculate productivity score based on session characteristics
+   * Returns a value between 0 and 1
+   */
+  calculateProductivityScore(session) {
+    const duration = session.props.duration ?? 0;
+    const pauseCount = session.props.pauseCount ?? 0;
+    const totalPauseTime = session.props.totalPauseTime ?? 0;
+    const wasCompleted = session.props.wasCompleted;
+    let score = 0.5;
+    if (wasCompleted) {
+      score += 0.2;
+    }
+    if (duration >= 25 && duration <= 50) {
+      score += 0.2;
+    } else if (duration >= 10 && duration < 25) {
+      score += 0.1;
+    } else if (duration > 50) {
+      score += 0.1;
+    }
+    const pausePenalty = Math.min(pauseCount * 0.05, 0.3);
+    score -= pausePenalty;
+    if (duration > 0) {
+      const totalSessionTime = duration * 60 + totalPauseTime;
+      const workTimeRatio = duration * 60 / totalSessionTime;
+      if (workTimeRatio >= 0.9) {
+        score += 0.2;
+      } else if (workTimeRatio >= 0.8) {
+        score += 0.15;
+      } else if (workTimeRatio >= 0.7) {
+        score += 0.1;
+      } else if (workTimeRatio < 0.5) {
+        score -= 0.2;
+      }
+    }
+    return Math.max(0, Math.min(1, score));
+  }
+};
+
+// src/ai/usecase/get-optimal-schedule.usecase.ts
+var DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var GetOptimalScheduleUseCase = class {
+  constructor(aiProfileRepository) {
+    this.aiProfileRepository = aiProfileRepository;
+  }
+  async execute(input) {
+    const { userId, topN = 5 } = input;
+    const profile = await this.aiProfileRepository.findByUserId(userId);
+    if (!profile) {
+      return {
+        peakHours: [],
+        peakDays: [],
+        recommendation: "Start tracking your work sessions to get personalized productivity insights!"
+      };
+    }
+    const topPeakHours = this.getTopPeakHours(profile, topN);
+    const topPeakDays = this.getTopPeakDays(profile, 3);
+    const recommendation = this.generateRecommendation(profile, topPeakHours, topPeakDays);
+    return {
+      peakHours: topPeakHours,
+      peakDays: topPeakDays,
+      recommendation
+    };
+  }
+  getTopPeakHours(profile, limit) {
+    const peakHours = profile.props.peakHours;
+    return Object.entries(peakHours).map(([hour, score]) => ({
+      hour: parseInt(hour),
+      score,
+      label: this.formatHour(parseInt(hour))
+    })).sort((a, b) => b.score - a.score).slice(0, limit);
+  }
+  getTopPeakDays(profile, limit) {
+    const peakDays = profile.props.peakDays;
+    return Object.entries(peakDays).map(([day, score]) => {
+      const dayNum = parseInt(day);
+      return {
+        day: dayNum,
+        score,
+        label: DAY_NAMES[dayNum] || "Unknown"
+      };
+    }).sort((a, b) => b.score - a.score).slice(0, limit);
+  }
+  formatHour(hour) {
+    const period = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:00 ${period}`;
+  }
+  generateRecommendation(profile, topHours, topDays) {
+    if (topHours.length === 0 && topDays.length === 0) {
+      return "Keep tracking your work sessions to discover your peak productivity times!";
+    }
+    const parts = [];
+    if (topHours.length > 0) {
+      const bestHour = topHours[0];
+      if (bestHour && bestHour.score > 0.7) {
+        const hourList = topHours.slice(0, 3).map((h) => h.label).join(", ");
+        parts.push(`Your peak productivity hours are ${hourList}.`);
+      } else if (bestHour && bestHour.score > 0.5) {
+        parts.push(`You work well during ${bestHour.label}.`);
+      }
+    }
+    if (topDays.length > 0) {
+      const bestDay = topDays[0];
+      if (bestDay && bestDay.score > 0.7) {
+        const dayList = topDays.slice(0, 2).map((d) => d.label).join(" and ");
+        parts.push(`You're most productive on ${dayList}.`);
+      }
+    }
+    const avgDuration = profile.props.avgTaskDuration;
+    if (avgDuration > 0) {
+      parts.push(`Your average focused work session is ${avgDuration} minutes.`);
+    }
+    const completionRate = profile.props.completionRate;
+    if (completionRate >= 0.8) {
+      parts.push(`You have an excellent task completion rate of ${Math.round(completionRate * 100)}%!`);
+    } else if (completionRate < 0.5) {
+      parts.push(`Try breaking tasks into smaller chunks to improve your ${Math.round(completionRate * 100)}% completion rate.`);
+    }
+    return parts.join(" ") || "Keep working to build your productivity profile!";
+  }
+};
+
+// src/ai/usecase/predict-task-duration.usecase.ts
+var PredictTaskDurationUseCase = class {
+  constructor(aiProfileRepository) {
+    this.aiProfileRepository = aiProfileRepository;
+  }
+  async execute(input) {
+    const { userId, taskTitle, taskDescription, category, priority } = input;
+    const profile = await this.aiProfileRepository.findByUserId(userId);
+    if (!profile) {
+      return {
+        estimatedMinutes: 30,
+        confidence: "LOW",
+        reasoning: "Using default estimate of 30 minutes. Complete more tasks to get personalized predictions!"
+      };
+    }
+    let estimatedMinutes = profile.props.avgTaskDuration;
+    let confidence = "MEDIUM";
+    const reasoningParts = [];
+    if (category && profile.props.categoryPreferences[category]) {
+      const categoryScore = profile.props.categoryPreferences[category];
+      if (categoryScore > 0.7) {
+        estimatedMinutes *= 0.85;
+        reasoningParts.push(`You're efficient with ${category} tasks (-15%)`);
+        confidence = "HIGH";
+      } else if (categoryScore < 0.4) {
+        estimatedMinutes *= 1.2;
+        reasoningParts.push(`${category} tasks typically take you longer (+20%)`);
+        confidence = "MEDIUM";
+      }
+    }
+    if (priority) {
+      switch (priority) {
+        case "URGENT":
+          estimatedMinutes *= 0.9;
+          reasoningParts.push("Urgent priority tends to increase focus (-10%)");
+          break;
+        case "HIGH":
+          estimatedMinutes *= 1.1;
+          reasoningParts.push("High priority suggests complexity (+10%)");
+          break;
+        case "LOW":
+          estimatedMinutes *= 0.85;
+          reasoningParts.push("Low priority typically means simpler tasks (-15%)");
+          break;
+      }
+    }
+    const text = `${taskTitle || ""} ${taskDescription || ""}`.toLowerCase();
+    if (this.containsComplexityKeywords(text, ["refactor", "redesign", "architecture", "migration"])) {
+      estimatedMinutes *= 1.5;
+      reasoningParts.push("Complex task keywords detected (+50%)");
+    } else if (this.containsComplexityKeywords(text, ["fix", "bug", "issue", "debug"])) {
+      estimatedMinutes *= 1.2;
+      reasoningParts.push("Debugging tasks can be unpredictable (+20%)");
+    } else if (this.containsComplexityKeywords(text, ["simple", "quick", "minor", "small"])) {
+      estimatedMinutes *= 0.75;
+      reasoningParts.push("Simple task indicators found (-25%)");
+    }
+    estimatedMinutes = Math.round(estimatedMinutes / 5) * 5;
+    estimatedMinutes = Math.max(10, estimatedMinutes);
+    let reasoning = `Based on your average of ${profile.props.avgTaskDuration} minutes`;
+    if (reasoningParts.length > 0) {
+      reasoning += `. ${reasoningParts.join(". ")}.`;
+    } else {
+      reasoning += ".";
+    }
+    if (!category && !priority && !taskTitle && !taskDescription) {
+      confidence = "LOW";
+    }
+    return {
+      estimatedMinutes,
+      confidence,
+      reasoning
+    };
+  }
+  containsComplexityKeywords(text, keywords) {
+    return keywords.some((keyword) => text.includes(keyword));
+  }
+};
+
+// src/ai/usecase/generate-weekly-report.usecase.ts
+var GenerateWeeklyReportUseCase = class {
+  constructor(reportRepository, analyticsRepository, timerRepository, aiProfileRepository, generateReportData) {
+    this.reportRepository = reportRepository;
+    this.analyticsRepository = analyticsRepository;
+    this.timerRepository = timerRepository;
+    this.aiProfileRepository = aiProfileRepository;
+    this.generateReportData = generateReportData;
+  }
+  async execute(input) {
+    const { userId, weekStart } = input;
+    const startDate = weekStart || this.getWeekStart(/* @__PURE__ */ new Date());
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6);
+    const existing = await this.reportRepository.findLatestByScope(
+      userId,
+      "WEEKLY_SCHEDULED"
+    );
+    if (existing && this.isSameWeek(existing.props.generatedAt, startDate)) {
+      return { report: existing, isNew: false };
+    }
+    const [dailyMetrics, sessions, profile] = await Promise.all([
+      this.analyticsRepository.getRange(userId, startDate, endDate),
+      this.timerRepository.findByUserIdAndDateRange(userId, startDate, endDate),
+      this.aiProfileRepository.findByUserId(userId)
+    ]);
+    const metricsSnapshot = {
+      tasksCreated: dailyMetrics.reduce((sum, m) => sum + m.props.tasksCreated, 0),
+      tasksCompleted: dailyMetrics.reduce((sum, m) => sum + m.props.tasksCompleted, 0),
+      minutesWorked: dailyMetrics.reduce((sum, m) => sum + m.props.minutesWorked, 0),
+      pomodorosCompleted: dailyMetrics.reduce(
+        (sum, m) => sum + m.props.pomodorosCompleted,
+        0
+      ),
+      focusScore: dailyMetrics.length > 0 ? dailyMetrics.reduce((sum, m) => sum + (m.props.focusScore ?? 0), 0) / dailyMetrics.length : 0,
+      sessionsCount: sessions.length
+    };
+    const reportData = await this.generateReportData({
+      userId,
+      scope: "WEEKLY_SCHEDULED",
+      metricsSnapshot,
+      sessions: sessions.map((s) => s.props),
+      profile: profile?.props
+    });
+    const report = ProductivityReport.create({
+      userId,
+      scope: "WEEKLY_SCHEDULED",
+      summary: reportData.summary,
+      strengths: reportData.strengths,
+      weaknesses: reportData.weaknesses,
+      recommendations: reportData.recommendations,
+      patterns: reportData.patterns,
+      productivityScore: reportData.productivityScore,
+      metricsSnapshot
+    });
+    const savedReport = await this.reportRepository.save(report);
+    return { report: savedReport, isNew: true };
+  }
+  /**
+   * Get the start of the week (Monday) for a given date
+   */
+  getWeekStart(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  }
+  /**
+   * Check if two dates are in the same week
+   */
+  isSameWeek(date1, date2) {
+    const start1 = this.getWeekStart(date1);
+    const start2 = this.getWeekStart(date2);
+    return start1.getTime() === start2.getTime();
+  }
+};
+
+// src/ai/ai-service.ts
+var MockAIService = class {
+  async suggestTaskDetails(input) {
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    const lowerInput = input.toLowerCase();
+    let priority = "MEDIUM";
+    if (lowerInput.includes("urgente") || lowerInput.includes("asap")) {
+      priority = "URGENT";
+    } else if (lowerInput.includes("importante")) {
+      priority = "HIGH";
+    }
+    let dueDate = void 0;
+    if (lowerInput.includes("ma\xF1ana")) {
+      const tomorrow = /* @__PURE__ */ new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      dueDate = tomorrow;
+    } else if (lowerInput.includes("hoy")) {
+      dueDate = /* @__PURE__ */ new Date();
+    }
+    return {
+      title: input,
+      description: "Generated by Ordo AI based on your input.",
+      priority,
+      dueDate
+    };
+  }
+  async chat(message, context) {
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    return `I am Ordo AI. You said: "${message}". I am currently in development mode.`;
+  }
+};
+var aiService = new MockAIService();
+
+// src/habits/model/habit.entity.ts
+var Habit = class _Habit extends Entity {
+  constructor(props) {
+    super({
+      ...props,
+      frequency: props.frequency ?? "DAILY",
+      targetDaysOfWeek: props.targetDaysOfWeek ?? [0, 1, 2, 3, 4, 5, 6],
+      targetCount: props.targetCount ?? 1,
+      color: props.color ?? "#10B981",
+      currentStreak: props.currentStreak ?? 0,
+      longestStreak: props.longestStreak ?? 0,
+      totalCompletions: props.totalCompletions ?? 0,
+      isActive: props.isActive ?? true,
+      isPaused: props.isPaused ?? false,
+      completions: props.completions ?? [],
+      createdAt: props.createdAt ?? /* @__PURE__ */ new Date(),
+      updatedAt: props.updatedAt ?? /* @__PURE__ */ new Date()
+    });
+  }
+  static create(props) {
+    return new _Habit({
+      ...props,
+      currentStreak: 0,
+      longestStreak: 0,
+      totalCompletions: 0,
+      isActive: true,
+      isPaused: false
+    });
+  }
+  /**
+   * Check if habit is scheduled for a given day of week (0=Sunday, 6=Saturday)
+   */
+  isScheduledForDay(dayOfWeek) {
+    if (this.props.frequency === "DAILY") {
+      return true;
+    }
+    if (this.props.frequency === "SPECIFIC_DAYS") {
+      return this.props.targetDaysOfWeek.includes(dayOfWeek);
+    }
+    return true;
+  }
+  /**
+   * Mark habit as completed, updating streak
+   */
+  complete(isConsecutive = true) {
+    const newTotal = this.props.totalCompletions + 1;
+    const newStreak = isConsecutive ? this.props.currentStreak + 1 : 1;
+    const newLongest = Math.max(this.props.longestStreak, newStreak);
+    return this.clone({
+      totalCompletions: newTotal,
+      currentStreak: newStreak,
+      longestStreak: newLongest,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Reset streak (when habit is missed)
+   */
+  resetStreak() {
+    return this.clone({
+      currentStreak: 0,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Pause habit tracking (vacation, illness, etc.)
+   */
+  pause() {
+    return this.clone({
+      isPaused: true,
+      pausedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Resume habit tracking
+   */
+  resume() {
+    return this.clone({
+      isPaused: false,
+      pausedAt: void 0,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Archive habit (soft delete)
+   */
+  archive() {
+    return this.clone({
+      isActive: false,
+      archivedAt: /* @__PURE__ */ new Date(),
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+  /**
+   * Update habit properties
+   */
+  update(props) {
+    return this.clone({
+      ...props,
+      updatedAt: /* @__PURE__ */ new Date()
+    });
+  }
+};
+export {
+  AIProfile,
+  AcceptInvitationUseCase,
+  AddMemberToWorkspaceUseCase,
+  ArchiveProjectUseCase,
+  ArchiveWorkspaceUseCase,
+  AssignTagToTaskUseCase,
+  COMMENT_LIMITS,
+  CalculateFocusScoreUseCase,
+  ChangeUserName,
+  CompleteTaskUseCase,
+  CreateAuditLogUseCase,
+  CreateProjectUseCase,
+  CreateTagUseCase,
+  CreateTaskUseCase,
+  CreateWorkflowUseCase,
+  CreateWorkspaceUseCase,
+  DEFAULT_POMODORO_SETTINGS,
+  DailyMetrics,
+  DeleteProjectUseCase,
+  DeleteWorkflowUseCase,
+  Email,
+  Entity,
+  FILE_LIMITS,
+  GenerateWeeklyReportUseCase,
+  GetDailyMetricsUseCase,
+  GetDeletedProjectsUseCase,
+  GetDeletedTasksUseCase,
+  GetDeletedWorkspacesUseCase,
+  GetOptimalScheduleUseCase,
+  GetWorkspaceAuditLogsUseCase,
+  GetWorkspaceSettingsUseCase,
+  Habit,
+  HashPassword,
+  Id,
+  InviteMemberUseCase,
+  LearnFromSessionUseCase,
+  ListWorkflowsUseCase,
+  MEMBER_ROLES,
+  MockAIService,
+  PAGINATION_LIMITS,
+  PRIORITY_VALUES,
+  PROJECT_COLORS,
+  PROJECT_LIMITS,
+  PROJECT_STATUS,
+  PROJECT_STATUS_VALUES,
+  PauseTimerUseCase,
+  PermanentDeleteProjectUseCase,
+  PermanentDeleteTaskUseCase,
+  PermanentDeleteWorkspaceUseCase,
+  PersonName,
+  PredictTaskDurationUseCase,
+  ProductivityReport,
+  Project,
+  RegisterUser,
+  RemoveMemberFromWorkspaceUseCase,
+  RemoveTagFromTaskUseCase,
+  RequiredString,
+  RestoreProjectUseCase,
+  RestoreTaskUseCase,
+  RestoreWorkspaceUseCase,
+  ResumeTimerUseCase,
+  SoftDeleteProjectUseCase,
+  SoftDeleteTaskUseCase,
+  SoftDeleteWorkspaceUseCase,
+  StartTimerUseCase,
+  StopTimerUseCase,
+  SwitchTaskUseCase,
+  TAG_COLORS,
+  TAG_LIMITS,
+  TASK_LIMITS,
+  TASK_PRIORITIES,
+  TASK_STATUS,
+  TASK_STATUS_VALUES,
+  TIMER_LIMITS,
+  TIMER_MODES,
+  TIMER_MODE_VALUES,
+  Tag,
+  Task,
+  TimeSession,
+  USER_LIMITS,
+  UpdateDailyMetricsUseCase,
+  UpdateProjectUseCase,
+  UpdateTagUseCase,
+  UpdateWorkflowUseCase,
+  UpdateWorkspaceSettingsUseCase,
+  User,
+  UserByEmail,
+  UserLogin,
+  WORKSPACE_COLORS,
+  WORKSPACE_LIMITS,
+  WORKSPACE_TYPES,
+  Workflow,
+  Workspace,
+  WorkspaceAuditLog,
+  WorkspaceInvitation,
+  WorkspaceMember,
+  WorkspaceSettings,
+  acceptInvitationSchema,
+  addAlpha,
+  addDays,
+  addHours,
+  addMinutes,
+  aiService,
+  archiveProjectSchema,
+  assignTagsSchema,
+  bulkUpdateTasksSchema,
+  calculateAverageCompletionTime,
+  calculateAverageTime,
+  calculateBurndownRate,
+  calculateCompletionRate,
+  calculateEfficiency,
+  calculateEstimatedCompletion,
+  calculateFocusScore,
+  calculatePercentile,
+  calculateProductivityScore,
+  calculateProgress,
+  calculateProjectHealth,
+  calculateStreak,
+  calculateTimeUtilization,
+  calculateTotalTimeWorked,
+  calculateVelocity,
+  calculateWeightedAverage,
+  camelToTitle,
+  capitalize,
+  capitalizeWords,
+  categorizeTasksByAvailability,
+  changePasswordSchema,
+  commentBaseSchema,
+  commentFilterSchema,
+  countWords,
+  createCommentSchema,
+  createProjectSchema,
+  createTagSchema,
+  createTaskSchema,
+  createWorkspaceSchema,
+  darkenColor,
+  duplicateProjectSchema,
+  endOfDay,
+  endOfWeek,
+  formatDate,
+  formatDateShort,
+  formatDuration,
+  formatDurationFromSeconds,
+  formatFileSize,
+  formatNumber,
+  formatRelativeTime,
+  formatScheduledDateTime,
+  formatTimeOfDay,
+  formatTimerDisplay,
+  formatTimerDisplayExtended,
+  generateId,
+  generatePalette,
+  generateRandomString,
+  generateSlug,
+  getColorWithOpacity,
+  getContrastColor,
+  getCurrentTime,
+  getDaysDiff,
+  getInitials,
+  getPriorityColor,
+  getPriorityConfig,
+  getPriorityLabel,
+  getTaskStatusColor,
+  getTaskStatusConfig,
+  getTaskStatusLabel,
+  getTimerModeColor,
+  getTimerModeConfig,
+  getTimerModeDefaultDuration,
+  getTimerModeLabel,
+  getWorkableTasks,
+  hexToRgb,
+  hexToRgba,
+  highlightSearchTerms,
+  hoursToMinutes,
+  inviteMemberSchema,
+  isAfter,
+  isAllowedFileType,
+  isAlphanumeric,
+  isBefore,
+  isDarkColor,
+  isDueToday,
+  isFuture,
+  isImageFile,
+  isLightColor,
+  isOverdue,
+  isPast,
+  isScheduledForToday,
+  isTaskAvailable,
+  isTaskCompleted,
+  isTaskInProgress,
+  isToday,
+  isValidEmail,
+  isValidUrl,
+  isWorkingHours,
+  lightenColor,
+  loginUserSchema,
+  minutesToHours,
+  minutesToSeconds,
+  mixColors,
+  normalizeWhitespace,
+  parseDuration,
+  pluralize,
+  projectBaseSchema,
+  projectFilterSchema,
+  randomColor,
+  registerUserSchema,
+  reorderTasksSchema,
+  resetPasswordRequestSchema,
+  resetPasswordSchema,
+  rgbToHex,
+  sanitizeHtml,
+  secondsToMinutes,
+  shouldTakeLongBreak,
+  snakeToTitle,
+  startOfDay,
+  startOfToday,
+  startOfWeek,
+  stripHtmlTags,
+  tagBaseSchema,
+  tagFilterSchema,
+  taskBaseSchema,
+  taskDatesSchema,
+  taskFilterSchema,
+  transferOwnershipSchema,
+  truncate,
+  updateCommentSchema,
+  updateMemberRoleSchema,
+  updateProjectSchema,
+  updateTagSchema,
+  updateTaskSchema,
+  updateUserProfileSchema,
+  updateWorkspaceSchema,
+  userPreferencesSchema,
+  usernameValidationSchema,
+  workspaceBaseSchema,
+  workspaceFilterSchema,
+  workspaceSettingsSchema
+};

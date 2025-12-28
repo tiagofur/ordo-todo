@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Label, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@ordo-todo/ui";
+import {
+  Label,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@ordo-todo/ui";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +19,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
 import { Building2, Home, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { createWorkspaceSchema, WORKSPACE_TYPES, generateSlug } from "@ordo-todo/core";
+import { createWorkspaceSchema, WORKSPACE_TYPES } from "@ordo-todo/core";
 import { getErrorMessage } from "@/lib/error-handler";
 import type { WorkspaceType } from "@ordo-todo/api-client";
 
@@ -20,14 +28,17 @@ interface CreateWorkspaceDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
+export function CreateWorkspaceDialog({
+  open,
+  onOpenChange,
+}: CreateWorkspaceDialogProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const t = useTranslations('CreateWorkspaceDialog');
+  const t = useTranslations("CreateWorkspaceDialog");
   const [selectedType, setSelectedType] = useState<WorkspaceType>("PERSONAL");
 
   const formSchema = createWorkspaceSchema.extend({
-    name: z.string().min(1, t('validation.nameRequired')),
+    name: z.string().min(1, t("validation.nameRequired")),
   });
 
   type CreateWorkspaceForm = z.infer<typeof formSchema>;
@@ -48,37 +59,37 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
   const createWorkspace = useCreateWorkspace();
 
   const onSubmit = (data: CreateWorkspaceForm) => {
-    const slug = generateSlug(data.name);
-
-    createWorkspace.mutate({
-      ...data,
-      slug,
-      type: selectedType,
-    }, {
-      onSuccess: (workspace) => {
-        toast.success(t('toast.success'));
-        reset();
-        onOpenChange(false);
-        // Use username/slug pattern for workspace URLs
-        const username = user?.username || workspace.owner?.username;
-        if (username) {
-          router.push(`/${username}/${workspace.slug}`);
-        } else {
-          // Fallback to old pattern if username not available
-          router.push(`/workspaces/${workspace.slug}`);
-        }
+    createWorkspace.mutate(
+      {
+        ...data,
+        type: selectedType,
       },
-      onError: (error) => {
-        toast.error(getErrorMessage(error, t('toast.error')));
-      }
-    });
+      {
+        onSuccess: (workspace) => {
+          toast.success(t("toast.success"));
+          reset();
+          onOpenChange(false);
+          // Use username/slug pattern for workspace URLs
+          const username = user?.username || workspace.owner?.username;
+          if (username) {
+            router.push(`/${username}/${workspace.slug}`);
+          } else {
+            // Fallback to old pattern if username not available
+            router.push(`/workspaces/${workspace.slug}`);
+          }
+        },
+        onError: (error) => {
+          toast.error(getErrorMessage(error, t("toast.error")));
+        },
+      },
+    );
   };
 
   const workspaceTypes = [
     {
       value: "PERSONAL" as const,
-      label: t('types.personal'),
-      description: t('types.personalDesc'),
+      label: t("types.personal"),
+      description: t("types.personalDesc"),
       icon: Home,
       color: "#06b6d4", // cyan-500
       bgColor: "bg-cyan-500/10",
@@ -87,8 +98,8 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
     },
     {
       value: "WORK" as const,
-      label: t('types.work'),
-      description: t('types.workDesc'),
+      label: t("types.work"),
+      description: t("types.workDesc"),
       icon: Building2,
       color: "#a855f7", // purple-500
       bgColor: "bg-purple-500/10",
@@ -97,8 +108,8 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
     },
     {
       value: "TEAM" as const,
-      label: t('types.team'),
-      description: t('types.teamDesc'),
+      label: t("types.team"),
+      description: t("types.teamDesc"),
       icon: Users,
       color: "#ec4899", // pink-500
       bgColor: "bg-pink-500/10",
@@ -113,19 +124,25 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
         <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">
-              {t('title')}
+              {t("title")}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              {t('description')}
+              {t("description")}
             </DialogDescription>
           </DialogHeader>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6">
-          <form id="workspace-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
+          <form
+            id="workspace-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 py-4"
+          >
             {/* Workspace Type */}
             <div className="space-y-3">
-              <Label className="text-sm font-medium text-foreground">{t('form.type')}</Label>
+              <Label className="text-sm font-medium text-foreground">
+                {t("form.type")}
+              </Label>
               <div className="grid grid-cols-3 gap-3">
                 {workspaceTypes.map((type) => {
                   const Icon = type.icon;
@@ -144,21 +161,29 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                           : "border-border hover:bg-accent"
                       }`}
                     >
-                      <div 
+                      <div
                         className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-200 ${
                           isSelected ? type.bgColor : "bg-muted"
                         }`}
-                        style={isSelected ? { backgroundColor: `${type.color}20` } : {}}
+                        style={
+                          isSelected
+                            ? { backgroundColor: `${type.color}20` }
+                            : {}
+                        }
                       >
-                        <Icon 
+                        <Icon
                           className={`w-6 h-6 transition-all duration-200 ${
-                            isSelected ? type.textColor : "text-muted-foreground"
+                            isSelected
+                              ? type.textColor
+                              : "text-muted-foreground"
                           }`}
                           style={isSelected ? { color: type.color } : {}}
                         />
                       </div>
                       <div className="text-center space-y-1">
-                        <p className={`text-sm font-semibold ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
+                        <p
+                          className={`text-sm font-semibold ${isSelected ? "text-foreground" : "text-muted-foreground"}`}
+                        >
                           {type.label}
                         </p>
                         <p className="text-[10px] text-muted-foreground leading-tight px-1">
@@ -173,12 +198,17 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('form.name')}</Label>
+              <Label
+                htmlFor="name"
+                className="text-sm font-medium text-foreground"
+              >
+                {t("form.name")}
+              </Label>
               <input
                 id="name"
                 {...register("name")}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder={t('form.namePlaceholder')}
+                placeholder={t("form.namePlaceholder")}
               />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -187,15 +217,19 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
+              <Label
+                htmlFor="description"
+                className="text-sm font-medium text-foreground"
+              >
+                {t("form.description")}
+              </Label>
               <textarea
                 id="description"
                 {...register("description")}
                 className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder={t('form.descriptionPlaceholder')}
+                placeholder={t("form.descriptionPlaceholder")}
               />
             </div>
-
           </form>
         </div>
 
@@ -206,7 +240,7 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
               onClick={() => onOpenChange(false)}
               className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              {t('buttons.cancel')}
+              {t("buttons.cancel")}
             </button>
             <button
               type="submit"
@@ -214,7 +248,9 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
               disabled={createWorkspace.isPending}
               className="inline-flex items-center justify-center rounded-md text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl h-10 px-6 py-2"
             >
-              {createWorkspace.isPending ? t('buttons.creating') : t('buttons.create')}
+              {createWorkspace.isPending
+                ? t("buttons.creating")
+                : t("buttons.create")}
             </button>
           </DialogFooter>
         </div>

@@ -67,6 +67,14 @@ export class Workspace extends Entity<WorkspaceProps> {
         });
     }
 
+    restore(): Workspace {
+        return this.clone({
+            isDeleted: false,
+            deletedAt: undefined,
+            updatedAt: new Date(),
+        });
+    }
+
     archive(): Workspace {
         return this.clone({
             isArchived: true,

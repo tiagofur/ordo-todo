@@ -24,6 +24,9 @@ export type ApiClient = OrdoApiClient | {
     createWorkspace: OrdoApiClient['createWorkspace'];
     updateWorkspace: OrdoApiClient['updateWorkspace'];
     deleteWorkspace: OrdoApiClient['deleteWorkspace'];
+    getDeletedWorkspaces: OrdoApiClient['getDeletedWorkspaces'];
+    restoreWorkspace: OrdoApiClient['restoreWorkspace'];
+    permanentDeleteWorkspace: OrdoApiClient['permanentDeleteWorkspace'];
     addWorkspaceMember: OrdoApiClient['addWorkspaceMember'];
     removeWorkspaceMember: OrdoApiClient['removeWorkspaceMember'];
     getWorkspaceMembers?: OrdoApiClient['getWorkspaceMembers'];
@@ -33,6 +36,8 @@ export type ApiClient = OrdoApiClient | {
     getWorkspaceSettings?: OrdoApiClient['getWorkspaceSettings'];
     updateWorkspaceSettings?: OrdoApiClient['updateWorkspaceSettings'];
     getWorkspaceAuditLogs?: OrdoApiClient['getWorkspaceAuditLogs'];
+    createAuditLog?: OrdoApiClient['createAuditLog'];
+    archiveWorkspace?: OrdoApiClient['archiveWorkspace'];
     getWorkflows: OrdoApiClient['getWorkflows'];
     createWorkflow: OrdoApiClient['createWorkflow'];
     updateWorkflow: OrdoApiClient['updateWorkflow'];
@@ -40,6 +45,7 @@ export type ApiClient = OrdoApiClient | {
     getProjects: OrdoApiClient['getProjects'];
     getAllProjects: OrdoApiClient['getAllProjects'];
     getProject: OrdoApiClient['getProject'];
+    getProjectBySlugs: OrdoApiClient['getProjectBySlugs'];
     createProject: OrdoApiClient['createProject'];
     updateProject: OrdoApiClient['updateProject'];
     archiveProject: OrdoApiClient['archiveProject'];

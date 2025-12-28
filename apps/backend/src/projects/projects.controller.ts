@@ -121,6 +121,36 @@ export class ProjectsController {
     return this.projectsService.findAllByUser(user.id);
   }
 
+  @Get('deleted')
+  @UseGuards(ProjectGuard)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
+  @ApiOperation({
+    summary: 'Get deleted projects',
+    description:
+      'Retrieves all soft-deleted projects for the specified workspace.',
+  })
+  @ApiQuery({
+    name: 'workspaceId',
+    required: true,
+    description: 'ID of the workspace to get deleted projects from',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Deleted projects retrieved successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have access to this workspace',
+  })
+  getDeleted(@Query('workspaceId') workspaceId: string) {
+    return this.projectsService.getDeleted(workspaceId);
+  }
+
   @Get(':id')
   @UseGuards(ProjectGuard)
   @Roles(
@@ -155,10 +185,17 @@ export class ProjectsController {
   }
 
   @Get('by-slug/:workspaceSlug/:projectSlug')
+  @UseGuards(ProjectGuard)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
   @ApiOperation({
     summary: 'Get project by workspace and project slugs',
     description:
-      'Retrieves a project using human-readable slugs for both workspace and project.',
+      'Retrieves a project using human-readable slugs for both workspace and project. Requires workspace membership.',
   })
   @ApiParam({
     name: 'workspaceSlug',
@@ -176,9 +213,14 @@ export class ProjectsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Workspace or project not found',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have access to this workspace',
+  })
   async findBySlug(
     @Param('workspaceSlug') workspaceSlug: string,
     @Param('projectSlug') projectSlug: string,
+    @CurrentUser() user: RequestUser,
   ) {
     const workspace = await this.workspacesService.findBySlug(workspaceSlug);
     if (!workspace) {
@@ -279,9 +321,9 @@ export class ProjectsController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Delete project',
+    summary: 'Soft delete project',
     description:
-      'Permanently deletes a project and all its tasks. Only OWNER and ADMIN can delete projects.',
+      'Marks a project as deleted (soft delete). Only OWNER and ADMIN can delete projects.',
   })
   @ApiParam({
     name: 'id',
@@ -289,7 +331,7 @@ export class ProjectsController {
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Project deleted successfully',
+    description: 'Project soft deleted successfully',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -301,5 +343,68 @@ export class ProjectsController {
   })
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
+  }
+
+  @Post(':id/restore')
+  @UseGuards(ProjectGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Restore deleted project',
+    description:
+      'Restores a soft-deleted project. Only OWNER and ADMIN can restore projects.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Project ID',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Project restored successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Project not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to restore this project',
+  })
+  restore(@Param('id') id: string) {
+    return this.projectsService.restore(id);
+  }
+
+  @Delete(':id/permanent')
+  @UseGuards(ProjectGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Permanently delete project',
+    description:
+      'Permanently deletes a project and all its tasks. The project must be soft deleted first. This action cannot be undone. Only OWNER and ADMIN can permanently delete projects.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Project ID',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Project permanently deleted',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Project must be soft deleted first',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Project not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to permanently delete this project',
+  })
+  permanentDelete(@Param('id') id: string) {
+    return this.projectsService.permanentDelete(id);
   }
 }

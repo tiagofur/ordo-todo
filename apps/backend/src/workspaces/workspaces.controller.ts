@@ -135,6 +135,26 @@ export class WorkspacesController {
   }
 
   /**
+   * Get all deleted workspaces (trash)
+   * Only the owner can see their deleted workspaces
+   * IMPORTANT: This route must come BEFORE :id to avoid route conflicts
+   */
+  @Get('deleted')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get deleted workspaces',
+    description:
+      'Returns all workspaces marked as deleted for the current user. Only owners can see their deleted workspaces.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Deleted workspaces retrieved successfully',
+  })
+  getDeleted(@CurrentUser() user: RequestUser) {
+    return this.workspacesService.getDeleted(user.id);
+  }
+
+  /**
    * Gets workspace details by ID
    * Requires user to be a member with any role
    */
@@ -270,10 +290,16 @@ export class WorkspacesController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid user ID or user not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid user ID or user not found',
+  })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   @ApiResponse({ status: 409, description: 'User is already a member' })
-  addMember(@Param('id') workspaceId: string, @Body() addMemberDto: AddMemberDto) {
+  addMember(
+    @Param('id') workspaceId: string,
+    @Body() addMemberDto: AddMemberDto,
+  ) {
     return this.workspacesService.addMember(workspaceId, addMemberDto);
   }
 
@@ -578,6 +604,55 @@ export class WorkspacesController {
   }
 
   /**
+   * Restore a deleted workspace
+   * Only the OWNER can restore the workspace
+   */
+  @Post(':id/restore')
+  @UseGuards(WorkspaceGuard)
+  @WorkspaceContext({ type: 'direct', paramName: 'id' })
+  @Roles(MemberRole.OWNER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Restore deleted workspace',
+    description:
+      'Restores a workspace marked as deleted. Only the OWNER can perform this action.',
+  })
+  @ApiParam({ name: 'id', description: 'Workspace ID' })
+  @ApiResponse({ status: 200, description: 'Workspace restored successfully' })
+  @ApiResponse({ status: 403, description: 'Only workspace owner can restore' })
+  @ApiResponse({ status: 404, description: 'Workspace not found' })
+  restore(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.workspacesService.restore(id, user.id);
+  }
+
+  /**
+   * Permanently delete a workspace
+   * Only the OWNER can permanently delete the workspace
+   * Workspace must be soft deleted first
+   */
+  @Delete(':id/permanent')
+  @UseGuards(WorkspaceGuard)
+  @WorkspaceContext({ type: 'direct', paramName: 'id' })
+  @Roles(MemberRole.OWNER)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Permanently delete workspace',
+    description:
+      'Permanently deletes a workspace. The workspace must be soft deleted first. This action cannot be undone. Only the OWNER can perform this action.',
+  })
+  @ApiParam({ name: 'id', description: 'Workspace ID' })
+  @ApiResponse({ status: 204, description: 'Workspace permanently deleted' })
+  @ApiResponse({
+    status: 400,
+    description: 'Workspace must be soft deleted first',
+  })
+  @ApiResponse({ status: 403, description: 'Only workspace owner can delete' })
+  @ApiResponse({ status: 404, description: 'Workspace not found' })
+  permanentDelete(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    return this.workspacesService.permanentDelete(id, user.id);
+  }
+
+  /**
    * Archives a workspace
    * Only OWNER can archive
    */
@@ -594,5 +669,24 @@ export class WorkspacesController {
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.archive(id, user.id);
+  }
+
+  /**
+   * DEBUG: Endpoint temporal para marcar workspaces "Carros" como eliminados
+   * DELETE /api/v1/workspaces/debug/fix-carros
+   */
+  @Delete('debug/fix-carros')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '[DEBUG] Fix Carros workspaces',
+    description:
+      'TEMPORAL: Marca todos los workspaces "Carros" como eliminados. Solo para debugging.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Workspaces marcados como eliminados',
+  })
+  async fixCarrosWorkspaces(@CurrentUser() user: RequestUser) {
+    return this.workspacesService.debugFixCarrosWorkspaces(user.id);
   }
 }

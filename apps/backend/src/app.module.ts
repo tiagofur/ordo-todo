@@ -42,7 +42,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100, // 100 requests per minute
+        limit: 1000, // Aumentado para desarrollo (1000 requests per minute)
       },
     ]),
     ConfigModule,

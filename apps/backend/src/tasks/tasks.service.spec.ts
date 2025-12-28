@@ -252,6 +252,7 @@ describe('TasksService', () => {
         attachments: [],
         activities: [],
         tags: [{ tag: { id: 'tag-1', name: 'urgent' } }],
+        keyResults: [],
         estimatedMinutes: 60,
       };
 
@@ -460,13 +461,16 @@ describe('TasksService', () => {
       const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
       executeSpy.mockResolvedValue(mockTask);
 
-      await service.create(createTaskDto, userId);
-
-      // Verify UpdateDailyMetricsUseCase was called
+      // Create spy BEFORE calling service.create()
       const updateMetricsSpy = jest.spyOn(
         UpdateDailyMetricsUseCase.prototype,
         'execute',
       );
+      updateMetricsSpy.mockResolvedValue(undefined);
+
+      await service.create(createTaskDto, userId);
+
+      // Verify UpdateDailyMetricsUseCase was called
       expect(updateMetricsSpy).toHaveBeenCalledWith({
         userId,
         date: expect.any(Date),

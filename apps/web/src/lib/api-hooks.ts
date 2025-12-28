@@ -8,10 +8,10 @@
  * - Cache invalidation
  */
 
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from './api-client';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "./api-client";
 import type {
   // Auth
   RegisterDto,
@@ -55,90 +55,118 @@ import type {
   UpdateKeyResultDto,
   LinkTaskDto,
   ObjectiveDashboardSummary,
-} from '@ordo-todo/api-client';
+} from "@ordo-todo/api-client";
 
 // Helper to check if user is authenticated
 const isAuthenticated = () => {
-  if (typeof window === 'undefined') return false;
-  return !!localStorage.getItem('ordo_auth_token');
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem("ordo_auth_token");
 };
 
 // ============ QUERY KEYS ============
 
 export const queryKeys = {
   // Auth & User
-  currentUser: ['user', 'current'] as const,
-  userProfile: ['user', 'profile'] as const,
-  userPreferences: ['user', 'preferences'] as const,
-  userIntegrations: ['user', 'integrations'] as const,
-  usernameAvailability: (username: string) => ['auth', 'username', username] as const,
+  currentUser: ["user", "current"] as const,
+  userProfile: ["user", "profile"] as const,
+  userPreferences: ["user", "preferences"] as const,
+  userIntegrations: ["user", "integrations"] as const,
+  usernameAvailability: (username: string) =>
+    ["auth", "username", username] as const,
 
   // Workspaces
-  workspaces: ['workspaces'] as const,
-  workspace: (id: string) => ['workspaces', id] as const,
-  workspaceMembers: (id: string) => ['workspaces', id, 'members'] as const,
-  workspaceInvitations: (id: string) => ['workspaces', id, 'invitations'] as const,
-  workspaceSettings: (id: string) => ['workspaces', id, 'settings'] as const,
-  workspaceAuditLogs: (id: string, params?: { limit?: number; offset?: number }) =>
-    ['workspaces', id, 'audit-logs', params] as const,
+  workspaces: ["workspaces"] as const,
+  deletedWorkspaces: ["workspaces", "deleted"] as const,
+  workspace: (id: string) => ["workspaces", id] as const,
+  workspaceMembers: (id: string) => ["workspaces", id, "members"] as const,
+  workspaceInvitations: (id: string) =>
+    ["workspaces", id, "invitations"] as const,
+  workspaceSettings: (id: string) => ["workspaces", id, "settings"] as const,
+  workspaceAuditLogs: (
+    id: string,
+    params?: { limit?: number; offset?: number },
+  ) => ["workspaces", id, "audit-logs", params] as const,
 
   // Workflows
-  workflows: (workspaceId: string) => ['workflows', workspaceId] as const,
+  workflows: (workspaceId: string) => ["workflows", workspaceId] as const,
 
   // Projects
-  projects: (workspaceId: string) => ['projects', workspaceId] as const,
-  allProjects: ['projects', 'all'] as const,
-  project: (id: string) => ['projects', id] as const,
+  projects: (workspaceId: string) => ["projects", workspaceId] as const,
+  allProjects: ["projects", "all"] as const,
+  project: (id: string) => ["projects", id] as const,
+  deletedProjects: (workspaceId: string) =>
+    ["projects", "deleted", workspaceId] as const,
 
   // Tasks
-  tasks: (projectId?: string) => projectId ? ['tasks', projectId] as const : ['tasks'] as const,
-  task: (id: string) => ['tasks', id] as const,
-  taskDetails: (id: string) => ['tasks', id, 'details'] as const,
+  tasks: (projectId?: string) =>
+    projectId ? (["tasks", projectId] as const) : (["tasks"] as const),
+  task: (id: string) => ["tasks", id] as const,
+  taskDetails: (id: string) => ["tasks", id, "details"] as const,
+  deletedTasks: (projectId: string) => ["tasks", "deleted", projectId] as const,
 
   // Timer
-  activeTimer: ['timer', 'active'] as const,
-  timerHistory: (params?: { taskId?: string; type?: string; startDate?: string; endDate?: string; page?: number; limit?: number; completedOnly?: boolean }) =>
-    ['timer', 'history', params] as const,
+  activeTimer: ["timer", "active"] as const,
+  timerHistory: (params?: {
+    taskId?: string;
+    type?: string;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    limit?: number;
+    completedOnly?: boolean;
+  }) => ["timer", "history", params] as const,
   timerStats: (params?: { startDate?: string; endDate?: string }) =>
-    ['timer', 'stats', params] as const,
-  taskTimeSessions: (taskId: string) => ['timer', 'task', taskId] as const,
+    ["timer", "stats", params] as const,
+  taskTimeSessions: (taskId: string) => ["timer", "task", taskId] as const,
 
   // Tags
-  tags: (workspaceId: string) => ['tags', workspaceId] as const,
-  taskTags: (taskId: string) => ['tasks', taskId, 'tags'] as const,
+  tags: (workspaceId: string) => ["tags", workspaceId] as const,
+  taskTags: (taskId: string) => ["tasks", taskId, "tags"] as const,
 
   // Timer
 
-
   // Analytics
-  dailyMetrics: (params?: GetDailyMetricsParams) => ['analytics', 'daily', params] as const,
-  weeklyMetrics: (params?: { weekStart?: string }) => ['analytics', 'weekly', params] as const,
-  monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
-  dateRangeMetrics: (startDate: string, endDate: string) => ['analytics', 'range', startDate, endDate] as const,
-  dashboardStats: ['analytics', 'dashboard-stats'] as const,
-  heatmapData: ['analytics', 'heatmap'] as const,
-  projectDistribution: ['analytics', 'project-distribution'] as const,
-  taskStatusDistribution: ['analytics', 'task-status-distribution'] as const,
+  dailyMetrics: (params?: GetDailyMetricsParams) =>
+    ["analytics", "daily", params] as const,
+  weeklyMetrics: (params?: { weekStart?: string }) =>
+    ["analytics", "weekly", params] as const,
+  monthlyMetrics: (params?: { monthStart?: string }) =>
+    ["analytics", "monthly", params] as const,
+  dateRangeMetrics: (startDate: string, endDate: string) =>
+    ["analytics", "range", startDate, endDate] as const,
+  dashboardStats: ["analytics", "dashboard-stats"] as const,
+  heatmapData: ["analytics", "heatmap"] as const,
+  projectDistribution: ["analytics", "project-distribution"] as const,
+  taskStatusDistribution: ["analytics", "task-status-distribution"] as const,
 
   // AI
-  aiProfile: ['ai', 'profile'] as const,
-  optimalSchedule: (params?: { topN?: number }) => ['ai', 'optimal-schedule', params] as const,
-  taskDurationPrediction: (params?: { title?: string; description?: string; category?: string; priority?: string }) =>
-    ['ai', 'predict-duration', params] as const,
+  aiProfile: ["ai", "profile"] as const,
+  optimalSchedule: (params?: { topN?: number }) =>
+    ["ai", "optimal-schedule", params] as const,
+  taskDurationPrediction: (params?: {
+    title?: string;
+    description?: string;
+    category?: string;
+    priority?: string;
+  }) => ["ai", "predict-duration", params] as const,
 
   // Time Blocking
-  timeBlocks: (start?: string, end?: string) => ['time-blocks', start, end] as const,
+  timeBlocks: (start?: string, end?: string) =>
+    ["time-blocks", start, end] as const,
 
   // AI Reports
-  reports: (params?: { scope?: string; limit?: number; offset?: number }) => ['ai', 'reports', params] as const,
-  report: (id: string) => ['ai', 'reports', id] as const,
+  reports: (params?: { scope?: string; limit?: number; offset?: number }) =>
+    ["ai", "reports", params] as const,
+  report: (id: string) => ["ai", "reports", id] as const,
 
   // Comments
-  taskComments: (taskId: string) => ['tasks', taskId, 'comments'] as const,
+  taskComments: (taskId: string) => ["tasks", taskId, "comments"] as const,
 
   // Attachments
-  taskAttachments: (taskId: string) => ['tasks', taskId, 'attachments'] as const,
-  projectAttachments: (projectId: string) => ['projects', projectId, 'attachments'] as const,
+  taskAttachments: (taskId: string) =>
+    ["tasks", taskId, "attachments"] as const,
+  projectAttachments: (projectId: string) =>
+    ["projects", projectId, "attachments"] as const,
 } as const;
 
 // ============ AUTH HOOKS ============
@@ -192,7 +220,10 @@ export function useUpdateProfile() {
   });
 }
 
-export function useCheckUsernameAvailability(username: string, options?: { enabled?: boolean }) {
+export function useCheckUsernameAvailability(
+  username: string,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: queryKeys.usernameAvailability(username),
     queryFn: () => apiClient.checkUsernameAvailability(username),
@@ -248,7 +279,7 @@ export function useExportData() {
     onSuccess: (blob) => {
       // Trigger download
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `ordo-todo-export-${Date.now()}.json`;
       document.body.appendChild(a);
@@ -289,7 +320,7 @@ export function useWorkspace(workspaceId: string) {
 
 export function useWorkspaceBySlug(slug: string) {
   return useQuery({
-    queryKey: ['workspaces', 'slug', slug],
+    queryKey: ["workspaces", "slug", slug],
     queryFn: () => apiClient.getWorkspaceBySlug(slug),
     enabled: !!slug,
   });
@@ -297,7 +328,7 @@ export function useWorkspaceBySlug(slug: string) {
 
 export function useWorkspaceByUsernameAndSlug(username: string, slug: string) {
   return useQuery({
-    queryKey: ['workspaces', 'user', username, 'slug', slug],
+    queryKey: ["workspaces", "user", username, "slug", slug],
     queryFn: () => apiClient.getWorkspaceByUsernameAndSlug(username, slug),
     enabled: !!username && !!slug,
   });
@@ -321,10 +352,17 @@ export function useUpdateWorkspace() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: UpdateWorkspaceDto }) =>
-      apiClient.updateWorkspace(workspaceId, data),
+    mutationFn: ({
+      workspaceId,
+      data,
+    }: {
+      workspaceId: string;
+      data: UpdateWorkspaceDto;
+    }) => apiClient.updateWorkspace(workspaceId, data),
     onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspace(workspaceId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
     },
   });
@@ -341,14 +379,53 @@ export function useDeleteWorkspace() {
   });
 }
 
+export function useDeletedWorkspaces() {
+  return useQuery({
+    queryKey: queryKeys.deletedWorkspaces,
+    queryFn: () => apiClient.getDeletedWorkspaces(),
+  });
+}
+
+export function useRestoreWorkspace() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (workspaceId: string) =>
+      apiClient.restoreWorkspace(workspaceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
+      queryClient.invalidateQueries({ queryKey: queryKeys.deletedWorkspaces });
+    },
+  });
+}
+
+export function usePermanentDeleteWorkspace() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (workspaceId: string) =>
+      apiClient.permanentDeleteWorkspace(workspaceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.deletedWorkspaces });
+    },
+  });
+}
+
 export function useAddWorkspaceMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: AddMemberDto }) =>
-      apiClient.addWorkspaceMember(workspaceId, data),
+    mutationFn: ({
+      workspaceId,
+      data,
+    }: {
+      workspaceId: string;
+      data: AddMemberDto;
+    }) => apiClient.addWorkspaceMember(workspaceId, data),
     onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspace(workspaceId),
+      });
     },
   });
 }
@@ -357,11 +434,20 @@ export function useRemoveWorkspaceMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
-      apiClient.removeWorkspaceMember(workspaceId, userId),
+    mutationFn: ({
+      workspaceId,
+      userId,
+    }: {
+      workspaceId: string;
+      userId: string;
+    }) => apiClient.removeWorkspaceMember(workspaceId, userId),
     onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceMembers(workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspace(workspaceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaceMembers(workspaceId),
+      });
     },
   });
 }
@@ -386,10 +472,17 @@ export function useInviteMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: InviteMemberDto }) =>
-      apiClient.inviteWorkspaceMember(workspaceId, data),
+    mutationFn: ({
+      workspaceId,
+      data,
+    }: {
+      workspaceId: string;
+      data: InviteMemberDto;
+    }) => apiClient.inviteWorkspaceMember(workspaceId, data),
     onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceInvitations(workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaceInvitations(workspaceId),
+      });
     },
   });
 }
@@ -398,7 +491,8 @@ export function useAcceptInvitation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AcceptInvitationDto) => apiClient.acceptWorkspaceInvitation(data),
+    mutationFn: (data: AcceptInvitationDto) =>
+      apiClient.acceptWorkspaceInvitation(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
     },
@@ -419,25 +513,35 @@ export function useUpdateWorkspaceSettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: {
+    mutationFn: ({
+      workspaceId,
+      data,
+    }: {
       workspaceId: string;
       data: {
-        defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+        defaultView?: "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
         defaultDueTime?: number;
         timezone?: string;
         locale?: string;
-      }
+      };
     }) => apiClient.updateWorkspaceSettings(workspaceId, data),
     onSuccess: (_, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceSettings(workspaceId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaceSettings(workspaceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaceAuditLogs(workspaceId),
+      });
     },
   });
 }
 
 // ============ WORKSPACE AUDIT LOGS HOOKS ============
 
-export function useWorkspaceAuditLogs(workspaceId: string, params?: { limit?: number; offset?: number }) {
+export function useWorkspaceAuditLogs(
+  workspaceId: string,
+  params?: { limit?: number; offset?: number },
+) {
   return useQuery({
     queryKey: queryKeys.workspaceAuditLogs(workspaceId, params),
     queryFn: () => apiClient.getWorkspaceAuditLogs(workspaceId, params),
@@ -461,7 +565,9 @@ export function useCreateWorkflow() {
   return useMutation({
     mutationFn: (data: CreateWorkflowDto) => apiClient.createWorkflow(data),
     onSuccess: (workflow) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workflows(workflow.workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workflows(workflow.workspaceId),
+      });
     },
   });
 }
@@ -470,10 +576,17 @@ export function useUpdateWorkflow() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workflowId, data }: { workflowId: string; data: UpdateWorkflowDto }) =>
-      apiClient.updateWorkflow(workflowId, data),
+    mutationFn: ({
+      workflowId,
+      data,
+    }: {
+      workflowId: string;
+      data: UpdateWorkflowDto;
+    }) => apiClient.updateWorkflow(workflowId, data),
     onSuccess: (workflow) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.workflows(workflow.workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workflows(workflow.workspaceId),
+      });
     },
   });
 }
@@ -485,7 +598,7 @@ export function useDeleteWorkflow() {
     mutationFn: (workflowId: string) => apiClient.deleteWorkflow(workflowId),
     onSuccess: () => {
       // Invalidate all workflow queries since we don't know which workspace it belonged to
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
   });
 }
@@ -521,7 +634,9 @@ export function useCreateProject() {
   return useMutation({
     mutationFn: (data: CreateProjectDto) => apiClient.createProject(data),
     onSuccess: (project) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.projects(project.workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projects(project.workspaceId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.allProjects });
     },
   });
@@ -531,11 +646,20 @@ export function useUpdateProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ projectId, data }: { projectId: string; data: UpdateProjectDto }) =>
-      apiClient.updateProject(projectId, data),
+    mutationFn: ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: UpdateProjectDto;
+    }) => apiClient.updateProject(projectId, data),
     onSuccess: (project) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.projects(project.workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.project(project.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projects(project.workspaceId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.allProjects });
     },
   });
@@ -548,9 +672,11 @@ export function useArchiveProject() {
     mutationFn: (projectId: string) => apiClient.archiveProject(projectId),
     onSuccess: (project) => {
       // Invalidate specific project query to ensure details page updates immediately
-      queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.project(project.id),
+      });
       // Invalidate all project-related queries (lists, etc)
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 }
@@ -562,9 +688,11 @@ export function useCompleteProject() {
     mutationFn: (projectId: string) => apiClient.completeProject(projectId),
     onSuccess: (project) => {
       // Invalidate specific project query to ensure details page updates immediately
-      queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.project(project.id),
+      });
       // Invalidate all project-related queries (lists, etc)
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 }
@@ -575,25 +703,61 @@ export function useDeleteProject() {
   return useMutation({
     mutationFn: (projectId: string) => apiClient.deleteProject(projectId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+  });
+}
+
+export function useDeletedProjects(workspaceId: string) {
+  return useQuery({
+    queryKey: queryKeys.deletedProjects(workspaceId),
+    queryFn: () => apiClient.getDeletedProjects(workspaceId),
+    enabled: !!workspaceId,
+  });
+}
+
+export function useRestoreProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (projectId: string) => apiClient.restoreProject(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", "deleted"] });
+    },
+  });
+}
+
+export function usePermanentDeleteProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (projectId: string) =>
+      apiClient.permanentDeleteProject(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", "deleted"] });
     },
   });
 }
 
 // ============ TASK HOOKS ============
 
-export function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
+export function useTasks(
+  projectId?: string,
+  tags?: string[],
+  options?: { assignedToMe?: boolean },
+) {
   return useQuery({
     queryKey: projectId
-      ? ['tasks', projectId, { tags, assignedToMe: options?.assignedToMe }]
-      : ['tasks', { tags, assignedToMe: options?.assignedToMe }],
+      ? ["tasks", projectId, { tags, assignedToMe: options?.assignedToMe }]
+      : ["tasks", { tags, assignedToMe: options?.assignedToMe }],
     queryFn: () => apiClient.getTasks(projectId, tags, options?.assignedToMe),
   });
 }
 
 export function useAvailableTasks(projectId?: string) {
   return useQuery({
-    queryKey: ['tasks', 'available', projectId],
+    queryKey: ["tasks", "available", projectId],
     queryFn: () => apiClient.getAvailableTasks(projectId),
   });
 }
@@ -602,7 +766,7 @@ export function useTimeBlocks(start?: Date | string, end?: Date | string) {
   return useQuery({
     queryKey: queryKeys.timeBlocks(
       start instanceof Date ? start.toISOString() : start,
-      end instanceof Date ? end.toISOString() : end
+      end instanceof Date ? end.toISOString() : end,
     ),
     queryFn: () => apiClient.getTimeBlocks(start, end),
   });
@@ -611,7 +775,7 @@ export function useTimeBlocks(start?: Date | string, end?: Date | string) {
 // Helper to invalidate all task queries
 export const invalidateAllTasks = (queryClient: any) => {
   // Invalidate all queries that start with 'tasks'
-  queryClient.invalidateQueries({ queryKey: ['tasks'] });
+  queryClient.invalidateQueries({ queryKey: ["tasks"] });
 };
 
 export function useTask(taskId: string) {
@@ -636,7 +800,9 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (data: CreateTaskDto) => apiClient.createTask(data),
     onSuccess: (task) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks(task.projectId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
     },
   });
@@ -650,10 +816,14 @@ export function useUpdateTask() {
       apiClient.updateTask(taskId, data),
     onMutate: async ({ taskId, data }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.task(taskId) });
-      await queryClient.cancelQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
 
       const previousTask = queryClient.getQueryData(queryKeys.task(taskId));
-      const previousTaskDetails = queryClient.getQueryData(queryKeys.taskDetails(taskId));
+      const previousTaskDetails = queryClient.getQueryData(
+        queryKeys.taskDetails(taskId),
+      );
 
       if (previousTask) {
         queryClient.setQueryData(queryKeys.task(taskId), (old: any) => ({
@@ -676,15 +846,20 @@ export function useUpdateTask() {
         queryClient.setQueryData(queryKeys.task(taskId), context.previousTask);
       }
       if (context?.previousTaskDetails) {
-        queryClient.setQueryData(queryKeys.taskDetails(taskId), context.previousTaskDetails);
+        queryClient.setQueryData(
+          queryKeys.taskDetails(taskId),
+          context.previousTaskDetails,
+        );
       }
     },
     onSettled: (task, error, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
       // Invalidate ALL task queries (with any projectId or tags)
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["time-blocks"] });
     },
   });
 }
@@ -696,22 +871,26 @@ export function useCompleteTask() {
     mutationFn: (taskId: string) => apiClient.completeTask(taskId),
     onMutate: async (taskId) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.task(taskId) });
-      await queryClient.cancelQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
 
       const previousTask = queryClient.getQueryData(queryKeys.task(taskId));
-      const previousTaskDetails = queryClient.getQueryData(queryKeys.taskDetails(taskId));
+      const previousTaskDetails = queryClient.getQueryData(
+        queryKeys.taskDetails(taskId),
+      );
 
       if (previousTask) {
         queryClient.setQueryData(queryKeys.task(taskId), (old: any) => ({
           ...old,
-          status: 'COMPLETED',
+          status: "COMPLETED",
         }));
       }
 
       if (previousTaskDetails) {
         queryClient.setQueryData(queryKeys.taskDetails(taskId), (old: any) => ({
           ...old,
-          status: 'COMPLETED',
+          status: "COMPLETED",
         }));
       }
 
@@ -722,18 +901,23 @@ export function useCompleteTask() {
         queryClient.setQueryData(queryKeys.task(taskId), context.previousTask);
       }
       if (context?.previousTaskDetails) {
-        queryClient.setQueryData(queryKeys.taskDetails(taskId), context.previousTaskDetails);
+        queryClient.setQueryData(
+          queryKeys.taskDetails(taskId),
+          context.previousTaskDetails,
+        );
       }
     },
     onSettled: (task, error, taskId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
       // Invalidate ALL task queries (with any projectId or tags)
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       // Also invalidate analytics/metrics that depend on task completion
-      queryClient.invalidateQueries({ queryKey: ['analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
-      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["dailyMetrics"] });
+      queryClient.invalidateQueries({ queryKey: ["timer", "stats"] });
     },
   });
 }
@@ -744,7 +928,38 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (taskId: string) => apiClient.deleteTask(taskId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+}
+
+export function useDeletedTasks(projectId: string) {
+  return useQuery({
+    queryKey: queryKeys.deletedTasks(projectId),
+    queryFn: () => apiClient.getDeletedTasks(projectId),
+    enabled: !!projectId,
+  });
+}
+
+export function useRestoreTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.restoreTask(taskId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", "deleted"] });
+    },
+  });
+}
+
+export function usePermanentDeleteTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.permanentDeleteTask(taskId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", "deleted"] });
     },
   });
 }
@@ -753,11 +968,18 @@ export function useCreateSubtask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ parentTaskId, data }: { parentTaskId: string; data: CreateSubtaskDto }) =>
-      apiClient.createSubtask(parentTaskId, data),
+    mutationFn: ({
+      parentTaskId,
+      data,
+    }: {
+      parentTaskId: string;
+      data: CreateSubtaskDto;
+    }) => apiClient.createSubtask(parentTaskId, data),
     onSuccess: (_, { parentTaskId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(parentTaskId) });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(parentTaskId),
+      });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 }
@@ -768,14 +990,16 @@ export function useShareTask() {
   return useMutation({
     mutationFn: (taskId: string) => apiClient.generatePublicToken(taskId),
     onSuccess: (data, taskId) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
     },
   });
 }
 
 export function usePublicTask(token: string) {
   return useQuery({
-    queryKey: ['public-task', token],
+    queryKey: ["public-task", token],
     queryFn: () => apiClient.getTaskByPublicToken(token),
     enabled: !!token,
   });
@@ -805,7 +1029,9 @@ export function useCreateTag() {
   return useMutation({
     mutationFn: (data: CreateTagDto) => apiClient.createTag(data),
     onSuccess: (tag) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tags(tag.workspaceId),
+      });
     },
   });
 }
@@ -817,7 +1043,9 @@ export function useUpdateTag() {
     mutationFn: ({ tagId, data }: { tagId: string; data: UpdateTagDto }) =>
       apiClient.updateTag(tagId, data),
     onSuccess: (tag) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tags(tag.workspaceId),
+      });
     },
   });
 }
@@ -831,12 +1059,14 @@ export function useAssignTagToTask() {
     onSuccess: (_, { taskId }) => {
       // Invalidate task queries to update tag display
       queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidate all task lists
+      queryClient.invalidateQueries({ queryKey: ["tasks"] }); // Invalidate all task lists
 
       // Invalidate tag queries to update task counts
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
 }
@@ -850,12 +1080,14 @@ export function useRemoveTagFromTask() {
     onSuccess: (_, { taskId }) => {
       // Invalidate task queries to update tag display
       queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(taskId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Invalidate all task lists
+      queryClient.invalidateQueries({ queryKey: ["tasks"] }); // Invalidate all task lists
 
       // Invalidate tag queries to update task counts
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
 }
@@ -866,7 +1098,7 @@ export function useDeleteTag() {
   return useMutation({
     mutationFn: (tagId: string) => apiClient.deleteTag(tagId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
 }
@@ -888,7 +1120,7 @@ export function useStartTimer() {
     mutationFn: (data: StartTimerDto) => apiClient.startTimer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 }
@@ -900,11 +1132,11 @@ export function useStopTimer() {
     mutationFn: (data: StopTimerDto) => apiClient.stopTimer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-      queryClient.invalidateQueries({ queryKey: ['analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
-      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["timer", "history"] });
+      queryClient.invalidateQueries({ queryKey: ["timer", "stats"] });
+      queryClient.invalidateQueries({ queryKey: ["dailyMetrics"] });
     },
   });
 }
@@ -913,7 +1145,8 @@ export function usePauseTimer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data?: { pauseStartedAt?: Date }) => apiClient.pauseTimer(data),
+    mutationFn: (data?: { pauseStartedAt?: Date }) =>
+      apiClient.pauseTimer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
     },
@@ -935,14 +1168,17 @@ export function useSwitchTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { newTaskId: string; type?: string; splitReason?: string }) =>
-      apiClient.switchTask(data),
+    mutationFn: (data: {
+      newTaskId: string;
+      type?: string;
+      splitReason?: string;
+    }) => apiClient.switchTask(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
-      queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["timer", "history"] });
+      queryClient.invalidateQueries({ queryKey: ["timer", "stats"] });
     },
   });
 }
@@ -963,7 +1199,10 @@ export function useSessionHistory(params?: {
   });
 }
 
-export function useTimerStats(params?: { startDate?: string; endDate?: string }) {
+export function useTimerStats(params?: {
+  startDate?: string;
+  endDate?: string;
+}) {
   return useQuery({
     queryKey: queryKeys.timerStats(params),
     queryFn: () => apiClient.getTimerStats(params),
@@ -1052,7 +1291,12 @@ export function useOptimalSchedule(params?: { topN?: number }) {
   });
 }
 
-export function useTaskDurationPrediction(params?: { title?: string; description?: string; category?: string; priority?: string }) {
+export function useTaskDurationPrediction(params?: {
+  title?: string;
+  description?: string;
+  category?: string;
+  priority?: string;
+}) {
   return useQuery({
     queryKey: queryKeys.taskDurationPrediction(params),
     queryFn: () => apiClient.predictTaskDuration(params),
@@ -1066,7 +1310,8 @@ export function useGenerateWeeklyReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (weekStart?: string) => apiClient.generateWeeklyReport(weekStart),
+    mutationFn: (weekStart?: string) =>
+      apiClient.generateWeeklyReport(weekStart),
     onSuccess: () => {
       // Invalidate reports list
       queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
@@ -1074,7 +1319,11 @@ export function useGenerateWeeklyReport() {
   });
 }
 
-export function useReports(params?: { scope?: string; limit?: number; offset?: number }) {
+export function useReports(params?: {
+  scope?: string;
+  limit?: number;
+  offset?: number;
+}) {
   return useQuery({
     queryKey: queryKeys.reports(params),
     queryFn: () => apiClient.getReports(params),
@@ -1117,8 +1366,12 @@ export function useCreateComment() {
   return useMutation({
     mutationFn: (data: CreateCommentDto) => apiClient.createComment(data),
     onSuccess: (comment) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskComments(comment.taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(comment.taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskComments(comment.taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(comment.taskId),
+      });
     },
   });
 }
@@ -1127,11 +1380,20 @@ export function useUpdateComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId, data }: { commentId: string; data: UpdateCommentDto }) =>
-      apiClient.updateComment(commentId, data),
+    mutationFn: ({
+      commentId,
+      data,
+    }: {
+      commentId: string;
+      data: UpdateCommentDto;
+    }) => apiClient.updateComment(commentId, data),
     onSuccess: (comment) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskComments(comment.taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(comment.taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskComments(comment.taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(comment.taskId),
+      });
     },
   });
 }
@@ -1143,7 +1405,7 @@ export function useDeleteComment() {
     mutationFn: (commentId: string) => apiClient.deleteComment(commentId),
     onSuccess: () => {
       // Invalidate all comment and task detail queries since we don't know which task it belonged to
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 }
@@ -1164,8 +1426,12 @@ export function useCreateAttachment() {
   return useMutation({
     mutationFn: (data: CreateAttachmentDto) => apiClient.createAttachment(data),
     onSuccess: (attachment) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskAttachments(attachment.taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(attachment.taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskAttachments(attachment.taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(attachment.taskId),
+      });
     },
   });
 }
@@ -1174,11 +1440,12 @@ export function useDeleteAttachment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (attachmentId: string) => apiClient.deleteAttachment(attachmentId),
+    mutationFn: (attachmentId: string) =>
+      apiClient.deleteAttachment(attachmentId),
     onSuccess: () => {
       // Invalidate all attachment queries since we don't know which task it belonged to
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 }
@@ -1197,7 +1464,7 @@ export function useProjectAttachments(projectId: string) {
 
 export const useNotifications = () => {
   return useQuery({
-    queryKey: ['notifications'],
+    queryKey: ["notifications"],
     queryFn: () => apiClient.getNotifications(),
     refetchInterval: 30000, // Poll every 30 seconds
   });
@@ -1205,7 +1472,7 @@ export const useNotifications = () => {
 
 export const useUnreadNotificationsCount = () => {
   return useQuery({
-    queryKey: ['notifications', 'unread-count'],
+    queryKey: ["notifications", "unread-count"],
     queryFn: () => apiClient.getUnreadNotificationsCount(),
     refetchInterval: 30000, // Poll every 30 seconds
   });
@@ -1217,7 +1484,7 @@ export const useMarkNotificationAsRead = () => {
   return useMutation({
     mutationFn: (id: string) => apiClient.markNotificationAsRead(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 };
@@ -1228,7 +1495,7 @@ export const useMarkAllNotificationsAsRead = () => {
   return useMutation({
     mutationFn: () => apiClient.markAllNotificationsAsRead(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 };
@@ -1238,10 +1505,10 @@ export const useMarkAllNotificationsAsRead = () => {
 // ==========================================
 
 const habitQueryKeys = {
-  all: ['habits'] as const,
-  today: ['habits', 'today'] as const,
-  habit: (id: string) => ['habits', id] as const,
-  stats: (id: string) => ['habits', id, 'stats'] as const,
+  all: ["habits"] as const,
+  today: ["habits", "today"] as const,
+  habit: (id: string) => ["habits", id] as const,
+  stats: (id: string) => ["habits", id, "stats"] as const,
 };
 
 export function useHabits() {
@@ -1278,7 +1545,8 @@ export function useCreateHabit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof apiClient.createHabit>[0]) => apiClient.createHabit(data),
+    mutationFn: (data: Parameters<typeof apiClient.createHabit>[0]) =>
+      apiClient.createHabit(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
@@ -1290,10 +1558,17 @@ export function useUpdateHabit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ habitId, data }: { habitId: string; data: Parameters<typeof apiClient.updateHabit>[1] }) =>
-      apiClient.updateHabit(habitId, data),
+    mutationFn: ({
+      habitId,
+      data,
+    }: {
+      habitId: string;
+      data: Parameters<typeof apiClient.updateHabit>[1];
+    }) => apiClient.updateHabit(habitId, data),
     onSuccess: (_, { habitId }) => {
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({
+        queryKey: habitQueryKeys.habit(habitId),
+      });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
     },
@@ -1316,8 +1591,13 @@ export function useCompleteHabit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ habitId, data }: { habitId: string; data?: Parameters<typeof apiClient.completeHabit>[1] }) =>
-      apiClient.completeHabit(habitId, data),
+    mutationFn: ({
+      habitId,
+      data,
+    }: {
+      habitId: string;
+      data?: Parameters<typeof apiClient.completeHabit>[1];
+    }) => apiClient.completeHabit(habitId, data),
     onMutate: async ({ habitId }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: habitQueryKeys.today });
@@ -1334,16 +1614,29 @@ export function useCompleteHabit() {
           ...old,
           habits: old.habits?.map((h: any) =>
             h.id === habitId
-              ? { ...h, completions: [{ id: 'temp', habitId, completedAt: new Date().toISOString() }] }
-              : h
+              ? {
+                  ...h,
+                  completions: [
+                    {
+                      id: "temp",
+                      habitId,
+                      completedAt: new Date().toISOString(),
+                    },
+                  ],
+                }
+              : h,
           ),
           summary: {
             ...old.summary,
             completed: (old.summary?.completed || 0) + 1,
             remaining: Math.max((old.summary?.remaining || 0) - 1, 0),
-            percentage: old.summary?.total > 0
-              ? Math.round(((old.summary?.completed || 0) + 1) / old.summary.total * 100)
-              : 0,
+            percentage:
+              old.summary?.total > 0
+                ? Math.round(
+                    (((old.summary?.completed || 0) + 1) / old.summary.total) *
+                      100,
+                  )
+                : 0,
           },
         };
       });
@@ -1352,8 +1645,18 @@ export function useCompleteHabit() {
         if (!old || !Array.isArray(old)) return old;
         return old.map((h: any) =>
           h.id === habitId
-            ? { ...h, completions: [...(h.completions || []), { id: 'temp', habitId, completedAt: new Date().toISOString() }] }
-            : h
+            ? {
+                ...h,
+                completions: [
+                  ...(h.completions || []),
+                  {
+                    id: "temp",
+                    habitId,
+                    completedAt: new Date().toISOString(),
+                  },
+                ],
+              }
+            : h,
         );
       });
 
@@ -1362,15 +1665,22 @@ export function useCompleteHabit() {
     onError: (err, { habitId }, context) => {
       // Rollback on error
       if (context?.previousTodayData) {
-        queryClient.setQueryData(habitQueryKeys.today, context.previousTodayData);
+        queryClient.setQueryData(
+          habitQueryKeys.today,
+          context.previousTodayData,
+        );
       }
       if (context?.previousAllData) {
         queryClient.setQueryData(habitQueryKeys.all, context.previousAllData);
       }
     },
     onSettled: (_, __, { habitId }) => {
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.stats(habitId) });
+      queryClient.invalidateQueries({
+        queryKey: habitQueryKeys.habit(habitId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: habitQueryKeys.stats(habitId),
+      });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
     },
@@ -1397,15 +1707,20 @@ export function useUncompleteHabit() {
         return {
           ...old,
           habits: old.habits?.map((h: any) =>
-            h.id === habitId ? { ...h, completions: [] } : h
+            h.id === habitId ? { ...h, completions: [] } : h,
           ),
           summary: {
             ...old.summary,
             completed: Math.max((old.summary?.completed || 0) - 1, 0),
             remaining: (old.summary?.remaining || 0) + 1,
-            percentage: old.summary?.total > 0
-              ? Math.round((Math.max((old.summary?.completed || 0) - 1, 0)) / old.summary.total * 100)
-              : 0,
+            percentage:
+              old.summary?.total > 0
+                ? Math.round(
+                    (Math.max((old.summary?.completed || 0) - 1, 0) /
+                      old.summary.total) *
+                      100,
+                  )
+                : 0,
           },
         };
       });
@@ -1413,7 +1728,7 @@ export function useUncompleteHabit() {
       queryClient.setQueryData(habitQueryKeys.all, (old: any) => {
         if (!old || !Array.isArray(old)) return old;
         return old.map((h: any) =>
-          h.id === habitId ? { ...h, completions: [] } : h
+          h.id === habitId ? { ...h, completions: [] } : h,
         );
       });
 
@@ -1422,14 +1737,19 @@ export function useUncompleteHabit() {
     onError: (err, habitId, context) => {
       // Rollback on error
       if (context?.previousTodayData) {
-        queryClient.setQueryData(habitQueryKeys.today, context.previousTodayData);
+        queryClient.setQueryData(
+          habitQueryKeys.today,
+          context.previousTodayData,
+        );
       }
       if (context?.previousAllData) {
         queryClient.setQueryData(habitQueryKeys.all, context.previousAllData);
       }
     },
     onSettled: (_, __, habitId) => {
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({
+        queryKey: habitQueryKeys.habit(habitId),
+      });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
     },
@@ -1442,7 +1762,9 @@ export function usePauseHabit() {
   return useMutation({
     mutationFn: (habitId: string) => apiClient.pauseHabit(habitId),
     onSuccess: (_, habitId) => {
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({
+        queryKey: habitQueryKeys.habit(habitId),
+      });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
     },
@@ -1455,21 +1777,22 @@ export function useResumeHabit() {
   return useMutation({
     mutationFn: (habitId: string) => apiClient.resumeHabit(habitId),
     onSuccess: (_, habitId) => {
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.habit(habitId) });
+      queryClient.invalidateQueries({
+        queryKey: habitQueryKeys.habit(habitId),
+      });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.today });
       queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
     },
   });
 }
 
-
 // ============ OBJECTIVES (OKRs) HOOKS ============
 
 const objectiveQueryKeys = {
-  all: ['objectives'] as const,
-  dashboard: ['objectives', 'dashboard'] as const,
-  currentPeriod: ['objectives', 'current-period'] as const,
-  objective: (id: string) => ['objectives', id] as const,
+  all: ["objectives"] as const,
+  dashboard: ["objectives", "dashboard"] as const,
+  currentPeriod: ["objectives", "current-period"] as const,
+  objective: (id: string) => ["objectives", id] as const,
 };
 
 export function useObjectives() {
@@ -1518,7 +1841,9 @@ export function useCreateObjective() {
     mutationFn: (data: CreateObjectiveDto) => apiClient.createObjective(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.currentPeriod });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.currentPeriod,
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.dashboard });
     },
   });
@@ -1530,9 +1855,13 @@ export function useUpdateObjective() {
     mutationFn: ({ id, data }: { id: string; data: UpdateObjectiveDto }) =>
       apiClient.updateObjective(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(id) });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.objective(id),
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.currentPeriod });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.currentPeriod,
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.dashboard });
     },
   });
@@ -1544,7 +1873,9 @@ export function useDeleteObjective() {
     mutationFn: (id: string) => apiClient.deleteObjective(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.currentPeriod });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.currentPeriod,
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.dashboard });
     },
   });
@@ -1553,10 +1884,17 @@ export function useDeleteObjective() {
 export function useAddKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ objectiveId, data }: { objectiveId: string; data: CreateKeyResultDto }) =>
-      apiClient.addKeyResult(objectiveId, data),
+    mutationFn: ({
+      objectiveId,
+      data,
+    }: {
+      objectiveId: string;
+      data: CreateKeyResultDto;
+    }) => apiClient.addKeyResult(objectiveId, data),
     onSuccess: (_, { objectiveId }) => {
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.objective(objectiveId),
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
     },
   });
@@ -1565,10 +1903,19 @@ export function useAddKeyResult() {
 export function useUpdateKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ objectiveId, keyResultId, data }: { objectiveId: string; keyResultId: string; data: UpdateKeyResultDto }) =>
-      apiClient.updateKeyResult(objectiveId, keyResultId, data),
+    mutationFn: ({
+      objectiveId,
+      keyResultId,
+      data,
+    }: {
+      objectiveId: string;
+      keyResultId: string;
+      data: UpdateKeyResultDto;
+    }) => apiClient.updateKeyResult(objectiveId, keyResultId, data),
     onSuccess: (_, { objectiveId }) => {
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.objective(objectiveId),
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
     },
   });
@@ -1577,10 +1924,17 @@ export function useUpdateKeyResult() {
 export function useDeleteKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ objectiveId, keyResultId }: { objectiveId: string; keyResultId: string }) =>
-      apiClient.deleteKeyResult(objectiveId, keyResultId),
+    mutationFn: ({
+      objectiveId,
+      keyResultId,
+    }: {
+      objectiveId: string;
+      keyResultId: string;
+    }) => apiClient.deleteKeyResult(objectiveId, keyResultId),
     onSuccess: (_, { objectiveId }) => {
-      queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
+      queryClient.invalidateQueries({
+        queryKey: objectiveQueryKeys.objective(objectiveId),
+      });
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
     },
   });
@@ -1589,13 +1943,22 @@ export function useDeleteKeyResult() {
 export function useLinkTaskToKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ keyResultId, data }: { keyResultId: string; data: LinkTaskDto }) =>
-      apiClient.linkTaskToKeyResult(keyResultId, data),
+    mutationFn: ({
+      keyResultId,
+      data,
+    }: {
+      keyResultId: string;
+      data: LinkTaskDto;
+    }) => apiClient.linkTaskToKeyResult(keyResultId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
       // Also invalidate the task details to show the newly linked key result
-      queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(variables.data.taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.task(variables.data.taskId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(variables.data.taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.task(variables.data.taskId),
+      });
     },
   });
 }
@@ -1603,10 +1966,15 @@ export function useLinkTaskToKeyResult() {
 export function useUnlinkTaskFromKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ keyResultId, taskId }: { keyResultId: string; taskId: string }) =>
-      apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
+    mutationFn: ({
+      keyResultId,
+      taskId,
+    }: {
+      keyResultId: string;
+      taskId: string;
+    }) => apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
-    }
+    },
   });
 }

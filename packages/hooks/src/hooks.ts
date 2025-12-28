@@ -232,6 +232,36 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  function useDeletedWorkspaces() {
+    return useQuery({
+      queryKey: queryKeys.deletedWorkspaces,
+      queryFn: () => apiClient.getDeletedWorkspaces(),
+    });
+  }
+
+  function useRestoreWorkspace() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (workspaceId: string) => apiClient.restoreWorkspace(workspaceId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
+        queryClient.invalidateQueries({ queryKey: queryKeys.deletedWorkspaces });
+      },
+    });
+  }
+
+  function usePermanentDeleteWorkspace() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (workspaceId: string) => apiClient.permanentDeleteWorkspace(workspaceId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.deletedWorkspaces });
+      },
+    });
+  }
+
   function useAddWorkspaceMember() {
     const queryClient = useQueryClient();
 
@@ -476,6 +506,14 @@ export function createHooks(config: CreateHooksConfig) {
       queryKey: queryKeys.project(projectId),
       queryFn: () => apiClient.getProject(projectId),
       enabled: !!projectId,
+    });
+  }
+
+  function useProjectBySlugs(workspaceSlug: string, projectSlug: string) {
+    return useQuery({
+      queryKey: queryKeys.projectBySlugs(workspaceSlug, projectSlug),
+      queryFn: () => apiClient.getProjectBySlugs(workspaceSlug, projectSlug),
+      enabled: !!workspaceSlug && !!projectSlug,
     });
   }
 
@@ -1581,6 +1619,9 @@ export function createHooks(config: CreateHooksConfig) {
     useCreateWorkspace,
     useUpdateWorkspace,
     useDeleteWorkspace,
+    useDeletedWorkspaces,
+    useRestoreWorkspace,
+    usePermanentDeleteWorkspace,
     useArchiveWorkspace,
     useAddWorkspaceMember,
     useRemoveWorkspaceMember,

@@ -16,6 +16,7 @@ export const queryKeys = {
 
   // ============ Workspaces ============
   workspaces: ['workspaces'] as const,
+  deletedWorkspaces: ['workspaces', 'deleted'] as const,
   workspace: (id: string) => ['workspaces', id] as const,
   workspaceMembers: (id: string) => ['workspaces', id, 'members'] as const,
   workspaceInvitations: (id: string) => ['workspaces', id, 'invitations'] as const,
@@ -30,6 +31,8 @@ export const queryKeys = {
   projects: (workspaceId: string) => ['projects', workspaceId] as const,
   allProjects: ['projects', 'all'] as const,
   project: (id: string) => ['projects', id] as const,
+  projectBySlugs: (workspaceSlug: string, projectSlug: string) =>
+    ['projects', 'by-slug', workspaceSlug, projectSlug] as const,
 
   // ============ Tasks ============
   tasks: (projectId?: string) => projectId ? ['tasks', projectId] as const : ['tasks'] as const,

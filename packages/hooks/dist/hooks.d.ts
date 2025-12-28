@@ -54,6 +54,12 @@ export declare function createHooks(config: CreateHooksConfig): {
         data: UpdateWorkspaceDto;
     }, unknown>;
     useDeleteWorkspace: () => import("@tanstack/react-query").UseMutationResult<void, Error, string, unknown>;
+    useDeletedWorkspaces: () => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Workspace[], Error>;
+    useRestoreWorkspace: () => import("@tanstack/react-query").UseMutationResult<{
+        success: boolean;
+    }, Error, string, unknown>;
+    usePermanentDeleteWorkspace: () => import("@tanstack/react-query").UseMutationResult<void, Error, string, unknown>;
+    useArchiveWorkspace: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").Workspace, Error, string, unknown>;
     useAddWorkspaceMember: () => import("@tanstack/react-query").UseMutationResult<{
         success: boolean;
     }, Error, {
@@ -86,7 +92,12 @@ export declare function createHooks(config: CreateHooksConfig): {
     useWorkspaceAuditLogs: (workspaceId: string, params?: {
         limit?: number;
         offset?: number;
-    }) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").WorkspaceAuditLog[], Error>;
+    }) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").WorkspaceAuditLogsResponse, Error>;
+    useCreateAuditLog: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").WorkspaceAuditLog, Error, {
+        workspaceId: string;
+        action: string;
+        payload?: Record<string, unknown>;
+    }, unknown>;
     useWorkflows: (workspaceId: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Workflow[], Error>;
     useCreateWorkflow: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").Workflow, Error, CreateWorkflowDto, unknown>;
     useUpdateWorkflow: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").Workflow, Error, {

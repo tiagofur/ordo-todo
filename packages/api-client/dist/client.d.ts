@@ -182,6 +182,23 @@ export declare class OrdoApiClient {
      */
     deleteWorkspace(workspaceId: string): Promise<void>;
     /**
+     * Get all deleted workspaces (trash)
+     * GET /workspaces/deleted
+     */
+    getDeletedWorkspaces(): Promise<Workspace[]>;
+    /**
+     * Restore a deleted workspace
+     * POST /workspaces/:id/restore
+     */
+    restoreWorkspace(workspaceId: string): Promise<{
+        success: boolean;
+    }>;
+    /**
+     * Permanently delete a workspace
+     * DELETE /workspaces/:id/permanent
+     */
+    permanentDeleteWorkspace(workspaceId: string): Promise<void>;
+    /**
      * Add a member to a workspace
      * POST /workspaces/:id/members
      */
@@ -238,6 +255,11 @@ export declare class OrdoApiClient {
      * GET /projects/:username/:projectSlug
      */
     getProjectBySlug(username: string, projectSlug: string): Promise<Project>;
+    /**
+     * Get a project by workspace and project slugs
+     * GET /projects/by-slug/:workspaceSlug/:projectSlug
+     */
+    getProjectBySlugs(workspaceSlug: string, projectSlug: string): Promise<Project>;
     /**
      * Update a project
      * PUT /projects/:id

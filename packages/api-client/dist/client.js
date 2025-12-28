@@ -302,6 +302,29 @@ class OrdoApiClient {
         await this.axios.delete(`/workspaces/${workspaceId}`);
     }
     /**
+     * Get all deleted workspaces (trash)
+     * GET /workspaces/deleted
+     */
+    async getDeletedWorkspaces() {
+        const response = await this.axios.get('/workspaces/deleted');
+        return response.data;
+    }
+    /**
+     * Restore a deleted workspace
+     * POST /workspaces/:id/restore
+     */
+    async restoreWorkspace(workspaceId) {
+        const response = await this.axios.post(`/workspaces/${workspaceId}/restore`);
+        return response.data;
+    }
+    /**
+     * Permanently delete a workspace
+     * DELETE /workspaces/:id/permanent
+     */
+    async permanentDeleteWorkspace(workspaceId) {
+        await this.axios.delete(`/workspaces/${workspaceId}/permanent`);
+    }
+    /**
      * Add a member to a workspace
      * POST /workspaces/:id/members
      */
@@ -391,6 +414,14 @@ class OrdoApiClient {
      */
     async getProjectBySlug(username, projectSlug) {
         const response = await this.axios.get(`/projects/${username}/${projectSlug}`);
+        return response.data;
+    }
+    /**
+     * Get a project by workspace and project slugs
+     * GET /projects/by-slug/:workspaceSlug/:projectSlug
+     */
+    async getProjectBySlugs(workspaceSlug, projectSlug) {
+        const response = await this.axios.get(`/projects/by-slug/${workspaceSlug}/${projectSlug}`);
         return response.data;
     }
     /**

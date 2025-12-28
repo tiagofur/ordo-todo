@@ -49,6 +49,8 @@ export class PrismaTaskRepository implements TaskRepository {
         workspaceId: t.tag.workspaceId,
       })),
       estimatedTime: prismaTask.estimatedMinutes ?? undefined,
+      isDeleted: prismaTask.isDeleted,
+      deletedAt: prismaTask.deletedAt ?? undefined,
       createdAt: prismaTask.createdAt,
       updatedAt: prismaTask.updatedAt,
       recurrence: prismaTask.recurrence
@@ -353,5 +355,64 @@ export class PrismaTaskRepository implements TaskRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.task.delete({ where: { id } });
+  }
+
+  async softDelete(id: string): Promise<void> {
+    await this.prisma.task.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  async restore(id: string): Promise<void> {
+    await this.prisma.task.update({
+      where: { id },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+  }
+
+  async permanentDelete(id: string): Promise<void> {
+    await this.prisma.task.delete({ where: { id } });
+  }
+
+  async findDeleted(projectId: string): Promise<Task[]> {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        projectId,
+        isDeleted: true,
+      },
+      include: {
+        subTasks: true,
+        recurrence: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+    return tasks.map((t) => this.toDomain(t));
   }
 }

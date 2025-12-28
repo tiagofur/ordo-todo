@@ -5,6 +5,10 @@ import {
   UpdateProjectUseCase,
   ArchiveProjectUseCase,
   DeleteProjectUseCase,
+  SoftDeleteProjectUseCase,
+  RestoreProjectUseCase,
+  PermanentDeleteProjectUseCase,
+  GetDeletedProjectsUseCase,
 } from '@ordo-todo/core';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -31,6 +35,7 @@ export class ProjectsService {
       ...createProjectDto,
       slug,
       color: createProjectDto.color ?? '#6B7280',
+      isDeleted: false,
     });
     return project.props;
   }
@@ -106,10 +111,33 @@ export class ProjectsService {
   }
 
   async remove(id: string) {
-    const deleteProjectUseCase = new DeleteProjectUseCase(
+    const softDeleteProjectUseCase = new SoftDeleteProjectUseCase(
       this.projectRepository,
     );
-    await deleteProjectUseCase.execute(id);
+    await softDeleteProjectUseCase.execute(id);
+    return { success: true };
+  }
+
+  async getDeleted(workspaceId: string) {
+    const getDeletedProjectsUseCase = new GetDeletedProjectsUseCase(
+      this.projectRepository,
+    );
+    return getDeletedProjectsUseCase.execute(workspaceId);
+  }
+
+  async restore(id: string) {
+    const restoreProjectUseCase = new RestoreProjectUseCase(
+      this.projectRepository,
+    );
+    await restoreProjectUseCase.execute(id);
+    return { success: true };
+  }
+
+  async permanentDelete(id: string) {
+    const permanentDeleteProjectUseCase = new PermanentDeleteProjectUseCase(
+      this.projectRepository,
+    );
+    await permanentDeleteProjectUseCase.execute(id);
     return { success: true };
   }
 }

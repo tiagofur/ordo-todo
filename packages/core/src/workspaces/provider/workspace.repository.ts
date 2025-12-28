@@ -7,8 +7,10 @@ export interface WorkspaceRepository {
     findBySlug(slug: string): Promise<Workspace | null>;
     findByOwnerId(ownerId: string): Promise<Workspace[]>;
     findByUserId(userId: string): Promise<Workspace[]>;
+    findDeleted(userId: string): Promise<Workspace[]>;
     update(workspace: Workspace): Promise<Workspace>;
     delete(id: string): Promise<void>;
+    permanentDelete(id: string): Promise<void>;
 
     // Member management
     addMember(member: WorkspaceMember): Promise<WorkspaceMember>;

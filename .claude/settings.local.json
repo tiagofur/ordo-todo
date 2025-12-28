@@ -61,7 +61,12 @@
       "Bash(curl:*)",
       "Bash(move:*)",
       "Bash(grep:*)",
-      "Bash(done:*)"
+      "Bash(done:*)",
+      "Bash(npm run copy-locales:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(timeout:*)",
+      "Bash(npm run dev:*)",
+      "Bash(tasklist:*)"
     ],
     "deny": [],
     "ask": []

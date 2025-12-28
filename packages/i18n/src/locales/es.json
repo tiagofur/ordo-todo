@@ -1,5 +1,4 @@
 {
-
   "Calendar": {
     "title": "Calendario",
     "subtitle": "Visualiza y gestiona tus tareas en el tiempo",
@@ -18,6 +17,10 @@
     "calendar": "Calendario",
     "projects": "Proyectos",
     "workspaces": "Workspaces",
+    "workspacesTrash": "Papelera de Workspaces",
+    "projectsTrash": "Papelera de Proyectos",
+    "tasksTrash": "Papelera de Tareas",
+    "trash": "Papelera",
     "tags": "Etiquetas",
     "analytics": "Analíticas",
     "settings": "Configuración",
@@ -26,7 +29,7 @@
     "eisenhower": "Eisenhower",
     "meetings": "Reuniones",
     "wellbeing": "Bienestar",
-    "workload": "Carga de Trabajo"
+    "workload": "Carga de trabajo"
   },
   "Settings": {
     "title": "Configuración",
@@ -139,6 +142,56 @@
     "noWorkspacesDescription": "Crea tu primer workspace para comenzar a organizar tus proyectos y tareas",
     "createWorkspace": "Crear Workspace"
   },
+  "Trash": {
+    "title": "Papelera",
+    "subtitle": "Restaura o elimina permanentemente tus workspaces",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de peligro",
+    "warningDescription": "Los workspaces en la papelera serán eliminados permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
+    "noDeletedWorkspaces": "No hay workspaces eliminados",
+    "noDeletedWorkspacesDescription": "La papelera está vacía. Los workspaces que elimines aparecerán aquí.",
+    "deletedAt": "Eliminado",
+    "projects": "proyectos",
+    "tasks": "tareas",
+    "restore": "Restaurar",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este workspace permanentemente? Esta acción NO se puede deshacer."
+  },
+  "ProjectsTrash": {
+    "title": "Papelera de Proyectos",
+    "subtitle": "Restaura o elimina permanentemente tus proyectos",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de peligro",
+    "warningDescription": "Los proyectos en la papelera serán eliminados permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
+    "selectWorkspace": "Selecciona un Workspace",
+    "allWorkspaces": "Todos los Workspaces",
+    "viewingProjectsFor": "Viendo proyectos de",
+    "selectWorkspaceFirst": "Selecciona un workspace primero",
+    "selectWorkspaceFirstDescription": "Para ver los proyectos eliminados, primero selecciona un workspace del menú desplegable.",
+    "noDeletedProjects": "No hay proyectos eliminados",
+    "noDeletedProjectsDescription": "La papelera está vacía. Los proyectos que elimines aparecerán aquí.",
+    "deletedAt": "Eliminado",
+    "tasks": "tareas",
+    "restore": "Restaurar",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente este proyecto? Esta acción NO se puede deshacer."
+  },
+  "TasksTrash": {
+    "title": "Papelera de Tareas",
+    "subtitle": "Restaura o elimina permanentemente tus tareas",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de peligro",
+    "warningDescription": "Las tareas en la papelera serán eliminadas permanentemente después de 30 días. Si necesitas conservar alguna, restáurala ahora.",
+    "selectProject": "Selecciona un Proyecto",
+    "allProjects": "Todos los Proyectos",
+    "viewingTasksFor": "Viendo tareas de",
+    "selectProjectFirst": "Selecciona un proyecto primero",
+    "selectProjectFirstDescription": "Para ver las tareas eliminadas, primero selecciona un proyecto del menú desplegable.",
+    "noDeletedTasks": "No hay tareas eliminadas",
+    "noDeletedTasksDescription": "La papelera está vacía. Las tareas que elimines aparecerán aquí.",
+    "deletedAt": "Eliminado",
+    "restore": "Restaurar",
+    "permanentDelete": "Eliminar permanentemente",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente esta tarea? Esta acción NO se puede deshacer."
+  },
   "Tags": {
     "title": "Etiquetas",
     "subtitle": "Organiza y filtra tus tareas con etiquetas personalizadas.",
@@ -194,7 +247,15 @@
     },
     "daysOfWeek": {
       "short": ["D", "L", "M", "X", "J", "V", "S"],
-      "long": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+      "long": [
+        "Domingo",
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado"
+      ]
     },
     "actions": {
       "complete": "Completar",
@@ -1507,8 +1568,7 @@
     "loading": "Cargando tarea...",
     "completeTask": "Completar Tarea",
     "exit": "Salir del Modo Enfoque"
-  }
-,
+  },
   "ProjectFiles": {
     "empty": "No hay archivos en este proyecto.",
     "name": "Nombre",
@@ -1816,20 +1876,20 @@
     "cancel": "Cancelar",
     "create": "Crear Objetivo",
     "form": {
-        "title": "Título",
-        "titlePlaceholder": "ej. Aumentar ingresos en un 20%",
-        "description": "Descripción",
-        "descriptionPlaceholder": "Descripción opcional del objetivo",
-        "period": "Período",
-        "startDate": "Fecha de Inicio",
-        "endDate": "Fecha de Fin",
-        "color": "Color",
-        "icon": "Icono"
+      "title": "Título",
+      "titlePlaceholder": "ej. Aumentar ingresos en un 20%",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional del objetivo",
+      "period": "Período",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "color": "Color",
+      "icon": "Icono"
     },
     "periods": {
-        "QUARTERLY": "Trimestral",
-        "YEARLY": "Anual",
-        "CUSTOM": "Personalizado"
+      "QUARTERLY": "Trimestral",
+      "YEARLY": "Anual",
+      "CUSTOM": "Personalizado"
     },
     "status": {
       "DRAFT": "Borrador",
@@ -2257,4 +2317,3 @@
     }
   }
 }
-

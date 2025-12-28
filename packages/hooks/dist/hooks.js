@@ -161,6 +161,31 @@ function createHooks(config) {
             },
         });
     }
+    function useDeletedWorkspaces() {
+        return (0, react_query_1.useQuery)({
+            queryKey: query_keys_1.queryKeys.deletedWorkspaces,
+            queryFn: () => apiClient.getDeletedWorkspaces(),
+        });
+    }
+    function useRestoreWorkspace() {
+        const queryClient = (0, react_query_1.useQueryClient)();
+        return (0, react_query_1.useMutation)({
+            mutationFn: (workspaceId) => apiClient.restoreWorkspace(workspaceId),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.deletedWorkspaces });
+            },
+        });
+    }
+    function usePermanentDeleteWorkspace() {
+        const queryClient = (0, react_query_1.useQueryClient)();
+        return (0, react_query_1.useMutation)({
+            mutationFn: (workspaceId) => apiClient.permanentDeleteWorkspace(workspaceId),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.deletedWorkspaces });
+            },
+        });
+    }
     function useAddWorkspaceMember() {
         const queryClient = (0, react_query_1.useQueryClient)();
         return (0, react_query_1.useMutation)({
@@ -271,6 +296,35 @@ function createHooks(config) {
             enabled: !!workspaceId && !!apiClient.getWorkspaceAuditLogs,
         });
     }
+    function useCreateAuditLog() {
+        const queryClient = (0, react_query_1.useQueryClient)();
+        return (0, react_query_1.useMutation)({
+            mutationFn: ({ workspaceId, action, payload, }) => {
+                if (!apiClient.createAuditLog) {
+                    throw new Error('createAuditLog not implemented in API client');
+                }
+                return apiClient.createAuditLog(workspaceId, action, payload);
+            },
+            onSuccess: (_, { workspaceId }) => {
+                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaceAuditLogs(workspaceId) });
+            },
+        });
+    }
+    function useArchiveWorkspace() {
+        const queryClient = (0, react_query_1.useQueryClient)();
+        return (0, react_query_1.useMutation)({
+            mutationFn: (workspaceId) => {
+                if (!apiClient.archiveWorkspace) {
+                    throw new Error('archiveWorkspace not implemented in API client');
+                }
+                return apiClient.archiveWorkspace(workspaceId);
+            },
+            onSuccess: (_, workspaceId) => {
+                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspace(workspaceId) });
+            },
+        });
+    }
     // ============ WORKFLOW HOOKS ============
     function useWorkflows(workspaceId) {
         return (0, react_query_1.useQuery)({
@@ -325,6 +379,13 @@ function createHooks(config) {
             queryKey: query_keys_1.queryKeys.project(projectId),
             queryFn: () => apiClient.getProject(projectId),
             enabled: !!projectId,
+        });
+    }
+    function useProjectBySlugs(workspaceSlug, projectSlug) {
+        return (0, react_query_1.useQuery)({
+            queryKey: query_keys_1.queryKeys.projectBySlugs(workspaceSlug, projectSlug),
+            queryFn: () => apiClient.getProjectBySlugs(workspaceSlug, projectSlug),
+            enabled: !!workspaceSlug && !!projectSlug,
         });
     }
     function useCreateProject() {
@@ -1240,6 +1301,10 @@ function createHooks(config) {
         useCreateWorkspace,
         useUpdateWorkspace,
         useDeleteWorkspace,
+        useDeletedWorkspaces,
+        useRestoreWorkspace,
+        usePermanentDeleteWorkspace,
+        useArchiveWorkspace,
         useAddWorkspaceMember,
         useRemoveWorkspaceMember,
         useWorkspaceMembers,
@@ -1249,6 +1314,7 @@ function createHooks(config) {
         useWorkspaceSettings,
         useUpdateWorkspaceSettings,
         useWorkspaceAuditLogs,
+        useCreateAuditLog,
         // Workflow
         useWorkflows,
         useCreateWorkflow,

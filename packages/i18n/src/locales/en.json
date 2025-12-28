@@ -1,5 +1,4 @@
 {
-
   "Calendar": {
     "title": "Calendar",
     "subtitle": "View and manage your tasks over time",
@@ -18,6 +17,10 @@
     "calendar": "Calendar",
     "projects": "Projects",
     "workspaces": "Workspaces",
+    "workspacesTrash": "Workspaces Trash",
+    "projectsTrash": "Projects Trash",
+    "tasksTrash": "Tasks Trash",
+    "trash": "Trash",
     "tags": "Tags",
     "analytics": "Analytics",
     "goals": "Goals",
@@ -139,6 +142,56 @@
     "noWorkspacesDescription": "Create your first workspace to start organizing your projects and tasks",
     "createWorkspace": "Create Workspace"
   },
+  "Trash": {
+    "title": "Trash",
+    "subtitle": "Restore or permanently delete your workspaces",
+    "refresh": "Refresh",
+    "warningTitle": "Danger Zone",
+    "warningDescription": "Workspaces in trash will be permanently deleted after 30 days. If you need to keep any, restore them now.",
+    "noDeletedWorkspaces": "No deleted workspaces",
+    "noDeletedWorkspacesDescription": "Trash is empty. Workspaces you delete will appear here.",
+    "deletedAt": "Deleted",
+    "projects": "projects",
+    "tasks": "tasks",
+    "restore": "Restore",
+    "confirmDelete": "Are you sure you want to permanently delete this workspace? This action CANNOT be undone."
+  },
+  "ProjectsTrash": {
+    "title": "Projects Trash",
+    "subtitle": "Restore or permanently delete your projects",
+    "refresh": "Refresh",
+    "warningTitle": "Danger Zone",
+    "warningDescription": "Projects in trash will be permanently deleted after 30 days. If you need to keep any, restore them now.",
+    "selectWorkspace": "Select a Workspace",
+    "allWorkspaces": "All Workspaces",
+    "viewingProjectsFor": "Viewing projects for",
+    "selectWorkspaceFirst": "Select a workspace first",
+    "selectWorkspaceFirstDescription": "To view deleted projects, first select a workspace from the dropdown.",
+    "noDeletedProjects": "No deleted projects",
+    "noDeletedProjectsDescription": "Trash is empty. Projects you delete will appear here.",
+    "deletedAt": "Deleted",
+    "tasks": "tasks",
+    "restore": "Restore",
+    "confirmDelete": "Are you sure you want to permanently delete this project? This action CANNOT be undone."
+  },
+  "TasksTrash": {
+    "title": "Tasks Trash",
+    "subtitle": "Restore or permanently delete your tasks",
+    "refresh": "Refresh",
+    "warningTitle": "Danger Zone",
+    "warningDescription": "Tasks in trash will be permanently deleted after 30 days. If you need to keep any, restore them now.",
+    "selectProject": "Select a Project",
+    "allProjects": "All Projects",
+    "viewingTasksFor": "Viewing tasks for",
+    "selectProjectFirst": "Select a project first",
+    "selectProjectFirstDescription": "To view deleted tasks, first select a project from the dropdown.",
+    "noDeletedTasks": "No deleted tasks",
+    "noDeletedTasksDescription": "Trash is empty. Tasks you delete will appear here.",
+    "deletedAt": "Deleted",
+    "restore": "Restore",
+    "permanentDelete": "Permanently delete",
+    "confirmDelete": "Are you sure you want to permanently delete this task? This action CANNOT be undone."
+  },
   "Tags": {
     "title": "Tags",
     "subtitle": "Organize and filter your tasks with custom tags.",
@@ -194,7 +247,15 @@
     },
     "daysOfWeek": {
       "short": ["S", "M", "T", "W", "T", "F", "S"],
-      "long": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      "long": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ]
     },
     "actions": {
       "complete": "Complete",
@@ -1807,20 +1868,20 @@
     "cancel": "Cancel",
     "create": "Create Objective",
     "form": {
-        "title": "Title",
-        "titlePlaceholder": "e.g. Increase revenue by 20%",
-        "description": "Description",
-        "descriptionPlaceholder": "Optional description of the objective",
-        "period": "Period",
-        "startDate": "Start Date",
-        "endDate": "End Date",
-        "color": "Color",
-        "icon": "Icon"
+      "title": "Title",
+      "titlePlaceholder": "e.g. Increase revenue by 20%",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description of the objective",
+      "period": "Period",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "color": "Color",
+      "icon": "Icon"
     },
     "periods": {
-        "QUARTERLY": "Quarterly",
-        "YEARLY": "Yearly",
-        "CUSTOM": "Custom"
+      "QUARTERLY": "Quarterly",
+      "YEARLY": "Yearly",
+      "CUSTOM": "Custom"
     },
     "status": {
       "DRAFT": "Draft",
@@ -2218,4 +2279,3 @@
     }
   }
 }
-

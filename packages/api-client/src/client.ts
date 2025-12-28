@@ -499,6 +499,34 @@ export class OrdoApiClient {
   }
 
   /**
+   * Get all deleted workspaces (trash)
+   * GET /workspaces/deleted
+   */
+  async getDeletedWorkspaces(): Promise<Workspace[]> {
+    const response = await this.axios.get<Workspace[]>('/workspaces/deleted');
+    return response.data;
+  }
+
+  /**
+   * Restore a deleted workspace
+   * POST /workspaces/:id/restore
+   */
+  async restoreWorkspace(workspaceId: string): Promise<{ success: boolean }> {
+    const response = await this.axios.post<{ success: boolean }>(
+      `/workspaces/${workspaceId}/restore`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Permanently delete a workspace
+   * DELETE /workspaces/:id/permanent
+   */
+  async permanentDeleteWorkspace(workspaceId: string): Promise<void> {
+    await this.axios.delete(`/workspaces/${workspaceId}/permanent`);
+  }
+
+  /**
    * Add a member to a workspace
    * POST /workspaces/:id/members
    */
@@ -600,6 +628,15 @@ export class OrdoApiClient {
    */
   async getProjectBySlug(username: string, projectSlug: string): Promise<Project> {
     const response = await this.axios.get<Project>(`/projects/${username}/${projectSlug}`);
+    return response.data;
+  }
+
+  /**
+   * Get a project by workspace and project slugs
+   * GET /projects/by-slug/:workspaceSlug/:projectSlug
+   */
+  async getProjectBySlugs(workspaceSlug: string, projectSlug: string): Promise<Project> {
+    const response = await this.axios.get<Project>(`/projects/by-slug/${workspaceSlug}/${projectSlug}`);
     return response.data;
   }
 

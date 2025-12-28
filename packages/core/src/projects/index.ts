@@ -4,3 +4,7 @@ export * from "./usecase/create-project.usecase";
 export * from "./usecase/update-project.usecase";
 export * from "./usecase/archive-project.usecase";
 export * from "./usecase/delete-project.usecase";
+export * from "./usecase/soft-delete-project.usecase";
+export * from "./usecase/restore-project.usecase";
+export * from "./usecase/permanent-delete-project.usecase";
+export * from "./usecase/get-deleted-projects.usecase";

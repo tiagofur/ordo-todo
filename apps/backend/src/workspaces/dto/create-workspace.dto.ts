@@ -6,8 +6,8 @@ export class CreateWorkspaceDto {
   name: string;
 
   @IsString()
-  @MinLength(1)
-  slug: string;
+  @IsOptional()
+  slug?: string;
 
   @IsString()
   @IsOptional()

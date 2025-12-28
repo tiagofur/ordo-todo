@@ -1,5 +1,4 @@
 {
-
   "Calendar": {
     "title": "Calendário",
     "subtitle": "Visualize e gerencie suas tarefas ao longo do tempo",
@@ -18,6 +17,10 @@
     "calendar": "Calendário",
     "projects": "Projetos",
     "workspaces": "Espaços de Trabalho",
+    "workspacesTrash": "Lixeira de Workspaces",
+    "projectsTrash": "Lixeira de Projetos",
+    "tasksTrash": "Lixeira de Tarefas",
+    "trash": "Lixeira",
     "tags": "Tags",
     "analytics": "Análises",
     "settings": "Configurações",
@@ -139,11 +142,61 @@
     "noWorkspacesDescription": "Crie seu primeiro espaço de trabalho para começar a organizar seus projetos e tarefas",
     "createWorkspace": "Criar Espaço de Trabalho"
   },
+  "Trash": {
+    "title": "Lixeira",
+    "subtitle": "Restaure ou exclua permanentemente seus espaços de trabalho",
+    "refresh": "Atualizar",
+    "warningTitle": "Zona de Perigo",
+    "warningDescription": "Os espaços de trabalho na lixeira serão excluídos permanentemente após 30 dias. Se você precisar manter algum, restaure-o agora.",
+    "noDeletedWorkspaces": "Nenhum espaço de trabalho excluído",
+    "noDeletedWorkspacesDescription": "A lixeira está vazia. Os espaços de trabalho que você excluir aparecerão aqui.",
+    "deletedAt": "Excluído",
+    "projects": "projetos",
+    "tasks": "tarefas",
+    "restore": "Restaurar",
+    "confirmDelete": "Tem certeza de que deseja excluir permanentemente este espaço de trabalho? Esta ação NÃO pode ser desfeita."
+  },
+  "ProjectsTrash": {
+    "title": "Lixeira de Projetos",
+    "subtitle": "Restaure ou exclua permanentemente seus projetos",
+    "refresh": "Atualizar",
+    "warningTitle": "Zona de Perigo",
+    "warningDescription": "Os projetos na lixeira serão excluídos permanentemente após 30 dias. Se você precisar manter algum, restaure-o agora.",
+    "selectWorkspace": "Selecione um Workspace",
+    "allWorkspaces": "Todos os Workspaces",
+    "viewingProjectsFor": "Visualizando projetos de",
+    "selectWorkspaceFirst": "Selecione um workspace primeiro",
+    "selectWorkspaceFirstDescription": "Para visualizar os projetos excluídos, primeiro selecione um workspace do menu suspenso.",
+    "noDeletedProjects": "Nenhum projeto excluído",
+    "noDeletedProjectsDescription": "A lixeira está vazia. Os projetos que você excluir aparecerão aqui.",
+    "deletedAt": "Excluído",
+    "tasks": "tarefas",
+    "restore": "Restaurar",
+    "confirmDelete": "Tem certeza de que deseja excluir permanentemente este projeto? Esta ação NÃO pode ser desfeita."
+  },
+  "TasksTrash": {
+    "title": "Lixeira de Tarefas",
+    "subtitle": "Restaure ou exclua permanentemente suas tarefas",
+    "refresh": "Atualizar",
+    "warningTitle": "Zona de Perigo",
+    "warningDescription": "As tarefas na lixeira serão excluídas permanentemente após 30 dias. Se você precisar manter alguma, restaure-a agora.",
+    "selectProject": "Selecione um Projeto",
+    "allProjects": "Todos os Projetos",
+    "viewingTasksFor": "Visualizando tarefas de",
+    "selectProjectFirst": "Selecione um projeto primeiro",
+    "selectProjectFirstDescription": "Para visualizar as tarefas excluídas, primeiro selecione um projeto do menu suspenso.",
+    "noDeletedTasks": "Nenhuma tarefa excluída",
+    "noDeletedTasksDescription": "A lixeira está vazia. As tarefas que você excluir aparecerão aqui.",
+    "deletedAt": "Excluído",
+    "restore": "Restaurar",
+    "permanentDelete": "Excluir permanentemente",
+    "confirmDelete": "Tem certeza de que deseja excluir permanentemente esta tarefa? Esta ação NÃO pode ser desfeita."
+  },
   "Tags": {
     "title": "Tags",
     "subtitle": "Organize e filtre suas tarefas com tags personalizadas.",
     "newTag": "Nova Tag",
-    "confirmDelete": "Tem certeza que deseja excluir esta tag?",
+    "confirmDelete": "Tem certeza de que deseja excluir esta tag?",
     "tagDeleted": "Tag excluída",
     "deleteError": "Erro ao excluir tag",
     "edit": "Editar",
@@ -194,7 +247,15 @@
     },
     "daysOfWeek": {
       "short": ["D", "S", "T", "Q", "Q", "S", "S"],
-      "long": ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
+      "long": [
+        "Domingo",
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado"
+      ]
     },
     "actions": {
       "complete": "Concluir",
@@ -1808,20 +1869,20 @@
     "cancel": "Cancelar",
     "create": "Criar Objetivo",
     "form": {
-        "title": "Título",
-        "titlePlaceholder": "ex. Aumentar receita em 20%",
-        "description": "Descrição",
-        "descriptionPlaceholder": "Descrição opcional do objetivo",
-        "period": "Período",
-        "startDate": "Data de Início",
-        "endDate": "Data de Término",
-        "color": "Cor",
-        "icon": "Ícone"
+      "title": "Título",
+      "titlePlaceholder": "ex. Aumentar receita em 20%",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descrição opcional do objetivo",
+      "period": "Período",
+      "startDate": "Data de Início",
+      "endDate": "Data de Término",
+      "color": "Cor",
+      "icon": "Ícone"
     },
     "periods": {
-        "QUARTERLY": "Trimestral",
-        "YEARLY": "Anual",
-        "CUSTOM": "Personalizado"
+      "QUARTERLY": "Trimestral",
+      "YEARLY": "Anual",
+      "CUSTOM": "Personalizado"
     },
     "status": {
       "DRAFT": "Rascunho",
@@ -2219,4 +2280,3 @@
     }
   }
 }
-
