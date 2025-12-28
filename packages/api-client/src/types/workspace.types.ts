@@ -50,7 +50,7 @@ export interface WorkspaceWithMembers extends Workspace {
 
 export interface CreateWorkspaceDto {
   name: string;
-  slug: string;
+  slug?: string;
   description?: string;
   type: WorkspaceType;
   color?: string;
