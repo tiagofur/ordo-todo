@@ -127,7 +127,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
-        props: { username: 'testuser', name: 'Test User', email: 'test@example.com' },
+        props: {
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
       });
 
       const mockWorkspace = {
@@ -174,7 +178,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
-        props: { username: 'testuser', name: 'Test User', email: 'test@example.com' },
+        props: {
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
       });
 
       const mockWorkspace = {
@@ -214,7 +222,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
-        props: { username: 'testuser', name: 'Test User', email: 'test@example.com' },
+        props: {
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
       });
 
       const mockWorkspace = {
@@ -251,7 +263,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
-        props: { username: 'testuser', name: 'Test User', email: 'test@example.com' },
+        props: {
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
       });
 
       const mockWorkspace = {
@@ -287,7 +303,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
-        props: { username: 'testuser', name: 'Test User', email: 'test@example.com' },
+        props: {
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
       });
 
       // Mock that an existing workspace with this slug already exists for this user
@@ -298,8 +318,8 @@ describe('WorkspacesService', () => {
         ownerId: userId,
       });
 
-      // The workspaceRepository.create should NOT be called, but the use case 
-      // checks uniqueness via the repository, so we need to mock the repository 
+      // The workspaceRepository.create should NOT be called, but the use case
+      // checks uniqueness via the repository, so we need to mock the repository
       // to reject if a workspace with the same slug exists for the same user
       mockWorkspaceRepository.create.mockRejectedValue(
         new ForbiddenException('You already have a workspace with this slug'),
@@ -324,7 +344,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
-        props: { username: 'testuser', name: 'Test User', email: 'test@example.com' },
+        props: {
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
       });
 
       const mockWorkspace = {
@@ -362,7 +386,11 @@ describe('WorkspacesService', () => {
       // Mock user lookup for user2
       mockUserRepository.findById.mockResolvedValue({
         id: userId2,
-        props: { username: 'testuser2', name: 'Test User 2', email: 'test2@example.com' },
+        props: {
+          username: 'testuser2',
+          name: 'Test User 2',
+          email: 'test2@example.com',
+        },
       });
 
       const mockWorkspace = {

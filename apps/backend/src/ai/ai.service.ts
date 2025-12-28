@@ -4,7 +4,6 @@ import type {
   ProductivityReportRepository,
   AnalyticsRepository,
   TimerRepository,
-  TaskRepository,
 } from '@ordo-todo/core';
 import {
   GetOptimalScheduleUseCase,
@@ -14,6 +13,7 @@ import {
 import { GeminiAIService } from './gemini-ai.service';
 import type { ChatMessageDto } from './dto/ai-chat.dto';
 import { PrismaService } from '../database/prisma.service';
+import type { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AIService {
@@ -77,11 +77,13 @@ export class AIService {
               orderBy: { createdAt: 'asc' },
             });
 
-            if (defaultProject) {
+            if (defaultProject && action.data) {
               const task = await this.prisma.task.create({
                 data: {
-                  title: action.data.title,
-                  description: action.data.description,
+                  title: String(action.data.title || ''),
+                  description: action.data.description
+                    ? String(action.data.description)
+                    : undefined,
                   priority: action.data.priority || 'MEDIUM',
                   dueDate: action.data.dueDate
                     ? new Date(action.data.dueDate)
@@ -236,7 +238,7 @@ export class AIService {
       if (geminiPrediction.confidence !== 'LOW') {
         return {
           estimatedMinutes: geminiPrediction.estimatedMinutes,
-          confidence: geminiPrediction.confidence as any,
+          confidence: geminiPrediction.confidence as 'LOW' | 'MEDIUM' | 'HIGH',
           reasoning: `🤖 ${geminiPrediction.reasoning}`,
           source: 'AI',
         };
@@ -337,7 +339,7 @@ export class AIService {
         recommendations: report.recommendations,
         patterns: report.patterns,
         productivityScore: report.productivityScore,
-        metricsSnapshot: metricsSnapshot as any,
+        metricsSnapshot: metricsSnapshot as Prisma.JsonValue,
         aiModel: 'gemini-1.5-pro',
       },
     });
@@ -417,7 +419,7 @@ export class AIService {
         recommendations: report.recommendations,
         patterns: report.patterns,
         productivityScore: report.productivityScore,
-        metricsSnapshot: metricsSnapshot as any,
+        metricsSnapshot: metricsSnapshot as Prisma.JsonValue,
         aiModel: 'gemini-2.0-flash-exp',
       },
     });
@@ -429,7 +431,13 @@ export class AIService {
     };
   }
 
-  private calculateEstimateAccuracy(tasks: any[]): number {
+  private calculateEstimateAccuracy(
+    tasks: {
+      estimatedMinutes: number | null;
+      actualMinutes: number | null;
+      status: string;
+    }[],
+  ): number {
     const tasksWithEstimates = tasks.filter(
       (t) => t.estimatedMinutes && t.actualMinutes && t.status === 'COMPLETED',
     );
@@ -437,7 +445,7 @@ export class AIService {
     if (tasksWithEstimates.length === 0) return 0;
 
     const totalAccuracy = tasksWithEstimates.reduce((sum, t) => {
-      const ratio = t.actualMinutes / t.estimatedMinutes;
+      const ratio = (t.actualMinutes || 0) / (t.estimatedMinutes || 1);
       const accuracy = ratio > 1 ? 1 / ratio : ratio;
       return sum + accuracy;
     }, 0);
@@ -453,8 +461,15 @@ export class AIService {
       offset?: number;
     },
   ) {
+    type ReportScope =
+      | 'TASK_COMPLETION'
+      | 'PROJECT_SUMMARY'
+      | 'PERSONAL_ANALYSIS'
+      | 'WEEKLY_SCHEDULED'
+      | 'MONTHLY_SCHEDULED';
+
     const reports = await this.reportRepository.findByUserId(userId, {
-      scope: options?.scope as any,
+      scope: options?.scope as ReportScope | undefined,
       limit: options?.limit ?? 10,
       offset: options?.offset ?? 0,
     });

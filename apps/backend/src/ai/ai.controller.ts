@@ -128,10 +128,7 @@ export class AIController {
    * Decompose a complex task into manageable subtasks using AI
    */
   @Post('decompose-task')
-  async decomposeTask(
-    @Body() dto: AIDecomposeTaskDto,
-    @CurrentUser() user: RequestUser,
-  ) {
+  async decomposeTask(@Body() dto: AIDecomposeTaskDto) {
     return this.aiService.decomposeTask(
       dto.taskTitle,
       dto.taskDescription,
