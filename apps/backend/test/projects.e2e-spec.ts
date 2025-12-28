@@ -4,13 +4,12 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/database/prisma.service';
 
-describe('Tasks API (e2e)', () => {
+describe('Projects API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let authToken: string;
   let userId: string;
   let workspaceId: string;
-  let projectId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -27,9 +26,9 @@ describe('Tasks API (e2e)', () => {
     const registerResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `test-${Date.now()}@example.com`,
+        email: `test-projects-${Date.now()}@example.com`,
         password: 'Test123!@#',
-        name: 'Test User',
+        name: 'Test User Projects',
       });
 
     authToken = registerResponse.body.accessToken;
@@ -40,22 +39,11 @@ describe('Tasks API (e2e)', () => {
       .post('/workspaces')
       .set('Authorization', `Bearer ${authToken}`)
       .send({
-        name: 'Test Workspace',
+        name: 'Test Workspace for Projects',
         type: 'PERSONAL',
       });
 
     workspaceId = workspaceResponse.body.id;
-
-    // Create test project
-    const projectResponse = await request(app.getHttpServer())
-      .post('/projects')
-      .set('Authorization', `Bearer ${authToken}`)
-      .send({
-        name: 'Test Project',
-        workspaceId,
-      });
-
-    projectId = projectResponse.body.id;
   });
 
   afterAll(async () => {
@@ -76,297 +64,321 @@ describe('Tasks API (e2e)', () => {
     await app.close();
   });
 
-  describe('POST /tasks', () => {
-    it('should create a new task', () => {
+  describe('POST /projects', () => {
+    it('should create a new project', () => {
       return request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Test Task',
+          name: 'Test Project 1',
           description: 'Test Description',
-          projectId,
-          priority: 'MEDIUM',
-          status: 'TODO',
+          workspaceId,
         })
         .expect(201)
         .expect((res) => {
           expect(res.body).toHaveProperty('id');
-          expect(res.body.title).toBe('Test Task');
-          expect(res.body.priority).toBe('MEDIUM');
+          expect(res.body.name).toBe('Test Project 1');
+          expect(res.body.workspaceId).toBe(workspaceId);
         });
     });
 
     it('should fail without authentication', () => {
       return request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .send({
-          title: 'Test Task',
-          projectId,
+          name: 'Test Project',
+          workspaceId,
         })
         .expect(401);
     });
 
     it('should fail with invalid data', () => {
       return request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          // Missing required title
-          projectId,
+          // Missing required name
+          workspaceId,
         })
         .expect(400);
     });
   });
 
-  describe('GET /tasks', () => {
-    let taskId: string;
+  describe('GET /projects', () => {
+    let projectId: string;
 
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for GET test',
-          projectId,
+          name: 'Project for GET test',
+          workspaceId,
         });
-      taskId = response.body.id;
+      projectId = response.body.id;
     });
 
-    it('should return all tasks for the user', () => {
+    it('should return all projects for a workspace', () => {
       return request(app.getHttpServer())
-        .get('/tasks')
+        .get(`/projects?workspaceId=${workspaceId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res) => {
           expect(Array.isArray(res.body)).toBe(true);
           expect(res.body.length).toBeGreaterThan(0);
+          res.body.forEach((project: { workspaceId: string }) => {
+            expect(project.workspaceId).toBe(workspaceId);
+          });
         });
     });
 
-    it('should filter tasks by projectId', () => {
+    it('should require workspaceId parameter', () => {
       return request(app.getHttpServer())
-        .get(`/tasks?projectId=${projectId}`)
+        .get('/projects')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(403);
+    });
+  });
+
+  describe('GET /projects/all', () => {
+    it('should return all projects for current user', () => {
+      return request(app.getHttpServer())
+        .get('/projects/all')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res) => {
           expect(Array.isArray(res.body)).toBe(true);
-          res.body.forEach((task: any) => {
-            expect(task.projectId).toBe(projectId);
-          });
         });
     });
   });
 
-  describe('GET /tasks/:id', () => {
-    let taskId: string;
+  describe('GET /projects/:id', () => {
+    let projectId: string;
 
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for GET by ID test',
-          projectId,
+          name: 'Project for GET by ID test',
+          workspaceId,
         });
-      taskId = response.body.id;
+      projectId = response.body.id;
     });
 
-    it('should return a specific task', () => {
+    it('should return a specific project', () => {
       return request(app.getHttpServer())
-        .get(`/tasks/${taskId}`)
+        .get(`/projects/${projectId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.id).toBe(taskId);
-          expect(res.body.title).toBe('Task for GET by ID test');
+          expect(res.body.id).toBe(projectId);
+          expect(res.body.name).toBe('Project for GET by ID test');
         });
     });
 
-    it('should return 404 for non-existent task', () => {
+    it('should return 404 for non-existent project', () => {
       return request(app.getHttpServer())
-        .get('/tasks/non-existent-id')
+        .get('/projects/non-existent-id')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(404);
     });
   });
 
-  describe('PUT /tasks/:id', () => {
-    let taskId: string;
+  describe('PUT /projects/:id', () => {
+    let projectId: string;
 
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for UPDATE test',
-          projectId,
+          name: 'Project for UPDATE test',
+          workspaceId,
         });
-      taskId = response.body.id;
+      projectId = response.body.id;
     });
 
-    it('should update a task', () => {
+    it('should update a project', () => {
       return request(app.getHttpServer())
-        .put(`/tasks/${taskId}`)
+        .put(`/projects/${projectId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Updated Task Title',
-          priority: 'HIGH',
+          name: 'Updated Project Name',
+          description: 'Updated description',
         })
         .expect(200)
         .expect((res) => {
-          expect(res.body.title).toBe('Updated Task Title');
-          expect(res.body.priority).toBe('HIGH');
+          expect(res.body.name).toBe('Updated Project Name');
+          expect(res.body.description).toBe('Updated description');
         });
     });
   });
 
-  describe('PATCH /tasks/:id/complete', () => {
-    let taskId: string;
+  describe('PATCH /projects/:id/archive', () => {
+    let projectId: string;
 
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for COMPLETE test',
-          projectId,
+          name: 'Project for ARCHIVE test',
+          workspaceId,
         });
-      taskId = response.body.id;
+      projectId = response.body.id;
     });
 
-    it('should mark a task as completed', () => {
+    it('should archive a project', () => {
       return request(app.getHttpServer())
-        .patch(`/tasks/${taskId}/complete`)
+        .patch(`/projects/${projectId}/archive`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.isArchived).toBe(true);
+        });
+    });
+
+    it('should unarchive a project', () => {
+      return request(app.getHttpServer())
+        .patch(`/projects/${projectId}/archive`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.isArchived).toBe(false);
+        });
+    });
+  });
+
+  describe('PATCH /projects/:id/complete', () => {
+    let projectId: string;
+
+    beforeAll(async () => {
+      const response = await request(app.getHttpServer())
+        .post('/projects')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          name: 'Project for COMPLETE test',
+          workspaceId,
+        });
+      projectId = response.body.id;
+    });
+
+    it('should mark a project as completed', () => {
+      return request(app.getHttpServer())
+        .patch(`/projects/${projectId}/complete`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200)
         .expect((res) => {
           expect(res.body.status).toBe('COMPLETED');
+          expect(res.body.completedAt).toBeTruthy();
         });
-    });
-  });
-
-  describe('DELETE /tasks/:id', () => {
-    let taskId: string;
-
-    beforeAll(async () => {
-      const response = await request(app.getHttpServer())
-        .post('/tasks')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send({
-          title: 'Task for DELETE test',
-          projectId,
-        });
-      taskId = response.body.id;
-    });
-
-    it('should soft delete a task', () => {
-      return request(app.getHttpServer())
-        .delete(`/tasks/${taskId}`)
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(204);
     });
   });
 
   describe('Trash Functionality', () => {
-    let taskIdForTrash: string;
-    let taskIdForRestore: string;
-    let taskIdForPermanentDelete: string;
+    let projectIdForTrash: string;
+    let projectIdForRestore: string;
+    let projectIdForPermanentDelete: string;
 
     beforeAll(async () => {
-      // Create tasks for trash tests
+      // Create projects for trash tests
       const response1 = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for Trash Test 1',
-          projectId,
+          name: 'Project for Trash Test 1',
+          workspaceId,
         });
-      taskIdForTrash = response1.body.id;
+      projectIdForTrash = response1.body.id;
 
       const response2 = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for Restore Test',
-          projectId,
+          name: 'Project for Restore Test',
+          workspaceId,
         });
-      taskIdForRestore = response2.body.id;
+      projectIdForRestore = response2.body.id;
 
       const response3 = await request(app.getHttpServer())
-        .post('/tasks')
+        .post('/projects')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          title: 'Task for Permanent Delete Test',
-          projectId,
+          name: 'Project for Permanent Delete Test',
+          workspaceId,
         });
-      taskIdForPermanentDelete = response3.body.id;
+      projectIdForPermanentDelete = response3.body.id;
     });
 
-    describe('GET /tasks/deleted', () => {
-      it('should return deleted tasks for a project', async () => {
-        // First delete a task
-        await request(app.getHttpServer())
-          .delete(`/tasks/${taskIdForTrash}`)
+    describe('DELETE /projects/:id', () => {
+      it('should soft delete a project', () => {
+        return request(app.getHttpServer())
+          .delete(`/projects/${projectIdForTrash}`)
           .set('Authorization', `Bearer ${authToken}`)
           .expect(204);
+      });
+    });
 
-        // Then get deleted tasks
+    describe('GET /projects/deleted', () => {
+      it('should return deleted projects for a workspace', async () => {
+        // Get deleted projects
         return request(app.getHttpServer())
-          .get(`/tasks/deleted?projectId=${projectId}`)
+          .get(`/projects/deleted?workspaceId=${workspaceId}`)
           .set('Authorization', `Bearer ${authToken}`)
           .expect(200)
           .expect((res) => {
             expect(Array.isArray(res.body)).toBe(true);
             expect(res.body.length).toBeGreaterThan(0);
-            const deletedTask = res.body.find(
-              (task: { id: string }) => task.id === taskIdForTrash,
+            const deletedProject = res.body.find(
+              (project: { id: string }) => project.id === projectIdForTrash,
             );
-            expect(deletedTask).toBeDefined();
+            expect(deletedProject).toBeDefined();
           });
       });
     });
 
-    describe('POST /tasks/:id/restore', () => {
+    describe('POST /projects/:id/restore', () => {
       beforeAll(async () => {
-        // Delete task first
+        // Delete project first
         await request(app.getHttpServer())
-          .delete(`/tasks/${taskIdForRestore}`)
+          .delete(`/projects/${projectIdForRestore}`)
           .set('Authorization', `Bearer ${authToken}`)
           .expect(204);
       });
 
-      it('should restore a deleted task', () => {
+      it('should restore a deleted project', () => {
         return request(app.getHttpServer())
-          .post(`/tasks/${taskIdForRestore}/restore`)
+          .post(`/projects/${projectIdForRestore}/restore`)
           .set('Authorization', `Bearer ${authToken}`)
           .expect(200)
           .expect((res) => {
-            expect(res.body.id).toBe(taskIdForRestore);
+            expect(res.body.id).toBe(projectIdForRestore);
             expect(res.body.deletedAt).toBeNull();
           });
       });
     });
 
-    describe('DELETE /tasks/:id/permanent', () => {
+    describe('DELETE /projects/:id/permanent', () => {
       beforeAll(async () => {
-        // Delete task first (soft delete)
+        // Delete project first (soft delete)
         await request(app.getHttpServer())
-          .delete(`/tasks/${taskIdForPermanentDelete}`)
+          .delete(`/projects/${projectIdForPermanentDelete}`)
           .set('Authorization', `Bearer ${authToken}`)
           .expect(204);
       });
 
-      it('should permanently delete a task', async () => {
+      it('should permanently delete a project', async () => {
         await request(app.getHttpServer())
-          .delete(`/tasks/${taskIdForPermanentDelete}/permanent`)
+          .delete(`/projects/${projectIdForPermanentDelete}/permanent`)
           .set('Authorization', `Bearer ${authToken}`)
           .expect(204);
 
-        // Verify task is permanently deleted
-        const task = await prisma.task.findUnique({
-          where: { id: taskIdForPermanentDelete },
+        // Verify project is permanently deleted
+        const project = await prisma.project.findUnique({
+          where: { id: projectIdForPermanentDelete },
         });
-        expect(task).toBeNull();
+        expect(project).toBeNull();
       });
     });
   });
