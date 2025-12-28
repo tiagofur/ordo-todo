@@ -198,18 +198,45 @@ jobs:
           envs: IMAGE_TAG,GITHUB_USER,GITHUB_TOKEN
           script: |
             set -euo pipefail
-            
+
             cd /opt/ordo-todo
-            
+
             echo "[$(date)] 🚀 Starting deployment..."
-            
+
             # Export variables for docker-compose
             export IMAGE_TAG=$IMAGE_TAG
             export GITHUB_USER=$GITHUB_USER
             export GITHUB_TOKEN=$GITHUB_TOKEN
-            
-            # Login to GitHub Container Registry
-            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+
+            # Configure Docker to use smaller timeout and retries
+            echo "[$(date)] 🔧 Configuring Docker..."
+            sudo mkdir -p /etc/docker
+            echo '{
+              "max-concurrent-downloads": 3,
+              "max-download-attempts": 5,
+              "dns": ["8.8.8.8", "8.8.4.4", "1.1.1.1"]
+            }' | sudo tee /etc/docker/daemon.json
+            sudo systemctl restart docker
+            sleep 3
+
+            # Login to GitHub Container Registry with retry
+            echo "[$(date)] 🔐 Logging into GitHub Container Registry..."
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin 2>&1; then
+                echo "✅ Login successful!"
+                break
+              fi
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "⚠️ Login failed, retrying in 10 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
+                sleep 10
+              else
+                echo "❌ Login failed after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            done
             
             # Stop existing containers to release ports
             echo "[$(date)] 🛑 Stopping existing containers..."
@@ -225,11 +252,26 @@ jobs:
             sudo fuser -k 3000/tcp || true
             sudo fuser -k 3001/tcp || true
             sleep 2
-            
-            # Pull new images
+
+            # Pull new images with retry
             echo "[$(date)] 📦 Pulling new images..."
-            docker compose pull
-            
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if docker compose pull 2>&1; then
+                echo "✅ Pull successful!"
+                break
+              fi
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "⚠️ Pull failed, retrying in 10 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
+                sleep 10
+              else
+                echo "❌ Pull failed after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            done
+
             # Run database migrations
             echo "[$(date)] 🗄️ Running database migrations..."
             docker compose up -d postgres
