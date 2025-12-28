@@ -2021,11 +2021,7 @@ interface RecurrenceProps {
 }
 declare class Task extends Entity<TaskProps> {
     constructor(props: TaskProps);
-<<<<<<< HEAD
     static create(props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status" | "isDeleted" | "deletedAt">): Task;
-=======
-    static create(props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status" | "isDeleted">): Task;
->>>>>>> 369e5be5e7078c39eb391ce85b27fb8aefcb732e
     complete(): Task;
     updateStatus(status: TaskStatus): Task;
     update(props: Partial<Omit<TaskProps, "id" | "ownerId" | "createdAt">>): Task;

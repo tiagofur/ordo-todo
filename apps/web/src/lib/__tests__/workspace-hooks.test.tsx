@@ -24,6 +24,7 @@ import type {
   WorkspaceInvitation,
   WorkspaceSettings,
   WorkspaceAuditLog,
+  WorkspaceAuditLogsResponse,
   CreateWorkspaceDto,
   UpdateWorkspaceDto,
 } from '@ordo-todo/api-client';
@@ -64,7 +65,7 @@ class MockOrdoApiClient implements Partial<OrdoApiClient> {
   public updateWorkspaceSettings: (id: string, data: Record<string, unknown>) => Promise<WorkspaceSettings> = vi.fn();
 
   // Audit logs properties
-  public getWorkspaceAuditLogs: (id: string, params?: { limit?: number; offset?: number }) => Promise<WorkspaceAuditLog[]> = vi.fn();
+  public getWorkspaceAuditLogs: (id: string, params?: { limit?: number; offset?: number }) => Promise<WorkspaceAuditLogsResponse> = vi.fn();
 }
 
 // Mock data factories
@@ -402,14 +403,17 @@ describe('Workspace Hooks', () => {
 
   describe('useWorkspaceAuditLogs', () => {
     it('should fetch audit logs', async () => {
-      const mockLogs = [
-        {
-          id: 'log-1',
-          workspaceId: 'workspace-123',
-          action: 'workspace.created',
-          createdAt: new Date('2024-01-01'),
-        },
-      ];
+      const mockLogs: WorkspaceAuditLogsResponse = {
+        logs: [
+          {
+            id: 'log-1',
+            workspaceId: 'workspace-123',
+            action: 'workspace.created',
+            createdAt: new Date('2024-01-01'),
+          },
+        ],
+        total: 1,
+      };
 
       vi.mocked(mockClient.getWorkspaceAuditLogs).mockResolvedValue(mockLogs);
 
@@ -425,7 +429,7 @@ describe('Workspace Hooks', () => {
     });
 
     it('should fetch audit logs with params', async () => {
-      const mockLogs = [];
+      const mockLogs: WorkspaceAuditLogsResponse = { logs: [], total: 0 };
       vi.mocked(mockClient.getWorkspaceAuditLogs).mockResolvedValue(mockLogs);
 
       const { result } = renderHook(
