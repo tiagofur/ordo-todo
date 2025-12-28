@@ -1,2318 +1,2319 @@
 {
-    "Calendar": {
-        "title": "Calendario",
-        "subtitle": "Visualiza y gestiona tus tareas en el tiempo",
-        "today": "Hoy",
-        "month": "Mes",
-        "week": "Semana",
-        "day": "Día",
-        "agenda": "Agenda",
-        "previous": "Anterior",
-        "next": "Siguiente"
+  "Calendar": {
+    "title": "Calendario",
+    "subtitle": "Visualiza y gestiona tus tareas en el tiempo",
+    "today": "Hoy",
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "agenda": "Agenda",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "Sidebar": {
+    "today": "Hoy",
+    "tasks": "Tareas",
+    "habits": "Hábitos",
+    "calendar": "Calendario",
+    "projects": "Proyectos",
+    "workspaces": "Workspaces",
+    "workspacesTrash": "Papelera de Workspaces",
+    "projectsTrash": "Papelera de Proyectos",
+    "tasksTrash": "Papelera de Tareas",
+    "trash": "Papelera",
+    "tags": "Etiquetas",
+    "analytics": "Analíticas",
+    "settings": "Configuración",
+    "installApp": "Instalar App",
+    "goals": "Objetivos",
+    "eisenhower": "Eisenhower",
+    "meetings": "Reuniones",
+    "wellbeing": "Bienestar",
+    "workload": "Carga de trabajo"
+  },
+  "Settings": {
+    "title": "Configuración",
+    "subtitle": "Personaliza la apariencia y comportamiento de Ordo",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "selectTheme": "Selecciona el tema de la interfaz",
+    "themes": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
     },
-    "Sidebar": {
-        "today": "Hoy",
-        "tasks": "Tareas",
-        "habits": "Hábitos",
-        "calendar": "Calendario",
-        "projects": "Proyectos",
-        "workspaces": "Workspaces",
-        "workspacesTrash": "Papelera de Workspaces",
-        "projectsTrash": "Papelera de Proyectos",
-        "tasksTrash": "Papelera de Tareas",
-        "trash": "Papelera",
-        "tags": "Etiquetas",
-        "analytics": "Analíticas",
-        "settings": "Configuración",
-        "installApp": "Instalar App",
-        "goals": "Objetivos",
-        "eisenhower": "Eisenhower",
-        "meetings": "Reuniones",
-        "wellbeing": "Bienestar",
-        "workload": "Carga de trabajo"
+    "language": "Idioma",
+    "selectLanguage": "Idioma de la aplicación",
+    "languageDescription": "Selecciona el idioma de la interfaz",
+    "timer": "Temporizador",
+    "defaultMode": "Modo Principal",
+    "defaultModeDescription": "Elige cómo prefieres gestionar tu tiempo por defecto",
+    "focusDuration": "Enfoque (min)",
+    "shortBreakDuration": "Descanso corto (min)",
+    "longBreakDuration": "Descanso largo (min)",
+    "longBreakInterval": "Intervalo de descanso largo",
+    "longBreakIntervalDescription": "Cantidad de pomodoros antes de un descanso largo",
+    "autoStartBreaks": "Auto-iniciar descansos",
+    "autoStartBreaksDescription": "Iniciar el temporizador de descanso automáticamente",
+    "autoStartPomodoros": "Auto-iniciar pomodoros",
+    "autoStartPomodorosDescription": "Iniciar el siguiente pomodoro automáticamente",
+    "notificationsAndSound": "Notificaciones y Sonido",
+    "notificationsDescription": "Configura las alertas cuando se complete una sesión",
+    "soundEffects": "Efectos de sonido",
+    "soundEffectsDescription": "Reproducir un sonido al completar una sesión",
+    "browserNotifications": "Notificaciones del navegador",
+    "browserNotificationsDescription": "Mostrar notificaciones incluso con el navegador minimizado",
+    "keyboardShortcuts": "Atajos de Teclado",
+    "keyboardShortcutsDescription": "Atajos globales de la aplicación",
+    "shortcuts": {
+      "startPause": "Iniciar/Pausar timer",
+      "newTask": "Nueva tarea",
+      "search": "Buscar",
+      "settings": "Configuración",
+      "toggleSidebar": "Mostrar/Ocultar sidebar"
     },
-    "Settings": {
-        "title": "Configuración",
-        "subtitle": "Personaliza la apariencia y comportamiento de Ordo",
-        "appearance": "Apariencia",
-        "theme": "Tema",
-        "selectTheme": "Selecciona el tema de la interfaz",
-        "themes": {
-            "light": "Claro",
-            "dark": "Oscuro",
-            "system": "Sistema"
-        },
-        "language": "Idioma",
-        "selectLanguage": "Idioma de la aplicación",
-        "languageDescription": "Selecciona el idioma de la interfaz",
-        "timer": "Temporizador",
-        "defaultMode": "Modo Principal",
-        "defaultModeDescription": "Elige cómo prefieres gestionar tu tiempo por defecto",
-        "focusDuration": "Enfoque (min)",
-        "shortBreakDuration": "Descanso corto (min)",
-        "longBreakDuration": "Descanso largo (min)",
-        "longBreakInterval": "Intervalo de descanso largo",
-        "longBreakIntervalDescription": "Cantidad de pomodoros antes de un descanso largo",
-        "autoStartBreaks": "Auto-iniciar descansos",
-        "autoStartBreaksDescription": "Iniciar el temporizador de descanso automáticamente",
-        "autoStartPomodoros": "Auto-iniciar pomodoros",
-        "autoStartPomodorosDescription": "Iniciar el siguiente pomodoro automáticamente",
-        "notificationsAndSound": "Notificaciones y Sonido",
-        "notificationsDescription": "Configura las alertas cuando se complete una sesión",
-        "soundEffects": "Efectos de sonido",
-        "soundEffectsDescription": "Reproducir un sonido al completar una sesión",
-        "browserNotifications": "Notificaciones del navegador",
-        "browserNotificationsDescription": "Mostrar notificaciones incluso con el navegador minimizado",
-        "keyboardShortcuts": "Atajos de Teclado",
-        "keyboardShortcutsDescription": "Atajos globales de la aplicación",
-        "shortcuts": {
-            "startPause": "Iniciar/Pausar timer",
-            "newTask": "Nueva tarea",
-            "search": "Buscar",
-            "settings": "Configuración",
-            "toggleSidebar": "Mostrar/Ocultar sidebar"
-        },
-        "about": "Acerca de",
-        "version": "Versión",
-        "platform": "Plataforma",
-        "developer": "Desarrollado por"
+    "about": "Acerca de",
+    "version": "Versión",
+    "platform": "Plataforma",
+    "developer": "Desarrollado por"
+  },
+  "TimerWidget": {
+    "startTimer": "Iniciar timer"
+  },
+  "TopBar": {
+    "searchPlaceholder": "Buscar tareas, proyectos...",
+    "myAccount": "Mi Cuenta",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión",
+    "menu": "Menú"
+  },
+  "Dashboard": {
+    "completed": "Completadas",
+    "subtasks": "Subtareas",
+    "timeWorked": "Tiempo trabajado",
+    "productivity": "Productividad",
+    "today": "Hoy",
+    "todaysTasks": "Tareas de Hoy",
+    "noTasks": "No hay tareas para hoy",
+    "noTasksDescription": "Comienza creando tu primera tarea para verla aquí.",
+    "createTask": "Crear Tarea",
+    "allTasksCompleted": "¡Todas las tareas completadas!",
+    "tasksCompletedToday": "{count} tarea(s) completada(s) hoy",
+    "showCompleted": "Mostrar completadas",
+    "hideCompleted": "Ocultar completadas",
+    "viewList": "Vista de lista",
+    "viewGrid": "Vista de cuadrícula",
+    "sortOptions": {
+      "priority": "Prioridad",
+      "duration": "Duración",
+      "created": "Fecha de creación"
     },
-    "TimerWidget": {
-        "startTimer": "Iniciar timer"
+    "quickActionButtons": {
+      "newProject": "Nuevo Proyecto",
+      "startTimer": "Iniciar Timer",
+      "newTask": "Nueva Tarea"
+    }
+  },
+  "Tasks": {
+    "title": "Tareas",
+    "subtitle": "Organiza tu día y mantente productivo.",
+    "newTask": "Nueva Tarea",
+    "noTasksWithTag": "No hay tareas con esta etiqueta",
+    "allClear": "Todo en orden",
+    "noTasksWithTagDescription": "No se encontraron tareas con la etiqueta \"{tagName}\".",
+    "noPendingTasks": "No tienes tareas pendientes. ¡Buen trabajo!"
+  },
+  "Projects": {
+    "title": "Proyectos",
+    "subtitle": "Gestiona todos tus proyectos en un solo lugar.",
+    "newProject": "Nuevo Proyecto",
+    "selectWorkspace": "Selecciona un Workspace",
+    "selectWorkspaceDescription": "Para empezar, selecciona un workspace de la lista para ver sus proyectos.",
+    "noProjects": "No hay proyectos todavía",
+    "noProjectsDescription": "Crea tu primer proyecto para empezar a organizar tus tareas.",
+    "createProject": "Crear Proyecto"
+  },
+  "Workspaces": {
+    "title": "Workspaces",
+    "subtitle": "Organiza tus proyectos y tareas en diferentes espacios de trabajo",
+    "newWorkspace": "Nuevo Workspace",
+    "noWorkspaces": "No tienes workspaces",
+    "noWorkspacesDescription": "Crea tu primer workspace para comenzar a organizar tus proyectos y tareas",
+    "createWorkspace": "Crear Workspace"
+  },
+  "Trash": {
+    "title": "Papelera",
+    "subtitle": "Restaura o elimina permanentemente tus workspaces",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de peligro",
+    "warningDescription": "Los workspaces en la papelera serán eliminados permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
+    "noDeletedWorkspaces": "No hay workspaces eliminados",
+    "noDeletedWorkspacesDescription": "La papelera está vacía. Los workspaces que elimines aparecerán aquí.",
+    "deletedAt": "Eliminado",
+    "projects": "proyectos",
+    "tasks": "tareas",
+    "restore": "Restaurar",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este workspace permanentemente? Esta acción NO se puede deshacer."
+  },
+  "ProjectsTrash": {
+    "title": "Papelera de Proyectos",
+    "subtitle": "Restaura o elimina permanentemente tus proyectos",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de peligro",
+    "warningDescription": "Los proyectos en la papelera serán eliminados permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
+    "selectWorkspace": "Selecciona un Workspace",
+    "allWorkspaces": "Todos los Workspaces",
+    "viewingProjectsFor": "Viendo proyectos de",
+    "selectWorkspaceFirst": "Selecciona un workspace primero",
+    "selectWorkspaceFirstDescription": "Para ver los proyectos eliminados, primero selecciona un workspace del menú desplegable.",
+    "noDeletedProjects": "No hay proyectos eliminados",
+    "noDeletedProjectsDescription": "La papelera está vacía. Los proyectos que elimines aparecerán aquí.",
+    "deletedAt": "Eliminado",
+    "tasks": "tareas",
+    "restore": "Restaurar",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente este proyecto? Esta acción NO se puede deshacer."
+  },
+  "TasksTrash": {
+    "title": "Papelera de Tareas",
+    "subtitle": "Restaura o elimina permanentemente tus tareas",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de peligro",
+    "warningDescription": "Las tareas en la papelera serán eliminadas permanentemente después de 30 días. Si necesitas conservar alguna, restáurala ahora.",
+    "selectProject": "Selecciona un Proyecto",
+    "allProjects": "Todos los Proyectos",
+    "viewingTasksFor": "Viendo tareas de",
+    "selectProjectFirst": "Selecciona un proyecto primero",
+    "selectProjectFirstDescription": "Para ver las tareas eliminadas, primero selecciona un proyecto del menú desplegable.",
+    "noDeletedTasks": "No hay tareas eliminadas",
+    "noDeletedTasksDescription": "La papelera está vacía. Las tareas que elimines aparecerán aquí.",
+    "deletedAt": "Eliminado",
+    "restore": "Restaurar",
+    "permanentDelete": "Eliminar permanentemente",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente esta tarea? Esta acción NO se puede deshacer."
+  },
+  "Tags": {
+    "title": "Etiquetas",
+    "subtitle": "Organiza y filtra tus tareas con etiquetas personalizadas.",
+    "newTag": "Nueva Etiqueta",
+    "confirmDelete": "¿Estás seguro de eliminar esta etiqueta?",
+    "tagDeleted": "Etiqueta eliminada",
+    "deleteError": "Error al eliminar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "task": "tarea",
+    "tasks": "tareas",
+    "noTags": "No hay etiquetas",
+    "noTagsDescription": "Crea tu primera etiqueta para empezar a organizar tus tareas.",
+    "createTag": "Crear Etiqueta"
+  },
+  "Habits": {
+    "title": "Hábitos",
+    "subtitle": "Construye rutinas positivas y mantén el impulso",
+    "newHabit": "Nuevo Hábito",
+    "todayProgress": "Progreso de Hoy",
+    "completed": "{count} de {total} completados",
+    "allDone": "¡Todos completados!",
+    "keepGoing": "¡Sigue así!",
+    "noHabits": "No hay hábitos aún",
+    "noHabitsDescription": "Crea tu primer hábito para empezar a construir rutinas positivas",
+    "createHabit": "Crear Hábito",
+    "stats": {
+      "currentStreak": "Racha actual",
+      "longestStreak": "Mejor racha",
+      "totalCompletions": "Veces completado",
+      "completionRate": "Tasa de éxito",
+      "thisWeek": "Esta semana",
+      "thisMonth": "Este mes"
     },
-    "TopBar": {
-        "searchPlaceholder": "Buscar tareas, proyectos...",
-        "myAccount": "Mi Cuenta",
-        "profile": "Perfil",
-        "settings": "Configuración",
-        "logout": "Cerrar Sesión",
-        "menu": "Menú"
+    "frequency": {
+      "DAILY": "Diario",
+      "WEEKLY": "Semanal",
+      "SPECIFIC_DAYS": "Días específicos",
+      "MONTHLY": "Mensual",
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "custom": "Personalizado"
     },
-    "Dashboard": {
-        "completed": "Completadas",
-        "subtasks": "Subtareas",
-        "timeWorked": "Tiempo trabajado",
-        "productivity": "Productividad",
-        "today": "Hoy",
-        "todaysTasks": "Tareas de Hoy",
-        "noTasks": "No hay tareas para hoy",
-        "noTasksDescription": "Comienza creando tu primera tarea para verla aquí.",
-        "createTask": "Crear Tarea",
-        "allTasksCompleted": "¡Todas las tareas completadas!",
-        "tasksCompletedToday": "{count} tarea(s) completada(s) hoy",
-        "showCompleted": "Mostrar completadas",
-        "hideCompleted": "Ocultar completadas",
-        "viewList": "Vista de lista",
-        "viewGrid": "Vista de cuadrícula",
-        "sortOptions": {
-            "priority": "Prioridad",
-            "duration": "Duración",
-            "created": "Fecha de creación"
-        },
-        "quickActionButtons": {
-            "newProject": "Nuevo Proyecto",
-            "startTimer": "Iniciar Timer",
-            "newTask": "Nueva Tarea"
+    "timeOfDay": {
+      "MORNING": "Mañana",
+      "AFTERNOON": "Tarde",
+      "EVENING": "Noche",
+      "ANYTIME": "Cualquier momento",
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "evening": "Noche",
+      "anytime": "Cualquier momento"
+    },
+    "daysOfWeek": {
+      "short": ["D", "L", "M", "X", "J", "V", "S"],
+      "long": [
+        "Domingo",
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado"
+      ]
+    },
+    "actions": {
+      "complete": "Completar",
+      "undo": "Deshacer",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "viewStats": "Ver estadísticas"
+    },
+    "form": {
+      "createTitle": "Nuevo Hábito",
+      "createDescription": "Crea un nuevo hábito para construir rutinas positivas",
+      "name": "Nombre del hábito",
+      "namePlaceholder": "Ej: Meditar 10 minutos",
+      "description": "Descripción (opcional)",
+      "descriptionPlaceholder": "¿Por qué es importante este hábito?",
+      "icon": "Icono",
+      "color": "Color",
+      "frequency": "Frecuencia",
+      "daysOfWeek": "Días de la semana",
+      "targetDays": "Días objetivo",
+      "targetCount": "Veces por período",
+      "timeOfDay": "Momento del día",
+      "preferredTime": "Hora preferida",
+      "reminder": "Recordatorio",
+      "create": "Crear Hábito",
+      "creating": "Creando...",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "created": "¡Hábito creado!",
+      "updated": "Hábito actualizado",
+      "deleted": "Hábito eliminado",
+      "completed": "¡Hábito completado! +{xp} XP",
+      "uncompleted": "Completión deshecha",
+      "paused": "Hábito pausado",
+      "resumed": "Hábito reanudado",
+      "streakBonus": "🔥 ¡Racha de {days} días! +{xp} XP bonus",
+      "error": "Error: {message}"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar este hábito? Se perderá todo el historial.",
+    "status": {
+      "active": "Activo",
+      "paused": "Pausado",
+      "archived": "Archivado"
+    },
+    "emptyToday": {
+      "weekend": "¡Disfruta tu fin de semana! No tienes hábitos programados.",
+      "allDone": "¡Increíble! Completaste todos tus hábitos de hoy.",
+      "noScheduled": "No tienes hábitos programados para hoy."
+    },
+    "streakMessage": {
+      "new": "¡Empezaste una nueva racha!",
+      "week": "¡Una semana completa! 🎉",
+      "month": "¡Un mes! Eres imparable 🚀",
+      "hundred": "¡100 días! Leyenda 🏆"
+    },
+    "onboarding": {
+      "welcome": {
+        "title": "Construye Mejores Hábitos",
+        "description": "Haz seguimiento de tus hábitos diarios, construye rachas y conviértete en tu mejor versión."
+      },
+      "streaks": {
+        "title": "Construye Rachas Poderosas",
+        "description": "Completa hábitos de forma consistente para construir rachas. ¡Las rachas largas dan XP extra!"
+      },
+      "reminders": {
+        "title": "Nunca Pierdas un Día",
+        "description": "Configura recordatorios para recibir notificaciones en el momento perfecto."
+      },
+      "gamification": {
+        "title": "Gana XP y Sube de Nivel",
+        "description": "Cada hábito completado te da XP. ¡Construye rachas para bonificaciones!"
+      },
+      "skip": "Saltar",
+      "next": "Siguiente",
+      "getStarted": "Comenzar"
+    }
+  },
+  "Analytics": {
+    "title": "Analíticas",
+    "subtitle": "Visualiza tu productividad y progreso a lo largo del tiempo",
+    "pomodoros": "Pomodoros",
+    "thisWeek": "esta semana",
+    "tasksCompleted": "Tareas Completadas",
+    "streak": "Racha",
+    "avgPerDay": "Promedio/día",
+    "tabs": {
+      "overview": "Overview",
+      "weekly": "Semanal",
+      "focus": "Enfoque",
+      "aiInsights": "AI Insights"
+    },
+    "focusScore": {
+      "label": "Focus Score de Hoy",
+      "description": "Tu nivel de concentración del día",
+      "howToImprove": "Cómo mejorar tu Focus Score",
+      "tips": {
+        "reduceBreaks": "Reduce el número de pausas durante tus sesiones de trabajo",
+        "shortenBreaks": "Acorta la duración de las pausas cuando las tomes",
+        "usePomodoro": "Usa el modo Pomodoro para mantener sesiones estructuradas",
+        "eliminateDistractions": "Elimina distracciones antes de iniciar el timer"
+      },
+      "whatIs": "¿Qué es el Focus Score?",
+      "whatIsDescription": "El Focus Score mide tu nivel de concentración basándose en la relación entre tu tiempo de trabajo efectivo y las pausas que tomas. Un score más alto indica mejor capacidad de mantener el enfoque.",
+      "howCalculated": "Cómo se calcula",
+      "calculation": "Score = Tiempo de Trabajo / Tiempo Total",
+      "penalty": "- Penalización: 2% por cada pausa",
+      "max": "- Máximo: 100% (trabajo continuo)",
+      "interpretation": "Interpretación",
+      "excellent": "Excelente concentración",
+      "moderate": "Concentración moderada",
+      "needsImprovement": "Necesitas mejorar",
+      "noData": "Sin datos de Focus Score",
+      "noDataDescription": "Completa una sesión de trabajo con el timer para ver tu Focus Score"
+    },
+    "weekly": {
+      "summary": "Resumen Semanal",
+      "comingSoon": "Próximamente: Estadísticas detalladas de la semana, comparación con semanas anteriores, y métricas de tendencia."
+    },
+    "aiLearning": {
+      "title": "¿Cómo funciona el AI Learning?",
+      "description": "El sistema de IA de Ordo aprende automáticamente de tus patrones de trabajo cada vez que completas una sesión con el timer. No necesitas hacer nada extra.",
+      "whatAnalyzes": "¿Qué analiza?",
+      "analyzesList": {
+        "hours": "Horas del día en las que eres más productivo",
+        "days": "Días de la semana con mejor rendimiento",
+        "duration": "Duración promedio de tus tareas",
+        "completion": "Tasa de completitud de sesiones",
+        "patterns": "Patrones de pausas y concentración"
+      },
+      "whatOffers": "¿Qué te ofrece?",
+      "offersList": {
+        "recommendations": "Recomendaciones personalizadas de horarios óptimos",
+        "predictions": "Predicciones de duración de tareas",
+        "insights": "Insights sobre tus mejores momentos de productividad",
+        "visualizations": "Visualizaciones de tus patrones de trabajo"
+      },
+      "tip": "💡 Cuanto más uses el timer, más precisas serán las recomendaciones de la IA."
+    }
+  },
+  "CreateTaskDialog": {
+    "validation": {
+      "titleRequired": "El título es requerido",
+      "projectRequired": "Proyecto es requerido"
+    },
+    "toast": {
+      "success": "Tarea creada exitosamente",
+      "error": "Error al crear tarea",
+      "aiTitleRequired": "Escribe un título primero para usar la IA",
+      "aiSuccess": "Descripción generada con IA"
+    },
+    "ai": {
+      "generatedDescription": "Descripción generada automáticamente para: {title}\n\n- Paso 1: Investigar\n- Paso 2: Implementar\n- Paso 3: Probar",
+      "generating": "Generando...",
+      "magic": "AI Magic"
+    },
+    "emptyState": {
+      "title": "No hay proyectos",
+      "description": "Para crear una tarea, primero necesitas un proyecto.",
+      "action": "Crear Proyecto"
+    },
+    "title": "Nueva Tarea",
+    "description": "Crea una nueva tarea y asígnala a un proyecto",
+    "form": {
+      "title": "Título *",
+      "titlePlaceholder": "Ej: Implementar autenticación",
+      "project": "Proyecto *",
+      "selectProject": "Selecciona un proyecto",
+      "priority": "Prioridad",
+      "dueDate": "Fecha de vencimiento",
+      "estimatedMinutes": "Minutos Estimados (min)",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Detalles adicionales de la tarea..."
+    },
+    "priorities": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear Tarea"
+    }
+  },
+  "CreateProjectDialog": {
+    "validation": {
+      "nameRequired": "El nombre es requerido",
+      "workspaceRequired": "Workspace es requerido"
+    },
+    "toast": {
+      "success": "Proyecto creado exitosamente",
+      "successWithTasks": "Proyecto creado con {count} tareas iniciales",
+      "templateSelected": "Plantilla \"{name}\" seleccionada",
+      "error": "Error al crear proyecto",
+      "createWorkspace": "Por favor crea un workspace desde la barra lateral"
+    },
+    "title": "Crear Proyecto",
+    "description": "Organiza tus tareas en proyectos dentro de un flujo de trabajo",
+    "templates": {
+      "title": "Seleccionar Plantilla",
+      "tasksCount": "{count} tareas iniciales"
+    },
+    "emptyState": {
+      "title": "No hay espacios de trabajo",
+      "description": "Para crear un proyecto, primero necesitas un espacio de trabajo (Workspace).",
+      "action": "Crear Workspace"
+    },
+    "form": {
+      "color": "Color del Proyecto",
+      "name": "Nombre *",
+      "namePlaceholder": "Ej: Rediseño Web, Marketing Q4",
+      "workspace": "Workspace *",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional del proyecto..."
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear Proyecto"
+    }
+  },
+  "CreateWorkspaceDialog": {
+    "validation": {
+      "nameRequired": "El nombre es requerido"
+    },
+    "toast": {
+      "success": "Workspace creado exitosamente",
+      "error": "Error al crear workspace"
+    },
+    "title": "Crear Workspace",
+    "description": "Organiza tus tareas en diferentes espacios de trabajo",
+    "form": {
+      "type": "Tipo de Workspace",
+      "name": "Nombre *",
+      "namePlaceholder": "Ej: Mi Empresa, Personal, etc.",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional del espacio de trabajo..."
+    },
+    "types": {
+      "personal": "Personal",
+      "personalDesc": "Para tus tareas personales",
+      "work": "Trabajo",
+      "workDesc": "Para proyectos laborales",
+      "team": "Equipo",
+      "teamDesc": "Para colaboración en equipo"
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear Workspace"
+    }
+  },
+
+  "SubtaskList": {
+    "title": "Subtareas",
+    "empty": "No hay subtareas. Agrega una para dividir esta tarea.",
+    "add": "Agregar Subtarea",
+    "placeholder": "Título de la subtarea...",
+    "nested": "Algunas subtareas tienen sub-subtareas",
+    "tooltips": {
+      "drag": "Arrastrar para reordenar",
+      "edit": "Editar subtarea",
+      "delete": "Eliminar subtarea"
+    },
+    "toast": {
+      "created": "Subtarea creada",
+      "createError": "Error al crear subtarea",
+      "completed": "Subtarea completada",
+      "completeError": "Error al completar subtarea",
+      "reopened": "Subtarea reabierta",
+      "reopenError": "Error al reabrir subtarea",
+      "updated": "Subtarea actualizada",
+      "updateError": "Error al actualizar subtarea",
+      "deleted": "Subtarea eliminada",
+      "deleteError": "Error al eliminar subtarea"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar esta subtarea?"
+  },
+  "CommentThread": {
+    "title": "Comentarios",
+    "empty": "No hay comentarios aún. Sé el primero en comentar.",
+    "placeholder": "Escribe un comentario...",
+    "shortcut": "Presiona Cmd/Ctrl + Enter para enviar",
+    "edited": "(editado)",
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "send": "Comentar",
+      "sending": "Enviando..."
+    },
+    "toast": {
+      "added": "Comentario agregado",
+      "addError": "Error al agregar comentario",
+      "updated": "Comentario actualizado",
+      "updateError": "Error al actualizar comentario",
+      "deleted": "Comentario eliminado",
+      "deleteError": "Error al eliminar comentario"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar este comentario?"
+  },
+  "Notifications": {
+    "title": "Notificaciones",
+    "empty": "No hay notificaciones",
+    "loading": "Cargando...",
+    "markAllRead": "Marcar todas como leídas"
+  },
+  "FileUpload": {
+    "errors": {
+      "tooLarge": "El archivo es demasiado grande. Máximo {maxFileSize}MB.",
+      "invalidType": "Tipo de archivo no permitido.",
+      "invalidResponse": "Respuesta inválida del servidor de subida",
+      "unknown": "Error desconocido",
+      "uploadError": "Error al subir: {errorMessage}",
+      "networkError": "Error de red durante la subida",
+      "statusError": "Error {status}: {statusText}"
+    },
+    "success": {
+      "uploaded": "{fileName} subido exitosamente"
+    },
+    "info": {
+      "cancelled": "Subida de {fileName} cancelada"
+    },
+    "dropzone": {
+      "dragging": "Suelta los archivos aquí",
+      "idle": "Arrastra archivos aquí o haz click para seleccionar",
+      "maxSize": "Máximo {maxFileSize}MB por archivo"
+    },
+    "uploading": "Subiendo archivos..."
+  },
+  "AttachmentList": {
+    "title": "Archivos",
+    "empty": "No hay archivos adjuntos aún.",
+    "total": "total",
+    "by": "por",
+    "tooltips": {
+      "preview": "Vista previa",
+      "download": "Descargar",
+      "delete": "Eliminar"
+    },
+    "toast": {
+      "downloading": "Descargando {filename}",
+      "deleted": "Archivo eliminado",
+      "deleteError": "Error al eliminar archivo"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar {filename}?"
+  },
+  "ActivityFeed": {
+    "title": "Actividad Reciente",
+    "showing": "Mostrando {count} de {total}",
+    "showMore": "Ver toda la actividad ({count} más)",
+    "empty": "No hay actividad reciente.",
+    "dates": {
+      "today": "Hoy",
+      "yesterday": "Ayer"
+    },
+    "actions": {
+      "TASK_CREATED": "creó la tarea",
+      "TASK_UPDATED": "actualizó la tarea",
+      "TASK_COMPLETED": "completó la tarea",
+      "TASK_DELETED": "eliminó la tarea",
+      "COMMENT_ADDED": "agregó un comentario",
+      "COMMENT_EDITED": "editó un comentario",
+      "COMMENT_DELETED": "eliminó un comentario",
+      "ATTACHMENT_ADDED": "subió un archivo",
+      "ATTACHMENT_DELETED": "eliminó un archivo",
+      "SUBTASK_ADDED": "agregó una subtarea",
+      "SUBTASK_COMPLETED": "completó una subtarea",
+      "STATUS_CHANGED": "cambió el estado",
+      "PRIORITY_CHANGED": "cambió la prioridad",
+      "ASSIGNEE_CHANGED": "cambió el asignado",
+      "DUE_DATE_CHANGED": "cambió la fecha de vencimiento"
+    },
+    "details": {
+      "fromTo": "de \"{oldValue}\" a \"{newValue}\"",
+      "to": "a {newValue}",
+      "removed": "(eliminada)",
+      "item": ": {itemName}",
+      "mentioned": "mencionó a {users}"
+    }
+  },
+  "ProjectCard": {
+    "tasks": "{count} tareas",
+    "tasksProgress": "{completed}/{total} tareas",
+    "progress": "Progreso",
+    "archived": "Archivado",
+    "actions": {
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar"
+    },
+    "toast": {
+      "archived": "Proyecto archivado",
+      "unarchived": "Proyecto desarchivado",
+      "archiveError": "Error al actualizar proyecto",
+      "deleted": "Proyecto eliminado",
+      "deleteError": "Error al eliminar proyecto"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer."
+  },
+  "ProjectSettingsDialog": {
+    "title": "Configuración del Proyecto",
+    "description": "Actualiza la información de tu proyecto",
+    "form": {
+      "name": {
+        "label": "Nombre *",
+        "placeholder": "Ej: Rediseño Web, Marketing Q4",
+        "required": "El nombre es requerido"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Descripción opcional del proyecto..."
+      },
+      "color": {
+        "label": "Color del Proyecto"
+      }
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Guardar Cambios",
+      "saving": "Guardando..."
+    },
+    "toast": {
+      "updated": "Proyecto actualizado exitosamente",
+      "updateError": "Error al actualizar proyecto"
+    }
+  },
+  "ProjectSettings": {
+    "general": {
+      "title": "Configuración General",
+      "description": "Actualiza el nombre, descripción y color del proyecto"
+    },
+    "form": {
+      "name": {
+        "label": "Nombre *",
+        "placeholder": "Ej: Rediseño Web, Marketing Q4",
+        "required": "El nombre es requerido"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Descripción opcional del proyecto..."
+      },
+      "color": {
+        "label": "Color del Proyecto"
+      }
+    },
+    "actions": {
+      "save": "Guardar Cambios",
+      "saving": "Guardando...",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar Proyecto"
+    },
+    "danger": {
+      "title": "Zona de Peligro",
+      "description": "Acciones irreversibles y destructivas",
+      "archive": {
+        "title": "Archivar este proyecto",
+        "description": "Marca este proyecto como archivado. Se ocultará de la vista principal."
+      },
+      "unarchive": {
+        "title": "Desarchivar este proyecto",
+        "description": "Restaura este proyecto a la lista de proyectos activos."
+      },
+      "delete": {
+        "title": "Eliminar este proyecto",
+        "description": "Elimina permanentemente este proyecto y todas sus tareas. Esta acción no se puede deshacer."
+      }
+    },
+    "deleteDialog": {
+      "title": "¿Estás seguro?",
+      "description": "Esta acción no se puede deshacer. Se eliminará permanentemente el proyecto y todas las tareas asociadas.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar Proyecto"
+    },
+    "toast": {
+      "updated": "Proyecto actualizado exitosamente",
+      "updateError": "Error al actualizar proyecto",
+      "archived": "Proyecto archivado",
+      "unarchived": "Proyecto restaurado",
+      "archiveError": "Error al archivar proyecto",
+      "deleted": "Proyecto eliminado",
+      "deleteError": "Error al eliminar proyecto"
+    }
+  },
+  "Breadcrumbs": {
+    "home": "Inicio"
+  },
+  "ProjectDetail": {
+    "notFound": "Proyecto no encontrado",
+    "notFoundDescription": "El proyecto que buscas no existe o fue eliminado.",
+    "backToProjects": "Volver a Proyectos",
+    "addTask": "Nueva Tarea",
+    "tasksSection": "Tareas del Proyecto",
+    "breadcrumbs": {
+      "projects": "Proyectos"
+    },
+    "badges": {
+      "archived": "Archivado",
+      "completed": "Completado"
+    },
+    "stats": {
+      "task": "tarea",
+      "tasks": "tareas",
+      "totalTasks": "Total de Tareas",
+      "completedTasks": "Completadas",
+      "completed": "completadas"
+    },
+    "status": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completadas"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "list": "Lista",
+      "board": "Tablero",
+      "timeline": "Línea de Tiempo",
+      "files": "Archivos"
+    },
+    "overview": {
+      "progress": "Progreso",
+      "recentTasks": "Tareas Recientes"
+    },
+    "actions": {
+      "archive": "archivar",
+      "unarchive": "desarchivar"
+    },
+    "menu": {
+      "settings": "Configuración",
+      "markComplete": "Marcar como Completado",
+      "markIncomplete": "Marcar como Incompleto",
+      "archive": "Archivar",
+      "unarchive": "Desarchivar",
+      "delete": "Eliminar"
+    },
+    "emptyState": {
+      "title": "No hay tareas",
+      "description": "Este proyecto no tiene tareas aún. Crea la primera para comenzar.",
+      "archivedDescription": "Este proyecto está archivado y no tiene tareas.",
+      "completedDescription": "Este proyecto está completado y no tiene tareas pendientes."
+    },
+    "confirmArchive": "¿Estás seguro de que deseas",
+    "confirmComplete": "¿Marcar este proyecto como completado?",
+    "confirmUncomplete": "¿Marcar este proyecto como incompleto?",
+    "confirmDelete": "¿Eliminar este proyecto? Esta acción no se puede deshacer.",
+    "toast": {
+      "archived": "Proyecto archivado",
+      "archiveError": "Error al archivar proyecto",
+      "completed": "Proyecto completado",
+      "uncompleted": "Proyecto marcado como incompleto",
+      "completeError": "Error al completar proyecto",
+      "deleted": "Proyecto eliminado"
+    }
+  },
+  "WorkspaceCard": {
+    "types": {
+      "PERSONAL": "Personal",
+      "WORK": "Trabajo",
+      "TEAM": "Equipo"
+    },
+    "status": {
+      "active": "Activo"
+    },
+    "stats": {
+      "projects": "{count} proyectos",
+      "tasks": "{count} tareas"
+    },
+    "actions": {
+      "settings": "Configuración",
+      "delete": "Eliminar"
+    },
+    "toast": {
+      "deleted": "Workspace eliminado",
+      "deleteError": "Error al eliminar workspace"
+    },
+    "confirmDelete": "¿Estás seguro de eliminar el workspace \"{name}\"?"
+  },
+  "WorkspaceInfoBar": {
+    "types": {
+      "PERSONAL": "Personal",
+      "WORK": "Trabajo",
+      "TEAM": "Equipo"
+    },
+    "team": "Team",
+    "stats": {
+      "projects": "{count, plural, =1 {Proyecto} other {Proyectos}}",
+      "activeTasks": "{count, plural, =1 {Tarea Activa} other {Tareas Activas}}",
+      "completed": "Completadas"
+    },
+    "actions": {
+      "newProject": "Nuevo Proyecto",
+      "settings": "Configuración"
+    }
+  },
+  "WorkspaceSelector": {
+    "create": "Crear Workspace",
+    "label": "Workspaces",
+    "defaultName": "Workspace",
+    "search": "Buscar workspaces...",
+    "noResults": "No se encontraron workspaces",
+    "types": {
+      "personal": "Personal",
+      "work": "Trabajo",
+      "team": "Equipo"
+    },
+    "stats": {
+      "projects": "proyectos",
+      "tasks": "tareas"
+    },
+    "settings": "Configurar Workspace",
+    "newWorkspace": "Nuevo Workspace"
+  },
+  "WorkspaceDashboard": {
+    "notFound": "Workspace no encontrado",
+    "backToWorkspaces": "Volver a Workspaces",
+    "newProject": "Nuevo Proyecto",
+    "settings": "Configuración",
+    "delete": "Eliminar Workspace",
+    "deleteConfirmation": "¿Estás seguro de eliminar este workspace? Esto eliminará todos los proyectos y tareas. Esta acción no se puede deshacer.",
+    "deleteSuccess": "Workspace eliminado exitosamente",
+    "projects": "Proyectos",
+    "recentActivity": "Actividad Reciente",
+    "noActivity": "Sin actividad reciente",
+    "viewAllActivity": "Ver toda la actividad",
+    "stats": {
+      "projects": "Proyectos",
+      "tasks": "Tareas",
+      "members": "Miembros"
+    }
+  },
+  "WorkspaceSettingsDialog": {
+    "title": "Configuración del Workspace",
+    "description": "Administra la información general de tu espacio de trabajo.",
+    "form": {
+      "name": {
+        "label": "Nombre del Workspace",
+        "placeholder": "Ej. Mi Proyecto Personal"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Describe brevemente el propósito de este espacio..."
+      },
+      "type": {
+        "label": "Tipo de Espacio",
+        "helper": "El tipo define el color y el icono predeterminado del workspace.",
+        "options": {
+          "PERSONAL": "Personal",
+          "WORK": "Trabajo",
+          "TEAM": "Equipo"
         }
+      }
     },
-    "Tasks": {
-        "title": "Tareas",
-        "subtitle": "Organiza tu día y mantente productivo.",
-        "newTask": "Nueva Tarea",
-        "noTasksWithTag": "No hay tareas con esta etiqueta",
-        "allClear": "Todo en orden",
-        "noTasksWithTagDescription": "No se encontraron tareas con la etiqueta \"{tagName}\".",
-        "noPendingTasks": "No tienes tareas pendientes. ¡Buen trabajo!"
+    "dangerZone": {
+      "title": "Zona de Peligro",
+      "description": "Esta acción no se puede deshacer.",
+      "delete": "Eliminar",
+      "deleting": "Eliminando...",
+      "confirm": "Confirmar"
     },
-    "Projects": {
-        "title": "Proyectos",
-        "subtitle": "Gestiona todos tus proyectos en un solo lugar.",
-        "newProject": "Nuevo Proyecto",
-        "selectWorkspace": "Selecciona un Workspace",
-        "selectWorkspaceDescription": "Para empezar, selecciona un workspace de la lista para ver sus proyectos.",
-        "noProjects": "No hay proyectos todavía",
-        "noProjectsDescription": "Crea tu primer proyecto para empezar a organizar tus tareas.",
-        "createProject": "Crear Proyecto"
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Guardar Cambios",
+      "saving": "Guardando..."
     },
-    "Workspaces": {
-        "title": "Workspaces",
-        "subtitle": "Organiza tus proyectos y tareas en diferentes espacios de trabajo",
-        "newWorkspace": "Nuevo Workspace",
-        "noWorkspaces": "No tienes workspaces",
-        "noWorkspacesDescription": "Crea tu primer workspace para comenzar a organizar tus proyectos y tareas",
-        "createWorkspace": "Crear Workspace"
+    "toast": {
+      "updated": "Workspace actualizado",
+      "updateError": "Error al actualizar workspace",
+      "deleted": "Workspace eliminado",
+      "deleteError": "Error al eliminar workspace"
     },
-    "Trash": {
-        "title": "Papelera",
-        "subtitle": "Restaura o elimina permanentemente tus workspaces",
-        "refresh": "Actualizar",
-        "warningTitle": "Zona de peligro",
-        "warningDescription": "Los workspaces en la papelera serán eliminados permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
-        "noDeletedWorkspaces": "No hay workspaces eliminados",
-        "noDeletedWorkspacesDescription": "La papelera está vacía. Los workspaces que elimines aparecerán aquí.",
-        "deletedAt": "Eliminado",
-        "projects": "proyectos",
-        "tasks": "tareas",
-        "restore": "Restaurar",
-        "confirmDelete": "¿Estás seguro de que quieres eliminar este workspace permanentemente? Esta acción NO se puede deshacer."
+    "tabs": {
+      "general": "General",
+      "members": "Miembros",
+      "configuration": "Configuración",
+      "activity": "Actividad"
+    }
+  },
+  "WorkspaceActivityLog": {
+    "empty": {
+      "title": "Sin actividad aún",
+      "description": "La actividad de este workspace aparecerá aquí."
     },
-    "ProjectsTrash": {
-        "title": "Papelera de Proyectos",
-        "subtitle": "Restaura o elimina permanentemente tus proyectos",
-        "refresh": "Actualizar",
-        "warningTitle": "Zona de peligro",
-        "warningDescription": "Los proyectos en la papelera serán eliminados permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
-        "selectWorkspace": "Selecciona un Workspace",
-        "allWorkspaces": "Todos los Workspaces",
-        "viewingProjectsFor": "Viendo proyectos de",
-        "selectWorkspaceFirst": "Selecciona un workspace primero",
-        "selectWorkspaceFirstDescription": "Para ver los proyectos eliminados, primero selecciona un workspace del menú desplegable.",
-        "noDeletedProjects": "No hay proyectos eliminados",
-        "noDeletedProjectsDescription": "La papelera está vacía. Los proyectos que elimines aparecerán aquí.",
-        "deletedAt": "Eliminado",
-        "tasks": "tareas",
-        "restore": "Restaurar",
-        "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente este proyecto? Esta acción NO se puede deshacer."
-    },
-    "TasksTrash": {
-        "title": "Papelera de Tareas",
-        "subtitle": "Restaura o elimina permanentemente tus tareas",
-        "refresh": "Actualizar",
-        "warningTitle": "Zona de peligro",
-        "warningDescription": "Las tareas en la papelera serán eliminadas permanentemente después de 30 días. Si necesitas conservar alguna, restáurala ahora.",
-        "selectProject": "Selecciona un Proyecto",
-        "allProjects": "Todos los Proyectos",
-        "viewingTasksFor": "Viendo tareas de",
-        "selectProjectFirst": "Selecciona un proyecto primero",
-        "selectProjectFirstDescription": "Para ver las tareas eliminadas, primero selecciona un proyecto del menú desplegable.",
-        "noDeletedTasks": "No hay tareas eliminadas",
-        "noDeletedTasksDescription": "La papelera está vacía. Las tareas que elimines aparecerán aquí.",
-        "deletedAt": "Eliminado",
-        "restore": "Restaurar",
-        "permanentDelete": "Eliminar permanentemente",
-        "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente esta tarea? Esta acción NO se puede deshacer."
-    },
-    "Tags": {
-        "title": "Etiquetas",
-        "subtitle": "Organiza y filtra tus tareas con etiquetas personalizadas.",
-        "newTag": "Nueva Etiqueta",
-        "confirmDelete": "¿Estás seguro de eliminar esta etiqueta?",
-        "tagDeleted": "Etiqueta eliminada",
-        "deleteError": "Error al eliminar",
-        "edit": "Editar",
-        "delete": "Eliminar",
-        "task": "tarea",
-        "tasks": "tareas",
-        "noTags": "No hay etiquetas",
-        "noTagsDescription": "Crea tu primera etiqueta para empezar a organizar tus tareas.",
-        "createTag": "Crear Etiqueta"
-    },
-    "Habits": {
-        "title": "Hábitos",
-        "subtitle": "Construye rutinas positivas y mantén el impulso",
-        "newHabit": "Nuevo Hábito",
-        "todayProgress": "Progreso de Hoy",
-        "completed": "{count} de {total} completados",
-        "allDone": "¡Todos completados!",
-        "keepGoing": "¡Sigue así!",
-        "noHabits": "No hay hábitos aún",
-        "noHabitsDescription": "Crea tu primer hábito para empezar a construir rutinas positivas",
-        "createHabit": "Crear Hábito",
-        "stats": {
-            "currentStreak": "Racha actual",
-            "longestStreak": "Mejor racha",
-            "totalCompletions": "Veces completado",
-            "completionRate": "Tasa de éxito",
-            "thisWeek": "Esta semana",
-            "thisMonth": "Este mes"
-        },
-        "frequency": {
-            "DAILY": "Diario",
-            "WEEKLY": "Semanal",
-            "SPECIFIC_DAYS": "Días específicos",
-            "MONTHLY": "Mensual",
-            "daily": "Diario",
-            "weekly": "Semanal",
-            "custom": "Personalizado"
-        },
-        "timeOfDay": {
-            "MORNING": "Mañana",
-            "AFTERNOON": "Tarde",
-            "EVENING": "Noche",
-            "ANYTIME": "Cualquier momento",
-            "morning": "Mañana",
-            "afternoon": "Tarde",
-            "evening": "Noche",
-            "anytime": "Cualquier momento"
-        },
-        "daysOfWeek": {
-            "short": ["D", "L", "M", "X", "J", "V", "S"],
-            "long": [
-                "Domingo",
-                "Lunes",
-                "Martes",
-                "Miércoles",
-                "Jueves",
-                "Viernes",
-                "Sábado"
-            ]
-        },
-        "actions": {
-            "complete": "Completar",
-            "undo": "Deshacer",
-            "pause": "Pausar",
-            "resume": "Reanudar",
-            "edit": "Editar",
-            "delete": "Eliminar",
-            "viewStats": "Ver estadísticas"
-        },
-        "form": {
-            "createTitle": "Nuevo Hábito",
-            "createDescription": "Crea un nuevo hábito para construir rutinas positivas",
-            "name": "Nombre del hábito",
-            "namePlaceholder": "Ej: Meditar 10 minutos",
-            "description": "Descripción (opcional)",
-            "descriptionPlaceholder": "¿Por qué es importante este hábito?",
-            "icon": "Icono",
-            "color": "Color",
-            "frequency": "Frecuencia",
-            "daysOfWeek": "Días de la semana",
-            "targetDays": "Días objetivo",
-            "targetCount": "Veces por período",
-            "timeOfDay": "Momento del día",
-            "preferredTime": "Hora preferida",
-            "reminder": "Recordatorio",
-            "create": "Crear Hábito",
-            "creating": "Creando...",
-            "cancel": "Cancelar"
-        },
-        "toast": {
-            "created": "¡Hábito creado!",
-            "updated": "Hábito actualizado",
-            "deleted": "Hábito eliminado",
-            "completed": "¡Hábito completado! +{xp} XP",
-            "uncompleted": "Completión deshecha",
-            "paused": "Hábito pausado",
-            "resumed": "Hábito reanudado",
-            "streakBonus": "🔥 ¡Racha de {days} días! +{xp} XP bonus",
-            "error": "Error: {message}"
-        },
-        "confirmDelete": "¿Estás seguro de eliminar este hábito? Se perderá todo el historial.",
-        "status": {
-            "active": "Activo",
-            "paused": "Pausado",
-            "archived": "Archivado"
-        },
-        "emptyToday": {
-            "weekend": "¡Disfruta tu fin de semana! No tienes hábitos programados.",
-            "allDone": "¡Increíble! Completaste todos tus hábitos de hoy.",
-            "noScheduled": "No tienes hábitos programados para hoy."
-        },
-        "streakMessage": {
-            "new": "¡Empezaste una nueva racha!",
-            "week": "¡Una semana completa! 🎉",
-            "month": "¡Un mes! Eres imparable 🚀",
-            "hundred": "¡100 días! Leyenda 🏆"
-        },
-        "onboarding": {
-            "welcome": {
-                "title": "Construye Mejores Hábitos",
-                "description": "Haz seguimiento de tus hábitos diarios, construye rachas y conviértete en tu mejor versión."
-            },
-            "streaks": {
-                "title": "Construye Rachas Poderosas",
-                "description": "Completa hábitos de forma consistente para construir rachas. ¡Las rachas largas dan XP extra!"
-            },
-            "reminders": {
-                "title": "Nunca Pierdas un Día",
-                "description": "Configura recordatorios para recibir notificaciones en el momento perfecto."
-            },
-            "gamification": {
-                "title": "Gana XP y Sube de Nivel",
-                "description": "Cada hábito completado te da XP. ¡Construye rachas para bonificaciones!"
-            },
-            "skip": "Saltar",
-            "next": "Siguiente",
-            "getStarted": "Comenzar"
+    "by": "por",
+    "pagination": {
+      "showing": "Mostrando {from}-{to} de {total}",
+      "page": "Página {current} de {total}"
+    }
+  },
+  "WorkspaceConfigurationSettings": {
+    "form": {
+      "defaultView": {
+        "label": "Vista Predeterminada",
+        "helper": "La vista por defecto al abrir proyectos en este workspace.",
+        "options": {
+          "LIST": "Lista",
+          "KANBAN": "Kanban",
+          "CALENDAR": "Calendario",
+          "TIMELINE": "Línea de Tiempo",
+          "FOCUS": "Enfoque"
         }
+      },
+      "defaultDueTime": {
+        "label": "Hora Predeterminada de Vencimiento",
+        "helper": "Hora por defecto para las fechas de vencimiento (ej. 9:00 AM)."
+      },
+      "timezone": {
+        "label": "Zona Horaria",
+        "placeholder": "Selecciona zona horaria",
+        "helper": "Zona horaria para fechas y horas en este workspace."
+      },
+      "locale": {
+        "label": "Idioma y Región",
+        "placeholder": "Selecciona idioma",
+        "helper": "Idioma y formato regional para este workspace."
+      }
     },
-    "Analytics": {
-        "title": "Analíticas",
-        "subtitle": "Visualiza tu productividad y progreso a lo largo del tiempo",
-        "pomodoros": "Pomodoros",
-        "thisWeek": "esta semana",
-        "tasksCompleted": "Tareas Completadas",
-        "streak": "Racha",
-        "avgPerDay": "Promedio/día",
-        "tabs": {
-            "overview": "Overview",
-            "weekly": "Semanal",
-            "focus": "Enfoque",
-            "aiInsights": "AI Insights"
-        },
-        "focusScore": {
-            "label": "Focus Score de Hoy",
-            "description": "Tu nivel de concentración del día",
-            "howToImprove": "Cómo mejorar tu Focus Score",
-            "tips": {
-                "reduceBreaks": "Reduce el número de pausas durante tus sesiones de trabajo",
-                "shortenBreaks": "Acorta la duración de las pausas cuando las tomes",
-                "usePomodoro": "Usa el modo Pomodoro para mantener sesiones estructuradas",
-                "eliminateDistractions": "Elimina distracciones antes de iniciar el timer"
-            },
-            "whatIs": "¿Qué es el Focus Score?",
-            "whatIsDescription": "El Focus Score mide tu nivel de concentración basándose en la relación entre tu tiempo de trabajo efectivo y las pausas que tomas. Un score más alto indica mejor capacidad de mantener el enfoque.",
-            "howCalculated": "Cómo se calcula",
-            "calculation": "Score = Tiempo de Trabajo / Tiempo Total",
-            "penalty": "- Penalización: 2% por cada pausa",
-            "max": "- Máximo: 100% (trabajo continuo)",
-            "interpretation": "Interpretación",
-            "excellent": "Excelente concentración",
-            "moderate": "Concentración moderada",
-            "needsImprovement": "Necesitas mejorar",
-            "noData": "Sin datos de Focus Score",
-            "noDataDescription": "Completa una sesión de trabajo con el timer para ver tu Focus Score"
-        },
-        "weekly": {
-            "summary": "Resumen Semanal",
-            "comingSoon": "Próximamente: Estadísticas detalladas de la semana, comparación con semanas anteriores, y métricas de tendencia."
-        },
-        "aiLearning": {
-            "title": "¿Cómo funciona el AI Learning?",
-            "description": "El sistema de IA de Ordo aprende automáticamente de tus patrones de trabajo cada vez que completas una sesión con el timer. No necesitas hacer nada extra.",
-            "whatAnalyzes": "¿Qué analiza?",
-            "analyzesList": {
-                "hours": "Horas del día en las que eres más productivo",
-                "days": "Días de la semana con mejor rendimiento",
-                "duration": "Duración promedio de tus tareas",
-                "completion": "Tasa de completitud de sesiones",
-                "patterns": "Patrones de pausas y concentración"
-            },
-            "whatOffers": "¿Qué te ofrece?",
-            "offersList": {
-                "recommendations": "Recomendaciones personalizadas de horarios óptimos",
-                "predictions": "Predicciones de duración de tareas",
-                "insights": "Insights sobre tus mejores momentos de productividad",
-                "visualizations": "Visualizaciones de tus patrones de trabajo"
-            },
-            "tip": "💡 Cuanto más uses el timer, más precisas serán las recomendaciones de la IA."
+    "actions": {
+      "save": "Guardar Configuración",
+      "saving": "Guardando..."
+    },
+    "toast": {
+      "updated": "Configuración actualizada exitosamente",
+      "updateError": "Error al actualizar configuración"
+    }
+  },
+  "InviteMemberDialog": {
+    "title": "Invitar Miembro",
+    "description": "Invita a un nuevo miembro a este workspace.",
+    "emailLabel": "Correo Electrónico",
+    "roleLabel": "Rol",
+    "rolePlaceholder": "Selecciona un rol",
+    "roles": {
+      "owner": "Creador",
+      "admin": "Admin",
+      "member": "Miembro",
+      "viewer": "Visualizador"
+    },
+    "cancel": "Cancelar",
+    "invite": "Invitar",
+    "success": "Invitación enviada exitosamente",
+    "successWithToken": "Invitación creada (Copia el link abajo)",
+    "error": "Error al enviar invitación",
+    "inviteLink": "Enlace de Invitación (Dev/MVP)",
+    "copied": "Enlace copiado al portapapeles",
+    "done": "Listo",
+    "devTokenNote": "Nota: En producción, esto se enviaría por correo."
+  },
+  "WorkspaceMembersSettings": {
+    "membersTitle": "Miembros del Workspace",
+    "membersDescription": "Gestiona quién tiene acceso a este workspace.",
+    "inviteMember": "Invitar Miembro",
+    "loading": "Cargando miembros...",
+    "user": "Usuario",
+    "role": "Rol",
+    "joined": "Se unió",
+    "unknownUser": "Usuario Desconocido",
+    "remove": "Eliminar",
+    "confirmRemove": "¿Estás seguro de eliminar a este miembro?",
+    "memberRemoved": "Miembro eliminado",
+    "errorRemoving": "Error al eliminar miembro",
+    "noMembers": "No hay miembros en este workspace.",
+    "invitationsTitle": "Invitaciones Pendientes",
+    "invitationsDescription": "Invitaciones enviadas que aún no han sido aceptadas.",
+    "email": "Correo",
+    "status": "Estado",
+    "sent": "Enviado",
+    "roles": {
+      "owner": "Creador",
+      "admin": "Administrador",
+      "member": "Miembro",
+      "viewer": "Observador"
+    }
+  },
+  "AcceptInvitationPage": {
+    "title": "Aceptar Invitación",
+    "description": "Has sido invitado a unirte a un workspace en Ordo Todo.",
+    "missingToken": "Falta el token de invitación.",
+    "confirmText": "¿Quieres aceptar esta invitación y unirte al workspace?",
+    "processing": "Procesando invitación...",
+    "success": "¡Te has unido al workspace exitosamente!",
+    "redirecting": "Redirigiendo a tus workspaces...",
+    "failed": "No se pudo aceptar la invitación",
+    "acceptButton": "Aceptar Invitación",
+    "goToWorkspaces": "Ir a mis Workspaces",
+    "backHome": "Volver al Inicio",
+    "error": "Ocurrió un error inesperado."
+  },
+  "CreateTagDialog": {
+    "title": {
+      "create": "Crear Etiqueta",
+      "edit": "Editar Etiqueta"
+    },
+    "description": {
+      "create": "Organiza tus tareas con etiquetas personalizadas",
+      "edit": "Modifica los detalles de la etiqueta"
+    },
+    "form": {
+      "name": {
+        "label": "Nombre *",
+        "placeholder": "Ej: Urgente, Personal, Trabajo...",
+        "required": "El nombre es requerido"
+      },
+      "color": {
+        "label": "Color"
+      },
+      "preview": {
+        "label": "Vista previa",
+        "default": "Etiqueta"
+      }
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "create": "Crear Etiqueta",
+      "creating": "Creando...",
+      "save": "Guardar Cambios",
+      "saving": "Guardando..."
+    },
+    "toast": {
+      "created": "Etiqueta creada exitosamente",
+      "createError": "Error al crear etiqueta",
+      "updated": "Etiqueta actualizada",
+      "updateError": "Error al actualizar etiqueta"
+    }
+  },
+  "TagSelector": {
+    "addTag": "Etiqueta",
+    "loading": "Cargando...",
+    "noTags": "No hay etiquetas disponibles",
+    "toast": {
+      "assigned": "Etiqueta asignada",
+      "assignError": "Error al asignar etiqueta",
+      "removed": "Etiqueta removida",
+      "removeError": "Error al remover etiqueta"
+    }
+  },
+  "PomodoroTimer": {
+    "enterFocusMode": "Entrar al Modo Enfoque",
+    "mode": "Modo: {mode}",
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "continuous": "Tiempo Corrido",
+      "stopwatch": "Cronómetro",
+      "shortBreak": "Descanso Corto",
+      "longBreak": "Descanso Largo",
+      "pomodoroCount": "Pomodoro #{count}"
+    },
+    "pauses": "Pausas: {count}",
+    "paused": "En pausa",
+    "switchTask": {
+      "buttonTitle": "Cambiar de tarea",
+      "title": "Cambiar de Tarea",
+      "description": "El tiempo trabajado en la tarea actual se guardará como completado. Selecciona la nueva tarea para continuar."
+    }
+  },
+  "SessionHistory": {
+    "error": "Error al cargar el historial de sesiones",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "totalTime": "Tiempo Total",
+      "focusScore": "Puntuación de Enfoque",
+      "completionRate": "Completadas"
+    },
+    "filters": {
+      "title": "Filtros",
+      "type": "Tipo",
+      "allTypes": "Todos los tipos",
+      "status": "Estado",
+      "allStatus": "Todas las sesiones",
+      "completedOnly": "Solo completadas"
+    },
+    "types": {
+      "work": "Trabajo",
+      "short_break": "Descanso Corto",
+      "long_break": "Descanso Largo",
+      "shortBreak": "Descanso Corto",
+      "longBreak": "Descanso Largo",
+      "continuous": "Continuo"
+    },
+    "sessions": {
+      "title": "Historial de Sesiones",
+      "count": "sesiones",
+      "empty": "No se encontraron sesiones para los filtros seleccionados",
+      "pause": "pausa",
+      "pauses": "pausas"
+    },
+    "pagination": {
+      "showing": "Mostrando {from} a {to} de {total}"
+    },
+    "chart": {
+      "title": "Actividad Diaria (Últimos 7 Días)"
+    }
+  },
+  "TaskSelector": {
+    "placeholder": "Seleccionar tarea para trabajar...",
+    "searchPlaceholder": "Buscar tarea...",
+    "noTasks": "No se encontraron tareas.",
+    "groupHeading": "Tareas Pendientes",
+    "noTaskAssigned": "Sin tarea asignada"
+  },
+  "TaskCard": {
+    "priority": {
+      "LOW": "Baja",
+      "MEDIUM": "Media",
+      "HIGH": "Alta",
+      "URGENT": "Urgente"
+    },
+    "actions": {
+      "viewEdit": "Ver/Editar",
+      "delete": "Eliminar"
+    },
+    "status": {
+      "completed": "Completada"
+    }
+  },
+  "TaskList": {
+    "loading": "Cargando tareas...",
+    "error": "Error al cargar tareas: {message}",
+    "empty": "No hay tareas aún. ¡Agrega una arriba!",
+    "emptyMyTasks": "No tienes tareas asignadas aún.",
+    "retry": "Reintentar",
+    "filters": {
+      "allTasks": "Todas las Tareas",
+      "myTasks": "Mis Tareas"
+    }
+  },
+  "TaskDetailPanel": {
+    "title": "Detalles de la Tarea",
+    "titlePlaceholder": "Título de la Tarea",
+    "description": {
+      "label": "DESCRIPCIÓN",
+      "placeholder": "Añadir una descripción...",
+      "empty": "No se proporcionó descripción."
+    },
+    "details": {
+      "title": "Detalles",
+      "dueDate": "Fecha de vencimiento",
+      "startDate": "Fecha de inicio",
+      "scheduledDate": "Programado",
+      "estimation": "Tiempo estimado (min)",
+      "linkToGoal": "Vincular a Objetivo",
+      "addAnotherGoal": "Vincular otro objetivo",
+      "selectGoal": "Seleccionar Resultado Clave",
+      "noActiveObjectives": "No hay objetivos activos"
+    },
+    "tabs": {
+      "subtasks": "Subtareas",
+      "comments": "Comentarios",
+      "attachments": "Adjuntos",
+      "activity": "Actividad"
+    },
+    "tags": {
+      "none": "Sin etiquetas",
+      "add": "Añadir Etiqueta",
+      "available": "Etiquetas Disponibles",
+      "noAvailable": "No hay etiquetas disponibles",
+      "create": "Crear Nueva Etiqueta"
+    },
+    "buttons": {
+      "save": "Guardar",
+      "delete": "Eliminar Tarea"
+    },
+    "footer": {
+      "created": "Creado el"
+    },
+    "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
+    "toast": {
+      "updated": "Tarea actualizada exitosamente",
+      "statusUpdated": "Estado actualizado",
+      "statusError": "Error al actualizar estado",
+      "priorityUpdated": "Prioridad actualizada",
+      "priorityError": "Error al actualizar prioridad",
+      "updateError": "Error actualizando tarea",
+      "deleted": "Tarea eliminada exitosamente",
+      "deleteError": "Error eliminando tarea",
+      "tagAssigned": "Etiqueta {tagName} asignada",
+      "tagError": "Error asignando etiqueta",
+      "noTaskId": "No hay ID de tarea",
+      "shareError": "Error al compartir tarea",
+      "linkCopied": "Enlace copiado al portapapeles",
+      "linkedToGoal": "Tarea vinculada al objetivo",
+      "linkGoalError": "Error al vincular con el objetivo"
+    },
+    "share": {
+      "title": "Compartir Tarea",
+      "description": "Comparte este enlace con otros para ver esta tarea."
+    },
+    "priorities": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "statuses": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
+    }
+  },
+  "TaskFilters": {
+    "label": "Filtros",
+    "clear": "Limpiar",
+    "status": {
+      "label": "Estado",
+      "TODO": "Por hacer",
+      "IN_PROGRESS": "En progreso",
+      "COMPLETED": "Completadas",
+      "CANCELLED": "Canceladas"
+    },
+    "priority": {
+      "label": "Prioridad",
+      "LOW": "Baja",
+      "MEDIUM": "Media",
+      "HIGH": "Alta",
+      "URGENT": "Urgente"
+    },
+    "tags": {
+      "label": "Etiquetas"
+    }
+  },
+  "TaskForm": {
+    "label": "Nueva Tarea",
+    "placeholder": "¿Qué hay que hacer?",
+    "button": {
+      "add": "Agregar",
+      "adding": "Agregando..."
+    },
+    "toast": {
+      "success": "¡Tarea creada!",
+      "error": "Error: {message}",
+      "projectIdRequired": "El ID del proyecto es requerido"
+    }
+  },
+  "TaskDetailView": {
+    "title": "Detalles de Tarea",
+    "description": "Gestiona los detalles y subtareas",
+    "noDate": "Sin fecha",
+    "subtasks": {
+      "title": "Subtareas",
+      "empty": "No hay subtareas"
+    },
+    "time": {
+      "title": "Tiempo",
+      "comingSoon": "El seguimiento de tiempo estará disponible pronto."
+    },
+    "notFound": "Tarea no encontrada"
+  },
+  "AIAssistantSidebar": {
+    "title": "Ordo AI Copilot",
+    "welcome": "¡Hola! Soy Ordo AI. ¿Cómo puedo ayudarte a organizar tu día?",
+    "thinking": "Pensando...",
+    "placeholder": "Pregunta a la IA...",
+    "error": "Error al obtener respuesta de la IA"
+  },
+  "ReportCard": {
+    "scopes": {
+      "TASK_COMPLETION": "Tarea Completada",
+      "WEEKLY_SCHEDULED": "Reporte Semanal",
+      "MONTHLY_SCHEDULED": "Reporte Mensual",
+      "PROJECT_SUMMARY": "Resumen de Proyecto",
+      "PERSONAL_ANALYSIS": "Análisis Personal",
+      "default": "Reporte"
+    },
+    "metrics": {
+      "tasks": "tareas",
+      "hoursWorked": "h trabajadas",
+      "pomodoros": "pomodoros"
+    },
+    "stats": {
+      "strengths": "fortalezas",
+      "weaknesses": "áreas de mejora",
+      "recommendations": "recomendaciones"
+    }
+  },
+  "ReportDetail": {
+    "generatedOn": "Generado el",
+    "poweredBy": "Powered by {model}",
+    "summary": "Resumen",
+    "metrics": {
+      "title": "Métricas del Período",
+      "tasksCompleted": "Tareas Completadas",
+      "timeWorked": "Tiempo Trabajado",
+      "pomodoros": "Pomodoros",
+      "focusScore": "Focus Score"
+    },
+    "strengths": "Fortalezas",
+    "weaknesses": "Áreas de Mejora",
+    "recommendations": "Recomendaciones",
+    "patterns": "Patrones Detectados"
+  },
+  "FocusScoreGauge": {
+    "label": "Focus Score",
+    "messages": {
+      "excellent": "Excelente enfoque",
+      "veryGood": "Muy buen enfoque",
+      "good": "Buen enfoque",
+      "moderate": "Enfoque moderado",
+      "low": "Enfoque bajo",
+      "needsImprovement": "Necesitas mejorar el enfoque"
+    },
+    "description": "Basado en tiempo de trabajo vs pausas"
+  },
+  "GenerateReportDialog": {
+    "trigger": "Generar Reporte con IA",
+    "title": "Generar Reporte de Productividad",
+    "description": "La IA analizará tu productividad de la última semana y generará un reporte detallado con insights y recomendaciones.",
+    "includes": {
+      "title": "El reporte incluirá:",
+      "metrics": "Análisis de tus métricas semanales",
+      "strengths": "Identificación de fortalezas y áreas de mejora",
+      "recommendations": "Recomendaciones personalizadas",
+      "patterns": "Patrones de productividad detectados",
+      "score": "Score de productividad general"
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "generate": "Generar Reporte",
+      "close": "Cerrar",
+      "retry": "Reintentar"
+    },
+    "loading": {
+      "title": "Generando tu reporte...",
+      "description": "La IA está analizando tus datos de productividad. Esto puede tomar unos segundos."
+    },
+    "success": {
+      "title": "¡Reporte generado exitosamente!",
+      "description": "Tu reporte de productividad está listo."
+    },
+    "error": "Hubo un error al generar el reporte. Por favor, intenta nuevamente."
+  },
+  "DailyMetricsCard": {
+    "title": "Métricas del Día",
+    "today": "Hoy",
+    "metrics": {
+      "completed": "Completadas",
+      "time": "Tiempo",
+      "pomodoros": "Pomodoros",
+      "focus": "Enfoque"
+    }
+  },
+  "PeakHoursChart": {
+    "title": "Productividad por Hora",
+    "description": "Tu score de productividad a lo largo del día",
+    "empty": "Aún no hay datos. ¡Empieza a trabajar para ver tus patrones de productividad!",
+    "yAxis": "Score de Productividad (%)",
+    "tooltip": "Productividad",
+    "legend": {
+      "high": "Alta (80-100%)",
+      "good": "Buena (60-79%)",
+      "fair": "Regular (40-59%)",
+      "low": "Baja (0-39%)"
+    }
+  },
+  "ProductivityInsights": {
+    "title": "Insights de Productividad",
+    "description": "Recomendaciones basadas en tus patrones de trabajo",
+    "empty": "¡Empieza a registrar tus sesiones de trabajo para obtener insights personalizados!",
+    "peakHours": {
+      "title": "Tus Horas Pico",
+      "description": "Programa tus tareas más importantes durante estas horas para una productividad óptima."
+    },
+    "peakDays": {
+      "title": "Tus Días Más Productivos",
+      "description": "Tiendes a estar más enfocado y productivo en estos días de la semana."
+    },
+    "tip": "💡 Tip: La IA aprende de tus patrones de trabajo con el tiempo. ¡Sigue usando el temporizador para obtener insights más precisos!"
+  },
+  "WeeklyChart": {
+    "title": "Actividad Semanal",
+    "description": "Últimos 7 días",
+    "weekOf": "Semana del {date}",
+    "tasks": "Tareas",
+    "minutes": "Minutos",
+    "tasksCompleted": "Tareas Completadas",
+    "minutesWorked": "Minutos Trabajados",
+    "tooltip": {
+      "tasks": "Tareas",
+      "time": "Tiempo"
+    }
+  },
+  "AuthForm": {
+    "welcome": "¡Bienvenido a Ordo-Todo!",
+    "subtitle": "Entre con su cuenta para organizar sus tareas",
+    "emailLogin": "Entrar con Email",
+    "or": "o",
+    "googleLogin": "Continuar con Google",
+    "githubLogin": "Continuar con GitHub",
+    "noAccount": "¿No tienes cuenta?",
+    "register": "Regístrate aquí",
+    "connecting": "Conectando..."
+  },
+  "Processing": {
+    "text": "Procesando..."
+  },
+  "ConfirmDelete": {
+    "title": "¿Estás seguro de que quieres eliminar esto?",
+    "description": "Esta acción no se puede deshacer. Los datos se eliminarán permanentemente.",
+    "confirm": "Eliminar",
+    "cancel": "Cancelar",
+    "deleting": "Eliminando..."
+  },
+  "ConnectionStatus": {
+    "backOnline": {
+      "title": "De vuelta en línea",
+      "description": "Tu conexión ha sido restaurada. Sincronizando tus datos..."
+    },
+    "offline": {
+      "title": "Estás desconectado",
+      "description": "Algunas funciones pueden estar limitadas. Tus datos se sincronizarán cuando vuelvas a estar en línea."
+    }
+  },
+  "SyncStatus": {
+    "offline": "Sin conexión",
+    "syncing": "Sincronizando... {progress}%",
+    "error": "Error de sincronización",
+    "pending": "{count} pendientes",
+    "synced": "Sincronizado",
+    "idle": "Listo",
+    "neverSynced": "Nunca sincronizado",
+    "justNow": "Ahora mismo",
+    "minutesAgo": "hace {count}m",
+    "hoursAgo": "hace {count}h",
+    "lastSync": "Última sincronización",
+    "clickToSync": "Clic para sincronizar"
+  },
+  "PWAInstallButton": {
+    "install": "Instalar App"
+  },
+  "PWATester": {
+    "pwaStatus": {
+      "title": "Estado de PWA",
+      "description": "Prueba las funciones e instalación de la aplicación web progresiva",
+      "installable": "Instalable",
+      "installed": "Instalada",
+      "onlineStatus": "Estado en línea",
+      "online": "En línea",
+      "offline": "Desconectado",
+      "installButton": "Instalar PWA"
+    },
+    "pushNotifications": {
+      "title": "Notificaciones Push",
+      "description": "Prueba las notificaciones del navegador y del service worker",
+      "supported": "Soportado",
+      "permission": "Permiso",
+      "subscribed": "Suscrito",
+      "requestPermission": "Solicitar Permiso",
+      "sendBrowser": "Enviar Notificación del Navegador",
+      "sendBackground": "Enviar Notificación en Segundo Plano",
+      "granted": "¡Permiso de notificación concedido!",
+      "denied": "Permiso de notificación denegado",
+      "testSent": "¡Notificación de prueba enviada!",
+      "backgroundSent": "¡Notificación en segundo plano enviada!"
+    },
+    "keyboardShortcuts": {
+      "title": "Atajos de Teclado",
+      "description": "Prueba los atajos de teclado y eventos personalizados",
+      "available": "Atajos disponibles:",
+      "newTask": "Nueva Tarea",
+      "quickTimer": "Temporizador Rápido",
+      "search": "Buscar",
+      "installPwa": "Instalar PWA",
+      "triggerNewTask": "Activar Atajo de Nueva Tarea"
+    },
+    "yes": "Sí",
+    "no": "No"
+  },
+  "Error": {
+    "title": "¡Algo salió mal!",
+    "description": "Ocurrió un error inesperado. Nos disculpamos por las molestias.",
+    "retry": "Intentar de nuevo",
+    "home": "Ir al Inicio"
+  },
+  "NotFound": {
+    "title": "Página No Encontrada",
+    "description": "La página que buscas no existe o ha sido movida.",
+    "message": "Por favor verifica la URL o regresa a la página de inicio.",
+    "home": "Ir al Inicio",
+    "back": "Regresar"
+  },
+  "ProjectBoard": {
+    "columns": {
+      "todo": "Por Hacer",
+      "inProgress": "En Progreso",
+      "completed": "Completado"
+    },
+    "addTask": "Agregar Tarea"
+  },
+  "ProjectList": {
+    "columns": {
+      "task": "Tarea",
+      "dueDate": "Fecha Límite",
+      "priority": "Prioridad"
+    },
+    "emptyState": {
+      "title": "Sin tareas aún",
+      "description": "Crea tu primera tarea para empezar a hacer seguimiento de tu trabajo.",
+      "action": "Crear Tarea"
+    }
+  },
+  "FocusMode": {
+    "selectTask": "Selecciona una tarea para enfocar",
+    "deepWork": "Trabajo Profundo",
+    "breakTime": "Tiempo de Descanso",
+    "loading": "Cargando tarea...",
+    "completeTask": "Completar Tarea",
+    "exit": "Salir del Modo Enfoque"
+  },
+  "ProjectFiles": {
+    "empty": "No hay archivos en este proyecto.",
+    "name": "Nombre",
+    "task": "Tarea",
+    "size": "Tamaño",
+    "uploadedBy": "Subido por",
+    "date": "Fecha",
+    "actions": "Acciones"
+  },
+  "Profile": {
+    "title": "Configuración de Perfil",
+    "tabs": {
+      "profile": "Perfil",
+      "ai": "IA",
+      "security": "Seguridad",
+      "privacy": "Privacidad",
+      "integrations": "Integraciones",
+      "subscription": "Suscripción",
+      "account": "Cuenta"
+    },
+    "profile": {
+      "title": "Información del Perfil",
+      "description": "Actualiza tu información personal y preferencias",
+      "avatar": {
+        "change": "Cambiar Avatar",
+        "hint": "JPG, PNG o GIF. Máx 2MB."
+      },
+      "form": {
+        "name": "Nombre Completo",
+        "namePlaceholder": "Juan Pérez",
+        "email": "Correo Electrónico",
+        "emailHint": "El correo no se puede cambiar",
+        "phone": "Teléfono",
+        "phonePlaceholder": "+52 55 1234 5678",
+        "jobTitle": "Cargo",
+        "jobTitlePlaceholder": "Gerente de Producto",
+        "department": "Departamento",
+        "departmentPlaceholder": "Ingeniería",
+        "timezone": "Zona Horaria",
+        "timezonePlaceholder": "Selecciona zona horaria",
+        "bio": "Biografía",
+        "bioPlaceholder": "Cuéntanos un poco sobre ti..."
+      },
+      "save": "Guardar Cambios",
+      "saving": "Guardando..."
+    },
+    "ai": {
+      "title": "IA y Productividad",
+      "description": "Configura cómo la IA te ayuda a ser más productivo",
+      "enableAI": "Habilitar Funciones de IA",
+      "enableAIDescription": "Permitir que la IA analice tus tareas y proporcione sugerencias",
+      "suggestions": {
+        "title": "Sugerencias de IA",
+        "durations": "Sugerir duraciones de tareas",
+        "priorities": "Sugerir prioridades",
+        "scheduling": "Sugerir programación óptima",
+        "weeklyReports": "Reportes semanales de productividad con IA"
+      },
+      "aggressiveness": {
+        "title": "Agresividad de IA",
+        "description": "Qué tan seguido la IA debe sugerir cambios",
+        "conservative": "Conservador",
+        "proactive": "Proactivo"
+      },
+      "energy": {
+        "title": "Perfil de Energía",
+        "description": "La IA usa esto para programar tareas demandantes durante tus horas pico",
+        "morning": "Energía Matutina",
+        "afternoon": "Energía Vespertina",
+        "evening": "Energía Nocturna",
+        "levels": {
+          "low": "Baja",
+          "medium": "Media",
+          "high": "Alta"
         }
+      },
+      "save": "Guardar Preferencias de IA",
+      "saving": "Guardando..."
     },
-    "CreateTaskDialog": {
-        "validation": {
-            "titleRequired": "El título es requerido",
-            "projectRequired": "Proyecto es requerido"
+    "security": {
+      "title": "Seguridad",
+      "description": "Administra la configuración de seguridad de tu cuenta",
+      "password": {
+        "title": "Contraseña",
+        "lastChanged": "Último cambio: {time}",
+        "change": "Cambiar Contraseña"
+      },
+      "twoFactor": {
+        "title": "Autenticación de Dos Factores",
+        "description": "Añade una capa extra de seguridad a tu cuenta",
+        "comingSoon": "Próximamente"
+      },
+      "connectedAccounts": {
+        "title": "Cuentas Conectadas",
+        "connected": "Conectada"
+      },
+      "activeSessions": {
+        "title": "Sesiones Activas",
+        "currentSession": "Sesión Actual",
+        "thisDevice": "Este dispositivo",
+        "active": "Activa"
+      }
+    },
+    "privacy": {
+      "title": "Privacidad y Datos",
+      "description": "Controla cómo se usan y comparten tus datos",
+      "dataSharing": {
+        "title": "Compartir Datos",
+        "analytics": "Compartir análisis de uso",
+        "analyticsDescription": "Ayuda a mejorar Ordo-Todo con datos anónimos de uso",
+        "activityStatus": "Mostrar estado de actividad",
+        "activityStatusDescription": "Permitir que los compañeros vean cuando estás trabajando en tareas"
+      },
+      "emailNotifications": {
+        "title": "Notificaciones por Correo",
+        "taskReminders": "Recordatorios de tareas por correo",
+        "weeklyDigest": "Resumen semanal de productividad",
+        "marketing": "Actualizaciones de marketing y producto"
+      },
+      "save": "Guardar Configuración de Privacidad",
+      "saving": "Guardando..."
+    },
+    "integrations": {
+      "title": "Integraciones",
+      "description": "Conecta con servicios de terceros",
+      "connect": "Conectar",
+      "comingSoon": "Próximamente",
+      "providers": {
+        "googleCalendar": {
+          "name": "Google Calendar",
+          "description": "Sincroniza tareas con fechas de vencimiento a tu calendario"
         },
-        "toast": {
-            "success": "Tarea creada exitosamente",
-            "error": "Error al crear tarea",
-            "aiTitleRequired": "Escribe un título primero para usar la IA",
-            "aiSuccess": "Descripción generada con IA"
+        "slack": {
+          "name": "Slack",
+          "description": "Crea tareas desde mensajes de Slack, recibe notificaciones"
         },
-        "ai": {
-            "generatedDescription": "Descripción generada automáticamente para: {title}\n\n- Paso 1: Investigar\n- Paso 2: Implementar\n- Paso 3: Probar",
-            "generating": "Generando...",
-            "magic": "AI Magic"
-        },
-        "emptyState": {
-            "title": "No hay proyectos",
-            "description": "Para crear una tarea, primero necesitas un proyecto.",
-            "action": "Crear Proyecto"
-        },
-        "title": "Nueva Tarea",
-        "description": "Crea una nueva tarea y asígnala a un proyecto",
-        "form": {
-            "title": "Título *",
-            "titlePlaceholder": "Ej: Implementar autenticación",
-            "project": "Proyecto *",
-            "selectProject": "Selecciona un proyecto",
-            "priority": "Prioridad",
-            "dueDate": "Fecha de vencimiento",
-            "estimatedMinutes": "Minutos Estimados (min)",
-            "description": "Descripción",
-            "descriptionPlaceholder": "Detalles adicionales de la tarea..."
-        },
-        "priorities": {
-            "low": "Baja",
-            "medium": "Media",
-            "high": "Alta"
-        },
-        "buttons": {
-            "cancel": "Cancelar",
-            "creating": "Creando...",
-            "create": "Crear Tarea"
+        "github": {
+          "name": "GitHub",
+          "description": "Sincroniza issues y pull requests"
         }
+      }
     },
-    "CreateProjectDialog": {
-        "validation": {
-            "nameRequired": "El nombre es requerido",
-            "workspaceRequired": "Workspace es requerido"
-        },
-        "toast": {
-            "success": "Proyecto creado exitosamente",
-            "successWithTasks": "Proyecto creado con {count} tareas iniciales",
-            "templateSelected": "Plantilla \"{name}\" seleccionada",
-            "error": "Error al crear proyecto",
-            "createWorkspace": "Por favor crea un workspace desde la barra lateral"
-        },
-        "title": "Crear Proyecto",
-        "description": "Organiza tus tareas en proyectos dentro de un flujo de trabajo",
-        "templates": {
-            "title": "Seleccionar Plantilla",
-            "tasksCount": "{count} tareas iniciales"
-        },
-        "emptyState": {
-            "title": "No hay espacios de trabajo",
-            "description": "Para crear un proyecto, primero necesitas un espacio de trabajo (Workspace).",
-            "action": "Crear Workspace"
-        },
-        "form": {
-            "color": "Color del Proyecto",
-            "name": "Nombre *",
-            "namePlaceholder": "Ej: Rediseño Web, Marketing Q4",
-            "workspace": "Workspace *",
-            "description": "Descripción",
-            "descriptionPlaceholder": "Descripción opcional del proyecto..."
-        },
-        "buttons": {
-            "cancel": "Cancelar",
-            "creating": "Creando...",
-            "create": "Crear Proyecto"
+    "subscription": {
+      "title": "Suscripción y Facturación",
+      "description": "Administra tu suscripción y detalles de facturación",
+      "currentPlan": "Plan Actual",
+      "upgrade": "Actualizar a Pro",
+      "features": {
+        "unlimitedTasks": "Tareas ilimitadas",
+        "workspaces": "{count} workspaces",
+        "basicAI": "Sugerencias básicas de IA",
+        "advancedAnalytics": "Analíticas avanzadas",
+        "teamCollaboration": "Colaboración en equipo"
+      },
+      "billingHistory": {
+        "title": "Historial de Facturación",
+        "empty": "No hay historial de facturación disponible"
+      }
+    },
+    "account": {
+      "title": "Configuración de Cuenta",
+      "description": "Administra los datos y configuración de tu cuenta",
+      "export": {
+        "title": "Exportar Tus Datos",
+        "description": "Descarga todos tus datos incluyendo tareas, proyectos, sesiones de tiempo y configuración en formato JSON",
+        "button": "Solicitar Exportación",
+        "exporting": "Exportando..."
+      },
+      "delete": {
+        "title": "Eliminar Cuenta",
+        "description": "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
+        "button": "Eliminar Cuenta",
+        "deleting": "Eliminando...",
+        "dialog": {
+          "title": "Eliminar Cuenta",
+          "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y removerá todos tus datos de nuestros servidores.",
+          "cancel": "Cancelar",
+          "confirm": "Eliminar Cuenta"
         }
+      }
     },
-    "CreateWorkspaceDialog": {
-        "validation": {
-            "nameRequired": "El nombre es requerido"
-        },
-        "toast": {
-            "success": "Workspace creado exitosamente",
-            "error": "Error al crear workspace"
-        },
-        "title": "Crear Workspace",
-        "description": "Organiza tus tareas en diferentes espacios de trabajo",
-        "form": {
-            "type": "Tipo de Workspace",
-            "name": "Nombre *",
-            "namePlaceholder": "Ej: Mi Empresa, Personal, etc.",
-            "description": "Descripción",
-            "descriptionPlaceholder": "Descripción opcional del espacio de trabajo..."
-        },
-        "types": {
-            "personal": "Personal",
-            "personalDesc": "Para tus tareas personales",
-            "work": "Trabajo",
-            "workDesc": "Para proyectos laborales",
-            "team": "Equipo",
-            "teamDesc": "Para colaboración en equipo"
-        },
-        "buttons": {
-            "cancel": "Cancelar",
-            "creating": "Creando...",
-            "create": "Crear Workspace"
-        }
+    "toast": {
+      "profileUpdated": "¡Perfil actualizado exitosamente!",
+      "profileError": "Error al actualizar perfil",
+      "aiUpdated": "¡Preferencias de IA actualizadas exitosamente!",
+      "aiError": "Error al actualizar preferencias de IA",
+      "privacyUpdated": "¡Configuración de privacidad actualizada exitosamente!",
+      "privacyError": "Error al actualizar configuración de privacidad",
+      "exportStarted": "¡Exportación de datos iniciada! La descarga comenzará en breve.",
+      "exportError": "Error al exportar datos",
+      "deleteError": "Error al eliminar cuenta"
+    }
+  },
+  "AIReport": {
+    "title": "Reporte de Productividad Semanal",
+    "subtitle": "Análisis de tu rendimiento de la última semana",
+    "generateButton": "Generar Reporte",
+    "analyzing": "Analizando datos...",
+    "emptyState": "No hay datos suficientes para generar un reporte. ¡Sigue trabajando!",
+    "regenerate": "Regenerar",
+    "export": "Exportar",
+    "stats": {
+      "pomodoros": "Pomodoros",
+      "tasks": "Tareas Completadas",
+      "streak": "Racha",
+      "average": "Promedio/día"
+    }
+  },
+  "Timer": {
+    "title": "Timer",
+    "subtitle": "Gestiona tu tiempo con Pomodoro",
+    "tabs": {
+      "timer": "Timer",
+      "history": "Historial"
     },
-    "SubtaskList": {
-        "title": "Subtareas",
-        "empty": "No hay subtareas. Agrega una para dividir esta tarea.",
-        "add": "Agregar Subtarea",
-        "placeholder": "Título de la subtarea...",
-        "nested": "Algunas subtareas tienen sub-subtareas",
-        "tooltips": {
-            "drag": "Arrastrar para reordenar",
-            "edit": "Editar subtarea",
-            "delete": "Eliminar subtarea"
-        },
-        "toast": {
-            "created": "Subtarea creada",
-            "createError": "Error al crear subtarea",
-            "completed": "Subtarea completada",
-            "completeError": "Error al completar subtarea",
-            "reopened": "Subtarea reabierta",
-            "reopenError": "Error al reabrir subtarea",
-            "updated": "Subtarea actualizada",
-            "updateError": "Error al actualizar subtarea",
-            "deleted": "Subtarea eliminada",
-            "deleteError": "Error al eliminar subtarea"
-        },
-        "confirmDelete": "¿Estás seguro de eliminar esta subtarea?"
+    "modes": {
+      "work": "Trabajo",
+      "shortBreak": "Descanso corto",
+      "longBreak": "Descanso largo"
     },
-    "CommentThread": {
-        "title": "Comentarios",
-        "empty": "No hay comentarios aún. Sé el primero en comentar.",
-        "placeholder": "Escribe un comentario...",
-        "shortcut": "Presiona Cmd/Ctrl + Enter para enviar",
-        "edited": "(editado)",
-        "actions": {
-            "edit": "Editar",
-            "delete": "Eliminar",
-            "save": "Guardar",
-            "saving": "Guardando...",
-            "cancel": "Cancelar",
-            "send": "Comentar",
-            "sending": "Enviando..."
-        },
-        "toast": {
-            "added": "Comentario agregado",
-            "addError": "Error al agregar comentario",
-            "updated": "Comentario actualizado",
-            "updateError": "Error al actualizar comentario",
-            "deleted": "Comentario eliminado",
-            "deleteError": "Error al eliminar comentario"
-        },
-        "confirmDelete": "¿Estás seguro de eliminar este comentario?"
+    "history": {
+      "totalSessions": "Sesiones totales",
+      "totalTime": "Tiempo total",
+      "workSessions": "Sesiones de trabajo",
+      "noSessions": "No hay sesiones",
+      "noSessionsDescription": "Completa una sesión con el timer para verla aquí.",
+      "loading": "Cargando...",
+      "filters": "Filtros",
+      "allTypes": "Todos los tipos",
+      "today": "Hoy",
+      "last7Days": "Últimos 7 días",
+      "last30Days": "Últimos 30 días",
+      "last90Days": "Últimos 90 días",
+      "page": "Página"
+    }
+  },
+  "AIWeeklyReport": {
+    "weeklyReport": "Reporte Semanal",
+    "generateReport": "Generar Reporte",
+    "analyzing": "Analizando...",
+    "sections": {
+      "summary": "Resumen",
+      "achievements": "Logros",
+      "improvements": "Áreas de Mejora",
+      "recommendations": "Recomendaciones"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "search": "Buscar",
+    "noResults": "Sin resultados",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "info": "Información"
+  },
+  "Sync": {
+    "offline": "Sin conexión",
+    "offlineDesc": "Los cambios se sincronizarán cuando haya conexión",
+    "syncing": "Sincronizando...",
+    "syncingDesc": "Sincronizando tus cambios",
+    "error": "Error de sincronización",
+    "errorDesc": "Error al sincronizar. Haz clic para reintentar",
+    "pending": "Pendiente",
+    "pendingDesc": "{{count}} cambios pendientes",
+    "synced": "Sincronizado",
+    "syncedDesc": "Última sincronización: {{time}}",
+    "unknown": "Desconocido",
+    "failedChanges": "{{count}} cambios fallidos",
+    "pendingChanges": "pendientes",
+    "offlineBanner": "Estás sin conexión. Los cambios se sincronizarán cuando vuelvas a conectarte."
+  },
+  "About": {
+    "description": "Tu compañero personal de productividad",
+    "version": "Versión",
+    "platform": "Plataforma",
+    "madeWith": "Hecho con ❤️ para impulsar tu productividad",
+    "website": "Sitio web",
+    "documentation": "Documentación"
+  },
+  "Shortcuts": {
+    "title": "Atajos de teclado",
+    "description": "Usa estos atajos para navegar y controlar la aplicación más rápido. Los atajos marcados como 'Global' funcionan incluso cuando la ventana no está enfocada.",
+    "footerNote": "Puedes personalizar los atajos globales en Configuración → Atajos"
+  },
+  "Goals": {
+    "title": "Objetivos (OKRs)",
+    "subtitle": "Establece objetivos ambiciosos y rastrea resultados clave",
+    "createObjective": "Nuevo Objetivo",
+    "noObjectives": "No hay objetivos establecidos aún",
+    "noObjectivesDescription": "Define tus objetivos para mantenerte enfocado en lo que más importa.",
+    "listTitle": "Objetivos y Resultados Clave",
+    "backToList": "Volver a Objetivos",
+    "notFound": "Objetivo no encontrado",
+    "edit": "Editar",
+    "createDescription": "Crea un nuevo objetivo para rastrear tus metas.",
+    "cancel": "Cancelar",
+    "create": "Crear Objetivo",
+    "form": {
+      "title": "Título",
+      "titlePlaceholder": "ej. Aumentar ingresos en un 20%",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional del objetivo",
+      "period": "Período",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "color": "Color",
+      "icon": "Icono"
     },
-    "Notifications": {
-        "title": "Notificaciones",
-        "empty": "No hay notificaciones",
-        "loading": "Cargando...",
-        "markAllRead": "Marcar todas como leídas"
+    "periods": {
+      "QUARTERLY": "Trimestral",
+      "YEARLY": "Anual",
+      "CUSTOM": "Personalizado"
     },
-    "FileUpload": {
-        "errors": {
-            "tooLarge": "El archivo es demasiado grande. Máximo {maxFileSize}MB.",
-            "invalidType": "Tipo de archivo no permitido.",
-            "invalidResponse": "Respuesta inválida del servidor de subida",
-            "unknown": "Error desconocido",
-            "uploadError": "Error al subir: {errorMessage}",
-            "networkError": "Error de red durante la subida",
-            "statusError": "Error {status}: {statusText}"
-        },
-        "success": {
-            "uploaded": "{fileName} subido exitosamente"
-        },
-        "info": {
-            "cancelled": "Subida de {fileName} cancelada"
-        },
-        "dropzone": {
-            "dragging": "Suelta los archivos aquí",
-            "idle": "Arrastra archivos aquí o haz click para seleccionar",
-            "maxSize": "Máximo {maxFileSize}MB por archivo"
-        },
-        "uploading": "Subiendo archivos..."
+    "status": {
+      "DRAFT": "Borrador",
+      "ACTIVE": "Activo",
+      "COMPLETED": "Completado",
+      "CANCELLED": "Cancelado",
+      "AT_RISK": "En Riesgo"
     },
-    "AttachmentList": {
-        "title": "Archivos",
-        "empty": "No hay archivos adjuntos aún.",
-        "total": "total",
-        "by": "por",
-        "tooltips": {
-            "preview": "Vista previa",
-            "download": "Descargar",
-            "delete": "Eliminar"
-        },
-        "toast": {
-            "downloading": "Descargando {filename}",
-            "deleted": "Archivo eliminado",
-            "deleteError": "Error al eliminar archivo"
-        },
-        "confirmDelete": "¿Estás seguro de eliminar {filename}?"
+    "period": {
+      "Q1": "Q1",
+      "Q2": "Q2",
+      "Q3": "Q3",
+      "Q4": "Q4",
+      "YEARLY": "Anual"
     },
-    "ActivityFeed": {
-        "title": "Actividad Reciente",
-        "showing": "Mostrando {count} de {total}",
-        "showMore": "Ver toda la actividad ({count} más)",
-        "empty": "No hay actividad reciente.",
-        "dates": {
-            "today": "Hoy",
-            "yesterday": "Ayer"
-        },
-        "actions": {
-            "TASK_CREATED": "creó la tarea",
-            "TASK_UPDATED": "actualizó la tarea",
-            "TASK_COMPLETED": "completó la tarea",
-            "TASK_DELETED": "eliminó la tarea",
-            "COMMENT_ADDED": "agregó un comentario",
-            "COMMENT_EDITED": "editó un comentario",
-            "COMMENT_DELETED": "eliminó un comentario",
-            "ATTACHMENT_ADDED": "subió un archivo",
-            "ATTACHMENT_DELETED": "eliminó un archivo",
-            "SUBTASK_ADDED": "agregó una subtarea",
-            "SUBTASK_COMPLETED": "completó una subtarea",
-            "STATUS_CHANGED": "cambió el estado",
-            "PRIORITY_CHANGED": "cambió la prioridad",
-            "ASSIGNEE_CHANGED": "cambió el asignado",
-            "DUE_DATE_CHANGED": "cambió la fecha de vencimiento"
-        },
-        "details": {
-            "fromTo": "de \"{oldValue}\" a \"{newValue}\"",
-            "to": "a {newValue}",
-            "removed": "(eliminada)",
-            "item": ": {itemName}",
-            "mentioned": "mencionó a {users}"
-        }
-    },
-    "ProjectCard": {
-        "tasks": "{count} tareas",
-        "tasksProgress": "{completed}/{total} tareas",
-        "progress": "Progreso",
-        "archived": "Archivado",
-        "actions": {
-            "archive": "Archivar",
-            "unarchive": "Desarchivar",
-            "delete": "Eliminar"
-        },
-        "toast": {
-            "archived": "Proyecto archivado",
-            "unarchived": "Proyecto desarchivado",
-            "archiveError": "Error al actualizar proyecto",
-            "deleted": "Proyecto eliminado",
-            "deleteError": "Error al eliminar proyecto"
-        },
-        "confirmDelete": "¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer."
-    },
-    "ProjectSettingsDialog": {
-        "title": "Configuración del Proyecto",
-        "description": "Actualiza la información de tu proyecto",
-        "form": {
-            "name": {
-                "label": "Nombre *",
-                "placeholder": "Ej: Rediseño Web, Marketing Q4",
-                "required": "El nombre es requerido"
-            },
-            "description": {
-                "label": "Descripción",
-                "placeholder": "Descripción opcional del proyecto..."
-            },
-            "color": {
-                "label": "Color del Proyecto"
-            }
-        },
-        "actions": {
-            "cancel": "Cancelar",
-            "save": "Guardar Cambios",
-            "saving": "Guardando..."
-        },
-        "toast": {
-            "updated": "Proyecto actualizado exitosamente",
-            "updateError": "Error al actualizar proyecto"
-        }
-    },
-    "ProjectSettings": {
-        "general": {
-            "title": "Configuración General",
-            "description": "Actualiza el nombre, descripción y color del proyecto"
-        },
-        "form": {
-            "name": {
-                "label": "Nombre *",
-                "placeholder": "Ej: Rediseño Web, Marketing Q4",
-                "required": "El nombre es requerido"
-            },
-            "description": {
-                "label": "Descripción",
-                "placeholder": "Descripción opcional del proyecto..."
-            },
-            "color": {
-                "label": "Color del Proyecto"
-            }
-        },
-        "actions": {
-            "save": "Guardar Cambios",
-            "saving": "Guardando...",
-            "archive": "Archivar",
-            "unarchive": "Desarchivar",
-            "delete": "Eliminar Proyecto"
-        },
-        "danger": {
-            "title": "Zona de Peligro",
-            "description": "Acciones irreversibles y destructivas",
-            "archive": {
-                "title": "Archivar este proyecto",
-                "description": "Marca este proyecto como archivado. Se ocultará de la vista principal."
-            },
-            "unarchive": {
-                "title": "Desarchivar este proyecto",
-                "description": "Restaura este proyecto a la lista de proyectos activos."
-            },
-            "delete": {
-                "title": "Eliminar este proyecto",
-                "description": "Elimina permanentemente este proyecto y todas sus tareas. Esta acción no se puede deshacer."
-            }
-        },
-        "deleteDialog": {
-            "title": "¿Estás seguro?",
-            "description": "Esta acción no se puede deshacer. Se eliminará permanentemente el proyecto y todas las tareas asociadas.",
-            "cancel": "Cancelar",
-            "confirm": "Eliminar Proyecto"
-        },
-        "toast": {
-            "updated": "Proyecto actualizado exitosamente",
-            "updateError": "Error al actualizar proyecto",
-            "archived": "Proyecto archivado",
-            "unarchived": "Proyecto restaurado",
-            "archiveError": "Error al archivar proyecto",
-            "deleted": "Proyecto eliminado",
-            "deleteError": "Error al eliminar proyecto"
-        }
-    },
-    "Breadcrumbs": {
-        "home": "Inicio"
-    },
-    "ProjectDetail": {
-        "notFound": "Proyecto no encontrado",
-        "notFoundDescription": "El proyecto que buscas no existe o fue eliminado.",
-        "backToProjects": "Volver a Proyectos",
-        "addTask": "Nueva Tarea",
-        "tasksSection": "Tareas del Proyecto",
-        "breadcrumbs": {
-            "projects": "Proyectos"
-        },
-        "badges": {
-            "archived": "Archivado",
-            "completed": "Completado"
-        },
-        "stats": {
-            "task": "tarea",
-            "tasks": "tareas",
-            "totalTasks": "Total de Tareas",
-            "completedTasks": "Completadas",
-            "completed": "completadas"
-        },
-        "status": {
-            "todo": "Por Hacer",
-            "inProgress": "En Progreso",
-            "completed": "Completadas"
-        },
-        "tabs": {
-            "overview": "Resumen",
-            "list": "Lista",
-            "board": "Tablero",
-            "timeline": "Línea de Tiempo",
-            "files": "Archivos"
-        },
-        "overview": {
-            "progress": "Progreso",
-            "recentTasks": "Tareas Recientes"
-        },
-        "actions": {
-            "archive": "archivar",
-            "unarchive": "desarchivar"
-        },
-        "menu": {
-            "settings": "Configuración",
-            "markComplete": "Marcar como Completado",
-            "markIncomplete": "Marcar como Incompleto",
-            "archive": "Archivar",
-            "unarchive": "Desarchivar",
-            "delete": "Eliminar"
-        },
-        "emptyState": {
-            "title": "No hay tareas",
-            "description": "Este proyecto no tiene tareas aún. Crea la primera para comenzar.",
-            "archivedDescription": "Este proyecto está archivado y no tiene tareas.",
-            "completedDescription": "Este proyecto está completado y no tiene tareas pendientes."
-        },
-        "confirmArchive": "¿Estás seguro de que deseas",
-        "confirmComplete": "¿Marcar este proyecto como completado?",
-        "confirmUncomplete": "¿Marcar este proyecto como incompleto?",
-        "confirmDelete": "¿Eliminar este proyecto? Esta acción no se puede deshacer.",
-        "toast": {
-            "archived": "Proyecto archivado",
-            "archiveError": "Error al archivar proyecto",
-            "completed": "Proyecto completado",
-            "uncompleted": "Proyecto marcado como incompleto",
-            "completeError": "Error al completar proyecto",
-            "deleted": "Proyecto eliminado"
-        }
-    },
-    "WorkspaceCard": {
-        "types": {
-            "PERSONAL": "Personal",
-            "WORK": "Trabajo",
-            "TEAM": "Equipo"
-        },
-        "status": {
-            "active": "Activo"
-        },
-        "stats": {
-            "projects": "{count} proyectos",
-            "tasks": "{count} tareas"
-        },
-        "actions": {
-            "settings": "Configuración",
-            "delete": "Eliminar"
-        },
-        "toast": {
-            "deleted": "Workspace eliminado",
-            "deleteError": "Error al eliminar workspace"
-        },
-        "confirmDelete": "¿Estás seguro de eliminar el workspace \"{name}\"?"
-    },
-    "WorkspaceInfoBar": {
-        "types": {
-            "PERSONAL": "Personal",
-            "WORK": "Trabajo",
-            "TEAM": "Equipo"
-        },
-        "team": "Team",
-        "stats": {
-            "projects": "{count, plural, =1 {Proyecto} other {Proyectos}}",
-            "activeTasks": "{count, plural, =1 {Tarea Activa} other {Tareas Activas}}",
-            "completed": "Completadas"
-        },
-        "actions": {
-            "newProject": "Nuevo Proyecto",
-            "settings": "Configuración"
-        }
-    },
-    "WorkspaceSelector": {
-        "create": "Crear Workspace",
-        "label": "Workspaces",
-        "defaultName": "Workspace",
-        "search": "Buscar workspaces...",
-        "noResults": "No se encontraron workspaces",
-        "types": {
-            "personal": "Personal",
-            "work": "Trabajo",
-            "team": "Equipo"
-        },
-        "stats": {
-            "projects": "proyectos",
-            "tasks": "tareas"
-        },
-        "settings": "Configurar Workspace",
-        "newWorkspace": "Nuevo Workspace"
-    },
-    "WorkspaceDashboard": {
-        "notFound": "Workspace no encontrado",
-        "backToWorkspaces": "Volver a Workspaces",
-        "newProject": "Nuevo Proyecto",
-        "settings": "Configuración",
-        "delete": "Eliminar Workspace",
-        "deleteConfirmation": "¿Estás seguro de eliminar este workspace? Esto eliminará todos los proyectos y tareas. Esta acción no se puede deshacer.",
-        "deleteSuccess": "Workspace eliminado exitosamente",
-        "projects": "Proyectos",
-        "recentActivity": "Actividad Reciente",
-        "noActivity": "Sin actividad reciente",
-        "viewAllActivity": "Ver toda la actividad",
-        "stats": {
-            "projects": "Proyectos",
-            "tasks": "Tareas",
-            "members": "Miembros"
-        }
-    },
-    "WorkspaceSettingsDialog": {
-        "title": "Configuración del Workspace",
-        "description": "Administra la información general de tu espacio de trabajo.",
-        "form": {
-            "name": {
-                "label": "Nombre del Workspace",
-                "placeholder": "Ej. Mi Proyecto Personal"
-            },
-            "description": {
-                "label": "Descripción",
-                "placeholder": "Describe brevemente el propósito de este espacio..."
-            },
-            "type": {
-                "label": "Tipo de Espacio",
-                "helper": "El tipo define el color y el icono predeterminado del workspace.",
-                "options": {
-                    "PERSONAL": "Personal",
-                    "WORK": "Trabajo",
-                    "TEAM": "Equipo"
-                }
-            }
-        },
-        "dangerZone": {
-            "title": "Zona de Peligro",
-            "description": "Esta acción no se puede deshacer.",
-            "delete": "Eliminar",
-            "deleting": "Eliminando...",
-            "confirm": "Confirmar"
-        },
-        "actions": {
-            "cancel": "Cancelar",
-            "save": "Guardar Cambios",
-            "saving": "Guardando..."
-        },
-        "toast": {
-            "updated": "Workspace actualizado",
-            "updateError": "Error al actualizar workspace",
-            "deleted": "Workspace eliminado",
-            "deleteError": "Error al eliminar workspace"
-        },
-        "tabs": {
-            "general": "General",
-            "members": "Miembros",
-            "configuration": "Configuración",
-            "activity": "Actividad"
-        }
-    },
-    "WorkspaceActivityLog": {
-        "empty": {
-            "title": "Sin actividad aún",
-            "description": "La actividad de este workspace aparecerá aquí."
-        },
-        "by": "por",
-        "pagination": {
-            "showing": "Mostrando {from}-{to} de {total}",
-            "page": "Página {current} de {total}"
-        }
-    },
-    "WorkspaceConfigurationSettings": {
-        "form": {
-            "defaultView": {
-                "label": "Vista Predeterminada",
-                "helper": "La vista por defecto al abrir proyectos en este workspace.",
-                "options": {
-                    "LIST": "Lista",
-                    "KANBAN": "Kanban",
-                    "CALENDAR": "Calendario",
-                    "TIMELINE": "Línea de Tiempo",
-                    "FOCUS": "Enfoque"
-                }
-            },
-            "defaultDueTime": {
-                "label": "Hora Predeterminada de Vencimiento",
-                "helper": "Hora por defecto para las fechas de vencimiento (ej. 9:00 AM)."
-            },
-            "timezone": {
-                "label": "Zona Horaria",
-                "placeholder": "Selecciona zona horaria",
-                "helper": "Zona horaria para fechas y horas en este workspace."
-            },
-            "locale": {
-                "label": "Idioma y Región",
-                "placeholder": "Selecciona idioma",
-                "helper": "Idioma y formato regional para este workspace."
-            }
-        },
-        "actions": {
-            "save": "Guardar Configuración",
-            "saving": "Guardando..."
-        },
-        "toast": {
-            "updated": "Configuración actualizada exitosamente",
-            "updateError": "Error al actualizar configuración"
-        }
-    },
-    "InviteMemberDialog": {
-        "title": "Invitar Miembro",
-        "description": "Invita a un nuevo miembro a este workspace.",
-        "emailLabel": "Correo Electrónico",
-        "roleLabel": "Rol",
-        "rolePlaceholder": "Selecciona un rol",
-        "roles": {
-            "owner": "Creador",
-            "admin": "Admin",
-            "member": "Miembro",
-            "viewer": "Visualizador"
-        },
+    "keyResults": {
+      "title": "Resultados Clave",
+      "subtitle": "Define métricas para medir tu progreso",
+      "add": "Agregar Resultado Clave",
+      "addFirst": "Agregar primer resultado clave",
+      "empty": "No hay resultados clave. Agrega uno para empezar a medir tu progreso.",
+      "createTitle": "Agregar Resultado Clave",
+      "createDescription": "Define un resultado medible para tu objetivo",
+      "name": "Título",
+      "target": "Objetivo",
+      "current": "Actual",
+      "unit": "Unidad",
+      "metricType": "Tipo",
+      "confirmDelete": "¿Eliminar este resultado clave?",
+      "deleted": "Resultado clave eliminado",
+      "form": {
+        "title": "Título",
+        "titlePlaceholder": "Ej: Aumentar ventas mensuales",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Describe cómo medirás el progreso...",
+        "metricType": "Tipo de métrica",
+        "startValue": "Valor inicial",
+        "targetValue": "Valor objetivo",
+        "unit": "Unidad",
+        "unitPlaceholder": "Ej: ventas, usuarios, horas"
+      },
+      "actions": {
         "cancel": "Cancelar",
-        "invite": "Invitar",
-        "success": "Invitación enviada exitosamente",
-        "successWithToken": "Invitación creada (Copia el link abajo)",
-        "error": "Error al enviar invitación",
-        "inviteLink": "Enlace de Invitación (Dev/MVP)",
-        "copied": "Enlace copiado al portapapeles",
-        "done": "Listo",
-        "devTokenNote": "Nota: En producción, esto se enviaría por correo."
+        "create": "Crear",
+        "creating": "Creando..."
+      },
+      "validation": {
+        "titleRequired": "El título es requerido"
+      },
+      "toast": {
+        "created": "Resultado clave creado",
+        "error": "Error al crear resultado clave"
+      },
+      "types": {
+        "PERCENTAGE": "Porcentaje",
+        "NUMBER": "Número",
+        "CURRENCY": "Moneda",
+        "BOOLEAN": "Verdadero/Falso"
+      }
     },
-    "WorkspaceMembersSettings": {
-        "membersTitle": "Miembros del Workspace",
-        "membersDescription": "Gestiona quién tiene acceso a este workspace.",
-        "inviteMember": "Invitar Miembro",
-        "loading": "Cargando miembros...",
-        "user": "Usuario",
-        "role": "Rol",
-        "joined": "Se unió",
-        "unknownUser": "Usuario Desconocido",
-        "remove": "Eliminar",
-        "confirmRemove": "¿Estás seguro de eliminar a este miembro?",
-        "memberRemoved": "Miembro eliminado",
-        "errorRemoving": "Error al eliminar miembro",
-        "noMembers": "No hay miembros en este workspace.",
-        "invitationsTitle": "Invitaciones Pendientes",
-        "invitationsDescription": "Invitaciones enviadas que aún no han sido aceptadas.",
-        "email": "Correo",
-        "status": "Estado",
-        "sent": "Enviado",
-        "roles": {
-            "owner": "Creador",
-            "admin": "Administrador",
-            "member": "Miembro",
-            "viewer": "Observador"
-        }
+    "stats": {
+      "totalObjectives": "Total Objetivos",
+      "onTrack": "En Camino",
+      "atRisk": "En Riesgo",
+      "completed": "Completados"
     },
-    "AcceptInvitationPage": {
-        "title": "Aceptar Invitación",
-        "description": "Has sido invitado a unirte a un workspace en Ordo Todo.",
-        "missingToken": "Falta el token de invitación.",
-        "confirmText": "¿Quieres aceptar esta invitación y unirte al workspace?",
-        "processing": "Procesando invitación...",
-        "success": "¡Te has unido al workspace exitosamente!",
-        "redirecting": "Redirigiendo a tus workspaces...",
-        "failed": "No se pudo aceptar la invitación",
-        "acceptButton": "Aceptar Invitación",
-        "goToWorkspaces": "Ir a mis Workspaces",
-        "backHome": "Volver al Inicio",
-        "error": "Ocurrió un error inesperado."
+    "tabs": {
+      "overview": "Resumen",
+      "list": "Vista de Lista",
+      "board": "Vista de Tablero"
     },
-    "CreateTagDialog": {
-        "title": {
-            "create": "Crear Etiqueta",
-            "edit": "Editar Etiqueta"
-        },
-        "description": {
-            "create": "Organiza tus tareas con etiquetas personalizadas",
-            "edit": "Modifica los detalles de la etiqueta"
-        },
-        "form": {
-            "name": {
-                "label": "Nombre *",
-                "placeholder": "Ej: Urgente, Personal, Trabajo...",
-                "required": "El nombre es requerido"
-            },
-            "color": {
-                "label": "Color"
-            },
-            "preview": {
-                "label": "Vista previa",
-                "default": "Etiqueta"
-            }
-        },
-        "actions": {
-            "cancel": "Cancelar",
-            "create": "Crear Etiqueta",
-            "creating": "Creando...",
-            "save": "Guardar Cambios",
-            "saving": "Guardando..."
-        },
-        "toast": {
-            "created": "Etiqueta creada exitosamente",
-            "createError": "Error al crear etiqueta",
-            "updated": "Etiqueta actualizada",
-            "updateError": "Error al actualizar etiqueta"
-        }
+    "averageProgress": "Progreso Promedio",
+    "viewAll": "Ver Todo",
+    "total": "Total",
+    "completed": "Completados",
+    "progress": "Progreso",
+    "dueDate": "Fecha límite",
+    "okrsAtRisk": "OKRs En Riesgo",
+    "left": "restantes"
+  },
+  "CustomFields": {
+    "title": "Campos Personalizados",
+    "subtitle": "Añade propiedades personalizadas a las tareas de este proyecto",
+    "addField": "Añadir Campo",
+    "noFields": "No hay campos personalizados",
+    "noFieldsDescription": "Añade campos para rastrear propiedades adicionales en las tareas",
+    "editField": "Editar Campo",
+    "createField": "Crear Campo Personalizado",
+    "updateField": "Actualizar propiedades del campo",
+    "addFieldDescription": "Añade una nueva propiedad personalizada para tareas",
+    "fieldName": "Nombre del Campo",
+    "fieldNamePlaceholder": "ej. Sprint, Story Points, Cliente",
+    "fieldType": "Tipo de Campo",
+    "description": "Descripción (opcional)",
+    "descriptionPlaceholder": "Texto de ayuda para este campo",
+    "options": "Opciones",
+    "addOption": "Añadir opción...",
+    "required": "Campo requerido",
+    "deleteConfirm": "¿Eliminar este campo personalizado? Todos los valores se perderán.",
+    "cancel": "Cancelar",
+    "create": "Crear Campo",
+    "save": "Guardar Cambios",
+    "fieldCreated": "Campo creado",
+    "fieldUpdated": "Campo actualizado",
+    "fieldDeleted": "Campo eliminado",
+    "fieldError": "Error al guardar campo",
+    "deleteError": "Error al eliminar campo",
+    "nameRequired": "El nombre del campo es requerido",
+    "optionsRequired": "Los campos de selección requieren al menos una opción",
+    "types": {
+      "TEXT": "Texto",
+      "NUMBER": "Número",
+      "SELECT": "Selección Única",
+      "MULTI_SELECT": "Selección Múltiple",
+      "DATE": "Fecha",
+      "URL": "URL",
+      "EMAIL": "Email",
+      "CHECKBOX": "Casilla de verificación"
+    }
+  },
+  "Focus": {
+    "title": "Enfoque",
+    "subtitle": "Sesiones de trabajo enfocado con audio ambient",
+    "startSession": "Iniciar Sesión",
+    "endSession": "Terminar Sesión",
+    "ambientAudio": "Audio Ambient",
+    "selectTrack": "Selecciona un sonido",
+    "noTrack": "Sin sonido",
+    "volume": "Volumen",
+    "favorites": "Favoritos",
+    "addToFavorites": "Agregar a favoritos",
+    "removeFromFavorites": "Quitar de favoritos",
+    "categories": {
+      "nature": "Naturaleza",
+      "cafe": "Café",
+      "whiteNoise": "Ruido Blanco",
+      "binaural": "Binaural",
+      "music": "Música"
     },
-    "TagSelector": {
-        "addTag": "Etiqueta",
-        "loading": "Cargando...",
-        "noTags": "No hay etiquetas disponibles",
-        "toast": {
-            "assigned": "Etiqueta asignada",
-            "assignError": "Error al asignar etiqueta",
-            "removed": "Etiqueta removida",
-            "removeError": "Error al remover etiqueta"
-        }
+    "tracks": {
+      "rain": "Lluvia",
+      "thunderstorm": "Tormenta",
+      "forest": "Bosque",
+      "ocean": "Olas del Mar",
+      "river": "Río",
+      "cafe": "Café",
+      "library": "Biblioteca",
+      "whiteNoise": "Ruido Blanco",
+      "pinkNoise": "Ruido Rosa",
+      "brownNoise": "Ruido Marrón",
+      "binaural": "Beats Binaurales",
+      "lofi": "Lo-Fi"
     },
-    "PomodoroTimer": {
-        "enterFocusMode": "Entrar al Modo Enfoque",
-        "mode": "Modo: {mode}",
-        "modes": {
-            "pomodoro": "Pomodoro",
-            "continuous": "Tiempo Corrido",
-            "stopwatch": "Cronómetro",
-            "shortBreak": "Descanso Corto",
-            "longBreak": "Descanso Largo",
-            "pomodoroCount": "Pomodoro #{count}"
-        },
-        "pauses": "Pausas: {count}",
-        "paused": "En pausa",
-        "switchTask": {
-            "buttonTitle": "Cambiar de tarea",
-            "title": "Cambiar de Tarea",
-            "description": "El tiempo trabajado en la tarea actual se guardará como completado. Selecciona la nueva tarea para continuar."
-        }
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "deepWork": "Trabajo Profundo",
+      "flow": "Estado Flow",
+      "sprint": "Sprint"
     },
-    "SessionHistory": {
-        "error": "Error al cargar el historial de sesiones",
-        "stats": {
-            "pomodoros": "Pomodoros",
-            "totalTime": "Tiempo Total",
-            "focusScore": "Puntuación de Enfoque",
-            "completionRate": "Completadas"
-        },
-        "filters": {
-            "title": "Filtros",
-            "type": "Tipo",
-            "allTypes": "Todos los tipos",
-            "status": "Estado",
-            "allStatus": "Todas las sesiones",
-            "completedOnly": "Solo completadas"
-        },
-        "types": {
-            "work": "Trabajo",
-            "short_break": "Descanso Corto",
-            "long_break": "Descanso Largo",
-            "shortBreak": "Descanso Corto",
-            "longBreak": "Descanso Largo",
-            "continuous": "Continuo"
-        },
-        "sessions": {
-            "title": "Historial de Sesiones",
-            "count": "sesiones",
-            "empty": "No se encontraron sesiones para los filtros seleccionados",
-            "pause": "pausa",
-            "pauses": "pausas"
-        },
-        "pagination": {
-            "showing": "Mostrando {from} a {to} de {total}"
-        },
-        "chart": {
-            "title": "Actividad Diaria (Últimos 7 Días)"
-        }
+    "modeDescriptions": {
+      "pomodoro": "25 min trabajo, 5 min descanso",
+      "deepWork": "50 min trabajo, 10 min descanso",
+      "flow": "90 min trabajo intenso",
+      "sprint": "15 min trabajo rápido"
     },
-    "TaskSelector": {
-        "placeholder": "Seleccionar tarea para trabajar...",
-        "searchPlaceholder": "Buscar tarea...",
-        "noTasks": "No se encontraron tareas.",
-        "groupHeading": "Tareas Pendientes",
-        "noTaskAssigned": "Sin tarea asignada"
+    "stats": {
+      "totalSessions": "Sesiones Totales",
+      "totalMinutes": "Minutos de Enfoque",
+      "avgSession": "Sesión Promedio",
+      "streakDays": "Días de Racha"
+    }
+  },
+  "Search": {
+    "title": "Búsqueda",
+    "placeholder": "Buscar tareas, proyectos, hábitos...",
+    "placeholderWithAI": "Buscar con lenguaje natural (IA)",
+    "noResults": "No se encontraron resultados",
+    "noResultsDescription": "Prueba con otros términos o verifica la ortografía",
+    "suggestions": "Sugerencias",
+    "results": "resultados",
+    "navigate": "navegar",
+    "select": "seleccionar",
+    "close": "cerrar",
+    "aiPowered": "Potenciado por IA",
+    "types": {
+      "task": "Tarea",
+      "project": "Proyecto",
+      "habit": "Hábito"
     },
-    "TaskCard": {
-        "priority": {
-            "LOW": "Baja",
-            "MEDIUM": "Media",
-            "HIGH": "Alta",
-            "URGENT": "Urgente"
-        },
-        "actions": {
-            "viewEdit": "Ver/Editar",
-            "delete": "Eliminar"
-        },
-        "status": {
-            "completed": "Completada"
-        }
+    "filters": {
+      "all": "Todo",
+      "tasks": "Tareas",
+      "projects": "Proyectos",
+      "habits": "Hábitos"
+    }
+  },
+  "Meetings": {
+    "title": "Asistente de Reuniones",
+    "subtitle": "Analiza transcripciones y extrae action items",
+    "analyze": "Analizar",
+    "analyzing": "Analizando...",
+    "transcriptPlaceholder": "Pega aquí la transcripción de tu reunión...",
+    "summary": "Resumen",
+    "keyPoints": "Puntos Clave",
+    "actionItems": "Action Items",
+    "decisions": "Decisiones",
+    "participants": "Participantes",
+    "topics": "Temas Discutidos",
+    "sentiment": "Sentimiento",
+    "followUpRequired": "Requiere Seguimiento",
+    "convertToTasks": "Convertir a Tareas",
+    "converting": "Convirtiendo...",
+    "tasksCreated": "{count} tareas creadas",
+    "noActionItems": "No se encontraron action items",
+    "sentiments": {
+      "POSITIVE": "Positivo",
+      "NEUTRAL": "Neutral",
+      "NEGATIVE": "Negativo",
+      "MIXED": "Mixto"
     },
-    "TaskList": {
-        "loading": "Cargando tareas...",
-        "error": "Error al cargar tareas: {message}",
-        "empty": "No hay tareas aún. ¡Agrega una arriba!",
-        "emptyMyTasks": "No tienes tareas asignadas aún.",
-        "retry": "Reintentar",
-        "filters": {
-            "allTasks": "Todas las Tareas",
-            "myTasks": "Mis Tareas"
-        }
+    "summaryStyles": {
+      "executive": "Ejecutivo",
+      "detailed": "Detallado",
+      "bulletPoints": "Puntos"
+    }
+  },
+  "Workload": {
+    "title": "Carga de Trabajo",
+    "subtitle": "Monitorea y balancea la carga del equipo",
+    "myWorkload": "Mi Carga",
+    "teamWorkload": "Carga del Equipo",
+    "assignedTasks": "Tareas Asignadas",
+    "completedTasks": "Completadas",
+    "overdueTasks": "Vencidas",
+    "hoursThisWeek": "Horas esta semana",
+    "capacityRemaining": "Capacidad disponible",
+    "workloadScore": "Score de Carga",
+    "trend": "Tendencia",
+    "levels": {
+      "LOW": "Baja",
+      "MODERATE": "Moderada",
+      "HIGH": "Alta",
+      "OVERLOADED": "Sobrecargado"
     },
-    "TaskDetailPanel": {
-        "title": "Detalles de la Tarea",
-        "titlePlaceholder": "Título de la Tarea",
-        "description": {
-            "label": "DESCRIPCIÓN",
-            "placeholder": "Añadir una descripción...",
-            "empty": "No se proporcionó descripción."
-        },
-        "details": {
-            "title": "Detalles",
-            "dueDate": "Fecha de vencimiento",
-            "startDate": "Fecha de inicio",
-            "scheduledDate": "Programado",
-            "estimation": "Tiempo estimado (min)",
-            "linkToGoal": "Vincular a Objetivo",
-            "addAnotherGoal": "Vincular otro objetivo",
-            "selectGoal": "Seleccionar Resultado Clave",
-            "noActiveObjectives": "No hay objetivos activos"
-        },
-        "tabs": {
-            "subtasks": "Subtareas",
-            "comments": "Comentarios",
-            "attachments": "Adjuntos",
-            "activity": "Actividad"
-        },
-        "tags": {
-            "none": "Sin etiquetas",
-            "add": "Añadir Etiqueta",
-            "available": "Etiquetas Disponibles",
-            "noAvailable": "No hay etiquetas disponibles",
-            "create": "Crear Nueva Etiqueta"
-        },
-        "buttons": {
-            "save": "Guardar",
-            "delete": "Eliminar Tarea"
-        },
-        "footer": {
-            "created": "Creado el"
-        },
-        "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
-        "toast": {
-            "updated": "Tarea actualizada exitosamente",
-            "statusUpdated": "Estado actualizado",
-            "statusError": "Error al actualizar estado",
-            "priorityUpdated": "Prioridad actualizada",
-            "priorityError": "Error al actualizar prioridad",
-            "updateError": "Error actualizando tarea",
-            "deleted": "Tarea eliminada exitosamente",
-            "deleteError": "Error eliminando tarea",
-            "tagAssigned": "Etiqueta {tagName} asignada",
-            "tagError": "Error asignando etiqueta",
-            "noTaskId": "No hay ID de tarea",
-            "shareError": "Error al compartir tarea",
-            "linkCopied": "Enlace copiado al portapapeles",
-            "linkedToGoal": "Tarea vinculada al objetivo",
-            "linkGoalError": "Error al vincular con el objetivo"
-        },
-        "share": {
-            "title": "Compartir Tarea",
-            "description": "Comparte este enlace con otros para ver esta tarea."
-        },
-        "priorities": {
-            "low": "Baja",
-            "medium": "Media",
-            "high": "Alta",
-            "urgent": "Urgente"
-        },
-        "statuses": {
-            "todo": "Por Hacer",
-            "inProgress": "En Progreso",
-            "completed": "Completada",
-            "cancelled": "Cancelada"
-        }
+    "trends": {
+      "INCREASING": "En aumento",
+      "STABLE": "Estable",
+      "DECREASING": "Disminuyendo"
     },
-    "TaskFilters": {
-        "label": "Filtros",
-        "clear": "Limpiar",
-        "status": {
-            "label": "Estado",
-            "TODO": "Por hacer",
-            "IN_PROGRESS": "En progreso",
-            "COMPLETED": "Completadas",
-            "CANCELLED": "Canceladas"
-        },
-        "priority": {
-            "label": "Prioridad",
-            "LOW": "Baja",
-            "MEDIUM": "Media",
-            "HIGH": "Alta",
-            "URGENT": "Urgente"
-        },
-        "tags": {
-            "label": "Etiquetas"
-        }
+    "suggestions": {
+      "title": "Sugerencias",
+      "redistribute": "Redistribuir tareas",
+      "delegate": "Delegar",
+      "prioritize": "Priorizar"
     },
-    "TaskForm": {
-        "label": "Nueva Tarea",
-        "placeholder": "¿Qué hay que hacer?",
-        "button": {
-            "add": "Agregar",
-            "adding": "Agregando..."
-        },
-        "toast": {
-            "success": "¡Tarea creada!",
-            "error": "Error: {message}",
-            "projectIdRequired": "El ID del proyecto es requerido"
-        }
+    "distribution": {
+      "overloaded": "Sobrecargados",
+      "balanced": "Balanceados",
+      "underutilized": "Subutilizados"
+    }
+  },
+  "Wellbeing": {
+    "title": "Bienestar",
+    "subtitle": "Prevención de burnout y balance vida-trabajo",
+    "burnoutRisk": "Riesgo de Burnout",
+    "workLifeBalance": "Balance Vida-Trabajo",
+    "focusQuality": "Calidad de Enfoque",
+    "consistencyScore": "Consistencia",
+    "riskLevels": {
+      "LOW": "Bajo",
+      "MODERATE": "Moderado",
+      "HIGH": "Alto",
+      "CRITICAL": "Crítico"
     },
-    "TaskDetailView": {
-        "title": "Detalles de Tarea",
-        "description": "Gestiona los detalles y subtareas",
-        "noDate": "Sin fecha",
-        "subtasks": {
-            "title": "Subtareas",
-            "empty": "No hay subtareas"
-        },
-        "time": {
-            "title": "Tiempo",
-            "comingSoon": "El seguimiento de tiempo estará disponible pronto."
-        },
-        "notFound": "Tarea no encontrada"
+    "recommendations": {
+      "title": "Recomendaciones",
+      "takeBreak": "Toma un descanso",
+      "endDay": "Considera terminar tu día",
+      "weekend": "Evita trabajar el fin de semana",
+      "lateNight": "Evita trabajar muy tarde"
     },
-    "AIAssistantSidebar": {
-        "title": "Ordo AI Copilot",
-        "welcome": "¡Hola! Soy Ordo AI. ¿Cómo puedo ayudarte a organizar tu día?",
-        "thinking": "Pensando...",
-        "placeholder": "Pregunta a la IA...",
-        "error": "Error al obtener respuesta de la IA"
+    "patterns": {
+      "title": "Patrones de Trabajo",
+      "lateNightWork": "Trabajo Nocturno",
+      "weekendWork": "Trabajo Fin de Semana",
+      "longSessions": "Sesiones Largas",
+      "avgHoursPerDay": "Horas/Día Promedio"
     },
-    "ReportCard": {
-        "scopes": {
-            "TASK_COMPLETION": "Tarea Completada",
-            "WEEKLY_SCHEDULED": "Reporte Semanal",
-            "MONTHLY_SCHEDULED": "Reporte Mensual",
-            "PROJECT_SUMMARY": "Resumen de Proyecto",
-            "PERSONAL_ANALYSIS": "Análisis Personal",
-            "default": "Reporte"
-        },
-        "metrics": {
-            "tasks": "tareas",
-            "hoursWorked": "h trabajadas",
-            "pomodoros": "pomodoros"
-        },
-        "stats": {
-            "strengths": "fortalezas",
-            "weaknesses": "áreas de mejora",
-            "recommendations": "recomendaciones"
-        }
+    "weeklySummary": "Resumen Semanal",
+    "insights": "Insights",
+    "intervention": {
+      "gentleReminder": "Recordatorio Suave",
+      "strongWarning": "Advertencia",
+      "criticalAlert": "Alerta Crítica"
+    }
+  },
+  "Mobile": {
+    "home": {
+      "greeting": "¡Hola! 👋",
+      "myTasks": "Mis Tareas",
+      "pending": "Pendientes",
+      "completed": "Completadas",
+      "today": "Hoy",
+      "loadError": "Error al cargar tareas",
+      "retry": "Reintentar",
+      "noTasks": "No tienes tareas pendientes",
+      "noTasksInView": "No hay tareas en esta vista",
+      "okrsGoals": "OKRs & Goals",
+      "active": "activos"
     },
-    "ReportDetail": {
-        "generatedOn": "Generado el",
-        "poweredBy": "Powered by {model}",
-        "summary": "Resumen",
-        "metrics": {
-            "title": "Métricas del Período",
-            "tasksCompleted": "Tareas Completadas",
-            "timeWorked": "Tiempo Trabajado",
-            "pomodoros": "Pomodoros",
-            "focusScore": "Focus Score"
-        },
-        "strengths": "Fortalezas",
-        "weaknesses": "Áreas de Mejora",
-        "recommendations": "Recomendaciones",
-        "patterns": "Patrones Detectados"
+    "filters": {
+      "all": "Todas",
+      "today": "Hoy",
+      "upcoming": "Próximas",
+      "completed": "Completadas"
     },
-    "FocusScoreGauge": {
-        "label": "Focus Score",
-        "messages": {
-            "excellent": "Excelente enfoque",
-            "veryGood": "Muy buen enfoque",
-            "good": "Buen enfoque",
-            "moderate": "Enfoque moderado",
-            "low": "Enfoque bajo",
-            "needsImprovement": "Necesitas mejorar el enfoque"
-        },
-        "description": "Basado en tiempo de trabajo vs pausas"
-    },
-    "GenerateReportDialog": {
-        "trigger": "Generar Reporte con IA",
-        "title": "Generar Reporte de Productividad",
-        "description": "La IA analizará tu productividad de la última semana y generará un reporte detallado con insights y recomendaciones.",
-        "includes": {
-            "title": "El reporte incluirá:",
-            "metrics": "Análisis de tus métricas semanales",
-            "strengths": "Identificación de fortalezas y áreas de mejora",
-            "recommendations": "Recomendaciones personalizadas",
-            "patterns": "Patrones de productividad detectados",
-            "score": "Score de productividad general"
-        },
-        "buttons": {
-            "cancel": "Cancelar",
-            "generate": "Generar Reporte",
-            "close": "Cerrar",
-            "retry": "Reintentar"
-        },
-        "loading": {
-            "title": "Generando tu reporte...",
-            "description": "La IA está analizando tus datos de productividad. Esto puede tomar unos segundos."
-        },
-        "success": {
-            "title": "¡Reporte generado exitosamente!",
-            "description": "Tu reporte de productividad está listo."
-        },
-        "error": "Hubo un error al generar el reporte. Por favor, intenta nuevamente."
-    },
-    "DailyMetricsCard": {
-        "title": "Métricas del Día",
-        "today": "Hoy",
-        "metrics": {
-            "completed": "Completadas",
-            "time": "Tiempo",
-            "pomodoros": "Pomodoros",
-            "focus": "Enfoque"
-        }
-    },
-    "PeakHoursChart": {
-        "title": "Productividad por Hora",
-        "description": "Tu score de productividad a lo largo del día",
-        "empty": "Aún no hay datos. ¡Empieza a trabajar para ver tus patrones de productividad!",
-        "yAxis": "Score de Productividad (%)",
-        "tooltip": "Productividad",
-        "legend": {
-            "high": "Alta (80-100%)",
-            "good": "Buena (60-79%)",
-            "fair": "Regular (40-59%)",
-            "low": "Baja (0-39%)"
-        }
-    },
-    "ProductivityInsights": {
-        "title": "Insights de Productividad",
-        "description": "Recomendaciones basadas en tus patrones de trabajo",
-        "empty": "¡Empieza a registrar tus sesiones de trabajo para obtener insights personalizados!",
-        "peakHours": {
-            "title": "Tus Horas Pico",
-            "description": "Programa tus tareas más importantes durante estas horas para una productividad óptima."
-        },
-        "peakDays": {
-            "title": "Tus Días Más Productivos",
-            "description": "Tiendes a estar más enfocado y productivo en estos días de la semana."
-        },
-        "tip": "💡 Tip: La IA aprende de tus patrones de trabajo con el tiempo. ¡Sigue usando el temporizador para obtener insights más precisos!"
-    },
-    "WeeklyChart": {
-        "title": "Actividad Semanal",
-        "description": "Últimos 7 días",
-        "weekOf": "Semana del {date}",
-        "tasks": "Tareas",
-        "minutes": "Minutos",
-        "tasksCompleted": "Tareas Completadas",
-        "minutesWorked": "Minutos Trabajados",
-        "tooltip": {
-            "tasks": "Tareas",
-            "time": "Tiempo"
-        }
-    },
-    "AuthForm": {
-        "welcome": "¡Bienvenido a Ordo-Todo!",
-        "subtitle": "Entre con su cuenta para organizar sus tareas",
-        "emailLogin": "Entrar con Email",
-        "or": "o",
-        "googleLogin": "Continuar con Google",
-        "githubLogin": "Continuar con GitHub",
-        "noAccount": "¿No tienes cuenta?",
-        "register": "Regístrate aquí",
-        "connecting": "Conectando..."
-    },
-    "Processing": {
-        "text": "Procesando..."
-    },
-    "ConfirmDelete": {
-        "title": "¿Estás seguro de que quieres eliminar esto?",
-        "description": "Esta acción no se puede deshacer. Los datos se eliminarán permanentemente.",
-        "confirm": "Eliminar",
-        "cancel": "Cancelar",
-        "deleting": "Eliminando..."
-    },
-    "ConnectionStatus": {
-        "backOnline": {
-            "title": "De vuelta en línea",
-            "description": "Tu conexión ha sido restaurada. Sincronizando tus datos..."
-        },
-        "offline": {
-            "title": "Estás desconectado",
-            "description": "Algunas funciones pueden estar limitadas. Tus datos se sincronizarán cuando vuelvas a estar en línea."
-        }
-    },
-    "SyncStatus": {
-        "offline": "Sin conexión",
-        "syncing": "Sincronizando... {progress}%",
-        "error": "Error de sincronización",
-        "pending": "{count} pendientes",
-        "synced": "Sincronizado",
-        "idle": "Listo",
-        "neverSynced": "Nunca sincronizado",
-        "justNow": "Ahora mismo",
-        "minutesAgo": "hace {count}m",
-        "hoursAgo": "hace {count}h",
-        "lastSync": "Última sincronización",
-        "clickToSync": "Clic para sincronizar"
-    },
-    "PWAInstallButton": {
-        "install": "Instalar App"
-    },
-    "PWATester": {
-        "pwaStatus": {
-            "title": "Estado de PWA",
-            "description": "Prueba las funciones e instalación de la aplicación web progresiva",
-            "installable": "Instalable",
-            "installed": "Instalada",
-            "onlineStatus": "Estado en línea",
-            "online": "En línea",
-            "offline": "Desconectado",
-            "installButton": "Instalar PWA"
-        },
-        "pushNotifications": {
-            "title": "Notificaciones Push",
-            "description": "Prueba las notificaciones del navegador y del service worker",
-            "supported": "Soportado",
-            "permission": "Permiso",
-            "subscribed": "Suscrito",
-            "requestPermission": "Solicitar Permiso",
-            "sendBrowser": "Enviar Notificación del Navegador",
-            "sendBackground": "Enviar Notificación en Segundo Plano",
-            "granted": "¡Permiso de notificación concedido!",
-            "denied": "Permiso de notificación denegado",
-            "testSent": "¡Notificación de prueba enviada!",
-            "backgroundSent": "¡Notificación en segundo plano enviada!"
-        },
-        "keyboardShortcuts": {
-            "title": "Atajos de Teclado",
-            "description": "Prueba los atajos de teclado y eventos personalizados",
-            "available": "Atajos disponibles:",
-            "newTask": "Nueva Tarea",
-            "quickTimer": "Temporizador Rápido",
-            "search": "Buscar",
-            "installPwa": "Instalar PWA",
-            "triggerNewTask": "Activar Atajo de Nueva Tarea"
-        },
-        "yes": "Sí",
-        "no": "No"
-    },
-    "Error": {
-        "title": "¡Algo salió mal!",
-        "description": "Ocurrió un error inesperado. Nos disculpamos por las molestias.",
-        "retry": "Intentar de nuevo",
-        "home": "Ir al Inicio"
-    },
-    "NotFound": {
-        "title": "Página No Encontrada",
-        "description": "La página que buscas no existe o ha sido movida.",
-        "message": "Por favor verifica la URL o regresa a la página de inicio.",
-        "home": "Ir al Inicio",
-        "back": "Regresar"
-    },
-    "ProjectBoard": {
-        "columns": {
-            "todo": "Por Hacer",
-            "inProgress": "En Progreso",
-            "completed": "Completado"
-        },
-        "addTask": "Agregar Tarea"
-    },
-    "ProjectList": {
-        "columns": {
-            "task": "Tarea",
-            "dueDate": "Fecha Límite",
-            "priority": "Prioridad"
-        },
-        "emptyState": {
-            "title": "Sin tareas aún",
-            "description": "Crea tu primera tarea para empezar a hacer seguimiento de tu trabajo.",
-            "action": "Crear Tarea"
-        }
-    },
-    "FocusMode": {
-        "selectTask": "Selecciona una tarea para enfocar",
-        "deepWork": "Trabajo Profundo",
-        "breakTime": "Tiempo de Descanso",
-        "loading": "Cargando tarea...",
-        "completeTask": "Completar Tarea",
-        "exit": "Salir del Modo Enfoque"
-    },
-    "ProjectFiles": {
-        "empty": "No hay archivos en este proyecto.",
-        "name": "Nombre",
-        "task": "Tarea",
-        "size": "Tamaño",
-        "uploadedBy": "Subido por",
-        "date": "Fecha",
-        "actions": "Acciones"
-    },
-    "Profile": {
-        "title": "Configuración de Perfil",
-        "tabs": {
-            "profile": "Perfil",
-            "ai": "IA",
-            "security": "Seguridad",
-            "privacy": "Privacidad",
-            "integrations": "Integraciones",
-            "subscription": "Suscripción",
-            "account": "Cuenta"
-        },
-        "profile": {
-            "title": "Información del Perfil",
-            "description": "Actualiza tu información personal y preferencias",
-            "avatar": {
-                "change": "Cambiar Avatar",
-                "hint": "JPG, PNG o GIF. Máx 2MB."
-            },
-            "form": {
-                "name": "Nombre Completo",
-                "namePlaceholder": "Juan Pérez",
-                "email": "Correo Electrónico",
-                "emailHint": "El correo no se puede cambiar",
-                "phone": "Teléfono",
-                "phonePlaceholder": "+52 55 1234 5678",
-                "jobTitle": "Cargo",
-                "jobTitlePlaceholder": "Gerente de Producto",
-                "department": "Departamento",
-                "departmentPlaceholder": "Ingeniería",
-                "timezone": "Zona Horaria",
-                "timezonePlaceholder": "Selecciona zona horaria",
-                "bio": "Biografía",
-                "bioPlaceholder": "Cuéntanos un poco sobre ti..."
-            },
-            "save": "Guardar Cambios",
-            "saving": "Guardando..."
-        },
-        "ai": {
-            "title": "IA y Productividad",
-            "description": "Configura cómo la IA te ayuda a ser más productivo",
-            "enableAI": "Habilitar Funciones de IA",
-            "enableAIDescription": "Permitir que la IA analice tus tareas y proporcione sugerencias",
-            "suggestions": {
-                "title": "Sugerencias de IA",
-                "durations": "Sugerir duraciones de tareas",
-                "priorities": "Sugerir prioridades",
-                "scheduling": "Sugerir programación óptima",
-                "weeklyReports": "Reportes semanales de productividad con IA"
-            },
-            "aggressiveness": {
-                "title": "Agresividad de IA",
-                "description": "Qué tan seguido la IA debe sugerir cambios",
-                "conservative": "Conservador",
-                "proactive": "Proactivo"
-            },
-            "energy": {
-                "title": "Perfil de Energía",
-                "description": "La IA usa esto para programar tareas demandantes durante tus horas pico",
-                "morning": "Energía Matutina",
-                "afternoon": "Energía Vespertina",
-                "evening": "Energía Nocturna",
-                "levels": {
-                    "low": "Baja",
-                    "medium": "Media",
-                    "high": "Alta"
-                }
-            },
-            "save": "Guardar Preferencias de IA",
-            "saving": "Guardando..."
-        },
-        "security": {
-            "title": "Seguridad",
-            "description": "Administra la configuración de seguridad de tu cuenta",
-            "password": {
-                "title": "Contraseña",
-                "lastChanged": "Último cambio: {time}",
-                "change": "Cambiar Contraseña"
-            },
-            "twoFactor": {
-                "title": "Autenticación de Dos Factores",
-                "description": "Añade una capa extra de seguridad a tu cuenta",
-                "comingSoon": "Próximamente"
-            },
-            "connectedAccounts": {
-                "title": "Cuentas Conectadas",
-                "connected": "Conectada"
-            },
-            "activeSessions": {
-                "title": "Sesiones Activas",
-                "currentSession": "Sesión Actual",
-                "thisDevice": "Este dispositivo",
-                "active": "Activa"
-            }
-        },
-        "privacy": {
-            "title": "Privacidad y Datos",
-            "description": "Controla cómo se usan y comparten tus datos",
-            "dataSharing": {
-                "title": "Compartir Datos",
-                "analytics": "Compartir análisis de uso",
-                "analyticsDescription": "Ayuda a mejorar Ordo-Todo con datos anónimos de uso",
-                "activityStatus": "Mostrar estado de actividad",
-                "activityStatusDescription": "Permitir que los compañeros vean cuando estás trabajando en tareas"
-            },
-            "emailNotifications": {
-                "title": "Notificaciones por Correo",
-                "taskReminders": "Recordatorios de tareas por correo",
-                "weeklyDigest": "Resumen semanal de productividad",
-                "marketing": "Actualizaciones de marketing y producto"
-            },
-            "save": "Guardar Configuración de Privacidad",
-            "saving": "Guardando..."
-        },
-        "integrations": {
-            "title": "Integraciones",
-            "description": "Conecta con servicios de terceros",
-            "connect": "Conectar",
-            "comingSoon": "Próximamente",
-            "providers": {
-                "googleCalendar": {
-                    "name": "Google Calendar",
-                    "description": "Sincroniza tareas con fechas de vencimiento a tu calendario"
-                },
-                "slack": {
-                    "name": "Slack",
-                    "description": "Crea tareas desde mensajes de Slack, recibe notificaciones"
-                },
-                "github": {
-                    "name": "GitHub",
-                    "description": "Sincroniza issues y pull requests"
-                }
-            }
-        },
-        "subscription": {
-            "title": "Suscripción y Facturación",
-            "description": "Administra tu suscripción y detalles de facturación",
-            "currentPlan": "Plan Actual",
-            "upgrade": "Actualizar a Pro",
-            "features": {
-                "unlimitedTasks": "Tareas ilimitadas",
-                "workspaces": "{count} workspaces",
-                "basicAI": "Sugerencias básicas de IA",
-                "advancedAnalytics": "Analíticas avanzadas",
-                "teamCollaboration": "Colaboración en equipo"
-            },
-            "billingHistory": {
-                "title": "Historial de Facturación",
-                "empty": "No hay historial de facturación disponible"
-            }
-        },
-        "account": {
-            "title": "Configuración de Cuenta",
-            "description": "Administra los datos y configuración de tu cuenta",
-            "export": {
-                "title": "Exportar Tus Datos",
-                "description": "Descarga todos tus datos incluyendo tareas, proyectos, sesiones de tiempo y configuración en formato JSON",
-                "button": "Solicitar Exportación",
-                "exporting": "Exportando..."
-            },
-            "delete": {
-                "title": "Eliminar Cuenta",
-                "description": "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
-                "button": "Eliminar Cuenta",
-                "deleting": "Eliminando...",
-                "dialog": {
-                    "title": "Eliminar Cuenta",
-                    "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y removerá todos tus datos de nuestros servidores.",
-                    "cancel": "Cancelar",
-                    "confirm": "Eliminar Cuenta"
-                }
-            }
-        },
-        "toast": {
-            "profileUpdated": "¡Perfil actualizado exitosamente!",
-            "profileError": "Error al actualizar perfil",
-            "aiUpdated": "¡Preferencias de IA actualizadas exitosamente!",
-            "aiError": "Error al actualizar preferencias de IA",
-            "privacyUpdated": "¡Configuración de privacidad actualizada exitosamente!",
-            "privacyError": "Error al actualizar configuración de privacidad",
-            "exportStarted": "¡Exportación de datos iniciada! La descarga comenzará en breve.",
-            "exportError": "Error al exportar datos",
-            "deleteError": "Error al eliminar cuenta"
-        }
-    },
-    "AIReport": {
-        "title": "Reporte de Productividad Semanal",
-        "subtitle": "Análisis de tu rendimiento de la última semana",
-        "generateButton": "Generar Reporte",
-        "analyzing": "Analizando datos...",
-        "emptyState": "No hay datos suficientes para generar un reporte. ¡Sigue trabajando!",
-        "regenerate": "Regenerar",
-        "export": "Exportar",
-        "stats": {
-            "pomodoros": "Pomodoros",
-            "tasks": "Tareas Completadas",
-            "streak": "Racha",
-            "average": "Promedio/día"
-        }
-    },
-    "Timer": {
-        "title": "Timer",
-        "subtitle": "Gestiona tu tiempo con Pomodoro",
-        "tabs": {
-            "timer": "Timer",
-            "history": "Historial"
-        },
-        "modes": {
-            "work": "Trabajo",
-            "shortBreak": "Descanso corto",
-            "longBreak": "Descanso largo"
-        },
-        "history": {
-            "totalSessions": "Sesiones totales",
-            "totalTime": "Tiempo total",
-            "workSessions": "Sesiones de trabajo",
-            "noSessions": "No hay sesiones",
-            "noSessionsDescription": "Completa una sesión con el timer para verla aquí.",
-            "loading": "Cargando...",
-            "filters": "Filtros",
-            "allTypes": "Todos los tipos",
-            "today": "Hoy",
-            "last7Days": "Últimos 7 días",
-            "last30Days": "Últimos 30 días",
-            "last90Days": "Últimos 90 días",
-            "page": "Página"
-        }
-    },
-    "AIWeeklyReport": {
-        "weeklyReport": "Reporte Semanal",
-        "generateReport": "Generar Reporte",
-        "analyzing": "Analizando...",
-        "sections": {
-            "summary": "Resumen",
-            "achievements": "Logros",
-            "improvements": "Áreas de Mejora",
-            "recommendations": "Recomendaciones"
-        }
+    "tabs": {
+      "home": "Inicio",
+      "habits": "Hábitos",
+      "calendar": "Calendario",
+      "profile": "Perfil"
     },
     "common": {
-        "loading": "Cargando...",
-        "save": "Guardar",
-        "cancel": "Cancelar",
-        "delete": "Eliminar",
-        "edit": "Editar",
-        "create": "Crear",
-        "update": "Actualizar",
-        "confirm": "Confirmar",
-        "close": "Cerrar",
-        "search": "Buscar",
-        "noResults": "Sin resultados",
-        "error": "Error",
-        "success": "Éxito",
-        "warning": "Advertencia",
-        "info": "Información"
+      "loading": "Cargando...",
+      "error": "Error",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "create": "Crear",
+      "back": "Volver",
+      "done": "Listo",
+      "search": "Buscar",
+      "noResults": "Sin resultados"
     },
-    "Sync": {
-        "offline": "Sin conexión",
-        "offlineDesc": "Los cambios se sincronizarán cuando haya conexión",
-        "syncing": "Sincronizando...",
-        "syncingDesc": "Sincronizando tus cambios",
-        "error": "Error de sincronización",
-        "errorDesc": "Error al sincronizar. Haz clic para reintentar",
-        "pending": "Pendiente",
-        "pendingDesc": "{{count}} cambios pendientes",
-        "synced": "Sincronizado",
-        "syncedDesc": "Última sincronización: {{time}}",
-        "unknown": "Desconocido",
-        "failedChanges": "{{count}} cambios fallidos",
-        "pendingChanges": "pendientes",
-        "offlineBanner": "Estás sin conexión. Los cambios se sincronizarán cuando vuelvas a conectarte."
+    "priority": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
     },
-    "About": {
-        "description": "Tu compañero personal de productividad",
-        "version": "Versión",
-        "platform": "Plataforma",
-        "madeWith": "Hecho con ❤️ para impulsar tu productividad",
-        "website": "Sitio web",
-        "documentation": "Documentación"
+    "task": {
+      "newTask": "Nueva Tarea",
+      "editTask": "Editar Tarea",
+      "title": "Título",
+      "description": "Descripción",
+      "project": "Proyecto",
+      "priority": "Prioridad",
+      "dueDate": "Fecha de vencimiento",
+      "estimatedMinutes": "Minutos estimados",
+      "noProject": "Sin proyecto",
+      "selectProject": "Seleccionar proyecto",
+      "taskCreated": "Tarea creada",
+      "taskUpdated": "Tarea actualizada",
+      "createError": "Error al crear tarea",
+      "updateError": "Error al actualizar tarea"
     },
-    "Shortcuts": {
-        "title": "Atajos de teclado",
-        "description": "Usa estos atajos para navegar y controlar la aplicación más rápido. Los atajos marcados como 'Global' funcionan incluso cuando la ventana no está enfocada.",
-        "footerNote": "Puedes personalizar los atajos globales en Configuración → Atajos"
+    "profile": {
+      "title": "Perfil",
+      "settings": "Configuración",
+      "logout": "Cerrar sesión",
+      "logoutConfirm": "¿Estás seguro de que quieres cerrar sesión?",
+      "theme": "Tema",
+      "language": "Idioma",
+      "notifications": "Notificaciones",
+      "about": "Acerca de"
     },
-    "Goals": {
-        "title": "Objetivos (OKRs)",
-        "subtitle": "Establece objetivos ambiciosos y rastrea resultados clave",
-        "createObjective": "Nuevo Objetivo",
-        "noObjectives": "No hay objetivos establecidos aún",
-        "noObjectivesDescription": "Define tus objetivos para mantenerte enfocado en lo que más importa.",
-        "listTitle": "Objetivos y Resultados Clave",
-        "backToList": "Volver a Objetivos",
-        "notFound": "Objetivo no encontrado",
-        "edit": "Editar",
-        "createDescription": "Crea un nuevo objetivo para rastrear tus metas.",
-        "cancel": "Cancelar",
-        "create": "Crear Objetivo",
-        "form": {
-            "title": "Título",
-            "titlePlaceholder": "ej. Aumentar ingresos en un 20%",
-            "description": "Descripción",
-            "descriptionPlaceholder": "Descripción opcional del objetivo",
-            "period": "Período",
-            "startDate": "Fecha de Inicio",
-            "endDate": "Fecha de Fin",
-            "color": "Color",
-            "icon": "Icono"
-        },
-        "periods": {
-            "QUARTERLY": "Trimestral",
-            "YEARLY": "Anual",
-            "CUSTOM": "Personalizado"
-        },
-        "status": {
-            "DRAFT": "Borrador",
-            "ACTIVE": "Activo",
-            "COMPLETED": "Completado",
-            "CANCELLED": "Cancelado",
-            "AT_RISK": "En Riesgo"
-        },
-        "period": {
-            "Q1": "Q1",
-            "Q2": "Q2",
-            "Q3": "Q3",
-            "Q4": "Q4",
-            "YEARLY": "Anual"
-        },
-        "keyResults": {
-            "title": "Resultados Clave",
-            "subtitle": "Define métricas para medir tu progreso",
-            "add": "Agregar Resultado Clave",
-            "addFirst": "Agregar primer resultado clave",
-            "empty": "No hay resultados clave. Agrega uno para empezar a medir tu progreso.",
-            "createTitle": "Agregar Resultado Clave",
-            "createDescription": "Define un resultado medible para tu objetivo",
-            "name": "Título",
-            "target": "Objetivo",
-            "current": "Actual",
-            "unit": "Unidad",
-            "metricType": "Tipo",
-            "confirmDelete": "¿Eliminar este resultado clave?",
-            "deleted": "Resultado clave eliminado",
-            "form": {
-                "title": "Título",
-                "titlePlaceholder": "Ej: Aumentar ventas mensuales",
-                "description": "Descripción",
-                "descriptionPlaceholder": "Describe cómo medirás el progreso...",
-                "metricType": "Tipo de métrica",
-                "startValue": "Valor inicial",
-                "targetValue": "Valor objetivo",
-                "unit": "Unidad",
-                "unitPlaceholder": "Ej: ventas, usuarios, horas"
-            },
-            "actions": {
-                "cancel": "Cancelar",
-                "create": "Crear",
-                "creating": "Creando..."
-            },
-            "validation": {
-                "titleRequired": "El título es requerido"
-            },
-            "toast": {
-                "created": "Resultado clave creado",
-                "error": "Error al crear resultado clave"
-            },
-            "types": {
-                "PERCENTAGE": "Porcentaje",
-                "NUMBER": "Número",
-                "CURRENCY": "Moneda",
-                "BOOLEAN": "Verdadero/Falso"
-            }
-        },
-        "stats": {
-            "totalObjectives": "Total Objetivos",
-            "onTrack": "En Camino",
-            "atRisk": "En Riesgo",
-            "completed": "Completados"
-        },
-        "tabs": {
-            "overview": "Resumen",
-            "list": "Vista de Lista",
-            "board": "Vista de Tablero"
-        },
-        "averageProgress": "Progreso Promedio",
-        "viewAll": "Ver Todo",
-        "total": "Total",
-        "completed": "Completados",
-        "progress": "Progreso",
-        "dueDate": "Fecha límite",
-        "okrsAtRisk": "OKRs En Riesgo",
-        "left": "restantes"
+    "workspaces": {
+      "title": "Workspaces",
+      "noWorkspaces": "No hay workspaces",
+      "createFirst": "Crea tu primer workspace para empezar"
     },
-    "CustomFields": {
-        "title": "Campos Personalizados",
-        "subtitle": "Añade propiedades personalizadas a las tareas de este proyecto",
-        "addField": "Añadir Campo",
-        "noFields": "No hay campos personalizados",
-        "noFieldsDescription": "Añade campos para rastrear propiedades adicionales en las tareas",
-        "editField": "Editar Campo",
-        "createField": "Crear Campo Personalizado",
-        "updateField": "Actualizar propiedades del campo",
-        "addFieldDescription": "Añade una nueva propiedad personalizada para tareas",
-        "fieldName": "Nombre del Campo",
-        "fieldNamePlaceholder": "ej. Sprint, Story Points, Cliente",
-        "fieldType": "Tipo de Campo",
-        "description": "Descripción (opcional)",
-        "descriptionPlaceholder": "Texto de ayuda para este campo",
-        "options": "Opciones",
-        "addOption": "Añadir opción...",
-        "required": "Campo requerido",
-        "deleteConfirm": "¿Eliminar este campo personalizado? Todos los valores se perderán.",
-        "cancel": "Cancelar",
-        "create": "Crear Campo",
-        "save": "Guardar Cambios",
-        "fieldCreated": "Campo creado",
-        "fieldUpdated": "Campo actualizado",
-        "fieldDeleted": "Campo eliminado",
-        "fieldError": "Error al guardar campo",
-        "deleteError": "Error al eliminar campo",
-        "nameRequired": "El nombre del campo es requerido",
-        "optionsRequired": "Los campos de selección requieren al menos una opción",
-        "types": {
-            "TEXT": "Texto",
-            "NUMBER": "Número",
-            "SELECT": "Selección Única",
-            "MULTI_SELECT": "Selección Múltiple",
-            "DATE": "Fecha",
-            "URL": "URL",
-            "EMAIL": "Email",
-            "CHECKBOX": "Casilla de verificación"
-        }
+    "goals": {
+      "title": "Objetivos",
+      "newGoal": "Nuevo Objetivo",
+      "editGoal": "Editar Objetivo",
+      "noGoals": "No hay objetivos",
+      "createFirst": "Crea tu primer objetivo para empezar",
+      "keyResults": "Resultados Clave",
+      "addKeyResult": "Agregar Resultado",
+      "progress": "Progreso",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin"
     },
-    "Focus": {
-        "title": "Enfoque",
-        "subtitle": "Sesiones de trabajo enfocado con audio ambient",
-        "startSession": "Iniciar Sesión",
-        "endSession": "Terminar Sesión",
-        "ambientAudio": "Audio Ambient",
-        "selectTrack": "Selecciona un sonido",
-        "noTrack": "Sin sonido",
-        "volume": "Volumen",
-        "favorites": "Favoritos",
-        "addToFavorites": "Agregar a favoritos",
-        "removeFromFavorites": "Quitar de favoritos",
-        "categories": {
-            "nature": "Naturaleza",
-            "cafe": "Café",
-            "whiteNoise": "Ruido Blanco",
-            "binaural": "Binaural",
-            "music": "Música"
-        },
-        "tracks": {
-            "rain": "Lluvia",
-            "thunderstorm": "Tormenta",
-            "forest": "Bosque",
-            "ocean": "Olas del Mar",
-            "river": "Río",
-            "cafe": "Café",
-            "library": "Biblioteca",
-            "whiteNoise": "Ruido Blanco",
-            "pinkNoise": "Ruido Rosa",
-            "brownNoise": "Ruido Marrón",
-            "binaural": "Beats Binaurales",
-            "lofi": "Lo-Fi"
-        },
-        "modes": {
-            "pomodoro": "Pomodoro",
-            "deepWork": "Trabajo Profundo",
-            "flow": "Estado Flow",
-            "sprint": "Sprint"
-        },
-        "modeDescriptions": {
-            "pomodoro": "25 min trabajo, 5 min descanso",
-            "deepWork": "50 min trabajo, 10 min descanso",
-            "flow": "90 min trabajo intenso",
-            "sprint": "15 min trabajo rápido"
-        },
-        "stats": {
-            "totalSessions": "Sesiones Totales",
-            "totalMinutes": "Minutos de Enfoque",
-            "avgSession": "Sesión Promedio",
-            "streakDays": "Días de Racha"
-        }
+    "habits": {
+      "title": "Mis Hábitos",
+      "loadError": "Error al cargar hábitos",
+      "retry": "Reintentar",
+      "completed": "Completados",
+      "streak": "Racha",
+      "bestStreak": "Mejor",
+      "progress": "Progreso",
+      "oneWeek": "¡Una semana!",
+      "oneWeekMessage": "¡Completaste una semana de racha!",
+      "oneMonth": "¡Un mes!",
+      "oneMonthMessage": "¡Eres imparable!",
+      "hundredDays": "¡100 días!",
+      "hundredDaysMessage": "¡Eres una leyenda!",
+      "errorUpdating": "No fue posible actualizar el hábito",
+      "noHabits": "No tienes hábitos aún",
+      "createFirst": "Crea tu primer hábito para empezar",
+      "days": "días"
     },
-    "Search": {
-        "title": "Búsqueda",
-        "placeholder": "Buscar tareas, proyectos, hábitos...",
-        "placeholderWithAI": "Buscar con lenguaje natural (IA)",
-        "noResults": "No se encontraron resultados",
-        "noResultsDescription": "Prueba con otros términos o verifica la ortografía",
-        "suggestions": "Sugerencias",
-        "results": "resultados",
-        "navigate": "navegar",
-        "select": "seleccionar",
-        "close": "cerrar",
-        "aiPowered": "Potenciado por IA",
-        "types": {
-            "task": "Tarea",
-            "project": "Proyecto",
-            "habit": "Hábito"
-        },
-        "filters": {
-            "all": "Todo",
-            "tasks": "Tareas",
-            "projects": "Proyectos",
-            "habits": "Hábitos"
-        }
+    "calendar": {
+      "title": "Time Blocking",
+      "subtitle": "Organiza tu tiempo",
+      "noBlocks": "No hay bloques programados",
+      "noBlocksHint": "Programa tareas con hora y activa 'Time Block'"
     },
-    "Meetings": {
-        "title": "Asistente de Reuniones",
-        "subtitle": "Analiza transcripciones y extrae action items",
-        "analyze": "Analizar",
-        "analyzing": "Analizando...",
-        "transcriptPlaceholder": "Pega aquí la transcripción de tu reunión...",
-        "summary": "Resumen",
-        "keyPoints": "Puntos Clave",
-        "actionItems": "Action Items",
-        "decisions": "Decisiones",
-        "participants": "Participantes",
-        "topics": "Temas Discutidos",
-        "sentiment": "Sentimiento",
-        "followUpRequired": "Requiere Seguimiento",
-        "convertToTasks": "Convertir a Tareas",
-        "converting": "Convirtiendo...",
-        "tasksCreated": "{count} tareas creadas",
-        "noActionItems": "No se encontraron action items",
-        "sentiments": {
-            "POSITIVE": "Positivo",
-            "NEUTRAL": "Neutral",
-            "NEGATIVE": "Negativo",
-            "MIXED": "Mixto"
-        },
-        "summaryStyles": {
-            "executive": "Ejecutivo",
-            "detailed": "Detallado",
-            "bulletPoints": "Puntos"
-        }
-    },
-    "Workload": {
-        "title": "Carga de Trabajo",
-        "subtitle": "Monitorea y balancea la carga del equipo",
-        "myWorkload": "Mi Carga",
-        "teamWorkload": "Carga del Equipo",
-        "assignedTasks": "Tareas Asignadas",
-        "completedTasks": "Completadas",
-        "overdueTasks": "Vencidas",
-        "hoursThisWeek": "Horas esta semana",
-        "capacityRemaining": "Capacidad disponible",
-        "workloadScore": "Score de Carga",
-        "trend": "Tendencia",
-        "levels": {
-            "LOW": "Baja",
-            "MODERATE": "Moderada",
-            "HIGH": "Alta",
-            "OVERLOADED": "Sobrecargado"
-        },
-        "trends": {
-            "INCREASING": "En aumento",
-            "STABLE": "Estable",
-            "DECREASING": "Disminuyendo"
-        },
-        "suggestions": {
-            "title": "Sugerencias",
-            "redistribute": "Redistribuir tareas",
-            "delegate": "Delegar",
-            "prioritize": "Priorizar"
-        },
-        "distribution": {
-            "overloaded": "Sobrecargados",
-            "balanced": "Balanceados",
-            "underutilized": "Subutilizados"
-        }
-    },
-    "Wellbeing": {
-        "title": "Bienestar",
-        "subtitle": "Prevención de burnout y balance vida-trabajo",
-        "burnoutRisk": "Riesgo de Burnout",
-        "workLifeBalance": "Balance Vida-Trabajo",
-        "focusQuality": "Calidad de Enfoque",
-        "consistencyScore": "Consistencia",
-        "riskLevels": {
-            "LOW": "Bajo",
-            "MODERATE": "Moderado",
-            "HIGH": "Alto",
-            "CRITICAL": "Crítico"
-        },
-        "recommendations": {
-            "title": "Recomendaciones",
-            "takeBreak": "Toma un descanso",
-            "endDay": "Considera terminar tu día",
-            "weekend": "Evita trabajar el fin de semana",
-            "lateNight": "Evita trabajar muy tarde"
-        },
-        "patterns": {
-            "title": "Patrones de Trabajo",
-            "lateNightWork": "Trabajo Nocturno",
-            "weekendWork": "Trabajo Fin de Semana",
-            "longSessions": "Sesiones Largas",
-            "avgHoursPerDay": "Horas/Día Promedio"
-        },
-        "weeklySummary": "Resumen Semanal",
-        "insights": "Insights",
-        "intervention": {
-            "gentleReminder": "Recordatorio Suave",
-            "strongWarning": "Advertencia",
-            "criticalAlert": "Alerta Crítica"
-        }
-    },
-    "Mobile": {
-        "home": {
-            "greeting": "¡Hola! 👋",
-            "myTasks": "Mis Tareas",
-            "pending": "Pendientes",
-            "completed": "Completadas",
-            "today": "Hoy",
-            "loadError": "Error al cargar tareas",
-            "retry": "Reintentar",
-            "noTasks": "No tienes tareas pendientes",
-            "noTasksInView": "No hay tareas en esta vista",
-            "okrsGoals": "OKRs & Goals",
-            "active": "activos"
-        },
-        "filters": {
-            "all": "Todas",
-            "today": "Hoy",
-            "upcoming": "Próximas",
-            "completed": "Completadas"
-        },
-        "tabs": {
-            "home": "Inicio",
-            "habits": "Hábitos",
-            "calendar": "Calendario",
-            "profile": "Perfil"
-        },
-        "common": {
-            "loading": "Cargando...",
-            "error": "Error",
-            "cancel": "Cancelar",
-            "save": "Guardar",
-            "delete": "Eliminar",
-            "edit": "Editar",
-            "create": "Crear",
-            "back": "Volver",
-            "done": "Listo",
-            "search": "Buscar",
-            "noResults": "Sin resultados"
-        },
-        "priority": {
-            "high": "Alta",
-            "medium": "Media",
-            "low": "Baja"
-        },
-        "task": {
-            "newTask": "Nueva Tarea",
-            "editTask": "Editar Tarea",
-            "title": "Título",
-            "description": "Descripción",
-            "project": "Proyecto",
-            "priority": "Prioridad",
-            "dueDate": "Fecha de vencimiento",
-            "estimatedMinutes": "Minutos estimados",
-            "noProject": "Sin proyecto",
-            "selectProject": "Seleccionar proyecto",
-            "taskCreated": "Tarea creada",
-            "taskUpdated": "Tarea actualizada",
-            "createError": "Error al crear tarea",
-            "updateError": "Error al actualizar tarea"
-        },
-        "profile": {
-            "title": "Perfil",
-            "settings": "Configuración",
-            "logout": "Cerrar sesión",
-            "logoutConfirm": "¿Estás seguro de que quieres cerrar sesión?",
-            "theme": "Tema",
-            "language": "Idioma",
-            "notifications": "Notificaciones",
-            "about": "Acerca de"
-        },
-        "workspaces": {
-            "title": "Workspaces",
-            "noWorkspaces": "No hay workspaces",
-            "createFirst": "Crea tu primer workspace para empezar"
-        },
-        "goals": {
-            "title": "Objetivos",
-            "newGoal": "Nuevo Objetivo",
-            "editGoal": "Editar Objetivo",
-            "noGoals": "No hay objetivos",
-            "createFirst": "Crea tu primer objetivo para empezar",
-            "keyResults": "Resultados Clave",
-            "addKeyResult": "Agregar Resultado",
-            "progress": "Progreso",
-            "startDate": "Fecha de inicio",
-            "endDate": "Fecha de fin"
-        },
-        "habits": {
-            "title": "Mis Hábitos",
-            "loadError": "Error al cargar hábitos",
-            "retry": "Reintentar",
-            "completed": "Completados",
-            "streak": "Racha",
-            "bestStreak": "Mejor",
-            "progress": "Progreso",
-            "oneWeek": "¡Una semana!",
-            "oneWeekMessage": "¡Completaste una semana de racha!",
-            "oneMonth": "¡Un mes!",
-            "oneMonthMessage": "¡Eres imparable!",
-            "hundredDays": "¡100 días!",
-            "hundredDaysMessage": "¡Eres una leyenda!",
-            "errorUpdating": "No fue posible actualizar el hábito",
-            "noHabits": "No tienes hábitos aún",
-            "createFirst": "Crea tu primer hábito para empezar",
-            "days": "días"
-        },
-        "calendar": {
-            "title": "Time Blocking",
-            "subtitle": "Organiza tu tiempo",
-            "noBlocks": "No hay bloques programados",
-            "noBlocksHint": "Programa tareas con hora y activa 'Time Block'"
-        },
-        "profileOptions": {
-            "notifications": "Notificaciones",
-            "darkMode": "Tema Oscuro",
-            "settings": "Configuración",
-            "help": "Ayuda y Soporte",
-            "about": "Acerca de",
-            "logout": "Cerrar Sesión",
-            "logoutTitle": "Cerrar Sesión",
-            "logoutMessage": "¿Estás seguro que deseas cerrar sesión?",
-            "cancel": "Cancelar",
-            "exit": "Salir",
-            "version": "Versión",
-            "completed": "Completadas",
-            "focusMinutes": "Minutos Foco",
-            "pomodoros": "Pomodoros",
-            "loading": "Cargando..."
-        }
+    "profileOptions": {
+      "notifications": "Notificaciones",
+      "darkMode": "Tema Oscuro",
+      "settings": "Configuración",
+      "help": "Ayuda y Soporte",
+      "about": "Acerca de",
+      "logout": "Cerrar Sesión",
+      "logoutTitle": "Cerrar Sesión",
+      "logoutMessage": "¿Estás seguro que deseas cerrar sesión?",
+      "cancel": "Cancelar",
+      "exit": "Salir",
+      "version": "Versión",
+      "completed": "Completadas",
+      "focusMinutes": "Minutos Foco",
+      "pomodoros": "Pomodoros",
+      "loading": "Cargando..."
     }
+  }
 }

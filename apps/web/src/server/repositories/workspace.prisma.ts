@@ -143,7 +143,12 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
 
     async findByOwnerId(ownerId: string): Promise<Workspace[]> {
-        const workspaces = await this.prisma.workspace.findMany({ where: { ownerId } });
+        const workspaces = await this.prisma.workspace.findMany({
+            where: {
+                ownerId,
+                isDeleted: false,
+            }
+        });
         return workspaces.map(w => this.toDomain(w));
     }
 
@@ -154,7 +159,8 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
                     some: {
                         userId: userId
                     }
-                }
+                },
+                isDeleted: false,
             }
         });
         return workspaces.map(w => this.toDomain(w));
@@ -185,6 +191,31 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
 
     async delete(id: string): Promise<void> {
+        await this.prisma.workspace.update({
+            where: { id },
+            data: {
+                isDeleted: true,
+                deletedAt: new Date(),
+                updatedAt: new Date(),
+            },
+        });
+    }
+
+    async findDeleted(userId: string): Promise<Workspace[]> {
+        const workspaces = await this.prisma.workspace.findMany({
+            where: {
+                members: {
+                    some: {
+                        userId: userId
+                    }
+                },
+                isDeleted: true,
+            }
+        });
+        return workspaces.map(w => this.toDomain(w));
+    }
+
+    async permanentDelete(id: string): Promise<void> {
         await this.prisma.workspace.delete({ where: { id } });
     }
 

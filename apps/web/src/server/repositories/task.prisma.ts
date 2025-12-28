@@ -17,6 +17,8 @@ export class PrismaTaskRepository implements TaskRepository {
             parentTaskId: prismaTask.parentTaskId ?? undefined,
             subTasks: prismaTask.subTasks?.map(st => this.toDomain(st)),
             estimatedTime: prismaTask.estimatedMinutes ?? undefined,
+            isDeleted: prismaTask.isDeleted ?? false,
+            deletedAt: prismaTask.deletedAt ?? undefined,
             createdAt: prismaTask.createdAt,
             updatedAt: prismaTask.updatedAt,
         });
@@ -114,7 +116,12 @@ export class PrismaTaskRepository implements TaskRepository {
     }
 
     async findByOwnerId(ownerId: string): Promise<Task[]> {
-        const tasks = await this.prisma.task.findMany({ where: { ownerId } });
+        const tasks = await this.prisma.task.findMany({
+            where: {
+                ownerId,
+                isDeleted: false,
+            }
+        });
         return tasks.map(t => this.toDomain(t));
     }
 
@@ -124,5 +131,42 @@ export class PrismaTaskRepository implements TaskRepository {
 
     async delete(id: string): Promise<void> {
         await this.prisma.task.delete({ where: { id } });
+    }
+
+    async softDelete(id: string): Promise<void> {
+        await this.prisma.task.update({
+            where: { id },
+            data: {
+                isDeleted: true,
+                deletedAt: new Date(),
+                updatedAt: new Date(),
+            },
+        });
+    }
+
+    async restore(id: string): Promise<void> {
+        await this.prisma.task.update({
+            where: { id },
+            data: {
+                isDeleted: false,
+                deletedAt: null,
+                updatedAt: new Date(),
+            },
+        });
+    }
+
+    async permanentDelete(id: string): Promise<void> {
+        await this.prisma.task.delete({ where: { id } });
+    }
+
+    async findDeleted(projectId: string): Promise<Task[]> {
+        const tasks = await this.prisma.task.findMany({
+            where: {
+                projectId,
+                isDeleted: true,
+            },
+            include: { subTasks: true },
+        });
+        return tasks.map(t => this.toDomain(t));
     }
 }
