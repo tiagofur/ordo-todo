@@ -54,12 +54,13 @@ export class Task extends Entity<TaskProps> {
   }
 
   static create(
-    props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status">,
+    props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status" | "isDeleted">,
   ): Task {
     return new Task({
       ...props,
       status: "TODO",
       priority: props.priority ?? "MEDIUM",
+      isDeleted: false,
     });
   }
 
