@@ -129,7 +129,9 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
 
     async findById(id: string): Promise<Workspace | null> {
-        const workspace = await this.prisma.workspace.findUnique({ where: { id } });
+        const workspace = await this.prisma.workspace.findFirst({
+            where: { id, isDeleted: false },
+        });
         if (!workspace) return null;
         return this.toDomain(workspace);
     }
@@ -137,13 +139,20 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     async findBySlug(slug: string): Promise<Workspace | null> {
         // Use findFirst instead of findUnique since slug alone is not unique
         // (unique constraint is on ownerId_slug compound)
-        const workspace = await this.prisma.workspace.findFirst({ where: { slug } });
+        const workspace = await this.prisma.workspace.findFirst({
+            where: { slug, isDeleted: false },
+        });
         if (!workspace) return null;
         return this.toDomain(workspace);
     }
 
     async findByOwnerId(ownerId: string): Promise<Workspace[]> {
-        const workspaces = await this.prisma.workspace.findMany({ where: { ownerId } });
+        const workspaces = await this.prisma.workspace.findMany({
+            where: {
+                ownerId,
+                isDeleted: false,
+            }
+        });
         return workspaces.map(w => this.toDomain(w));
     }
 
@@ -154,7 +163,8 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
                     some: {
                         userId: userId
                     }
-                }
+                },
+                isDeleted: false,
             }
         });
         return workspaces.map(w => this.toDomain(w));
@@ -185,7 +195,14 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await this.prisma.workspace.delete({ where: { id } });
+        await this.prisma.workspace.update({
+            where: { id },
+            data: {
+                isDeleted: true,
+                deletedAt: new Date(),
+                updatedAt: new Date(),
+            },
+        });
     }
 
     async findDeleted(userId: string): Promise<Workspace[]> {

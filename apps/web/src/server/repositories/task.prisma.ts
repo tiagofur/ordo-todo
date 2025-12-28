@@ -76,28 +76,9 @@ export class PrismaTaskRepository implements TaskRepository {
             projectId: task.props.projectId,
             ownerId: task.props.ownerId,
             parentTaskId: task.props.parentTaskId ?? null,
+            isDeleted: task.props.isDeleted ?? false,
+            deletedAt: task.props.deletedAt ?? null,
         };
-
-        // Schema check: projectId is String (required) in relation?
-        // model Task { ... project Project @relation(...) projectId String ... }
-        // So projectId is required. But Task entity has optional projectId.
-        // This is a mismatch. I should check if I made projectId optional in schema.
-        // In my schema update: `projectId String`. It is required.
-        // But in `TECHNICAL_DESIGN.md`: `projectId String`.
-        // But in `Task` entity: `projectId?: string`.
-        // If a task is not in a project (e.g. Inbox), how is it handled?
-        // Maybe `projectId` should be optional in schema?
-        // Let's check `TECHNICAL_DESIGN.md` again.
-        // `projectId String`.
-        // Maybe there is a default "Inbox" project? Or maybe it should be optional.
-        // I'll assume for now it's required and I might need to fix the entity or schema later.
-        // Actually, I'll make it optional in schema if I can.
-        // But I already pushed the schema.
-        // Let's look at `TECHNICAL_DESIGN.md` again.
-        // `projectId String`.
-        // `project Project @relation(...)`.
-        // If it's required, then every task MUST belong to a project.
-        // I'll stick to the schema for now.
 
         await this.prisma.task.upsert({
             where: { id: task.id as string },
@@ -107,8 +88,8 @@ export class PrismaTaskRepository implements TaskRepository {
     }
 
     async findById(id: string): Promise<Task | null> {
-        const task = await this.prisma.task.findUnique({
-            where: { id },
+        const task = await this.prisma.task.findFirst({
+            where: { id, isDeleted: false },
             include: { subTasks: true }
         });
         if (!task) return null;
@@ -116,7 +97,12 @@ export class PrismaTaskRepository implements TaskRepository {
     }
 
     async findByOwnerId(ownerId: string): Promise<Task[]> {
-        const tasks = await this.prisma.task.findMany({ where: { ownerId } });
+        const tasks = await this.prisma.task.findMany({
+            where: {
+                ownerId,
+                isDeleted: false,
+            }
+        });
         return tasks.map(t => this.toDomain(t));
     }
 
@@ -134,6 +120,7 @@ export class PrismaTaskRepository implements TaskRepository {
             data: {
                 isDeleted: true,
                 deletedAt: new Date(),
+                updatedAt: new Date(),
             },
         });
     }
@@ -144,6 +131,7 @@ export class PrismaTaskRepository implements TaskRepository {
             data: {
                 isDeleted: false,
                 deletedAt: null,
+                updatedAt: new Date(),
             },
         });
     }

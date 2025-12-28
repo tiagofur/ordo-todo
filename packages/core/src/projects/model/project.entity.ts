@@ -42,6 +42,8 @@ export class Project extends Entity<ProjectProps> {
       | "archived"
       | "completed"
       | "completedAt"
+      | "isDeleted"
+      | "deletedAt"
     >,
   ): Project {
     return new Project({
@@ -49,6 +51,7 @@ export class Project extends Entity<ProjectProps> {
       position: 0,
       archived: false,
       completed: false,
+      isDeleted: false,
     });
   }
 

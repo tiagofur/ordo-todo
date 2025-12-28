@@ -39,6 +39,8 @@ export class PrismaProjectRepository implements ProjectRepository {
             archived: project.props.archived,
             completed: project.props.completed,
             completedAt: project.props.completedAt ?? null,
+            isDeleted: project.props.isDeleted ?? false,
+            deletedAt: project.props.deletedAt ?? null,
             updatedAt: project.props.updatedAt,
         };
 
@@ -50,31 +52,38 @@ export class PrismaProjectRepository implements ProjectRepository {
     }
 
     async findById(id: string): Promise<Project | null> {
-        const project = await this.prisma.project.findUnique({ where: { id } });
+        const project = await this.prisma.project.findFirst({
+            where: { id, isDeleted: false },
+        });
         if (!project) return null;
         return this.toDomain(project);
     }
 
     async findBySlug(slug: string, workspaceId: string): Promise<Project | null> {
-        const project = await this.prisma.project.findUnique({
+        const project = await this.prisma.project.findFirst({
             where: {
-                workspaceId_slug: {
-                    workspaceId,
-                    slug,
-                },
+                workspaceId,
+                slug,
+                isDeleted: false,
             },
         });
         return project ? this.toDomain(project) : null;
     }
 
     async findByWorkspaceId(workspaceId: string): Promise<Project[]> {
-        const projects = await this.prisma.project.findMany({ where: { workspaceId } });
+        const projects = await this.prisma.project.findMany({
+            where: {
+                workspaceId,
+                isDeleted: false,
+            },
+        });
         return projects.map(p => this.toDomain(p));
     }
 
     async findAllByUserId(userId: string): Promise<Project[]> {
         const projects = await this.prisma.project.findMany({
             where: {
+                isDeleted: false,
                 workspace: {
                     members: {
                         some: {
@@ -100,6 +109,8 @@ export class PrismaProjectRepository implements ProjectRepository {
             archived: project.props.archived,
             completed: project.props.completed,
             completedAt: project.props.completedAt ?? null,
+            isDeleted: project.props.isDeleted,
+            deletedAt: project.props.deletedAt,
             updatedAt: project.props.updatedAt,
         };
 
@@ -121,6 +132,7 @@ export class PrismaProjectRepository implements ProjectRepository {
             data: {
                 isDeleted: true,
                 deletedAt: new Date(),
+                updatedAt: new Date(),
             },
         });
     }
@@ -131,6 +143,7 @@ export class PrismaProjectRepository implements ProjectRepository {
             data: {
                 isDeleted: false,
                 deletedAt: null,
+                updatedAt: new Date(),
             },
         });
     }
