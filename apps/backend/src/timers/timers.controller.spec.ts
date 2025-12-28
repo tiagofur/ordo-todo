@@ -6,7 +6,12 @@ describe('TimersController', () => {
   let controller: TimersController;
   let timersService: jest.Mocked<TimersService>;
 
-  const mockUser = { id: 'user-123', email: 'test@example.com', name: 'Test' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test',
+  };
 
   beforeEach(async () => {
     const mockTimersService = {

@@ -6,16 +6,20 @@ describe('TemplatesController', () => {
   let controller: TemplatesController;
   let templatesService: jest.Mocked<TemplatesService>;
 
-  const mockUser = { id: 'user-123', email: 'test@example.com', name: 'Test' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test',
+  };
 
   beforeEach(async () => {
     const mockTemplatesService = {
       create: jest.fn(),
       findAll: jest.fn(),
-      findById: jest.fn(),
+      findOne: jest.fn(),
       update: jest.fn(),
-      delete: jest.fn(),
-      createTaskFromTemplate: jest.fn(),
+      remove: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -45,35 +49,33 @@ describe('TemplatesController', () => {
           estimatedMinutes: 30,
           priority: 'MEDIUM',
         },
+        workspaceId: 'ws-123',
       };
       const mockTemplate = {
         id: 'tmpl-123',
         ...createDto,
-        userId: mockUser.id,
       };
       templatesService.create.mockResolvedValue(mockTemplate as any);
 
-      const result = await controller.create(createDto, mockUser);
+      const result = await controller.create(createDto);
 
-      expect(templatesService.create).toHaveBeenCalledWith(
-        mockUser.id,
-        createDto,
-      );
+      expect(templatesService.create).toHaveBeenCalledWith(createDto);
       expect(result).toEqual(mockTemplate);
     });
   });
 
   describe('findAll', () => {
-    it('should return all templates for user', async () => {
+    it('should return all templates for workspace', async () => {
+      const workspaceId = 'ws-123';
       const mockTemplates = [
         { id: 'tmpl-1', name: 'Template 1' },
         { id: 'tmpl-2', name: 'Template 2' },
       ];
       templatesService.findAll.mockResolvedValue(mockTemplates as any);
 
-      const result = await controller.findAll(mockUser);
+      const result = await controller.findAll(workspaceId);
 
-      expect(templatesService.findAll).toHaveBeenCalledWith(mockUser.id);
+      expect(templatesService.findAll).toHaveBeenCalledWith(workspaceId);
       expect(result).toEqual(mockTemplates);
     });
   });
@@ -81,14 +83,11 @@ describe('TemplatesController', () => {
   describe('findOne', () => {
     it('should return template by id', async () => {
       const mockTemplate = { id: 'tmpl-123', name: 'Test Template' };
-      templatesService.findById.mockResolvedValue(mockTemplate as any);
+      templatesService.findOne.mockResolvedValue(mockTemplate as any);
 
-      const result = await controller.findOne('tmpl-123', mockUser);
+      const result = await controller.findOne('tmpl-123');
 
-      expect(templatesService.findById).toHaveBeenCalledWith(
-        'tmpl-123',
-        mockUser.id,
-      );
+      expect(templatesService.findOne).toHaveBeenCalledWith('tmpl-123');
       expect(result).toEqual(mockTemplate);
     });
   });
@@ -99,11 +98,10 @@ describe('TemplatesController', () => {
       const updatedTemplate = { id: 'tmpl-123', name: 'Updated Template' };
       templatesService.update.mockResolvedValue(updatedTemplate as any);
 
-      const result = await controller.update('tmpl-123', updateDto, mockUser);
+      const result = await controller.update('tmpl-123', updateDto);
 
       expect(templatesService.update).toHaveBeenCalledWith(
         'tmpl-123',
-        mockUser.id,
         updateDto,
       );
       expect(result).toEqual(updatedTemplate);
@@ -112,40 +110,11 @@ describe('TemplatesController', () => {
 
   describe('remove', () => {
     it('should delete template', async () => {
-      templatesService.delete.mockResolvedValue(undefined);
+      templatesService.remove.mockResolvedValue(undefined);
 
-      await controller.remove('tmpl-123', mockUser);
+      await controller.remove('tmpl-123');
 
-      expect(templatesService.delete).toHaveBeenCalledWith(
-        'tmpl-123',
-        mockUser.id,
-      );
-    });
-  });
-
-  describe('createTask', () => {
-    it('should create task from template', async () => {
-      const createDto = {
-        projectId: 'proj-123',
-        dueDate: '2024-01-15',
-      };
-      const mockTask = { id: 'task-new', title: 'Weekly Review' };
-      templatesService.createTaskFromTemplate.mockResolvedValue(
-        mockTask as any,
-      );
-
-      const result = await controller.createTask(
-        'tmpl-123',
-        createDto,
-        mockUser,
-      );
-
-      expect(templatesService.createTaskFromTemplate).toHaveBeenCalledWith(
-        'tmpl-123',
-        mockUser.id,
-        createDto,
-      );
-      expect(result).toEqual(mockTask);
+      expect(templatesService.remove).toHaveBeenCalledWith('tmpl-123');
     });
   });
 });

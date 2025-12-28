@@ -9,6 +9,8 @@ import { CreateTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
 
 describe('TasksService', () => {
   let service: TasksService;
+  let prismaService: PrismaService;
+  let activitiesService: ActivitiesService;
 
   const mockTaskRepository = {
     findByOwnerId: jest.fn(),

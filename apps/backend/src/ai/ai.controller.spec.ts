@@ -7,7 +7,12 @@ describe('AIController', () => {
   let controller: AIController;
   let aiService: jest.Mocked<AIService>;
 
-  const mockUser = { id: 'user-123', email: 'test@example.com', name: 'Test' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test',
+  };
 
   beforeEach(async () => {
     const mockAIService = {
@@ -93,7 +98,7 @@ describe('AIController', () => {
         expectedResult as any,
       );
 
-      const result = await controller.parseTask(parseDto, mockUser);
+      const result = await controller.parseTask(parseDto);
 
       expect(aiService.parseNaturalLanguageTask).toHaveBeenCalledWith(
         parseDto.input,
@@ -154,7 +159,7 @@ describe('AIController', () => {
       };
       aiService.suggestWorkflow.mockResolvedValue(expectedResult as any);
 
-      const result = await controller.suggestWorkflow(dto, mockUser);
+      const result = await controller.suggestWorkflow(dto);
 
       expect(aiService.suggestWorkflow).toHaveBeenCalledWith(
         dto.projectName,
@@ -180,7 +185,7 @@ describe('AIController', () => {
       };
       aiService.decomposeTask.mockResolvedValue(expectedResult as any);
 
-      const result = await controller.decomposeTask(dto, mockUser);
+      const result = await controller.decomposeTask(dto);
 
       expect(aiService.decomposeTask).toHaveBeenCalledWith(
         dto.taskTitle,

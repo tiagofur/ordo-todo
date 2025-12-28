@@ -6,7 +6,12 @@ describe('AnalyticsController', () => {
   let controller: AnalyticsController;
   let analyticsService: jest.Mocked<AnalyticsService>;
 
-  const mockUser = { id: 'user-123', email: 'test@example.com', name: 'Test' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test',
+  };
 
   beforeEach(async () => {
     const mockAnalyticsService = {
