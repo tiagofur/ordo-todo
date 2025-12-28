@@ -4,10 +4,20 @@ import { TasksService } from './tasks.service';
 import { TagsService } from '../tags/tags.service';
 import { CommentsService } from '../comments/comments.service';
 import { AttachmentsService } from '../attachments/attachments.service';
+import { PrismaService } from '../database/prisma.service';
 
 describe('TasksController', () => {
   let controller: TasksController;
   let tasksService: TasksService;
+
+  const mockPrismaService = {
+    project: {
+      findUnique: jest.fn(),
+    },
+    workspaceMember: {
+      findUnique: jest.fn(),
+    },
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -35,6 +45,10 @@ describe('TasksController', () => {
         {
           provide: AttachmentsService,
           useValue: {},
+        },
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
         },
       ],
     }).compile();

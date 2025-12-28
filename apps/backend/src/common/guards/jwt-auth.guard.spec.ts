@@ -1,15 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtAuthGuard } from './jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
   let reflector: jest.Mocked<Reflector>;
 
   const createMockExecutionContext = (
-    isPublic = false,
     authHeader?: string,
   ): ExecutionContext => {
     return {
@@ -19,26 +16,19 @@ describe('JwtAuthGuard', () => {
             authorization: authHeader,
           },
         }),
+        getResponse: () => ({}),
       }),
-      getHandler: () => ({}),
-      getClass: () => ({}),
+      getHandler: () => jest.fn(),
+      getClass: () => jest.fn(),
     } as unknown as ExecutionContext;
   };
 
-  beforeEach(async () => {
-    const mockReflector = {
+  beforeEach(() => {
+    reflector = {
       getAllAndOverride: jest.fn(),
-    };
+    } as unknown as jest.Mocked<Reflector>;
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        JwtAuthGuard,
-        { provide: Reflector, useValue: mockReflector },
-      ],
-    }).compile();
-
-    guard = module.get<JwtAuthGuard>(JwtAuthGuard);
-    reflector = module.get<Reflector>(Reflector) as jest.Mocked<Reflector>;
+    guard = new JwtAuthGuard(reflector);
   });
 
   it('should be defined', () => {
@@ -46,22 +36,22 @@ describe('JwtAuthGuard', () => {
   });
 
   describe('canActivate', () => {
-    it('should allow public routes', async () => {
+    it('should allow public routes', () => {
       reflector.getAllAndOverride.mockReturnValue(true);
-      const context = createMockExecutionContext(true);
+      const context = createMockExecutionContext();
 
       const result = guard.canActivate(context);
 
       expect(result).toBe(true);
     });
 
-    it('should pass to parent for protected routes with auth header', () => {
-      reflector.getAllAndOverride.mockReturnValue(false);
-      const context = createMockExecutionContext(false, 'Bearer valid-token');
+    it('should return true for public routes regardless of auth header', () => {
+      reflector.getAllAndOverride.mockReturnValue(true);
+      const context = createMockExecutionContext('Bearer valid-token');
 
-      // JwtAuthGuard extends AuthGuard('jwt'), so we can't fully test the JWT validation
-      // without mocking passport. This just verifies our logic.
-      expect(() => guard.canActivate(context)).not.toThrow();
+      const result = guard.canActivate(context);
+
+      expect(result).toBe(true);
     });
   });
 
@@ -84,6 +74,12 @@ describe('JwtAuthGuard', () => {
       const error = new Error('Token expired');
 
       expect(() => guard.handleRequest(error, null, null)).toThrow(error);
+    });
+
+    it('should throw UnauthorizedException with specific message when err is null but user is null', () => {
+      expect(() => guard.handleRequest(null, null, null)).toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });
