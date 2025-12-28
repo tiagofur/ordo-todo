@@ -59,9 +59,13 @@ export function CreateWorkspaceDialog({
   const createWorkspace = useCreateWorkspace();
 
   const onSubmit = (data: CreateWorkspaceForm) => {
+    // Generate slug from name if not provided
+    const slug = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
     createWorkspace.mutate(
       {
         ...data,
+        slug,
         type: selectedType,
       },
       {

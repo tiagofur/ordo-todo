@@ -172,6 +172,8 @@ export class PrismaTaskRepository implements TaskRepository {
       ownerId: task.props.ownerId,
       assigneeId: task.props.assigneeId ?? null,
       parentTaskId: task.props.parentTaskId ?? null,
+      isDeleted: task.props.isDeleted ?? false,
+      deletedAt: task.props.deletedAt ?? null,
     };
 
     if (task.props.recurrence) {
@@ -216,8 +218,8 @@ export class PrismaTaskRepository implements TaskRepository {
   }
 
   async findById(id: string): Promise<Task | null> {
-    const task = await this.prisma.task.findUnique({
-      where: { id },
+    const task = await this.prisma.task.findFirst({
+      where: { id, isDeleted: false },
       include: {
         subTasks: true,
         recurrence: true,
@@ -252,7 +254,10 @@ export class PrismaTaskRepository implements TaskRepository {
     ownerId: string,
     filters?: { projectId?: string; tags?: string[] },
   ): Promise<Task[]> {
-    const where: any = { ownerId };
+    const where: any = {
+      ownerId,
+      isDeleted: false,
+    };
 
     if (filters?.projectId) {
       where.projectId = filters.projectId;

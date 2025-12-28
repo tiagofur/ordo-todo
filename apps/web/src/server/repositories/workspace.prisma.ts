@@ -188,6 +188,20 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         await this.prisma.workspace.delete({ where: { id } });
     }
 
+    async findDeleted(userId: string): Promise<Workspace[]> {
+        const workspaces = await this.prisma.workspace.findMany({
+            where: {
+                ownerId: userId,
+                isDeleted: true,
+            },
+        });
+        return workspaces.map(w => this.toDomain(w));
+    }
+
+    async permanentDelete(id: string): Promise<void> {
+        await this.prisma.workspace.delete({ where: { id } });
+    }
+
     // Member management
     async addMember(member: WorkspaceMember): Promise<WorkspaceMember> {
         const data = {

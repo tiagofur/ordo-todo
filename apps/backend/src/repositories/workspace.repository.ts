@@ -171,7 +171,9 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   }
 
   async findById(id: string): Promise<Workspace | null> {
-    const workspace = await this.prisma.workspace.findUnique({ where: { id } });
+    const workspace = await this.prisma.workspace.findFirst({
+      where: { id, isDeleted: false },
+    });
     if (!workspace) return null;
     return this.toDomain(workspace);
   }
@@ -184,7 +186,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     // However, to keep backward compatibility or find 'public' workspaces?
     // Let's implement findFirst since findUnique no longer works with just slug.
     const workspace = await this.prisma.workspace.findFirst({
-      where: { slug },
+      where: { slug, isDeleted: false },
       include: {
         _count: {
           select: {
@@ -219,7 +221,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
   async findByOwnerId(ownerId: string): Promise<Workspace[]> {
     const workspaces = await this.prisma.workspace.findMany({
-      where: { ownerId },
+      where: { ownerId, isDeleted: false },
     });
     return workspaces.map((w) => this.toDomain(w));
   }

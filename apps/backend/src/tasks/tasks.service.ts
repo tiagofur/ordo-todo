@@ -177,6 +177,7 @@ export class TasksService {
         ownerId: userId,
         status: { not: 'COMPLETED' },
         parentTaskId: null, // Only main tasks
+        isDeleted: false,
       },
       include: {
         project: { select: { id: true, name: true, color: true } },
@@ -240,6 +241,7 @@ export class TasksService {
           gte: startOfDay,
           lte: endOfDay,
         },
+        isDeleted: false,
       },
       include: {
         project: { select: { id: true, name: true, color: true } },
@@ -269,6 +271,7 @@ export class TasksService {
         status: { not: 'COMPLETED' },
         parentTaskId: null,
         isTimeBlocked: { not: true }, // Exclude scheduled blocks
+        isDeleted: false,
         OR: [{ startDate: null }, { startDate: { lte: today } }],
         ...(projectId ? { projectId } : {}),
       },
@@ -300,6 +303,7 @@ export class TasksService {
           lte: endDate,
         },
         scheduledTime: { not: null },
+        isDeleted: false,
       },
       include: {
         project: { select: { id: true, name: true, color: true } },
@@ -334,8 +338,8 @@ export class TasksService {
   }
 
   async findOneWithDetails(id: string) {
-    const task = await this.prisma.task.findUnique({
-      where: { id },
+    const task = await this.prisma.task.findFirst({
+      where: { id, isDeleted: false },
       include: {
         subTasks: true,
         comments: {
@@ -632,8 +636,8 @@ export class TasksService {
   }
 
   async findByPublicToken(token: string) {
-    const task = await this.prisma.task.findUnique({
-      where: { publicToken: token },
+    const task = await this.prisma.task.findFirst({
+      where: { publicToken: token, isDeleted: false },
       include: {
         subTasks: true,
         comments: {

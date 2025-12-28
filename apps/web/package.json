@@ -7,7 +7,7 @@
     "dev": "next dev -p 3100",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "check-types": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
@@ -91,6 +91,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.0.10",
+    "@next/eslint-plugin-next": "^15.5.6",
     "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",

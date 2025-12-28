@@ -33,6 +33,12 @@ export interface WorkspaceMembersSettingsLabels {
     invitationsTitle?: string;
     invitationsDescription?: string;
     unknownUser?: string;
+    roles?: {
+        owner?: string;
+        admin?: string;
+        member?: string;
+        viewer?: string;
+    };
     inviteDialog?: {
         title?: string;
         description?: string;

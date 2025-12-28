@@ -1390,19 +1390,19 @@ declare const workspaceBaseSchema: z.ZodObject<{
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     type: "PERSONAL" | "WORK" | "TEAM";
-    slug?: string | undefined;
+    name: string;
     description?: string | undefined;
     color?: string | undefined;
     icon?: string | undefined;
+    slug?: string | undefined;
 }, {
-    name: string;
     type: "PERSONAL" | "WORK" | "TEAM";
-    slug?: string | undefined;
+    name: string;
     description?: string | undefined;
     color?: string | undefined;
     icon?: string | undefined;
+    slug?: string | undefined;
 }>;
 /**
  * Create workspace schema
@@ -1415,19 +1415,19 @@ declare const createWorkspaceSchema: z.ZodObject<{
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     type: "PERSONAL" | "WORK" | "TEAM";
-    slug?: string | undefined;
+    name: string;
     description?: string | undefined;
     color?: string | undefined;
     icon?: string | undefined;
+    slug?: string | undefined;
 }, {
-    name: string;
     type: "PERSONAL" | "WORK" | "TEAM";
-    slug?: string | undefined;
+    name: string;
     description?: string | undefined;
     color?: string | undefined;
     icon?: string | undefined;
+    slug?: string | undefined;
 }>;
 /**
  * Update workspace schema
@@ -1440,19 +1440,19 @@ declare const updateWorkspaceSchema: z.ZodObject<{
     color: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     icon: z.ZodOptional<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
-    name?: string | undefined;
-    slug?: string | undefined;
     description?: string | undefined;
     type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
+    name?: string | undefined;
     color?: string | undefined;
     icon?: string | undefined;
+    slug?: string | undefined;
 }, {
-    name?: string | undefined;
-    slug?: string | undefined;
     description?: string | undefined;
     type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
+    name?: string | undefined;
     color?: string | undefined;
     icon?: string | undefined;
+    slug?: string | undefined;
 }>;
 /**
  * Workspace settings schema
@@ -1529,11 +1529,11 @@ declare const workspaceFilterSchema: z.ZodObject<{
     type: z.ZodOptional<z.ZodEnum<["PERSONAL", "WORK", "TEAM"]>>;
     search: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
     search?: string | undefined;
+    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
 }, {
-    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
     search?: string | undefined;
+    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
 }>;
 /**
  * Type exports
@@ -2021,7 +2021,7 @@ interface RecurrenceProps {
 }
 declare class Task extends Entity<TaskProps> {
     constructor(props: TaskProps);
-    static create(props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status">): Task;
+    static create(props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status" | "isDeleted" | "deletedAt">): Task;
     complete(): Task;
     updateStatus(status: TaskStatus): Task;
     update(props: Partial<Omit<TaskProps, "id" | "ownerId" | "createdAt">>): Task;

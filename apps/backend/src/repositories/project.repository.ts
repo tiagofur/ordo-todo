@@ -42,6 +42,8 @@ export class PrismaProjectRepository implements ProjectRepository {
       archived: project.props.archived,
       completed: project.props.completed,
       completedAt: project.props.completedAt,
+      isDeleted: project.props.isDeleted ?? false,
+      deletedAt: project.props.deletedAt ?? null,
       updatedAt: project.props.updatedAt,
     };
 
@@ -53,18 +55,19 @@ export class PrismaProjectRepository implements ProjectRepository {
   }
 
   async findById(id: string): Promise<Project | null> {
-    const project = await this.prisma.project.findUnique({ where: { id } });
+    const project = await this.prisma.project.findFirst({
+      where: { id, isDeleted: false },
+    });
     if (!project) return null;
     return this.toDomain(project);
   }
 
   async findBySlug(slug: string, workspaceId: string): Promise<Project | null> {
-    const project = await this.prisma.project.findUnique({
+    const project = await this.prisma.project.findFirst({
       where: {
-        workspaceId_slug: {
-          workspaceId,
-          slug,
-        },
+        workspaceId,
+        slug,
+        isDeleted: false,
       },
     });
     if (!project) return null;
@@ -73,7 +76,7 @@ export class PrismaProjectRepository implements ProjectRepository {
 
   async findByWorkspaceId(workspaceId: string): Promise<Project[]> {
     const projects = await this.prisma.project.findMany({
-      where: { workspaceId },
+      where: { workspaceId, isDeleted: false },
     });
     return projects.map((p) => this.toDomain(p));
   }
@@ -81,6 +84,7 @@ export class PrismaProjectRepository implements ProjectRepository {
   async findAllByUserId(userId: string): Promise<Project[]> {
     const projects = await this.prisma.project.findMany({
       where: {
+        isDeleted: false,
         workspace: {
           members: {
             some: {
@@ -106,6 +110,8 @@ export class PrismaProjectRepository implements ProjectRepository {
       archived: project.props.archived,
       completed: project.props.completed,
       completedAt: project.props.completedAt,
+      isDeleted: project.props.isDeleted,
+      deletedAt: project.props.deletedAt,
       updatedAt: project.props.updatedAt,
     };
 

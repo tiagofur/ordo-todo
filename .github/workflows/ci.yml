@@ -201,13 +201,13 @@ jobs:
               working-directory: packages/db
 
             - name: Lint
-              run: npm run lint || true
+              run: npm run lint
 
             - name: Unit tests
-              run: npm run test || true
+              run: npm run test
 
             - name: E2E tests
-              run: npm run test:e2e || true
+              run: npm run test:e2e
 
             - name: Build
               run: npm run build
@@ -287,10 +287,10 @@ jobs:
                   PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
 
             - name: Lint
-              run: npm run lint || true
+              run: npm run lint
 
             - name: Type check
-              run: npm run check-types || true
+              run: npm run check-types
 
             - name: Build
               run: npm run build
@@ -372,7 +372,7 @@ jobs:
                   PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
 
             - name: Lint
-              run: npm run lint || true
+              run: npm run lint
 
             - name: Build Vite bundle
               run: npm run build:vite
@@ -452,10 +452,10 @@ jobs:
                   PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
 
             - name: Lint
-              run: npm run lint || true
+              run: npm run lint
 
             - name: Type check
-              run: npx tsc --noEmit || true
+              run: npx tsc --noEmit
 
     # =============================================================================
     # Docker Image (Backend)
