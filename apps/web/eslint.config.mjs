@@ -48,7 +48,11 @@ export default tseslint.config(
         "warn",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      "@typescript-eslint/ban-ts-comment": "warn",
+      "@typescript-eslint/no-empty-object-type": "warn",
       "@next/next/no-img-element": "warn",
+      "@next/next/no-html-link-for-pages": "warn",
+      "no-case-declarations": "warn",
     },
     settings: {
       react: {

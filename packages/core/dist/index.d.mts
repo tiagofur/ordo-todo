@@ -2399,7 +2399,7 @@ interface ProjectProps extends EntityProps {
 }
 declare class Project extends Entity<ProjectProps> {
     constructor(props: ProjectProps);
-    static create(props: Omit<ProjectProps, "id" | "createdAt" | "updatedAt" | "position" | "archived" | "completed" | "completedAt">): Project;
+    static create(props: Omit<ProjectProps, "id" | "createdAt" | "updatedAt" | "position" | "archived" | "completed" | "completedAt" | "isDeleted" | "deletedAt">): Project;
     update(props: Partial<Omit<ProjectProps, "id" | "workspaceId" | "createdAt" | "workflowId">>): Project;
     archive(): Project;
     unarchive(): Project;
