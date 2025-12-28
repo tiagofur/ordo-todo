@@ -18,6 +18,14 @@ export interface ProductivityReportData {
   productivityScore: number; // 0-100
 }
 
+interface Subtask {
+  title: string;
+  description?: string;
+  estimatedMinutes?: number;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  order: number;
+}
+
 type ModelComplexity = 'low' | 'medium' | 'high';
 
 // Model constants - using latest stable models
@@ -167,14 +175,18 @@ Responde SOLO con JSON válido:
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[0]);
+        const data = JSON.parse(jsonMatch[0]) as {
+          subtasks?: Subtask[];
+          reasoning?: string;
+          totalEstimatedMinutes?: number;
+        };
         return {
           subtasks: data.subtasks || [],
           reasoning: data.reasoning || 'Descomposición generada por IA',
           totalEstimatedMinutes:
             data.totalEstimatedMinutes ||
             data.subtasks?.reduce(
-              (sum: number, s: any) => sum + (s.estimatedMinutes || 30),
+              (sum: number, s: Subtask) => sum + (s.estimatedMinutes || 30),
               0,
             ) ||
             60,
@@ -288,7 +300,11 @@ Responde siempre en español y sé conciso pero amigable.`;
       // Parse JSON response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[0]);
+        const data = JSON.parse(jsonMatch[0]) as {
+          message?: string;
+          actions?: ChatResponse['actions'];
+          suggestions?: string[];
+        };
         return {
           message: data.message || text,
           actions: data.actions || [],

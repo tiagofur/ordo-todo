@@ -259,7 +259,18 @@ export class AIService {
       this.analyticsRepository,
       this.timerRepository,
       this.aiProfileRepository,
-      (context) => this.geminiService.generateProductivityReport(context),
+      (context: {
+        userId: string;
+        scope:
+          | 'TASK_COMPLETION'
+          | 'WEEKLY_SCHEDULED'
+          | 'MONTHLY_SCHEDULED'
+          | 'PROJECT_SUMMARY';
+        metricsSnapshot: unknown;
+        sessions?: unknown[];
+        profile?: unknown;
+        projectName?: string;
+      }) => this.geminiService.generateProductivityReport(context),
     );
 
     const result = await useCase.execute({ userId, weekStart });

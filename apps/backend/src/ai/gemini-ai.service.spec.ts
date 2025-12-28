@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config';
 
 describe('GeminiAIService', () => {
   let service: GeminiAIService;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,7 +22,6 @@ describe('GeminiAIService', () => {
     }).compile();
 
     service = module.get<GeminiAIService>(GeminiAIService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
@@ -39,11 +37,9 @@ describe('GeminiAIService', () => {
   describe('getModelStats', () => {
     it('should return initial stats with zero counts', () => {
       const stats = service.getModelStats();
-      expect(stats).toEqual({
-        flash: 0,
-        thinking: 0,
-        estimatedCostSavings: expect.any(String),
-      });
+      expect(stats.flash).toBe(0);
+      expect(stats.thinking).toBe(0);
+      expect(typeof stats.estimatedCostSavings).toBe('string');
     });
   });
 
