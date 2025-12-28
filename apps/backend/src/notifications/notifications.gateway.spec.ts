@@ -13,11 +13,12 @@ describe('NotificationsGateway', () => {
   } as unknown as Server;
 
   const createMockSocket = (
+    id = 'socket-123',
     data: Partial<Socket['data']> = {},
     auth: any = {},
   ): Socket => {
     return {
-      id: 'socket-123',
+      id,
       data,
       handshake: { auth, headers: {} },
       join: jest.fn(),
@@ -53,7 +54,11 @@ describe('NotificationsGateway', () => {
 
   describe('handleConnection', () => {
     it('should authenticate and track socket connection', async () => {
-      const mockSocket = createMockSocket({}, { token: 'valid-token' });
+      const mockSocket = createMockSocket(
+        'socket-123',
+        {},
+        { token: 'valid-token' },
+      );
       jwtService.verifyAsync.mockResolvedValue({ sub: 'user-123' });
 
       await gateway.handleConnection(mockSocket);
@@ -71,7 +76,7 @@ describe('NotificationsGateway', () => {
     });
 
     it('should reject connection without token', async () => {
-      const mockSocket = createMockSocket({}, {});
+      const mockSocket = createMockSocket('socket-123', {}, {});
 
       await gateway.handleConnection(mockSocket);
 
@@ -79,7 +84,11 @@ describe('NotificationsGateway', () => {
     });
 
     it('should reject connection with invalid token', async () => {
-      const mockSocket = createMockSocket({}, { token: 'invalid-token' });
+      const mockSocket = createMockSocket(
+        'socket-123',
+        {},
+        { token: 'invalid-token' },
+      );
       jwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
 
       await gateway.handleConnection(mockSocket);
@@ -109,7 +118,11 @@ describe('NotificationsGateway', () => {
 
   describe('handleDisconnect', () => {
     it('should clean up user tracking on disconnect', async () => {
-      const mockSocket = createMockSocket({}, { token: 'valid-token' });
+      const mockSocket = createMockSocket(
+        'socket-123',
+        {},
+        { token: 'valid-token' },
+      );
       jwtService.verifyAsync.mockResolvedValue({ sub: 'user-123' });
 
       // Connect first
@@ -203,7 +216,7 @@ describe('NotificationsGateway', () => {
 
   describe('handlePing', () => {
     it('should return pong response', () => {
-      const mockSocket = createMockSocket({ userId: 'user-123' });
+      const mockSocket = createMockSocket('socket-123', { userId: 'user-123' });
 
       const result = gateway.handlePing(mockSocket);
 
@@ -213,9 +226,8 @@ describe('NotificationsGateway', () => {
 
   describe('utility methods', () => {
     it('should track connected users count', async () => {
-      const socket1 = createMockSocket({}, { token: 'token1' });
-      const socket2 = createMockSocket({}, { token: 'token2' });
-      socket2.id = 'socket-456';
+      const socket1 = createMockSocket('socket-123', {}, { token: 'token1' });
+      const socket2 = createMockSocket('socket-456', {}, { token: 'token2' });
 
       jwtService.verifyAsync.mockResolvedValueOnce({ sub: 'user-1' });
       jwtService.verifyAsync.mockResolvedValueOnce({ sub: 'user-2' });
@@ -227,7 +239,11 @@ describe('NotificationsGateway', () => {
     });
 
     it('should get socket IDs for user', async () => {
-      const mockSocket = createMockSocket({}, { token: 'valid-token' });
+      const mockSocket = createMockSocket(
+        'socket-123',
+        {},
+        { token: 'valid-token' },
+      );
       jwtService.verifyAsync.mockResolvedValue({ sub: 'user-123' });
 
       await gateway.handleConnection(mockSocket);

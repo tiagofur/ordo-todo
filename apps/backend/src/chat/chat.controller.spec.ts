@@ -6,7 +6,12 @@ describe('ChatController', () => {
   let controller: ChatController;
   let chatService: jest.Mocked<ChatService>;
 
-  const mockUser = { id: 'user-123', email: 'test@example.com', name: 'Test' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test',
+  };
 
   beforeEach(async () => {
     const mockChatService = {

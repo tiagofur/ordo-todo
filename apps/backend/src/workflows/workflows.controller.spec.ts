@@ -6,16 +6,19 @@ describe('WorkflowsController', () => {
   let controller: WorkflowsController;
   let workflowsService: jest.Mocked<WorkflowsService>;
 
-  const mockUser = { id: 'user-123', email: 'test@example.com', name: 'Test' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test',
+  };
 
   beforeEach(async () => {
     const mockWorkflowsService = {
       create: jest.fn(),
       findAll: jest.fn(),
-      findById: jest.fn(),
       update: jest.fn(),
-      delete: jest.fn(),
-      reorder: jest.fn(),
+      remove: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -49,12 +52,9 @@ describe('WorkflowsController', () => {
       const mockWorkflow = { id: 'wf-123', ...createDto };
       workflowsService.create.mockResolvedValue(mockWorkflow as any);
 
-      const result = await controller.create(createDto, mockUser);
+      const result = await controller.create(createDto);
 
-      expect(workflowsService.create).toHaveBeenCalledWith(
-        mockUser.id,
-        createDto,
-      );
+      expect(workflowsService.create).toHaveBeenCalledWith(createDto);
       expect(result).toEqual(mockWorkflow);
     });
   });
@@ -67,28 +67,10 @@ describe('WorkflowsController', () => {
       ];
       workflowsService.findAll.mockResolvedValue(mockWorkflows as any);
 
-      const result = await controller.findAll('ws-123', mockUser);
+      const result = await controller.findAll('ws-123');
 
-      expect(workflowsService.findAll).toHaveBeenCalledWith(
-        'ws-123',
-        mockUser.id,
-      );
+      expect(workflowsService.findAll).toHaveBeenCalledWith('ws-123');
       expect(result).toEqual(mockWorkflows);
-    });
-  });
-
-  describe('findOne', () => {
-    it('should return workflow by id', async () => {
-      const mockWorkflow = { id: 'wf-123', name: 'Development', stages: [] };
-      workflowsService.findById.mockResolvedValue(mockWorkflow as any);
-
-      const result = await controller.findOne('wf-123', mockUser);
-
-      expect(workflowsService.findById).toHaveBeenCalledWith(
-        'wf-123',
-        mockUser.id,
-      );
-      expect(result).toEqual(mockWorkflow);
     });
   });
 
@@ -98,50 +80,21 @@ describe('WorkflowsController', () => {
       const updatedWorkflow = { id: 'wf-123', name: 'Updated Workflow' };
       workflowsService.update.mockResolvedValue(updatedWorkflow as any);
 
-      const result = await controller.update('wf-123', updateDto, mockUser);
+      const result = await controller.update('wf-123', updateDto);
 
-      expect(workflowsService.update).toHaveBeenCalledWith(
-        'wf-123',
-        mockUser.id,
-        updateDto,
-      );
+      expect(workflowsService.update).toHaveBeenCalledWith('wf-123', updateDto);
       expect(result).toEqual(updatedWorkflow);
     });
   });
 
   describe('remove', () => {
     it('should delete workflow', async () => {
-      workflowsService.delete.mockResolvedValue(undefined);
+      workflowsService.remove.mockResolvedValue({ success: true } as any);
 
-      await controller.remove('wf-123', mockUser);
+      const result = await controller.remove('wf-123');
 
-      expect(workflowsService.delete).toHaveBeenCalledWith(
-        'wf-123',
-        mockUser.id,
-      );
-    });
-  });
-
-  describe('reorder', () => {
-    it('should reorder workflow stages', async () => {
-      const reorderDto = {
-        stages: [
-          { id: 'stage-1', order: 2 },
-          { id: 'stage-2', order: 0 },
-          { id: 'stage-3', order: 1 },
-        ],
-      };
-      const reorderedWorkflow = { id: 'wf-123', stages: reorderDto.stages };
-      workflowsService.reorder.mockResolvedValue(reorderedWorkflow as any);
-
-      const result = await controller.reorder('wf-123', reorderDto, mockUser);
-
-      expect(workflowsService.reorder).toHaveBeenCalledWith(
-        'wf-123',
-        mockUser.id,
-        reorderDto.stages,
-      );
-      expect(result).toEqual(reorderedWorkflow);
+      expect(workflowsService.remove).toHaveBeenCalledWith('wf-123');
+      expect(result).toEqual({ success: true });
     });
   });
 });

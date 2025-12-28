@@ -25,7 +25,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     );
     console.log(
       '🔍 [GlobalExceptionFilter] Exception type:',
-      exception?.constructor?.name,
+      exception instanceof Object &&
+        'constructor' in exception &&
+        exception.constructor
+        ? exception.constructor.name
+        : typeof exception,
     );
     if (exception instanceof Error) {
       console.log('🔍 [GlobalExceptionFilter] Stack trace:', exception.stack);
