@@ -99,6 +99,13 @@ export interface ParsedTaskResult {
   reasoning: string;
 }
 
+export interface CreateTaskActionData {
+  title: string;
+  description?: string;
+  dueDate?: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+}
+
 export interface ChatResponse {
   message: string;
   actions?: {
@@ -109,8 +116,8 @@ export interface ChatResponse {
       | 'LIST_TASKS'
       | 'CREATE_PROJECT'
       | 'NONE';
-    data?: any;
-    result?: any;
+    data?: CreateTaskActionData;
+    result?: { taskId?: string; success: boolean; error?: string };
   }[];
   suggestions?: string[];
 }

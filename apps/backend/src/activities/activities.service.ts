@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { ActivityType } from '@prisma/client';
+import { ActivityType, Prisma } from '@prisma/client';
 
 interface CreateActivityData {
   taskId: string;
@@ -27,7 +27,7 @@ export class ActivitiesService {
           taskId: data.taskId,
           userId: data.userId,
           type: data.type,
-          metadata: (data.metadata || {}) as any,
+          metadata: (data.metadata || {}) as Prisma.JsonValue,
         },
       });
 
