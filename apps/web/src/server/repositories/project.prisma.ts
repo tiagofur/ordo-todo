@@ -18,6 +18,8 @@ export class PrismaProjectRepository implements ProjectRepository {
             archived: prismaProject.archived,
             completed: prismaProject.completed,
             completedAt: prismaProject.completedAt ?? undefined,
+            isDeleted: prismaProject.isDeleted ?? false,
+            deletedAt: prismaProject.deletedAt ?? undefined,
             createdAt: prismaProject.createdAt,
             updatedAt: prismaProject.updatedAt,
         });
@@ -66,13 +68,19 @@ export class PrismaProjectRepository implements ProjectRepository {
     }
 
     async findByWorkspaceId(workspaceId: string): Promise<Project[]> {
-        const projects = await this.prisma.project.findMany({ where: { workspaceId } });
+        const projects = await this.prisma.project.findMany({
+            where: {
+                workspaceId,
+                isDeleted: false,
+            },
+        });
         return projects.map(p => this.toDomain(p));
     }
 
     async findAllByUserId(userId: string): Promise<Project[]> {
         const projects = await this.prisma.project.findMany({
             where: {
+                isDeleted: false,
                 workspace: {
                     members: {
                         some: {
@@ -111,5 +119,41 @@ export class PrismaProjectRepository implements ProjectRepository {
 
     async delete(id: string): Promise<void> {
         await this.prisma.project.delete({ where: { id } });
+    }
+
+    async softDelete(id: string): Promise<void> {
+        await this.prisma.project.update({
+            where: { id },
+            data: {
+                isDeleted: true,
+                deletedAt: new Date(),
+                updatedAt: new Date(),
+            },
+        });
+    }
+
+    async restore(id: string): Promise<void> {
+        await this.prisma.project.update({
+            where: { id },
+            data: {
+                isDeleted: false,
+                deletedAt: null,
+                updatedAt: new Date(),
+            },
+        });
+    }
+
+    async permanentDelete(id: string): Promise<void> {
+        await this.prisma.project.delete({ where: { id } });
+    }
+
+    async findDeleted(workspaceId: string): Promise<Project[]> {
+        const projects = await this.prisma.project.findMany({
+            where: {
+                workspaceId,
+                isDeleted: true,
+            },
+        });
+        return projects.map(p => this.toDomain(p));
     }
 }
