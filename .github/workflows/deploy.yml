@@ -208,32 +208,76 @@ jobs:
             export GITHUB_USER=$GITHUB_USER
             export GITHUB_TOKEN=$GITHUB_TOKEN
 
-            # Configure Docker to use smaller timeout and retries
+            # Diagnostic: Check network connectivity
+            echo "[$(date)] 🔍 Diagnostics: Checking network..."
+            echo "DNS Resolution:"
+            nslookup ghcr.io || echo "⚠️ DNS resolution failed"
+            echo "Ping Google DNS:"
+            ping -c 2 8.8.8.8 || echo "⚠️ Cannot ping Google DNS"
+            echo "Current DNS config:"
+            cat /etc/resolv.conf
+
+            # Configure Docker with better network settings
             echo "[$(date)] 🔧 Configuring Docker..."
             sudo mkdir -p /etc/docker
             echo '{
               "max-concurrent-downloads": 3,
               "max-download-attempts": 5,
-              "dns": ["8.8.8.8", "8.8.4.4", "1.1.1.1"]
+              "dns": ["8.8.8.8", "8.8.4.4", "1.1.1.1"],
+              "log-driver": "json-file",
+              "log-opts": {"max-size": "10m", "max-file": "3"}
             }' | sudo tee /etc/docker/daemon.json
+
+            # Restart Docker to apply changes
+            echo "[$(date)] 🔄 Restarting Docker..."
             sudo systemctl restart docker
-            sleep 3
+            sleep 5
+
+            # Verify Docker is running
+            sudo systemctl status docker --no-pager || {
+              echo "❌ Docker failed to start!"
+              sudo journalctl -xeu docker.service --no-pager | tail -20
+              exit 1
+            }
+
+            # Test connectivity to GHCR before attempting login
+            echo "[$(date)] 🌐 Testing GHCR connectivity..."
+            MAX_TEST_RETRIES=3
+            TEST_COUNT=0
+            while [ $TEST_COUNT -lt $MAX_TEST_RETRIES ]; do
+              if curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 https://ghcr.io | grep -q "200\|401\|403\|404"; then
+                echo "✅ GHCR is reachable!"
+                break
+              fi
+              TEST_COUNT=$((TEST_COUNT+1))
+              if [ $TEST_COUNT -lt $MAX_TEST_RETRIES ]; then
+                echo "⚠️ GHCR unreachable, retrying in 5s... (Attempt $TEST_COUNT/$MAX_TEST_RETRIES)"
+                sleep 5
+              else
+                echo "❌ GHCR unreachable after $MAX_TEST_RETRIES attempts"
+                echo "Attempting to continue anyway..."
+              fi
+            done
 
             # Login to GitHub Container Registry with retry
             echo "[$(date)] 🔐 Logging into GitHub Container Registry..."
             MAX_RETRIES=3
             RETRY_COUNT=0
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin 2>&1; then
+              if echo "$GITHUB_TOKEN" | timeout 60 docker login ghcr.io -u "$GITHUB_USER" --password-stdin 2>&1; then
                 echo "✅ Login successful!"
                 break
               fi
               RETRY_COUNT=$((RETRY_COUNT+1))
               if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
                 echo "⚠️ Login failed, retrying in 10 seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
-                sleep 10
+                # Try to reset Docker network stack
+                sudo systemctl restart docker
+                sleep 12
               else
                 echo "❌ Login failed after $MAX_RETRIES attempts"
+                echo "Docker logs:"
+                sudo journalctl -xeu docker.service --no-pager | tail -30
                 exit 1
               fi
             done
