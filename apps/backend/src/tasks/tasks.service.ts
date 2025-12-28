@@ -574,7 +574,13 @@ export class TasksService {
   async restore(id: string) {
     const restoreTaskUseCase = new RestoreTaskUseCase(this.taskRepository);
     await restoreTaskUseCase.execute(id);
-    return { success: true };
+
+    // Get the restored task to return it
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return task.props;
   }
 
   async permanentDelete(id: string) {

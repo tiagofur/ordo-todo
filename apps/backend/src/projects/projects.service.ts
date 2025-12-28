@@ -1,4 +1,9 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import type { ProjectRepository } from '@ordo-todo/core';
 import {
   CreateProjectUseCase,
@@ -130,7 +135,13 @@ export class ProjectsService {
       this.projectRepository,
     );
     await restoreProjectUseCase.execute(id);
-    return { success: true };
+
+    // Get the restored project to return it
+    const project = await this.projectRepository.findById(id);
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    return project.props;
   }
 
   async permanentDelete(id: string) {
