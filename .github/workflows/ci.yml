@@ -113,7 +113,7 @@ jobs:
             NODE_ENV: test
             PORT: 3001
             API_PREFIX: api
-            DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ordo_todo_test
+            DATABASE_URL: postgresql://root:postgres@localhost:5432/ordo_todo_test
             JWT_SECRET: ci-jwt-secret-that-is-at-least-32-characters-long
             JWT_EXPIRATION: 1d
             JWT_REFRESH_EXPIRATION: 7d
@@ -122,7 +122,7 @@ jobs:
             postgres:
                 image: postgres:16
                 env:
-                    POSTGRES_USER: postgres
+                    POSTGRES_USER: root
                     POSTGRES_PASSWORD: postgres
                     POSTGRES_DB: ordo_todo_test
                 ports:
