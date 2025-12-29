@@ -17,6 +17,7 @@ describe('TasksService', () => {
     findById: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
+    softDelete: jest.fn(),
   };
 
   const mockAnalyticsRepository = {
@@ -27,6 +28,7 @@ describe('TasksService', () => {
   const mockPrismaService = {
     task: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       count: jest.fn(),
     },
   };
@@ -258,12 +260,12 @@ describe('TasksService', () => {
         estimatedMinutes: 60,
       };
 
-      mockPrismaService.task.findUnique.mockResolvedValue(mockTaskWithDetails);
+      mockPrismaService.task.findFirst.mockResolvedValue(mockTaskWithDetails);
 
       const result = await service.findOneWithDetails(taskId);
 
-      expect(mockPrismaService.task.findUnique).toHaveBeenCalledWith({
-        where: { id: taskId },
+      expect(mockPrismaService.task.findFirst).toHaveBeenCalledWith({
+        where: { id: taskId, isDeleted: false },
         include: expect.objectContaining({
           subTasks: true,
           comments: expect.any(Object),
@@ -281,7 +283,7 @@ describe('TasksService', () => {
     it('should throw NotFoundException when task not found', async () => {
       const taskId = 'non-existent';
 
-      mockPrismaService.task.findUnique.mockResolvedValue(null);
+      mockPrismaService.task.findFirst.mockResolvedValue(null);
 
       await expect(service.findOneWithDetails(taskId)).rejects.toThrow(
         NotFoundException,
@@ -293,11 +295,17 @@ describe('TasksService', () => {
     it('should delete a task', async () => {
       const taskId = 'task-123';
 
-      mockTaskRepository.delete.mockResolvedValue(undefined);
+      // SoftDeleteTaskUseCase first finds the task, then soft deletes it
+      mockTaskRepository.findById.mockResolvedValue({
+        id: taskId,
+        props: { id: taskId, title: 'Test Task' },
+      });
+      mockTaskRepository.softDelete.mockResolvedValue(undefined);
 
       const result = await service.remove(taskId);
 
-      expect(mockTaskRepository.delete).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.findById).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.softDelete).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ success: true });
     });
   });
