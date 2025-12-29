@@ -64,7 +64,7 @@ export function Testimonials() {
 
                 {/* Content */}
                 <p className="text-foreground/90 leading-relaxed mb-6">
-                  "{t(`items.${testimonial.id}.content`)}"
+                  &ldquo;{t(`items.${testimonial.id}.content`)}&rdquo;
                 </p>
 
                 {/* Author */}

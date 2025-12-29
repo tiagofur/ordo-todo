@@ -1,10 +1,9 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BlogPostService } from './blog-post.service';
-import { Prisma } from '@ordo-todo/db';
 
 @Controller('blog')
 export class BlogPostController {
-  constructor(private readonly blogPostService: BlogPostService) {}
+  constructor(private readonly blogPostService: BlogPostService) { }
 
   @Get()
   findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
