@@ -30,7 +30,9 @@ describe('Tasks API (e2e)', () => {
         email: `test-${Date.now()}@example.com`,
         password: 'Test123!@#',
         name: 'Test User',
-      });
+        username: `testuser${Date.now()}`,
+      })
+      .expect(201);
 
     authToken = registerResponse.body.accessToken;
     userId = registerResponse.body.user.id;

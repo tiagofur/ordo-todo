@@ -38,7 +38,9 @@ describe('Collaboration API (e2e)', () => {
         email: `userA-${Date.now()}@example.com`,
         password: 'Password123!',
         name: 'User A',
-      });
+        username: `userA${Date.now()}`,
+      })
+      .expect(201);
     userAToken = registerResponseA.body.accessToken;
     userAId = registerResponseA.body.user.id;
 
@@ -49,7 +51,9 @@ describe('Collaboration API (e2e)', () => {
         email: `userB-${Date.now()}@example.com`,
         password: 'Password123!',
         name: 'UserB',
-      });
+        username: `userB${Date.now()}`,
+      })
+      .expect(201);
     userBToken = registerResponseB.body.accessToken;
     userBId = registerResponseB.body.user.id;
 
@@ -104,7 +108,11 @@ describe('Collaboration API (e2e)', () => {
     await prisma.project.deleteMany({ where: { id: projectId } });
     await prisma.workspaceMember.deleteMany({ where: { workspaceId } });
     await prisma.workspace.deleteMany({ where: { id: workspaceId } });
-    await prisma.user.deleteMany({ where: { id: { in: [userAId, userBId] } } });
+    // Filter out undefined user IDs before deletion
+    const userIdsToDelete = [userAId, userBId].filter((id): id is string => !!id);
+    if (userIdsToDelete.length > 0) {
+      await prisma.user.deleteMany({ where: { id: { in: userIdsToDelete } } });
+    }
 
     await app.close();
   });

@@ -29,7 +29,9 @@ describe('Projects API (e2e)', () => {
         email: `test-projects-${Date.now()}@example.com`,
         password: 'Test123!@#',
         name: 'Test User Projects',
-      });
+        username: `testuserproj${Date.now()}`,
+      })
+      .expect(201);
 
     authToken = registerResponse.body.accessToken;
     userId = registerResponse.body.user.id;
