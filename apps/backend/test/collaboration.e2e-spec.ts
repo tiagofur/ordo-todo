@@ -35,10 +35,10 @@ describe('Collaboration API (e2e)', () => {
     const registerResponseA = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `userA-${Date.now()}@example.com`,
+        email: `usera-${Date.now()}@example.com`,
         password: 'Password123!',
         name: 'User A',
-        username: `userA${Date.now()}`,
+        username: `usera${Date.now()}`,
       })
       .expect(201);
     userAToken = registerResponseA.body.accessToken;
@@ -48,10 +48,10 @@ describe('Collaboration API (e2e)', () => {
     const registerResponseB = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `userB-${Date.now()}@example.com`,
+        email: `userb-${Date.now()}@example.com`,
         password: 'Password123!',
         name: 'UserB',
-        username: `userB${Date.now()}`,
+        username: `userb${Date.now()}`,
       })
       .expect(201);
     userBToken = registerResponseB.body.accessToken;
