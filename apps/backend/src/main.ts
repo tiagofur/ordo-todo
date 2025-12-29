@@ -8,6 +8,8 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { loggerConfig } from './common/logger/logger.config';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -21,11 +23,18 @@ async function bootstrap() {
     }),
   );
 
+  // Apply correlation ID middleware (must be before all other middleware)
+  // Apply correlation ID middleware (must be before all other middleware)
+  app.use(new CorrelationIdMiddleware().use);
+
+  // Apply logging interceptor globally
+  app.useGlobalInterceptors(new LoggingInterceptor());
+
   const configService = app.get(ConfigService);
   const httpAdapter = app.get(HttpAdapterHost);
 
   // Serve static files from uploads directory
-  // Use process.cwd() to get the project root, works in both dev and prod
+  // Use process.cwd() to get project root, works in both dev and prod
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
   });

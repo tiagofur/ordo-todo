@@ -130,69 +130,41 @@ export class WorkspacesService {
    * @returns Array of workspaces with statistics
    */
   async findAll(userId: string) {
-    // Fetch workspaces with owner information using Prisma directly
-    const workspaces = await this.prisma.workspace.findMany({
-      where: {
-        OR: [
-          { ownerId: userId },
-          {
-            members: {
-              some: {
-                userId: userId,
-              },
-            },
-          },
-        ],
-        isDeleted: false,
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            email: true,
-          },
-        },
-        _count: {
-          select: {
-            projects: true,
-            members: true,
-          },
-        },
-        projects: {
-          select: {
-            _count: {
-              select: { tasks: true },
-            },
-          },
-        },
-      },
-    });
+    const workspaces = await this.workspaceRepository.findByUserId(userId);
 
-    return workspaces.map((w) => {
-      const taskCount = w.projects.reduce((acc, p) => acc + p._count.tasks, 0);
-      return {
-        id: w.id,
-        name: w.name,
-        slug: w.slug,
-        description: w.description,
-        type: w.type,
-        tier: w.tier,
-        color: w.color,
-        icon: w.icon,
-        ownerId: w.ownerId,
-        owner: w.owner,
-        isArchived: w.isArchived,
-        createdAt: w.createdAt,
-        updatedAt: w.updatedAt,
-        stats: {
-          projectCount: w._count.projects,
-          memberCount: w._count.members,
-          taskCount: taskCount,
-        },
-      };
-    });
+    const results = await Promise.all(
+      workspaces.map(async (workspace) => {
+        const owner = await this.userRepository.findById(
+          workspace.props.ownerId as string,
+        );
+
+        return {
+          id: workspace.id,
+          name: workspace.props.name,
+          slug: workspace.props.slug,
+          description: workspace.props.description,
+          type: workspace.props.type,
+          tier: workspace.props.tier,
+          color: workspace.props.color,
+          icon: workspace.props.icon,
+          ownerId: workspace.props.ownerId,
+          owner: owner
+            ? {
+                id: owner.id,
+                username: owner.props.username,
+                name: owner.props.name,
+                email: owner.props.email,
+              }
+            : null,
+          isArchived: workspace.props.isArchived,
+          createdAt: workspace.props.createdAt,
+          updatedAt: workspace.props.updatedAt,
+          stats: workspace.props.stats,
+        };
+      }),
+    );
+
+    return results;
   }
 
   /**

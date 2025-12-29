@@ -41,6 +41,52 @@ export class TasksService {
     private readonly gamificationService: GamificationService,
   ) {}
 
+  /**
+   * Creates a new task with automatic priority calculation and notifications
+   *
+   * Creates a task for the specified user, automatically assigning it to the creator
+   * if no assignee is provided. Triggers notifications to the assignee and updates
+   * daily metrics (tasksCreated counter).
+   *
+   * @param createTaskDto - Task creation data
+   * @param createTaskDto.title - Task title (required, min 3 chars, max 100 chars)
+   * @param createTaskDto.description - Optional task description (max 2000 chars)
+   * @param createTaskDto.dueDate - Optional due date (ISO 8601 format)
+   * @param createTaskDto.projectId - Optional project ID for task assignment
+   * @param createTaskDto.assigneeId - Optional assignee user ID (defaults to creator)
+   * @param createTaskDto.priority - Optional priority (LOW, MEDIUM, HIGH, URGENT)
+   * @param createTaskDto.status - Optional status (TODO, IN_PROGRESS, DONE)
+   * @param userId - ID of user creating the task (for authorization)
+   *
+   * @returns Promise resolving to created task with all properties (id, props, notifications sent)
+   *
+   * @throws {BadRequestException} If validation fails (title too short/long, invalid date format)
+   * @throws {NotFoundException} If project or workspace not found
+   * @throws {ForbiddenException} If user doesn't have permission to create task in project
+   *
+   * @example
+   * ```typescript
+   * const task = await tasksService.create(
+   *   {
+   *     title: 'Complete project documentation',
+   *     description: 'Write comprehensive API docs',
+   *     dueDate: '2025-12-31',
+   *     projectId: 'proj-123',
+   *     priority: 'HIGH',
+   *     status: 'TODO',
+   *   },
+   *   'user-456'
+   * );
+   * // Returns: {
+   * //   id: 'task-789',
+   * //   props: { id: 'task-789', title: 'Complete project documentation', ... },
+   * // }
+   * ```
+   *
+   * @since 1.0.0
+   * @see {@link ../tasks.controller.ts | Tasks Controller}
+   * @see {@link ../../packages/core/src/tasks/task.entity.ts | Task Entity}
+   */
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository);
     const task = await createTaskUseCase.execute({
@@ -78,6 +124,38 @@ export class TasksService {
     return task.props;
   }
 
+  /**
+   * Marks a task as completed and updates metrics
+   *
+   * Completes a task by setting its status to 'DONE' and recording the
+   * completion timestamp. Automatically updates daily metrics based on task type:
+   * - If task is a subtask, increments subtasksCompleted counter
+   * - If task is standalone, increments tasksCompleted counter
+   * Prevents double counting by checking if task was already completed.
+   *
+   * Logs completion activity and tracks parent task completion for subtasks.
+   *
+   * @param id - Unique identifier of the task to complete
+   * @param userId - ID of user completing the task (for authorization)
+   *
+   * @returns Promise resolving to completed task with updated status and completion timestamp
+   *
+   * @throws {NotFoundException} If task with given ID does not exist
+   *
+   * @example
+   * ```typescript
+   * const task = await tasksService.complete('task-123', 'user-456');
+   * console.log(task);
+   * // {
+   * //   id: 'task-123',
+   * //   status: 'DONE',
+   * //   completedAt: '2025-12-29T14:30:00.000Z',
+   * //   ...
+   * // }
+   * ```
+   *
+   * @since 1.0.0
+   */
   async complete(id: string, userId: string) {
     // Get current task to check if it was already completed
     const currentTask = await this.taskRepository.findById(id);
@@ -172,56 +250,45 @@ export class TasksService {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const tasks = await this.prisma.task.findMany({
-      where: {
-        ownerId: userId,
-        status: { not: 'COMPLETED' },
-        parentTaskId: null, // Only main tasks
-        isDeleted: false,
-      },
-      include: {
-        project: { select: { id: true, name: true, color: true } },
-        assignee: { select: { id: true, name: true, image: true } },
-        tags: { include: { tag: true } },
-      },
-      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
-    });
+    const tasks = await this.taskRepository.findTodayTasks(
+      userId,
+      today,
+      tomorrow,
+    );
 
-    // Categorize tasks
-    const overdue = tasks.filter((t) => t.dueDate && t.dueDate < today);
+    const overdue = tasks.filter(
+      (t) => t.props.dueDate && t.props.dueDate < today,
+    );
     const dueToday = tasks.filter(
-      (t) => t.dueDate && t.dueDate >= today && t.dueDate < tomorrow,
+      (t) =>
+        t.props.dueDate &&
+        t.props.dueDate >= today &&
+        t.props.dueDate < tomorrow,
     );
     const scheduledToday = tasks.filter(
       (t) =>
-        t.scheduledDate &&
-        t.scheduledDate >= today &&
-        t.scheduledDate < tomorrow,
+        t.props.scheduledDate &&
+        t.props.scheduledDate >= today &&
+        t.props.scheduledDate < tomorrow,
     );
     const notYetAvailable = tasks.filter(
-      (t) => t.startDate && t.startDate > today,
+      (t) => t.props.startDate && t.props.startDate > today,
     );
     const available = tasks.filter(
       (t) =>
-        (!t.startDate || t.startDate <= today) &&
-        (!t.scheduledDate ||
-          t.scheduledDate < today ||
-          t.scheduledDate >= tomorrow) &&
-        (!t.dueDate || t.dueDate >= tomorrow),
+        (!t.props.startDate || t.props.startDate <= today) &&
+        (!t.props.scheduledDate ||
+          t.props.scheduledDate < today ||
+          t.props.scheduledDate >= tomorrow) &&
+        (!t.props.dueDate || t.props.dueDate >= tomorrow),
     );
 
-    const formatTask = (task: (typeof tasks)[0]) => ({
-      ...task,
-      tags: task.tags.map((t) => t.tag),
-      estimatedTime: task.estimatedMinutes,
-    });
-
     return {
-      overdue: overdue.map(formatTask),
-      dueToday: dueToday.map(formatTask),
-      scheduledToday: scheduledToday.map(formatTask),
-      available: available.map(formatTask),
-      notYetAvailable: notYetAvailable.map(formatTask),
+      overdue: overdue.map((t) => t.props),
+      dueToday: dueToday.map((t) => t.props),
+      scheduledToday: scheduledToday.map((t) => t.props),
+      available: available.map((t) => t.props),
+      notYetAvailable: notYetAvailable.map((t) => t.props),
     };
   }
 
@@ -234,28 +301,13 @@ export class TasksService {
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const tasks = await this.prisma.task.findMany({
-      where: {
-        ownerId: userId,
-        scheduledDate: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-        isDeleted: false,
-      },
-      include: {
-        project: { select: { id: true, name: true, color: true } },
-        assignee: { select: { id: true, name: true, image: true } },
-        tags: { include: { tag: true } },
-      },
-      orderBy: [{ scheduledTime: 'asc' }, { priority: 'desc' }],
-    });
+    const tasks = await this.taskRepository.findScheduledTasks(
+      userId,
+      startOfDay,
+      endOfDay,
+    );
 
-    return tasks.map((task) => ({
-      ...task,
-      tags: task.tags.map((t) => t.tag),
-      estimatedTime: task.estimatedMinutes,
-    }));
+    return tasks.map((task) => task.props);
   }
 
   /**
@@ -265,67 +317,65 @@ export class TasksService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const tasks = await this.prisma.task.findMany({
-      where: {
-        ownerId: userId,
-        status: { not: 'COMPLETED' },
-        parentTaskId: null,
-        isTimeBlocked: { not: true }, // Exclude scheduled blocks
-        isDeleted: false,
-        OR: [{ startDate: null }, { startDate: { lte: today } }],
-        ...(projectId ? { projectId } : {}),
-      },
-      include: {
-        project: { select: { id: true, name: true, color: true } },
-        assignee: { select: { id: true, name: true, image: true } },
-        tags: { include: { tag: true } },
-      },
-      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
-    });
+    const tasks = await this.taskRepository.findAvailableTasks(
+      userId,
+      today,
+      projectId,
+    );
 
-    return tasks.map((task) => ({
-      ...task,
-      tags: task.tags.map((t) => t.tag),
-      estimatedTime: task.estimatedMinutes,
-    }));
+    return tasks.map((task) => task.props);
   }
 
   /**
    * Find time-blocked tasks within a date range for calendar view
    */
   async findTimeBlocks(userId: string, startDate: Date, endDate: Date) {
-    const tasks = await this.prisma.task.findMany({
-      where: {
-        ownerId: userId,
-        isTimeBlocked: true,
-        scheduledDate: {
-          gte: startDate,
-          lte: endDate,
-        },
-        scheduledTime: { not: null },
-        isDeleted: false,
-      },
-      include: {
-        project: { select: { id: true, name: true, color: true } },
-        tags: { include: { tag: true } },
-      },
-      orderBy: [{ scheduledDate: 'asc' }, { scheduledTime: 'asc' }],
-    });
+    const tasks = await this.taskRepository.findTimeBlockedTasks(
+      userId,
+      startDate,
+      endDate,
+    );
 
     return tasks.map((task) => ({
       id: task.id,
-      title: task.title,
-      status: task.status,
-      priority: task.priority,
-      scheduledDate: task.scheduledDate,
-      scheduledTime: task.scheduledTime,
-      scheduledEndTime: task.scheduledEndTime,
-      estimatedTime: task.estimatedMinutes,
-      project: task.project,
-      tags: task.tags.map((t) => t.tag),
+      title: task.props.title,
+      status: task.props.status,
+      priority: task.props.priority,
+      scheduledDate: task.props.scheduledDate,
+      scheduledTime: task.props.scheduledTime,
+      scheduledEndTime: task.props.scheduledEndTime,
+      estimatedTime: task.props.estimatedTime,
+      project: task.props.project,
+      tags: task.props.tags,
     }));
   }
 
+  /**
+   * Finds a task by ID and returns its data including subtasks
+   *
+   * Retrieves a task from the repository by its unique ID. Includes all subtasks
+   * associated with the task for complete hierarchical display.
+   *
+   * @param id - Unique identifier of the task to retrieve
+   *
+   * @returns Promise resolving to task object with all properties and subtasks array
+   *
+   * @throws {NotFoundException} If task with given ID does not exist
+   *
+   * @example
+   * ```typescript
+   * const task = await tasksService.findOne('task-123');
+   * console.log(task);
+   * // {
+   * //   id: 'task-123',
+   * //   title: 'Complete documentation',
+   * //   status: 'TODO',
+   * //   subTasks: [ ... ]
+   * // }
+   * ```
+   *
+   * @since 1.0.0
+   */
   async findOne(id: string) {
     const task = await this.taskRepository.findById(id);
     if (!task) {
@@ -409,6 +459,54 @@ export class TasksService {
     };
   }
 
+  /**
+   * Updates a task and handles notifications, metrics, and activity logging
+   *
+   * Updates task fields (title, description, status, priority, due date, etc.) and:
+   * - Cleans undefined fields from update DTO
+   * - Sends notification to new assignee if changed
+   * - Logs assignee change activity
+   * - Logs status change activity
+   * - Updates daily metrics if status changed to COMPLETED
+   * - Increments subtasksCompleted or tasksCompleted based on task type
+   *
+   * @param id - Unique identifier of task to update
+   * @param updateTaskDto - Partial task update data (all fields optional)
+   * @param updateTaskDto.title - Updated task title (min 3, max 100 chars)
+   * @param updateTaskDto.description - Updated description (max 2000 chars)
+   * @param updateTaskDto.status - New status (TODO, IN_PROGRESS, DONE)
+   * @param updateTaskDto.priority - New priority (LOW, MEDIUM, HIGH, URGENT)
+   * @param updateTaskDto.dueDate - Updated due date (ISO 8601 format)
+   * @param updateTaskDto.assigneeId - New assignee user ID
+   * @param userId - ID of user making the update (for authorization)
+   *
+   * @returns Promise resolving to updated task with all properties
+   *
+   * @throws {NotFoundException} If task with given ID does not exist
+   * @throws {BadRequestException} If update DTO contains invalid data
+   *
+   * @example
+   * ```typescript
+   * const updatedTask = await tasksService.update(
+   *   'task-123',
+   *   {
+   *     status: 'IN_PROGRESS',
+   *     dueDate: '2025-12-31',
+   *     assigneeId: 'user-789',
+   *   },
+   *   'user-456'
+   * );
+   * console.log(updatedTask);
+   * // {
+   * //   id: 'task-123',
+   * //   props: { title: 'Updated task', status: 'IN_PROGRESS', ... }
+   * // }
+   * ```
+   *
+   * @since 1.0.0
+   * @see {@link ../tasks.controller.ts | Tasks Controller}
+   * @see {@link ../../packages/core/src/tasks/task.entity.ts | Task Entity}
+   */
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
     try {
       const task = await this.taskRepository.findById(id);
@@ -556,6 +654,26 @@ export class TasksService {
     }
   }
 
+  /**
+   * Soft deletes a task (marks as deleted but keeps in database)
+   *
+   * Marks a task as deleted using soft delete pattern. The task remains
+   * in the database but is excluded from normal queries. Can be restored later.
+   * Updates daily metrics on task deletion.
+   *
+   * @param id - Unique identifier of task to delete
+   *
+   * @returns Promise resolving to success object { success: true }
+   *
+   * @example
+   * ```typescript
+   * const result = await tasksService.remove('task-123');
+   * console.log(result); // { success: true }
+   * ```
+   *
+   * @since 1.0.0
+   * @see {@link ../tasks.controller.ts | Tasks Controller}
+   */
   async remove(id: string) {
     const softDeleteTaskUseCase = new SoftDeleteTaskUseCase(
       this.taskRepository,

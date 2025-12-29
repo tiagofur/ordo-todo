@@ -32,6 +32,7 @@
 ```
 
 **📊 Statistics:**
+
 - 19 configuration files
 - ~10,000 lines of documentation
 - 8 elite specialist agents
@@ -45,20 +46,22 @@
 
 ### Available Agents (8 Specialists)
 
-| Agent | Specialization | Use For |
-|-------|----------------|---------|
-| **[NestJS Backend](agents/nestjs-backend.md)** | REST APIs, controllers, services | Backend API development |
-| **[Next.js Frontend](agents/nextjs-frontend.md)** | React components, pages, hooks | Web UI development |
-| **[React Native](agents/react-native-specialist.md)** | Mobile screens, native modules | Mobile app development |
-| **[Electron](agents/electron-specialist.md)** | Desktop features, IPC | Desktop app development |
-| **[PostgreSQL](agents/postgres-specialist.md)** | Database schema, migrations | Database design |
-| **[Testing Specialist](agents/testing-specialist.md)** | Unit, integration, E2E tests | Test automation |
-| **[Documentation Specialist](agents/documentation-specialist.md)** | API docs, README, diagrams | Technical writing |
-| **[Refactoring Specialist](agents/refactoring-specialist.md)** | Code quality, SOLID | Refactoring legacy code |
+| Agent                                                              | Specialization                          | Use For                                     |
+| ------------------------------------------------------------------ | --------------------------------------- | ------------------------------------------- |
+| **[OpenCode Assistant](OPENCODE-PROFILE.md)**                      | Full-stack, coordination, general tasks | Primary assistant, delegates to specialists |
+| **[NestJS Backend](agents/nestjs-backend.md)**                     | REST APIs, controllers, services        | Backend API development                     |
+| **[Next.js Frontend](agents/nextjs-frontend.md)**                  | React components, pages, hooks          | Web UI development                          |
+| **[React Native](agents/react-native-specialist.md)**              | Mobile screens, native modules          | Mobile app development                      |
+| **[Electron](agents/electron-specialist.md)**                      | Desktop features, IPC                   | Desktop app development                     |
+| **[PostgreSQL](agents/postgres-specialist.md)**                    | Database schema, migrations             | Database design                             |
+| **[Testing Specialist](agents/testing-specialist.md)**             | Unit, integration, E2E tests            | Test automation                             |
+| **[Documentation Specialist](agents/documentation-specialist.md)** | API docs, README, diagrams              | Technical writing                           |
+| **[Refactoring Specialist](agents/refactoring-specialist.md)**     | Code quality, SOLID                     | Refactoring legacy code                     |
 
 ### Agent Characteristics
 
 **All agents are:**
+
 - ✅ **Autonomous**: Complete workflow from research to documentation
 - ✅ **Latest Tech**: Always search for latest versions and patterns
 - ✅ **Test-First**: Comprehensive tests (unit + integration + E2E)
@@ -109,6 +112,7 @@
 ### Main Rules ([rules.md](rules.md))
 
 **Core principles:**
+
 1. **Code Placement**: Used by 2+ apps? → Put in packages
 2. **Clean Architecture**: Clear separation of concerns
 3. **Testing**: 100% on critical paths, >80% overall
@@ -116,6 +120,7 @@
 5. **Quality Gates**: All tests pass, zero type errors, zero warnings
 
 **Key rules:**
+
 - 🏗️ [Architecture Rules](rules.md#architecture-rules) - Monorepo structure, code placement
 - ✅ [Code Quality Rules](rules.md#code-quality-rules) - TypeScript, error handling, naming
 - 🧪 [Testing Rules](rules.md#testing-rules) - Coverage, test types, determinism
@@ -128,6 +133,7 @@
 ### Backend Rules ([rules/backend.md])
 
 **NestJS-specific:**
+
 - Feature-based organization
 - Controller responsibilities (HTTP only)
 - Service responsibilities (business logic)
@@ -140,6 +146,7 @@
 ### Frontend Rules ([rules/frontend.md])
 
 **Next.js-specific:**
+
 - Use App Router (not Pages Router)
 - Server Components by default
 - Server Actions for mutations
@@ -153,6 +160,7 @@
 ### Packages Rules ([rules/packages.md])
 
 **Shared packages:**
+
 - **packages/ui**: Platform-agnostic components
 - **packages/hooks**: React Query hook factories
 - **packages/stores**: Zustand stores
@@ -250,16 +258,16 @@ ordo-todo/
 
 ### When to Use Each Agent
 
-| Task | Agent | Command |
-|------|-------|---------|
-| Create REST API | NestJS Backend | `Use the nestjs-backend agent...` |
-| Build React component | Next.js Frontend | `Use the nextjs-frontend agent...` |
-| Create mobile screen | React Native | `Use the react-native-specialist agent...` |
-| Design database table | PostgreSQL | `Use the postgres-specialist agent...` |
-| Write tests | Testing Specialist | `Use the testing-specialist agent...` |
-| Write documentation | Documentation | `Use the documentation-specialist agent...` |
-| Refactor code | Refactoring | `Use the refactoring-specialist agent...` |
-| Add desktop feature | Electron | `Use the electron-specialist agent...` |
+| Task                  | Agent              | Command                                     |
+| --------------------- | ------------------ | ------------------------------------------- |
+| Create REST API       | NestJS Backend     | `Use the nestjs-backend agent...`           |
+| Build React component | Next.js Frontend   | `Use the nextjs-frontend agent...`          |
+| Create mobile screen  | React Native       | `Use the react-native-specialist agent...`  |
+| Design database table | PostgreSQL         | `Use the postgres-specialist agent...`      |
+| Write tests           | Testing Specialist | `Use the testing-specialist agent...`       |
+| Write documentation   | Documentation      | `Use the documentation-specialist agent...` |
+| Refactor code         | Refactoring        | `Use the refactoring-specialist agent...`   |
+| Add desktop feature   | Electron           | `Use the electron-specialist agent...`      |
 
 ### Code Placement Decision Tree
 
@@ -281,15 +289,15 @@ Is this feature-specific?
 
 ```typescript
 // ✅ CORRECT: Use workspace protocol for packages
-import { Button } from '@ordo-todo/ui';
-import { useTasks } from '@ordo-todo/hooks';
-import { Task } from '@ordo-todo/core';
+import { Button } from "@ordo-todo/ui";
+import { useTasks } from "@ordo-todo/hooks";
+import { Task } from "@ordo-todo/core";
 
 // ❌ WRONG: Relative imports for packages
-import { Button } from '../../../ui/src/components/button';
+import { Button } from "../../../ui/src/components/button";
 
 // ✅ CORRECT: Relative imports within same app
-import { LocalComponent } from './local-component';
+import { LocalComponent } from "./local-component";
 ```
 
 ---
@@ -323,6 +331,7 @@ import { LocalComponent } from './local-component';
 ## 📈 Metrics
 
 Agents track and report:
+
 - Code coverage percentage
 - Test pass rate
 - Performance metrics
@@ -336,6 +345,7 @@ Agents track and report:
 ## 🎯 Success Criteria
 
 **A task is complete only when:**
+
 - ✅ All tests pass (100% success rate)
 - ✅ Zero type errors
 - ✅ Zero linting warnings
@@ -371,4 +381,4 @@ Agents track and report:
 
 **Built with ❤️ for Ordo-Todo**
 
-*This configuration ensures elite agents build production-grade software with exceptional quality, comprehensive testing, and perfect documentation.*
+_This configuration ensures elite agents build production-grade software with exceptional quality, comprehensive testing, and perfect documentation._

@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@source "../../../../packages/ui"; 
+
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+
+/* Import shared styles from @ordo-todo/styles */
+/* These paths are relative to the package inside node_modules or monorepo workspace resolution */
+/* Actually, for Tailwind 4 with @import, we might need direct paths or node resolution */
+/* Since it is a monorepo, relative path to packages is safer if node resolution fails, but node resolution should work if configured */
+
+@import "@ordo-todo/styles/src/variables.css";
+@import "@ordo-todo/styles/src/theme.css";
+@import "@ordo-todo/styles/src/base.css";
+@import "@ordo-todo/styles/src/components.css";
+
+/* Configure dark mode to use class strategy only */
+@variant dark (.dark &);
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Brand Colors */
+  --color-brand-cyan: #06B6D4;
+  --color-brand-pink: #EC4899;
+  --color-brand-orange: #F97316;
+  --color-brand-green: #10B981;
+  --color-brand-purple: #A855F7;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(6, 182, 212, 0.2);
+  color: inherit;
+}
+
+/* Solid Color Section Backgrounds */
+.section-cyan {
+  background-color: #06B6D4;
+  color: white;
+}
+
+.section-pink {
+  background-color: #EC4899;
+  color: white;
+}
+
+.section-orange {
+  background-color: #F97316;
+  color: white;
+}
+
+.section-green {
+  background-color: #10B981;
+  color: white;
+}
+
+.section-purple {
+  background-color: #A855F7;
+  color: white;
+}
+
+/* Light Theme Section Alternates */
+.section-alt {
+  background-color: #F8FAFC;
+}
+
+.dark .section-alt {
+  background-color: #0F172A;
+}
+
+/* Accent backgrounds with solid colors */
+.accent-cyan-bg {
+  background-color: #ECFEFF;
+}
+
+.dark .accent-cyan-bg {
+  background-color: #083344;
+}
+
+.accent-pink-bg {
+  background-color: #FDF2F8;
+}
+
+.dark .accent-pink-bg {
+  background-color: #500724;
+}
+
+.accent-orange-bg {
+  background-color: #FFF7ED;
+}
+
+.dark .accent-orange-bg {
+  background-color: #431407;
+}
+
+.accent-green-bg {
+  background-color: #ECFDF5;
+}
+
+.dark .accent-green-bg {
+  background-color: #022C22;
+}
+
+.accent-purple-bg {
+  background-color: #FAF5FF;
+}
+
+.dark .accent-purple-bg {
+  background-color: #2E1065;
+}
+
+/* Geometric Shapes for decorations */
+.shape-square {
+  position: absolute;
+  border: 4px solid currentColor;
+  opacity: 0.1;
+}
+
+.shape-circle {
+  position: absolute;
+  border: 4px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.1;
+}
+
+/* Solid shadows instead of blur/glow */
+.shadow-solid-sm {
+  box-shadow: 4px 4px 0 currentColor;
+}
+
+.shadow-solid-md {
+  box-shadow: 6px 6px 0 currentColor;
+}
+
+.shadow-solid-lg {
+  box-shadow: 8px 8px 0 currentColor;
+}

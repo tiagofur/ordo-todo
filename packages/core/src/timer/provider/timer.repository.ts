@@ -72,4 +72,22 @@ export interface TimerRepository {
     completedSessions: number;
     lastSessionAt?: Date;
   }>;
+
+  findByUserIdWithTaskAndProject(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<
+    Array<{
+      id: string;
+      startedAt: Date;
+      duration: number | null;
+      task: {
+        id: string;
+        project: {
+          name: string;
+        } | null;
+      } | null;
+    }>
+  >;
 }

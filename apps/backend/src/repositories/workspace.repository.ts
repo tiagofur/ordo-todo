@@ -18,7 +18,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private toDomain(prismaWorkspace: PrismaWorkspace): Workspace {
     return new Workspace({
@@ -222,8 +222,60 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   async findByOwnerId(ownerId: string): Promise<Workspace[]> {
     const workspaces = await this.prisma.workspace.findMany({
       where: { ownerId, isDeleted: false },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
+        _count: {
+          select: {
+            projects: true,
+            members: true,
+          },
+        },
+        projects: {
+          select: {
+            _count: {
+              select: { tasks: true },
+            },
+          },
+        },
+        members: {
+          select: {
+            id: true,
+            userId: true,
+            role: true,
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
     });
+
     return workspaces.map((w) => this.toDomain(w));
+  }
+
+  async map(ownerId: string, userId: string): Promise<Map<string, Workspace>> {
+    const workspaces = await this.findByOwnerId(ownerId);
+    const map = new Map<string, Workspace>();
+
+    for (const workspace of workspaces) {
+      if (workspace.id) {
+        map.set(String(workspace.id), workspace);
+      }
+    }
+
+    return map;
   }
 
   async findByUserId(userId: string): Promise<Workspace[]> {
@@ -400,5 +452,33 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       where: { workspaceId },
     });
     return members.map((m) => this.toMemberDomain(m));
+  }
+
+  async listMembersWithUser(workspaceId: string): Promise<
+    Array<{
+      userId: string;
+      role: string;
+      user: {
+        id: string;
+        name: string | null;
+        email: string;
+        image: string | null;
+      };
+    }>
+  > {
+    const members = await this.prisma.workspaceMember.findMany({
+      where: { workspaceId },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+    });
+
+    return members.map((m) => ({
+      userId: m.userId,
+      role: m.role,
+      user: m.user,
+    }));
   }
 }

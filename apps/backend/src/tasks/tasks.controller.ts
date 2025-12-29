@@ -15,6 +15,15 @@ import {
   forwardRef,
   Logger,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse as ApiResponseDecorator,
+  ApiBody as ApiBodyDecorator,
+  ApiParam,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { MemberRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TaskGuard } from '../common/guards/task.guard';
@@ -62,6 +71,44 @@ export class TasksController {
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   complete(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.complete(id, user.id);
+  }
+
+  /**
+   * Update a task (partial update)
+   * Requires OWNER, ADMIN, or MEMBER role in workspace
+   */
+  @Patch(':id')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  @ApiOperation({
+    summary: 'Update a task',
+    description:
+      'Updates task properties (title, description, status, priority, etc.). Only provided fields are updated.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Task ID',
+  })
+  @ApiBodyDecorator({ type: UpdateTaskDto })
+  @ApiResponseDecorator({
+    status: 200,
+    description: 'Task updated successfully',
+  })
+  @ApiResponseDecorator({
+    status: 403,
+    description:
+      'Forbidden - User does not have permission to update this task',
+  })
+  @ApiResponseDecorator({
+    status: 404,
+    description: 'Task not found',
+  })
+  update(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.tasksService.update(id, updateTaskDto, user.id);
   }
 
   /**

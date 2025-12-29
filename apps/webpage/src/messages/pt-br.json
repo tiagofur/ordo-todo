@@ -1,0 +1,679 @@
+{
+  "WhyOrdo": {
+    "badge": "Por Que Nos Escolher",
+    "title": "Por Que Ordo Todo?",
+    "subtitle": "Construímos o Ordo Todo para ser a ferramenta de produtividade que sempre quisemos. Isso é o que nos torna diferentes.",
+    "all_in_one": {
+      "title": "Plataforma Tudo-em-Um",
+      "description": "Tarefas, projetos, rastreamento de tempo e análises em um só lugar. Sem alternar entre apps."
+    },
+    "cross_platform": {
+      "title": "Verdadeiramente Multiplataforma",
+      "description": "Web, Desktop (Windows, Mac, Linux) e Mobile (iOS, Android). Seus dados sincronizam em todos os lugares."
+    },
+    "privacy": {
+      "title": "Privacidade em Primeiro Lugar",
+      "description": "Seus dados são seus. Criptografia de ponta a ponta e nunca vendemos dados. Jamais."
+    },
+    "ai_helps": {
+      "title": "IA Que Ajuda, Não Controla",
+      "description": "Sugestões inteligentes e automação quando você quiser. Você sempre está no controle."
+    },
+    "no_lockin": {
+      "title": "Sem Armadilha de Assinatura",
+      "description": "Generoso plano gratuito. Exporte seus dados quando quiser. Preços justos e transparentes."
+    },
+    "focus_builtin": {
+      "title": "Modo Foco Integrado",
+      "description": "Timer Pomodoro e ferramentas de trabalho profundo integradas diretamente. Sem apps extras."
+    }
+  },
+  "StarFeatures": {
+    "badge": "Recursos Estrela",
+    "title": "Recursos Que Fazem a Diferença",
+    "subtitle": "Ferramentas poderosas projetadas para produtividade real. Estes são os recursos que nossos usuários mais amam.",
+    "eisenhower": {
+      "title": "Matriz de Eisenhower",
+      "description": "Priorize tarefas por urgência e importância. Veja de relance o que precisa da sua atenção agora.",
+      "highlights": ["Prioridade Visual", "Ordenação Inteligente", "Ações Rápidas"]
+    },
+    "kanban": {
+      "title": "Quadros Kanban",
+      "description": "Visualize seu fluxo de trabalho com quadros flexíveis. Arraste e solte tarefas entre colunas.",
+      "highlights": ["Arrastar e Soltar", "Colunas Personalizadas", "Acompanhamento de Progresso"]
+    },
+    "time_blocking": {
+      "title": "Bloqueio de Tempo",
+      "description": "Agende tarefas no seu calendário. Bloqueie tempo para trabalho profundo e proteja sua produtividade.",
+      "highlights": ["Visualização de Calendário", "Blocos de Tempo", "Lembretes"]
+    },
+    "focus_timer": {
+      "title": "Timer de Foco",
+      "description": "Timer Pomodoro integrado com sessões personalizáveis. Acompanhe seu tempo de foco e faça pausas inteligentes.",
+      "highlights": ["Pomodoro", "Estatísticas", "Alertas de Pausa"]
+    },
+    "okrs": {
+      "title": "OKRs e Metas",
+      "description": "Defina objetivos e resultados-chave. Acompanhe o progresso no que mais importa para você.",
+      "highlights": ["Objetivos", "Resultados-Chave", "Progresso"]
+    },
+    "collaboration": {
+      "title": "Colaboração em Equipe",
+      "description": "Convide membros da equipe, atribua tarefas e trabalhe junto perfeitamente em espaços compartilhados.",
+      "highlights": ["Espaços de Trabalho", "Atribuições", "Comentários"]
+    }
+  },
+  "AIFeatures": {
+    "badge": "Potenciado por IA",
+    "title": "Supercarregado por",
+    "highlight": "Inteligência Artificial",
+    "subtitle": "Nossa IA trabalha nos bastidores para ajudar você a ser mais produtivo. Recursos inteligentes que aprendem com seus hábitos.",
+    "smart_scheduling": {
+      "title": "Agendamento Inteligente",
+      "description": "A IA analisa seus padrões e sugere os melhores horários para cada tarefa. Trabalhe quando você é mais eficaz.",
+      "benefit": "Economiza 2+ horas por semana"
+    },
+    "priority_intelligence": {
+      "title": "Inteligência de Prioridades",
+      "description": "Prioriza automaticamente tarefas com base em prazos, importância e seus padrões de trabalho.",
+      "benefit": "Nunca perca um prazo"
+    },
+    "burnout_prevention": {
+      "title": "Prevenção de Burnout",
+      "description": "Detecta quando você está sobrecarregado e sugere descanso. Protege sua produtividade a longo prazo.",
+      "benefit": "Mantenha-se saudável e produtivo"
+    },
+    "weekly_reports": {
+      "title": "Relatórios Semanais",
+      "description": "Insights gerados por IA sobre sua produtividade. Veja tendências e obtenha dicas personalizadas.",
+      "benefit": "Melhoria contínua"
+    },
+    "energy_matching": {
+      "title": "Correspondência de Energia",
+      "description": "Combina tarefas com seus níveis de energia. Trabalho de alto foco quando você está alerta, rotina quando não.",
+      "benefit": "Trabalhe com seu corpo"
+    },
+    "task_estimation": {
+      "title": "Estimativa de Tarefas",
+      "description": "A IA prevê quanto tempo as tarefas levarão com base em tarefas similares que você concluiu antes.",
+      "benefit": "Melhor planejamento"
+    },
+    "ai_statement": "IA que respeita sua privacidade. Todo o processamento acontece de forma segura."
+  },
+  "BlogPreview": {
+    "badge": "Do Nosso Blog",
+    "title": "Dicas e Insights de Produtividade",
+    "subtitle": "Conselhos de especialistas para ajudar você a trabalhar de forma mais inteligente.",
+    "view_all": "Ver Todos os Posts"
+  },
+  "Changelog": {
+    "badge": "Novidades",
+    "title": "Histórico de Mudanças",
+    "subtitle": "Fique por dentro das últimas funcionalidades, melhorias e correções."
+  },
+  "FAQ": {
+    "badge": "Central de Ajuda",
+    "title": "Perguntas Frequentes",
+    "subtitle": "Encontre respostas para perguntas comuns sobre o Ordo Todo.",
+    "search_placeholder": "Buscar respostas...",
+    "no_results": "Nenhuma pergunta corresponde à sua busca. Tente outras palavras.",
+    "still_need_help": "Não encontrou o que procura?",
+    "contact_us": "Entre em Contato"
+  },
+
+  "Navigation": {
+    "home": "Início",
+    "guide": "Guia do Usuário",
+    "blog": "Blog",
+    "faq": "FAQ",
+    "changelog": "Novidades",
+    "roadmap": "Roadmap",
+    "login": "Entrar",
+    "register": "Comece Grátis"
+  },
+  "Hero": {
+    "title": "Domine Seu Tempo",
+    "highlight": "Alcance Seus Objetivos",
+    "description": "Ordo Todo é a plataforma definitiva de produtividade impulsionada por IA. Organize tarefas, gerencie projetos e otimize seu fluxo de trabalho.",
+    "cta_primary": "Comece Grátis",
+    "cta_secondary": "Saiba Mais",
+    "badge": "Agora com Assistente IA",
+    "features": {
+      "pomodoro": "Timer Pomodoro",
+      "ai": "Agenda com IA",
+      "cross": "Multiplataforma"
+    },
+    "social_proof": "usuários produtivos"
+  },
+  "Features": {
+    "title": "Tudo o que você precisa para ser produtivo",
+    "subtitle": "Recursos poderosos projetados para ajudar você a organizar seu trabalho e vida com facilidade.",
+    "badge": "Recursos Poderosos",
+    "organization": {
+      "title": "Organização Inteligente",
+      "description": "Mantenha suas tarefas e projetos estruturados com workspaces, tags e prioridades."
+    },
+    "time_management": {
+      "title": "Gestão de Tempo",
+      "description": "Timer Pomodoro integrado e bloqueio de tempo para ajudar você a manter o foco."
+    },
+    "ai_powered": {
+      "title": "Assistente IA",
+      "description": "Sugestões inteligentes para priorizar tarefas e otimizar sua agenda."
+    },
+    "cross_platform": {
+      "title": "Multiplataforma",
+      "description": "Sincronize perfeitamente entre Web, Desktop e dispositivos móveis."
+    },
+    "productivity": {
+      "title": "Insights de Produtividade",
+      "description": "Acompanhe seu progresso com análises e relatórios detalhados."
+    },
+    "privacy": {
+      "title": "Privado e Seguro",
+      "description": "Seus dados são criptografados e seguros. Valorizamos sua privacidade."
+    },
+    "stats": {
+      "okr": "Rastreamento OKR",
+      "calendar": "Sincro Calendário",
+      "speed": "Velocidade",
+      "uptime": "Disponibilidade"
+    }
+  },
+  "ProductShowcase": {
+    "badge": "Tour do Produto",
+    "title": "Tudo o que você precisa para",
+    "highlight": "ter sucesso",
+    "subtitle": "Explore os recursos poderosos que fazem do Ordo Todo o companheiro de produtividade definitivo.",
+    "learn_more": "Saiba mais",
+    "items": {
+      "tasks": {
+        "title": "Gestão de Tarefas Inteligente",
+        "description": "Organize tarefas com projetos, tags, prioridades e datas. Nossa interface intuitiva facilita o gerenciamento de fluxos complexos.",
+        "features": ["Arrastar e Soltar", "Subtarefas", "Dependências", "Tags e Rótulos"]
+      },
+      "focus": {
+        "title": "Timer de Foco e Pomodoro",
+        "description": "Mantenha o foco com nosso timer Pomodoro integrado. Acompanhe suas sessões de trabalho profundo e faça pausas inteligentes.",
+        "features": ["Timers Personalizáveis", "Histórico de Sessões", "Análises de Foco", "Lembretes de Pausa"]
+      },
+      "ai": {
+        "title": "Agenda com IA",
+        "description": "Deixe nosso assistente IA ajudar você a priorizar tarefas e agendar seu dia para máxima produtividade.",
+        "features": ["Sugestões Inteligentes", "Auto-Agendamento", "Insights de Prioridade", "Equilíbrio de Carga"]
+      },
+      "analytics": {
+        "title": "Análises Bonitas",
+        "description": "Entenda seus padrões de produtividade com gráficos detalhados. Veja o que funciona e otimize seu fluxo.",
+        "features": ["Relatórios Semanais", "Rastreamento de Tempo", "Progresso de Metas", "Tendências de Produtividade"]
+      }
+    }
+  },
+  "Testimonials": {
+    "badge": "Amado por milhares",
+    "title": "O que nossos usuários dizem",
+    "subtitle": "Junte-se a milhares de profissionais que usam Ordo Todo para dominar seu tempo.",
+    "items": {
+      "user1": {
+        "name": "Maria Garcia",
+        "role": "Gerente de Produto",
+        "company": "TechCorp",
+        "content": "Ordo Todo transformou minha produtividade. O assistente de IA me ajuda a priorizar o que realmente importa."
+      },
+      "user2": {
+        "name": "Carlos Ruiz",
+        "role": "Desenvolvedor de Software",
+        "company": "StartupXYZ",
+        "content": "O timer Pomodoro integrado é incrível. Nunca fui tão produtivo na minha vida."
+      },
+      "user3": {
+        "name": "Ana Martinez",
+        "role": "Designer Freelancer",
+        "company": "Autônoma",
+        "content": "A sincronização entre dispositivos é perfeita. Uso Ordo Todo no meu Mac, iPhone e iPad."
+      }
+    }
+  },
+  "CTA": {
+    "title": "Pronto para se organizar?",
+    "description": "Junte-se a milhares de usuários que estão dominando seu tempo com Ordo Todo. Comece seu teste gratuito hoje.",
+    "button_primary": "Comece Grátis",
+    "button_secondary": "Entrar",
+    "badge": "Plano Grátis para Sempre",
+    "trust": {
+      "no_card": "Sem cartão de crédito",
+      "free": "Plano grátis para sempre",
+      "cancel": "Cancele quando quiser"
+    }
+  },
+  "Footer": {
+    "tagline": "Organize sua vida com assistência de IA.",
+    "product": "Produto",
+    "guide": "Guia do Usuário",
+    "blog": "Blog",
+    "pricing": "Preços",
+    "company": "Empresa",
+    "about": "Sobre",
+    "contact": "Contato",
+    "legal": "Legal",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Serviço",
+    "rights": "Todos os direitos reservados",
+    "made_with": "Feito com",
+    "for_productivity": "para produtividade"
+  },
+  "Guide": {
+    "title": "Começando",
+    "description": "Aprenda a usar o Ordo Todo efetivamente e aumente sua produtividade.",
+    "header": {
+      "title": "Guia do Usuário",
+      "subtitle": "Tudo o que você precisa para dominar o Ordo Todo"
+    },
+    "sidebar": {
+      "getting_started": "Começando",
+      "projects": "Projetos e Quadros",
+      "tasks": "Gestão de Tarefas",
+      "focus": "Timer de Foco",
+      "analytics": "Análises",
+      "need_help": "Precisa de mais ajuda?",
+      "community_text": "Junte-se à nossa comunidade para dicas e suporte.",
+      "community_link": "Entrar na Comunidade"
+    },
+    "main": {
+      "badge": "Guia de Início Rápido",
+      "welcome": "Bem-vindo ao",
+      "welcome_text": "Este guia vai ajudar você a começar em apenas alguns minutos. Nosso app combina gestão de tarefas poderosa com ferramentas de foco para ajudar você a alcançar seus objetivos.",
+      "quick_start_title": "Início Rápido de 5 Minutos",
+      "steps": {
+        "1": {
+          "title": "Crie sua conta",
+          "description": "Registre-se grátis e configure seu perfil. Escolha seu fuso horário e idioma preferido."
+        },
+        "2": {
+          "title": "Crie um Workspace",
+          "description": "Workspaces ajudam você a separar diferentes áreas da sua vida. Crie um para Pessoal e outro para Trabalho."
+        },
+        "3": {
+          "title": "Adicione seu primeiro Projeto",
+          "description": "Projetos organizam tarefas relacionadas. Crie um projeto para cada meta ou iniciativa importante."
+        },
+        "4": {
+          "title": "Crie Tarefas",
+          "description": "Divida seus projetos em tarefas acionáveis. Adicione datas de vencimento, prioridades e tempo estimado."
+        },
+        "5": {
+          "title": "Inicie o Timer de Foco",
+          "description": "Selecione uma tarefa e inicie o timer Pomodoro. Mantenha o foco por 25 minutos, depois faça uma pausa de 5 minutos."
+        }
+      },
+      "pro_tip": "Dica Pro",
+      "pro_tip_text": "Use o atalho de teclado",
+      "pro_tip_shortcut": "Cmd/Ctrl + N",
+      "pro_tip_end": "para criar tarefas rapidamente de qualquer lugar do app!",
+      "explore_title": "Explore Mais",
+      "explore_text": "Aprofunde-se em recursos específicos com estes guias detalhados:"
+    },
+    "cards": {
+      "projects": {
+        "title": "Projetos e Quadros",
+        "description": "Aprenda a organizar trabalho com quadros Kanban"
+      },
+      "tasks": {
+        "title": "Gestão de Tarefas",
+        "description": "Domine subtarefas, dependências e prioridades"
+      },
+      "focus": {
+        "title": "Timer de Foco",
+        "description": "Aumente produtividade com técnica Pomodoro"
+      },
+      "analytics": {
+        "title": "Análises",
+        "description": "Acompanhe e melhore sua produtividade"
+      }
+    }
+  },
+  "GuideFocus": {
+    "badge": "Timer de Foco",
+    "title": "Timer de Foco e Pomodoro",
+    "subtitle": "Mantenha o fluxo com nosso timer Pomodoro integrado.",
+    "pomodoro_title": "A Técnica Pomodoro",
+    "pomodoro_text": "A Técnica Pomodoro é um método de gestão de tempo que divide o trabalho em intervalos focados (tradicionalmente 25 minutos) separados por pausas curtas. É comprovado que melhora o foco e previne o esgotamento.",
+    "modes_title": "Modos do Timer",
+    "modes": {
+      "focus": {
+        "title": "Sessão de Foco",
+        "duration": "25 min",
+        "description": "Trabalho profundo em uma única tarefa. Sem distrações."
+      },
+      "short": {
+        "title": "Pausa Curta",
+        "duration": "5 min",
+        "description": "Descanso rápido para recarregar. Alongue, hidrate, relaxe."
+      },
+      "long": {
+        "title": "Pausa Longa",
+        "duration": "15-30 min",
+        "description": "Descanso estendido após 4 sessões. Vá caminhar!"
+      }
+    },
+    "how_to_title": "Como Usar",
+    "steps": {
+      "1": "Selecione uma tarefa da sua lista",
+      "2": "Clique em \"Iniciar Foco\" para começar o timer",
+      "3": "Trabalhe até o timer terminar",
+      "4": "Faça sua pausa, depois repita!"
+    },
+    "shortcuts_title": "Atalhos de Teclado",
+    "shortcuts": {
+      "space": "Iniciar/Pausar timer",
+      "r": "Reiniciar timer",
+      "s": "Pular para pausa"
+    },
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Ative o \"Modo Foco\" nas configurações para ocultar notificações e distrações durante suas sessões. Sua produtividade vai agradecer!"
+  },
+  "GuideProjects": {
+    "badge": "Projetos e Quadros",
+    "title": "Projetos e Quadros Kanban",
+    "subtitle": "Organize seu trabalho visualmente com quadros e listas flexíveis.",
+    "managing_title": "Gerenciando Projetos",
+    "managing_text": "Projetos no Ordo Todo permitem que você agrupe tarefas relacionadas. Seja lançando um produto, planejando férias ou gerenciando uma equipe, Projetos mantêm tudo organizado em um lugar.",
+    "creating_title": "Criando um Projeto",
+    "creating_steps": {
+      "1": "Clique no botão + Novo Projeto na barra lateral",
+      "2": "Dê ao seu projeto um nome descritivo",
+      "3": "Escolha uma cor para fácil identificação",
+      "4": "Selecione um template de fluxo de trabalho (ou comece em branco)"
+    },
+    "views_title": "Visualizações",
+    "views_text": "Alterne entre diferentes visualizações para adaptar seu fluxo de trabalho:",
+    "views": {
+      "kanban": {
+        "title": "Quadro Kanban",
+        "description": "Visualize seu fluxo de trabalho com colunas. Arraste e solte cards para atualizar o status."
+      },
+      "list": {
+        "title": "Visualização de Lista",
+        "description": "Lista estruturada e densa perfeita para revisar muitas tarefas. Ideal para ordenar e filtrar."
+      }
+    },
+    "advanced_title": "Recursos Avançados",
+    "features": {
+      "tags": {
+        "title": "Tags e Rótulos",
+        "description": "Categorize tarefas com tags coloridas como \"Design\", \"Marketing\" ou \"Backend\"."
+      },
+      "team": {
+        "title": "Colaboração em Equipe",
+        "description": "Convide membros da equipe e atribua tarefas. Todos ficam sincronizados."
+      }
+    },
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Use o atalho de teclado",
+    "pro_tip_shortcut": "V",
+    "pro_tip_end": "para alternar rapidamente entre visualizações Kanban e Lista!"
+  },
+  "GuideTasks": {
+    "badge": "Gestão de Tarefas",
+    "title": "Gestão de Tarefas",
+    "subtitle": "Domine sua lista de tarefas diária com recursos poderosos.",
+    "basics_title": "O Básico",
+    "basics_text": "Tarefas são os blocos fundamentais do Ordo Todo. Cada tarefa pode ser tão simples como \"Comprar comida\" ou tão complexa como \"Criar nova página web\" com subtarefas, anexos e comentários.",
+    "creating_title": "Criando uma Tarefa",
+    "quick_add": "Adicionar Rápido",
+    "quick_add_text": "Pressione",
+    "quick_add_shortcut": "Cmd/Ctrl + N",
+    "quick_add_end": "em qualquer lugar para criar uma nova tarefa",
+    "or_click": "Ou clique no botão \"+\" em qualquer projeto para adicionar uma tarefa diretamente.",
+    "features_title": "Recursos de Tarefas",
+    "features_text": "Clique em qualquer tarefa para abrir o painel de detalhes e acessar estes recursos:",
+    "features": {
+      "subtasks": {
+        "title": "Subtarefas",
+        "description": "Divida tarefas complexas em passos menores"
+      },
+      "due_dates": {
+        "title": "Datas de Vencimento",
+        "description": "Defina prazos e receba lembretes"
+      },
+      "priorities": {
+        "title": "Prioridades",
+        "description": "Marque tarefas como Baixa, Média, Alta ou Urgente"
+      },
+      "time": {
+        "title": "Estimativa de Tempo",
+        "description": "Planeje seu dia estimando a duração de tarefas"
+      },
+      "attachments": {
+        "title": "Anexos",
+        "description": "Adicione arquivos, links e referências"
+      },
+      "comments": {
+        "title": "Comentários",
+        "description": "Colabore com notas e discussão"
+      }
+    },
+    "statuses_title": "Status de Tarefas",
+    "statuses_text": "Tarefas passam por estes status enquanto você trabalha:",
+    "statuses": {
+      "todo": "A Fazer",
+      "in_progress": "Em Progresso",
+      "completed": "Concluída",
+      "cancelled": "Cancelada"
+    },
+    "priority_title": "Níveis de Prioridade",
+    "priority_text": "Use prioridades para focar no que mais importa:",
+    "priorities": {
+      "low": {
+        "label": "Baixa",
+        "description": "Bom fazer, sem pressa"
+      },
+      "medium": {
+        "label": "Média",
+        "description": "Deve ser feita em breve"
+      },
+      "high": {
+        "label": "Alta",
+        "description": "Importante e urgente"
+      },
+      "urgent": {
+        "label": "Urgente",
+        "description": "Faça imediatamente!"
+      }
+    },
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Use a visualização Matriz de Eisenhower para ordenar tarefas automaticamente por urgência e importância. Encontre no menu de Visualizações!"
+  },
+  "GuideAnalytics": {
+    "badge": "Análises",
+    "title": "Análises e Insights",
+    "subtitle": "Entenda seus padrões de produtividade com visualização de dados detalhada.",
+    "metrics_title": "Métricas Chave",
+    "metrics_text": "Acompanhe estas métricas essenciais para entender e melhorar sua produtividade:",
+    "metrics": {
+      "focus": {
+        "title": "Horas de Foco",
+        "description": "Tempo total em sessões de foco",
+        "example": "32h esta semana"
+      },
+      "tasks": {
+        "title": "Tarefas Concluídas",
+        "description": "Número de tarefas finalizadas",
+        "example": "47 tarefas"
+      },
+      "score": {
+        "title": "Pontuação de Produtividade",
+        "description": "Classificação de eficiência calculada por IA",
+        "example": "87%"
+      },
+      "streak": {
+        "title": "Dias de Sequência",
+        "description": "Dias produtivos consecutivos",
+        "example": "12 dias"
+      }
+    },
+    "reports_title": "Relatórios",
+    "reports_text": "Gere relatórios detalhados para revisar seu progresso:",
+    "reports": {
+      "daily": {
+        "title": "Resumo Diário",
+        "description": "O que você realizou hoje"
+      },
+      "weekly": {
+        "title": "Relatório Semanal",
+        "description": "Tendências e padrões da semana"
+      },
+      "monthly": {
+        "title": "Resumo Mensal",
+        "description": "Progresso de longo prazo e metas"
+      },
+      "custom": {
+        "title": "Período Personalizado",
+        "description": "Analise qualquer período de tempo"
+      }
+    },
+    "understanding_title": "Entendendo seus Dados",
+    "understanding": {
+      "peak": "Horários de Pico: Descubra quando você é mais produtivo durante o dia",
+      "velocity": "Velocidade de Tarefas: Acompanhe quão rápido você conclui tarefas",
+      "ratio": "Proporção de Foco: Compare tempo de foco vs tempo total de trabalho",
+      "goals": "Progresso de Metas: Veja quão perto você está das suas metas semanais"
+    },
+    "pro_tip": "Dica Pro",
+    "pro_tip_text": "Revise suas análises todo domingo à noite. Use os insights para planejar uma semana mais produtiva!"
+  },
+  "Blog": {
+    "title": "Blog",
+    "description": "Últimas notícias e dicas de produtividade."
+  },
+  "Pricing": {
+    "badge": "Preços Simples",
+    "title": "Escolha Seu Plano",
+    "subtitle": "Comece grátis, atualize quando precisar de mais. Sem taxas ocultas, cancele quando quiser.",
+    "most_popular": "Mais Popular",
+    "questions": "Tem perguntas sobre nossos planos?",
+    "view_faq": "Ver FAQ →",
+    "guarantee_title": "Garantia de 30 Dias",
+    "guarantee_text": "Experimente qualquer plano pago sem risco. Se não estiver satisfeito, reembolsamos em 30 dias.",
+    "plans": {
+      "free": {
+        "name": "Grátis",
+        "description": "Perfeito para começar",
+        "cta": "Começar"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Para usuários avançados",
+        "cta": "Teste Grátis"
+      },
+      "team": {
+        "name": "Equipe",
+        "description": "Colabore com seu time",
+        "cta": "Teste Grátis"
+      },
+      "enterprise": {
+        "name": "Empresa",
+        "description": "Para grandes organizações",
+        "cta": "Falar com Vendas"
+      }
+    }
+  },
+  "Contact": {
+    "badge": "Entre em Contato",
+    "title": "Contato",
+    "subtitle": "Adoraríamos ouvir você. Envie uma mensagem e responderemos o mais breve possível.",
+    "success_title": "Mensagem Enviada!",
+    "success_message": "Obrigado por entrar em contato. Responderemos em 24 horas.",
+    "name_label": "Nome",
+    "email_label": "E-mail",
+    "subject_label": "Assunto",
+    "message_label": "Mensagem",
+    "name_placeholder": "Seu nome",
+    "email_placeholder": "voce@exemplo.com",
+    "subject_placeholder": "Como podemos ajudar?",
+    "message_placeholder": "Conte-nos mais...",
+    "sending": "Enviando...",
+    "submit": "Enviar Mensagem"
+  },
+  "About": {
+    "badge": "Nossa História",
+    "title": "Sobre o Ordo Todo",
+    "subtitle": "Estamos em uma missão para simplificar a produtividade para todos, em todos os lugares.",
+    "mission": {
+      "title": "Nossa Missão",
+      "text1": "No Ordo Todo, acreditamos que a produtividade não deve ser complicada. Construímos esta plataforma para ajudar indivíduos e equipes a organizar seu trabalho, focar no que importa e alcançar seus objetivos sem estresse.",
+      "text2": "Nossa jornada começou com uma ideia simples: criar uma ferramenta que se adapte a você, não o contrário. Hoje, temos orgulho de apoiar milhares de usuários em seus fluxos de trabalho diários."
+    },
+    "values": {
+      "title": "Nossos Valores",
+      "subtitle": "Os princípios que guiam tudo o que fazemos.",
+      "users": {
+        "title": "Usuários Primeiro",
+        "description": "Construímos para você. Seu feedback molda nosso roteiro e decisões."
+      },
+      "passion": {
+        "title": "Paixão pela Qualidade",
+        "description": "Somos obcecados por detalhes para criar uma experiência agradável."
+      },
+      "privacy": {
+        "title": "Privacidade desde o Início",
+        "description": "Seus dados são seus. Nós os protegemos com segurança padrão da indústria."
+      },
+      "global": {
+        "title": "Mentalidade Global",
+        "description": "Projetamos para uma comunidade global diversificada de criadores e realizadores."
+      }
+    },
+    "quote": "Produtividade não é sobre fazer mais coisas — é sobre fazer as coisas certas."
+  },
+  "Privacy": {
+    "title": "Política de Privacidade",
+    "last_updated": "Última Atualização",
+    "intro": "No Ordo Todo, levamos sua privacidade a sério. Esta política descreve como coletamos, usamos e protegemos suas informações pessoais.",
+    "sections": {
+      "collection": {
+        "title": "Coleta de Informações",
+        "content": "Coletamos informações que você nos fornece diretamente, como quando cria uma conta, atualiza seu perfil ou se comunica conosco."
+      },
+      "usage": {
+        "title": "Como usamos as informações",
+        "content": "Usamos suas informações para fornecer, manter e melhorar nossos serviços, e para nos comunicar com você sobre produtos, serviços e eventos."
+      },
+      "protection": {
+        "title": "Proteção de Dados",
+        "content": "Implementamos medidas técnicas e organizacionais apropriadas para proteger seus dados pessoais contra acesso ou divulgação não autorizados."
+      },
+      "sharing": {
+        "title": "Compartilhamento de Informações",
+        "content": "Não vendemos suas informações pessoais. Podemos compartilhar dados com prestadores de serviços que nos auxiliam em nossas operações, sujeitos a estrita confidencialidade."
+      }
+    },
+    "contact_title": "Entre em Contato",
+    "contact_text": "Se você tiver alguma dúvida sobre esta Política de Privacidade, por favor"
+  },
+  "Terms": {
+    "title": "Termos de Serviço",
+    "last_updated": "Última Atualização",
+    "intro": "Ao acessar ou usar o Ordo Todo, você concorda em ficar vinculado a estes Termos. Se você não concordar com qualquer parte dos termos, não poderá acessar o serviço.",
+    "sections": {
+      "acceptance": {
+        "title": "Aceitação dos Termos",
+        "content": "Ao criar uma conta ou usar nossos serviços, você concorda com estes termos e nossa Política de Privacidade."
+      },
+      "usage": {
+        "title": "Uso Aceitável",
+        "content": "Você concorda em não fazer uso indevido de nossos serviços ou ajudar qualquer outra pessoa a fazê-lo. Você não deve usar nossos serviços para qualquer finalidade ilegal ou não autorizada."
+      },
+      "disclaimer": {
+        "title": "Isenção de Responsabilidade",
+        "content": "Nossos serviços são fornecidos 'como estão' sem garantias de qualquer tipo, expressas ou implícitas, incluindo comercialização ou adequação a um propósito específico."
+      },
+      "changes": {
+        "title": "Alterações nos Termos",
+        "content": "Reservamo-nos o direito de modificar estes termos a qualquer momento. Notificaremos sobre alterações significativas."
+      }
+    },
+    "contact_title": "Entre em Contato",
+    "contact_text": "Se você tiver alguma dúvida sobre estes Termos, por favor"
+  }
+}

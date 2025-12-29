@@ -44,6 +44,49 @@ export class TimersService {
     private readonly gamificationService: GamificationService,
   ) {}
 
+  /**
+   * Starts a new timer session for a task or free work
+   *
+   * Starts a new time tracking session with the specified type (WORK, CONTINUOUS, POMODORO).
+   * If a task is specified, tracks time for that task. Otherwise tracks free work.
+   * Automatically calculates focus score if session has existing data (e.g., from switch).
+   *
+   * @param startTimerDto - Timer session configuration
+   * @param startTimerDto.taskId - Optional task ID to associate timer with
+   * @param startTimerDto.type - Timer type (default: WORK)
+   * @param startTimerDto.notes - Optional notes for the session
+   * @param startTimerDto.existingSessionId - If switching tasks, provides existing session data
+   * @param userId - ID of user starting the timer (for authorization)
+   *
+   * @returns Promise resolving to created time session with all properties
+   *
+   * @throws {NotFoundException} If task specified but not found
+   * @throws {BadRequestException} If session already active for user
+   *
+   * @example
+   * ```typescript
+   * const session = await timersService.start(
+   *   {
+   *     taskId: 'task-123',
+   *     type: 'POMODORO',
+   *     notes: 'Focus on documentation'
+   *   },
+   *   'user-456'
+   * );
+   * console.log(session);
+   * // {
+   * //   id: 'session-789',
+   * //   taskId: 'task-123',
+   * //   type: 'POMODORO',
+   * //   startTime: '2025-12-29T10:00:00.000Z',
+   * //   ...
+   * // }
+   * ```
+   *
+   * @since 1.0.0
+   * @see {@link ../timers.controller.ts | Timers Controller}
+   * @see {@link ../../packages/core/src/analytics/calculate-focus-score.use-case.ts | CalculateFocusScoreUseCase}
+   */
   async start(startTimerDto: StartTimerDto, userId: string) {
     const startTimerUseCase = new StartTimerUseCase(
       this.timerRepository,
@@ -57,6 +100,65 @@ export class TimersService {
     return session.props;
   }
 
+  /**
+   * Stops active timer session and auto-tracks analytics metrics
+   *
+   * Stops the currently active timer session and:
+   * - Records session end time and duration
+   * - Calculates and saves focus score (based on work time vs pause time)
+   * - Updates daily metrics automatically (time worked, pomodoros, focus score)
+   * - Learns from session patterns for AI recommendations
+   *
+   * This is the PRIMARY entry point for analytics auto-tracking. All time-based
+   * metrics are updated when this method is called with a completed session.
+   *
+   * Focus Score Formula:
+   * ```
+   * focusScore = (workTime / totalTime) - (pauseCount * 0.02)
+   * Where:
+   * - workTime = duration * 60 - totalPauseTime (in seconds)
+   * - totalTime = duration * 60 (in seconds)
+   * - pauseCount = number of pause events
+   * ```
+   *
+   * @param stopTimerDto - Timer stop configuration
+   * @param stopTimerDto.sessionId - ID of session to stop
+   * @param stopTimerDto.wasCompleted - Whether task was completed (true) or just stopped (false)
+   * @param stopTimerDto.notes - Optional notes about the session
+   * @param userId - ID of user stopping the timer (for authorization)
+   *
+   * @returns Promise resolving to stopped time session with duration and metrics
+   *
+   * @throws {NotFoundException} If session with given ID does not exist
+   * @throws {BadRequestException} If session is already stopped
+   *
+   * @example
+   * ```typescript
+   * const session = await timersService.stop(
+   *   {
+   *     sessionId: 'session-789',
+   *     wasCompleted: true,
+   *     notes: 'Completed successfully'
+   *   },
+   *   'user-456'
+   * );
+   * console.log(session);
+   * // {
+   * //   id: 'session-789',
+   * //   duration: 25,
+   * //   focusScore: 0.85,
+   * //   totalPauseTime: 180,
+   * //   pauseCount: 2,
+   * //   endTime: '2025-12-29T10:25:00.000Z',
+   * //   ...
+   * // }
+   * ```
+   *
+   * @since 1.0.0
+   * @see {@link ../timers.controller.ts | Timers Controller}
+   * @see {@link ../../packages/core/src/analytics/update-daily-metrics.use-case.ts | UpdateDailyMetricsUseCase}
+   * @see {@link ../../packages/core/src/analytics/calculate-focus-score.use-case.ts | CalculateFocusScoreUseCase}
+   */
   async stop(stopTimerDto: StopTimerDto, userId: string) {
     const stopTimerUseCase = new StopTimerUseCase(this.timerRepository);
     const session = await stopTimerUseCase.execute(

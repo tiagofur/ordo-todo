@@ -22,4 +22,14 @@ export interface WorkspaceRepository {
     userId: string,
   ): Promise<WorkspaceMember | null>;
   listMembers(workspaceId: string): Promise<WorkspaceMember[]>;
+  listMembersWithUser(workspaceId: string): Promise<Array<{
+    userId: string;
+    role: MemberRole;
+    user: {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+    };
+  }>;
 }

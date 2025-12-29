@@ -420,4 +420,114 @@ export class PrismaTaskRepository implements TaskRepository {
     });
     return tasks.map((t) => this.toDomain(t));
   }
+
+  async findTodayTasks(
+    userId: string,
+    today: Date,
+    tomorrow: Date,
+  ): Promise<Task[]> {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        ownerId: userId,
+        status: { not: 'COMPLETED' },
+        parentTaskId: null,
+        isDeleted: false,
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+    });
+    return tasks.map((t) => this.toDomain(t));
+  }
+
+  async findScheduledTasks(
+    userId: string,
+    startOfDay: Date,
+    endOfDay: Date,
+  ): Promise<Task[]> {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        ownerId: userId,
+        scheduledDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        isDeleted: false,
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ scheduledTime: 'asc' }, { priority: 'desc' }],
+    });
+    return tasks.map((t) => this.toDomain(t));
+  }
+
+  async findAvailableTasks(
+    userId: string,
+    today: Date,
+    projectId?: string,
+  ): Promise<Task[]> {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        ownerId: userId,
+        status: { not: 'COMPLETED' },
+        parentTaskId: null,
+        isTimeBlocked: { not: true },
+        isDeleted: false,
+        OR: [{ startDate: null }, { startDate: { lte: today } }],
+        ...(projectId ? { projectId } : {}),
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        assignee: { select: { id: true, name: true, image: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+    });
+    return tasks.map((t) => this.toDomain(t));
+  }
+
+  async findTimeBlockedTasks(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<Task[]> {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        ownerId: userId,
+        isTimeBlocked: true,
+        scheduledDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        scheduledTime: { not: null },
+        isDeleted: false,
+      },
+      include: {
+        project: { select: { id: true, name: true, color: true } },
+        tags: { include: { tag: true } },
+      },
+      orderBy: [{ scheduledDate: 'asc' }, { scheduledTime: 'asc' }],
+    });
+    return tasks.map((t) => this.toDomain(t));
+  }
+
+  async groupByStatus(
+    userId: string,
+  ): Promise<Array<{ status: string; count: number }>> {
+    const grouped = await this.prisma.task.groupBy({
+      by: ['status'],
+      where: {
+        assigneeId: userId,
+      },
+      _count: { id: true },
+    });
+
+    return grouped.map((t) => ({ status: t.status, count: t._count.id }));
+  }
 }

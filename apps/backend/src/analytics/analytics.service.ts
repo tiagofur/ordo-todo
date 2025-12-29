@@ -1,7 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { AnalyticsRepository, TimerRepository } from '@ordo-todo/core';
+import type {
+  AnalyticsRepository,
+  TimerRepository,
+  TaskRepository,
+  WorkspaceRepository,
+} from '@ordo-todo/core';
 import { GetDailyMetricsUseCase } from '@ordo-todo/core';
-import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class AnalyticsService {
@@ -10,7 +14,10 @@ export class AnalyticsService {
     private readonly analyticsRepository: AnalyticsRepository,
     @Inject('TimerRepository')
     private readonly timerRepository: TimerRepository,
-    private readonly prisma: PrismaService,
+    @Inject('TaskRepository')
+    private readonly taskRepository: TaskRepository,
+    @Inject('WorkspaceRepository')
+    private readonly workspaceRepository: WorkspaceRepository,
   ) {}
 
   async getDailyMetrics(userId: string, date?: Date) {
@@ -144,17 +151,11 @@ export class AnalyticsService {
     end.setDate(end.getDate() + 6);
     end.setHours(23, 59, 59, 999);
 
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: start, lte: end },
-      },
-      include: {
-        task: {
-          include: { project: true },
-        },
-      },
-    });
+    const sessions = await this.timerRepository.findByUserIdWithTaskAndProject(
+      userId,
+      start,
+      end,
+    );
 
     const distribution: Record<string, number> = {};
     sessions.forEach((s) => {
@@ -169,15 +170,8 @@ export class AnalyticsService {
   }
 
   async getTaskStatusDistribution(userId: string) {
-    const tasks = await this.prisma.task.groupBy({
-      by: ['status'],
-      where: {
-        assigneeId: userId,
-      },
-      _count: { id: true },
-    });
-
-    return tasks.map((t) => ({ status: t.status, count: t._count.id }));
+    const tasks = await this.taskRepository.groupByStatus(userId);
+    return tasks;
   }
 
   // ============ TEAM REPORTS (FOR MANAGERS) ============
@@ -190,25 +184,36 @@ export class AnalyticsService {
     const start = startDate || this.getStartOfWeek(new Date());
     const end = endDate || new Date();
 
-    // Get all workspace members
-    const members = await this.prisma.workspaceMember.findMany({
-      where: { workspaceId },
-      include: {
-        user: { select: { id: true, name: true, email: true, image: true } },
-      },
-    });
+    const members =
+      await this.workspaceRepository.listMembersWithUser(workspaceId);
 
     const memberIds = members.map((m) => m.userId);
 
-    // Get aggregate metrics for all members
-    const allMetrics = await this.prisma.dailyMetrics.findMany({
-      where: {
-        userId: { in: memberIds },
-        date: { gte: start, lte: end },
-      },
-    });
+    const allMetrics: Array<{
+      userId: string;
+      tasksCompleted: number;
+      minutesWorked: number;
+      pomodorosCompleted: number;
+      focusScore: number | null;
+    }> = [];
 
-    // Calculate team totals
+    for (const userId of memberIds) {
+      const metrics = await this.analyticsRepository.getRange(
+        userId,
+        start,
+        end,
+      );
+      allMetrics.push(
+        ...metrics.map((m) => ({
+          userId: m.props.userId,
+          tasksCompleted: m.props.tasksCompleted,
+          minutesWorked: m.props.minutesWorked,
+          pomodorosCompleted: m.props.pomodorosCompleted,
+          focusScore: m.props.focusScore ?? null,
+        })),
+      );
+    }
+
     const teamTotals = {
       totalTasksCompleted: allMetrics.reduce(
         (sum, m) => sum + m.tasksCompleted,
@@ -230,7 +235,6 @@ export class AnalyticsService {
       activeMembersCount: new Set(allMetrics.map((m) => m.userId)).size,
     };
 
-    // Calculate per-member breakdown
     const memberBreakdown = members.map((member) => {
       const memberMetrics = allMetrics.filter(
         (m) => m.userId === member.userId,
@@ -259,7 +263,6 @@ export class AnalyticsService {
       };
     });
 
-    // Sort by productivity (tasks completed)
     memberBreakdown.sort((a, b) => b.tasksCompleted - a.tasksCompleted);
 
     return {
@@ -276,11 +279,10 @@ export class AnalyticsService {
    * Get current productivity streak for a user
    */
   async getProductivityStreak(userId: string) {
-    const metrics = await this.prisma.dailyMetrics.findMany({
-      where: { userId },
-      orderBy: { date: 'desc' },
-      take: 90, // Last 90 days
-    });
+    const metrics = await this.analyticsRepository.getRangeDescending(
+      userId,
+      90,
+    );
 
     let currentStreak = 0;
     let longestStreak = 0;
@@ -289,49 +291,45 @@ export class AnalyticsService {
 
     for (const metric of metrics) {
       const isProductive =
-        metric.tasksCompleted > 0 || metric.minutesWorked > 30;
+        metric.props.tasksCompleted > 0 || metric.props.minutesWorked > 30;
 
       if (isProductive) {
         if (lastDate === null) {
-          // First productive day
           tempStreak = 1;
           currentStreak = 1;
         } else {
           const dayDiff = Math.floor(
-            (lastDate.getTime() - metric.date.getTime()) /
+            (lastDate.getTime() - metric.props.date.getTime()) /
               (1000 * 60 * 60 * 24),
           );
 
           if (dayDiff === 1) {
-            // Consecutive day
             tempStreak++;
             if (currentStreak === tempStreak - 1) {
               currentStreak = tempStreak;
             }
           } else {
-            // Gap in streak
             tempStreak = 1;
           }
         }
 
         longestStreak = Math.max(longestStreak, tempStreak);
-        lastDate = metric.date;
+        lastDate = metric.props.date;
       } else {
         if (tempStreak > 0 && currentStreak === tempStreak) {
-          // Current streak was broken
           currentStreak = 0;
         }
         tempStreak = 0;
       }
     }
 
-    // Calculate average daily productivity
     const productiveDays = metrics.filter(
-      (m) => m.tasksCompleted > 0 || m.minutesWorked > 30,
+      (m) => m.props.tasksCompleted > 0 || m.props.minutesWorked > 30,
     ).length;
     const avgDailyTasks =
       productiveDays > 0
-        ? metrics.reduce((sum, m) => sum + m.tasksCompleted, 0) / productiveDays
+        ? metrics.reduce((sum, m) => sum + m.props.tasksCompleted, 0) /
+          productiveDays
         : 0;
 
     return {

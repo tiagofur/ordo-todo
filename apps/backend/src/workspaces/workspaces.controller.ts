@@ -149,7 +149,22 @@ export class WorkspacesController {
   @ApiResponse({
     status: 200,
     description: 'Deleted workspaces retrieved successfully',
+    schema: {
+      type: 'array',
+      example: [
+        {
+          id: 'clx1234567890',
+          name: 'Old Workspace',
+          slug: 'old-workspace',
+          type: 'PERSONAL',
+          tier: 'FREE',
+          deletedAt: '2025-01-01T00:00:00.000Z',
+          createdAt: '2025-01-01T00:00:00.000Z',
+        },
+      ],
+    },
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getDeleted(@CurrentUser() user: RequestUser) {
     return this.workspacesService.getDeleted(user.id);
   }
@@ -203,7 +218,29 @@ export class WorkspacesController {
     description: 'Workspace slug',
     example: 'my-workspace',
   })
-  @ApiResponse({ status: 200, description: 'Workspace found' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workspace found',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        name: 'My Workspace',
+        slug: 'my-workspace',
+        type: 'PERSONAL',
+        tier: 'FREE',
+        color: '#2563EB',
+        icon: null,
+        owner: {
+          id: 'user123',
+          username: 'john_doe',
+          name: 'John Doe',
+        },
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Workspace not found' })
   findBySlug(@Param('slug') slug: string) {
     return this.workspacesService.findBySlug(slug);
@@ -345,7 +382,21 @@ export class WorkspacesController {
       'Creates an invitation for a user to join the workspace. Returns a token for testing (in production, email would be sent).',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 201, description: 'Invitation created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Invitation created successfully',
+    schema: {
+      example: {
+        id: 'inv123',
+        workspaceId: 'workspace123',
+        email: 'newuser@example.com',
+        role: 'MEMBER',
+        token: 'abc123xyz789',
+        expiresAt: '2025-01-08T00:00:00.000Z',
+        createdAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({
     status: 400,
     description: 'Invalid email or user already invited',
@@ -380,6 +431,19 @@ export class WorkspacesController {
   @ApiResponse({
     status: 200,
     description: 'Invitations retrieved successfully',
+    schema: {
+      type: 'array',
+      example: [
+        {
+          id: 'inv123',
+          workspaceId: 'workspace123',
+          email: 'pending@example.com',
+          role: 'MEMBER',
+          expiresAt: '2025-01-08T00:00:00.000Z',
+          createdAt: '2025-01-01T00:00:00.000Z',
+        },
+      ],
+    },
   })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   getInvitations(@Param('id') workspaceId: string) {
@@ -398,8 +462,21 @@ export class WorkspacesController {
     description:
       'Accepts a pending invitation. User must be authenticated. Token is obtained from email link.',
   })
-  @ApiResponse({ status: 200, description: 'Invitation accepted successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Invitation accepted successfully',
+    schema: {
+      example: {
+        id: 'member123',
+        workspaceId: 'workspace123',
+        userId: 'user123',
+        role: 'MEMBER',
+        joinedAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   acceptInvitation(
     @CurrentUser() user: RequestUser,
     @Body() acceptInvitationDto: AcceptInvitationDto,
@@ -425,7 +502,26 @@ export class WorkspacesController {
     description: 'Returns workspace settings and preferences.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 200, description: 'Settings retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Settings retrieved successfully',
+    schema: {
+      example: {
+        id: 'settings123',
+        workspaceId: 'workspace123',
+        defaultTaskView: 'LIST',
+        defaultTaskSort: 'DUE_DATE',
+        notifications: {
+          email: true,
+          push: true,
+          inApp: true,
+        },
+        timezone: 'UTC',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   getSettings(@Param('id') workspaceId: string) {
     return this.workspacesService.getSettings(workspaceId);
@@ -444,7 +540,26 @@ export class WorkspacesController {
     description: 'Updates workspace settings and preferences.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 200, description: 'Settings updated successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Settings updated successfully',
+    schema: {
+      example: {
+        id: 'settings123',
+        workspaceId: 'workspace123',
+        defaultTaskView: 'BOARD',
+        defaultTaskSort: 'PRIORITY',
+        notifications: {
+          email: false,
+          push: true,
+          inApp: true,
+        },
+        timezone: 'America/New_York',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-02T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 400, description: 'Invalid settings data' })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   updateSettings(
@@ -487,6 +602,24 @@ export class WorkspacesController {
   @ApiResponse({
     status: 200,
     description: 'Audit logs retrieved successfully',
+    schema: {
+      type: 'array',
+      example: [
+        {
+          id: 'audit123',
+          workspaceId: 'workspace123',
+          action: 'MEMBER_ADDED',
+          userId: 'user123',
+          payload: { targetUserId: 'user456', role: 'MEMBER' },
+          createdAt: '2025-01-01T12:00:00.000Z',
+          user: {
+            id: 'user123',
+            username: 'john_doe',
+            name: 'John Doe',
+          },
+        },
+      ],
+    },
   })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   getAuditLogs(
@@ -511,7 +644,20 @@ export class WorkspacesController {
     description: 'Creates a manual audit log entry.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 201, description: 'Audit log created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Audit log created successfully',
+    schema: {
+      example: {
+        id: 'audit123',
+        workspaceId: 'workspace123',
+        action: 'CUSTOM_ACTION',
+        userId: 'user123',
+        payload: { message: 'Manual log entry' },
+        createdAt: '2025-01-01T12:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   createAuditLog(
     @Param('id') workspaceId: string,
@@ -547,7 +693,29 @@ export class WorkspacesController {
     description: 'Workspace slug',
     example: 'my-workspace',
   })
-  @ApiResponse({ status: 200, description: 'Workspace found' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workspace found',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        name: 'My Workspace',
+        slug: 'my-workspace',
+        type: 'PERSONAL',
+        tier: 'FREE',
+        color: '#2563EB',
+        icon: null,
+        owner: {
+          id: 'user123',
+          username: 'john_doe',
+          name: 'John Doe',
+        },
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User or workspace not found' })
   findByUserAndSlug(
     @Param('username') username: string,
@@ -570,7 +738,26 @@ export class WorkspacesController {
       'Updates workspace details. Only OWNER and ADMIN can perform this action.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 200, description: 'Workspace updated successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workspace updated successfully',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        name: 'Updated Workspace',
+        slug: 'updated-workspace',
+        description: 'Updated description',
+        type: 'PERSONAL',
+        tier: 'FREE',
+        color: '#7C3AED',
+        icon: '🚀',
+        ownerId: 'user123',
+        isArchived: false,
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-02T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Workspace not found' })
@@ -618,7 +805,22 @@ export class WorkspacesController {
       'Restores a workspace marked as deleted. Only the OWNER can perform this action.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 200, description: 'Workspace restored successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workspace restored successfully',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        name: 'Restored Workspace',
+        slug: 'restored-workspace',
+        type: 'PERSONAL',
+        tier: 'FREE',
+        deletedAt: null,
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-03T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 403, description: 'Only workspace owner can restore' })
   @ApiResponse({ status: 404, description: 'Workspace not found' })
   restore(@Param('id') id: string, @CurrentUser() user: RequestUser) {
@@ -665,7 +867,22 @@ export class WorkspacesController {
     description: 'Marks workspace as archived.',
   })
   @ApiParam({ name: 'id', description: 'Workspace ID' })
-  @ApiResponse({ status: 200, description: 'Workspace archived successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Workspace archived successfully',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        name: 'Archived Workspace',
+        slug: 'archived-workspace',
+        type: 'PERSONAL',
+        tier: 'FREE',
+        isArchived: true,
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-03T00:00:00.000Z',
+      },
+    },
+  })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.archive(id, user.id);
@@ -685,7 +902,21 @@ export class WorkspacesController {
   @ApiResponse({
     status: 200,
     description: 'Workspaces marcados como eliminados',
+    schema: {
+      example: {
+        message: 'Workspaces updated',
+        count: 3,
+        workspaces: [
+          {
+            id: 'clx1234567890',
+            name: 'Carros',
+            deletedAt: '2025-01-03T00:00:00.000Z',
+          },
+        ],
+      },
+    },
   })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async fixCarrosWorkspaces(@CurrentUser() user: RequestUser) {
     return this.workspacesService.debugFixCarrosWorkspaces(user.id);
   }

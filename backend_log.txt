@@ -1,0 +1,612 @@
+
+> @ordo-todo/backend@1.0.0 dev
+> npm run start:dev
+
+
+> @ordo-todo/backend@1.0.0 start:dev
+> nest start --watch
+
+[2J[3J[H[[90m5:23:51 p.m.[0m] Starting compilation in watch mode...
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m26[0m:[93m33[0m - [91merror[0m[90m TS1272: [0mA type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+
+[7m26[0m     protected readonly options: ThrottlerModuleOptions,
+[7m  [0m [91m                                ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/common/guards/throttle.guard.ts[0m:[93m7[0m:[93m26[0m
+    [7m7[0m import { ThrottlerGuard, ThrottlerModuleOptions } from '@nestjs/throttler';
+    [7m [0m [96m                         ~~~~~~~~~~~~~~~~~~~~~~[0m
+    'ThrottlerModuleOptions' was imported here.
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m28[0m:[93m5[0m - [91merror[0m[90m TS2554: [0mExpected 3 arguments, but got 2.
+
+[7m28[0m     super(reflector, options);
+[7m  [0m [91m    ~~~~~[0m
+
+  [96m../../node_modules/@nestjs/throttler/dist/throttler.guard.d.ts[0m:[93m14[0m:[93m84[0m
+    [7m14[0m     constructor(options: ThrottlerModuleOptions, storageService: ThrottlerStorage, reflector: Reflector);
+    [7m  [0m [96m                                                                                   ~~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'reflector' was not provided.
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m50[0m:[93m33[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 2, '(decorator: ReflectableDecorator<any, any>, target: Function | Type<any>): any', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'ReflectableDecorator<any, any>'.
+      Type 'string' is not assignable to type '(opts?: any) => CustomDecorator'.
+  Overload 2 of 2, '(metadataKey: string, target: Function | Type<any>): any', gave the following error.
+    Argument of type 'boolean' is not assignable to parameter of type 'Function | Type<any>'.
+
+[7m50[0m     const skip = this.reflector.get('throttle-skip', false);
+[7m  [0m [91m                                ~~~[0m
+
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m123[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'canExecute' does not exist on type 'ThrottlerGuard'.
+
+[7m123[0m       return await super.canExecute(request);
+[7m   [0m [91m                         ~~~~~~~~~~[0m
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m128[0m:[93m15[0m - [91merror[0m[90m TS2341: [0mProperty 'status' is private and only accessible within class 'HttpException'.
+
+[7m128[0m         error.status === HttpStatus.TOO_MANY_REQUESTS
+[7m   [0m [91m              ~~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m33[0m:[93m3[0m - [91merror[0m[90m TS2416: [0mProperty 'intercept' in type 'LoggingInterceptor' is not assignable to the same property in base type 'NestInterceptor<any, any>'.
+  Type '(context: ExecutionContext, next: CallHandler<any>) => Observable<any>' is not assignable to type '(context: ExecutionContext, next: CallHandler<any>) => Observable<any> | Promise<Observable<any>>'.
+    Type 'Observable<any>' is not assignable to type 'Observable<any> | Promise<Observable<any>>'.
+      Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+        Types of property 'operator' are incompatible.
+          Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+            Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+              Types of property 'call' are incompatible.
+                Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+                  Types of parameters 'subscriber' and 'subscriber' are incompatible.
+                    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                      Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m33[0m   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+[7m  [0m [91m  ~~~~~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m54[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'split' does not exist on type 'string | string[]'.
+  Property 'split' does not exist on type 'string[]'.
+
+[7m54[0m     const clientIp = forwardedFor ? forwardedFor.split(',')[0] : ip;
+[7m  [0m [91m                                                 ~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m70[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+  Types of property 'operator' are incompatible.
+    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+      Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+        Types of property 'call' are incompatible.
+          Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+            Types of parameters 'subscriber' and 'subscriber' are incompatible.
+              Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m70[0m     return next.handle().pipe(
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m71[0m:[93m7[0m - [91merror[0m[90m TS2345: [0mArgument of type 'MonoTypeOperatorFunction<any>' is not assignable to parameter of type 'OperatorFunction<any, any>'.
+  Types of parameters 'source' and 'source' are incompatible.
+    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+      Types of property 'operator' are incompatible.
+        Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+          Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+            Types of property 'call' are incompatible.
+              Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+                Types of parameters 'subscriber' and 'subscriber' are incompatible.
+                  Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                    Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m 71[0m       tap({
+[7m   [0m [91m      ~~~~~[0m
+[7m 72[0m         next: (data) => {
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m109[0m         },
+[7m   [0m [91m~~~~~~~~~~[0m
+[7m110[0m       }),
+[7m   [0m [91m~~~~~~~~[0m
+
+[96msrc/main.ts[0m:[93m30[0m:[93m29[0m - [91merror[0m[90m TS2345: [0mArgument of type 'LoggingInterceptor' is not assignable to parameter of type 'NestInterceptor<any, any>'.
+  The types returned by 'intercept(...)' are incompatible between these types.
+    Type 'Observable<any>' is not assignable to type 'Observable<any> | Promise<Observable<any>>'.
+      Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+        Types of property 'operator' are incompatible.
+          Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+            Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+              Types of property 'call' are incompatible.
+                Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+                  Types of parameters 'subscriber' and 'subscriber' are incompatible.
+                    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                      Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m30[0m   app.useGlobalInterceptors(new LoggingInterceptor());
+[7m  [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[[90m5:24:04 p.m.[0m] Found 10 errors. Watching for file changes.
+
+{"timestamp":"2025-12-29T23:24:06.732Z","level":"info","message":"Starting Nest application...","context":"NestFactory","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.760Z","level":"info","message":"ConfigModule dependencies initialized","context":"InstanceLoader","ms":"+28ms"}
+{"timestamp":"2025-12-29T23:24:06.760Z","level":"info","message":"DatabaseModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.760Z","level":"info","message":"PassportModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.761Z","level":"info","message":"MulterModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.762Z","level":"info","message":"ThrottlerModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.762Z","level":"info","message":"ConfigHostModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.762Z","level":"info","message":"WinstonModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.763Z","level":"info","message":"DiscoveryModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.763Z","level":"info","message":"RepositoriesModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.763Z","level":"info","message":"ActivitiesModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.764Z","level":"warn","message":"GEMINI_API_KEY not configured. AI features will be limited.","context":"GeminiAIService","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.765Z","level":"info","message":"ConfigModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.765Z","level":"info","message":"ConfigModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.765Z","level":"info","message":"ScheduleModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.765Z","level":"info","message":"HealthModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.766Z","level":"info","message":"JwtModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.767Z","level":"info","message":"JwtModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.767Z","level":"info","message":"JwtModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.767Z","level":"info","message":"UploadModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.768Z","level":"info","message":"AttachmentsModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"TemplatesModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"ObjectivesModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"CustomFieldsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"FocusModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"BlogPostModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"ChangelogModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"NewsletterModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"ContactModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"RoadmapModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"GamificationModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"UsersModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.769Z","level":"info","message":"WorkflowsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"TagsModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"AnalyticsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"WorkspacesModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"AuthModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"ProjectsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"MeetingsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"SearchModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.770Z","level":"info","message":"AIModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"ChatModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"CollaborationModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"NotificationsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"CommentsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"AppModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"HabitsModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.771Z","level":"info","message":"TimersModule dependencies initialized","context":"InstanceLoader","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.772Z","level":"info","message":"TasksModule dependencies initialized","context":"InstanceLoader","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.784Z","level":"info","message":"NotificationsGateway subscribed to the \"notification:read\" message","context":"WebSocketsController","ms":"+12ms"}
+{"timestamp":"2025-12-29T23:24:06.784Z","level":"info","message":"NotificationsGateway subscribed to the \"ping\" message","context":"WebSocketsController","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.785Z","level":"info","message":"CollaborationGateway subscribed to the \"join-workspace\" message","context":"WebSocketsController","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.785Z","level":"info","message":"CollaborationGateway subscribed to the \"leave-workspace\" message","context":"WebSocketsController","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.785Z","level":"info","message":"CollaborationGateway subscribed to the \"join-task\" message","context":"WebSocketsController","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.785Z","level":"info","message":"CollaborationGateway subscribed to the \"leave-task\" message","context":"WebSocketsController","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.785Z","level":"info","message":"CollaborationGateway subscribed to the \"task-update\" message","context":"WebSocketsController","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.786Z","level":"info","message":"AppController {/api/v1}:","context":"RoutesResolver","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.788Z","level":"info","message":"Mapped {/api/v1, GET} route","context":"RouterExplorer","ms":"+2ms"}
+{"timestamp":"2025-12-29T23:24:06.788Z","level":"info","message":"Mapped {/api/v1/health, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.789Z","level":"info","message":"Mapped {/api/v1/migrate/fix-completed, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.789Z","level":"info","message":"Mapped {/api/v1/debug/projects, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.789Z","level":"info","message":"HealthController {/api/v1}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.789Z","level":"info","message":"Mapped {/api/v1/health, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.790Z","level":"info","message":"Mapped {/api/v1/health/live, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.790Z","level":"info","message":"Mapped {/api/v1/health/ready, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.790Z","level":"info","message":"AuthController {/api/v1/auth}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.790Z","level":"info","message":"Mapped {/api/v1/auth/register, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.791Z","level":"info","message":"Mapped {/api/v1/auth/login, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.791Z","level":"info","message":"Mapped {/api/v1/auth/logout, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.791Z","level":"info","message":"Mapped {/api/v1/auth/refresh, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.791Z","level":"info","message":"Mapped {/api/v1/auth/check-username, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.791Z","level":"info","message":"UsersController {/api/v1/users}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.792Z","level":"info","message":"Mapped {/api/v1/users/me, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.792Z","level":"info","message":"Mapped {/api/v1/users/me/profile, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.792Z","level":"info","message":"Mapped {/api/v1/users/me, PUT} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.792Z","level":"info","message":"Mapped {/api/v1/users/me/profile, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"Mapped {/api/v1/users/me/preferences, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"Mapped {/api/v1/users/me/preferences, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"Mapped {/api/v1/users/me/integrations, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"Mapped {/api/v1/users/me/export, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"Mapped {/api/v1/users/me, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"WorkspacesController {/api/v1/workspaces}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.793Z","level":"info","message":"Mapped {/api/v1/workspaces, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.794Z","level":"info","message":"Mapped {/api/v1/workspaces, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.794Z","level":"info","message":"Mapped {/api/v1/workspaces/deleted, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.794Z","level":"info","message":"Mapped {/api/v1/workspaces/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.794Z","level":"info","message":"Mapped {/api/v1/workspaces/by-slug/:slug, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/members, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/members, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/members/:userId, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/invitations, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/invitations, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/invitations/accept, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.795Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/settings, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.796Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/settings, PUT} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.796Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/audit-logs, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.796Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/audit-logs, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.796Z","level":"info","message":"Mapped {/api/v1/workspaces/:username/:slug, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.797Z","level":"info","message":"Mapped {/api/v1/workspaces/:id, PUT} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.797Z","level":"info","message":"Mapped {/api/v1/workspaces/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.797Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/restore, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.797Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/permanent, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.797Z","level":"info","message":"Mapped {/api/v1/workspaces/:id/archive, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.797Z","level":"info","message":"Mapped {/api/v1/workspaces/debug/fix-carros, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.798Z","level":"info","message":"WorkflowsController {/api/v1/workflows}:","context":"RoutesResolver","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.798Z","level":"info","message":"Mapped {/api/v1/workflows, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.798Z","level":"info","message":"Mapped {/api/v1/workflows, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.798Z","level":"info","message":"Mapped {/api/v1/workflows/:id, PUT} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.798Z","level":"info","message":"Mapped {/api/v1/workflows/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.798Z","level":"info","message":"ProjectsController {/api/v1/projects}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.799Z","level":"info","message":"Mapped {/api/v1/projects, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.799Z","level":"info","message":"Mapped {/api/v1/projects, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.799Z","level":"info","message":"Mapped {/api/v1/projects/all, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.799Z","level":"info","message":"Mapped {/api/v1/projects/deleted, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.799Z","level":"info","message":"Mapped {/api/v1/projects/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.799Z","level":"info","message":"Mapped {/api/v1/projects/by-slug/:workspaceSlug/:projectSlug, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.801Z","level":"info","message":"Mapped {/api/v1/projects/:id, PUT} route","context":"RouterExplorer","ms":"+2ms"}
+{"timestamp":"2025-12-29T23:24:06.801Z","level":"info","message":"Mapped {/api/v1/projects/:id/archive, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.801Z","level":"info","message":"Mapped {/api/v1/projects/:id/complete, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.801Z","level":"info","message":"Mapped {/api/v1/projects/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.802Z","level":"info","message":"Mapped {/api/v1/projects/:id/restore, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.802Z","level":"info","message":"Mapped {/api/v1/projects/:id/permanent, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.802Z","level":"info","message":"TasksController {/api/v1/tasks}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.802Z","level":"info","message":"Mapped {/api/v1/tasks, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.803Z","level":"info","message":"Mapped {/api/v1/tasks/:id/complete, PATCH} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.803Z","level":"info","message":"Mapped {/api/v1/tasks/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.803Z","level":"info","message":"Mapped {/api/v1/tasks/today, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.803Z","level":"info","message":"Mapped {/api/v1/tasks/scheduled, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.803Z","level":"info","message":"Mapped {/api/v1/tasks/available, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/time-blocks, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/deleted, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/:id/restore, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/:id/permanent, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/:id/subtasks, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.804Z","level":"info","message":"Mapped {/api/v1/tasks/:id/tags, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/:id/comments, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/:id/attachments, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/:id/share, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/share/:token, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/:id/dependencies, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/:id/dependencies, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.805Z","level":"info","message":"Mapped {/api/v1/tasks/:id/dependencies/:blockingTaskId, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"TagsController {/api/v1/tags}:","context":"RoutesResolver","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"Mapped {/api/v1/tags, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"Mapped {/api/v1/tags/:id, PUT} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"Mapped {/api/v1/tags, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"Mapped {/api/v1/tags/:tagId/tasks/:taskId, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"Mapped {/api/v1/tags/:tagId/tasks/:taskId, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.806Z","level":"info","message":"Mapped {/api/v1/tags/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"CommentsController {/api/v1/comments}:","context":"RoutesResolver","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"Mapped {/api/v1/comments, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"Mapped {/api/v1/comments/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"Mapped {/api/v1/comments/:id, PUT} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"Mapped {/api/v1/comments/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"NotificationsController {/api/v1/notifications}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"Mapped {/api/v1/notifications, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.807Z","level":"info","message":"Mapped {/api/v1/notifications/unread-count, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"Mapped {/api/v1/notifications/:id/read, PATCH} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"Mapped {/api/v1/notifications/mark-all-read, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"AIController {/api/v1/ai}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"Mapped {/api/v1/ai/chat, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"Mapped {/api/v1/ai/parse-task, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"Mapped {/api/v1/ai/wellbeing, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.808Z","level":"info","message":"Mapped {/api/v1/ai/burnout/analysis, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/burnout/patterns, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/burnout/recommendations, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/burnout/intervention, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/burnout/weekly-summary, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/workflow-suggestion, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/decompose-task, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.809Z","level":"info","message":"Mapped {/api/v1/ai/profile, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.810Z","level":"info","message":"Mapped {/api/v1/ai/optimal-schedule, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.810Z","level":"info","message":"Mapped {/api/v1/ai/predict-duration, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.810Z","level":"info","message":"Mapped {/api/v1/ai/reports/weekly, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.810Z","level":"info","message":"Mapped {/api/v1/ai/reports/monthly, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.810Z","level":"info","message":"Mapped {/api/v1/ai/reports/project/:projectId, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.810Z","level":"info","message":"Mapped {/api/v1/ai/reports, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.811Z","level":"info","message":"Mapped {/api/v1/ai/reports/:id, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.811Z","level":"info","message":"Mapped {/api/v1/ai/reports/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.811Z","level":"info","message":"Mapped {/api/v1/ai/model-stats, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.811Z","level":"info","message":"AttachmentsController {/api/v1/attachments}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.811Z","level":"info","message":"Mapped {/api/v1/attachments/project/:projectId, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.811Z","level":"info","message":"Mapped {/api/v1/attachments/upload, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.812Z","level":"info","message":"Mapped {/api/v1/attachments, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.812Z","level":"info","message":"Mapped {/api/v1/attachments/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.812Z","level":"info","message":"TimersController {/api/v1/timers}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.812Z","level":"info","message":"Mapped {/api/v1/timers/start, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.812Z","level":"info","message":"Mapped {/api/v1/timers/stop, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.813Z","level":"info","message":"Mapped {/api/v1/timers/pause, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.813Z","level":"info","message":"Mapped {/api/v1/timers/resume, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.813Z","level":"info","message":"Mapped {/api/v1/timers/switch-task, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.813Z","level":"info","message":"Mapped {/api/v1/timers/active, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.813Z","level":"info","message":"Mapped {/api/v1/timers/history, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/timers/stats, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/timers/task/:taskId, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"AnalyticsController {/api/v1/analytics}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/analytics/daily, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/analytics/weekly, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/analytics/monthly, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/analytics/range, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.814Z","level":"info","message":"Mapped {/api/v1/analytics/dashboard-stats, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/analytics/heatmap, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/analytics/project-distribution, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/analytics/task-status-distribution, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/analytics/streak, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/analytics/team/:workspaceId, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"ChatController {/api/v1/chat}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/chat/conversations, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.815Z","level":"info","message":"Mapped {/api/v1/chat/conversations/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/chat/conversations, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/chat/conversations/:id/messages, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/chat/conversations/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/chat/conversations/:id/archive, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/chat/conversations/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/chat/insights, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"UploadController {/api/v1/upload}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"Mapped {/api/v1/upload, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.816Z","level":"info","message":"TemplatesController {/api/v1/templates}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"Mapped {/api/v1/templates, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"Mapped {/api/v1/templates, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"Mapped {/api/v1/templates/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"Mapped {/api/v1/templates/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"Mapped {/api/v1/templates/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"TeamWorkloadController {/api/v1/workload}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.817Z","level":"info","message":"Mapped {/api/v1/workload/workspace/:workspaceId, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.818Z","level":"info","message":"Mapped {/api/v1/workload/member/:userId, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.818Z","level":"info","message":"Mapped {/api/v1/workload/me, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.818Z","level":"info","message":"Mapped {/api/v1/workload/suggestions/:workspaceId, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.818Z","level":"info","message":"HabitsController {/api/v1/habits}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.818Z","level":"info","message":"Mapped {/api/v1/habits, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.819Z","level":"info","message":"Mapped {/api/v1/habits, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.819Z","level":"info","message":"Mapped {/api/v1/habits/today, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.819Z","level":"info","message":"Mapped {/api/v1/habits/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.819Z","level":"info","message":"Mapped {/api/v1/habits/:id/stats, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.820Z","level":"info","message":"Mapped {/api/v1/habits/:id, PATCH} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.820Z","level":"info","message":"Mapped {/api/v1/habits/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.820Z","level":"info","message":"Mapped {/api/v1/habits/:id/complete, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.821Z","level":"info","message":"Mapped {/api/v1/habits/:id/complete, DELETE} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.821Z","level":"info","message":"Mapped {/api/v1/habits/:id/pause, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.821Z","level":"info","message":"Mapped {/api/v1/habits/:id/resume, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.821Z","level":"info","message":"ObjectivesController {/api/v1/objectives}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.822Z","level":"info","message":"Mapped {/api/v1/objectives, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.822Z","level":"info","message":"Mapped {/api/v1/objectives, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.822Z","level":"info","message":"Mapped {/api/v1/objectives/current-period, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.823Z","level":"info","message":"Mapped {/api/v1/objectives/dashboard-summary, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.823Z","level":"info","message":"Mapped {/api/v1/objectives/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.823Z","level":"info","message":"Mapped {/api/v1/objectives/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.824Z","level":"info","message":"Mapped {/api/v1/objectives/:id, DELETE} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.824Z","level":"info","message":"Mapped {/api/v1/objectives/:id/key-results, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.824Z","level":"info","message":"Mapped {/api/v1/objectives/key-results/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.824Z","level":"info","message":"Mapped {/api/v1/objectives/key-results/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.825Z","level":"info","message":"Mapped {/api/v1/objectives/key-results/:id/tasks, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.825Z","level":"info","message":"Mapped {/api/v1/objectives/key-results/:id/tasks/:taskId, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.825Z","level":"info","message":"CustomFieldsController {/api/v1}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.825Z","level":"info","message":"Mapped {/api/v1/projects/:projectId/custom-fields, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.825Z","level":"info","message":"Mapped {/api/v1/projects/:projectId/custom-fields, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.825Z","level":"info","message":"Mapped {/api/v1/custom-fields/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.826Z","level":"info","message":"Mapped {/api/v1/custom-fields/:id, DELETE} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.826Z","level":"info","message":"Mapped {/api/v1/tasks/:taskId/custom-values, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.826Z","level":"info","message":"Mapped {/api/v1/tasks/:taskId/custom-values, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.826Z","level":"info","message":"FocusController {/api/v1/focus}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.826Z","level":"info","message":"Mapped {/api/v1/focus/tracks, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.826Z","level":"info","message":"Mapped {/api/v1/focus/tracks/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/tracks/recommended, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/modes, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/modes/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/favorites, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/favorites/:trackId, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/preferences, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/preferences, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/stats, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.827Z","level":"info","message":"Mapped {/api/v1/focus/track-usage, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"MeetingsController {/api/v1/meetings}:","context":"RoutesResolver","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"Mapped {/api/v1/meetings/analyze, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"Mapped {/api/v1/meetings/extract-actions, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"Mapped {/api/v1/meetings/summary, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"Mapped {/api/v1/meetings/convert-to-tasks, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"Mapped {/api/v1/meetings/save, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"Mapped {/api/v1/meetings/quick-analyze, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.828Z","level":"info","message":"SearchController {/api/v1/search}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"Mapped {/api/v1/search, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"Mapped {/api/v1/search/suggestions, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"Mapped {/api/v1/search/ask, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"Mapped {/api/v1/search/quick, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"BlogPostController {/api/v1/blog}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"Mapped {/api/v1/blog, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.829Z","level":"info","message":"Mapped {/api/v1/blog/categories, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/blog/:slug, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/blog/:slug/comments, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/blog/comments/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/blog, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/blog/:id, PUT} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/blog/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"ChangelogController {/api/v1/changelog}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.830Z","level":"info","message":"Mapped {/api/v1/changelog, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.831Z","level":"info","message":"Mapped {/api/v1/changelog/latest, GET} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.831Z","level":"info","message":"Mapped {/api/v1/changelog/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.831Z","level":"info","message":"Mapped {/api/v1/changelog, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.831Z","level":"info","message":"Mapped {/api/v1/changelog/:id, PUT} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.831Z","level":"info","message":"Mapped {/api/v1/changelog/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.831Z","level":"info","message":"NewsletterController {/api/v1/newsletter}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"Mapped {/api/v1/newsletter/subscribe, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"Mapped {/api/v1/newsletter/subscribe/me, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"Mapped {/api/v1/newsletter/unsubscribe/me, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"Mapped {/api/v1/newsletter/status, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"Mapped {/api/v1/newsletter/unsubscribe, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"Mapped {/api/v1/newsletter, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.832Z","level":"info","message":"ContactController {/api/v1/contact}:","context":"RoutesResolver","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.833Z","level":"info","message":"Mapped {/api/v1/contact, POST} route","context":"RouterExplorer","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.833Z","level":"info","message":"Mapped {/api/v1/contact, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.833Z","level":"info","message":"Mapped {/api/v1/contact/:id, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.833Z","level":"info","message":"Mapped {/api/v1/contact/:id, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.833Z","level":"info","message":"Mapped {/api/v1/contact/:id, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.834Z","level":"info","message":"RoadmapController {/api/v1/roadmap}:","context":"RoutesResolver","ms":"+1ms"}
+{"timestamp":"2025-12-29T23:24:06.834Z","level":"info","message":"Mapped {/api/v1/roadmap, GET} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.834Z","level":"info","message":"Mapped {/api/v1/roadmap/:id/vote, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.834Z","level":"info","message":"Mapped {/api/v1/roadmap/:id/vote, DELETE} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.834Z","level":"info","message":"Mapped {/api/v1/roadmap, POST} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.834Z","level":"info","message":"Mapped {/api/v1/roadmap/:id/status, PATCH} route","context":"RouterExplorer","ms":"+0ms"}
+{"timestamp":"2025-12-29T23:24:06.835Z","level":"info","message":"Mapped {/api/v1/roadmap/:id, DELETE} route","context":"RouterExplorer","ms":"+1ms"}
+C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\throttler\dist\throttler.guard.js:35
+            .sort((first, second) => {
+             ^
+
+TypeError: Cannot read properties of undefined (reading 'sort')
+    at CustomThrottleGuard.onModuleInit (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\throttler\src\throttler.guard.ts:45:8)
+    at MapIterator.iteratee (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\core\hooks\on-module-init.hook.js:22:43)
+    at MapIterator.next (C:\Users\tfurt\source\repos\ordo-todo\node_modules\iterare\src\map.ts:9:39)
+    at IteratorWithOperators.next (C:\Users\tfurt\source\repos\ordo-todo\node_modules\iterare\src\iterate.ts:19:28)
+    at Function.from (<anonymous>)
+    at IteratorWithOperators.toArray (C:\Users\tfurt\source\repos\ordo-todo\node_modules\iterare\src\iterate.ts:227:22)
+    at callOperator (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\core\hooks\on-module-init.hook.js:23:10)
+    at callModuleInitHook (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\core\hooks\on-module-init.hook.js:43:23)
+    at NestApplication.callInitHook (C:\Users\tfurt\source\repos\ordo-todo\node_modules\@nestjs\core\nest-application-context.js:242:50)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+Node.js v22.17.0
+[2J[3J[H[[90m5:24:19 p.m.[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m26[0m:[93m33[0m - [91merror[0m[90m TS1272: [0mA type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+
+[7m26[0m     protected readonly options: ThrottlerModuleOptions,
+[7m  [0m [91m                                ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/common/guards/throttle.guard.ts[0m:[93m7[0m:[93m26[0m
+    [7m7[0m import { ThrottlerGuard, ThrottlerModuleOptions } from '@nestjs/throttler';
+    [7m [0m [96m                         ~~~~~~~~~~~~~~~~~~~~~~[0m
+    'ThrottlerModuleOptions' was imported here.
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m28[0m:[93m5[0m - [91merror[0m[90m TS2554: [0mExpected 3 arguments, but got 2.
+
+[7m28[0m     super(reflector, options);
+[7m  [0m [91m    ~~~~~[0m
+
+  [96m../../node_modules/@nestjs/throttler/dist/throttler.guard.d.ts[0m:[93m14[0m:[93m84[0m
+    [7m14[0m     constructor(options: ThrottlerModuleOptions, storageService: ThrottlerStorage, reflector: Reflector);
+    [7m  [0m [96m                                                                                   ~~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'reflector' was not provided.
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m50[0m:[93m33[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 2, '(decorator: ReflectableDecorator<any, any>, target: Function | Type<any>): any', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'ReflectableDecorator<any, any>'.
+      Type 'string' is not assignable to type '(opts?: any) => CustomDecorator'.
+  Overload 2 of 2, '(metadataKey: string, target: Function | Type<any>): any', gave the following error.
+    Argument of type 'boolean' is not assignable to parameter of type 'Function | Type<any>'.
+
+[7m50[0m     const skip = this.reflector.get('throttle-skip', false);
+[7m  [0m [91m                                ~~~[0m
+
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m123[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'canExecute' does not exist on type 'ThrottlerGuard'.
+
+[7m123[0m       return await super.canExecute(request);
+[7m   [0m [91m                         ~~~~~~~~~~[0m
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m128[0m:[93m15[0m - [91merror[0m[90m TS2341: [0mProperty 'status' is private and only accessible within class 'HttpException'.
+
+[7m128[0m         error.status === HttpStatus.TOO_MANY_REQUESTS
+[7m   [0m [91m              ~~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m54[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'split' does not exist on type 'string | string[]'.
+  Property 'split' does not exist on type 'string[]'.
+
+[7m54[0m     const clientIp = forwardedFor ? forwardedFor.split(',')[0] : ip;
+[7m  [0m [91m                                                 ~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m71[0m:[93m7[0m - [91merror[0m[90m TS2345: [0mArgument of type 'MonoTypeOperatorFunction<any>' is not assignable to parameter of type 'OperatorFunction<any, any>'.
+  Types of parameters 'source' and 'source' are incompatible.
+    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+      Types of property 'operator' are incompatible.
+        Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+          Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+            Types of property 'call' are incompatible.
+              Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+                Types of parameters 'subscriber' and 'subscriber' are incompatible.
+                  Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                    Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m 71[0m       tap({
+[7m   [0m [91m      ~~~~~[0m
+[7m 72[0m         next: (data) => {
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m109[0m         },
+[7m   [0m [91m~~~~~~~~~~[0m
+[7m110[0m       }),
+[7m   [0m [91m~~~~~~~~[0m
+
+[[90m5:24:19 p.m.[0m] Found 7 errors. Watching for file changes.
+
+[2J[3J[H[[90m5:25:00 p.m.[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m131[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'canExecute' does not exist on type 'ThrottlerGuard'.
+
+[7m131[0m       return await super.canExecute(request);
+[7m   [0m [91m                         ~~~~~~~~~~[0m
+
+[96msrc/common/guards/throttle.guard.ts[0m:[93m136[0m:[93m15[0m - [91merror[0m[90m TS2341: [0mProperty 'status' is private and only accessible within class 'HttpException'.
+
+[7m136[0m         error.status === HttpStatus.TOO_MANY_REQUESTS
+[7m   [0m [91m              ~~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m54[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'split' does not exist on type 'string | string[]'.
+  Property 'split' does not exist on type 'string[]'.
+
+[7m54[0m     const clientIp = forwardedFor ? forwardedFor.split(',')[0] : ip;
+[7m  [0m [91m                                                 ~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m71[0m:[93m7[0m - [91merror[0m[90m TS2345: [0mArgument of type 'MonoTypeOperatorFunction<any>' is not assignable to parameter of type 'OperatorFunction<any, any>'.
+  Types of parameters 'source' and 'source' are incompatible.
+    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+      Types of property 'operator' are incompatible.
+        Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+          Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+            Types of property 'call' are incompatible.
+              Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+                Types of parameters 'subscriber' and 'subscriber' are incompatible.
+                  Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                    Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m 71[0m       tap({
+[7m   [0m [91m      ~~~~~[0m
+[7m 72[0m         next: (data) => {
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m109[0m         },
+[7m   [0m [91m~~~~~~~~~~[0m
+[7m110[0m       }),
+[7m   [0m [91m~~~~~~~~[0m
+
+[[90m5:25:01 p.m.[0m] Found 4 errors. Watching for file changes.
+
+[2J[3J[H[[90m5:25:02 p.m.[0m] File change detected. Starting incremental compilation...
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m54[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'split' does not exist on type 'string | string[]'.
+  Property 'split' does not exist on type 'string[]'.
+
+[7m54[0m     const clientIp = forwardedFor ? forwardedFor.split(',')[0] : ip;
+[7m  [0m [91m                                                 ~~~~~[0m
+
+[96msrc/common/interceptors/logging.interceptor.ts[0m:[93m71[0m:[93m7[0m - [91merror[0m[90m TS2345: [0mArgument of type 'MonoTypeOperatorFunction<any>' is not assignable to parameter of type 'OperatorFunction<any, any>'.
+  Types of parameters 'source' and 'source' are incompatible.
+    Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Observable").Observable<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Observable").Observable<any>'.
+      Types of property 'operator' are incompatible.
+        Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any> | undefined'.
+          Type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Operator").Operator<any, any>'.
+            Types of property 'call' are incompatible.
+              Type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/types").TeardownLogic' is not assignable to type '(subscriber: import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>, source: any) => import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/types").TeardownLogic'.
+                Types of parameters 'subscriber' and 'subscriber' are incompatible.
+                  Type 'import("C:/Users/tfurt/source/repos/ordo-todo/apps/backend/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>' is not assignable to type 'import("C:/Users/tfurt/source/repos/ordo-todo/node_modules/rxjs/dist/types/internal/Subscriber").Subscriber<any>'.
+                    Property 'isStopped' is protected but type 'Subscriber<T>' is not a class derived from 'Subscriber<T>'.
+
+[7m 71[0m       tap({
+[7m   [0m [91m      ~~~~~[0m
+[7m 72[0m         next: (data) => {
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m109[0m         },
+[7m   [0m [91m~~~~~~~~~~[0m
+[7m110[0m       }),
+[7m   [0m [91m~~~~~~~~[0m
+
+[[90m5:25:02 p.m.[0m] Found 2 errors. Watching for file changes.
+

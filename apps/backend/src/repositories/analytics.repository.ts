@@ -86,4 +86,17 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
 
     return metrics.map((m) => this.toDomain(m));
   }
+
+  async getRangeDescending(
+    userId: string,
+    limit: number,
+  ): Promise<DailyMetrics[]> {
+    const metrics = await this.prisma.dailyMetrics.findMany({
+      where: { userId },
+      orderBy: { date: 'desc' },
+      take: limit,
+    });
+
+    return metrics.map((m) => this.toDomain(m));
+  }
 }

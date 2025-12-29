@@ -1,0 +1,90 @@
+import { Injectable } from '@nestjs/common';
+import { Counter, Histogram, register, Gauge } from 'prom-client';
+
+@Injectable()
+export class MetricsService {
+  private readonly httpRequestDuration = new Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in seconds',
+    labelNames: ['method', 'route', 'status_code'],
+    buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+    registers: [register],
+  });
+
+  private readonly httpRequestTotal = new Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'route', 'status_code'],
+    registers: [register],
+  });
+
+  private readonly httpErrorsTotal = new Counter({
+    name: 'http_errors_total',
+    help: 'Total number of HTTP errors',
+    labelNames: ['method', 'route', 'error_type'],
+    registers: [register],
+  });
+
+  recordHttpRequest(method, route, statusCode, duration) {
+    this.httpRequestDuration.labels(method, route, statusCode.toString()).observe(duration / 1000);
+    this.httpRequestTotal.labels(method, route, statusCode.toString()).inc();
+  }
+
+  recordHttpError(method, route, errorType) {
+    this.httpErrorsTotal.labels(method, route, errorType).inc();
+  }
+
+  recordTaskCreated(workspaceId, projectId, priority) {
+    this.tasksCreatedTotal.labels(workspaceId, projectId || 'none', priority).inc();
+  }
+
+  recordTaskCompleted(workspaceId, projectId) {
+    this.tasksCompletedTotal.labels(workspaceId, projectId || 'none').inc();
+  }
+
+  recordSubtaskCompleted(workspaceId, projectId) {
+    this.subtasksCompletedTotal.labels(workspaceId, projectId || 'none').inc();
+  }
+
+  recordPomodoroCompleted(workspaceId, projectId) {
+    this.pomodorosCompletedTotal.labels(workspaceId, projectId || 'none').inc();
+  }
+
+  recordTimerSession(type, taskType) {
+    this.timerSessionsTotal.labels(type, taskType || 'general').inc();
+  }
+
+  recordTimerSessionDuration(type, taskType, duration) {
+    this.timerSessionDuration.labels(type, taskType || 'general').observe(duration);
+  }
+
+  recordFocusScore(score) {
+    this.focusScoreGauge.set(score);
+  }
+
+  recordTaskCompletionTime(priority, duration) {
+    this.averageTaskCompletionTime.labels(priority).observe(duration);
+  }
+
+  recordDbQuery(queryType, table, duration) {
+    this.dbQueryDuration.labels(queryType, table).observe(duration / 1000);
+  }
+
+  recordDbConnectionPool(poolSize) {
+    this.dbConnectionPoolGauge.set(poolSize);
+  }
+
+  collectSystemMetrics() {
+    const memoryUsage = process.memoryUsage();
+    this.processResidentMemoryBytes.set(memoryUsage.rss);
+    this.processHeapBytes.set(memoryUsage.heapTotal);
+  }
+
+  async getMetrics(): Promise<string> {
+    return register.metrics();
+  }
+
+  resetAll() {
+    register.resetMetrics();
+  }
+}

@@ -329,4 +329,32 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     });
     return members.map((m) => this.toMemberDomain(m));
   }
+
+  async listMembersWithUser(workspaceId: string): Promise<
+    Array<{
+      userId: string;
+      role: string;
+      user: {
+        id: string;
+        name: string | null;
+        email: string;
+        image: string | null;
+      };
+    }>
+  > {
+    const members = await this.prisma.workspaceMember.findMany({
+      where: { workspaceId },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+    });
+
+    return members.map((m) => ({
+      userId: m.userId,
+      role: m.role,
+      user: m.user,
+    }));
+  }
 }

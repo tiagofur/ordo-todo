@@ -12,6 +12,14 @@ import {
   UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -21,18 +29,61 @@ import type { RequestUser } from '../common/types/request-user.interface';
 import { AttachmentsService } from './attachments.service';
 import { CreateAttachmentDto } from './dto/create-attachment.dto';
 
+@ApiTags('Attachments')
+@ApiBearerAuth()
 @Controller('attachments')
 @UseGuards(JwtAuthGuard)
 export class AttachmentsController {
   constructor(private readonly attachmentsService: AttachmentsService) {}
 
   @Get('project/:projectId')
+  @ApiOperation({
+    summary: 'Get attachments by project',
+    description: 'Retrieves all attachments for a specific project',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Attachments retrieved successfully',
+    schema: {
+      example: [
+        {
+          id: 'clx1234567890',
+          taskId: 'clx1234567891',
+          filename: 'document.pdf',
+          url: '/uploads/1234567890-1234567890_document.pdf',
+          mimeType: 'application/pdf',
+          filesize: 1024000,
+          createdAt: '2025-01-01T00:00:00.000Z',
+        },
+      ],
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   findByProject(@Param('projectId') projectId: string) {
     return this.attachmentsService.findByProject(projectId);
   }
 
   @Post('upload')
   @HttpCode(HttpStatus.CREATED)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File upload with task association',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        taskId: {
+          type: 'string',
+          description: 'Task ID to associate the attachment with',
+        },
+      },
+      required: ['file', 'taskId'],
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -49,7 +100,7 @@ export class AttachmentsController {
         },
       }),
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB
+        fileSize: 10 * 1024 * 1024,
       },
       fileFilter: (req, file, callback) => {
         if (
@@ -68,6 +119,37 @@ export class AttachmentsController {
       },
     }),
   )
+  @ApiOperation({
+    summary: 'Upload file attachment',
+    description:
+      'Uploads a file attachment and associates it with a task. Supports images, PDFs, Word, Excel, and text files up to 10MB.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully',
+    schema: {
+      example: {
+        success: true,
+        url: '/uploads/taskId-1234567890-1234567890_document.pdf',
+        filename: 'document.pdf',
+        mimeType: 'application/pdf',
+        filesize: 1024000,
+        attachment: {
+          id: 'clx1234567890',
+          taskId: 'clx1234567891',
+          filename: 'document.pdf',
+          url: '/uploads/taskId-1234567890-1234567890_document.pdf',
+          mimeType: 'application/pdf',
+          filesize: 1024000,
+          createdAt: '2025-01-01T00:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'No file or taskId provided' })
+  @ApiResponse({ status: 400, description: 'Invalid file type' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 413, description: 'File too large (max 10MB)' })
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body('taskId') taskId: string,
@@ -80,7 +162,6 @@ export class AttachmentsController {
       throw new BadRequestException('No taskId provided');
     }
 
-    // Create attachment record
     const attachment = await this.attachmentsService.create(
       {
         taskId,
@@ -104,6 +185,29 @@ export class AttachmentsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Create attachment record',
+    description:
+      'Creates a new attachment record without file upload. Use this for attachments hosted externally.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Attachment created successfully',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        taskId: 'clx1234567891',
+        filename: 'document.pdf',
+        url: 'https://example.com/document.pdf',
+        mimeType: 'application/pdf',
+        filesize: 1024000,
+        createdAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
   create(
     @Body() createAttachmentDto: CreateAttachmentDto,
     @CurrentUser() user: RequestUser,
@@ -113,6 +217,18 @@ export class AttachmentsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete attachment',
+    description:
+      'Deletes an attachment by ID. Only the attachment owner can delete it.',
+  })
+  @ApiResponse({ status: 204, description: 'Attachment deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - not the attachment owner',
+  })
+  @ApiResponse({ status: 404, description: 'Attachment not found' })
   remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.attachmentsService.remove(id, user.id);
   }

@@ -2042,6 +2042,14 @@ interface TaskRepository {
     restore(id: string): Promise<void>;
     permanentDelete(id: string): Promise<void>;
     findDeleted(projectId: string): Promise<Task[]>;
+    findTodayTasks(userId: string, today: Date, tomorrow: Date): Promise<Task[]>;
+    findScheduledTasks(userId: string, startOfDay: Date, endOfDay: Date): Promise<Task[]>;
+    findAvailableTasks(userId: string, today: Date, projectId?: string): Promise<Task[]>;
+    findTimeBlockedTasks(userId: string, startDate: Date, endDate: Date): Promise<Task[]>;
+    groupByStatus(userId: string): Promise<Array<{
+        status: string;
+        count: number;
+    }>>;
 }
 
 interface CreateTaskInput {
@@ -2189,6 +2197,16 @@ interface WorkspaceRepository {
     removeMember(workspaceId: string, userId: string): Promise<void>;
     findMember(workspaceId: string, userId: string): Promise<WorkspaceMember | null>;
     listMembers(workspaceId: string): Promise<WorkspaceMember[]>;
+    listMembersWithUser(workspaceId: string): Promise<Array<{
+        userId: string;
+        role: string;
+        user: {
+            id: string;
+            name: string | null;
+            email: string;
+            image: string | null;
+        };
+    }>>;
 }
 
 interface WorkspaceSettingsRepository {
@@ -2678,6 +2696,17 @@ interface TimerRepository {
         completedSessions: number;
         lastSessionAt?: Date;
     }>;
+    findByUserIdWithTaskAndProject(userId: string, startDate: Date, endDate: Date): Promise<Array<{
+        id: string;
+        startedAt: Date;
+        duration: number | null;
+        task: {
+            id: string;
+            project: {
+                name: string;
+            } | null;
+        } | null;
+    }>>;
 }
 
 declare class StartTimerUseCase {
@@ -2748,6 +2777,7 @@ interface AnalyticsRepository {
     save(metrics: DailyMetrics): Promise<void>;
     findByDate(userId: string, date: Date): Promise<DailyMetrics | null>;
     getRange(userId: string, startDate: Date, endDate: Date): Promise<DailyMetrics[]>;
+    getRangeDescending(userId: string, limit: number): Promise<DailyMetrics[]>;
 }
 
 declare class GetDailyMetricsUseCase {

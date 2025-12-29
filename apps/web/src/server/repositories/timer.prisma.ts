@@ -290,4 +290,46 @@ export class PrismaTimerRepository implements TimerRepository {
   async delete(id: string): Promise<void> {
     await this.prisma.timeSession.delete({ where: { id } });
   }
+
+  async findByUserIdWithTaskAndProject(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<
+    Array<{
+      id: string;
+      startedAt: Date;
+      duration: number | null;
+      task: {
+        id: string;
+        project: {
+          name: string;
+        } | null;
+      } | null;
+    }>
+  > {
+    const sessions = await this.prisma.timeSession.findMany({
+      where: {
+        userId,
+        startedAt: { gte: startDate, lte: endDate },
+      },
+      include: {
+        task: {
+          include: { project: true },
+        },
+      },
+    });
+
+    return sessions.map((s) => ({
+      id: s.id,
+      startedAt: s.startedAt,
+      duration: s.duration,
+      task: s.task
+        ? {
+            id: s.task.id,
+            project: s.task.project ? { name: s.task.project.name } : null,
+          }
+        : null,
+    }));
+  }
 }

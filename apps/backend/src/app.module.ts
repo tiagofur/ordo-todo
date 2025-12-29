@@ -29,7 +29,13 @@ import { FocusModule } from './focus/focus.module';
 import { MeetingsModule } from './meetings/meetings.module';
 import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
+import { BlogPostModule } from './blog/blog-post.module';
+import { ChangelogModule } from './changelog/changelog.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
+import { ContactModule } from './contact/contact.module';
+import { RoadmapModule } from './roadmap/roadmap.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { CustomThrottleGuard } from './common/guards/throttle.guard';
 import { WinstonModule } from 'nest-winston';
 import { loggerConfig } from './common/logger/logger.config';
 import { AppController } from './app.controller';
@@ -42,7 +48,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 1000, // Aumentado para desarrollo (1000 requests per minute)
+        limit: 100, // Default limit (100 requests per minute)
       },
     ]),
     ConfigModule,
@@ -73,6 +79,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     FocusModule,
     MeetingsModule,
     SearchModule,
+    BlogPostModule,
+    ChangelogModule,
+    NewsletterModule,
+    ContactModule,
+    RoadmapModule,
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
@@ -84,8 +95,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: CustomThrottleGuard,
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

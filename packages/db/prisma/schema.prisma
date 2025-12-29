@@ -1,7 +1,7 @@
 // schema.prisma
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "library"
 }
 
@@ -20,12 +20,12 @@ model User {
   image         String?
 
   // Extended Profile
-  phone      String?
-  jobTitle   String?
-  department String?
-  bio        String? @db.Text
-  timezone   String? @default("America/Mexico_City")
-  locale     String? @default("es")
+  phone                String?
+  jobTitle             String?
+  department           String?
+  bio                  String?   @db.Text
+  timezone             String?   @default("America/Mexico_City")
+  locale               String?   @default("es")
   lastUsernameChangeAt DateTime? // For 30-day username change cooldown
 
   // Auth
@@ -38,15 +38,15 @@ model User {
   subscription Subscription?
 
   // Relationships
-  workspaces    WorkspaceMember[]
-  ownedWorkspaces Workspace[]     @relation("OwnedWorkspaces")
-  ownedTasks    Task[]            @relation("CreatedTasks")
-  assignedTasks Task[]            @relation("AssignedTasks")
-  ownedProjects Project[]
-  comments      Comment[]
-  attachments   Attachment[]
-  activities    Activity[]
-  notifications Notification[]
+  workspaces      WorkspaceMember[]
+  ownedWorkspaces Workspace[]       @relation("OwnedWorkspaces")
+  ownedTasks      Task[]            @relation("CreatedTasks")
+  assignedTasks   Task[]            @relation("AssignedTasks")
+  ownedProjects   Project[]
+  comments        Comment[]
+  attachments     Attachment[]
+  activities      Activity[]
+  notifications   Notification[]
 
   // Workspace Management
   sentInvitations WorkspaceInvitation[]
@@ -58,10 +58,10 @@ model User {
   chatConversations   ChatConversation[]
 
   // Habits
-  habits              Habit[]
+  habits Habit[]
 
   // OKRs
-  objectives          Objective[]
+  objectives Objective[]
 
   // Third-party Integrations
   integrations UserIntegration[]
@@ -71,11 +71,162 @@ model User {
   level        Int               @default(1)
   achievements UserAchievement[]
 
+  // Marketing & Community
+  blogComments           BlogComment[]
+  newsletterSubscription NewsletterSubscriber?
+  roadmapVotes           RoadmapVote[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
 
-  @@index([email])
+// ============ CHANGELOG ============
+
+model ChangelogEntry {
+  id      String        @id @default(cuid())
+  version String?
+  title   String
+  content String        @db.Text
+  type    ChangelogType @default(NEW)
+
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ChangelogType {
+  NEW
+  IMPROVED
+  FIXED
+  REMOVED
+}
+
+// ============ FAQ ============
+
+model FAQ {
+  id        String  @id @default(cuid())
+  question  String
+  answer    String  @db.Text
+  category  String
+  order     Int     @default(0)
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ KNOWLEDGE BASE ============
+
+model KBCategory {
+  id    String  @id @default(cuid())
+  name  String
+  slug  String  @unique
+  icon  String?
+  order Int     @default(0)
+
+  articles KBArticle[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model KBArticle {
+  id      String  @id @default(cuid())
+  slug    String  @unique
+  title   String
+  content String  @db.Text
+  excerpt String?
+
+  category   KBCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+
+  helpfulYes Int     @default(0)
+  helpfulNo  Int     @default(0)
+  published  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ NEWSLETTER ============
+
+model NewsletterSubscriber {
+  id     String  @id @default(cuid())
+  email  String  @unique
+  active Boolean @default(true)
+
+  // Optional link to user account
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String? @unique // One subscription per user
+
+  createdAt DateTime @default(now())
+}
+
+// ============ CONTACT ============
+
+model ContactSubmission {
+  id      String  @id @default(cuid())
+  name    String
+  email   String
+  subject String
+  message String  @db.Text
+  read    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+// ============ ROADMAP ============
+
+model RoadmapItem {
+  id          String        @id @default(cuid())
+  title       String
+  description String        @db.Text
+  status      RoadmapStatus @default(CONSIDERING)
+  totalVotes  Int           @default(0) // Weighted vote count
+
+  // Relations
+  votes RoadmapVote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RoadmapVote {
+  id String @id @default(cuid())
+
+  item   RoadmapItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  weight Int @default(1) // Based on subscription: Free=1, Pro=3, Team=5
+
+  createdAt DateTime @default(now())
+
+  @@unique([itemId, userId]) // One vote per user per item
+}
+
+enum RoadmapStatus {
+  CONSIDERING
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  DECLINED
+}
+
+// ============ ADMIN ============
+
+model AdminUser {
+  id             String @id @default(cuid())
+  email          String @unique
+  hashedPassword String
+  name           String
+  role           String @default("admin")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ============ NOTIFICATIONS ============
@@ -277,7 +428,7 @@ model Workspace {
 
   // Owner
   ownerId String?
-  owner   User?   @relation("OwnedWorkspaces", fields: [ownerId], references: [id])
+  owner   User?   @relation("OwnedWorkspaces", fields: [ownerId], references: [id], onDelete: Cascade)
 
   // Members
   members WorkspaceMember[]
@@ -303,9 +454,10 @@ model Workspace {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([ownerId, slug])
   @@index([ownerId])
   @@index([slug])
-  @@unique([ownerId, slug])
+  @@index([deletedAt])
 }
 
 enum WorkspaceTier {
@@ -455,7 +607,7 @@ model Project {
 
   // Owner
   ownerId String?
-  owner   User?   @relation(fields: [ownerId], references: [id])
+  owner   User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
   // Workspace
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -489,16 +641,17 @@ model Project {
   reports ProductivityReport[]
 
   // Timestamps
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Custom Fields
+  customFields CustomField[]
 
   @@unique([workspaceId, slug])
   @@index([workspaceId])
   @@index([workflowId])
   @@index([ownerId])
-
-  // Custom Fields
-  customFields CustomField[]
+  @@index([deletedAt])
 }
 
 enum ProjectStatus {
@@ -526,35 +679,35 @@ model CustomField {
   name        String
   type        CustomFieldType
   description String?
-  options     Json?           // For SELECT/MULTI_SELECT: ["Option 1", "Option 2"]
+  options     Json? // For SELECT/MULTI_SELECT: ["Option 1", "Option 2"]
   isRequired  Boolean         @default(false)
   position    Int             @default(0)
-  
+
   // Relations
-  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId   String
-  values      CustomFieldValue[]
-  
+  project   Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  values    CustomFieldValue[]
+
   // Timestamps
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
 }
 
 model CustomFieldValue {
-  id          String      @id @default(cuid())
-  value       String      @db.Text  // Stored as string, parsed based on field type
-  
+  id    String @id @default(cuid())
+  value String @db.Text // Stored as string, parsed based on field type
+
   // Relations
-  field       CustomField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  fieldId     String
-  task        Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId      String
-  
+  field   CustomField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  fieldId String
+  task    Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId  String
+
   // Timestamps
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([fieldId, taskId])
   @@index([taskId])
@@ -571,13 +724,13 @@ model Task {
   priority Priority   @default(MEDIUM)
 
   // Scheduling
-  dueDate       DateTime?
-  startDate     DateTime?
-  scheduledDate DateTime?  // When the task is scheduled to be worked on
-  scheduledTime String?    // Time of day scheduled (e.g., "14:30")
+  dueDate          DateTime?
+  startDate        DateTime?
+  scheduledDate    DateTime? // When the task is scheduled to be worked on
+  scheduledTime    String? // Time of day scheduled (e.g., "14:30")
   scheduledEndTime String? // End time for time block (e.g., "16:00")
-  isTimeBlocked Boolean    @default(false) // Whether task is time blocked in calendar
-  completedAt   DateTime?
+  isTimeBlocked    Boolean   @default(false) // Whether task is time blocked in calendar
+  completedAt      DateTime?
 
   // Time Tracking
   estimatedMinutes Int?
@@ -640,7 +793,7 @@ model Task {
 
   // Timestamps
   createdAt DateTime @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
   @@index([ownerId])
@@ -649,6 +802,10 @@ model Task {
   @@index([dueDate])
   @@index([priority])
   @@index([scheduledDate])
+  // Composite indexes for common query patterns
+  @@index([projectId, status, dueDate])
+  @@index([assigneeId, status, priority])
+  @@index([deletedAt])
 }
 
 enum TaskStatus {
@@ -810,6 +967,7 @@ model Activity {
   @@index([taskId])
   @@index([userId])
   @@index([createdAt])
+  @@index([taskId, createdAt])
 }
 
 enum ActivityType {
@@ -1041,76 +1199,76 @@ model UserAchievement {
 // ============ HABITS ============
 
 model Habit {
-  id          String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Básicos
   name        String
   description String?
-  icon        String?  // Lucide icon name
-  color       String   @default("#10B981")
-  
+  icon        String? // Lucide icon name
+  color       String  @default("#10B981")
+
   // Owner
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Workspace (optional - habits can be personal)
   workspaceId String?
-  
+
   // Schedule
-  frequency       HabitFrequency @default(DAILY)
-  targetDaysOfWeek Int[]         // [0,1,2,3,4,5,6] for daily selection
-  targetCount     Int            @default(1) // Can complete multiple times per period
-  
+  frequency        HabitFrequency @default(DAILY)
+  targetDaysOfWeek Int[] // [0,1,2,3,4,5,6] for daily selection
+  targetCount      Int            @default(1) // Can complete multiple times per period
+
   // Time constraints (optional)
-  preferredTime   String?        // "HH:mm" - reminder time
-  timeOfDay       TimeOfDay?     // MORNING, AFTERNOON, EVENING, ANYTIME
-  
+  preferredTime String? // "HH:mm" - reminder time
+  timeOfDay     TimeOfDay? // MORNING, AFTERNOON, EVENING, ANYTIME
+
   // Gamification
-  currentStreak   Int @default(0)
-  longestStreak   Int @default(0)
+  currentStreak    Int @default(0)
+  longestStreak    Int @default(0)
   totalCompletions Int @default(0)
-  
+
   // State
-  isActive    Boolean   @default(true)
-  isPaused    Boolean   @default(false)
-  pausedAt    DateTime?
-  archivedAt  DateTime?
-  
+  isActive   Boolean   @default(true)
+  isPaused   Boolean   @default(false)
+  pausedAt   DateTime?
+  archivedAt DateTime?
+
   // Relationships
   completions HabitCompletion[]
-  
+
   // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([userId])
   @@index([workspaceId])
 }
 
 model HabitCompletion {
-  id        String   @id @default(cuid())
-  
-  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
-  habitId   String
-  
+  id String @id @default(cuid())
+
+  habit   Habit  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  habitId String
+
   // When completed
-  completedAt DateTime @default(now())
+  completedAt   DateTime @default(now())
   completedDate DateTime @db.Date // Date only (for grouping)
-  
+
   // Optional metadata
-  note      String?
-  value     Float?   // For quantifiable habits (e.g., "drank 8 glasses")
-  
+  note  String?
+  value Float? // For quantifiable habits (e.g., "drank 8 glasses")
+
+  @@unique([habitId, completedDate]) // One completion per day (unless targetCount > 1)
   @@index([habitId])
   @@index([completedDate])
-  @@unique([habitId, completedDate]) // One completion per day (unless targetCount > 1)
 }
 
 enum HabitFrequency {
-  DAILY        // Every day
-  WEEKLY       // X times per week
+  DAILY // Every day
+  WEEKLY // X times per week
   SPECIFIC_DAYS // Mon, Wed, Fri
-  MONTHLY      // X times per month
+  MONTHLY // X times per month
 }
 
 enum TimeOfDay {
@@ -1130,7 +1288,7 @@ model ChatConversation {
 
   // Metadata
   title   String? // Auto-generated from first message or user-defined
-  context Json?   // Snapshot of context at conversation start (workspaceId, projectId, etc.)
+  context Json? // Snapshot of context at conversation start (workspaceId, projectId, etc.)
 
   // Messages
   messages ChatMessage[]
@@ -1177,72 +1335,72 @@ enum ChatRole {
 // ============ OKRs & GOALS ============
 
 model Objective {
-  id          String    @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Básicos
   title       String
-  description String?   @db.Text
-  
+  description String? @db.Text
+
   // Owner & Scope
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   workspaceId String?
-  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
-  
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
   // Timeframe
-  startDate   DateTime  @default(now())
-  endDate     DateTime
-  period      OKRPeriod @default(QUARTERLY)
-  
+  startDate DateTime  @default(now())
+  endDate   DateTime
+  period    OKRPeriod @default(QUARTERLY)
+
   // Status
-  status      ObjectiveStatus @default(ACTIVE)
-  progress    Float           @default(0) // 0-100, calculated from KRs
-  
+  status   ObjectiveStatus @default(ACTIVE)
+  progress Float           @default(0) // 0-100, calculated from KRs
+
   // Relationships
-  keyResults  KeyResult[]
-  
+  keyResults KeyResult[]
+
   // Appearance
-  color       String    @default("#3B82F6")
-  icon        String?
-  
+  color String  @default("#3B82F6")
+  icon  String?
+
   // Timestamps
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([userId])
   @@index([workspaceId])
   @@index([endDate])
 }
 
 model KeyResult {
-  id          String    @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Parent
   objective   Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
   objectiveId String
-  
+
   // Básicos
   title       String
   description String?
-  
+
   // Measurement
-  metricType  MetricType @default(PERCENTAGE)
-  startValue  Float      @default(0)
-  targetValue Float
-  currentValue Float     @default(0)
-  unit        String?    // "users", "revenue", "tasks", etc.
-  
+  metricType   MetricType @default(PERCENTAGE)
+  startValue   Float      @default(0)
+  targetValue  Float
+  currentValue Float      @default(0)
+  unit         String? // "users", "revenue", "tasks", etc.
+
   // Progress (calculated)
-  progress    Float      @default(0) // 0-100
-  
+  progress Float @default(0) // 0-100
+
   // Relationships
   linkedTasks KeyResultTask[]
-  
+
   // Timestamps  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([objectiveId])
 }
 
@@ -1250,13 +1408,13 @@ model KeyResult {
 model KeyResultTask {
   keyResult   KeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
   keyResultId String
-  
-  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId      String
-  
+
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+
   // Contribution weight (how much completing this task contributes to KR)
-  weight      Float     @default(1)
-  
+  weight Float @default(1)
+
   @@id([keyResultId, taskId])
 }
 
@@ -1277,35 +1435,54 @@ enum ObjectiveStatus {
 }
 
 enum MetricType {
-  PERCENTAGE    // 0-100%
-  NUMBER        // Absolute number
-  CURRENCY      // Money
-  BOOLEAN       // Done/Not done
-  TASK_COUNT    // Auto-calculated from linked tasks
+  PERCENTAGE // 0-100%
+  NUMBER // Absolute number
+  CURRENCY // Money
+  BOOLEAN // Done/Not done
+  TASK_COUNT // Auto-calculated from linked tasks
 }
-
 
 // ============ BLOG ============
 
 model BlogPost {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  excerpt     String?  @db.Text
-  content     String   @db.Text
-  coverImage  String?
-  
-  published   Boolean  @default(false)
+  id         String  @id @default(cuid())
+  slug       String  @unique
+  title      String
+  excerpt    String? @db.Text
+  content    String  @db.Text
+  coverImage String?
+
+  published   Boolean   @default(false)
   publishedAt DateTime?
-  
+
   // SEO
   metaTitle       String?
   metaDescription String?
-  
+
   // Organization
-  author    String?
-  tags      String[]
-  
+  author   String?
+  category String?
+  tags     String[]
+  readTime Int?
+
+  // Relations
+  comments BlogComment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model BlogComment {
+  id      String @id @default(cuid())
+  content String @db.Text
+
+  // User relation (login required)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  // Blog post relation
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  createdAt DateTime @default(now())
 }

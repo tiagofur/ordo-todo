@@ -109,7 +109,9 @@ describe('Collaboration API (e2e)', () => {
     await prisma.workspaceMember.deleteMany({ where: { workspaceId } });
     await prisma.workspace.deleteMany({ where: { id: workspaceId } });
     // Filter out undefined user IDs before deletion
-    const userIdsToDelete = [userAId, userBId].filter((id): id is string => !!id);
+    const userIdsToDelete = [userAId, userBId].filter(
+      (id): id is string => !!id,
+    );
     if (userIdsToDelete.length > 0) {
       await prisma.user.deleteMany({ where: { id: { in: userIdsToDelete } } });
     }
