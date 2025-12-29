@@ -46,16 +46,62 @@ $ npm run start:prod
 
 ## Run tests
 
+### Unit Tests
+
 ```bash
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
 # test coverage
 $ npm run test:cov
 ```
+
+### E2E Tests
+
+E2E tests require a PostgreSQL database to be running.
+
+#### Option 1: Using Docker (Recommended)
+
+```bash
+# Start the test database
+npm run test:e2e:setup
+
+# Run the E2E tests
+npm run test:e2e
+
+# Stop and cleanup the test database
+npm run test:e2e:teardown
+```
+
+#### Option 2: Manual Database Setup
+
+1. Start a PostgreSQL database with these credentials:
+   - Host: `localhost:5432`
+   - User: `postgres`
+   - Password: `postgres`
+   - Database: `ordo_todo_test`
+
+2. Apply migrations:
+   ```bash
+   cd packages/db
+   npx prisma migrate deploy
+   ```
+
+3. Set environment variables:
+   ```bash
+   export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ordo_todo_test"
+   export NODE_ENV=test
+   export JWT_SECRET="test-jwt-secret-that-is-at-least-32-characters-long"
+   ```
+
+4. Run tests:
+   ```bash
+   npm run test:e2e
+   ```
+
+#### Running in CI
+
+The E2E tests run automatically in GitHub Actions using the `postgres` service defined in `.github/workflows/ci.yml`. No additional setup is required.
 
 ## Deployment
 

@@ -67,7 +67,9 @@
       "Bash(timeout:*)",
       "Bash(npm run dev:*)",
       "Bash(tasklist:*)",
-      "Bash(npx prisma db pull:*)"
+      "Bash(npx prisma db pull:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(pg_isready:*)"
     ],
     "deny": [],
     "ask": []
