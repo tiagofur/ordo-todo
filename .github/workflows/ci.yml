@@ -111,9 +111,13 @@ jobs:
                 working-directory: apps/backend
         env:
             NODE_ENV: test
+            PORT: 3001
+            API_PREFIX: api
             DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ordo_todo_test
-            JWT_SECRET: ci-jwt-secret
-            JWT_REFRESH_SECRET: ci-refresh-secret
+            JWT_SECRET: ci-jwt-secret-that-is-at-least-32-characters-long
+            JWT_EXPIRATION: 1d
+            JWT_REFRESH_EXPIRATION: 7d
+            CORS_ORIGINS: http://localhost:3000
         services:
             postgres:
                 image: postgres:16
