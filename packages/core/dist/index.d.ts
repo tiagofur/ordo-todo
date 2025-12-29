@@ -2182,6 +2182,8 @@ interface WorkspaceRepository {
     findDeleted(userId: string): Promise<Workspace[]>;
     update(workspace: Workspace): Promise<Workspace>;
     delete(id: string): Promise<void>;
+    softDelete(id: string): Promise<void>;
+    restore(id: string): Promise<void>;
     permanentDelete(id: string): Promise<void>;
     addMember(member: WorkspaceMember): Promise<WorkspaceMember>;
     removeMember(workspaceId: string, userId: string): Promise<void>;

@@ -327,6 +327,26 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     await this.prisma.workspace.delete({ where: { id } });
   }
 
+  async softDelete(id: string): Promise<void> {
+    await this.prisma.workspace.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  async restore(id: string): Promise<void> {
+    await this.prisma.workspace.update({
+      where: { id },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+  }
+
   async permanentDelete(id: string): Promise<void> {
     await this.prisma.workspace.delete({ where: { id } });
   }
