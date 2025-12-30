@@ -14,6 +14,9 @@ import {
   Inject,
   forwardRef,
   Logger,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -53,7 +56,7 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(CreateTaskGuard)
@@ -168,6 +171,52 @@ export class TasksController {
     return this.tasksService.findTimeBlocks(user.id, start, end);
   }
 
+  /**
+   * Get a single task by ID
+   * Requires any role in workspace
+   */
+  @Get(':id')
+  @UseGuards(TaskGuard)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
+  @ApiOperation({ summary: 'Get a task by ID' })
+  @ApiParam({ name: 'id', description: 'Task ID' })
+  @ApiResponseDecorator({ status: 200, description: 'Task found' })
+  @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
+  @ApiResponseDecorator({ status: 404, description: 'Task not found' })
+  async findOne(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    const task = await this.tasksService.findOne(id);
+    if (task.ownerId !== user.id) {
+      throw new ForbiddenException('You do not have permission to access this task');
+    }
+    return task;
+  }
+
+  /**
+   * Get a task with full details (subtasks, tags, comments, attachments)
+   */
+  @Get(':id/details')
+  @UseGuards(TaskGuard)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
+  @ApiOperation({ summary: 'Get task with full details' })
+  @ApiParam({ name: 'id', description: 'Task ID' })
+  async findOneWithDetails(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+    const task = await this.tasksService.findOneWithDetails(id);
+    if (task.ownerId !== user.id) {
+      throw new ForbiddenException('You do not have permission to access this task');
+    }
+    return task;
+  }
+
   @Get()
   // List filtering is usually done by service (only return tasks user can see).
   // The service currently filters by 'ownerId' which is WRONG for a team app (should be workspace based).
@@ -208,7 +257,7 @@ export class TasksController {
   @UseGuards(TaskGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.remove(id);
   }
 
@@ -216,7 +265,7 @@ export class TasksController {
   @UseGuards(TaskGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  restore(@Param('id') id: string) {
+  restore(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.restore(id);
   }
 
@@ -224,7 +273,7 @@ export class TasksController {
   @UseGuards(TaskGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
-  permanentDelete(@Param('id') id: string) {
+  permanentDelete(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.tasksService.permanentDelete(id);
   }
 

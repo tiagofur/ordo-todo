@@ -39,7 +39,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   /**
    * Creates a new task with automatic priority calculation and notifications
@@ -208,6 +208,19 @@ export class TasksService {
     return task.props;
   }
 
+  /**
+   * Retrieves all tasks for a specific user with optional filtering by project and tags.
+   *
+   * @param userId - ID of the user whose tasks to retrieve
+   * @param projectId - Optional filter by project ID
+   * @param tags - Optional list of tags to filter by
+   * @param assignedToMe - If true, returns only tasks where the user is the assignee
+   * @returns List of task properties
+   * @example
+   * ```typescript
+   * const tasks = await tasksService.findAll('user-1', 'proj-1', ['urgent']);
+   * ```
+   */
   async findAll(
     userId: string,
     projectId?: string,
@@ -387,6 +400,13 @@ export class TasksService {
     };
   }
 
+  /**
+   * Retrieves a task with full details including comments, attachments, activities, and relations.
+   *
+   * @param id - Unique identifier of the task
+   * @returns Task with full relational data
+   * @throws {NotFoundException} If task is not found or is deleted
+   */
   async findOneWithDetails(id: string) {
     const task = await this.prisma.task.findFirst({
       where: { id, isDeleted: false },
@@ -682,6 +702,12 @@ export class TasksService {
     return { success: true };
   }
 
+  /**
+   * Retrieves soft-deleted tasks for a project.
+   *
+   * @param projectId - ID of the project
+   * @returns List of deleted tasks
+   */
   async getDeleted(projectId: string) {
     const getDeletedTasksUseCase = new GetDeletedTasksUseCase(
       this.taskRepository,
@@ -689,6 +715,13 @@ export class TasksService {
     return getDeletedTasksUseCase.execute(projectId);
   }
 
+  /**
+   * Restores a previously soft-deleted task.
+   *
+   * @param id - ID of the task to restore
+   * @returns The restored task
+   * @throws {NotFoundException} If task is not found
+   */
   async restore(id: string) {
     const restoreTaskUseCase = new RestoreTaskUseCase(this.taskRepository);
     await restoreTaskUseCase.execute(id);
@@ -701,6 +734,12 @@ export class TasksService {
     return task.props;
   }
 
+  /**
+   * Permanently deletes a task from the database.
+   *
+   * @param id - ID of the task to delete permanently
+   * @returns Success status
+   */
   async permanentDelete(id: string) {
     const permanentDeleteTaskUseCase = new PermanentDeleteTaskUseCase(
       this.taskRepository,
@@ -709,6 +748,15 @@ export class TasksService {
     return { success: true };
   }
 
+  /**
+   * Creates a subtask for a given parent task.
+   *
+   * @param parentTaskId - ID of the parent task
+   * @param createSubtaskDto - Subtask creation data
+   * @param userId - ID of the user creating the subtask
+   * @returns The created subtask
+   * @throws {NotFoundException} If parent task is not found
+   */
   async createSubtask(
     parentTaskId: string,
     createSubtaskDto: CreateSubtaskDto,
@@ -742,6 +790,14 @@ export class TasksService {
     return subtask.props;
   }
 
+  /**
+   * Generates a public access token for a task to allow shared viewing.
+   *
+   * @param id - ID of the task
+   * @param userId - ID of the user generating the token
+   * @returns The generated public token
+   * @throws {NotFoundException} If task is not found
+   */
   async generatePublicToken(id: string, userId: string) {
     const task = await this.taskRepository.findById(id);
     if (!task) {
@@ -759,6 +815,13 @@ export class TasksService {
     return { publicToken };
   }
 
+  /**
+   * Retrieves a task by its public access token.
+   *
+   * @param token - Public access token
+   * @returns Task details with minimal public information
+   * @throws {NotFoundException} If task is not found or token is invalid
+   */
   async findByPublicToken(token: string) {
     const task = await this.prisma.task.findFirst({
       where: { publicToken: token, isDeleted: false },
@@ -793,6 +856,15 @@ export class TasksService {
   }
 
   // Dependencies
+  /**
+   * Adds a blocking dependency between two tasks.
+   *
+   * @param blockedTaskId - ID of the task that is blocked
+   * @param blockingTaskId - ID of the task that blocks the other
+   * @returns The created dependency record
+   * @throws {BadRequestException} If tasks are the same or circular dependency detected
+   * @throws {NotFoundException} If either task is not found
+   */
   async addDependency(blockedTaskId: string, blockingTaskId: string) {
     if (blockedTaskId === blockingTaskId) {
       throw new BadRequestException('Cannot depend on self');
@@ -826,6 +898,14 @@ export class TasksService {
     });
   }
 
+  /**
+   * Removes a dependency between two tasks.
+   *
+   * @param blockedTaskId - ID of the blocked task
+   * @param blockingTaskId - ID of the blocking task
+   * @returns Deleted dependency data
+   * @throws {NotFoundException} If dependency does not exist
+   */
   async removeDependency(blockedTaskId: string, blockingTaskId: string) {
     // Check if exists first to avoid P2025? Or let it throw/catch.
     // Prisma delete throws if record not found unless we use deleteMany or check.
@@ -844,6 +924,13 @@ export class TasksService {
     }
   }
 
+  /**
+   * Retrieves both blocking and blocked-by dependencies for a task.
+   *
+   * @param taskId - Unique identifier of the task
+   * @returns Object containing lists of 'blockedBy' and 'blocking' tasks
+   * @throws {NotFoundException} If task is not found
+   */
   async getDependencies(taskId: string) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },

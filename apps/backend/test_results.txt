@@ -1,0 +1,116 @@
+FAIL src/tasks/tasks.controller.spec.ts
+  TasksController
+    ÔêÜ should be defined (13 ms)
+    create
+      ÔêÜ should create a task with valid data (5 ms)
+      ÔêÜ should throw BadRequestException if title is missing (15 ms)
+    findAll
+      ├ù should return all tasks for user (4 ms)
+      ├ù should filter tasks by project ID (3 ms)
+      ├ù should filter tasks by tags (3 ms)
+    findOne
+      ÔêÜ should return a task by ID (2 ms)
+      ÔêÜ should throw NotFoundException if task not found (2 ms)
+      ├ù should throw ForbiddenException if user does not own task (7 ms)
+    findOneWithDetails
+      ÔêÜ should return task with all relations (2 ms)
+    update
+      ÔêÜ should update a task (2 ms)
+      ÔêÜ should throw NotFoundException if task not found (1 ms)
+      ÔêÜ should throw ForbiddenException if user does not own task (2 ms)
+    complete
+      ÔêÜ should complete a task (2 ms)
+      ÔêÜ should throw NotFoundException if task not found (2 ms)
+    remove
+      ÔêÜ should delete a task (2 ms)
+      ÔêÜ should throw NotFoundException if task not found (1 ms)
+      ÔêÜ should throw ForbiddenException if user does not own task (1 ms)
+    createSubtask
+      ÔêÜ should create a subtask (2 ms)
+      ÔêÜ should throw NotFoundException if parent task not found (2 ms)
+
+  ÔùÅ TasksController ÔÇ║ findAll ÔÇ║ should return all tasks for user
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "user-1"
+    Received: "user-1", undefined, undefined, false
+
+    Number of calls: 1
+
+      146 |
+      147 |       expect(result).toEqual(mockTasks);
+    > 148 |       expect(tasksService.findAll).toHaveBeenCalledWith(user.id);
+          |                                    ^
+      149 |     });
+      150 |
+      151 |     it('should filter tasks by project ID', async () => {
+
+      at Object.<anonymous> (tasks/tasks.controller.spec.ts:148:36)
+
+  ÔùÅ TasksController ÔÇ║ findAll ÔÇ║ should filter tasks by project ID
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "user-1", "project-123"
+    Received: "user-1", "project-123", undefined, false
+
+    Number of calls: 1
+
+      159 |
+      160 |       expect(result).toEqual(mockTasks);
+    > 161 |       expect(tasksService.findAll).toHaveBeenCalledWith(user.id, projectId);
+          |                                    ^
+      162 |     });
+      163 |
+      164 |     it('should filter tasks by tags', async () => {
+
+      at Object.<anonymous> (tasks/tasks.controller.spec.ts:161:36)
+
+  ÔùÅ TasksController ÔÇ║ findAll ÔÇ║ should filter tasks by tags
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    - Expected
+    + Received
+
+      "user-1",
+      undefined,
+      ["urgent", "bug"],
+    + false,
+
+    Number of calls: 1
+
+      172 |
+      173 |       expect(result).toEqual(mockTasks);
+    > 174 |       expect(tasksService.findAll).toHaveBeenCalledWith(
+          |                                    ^
+      175 |         user.id,
+      176 |         undefined,
+      177 |         tags,
+
+      at Object.<anonymous> (tasks/tasks.controller.spec.ts:174:36)
+
+  ÔùÅ TasksController ÔÇ║ findOne ÔÇ║ should throw ForbiddenException if user does not own task
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"id": "task-123", "ownerId": "user-1", "title": "Test Task"}
+
+      218 |       (tasksService.findOne as jest.Mock).mockResolvedValue(mockTask);
+      219 |
+    > 220 |       await expect(controller.findOne(taskId, user as any)).rejects.toThrow(
+          |             ^
+      221 |         ForbiddenException,
+      222 |       );
+      223 |     });
+
+      at expect (../../../node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (tasks/tasks.controller.spec.ts:220:13)
+
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 16 passed, 20 total
+Snapshots:   0 total
+Time:        2.108 s
+Ran all test suites matching src/tasks/tasks.controller.spec.ts.

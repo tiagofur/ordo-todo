@@ -14,6 +14,7 @@ import { GeminiAIService } from './gemini-ai.service';
 import type { ChatMessageDto } from './dto/ai-chat.dto';
 import { PrismaService } from '../database/prisma.service';
 import type { Prisma } from '@prisma/client';
+import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
 
 @Injectable()
 export class AIService {
@@ -30,10 +31,10 @@ export class AIService {
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   // ============ AI CHAT ============
-
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 30000 })
   async chat(
     userId: string,
     message: string,
@@ -107,7 +108,7 @@ export class AIService {
   }
 
   // ============ NATURAL LANGUAGE TASK PARSING ============
-
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 10000 })
   async parseNaturalLanguageTask(
     input: string,
     projectId?: string,
@@ -125,7 +126,7 @@ export class AIService {
   }
 
   // ============ WELLBEING INDICATORS ============
-
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
   async getWellbeingIndicators(
     userId: string,
     startDate?: Date,
@@ -165,7 +166,7 @@ export class AIService {
   }
 
   // ============ WORKFLOW SUGGESTIONS ============
-
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 20000 })
   async suggestWorkflow(
     projectName: string,
     projectDescription?: string,
@@ -179,7 +180,7 @@ export class AIService {
   }
 
   // ============ TASK DECOMPOSITION ============
-
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 15000 })
   async decomposeTask(
     taskTitle: string,
     taskDescription?: string,
@@ -262,10 +263,10 @@ export class AIService {
       (context: {
         userId: string;
         scope:
-          | 'TASK_COMPLETION'
-          | 'WEEKLY_SCHEDULED'
-          | 'MONTHLY_SCHEDULED'
-          | 'PROJECT_SUMMARY';
+        | 'TASK_COMPLETION'
+        | 'WEEKLY_SCHEDULED'
+        | 'MONTHLY_SCHEDULED'
+        | 'PROJECT_SUMMARY';
         metricsSnapshot: unknown;
         sessions?: unknown[];
         profile?: unknown;
@@ -280,6 +281,7 @@ export class AIService {
     };
   }
 
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
   async generateMonthlyReport(userId: string, monthStart?: Date) {
     // Get the start and end of the month
     const start = monthStart || new Date();
@@ -326,7 +328,7 @@ export class AIService {
       avgFocusScore:
         dailyMetrics.length > 0
           ? dailyMetrics.reduce((sum, d) => sum + (d.focusScore || 0), 0) /
-            dailyMetrics.length
+          dailyMetrics.length
           : 0,
       daysWorked: dailyMetrics.filter((d) => d.minutesWorked > 0).length,
     };
@@ -362,6 +364,7 @@ export class AIService {
     };
   }
 
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
   async generateProjectReport(userId: string, projectId: string) {
     // Get project details
     const project = await this.prisma.project.findUnique({
@@ -405,7 +408,7 @@ export class AIService {
       avgTaskDuration:
         project.tasks.length > 0
           ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) /
-            project.tasks.filter((t) => t.status === 'COMPLETED').length
+          project.tasks.filter((t) => t.status === 'COMPLETED').length
           : 0,
       estimateAccuracy: this.calculateEstimateAccuracy(project.tasks),
     };

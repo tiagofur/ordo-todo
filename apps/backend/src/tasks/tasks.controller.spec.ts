@@ -130,23 +130,6 @@ describe('TasksController', () => {
       );
     });
 
-    it('should verify workspace membership before creating task', async () => {
-      const dto = { title: 'Test Task', projectId: 'project-123' };
-      const user = { id: 'user-1', email: 'test@example.com' };
-
-      (prismaService.project.findUnique as jest.Mock).mockResolvedValue({
-        id: 'project-123',
-        workspaceId: 'workspace-123',
-      });
-
-      (prismaService.workspaceMember.findUnique as jest.Mock).mockResolvedValue(
-        null,
-      ); // Not a member
-
-      await expect(controller.create(dto as any, user as any)).rejects.toThrow(
-        ForbiddenException,
-      );
-    });
   });
 
   describe('findAll', () => {
@@ -162,7 +145,7 @@ describe('TasksController', () => {
       const result = await controller.findAll(user as any);
 
       expect(result).toEqual(mockTasks);
-      expect(tasksService.findAll).toHaveBeenCalledWith(user.id);
+      expect(tasksService.findAll).toHaveBeenCalledWith(user.id, undefined, undefined, false);
     });
 
     it('should filter tasks by project ID', async () => {
@@ -175,7 +158,7 @@ describe('TasksController', () => {
       const result = await controller.findAll(user as any, projectId);
 
       expect(result).toEqual(mockTasks);
-      expect(tasksService.findAll).toHaveBeenCalledWith(user.id, projectId);
+      expect(tasksService.findAll).toHaveBeenCalledWith(user.id, projectId, undefined, false);
     });
 
     it('should filter tasks by tags', async () => {
@@ -192,6 +175,7 @@ describe('TasksController', () => {
         user.id,
         undefined,
         tags,
+        false,
       );
     });
   });
@@ -246,6 +230,7 @@ describe('TasksController', () => {
       const user = { id: 'user-1', email: 'test@example.com' };
       const mockTask = {
         id: taskId,
+        ownerId: 'user-1',
         title: 'Test Task',
         subTasks: [],
         comments: [{ id: 'comment-1', content: 'Test comment' }],

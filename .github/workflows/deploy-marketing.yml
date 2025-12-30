@@ -10,11 +10,15 @@ on:
     branches:
       - main
     paths:
-      - 'webpage/**'
+      - 'apps/webpage/**'
       - 'packages/ui/**'
       - 'packages/styles/**'
       - 'packages/core/**'
       - 'packages/config/**'
+      - 'packages/api-client/**'
+      - 'packages/hooks/**'
+      - 'packages/i18n/**'
+      - 'packages/stores/**'
   workflow_dispatch:
     inputs:
       skip_tests:
@@ -30,52 +34,9 @@ permissions:
 env:
   NODE_VERSION: '20'
   REGISTRY: ghcr.io
-  MARKETING_BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/ordo-todo-marketing-backend
   MARKETING_WEB_IMAGE: ghcr.io/${{ github.repository_owner }}/ordo-todo-marketing-web
 
 jobs:
-  # =============================================================================
-  # Build Marketing Backend Docker Image
-  # =============================================================================
-  build-marketing-backend:
-    name: Build Marketing Backend Image
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.tags }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.MARKETING_BACKEND_IMAGE }}
-          tags: |
-            type=raw,value=${{ github.sha }}
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: webpage/backend/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
   # =============================================================================
   # Build Marketing Web Docker Image
   # =============================================================================
@@ -111,7 +72,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: webpage/web/Dockerfile
+          file: apps/webpage/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -127,9 +88,9 @@ jobs:
   deploy-marketing:
     name: Deploy Marketing to Production
     runs-on: ubuntu-latest
-    needs: [build-marketing-backend, build-marketing-web]
-    if: always() && needs.build-marketing-backend.result == 'success' && needs.build-marketing-web.result == 'success'
-    environment: production-marketing
+    needs: [build-marketing-web]
+    if: always() && needs.build-marketing-web.result == 'success'
+    environment: production
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
