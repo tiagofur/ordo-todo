@@ -13,6 +13,8 @@ import { useInviteMember } from "@/lib/api-hooks";
 
 import { inviteMemberSchema } from "@ordo-todo/core";
 
+import type { MemberRole } from "@ordo-todo/api-client";
+
 // We can extend or use the schema directly. Since the core schema has generic messages,
 // we might want to override them or just use them.
 // For now, let's use the core schema directly but we can wrap it if needed.
@@ -48,7 +50,7 @@ export function InviteMemberDialog({
     try {
       const result = await inviteMemberMutation.mutateAsync({
         workspaceId,
-        data,
+        data: { email: data.email, role: data.role as MemberRole },
       });
       
       // For MVP/Dev, we might get a token back to display
@@ -120,7 +122,7 @@ export function InviteMemberDialog({
                     <FormLabel>{t("roleLabel")}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={field.value as string}
                     >
                       <FormControl>
                         <SelectTrigger>

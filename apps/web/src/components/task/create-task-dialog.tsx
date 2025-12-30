@@ -99,11 +99,10 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
       const cleanedData = {
         title: taskData.title,
         description: taskData.description || undefined,
-        priority: taskData.priority,
+        priority: taskData.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
         projectId: taskData.projectId,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         estimatedTime: estimatedMinutes ?? undefined,
-        recurrence: taskData.recurrence,
         // Include assigneeId if selected (otherwise backend auto-assigns to creator)
         assigneeId: selectedAssigneeId || undefined,
       };
@@ -133,7 +132,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
     setIsGenerating(true);
     // Simulate AI delay
     setTimeout(() => {
-      setValue("description", t('ai.generatedDescription', { title }));
+      (setValue as any)("description", t('ai.generatedDescription', { title }));
       setIsGenerating(false);
       notify.success(t('toast.aiSuccess'));
     }, 1500);
@@ -384,7 +383,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
                     <button
                       key={p.value}
                       type="button"
-                      onClick={() => setValue("priority", p.value as any)}
+                      onClick={() => (setValue as any)("priority", p.value)}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
                         isSelected
                           ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`
@@ -442,7 +441,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             {/* Recurrence */}
             <RecurrenceSelector
               value={watch("recurrence")}
-              onChange={(val) => setValue("recurrence", val)}
+              onChange={(val) => (setValue as any)("recurrence", val)}
             />
 
             {/* Custom Fields */}

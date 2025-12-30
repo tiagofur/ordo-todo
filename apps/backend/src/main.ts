@@ -5,6 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { WinstonModule } from 'nest-winston';
 import helmet from 'helmet';
+import compression from 'compression';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { loggerConfig } from './common/logger/logger.config';
@@ -23,7 +24,13 @@ async function bootstrap() {
     }),
   );
 
-  // Apply correlation ID middleware (must be before all other middleware)
+  // Compression middleware (compress responses > 1KB)
+  app.use(
+    compression({
+      threshold: 1024, // 1KB
+    }),
+  );
+
   // Apply correlation ID middleware (must be before all other middleware)
   app.use(new CorrelationIdMiddleware().use);
 

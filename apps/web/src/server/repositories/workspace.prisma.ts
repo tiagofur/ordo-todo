@@ -16,7 +16,7 @@ import {
 } from "@ordo-todo/core";
 
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) { }
 
   private toDomain(prismaWorkspace: PrismaWorkspace): Workspace {
     return new Workspace({
@@ -333,7 +333,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   async listMembersWithUser(workspaceId: string): Promise<
     Array<{
       userId: string;
-      role: string;
+      role: MemberRole;
       user: {
         id: string;
         name: string | null;
@@ -353,7 +353,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
     return members.map((m) => ({
       userId: m.userId,
-      role: m.role,
+      role: this.mapRoleToDomain(m.role),
       user: m.user,
     }));
   }

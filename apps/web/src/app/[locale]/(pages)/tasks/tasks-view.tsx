@@ -73,7 +73,7 @@ export function TasksView() {
   };
 
   const handlePresetSelect = (preset: FilterPreset) => {
-    setFilters(preset.filters, preset.id);
+    setFilters(preset.filters);
   };
 
   return (

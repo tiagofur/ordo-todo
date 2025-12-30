@@ -81,6 +81,7 @@ export interface CreateTaskDto {
   isTimeBlocked?: boolean;
   projectId: string;
   estimatedTime?: number;
+  assigneeId?: string;
 }
 
 export interface UpdateTaskDto {
