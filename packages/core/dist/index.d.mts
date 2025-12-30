@@ -907,155 +907,299 @@ declare function getColorWithOpacity(hexColor: string, opacity?: number): string
 declare const taskBaseSchema: z.ZodObject<{
     title: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
-    priority: z.ZodEnum<{
-        LOW: "LOW";
-        MEDIUM: "MEDIUM";
-        HIGH: "HIGH";
-    }>;
-    status: z.ZodOptional<z.ZodEnum<{
-        TODO: "TODO";
-        IN_PROGRESS: "IN_PROGRESS";
-        IN_REVIEW: "IN_REVIEW";
-        DONE: "DONE";
-        CANCELLED: "CANCELLED";
-    }>>;
+    priority: z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>;
+    status: z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>;
     dueDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     startDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     scheduledDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     scheduledTime: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     isTimeBlocked: z.ZodOptional<z.ZodBoolean>;
-    estimatedMinutes: z.ZodPipe<z.ZodNullable<z.ZodOptional<z.ZodUnion<readonly [z.ZodNumber, z.ZodNaN]>>>, z.ZodTransform<number | null | undefined, number | null | undefined>>;
-}, z.core.$strip>;
+    estimatedMinutes: z.ZodEffects<z.ZodNullable<z.ZodOptional<z.ZodUnion<[z.ZodNumber, z.ZodNaN]>>>, number | null | undefined, number | null | undefined>;
+}, "strip", z.ZodTypeAny, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}>;
 /**
  * Validation for date relationships
  */
-declare const taskDatesSchema: z.ZodObject<{
+declare const taskDatesSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     title: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
-    priority: z.ZodEnum<{
-        LOW: "LOW";
-        MEDIUM: "MEDIUM";
-        HIGH: "HIGH";
-    }>;
-    status: z.ZodOptional<z.ZodEnum<{
-        TODO: "TODO";
-        IN_PROGRESS: "IN_PROGRESS";
-        IN_REVIEW: "IN_REVIEW";
-        DONE: "DONE";
-        CANCELLED: "CANCELLED";
-    }>>;
+    priority: z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>;
+    status: z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>;
     dueDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     startDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     scheduledDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     scheduledTime: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     isTimeBlocked: z.ZodOptional<z.ZodBoolean>;
-    estimatedMinutes: z.ZodPipe<z.ZodNullable<z.ZodOptional<z.ZodUnion<readonly [z.ZodNumber, z.ZodNaN]>>>, z.ZodTransform<number | null | undefined, number | null | undefined>>;
-}, z.core.$strip>;
+    estimatedMinutes: z.ZodEffects<z.ZodNullable<z.ZodOptional<z.ZodUnion<[z.ZodNumber, z.ZodNaN]>>>, number | null | undefined, number | null | undefined>;
+}, "strip", z.ZodTypeAny, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}>, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}>, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+}>;
 /**
  * Create task schema
  */
 declare const createTaskSchema: z.ZodObject<{
     title: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
-    priority: z.ZodEnum<{
-        LOW: "LOW";
-        MEDIUM: "MEDIUM";
-        HIGH: "HIGH";
-    }>;
-    status: z.ZodOptional<z.ZodEnum<{
-        TODO: "TODO";
-        IN_PROGRESS: "IN_PROGRESS";
-        IN_REVIEW: "IN_REVIEW";
-        DONE: "DONE";
-        CANCELLED: "CANCELLED";
-    }>>;
+    priority: z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>;
+    status: z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>;
     dueDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     startDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     scheduledDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     scheduledTime: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     isTimeBlocked: z.ZodOptional<z.ZodBoolean>;
-    estimatedMinutes: z.ZodPipe<z.ZodNullable<z.ZodOptional<z.ZodUnion<readonly [z.ZodNumber, z.ZodNaN]>>>, z.ZodTransform<number | null | undefined, number | null | undefined>>;
+    estimatedMinutes: z.ZodEffects<z.ZodNullable<z.ZodOptional<z.ZodUnion<[z.ZodNumber, z.ZodNaN]>>>, number | null | undefined, number | null | undefined>;
+} & {
     projectId: z.ZodString;
     parentTaskId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     assigneeId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    tagIds: z.ZodOptional<z.ZodArray<z.ZodString>>;
-}, z.core.$strip>;
+    tagIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    projectId: string;
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+    parentTaskId?: string | null | undefined;
+    assigneeId?: string | null | undefined;
+    tagIds?: string[] | undefined;
+}, {
+    title: string;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    projectId: string;
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+    parentTaskId?: string | null | undefined;
+    assigneeId?: string | null | undefined;
+    tagIds?: string[] | undefined;
+}>;
 /**
  * Update task schema (all fields optional except what's being updated)
  */
 declare const updateTaskSchema: z.ZodObject<{
     title: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    priority: z.ZodOptional<z.ZodEnum<{
-        LOW: "LOW";
-        MEDIUM: "MEDIUM";
-        HIGH: "HIGH";
-    }>>;
-    status: z.ZodOptional<z.ZodOptional<z.ZodEnum<{
-        TODO: "TODO";
-        IN_PROGRESS: "IN_PROGRESS";
-        IN_REVIEW: "IN_REVIEW";
-        DONE: "DONE";
-        CANCELLED: "CANCELLED";
-    }>>>;
+    priority: z.ZodOptional<z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>>;
+    status: z.ZodOptional<z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>>;
     dueDate: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
     startDate: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
     scheduledDate: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
     scheduledTime: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
     isTimeBlocked: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>;
-    estimatedMinutes: z.ZodOptional<z.ZodPipe<z.ZodNullable<z.ZodOptional<z.ZodUnion<readonly [z.ZodNumber, z.ZodNaN]>>>, z.ZodTransform<number | null | undefined, number | null | undefined>>>;
+    estimatedMinutes: z.ZodOptional<z.ZodEffects<z.ZodNullable<z.ZodOptional<z.ZodUnion<[z.ZodNumber, z.ZodNaN]>>>, number | null | undefined, number | null | undefined>>;
+} & {
     assigneeId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    tagIds: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    tagIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     completedAt: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+    assigneeId?: string | null | undefined;
+    tagIds?: string[] | undefined;
+    completedAt?: string | null | undefined;
+}, {
+    dueDate?: string | null | undefined;
+    startDate?: string | null | undefined;
+    title?: string | undefined;
+    description?: string | undefined;
+    priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    scheduledDate?: string | null | undefined;
+    scheduledTime?: string | null | undefined;
+    isTimeBlocked?: boolean | undefined;
+    estimatedMinutes?: number | null | undefined;
+    assigneeId?: string | null | undefined;
+    tagIds?: string[] | undefined;
+    completedAt?: string | null | undefined;
+}>;
 /**
  * Task filter schema
  */
 declare const taskFilterSchema: z.ZodObject<{
     projectId: z.ZodOptional<z.ZodString>;
-    status: z.ZodOptional<z.ZodEnum<{
-        TODO: "TODO";
-        IN_PROGRESS: "IN_PROGRESS";
-        IN_REVIEW: "IN_REVIEW";
-        DONE: "DONE";
-        CANCELLED: "CANCELLED";
-    }>>;
-    priority: z.ZodOptional<z.ZodEnum<{
-        LOW: "LOW";
-        MEDIUM: "MEDIUM";
-        HIGH: "HIGH";
-    }>>;
+    status: z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>;
+    priority: z.ZodOptional<z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>>;
     assigneeId: z.ZodOptional<z.ZodString>;
-    tagIds: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    tagIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     search: z.ZodOptional<z.ZodString>;
     dueDate: z.ZodOptional<z.ZodObject<{
         from: z.ZodOptional<z.ZodString>;
         to: z.ZodOptional<z.ZodString>;
-    }, z.core.$strip>>;
+    }, "strip", z.ZodTypeAny, {
+        from?: string | undefined;
+        to?: string | undefined;
+    }, {
+        from?: string | undefined;
+        to?: string | undefined;
+    }>>;
     isOverdue: z.ZodOptional<z.ZodBoolean>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    search?: string | undefined;
+    dueDate?: {
+        from?: string | undefined;
+        to?: string | undefined;
+    } | undefined;
+    priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    projectId?: string | undefined;
+    assigneeId?: string | undefined;
+    tagIds?: string[] | undefined;
+    isOverdue?: boolean | undefined;
+}, {
+    search?: string | undefined;
+    dueDate?: {
+        from?: string | undefined;
+        to?: string | undefined;
+    } | undefined;
+    priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    projectId?: string | undefined;
+    assigneeId?: string | undefined;
+    tagIds?: string[] | undefined;
+    isOverdue?: boolean | undefined;
+}>;
 /**
  * Bulk update tasks schema
  */
 declare const bulkUpdateTasksSchema: z.ZodObject<{
-    taskIds: z.ZodArray<z.ZodString>;
+    taskIds: z.ZodArray<z.ZodString, "many">;
     updates: z.ZodObject<{
-        status: z.ZodOptional<z.ZodEnum<{
-            TODO: "TODO";
-            IN_PROGRESS: "IN_PROGRESS";
-            IN_REVIEW: "IN_REVIEW";
-            DONE: "DONE";
-            CANCELLED: "CANCELLED";
-        }>>;
-        priority: z.ZodOptional<z.ZodEnum<{
-            LOW: "LOW";
-            MEDIUM: "MEDIUM";
-            HIGH: "HIGH";
-        }>>;
+        status: z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>;
+        priority: z.ZodOptional<z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>>;
         assigneeId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
         projectId: z.ZodOptional<z.ZodString>;
-    }, z.core.$strip>;
-}, z.core.$strip>;
+    }, "strip", z.ZodTypeAny, {
+        priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+        status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+        projectId?: string | undefined;
+        assigneeId?: string | null | undefined;
+    }, {
+        priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+        status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+        projectId?: string | undefined;
+        assigneeId?: string | null | undefined;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    taskIds: string[];
+    updates: {
+        priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+        status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+        projectId?: string | undefined;
+        assigneeId?: string | null | undefined;
+    };
+}, {
+    taskIds: string[];
+    updates: {
+        priority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+        status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+        projectId?: string | undefined;
+        assigneeId?: string | null | undefined;
+    };
+}>;
 /**
  * Reorder tasks schema
  */
@@ -1063,7 +1207,15 @@ declare const reorderTasksSchema: z.ZodObject<{
     taskId: z.ZodString;
     newOrder: z.ZodNumber;
     projectId: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    projectId: string;
+    taskId: string;
+    newOrder: number;
+}, {
+    projectId: string;
+    taskId: string;
+    newOrder: number;
+}>;
 /**
  * Type exports
  */
@@ -1087,7 +1239,17 @@ declare const projectBaseSchema: z.ZodObject<{
     description: z.ZodOptional<z.ZodString>;
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+}, {
+    name: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+}>;
 /**
  * Create project schema
  */
@@ -1096,11 +1258,30 @@ declare const createProjectSchema: z.ZodObject<{
     description: z.ZodOptional<z.ZodString>;
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
+} & {
     workspaceId: z.ZodString;
     workflowId: z.ZodOptional<z.ZodString>;
     startDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     endDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    workspaceId: string;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    workflowId?: string | undefined;
+    endDate?: string | null | undefined;
+}, {
+    name: string;
+    workspaceId: string;
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    workflowId?: string | undefined;
+    endDate?: string | null | undefined;
+}>;
 /**
  * Update project schema
  */
@@ -1109,10 +1290,27 @@ declare const updateProjectSchema: z.ZodObject<{
     description: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     color: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     icon: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+} & {
     startDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     endDate: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     isArchived: z.ZodOptional<z.ZodBoolean>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    name?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    endDate?: string | null | undefined;
+    isArchived?: boolean | undefined;
+}, {
+    startDate?: string | null | undefined;
+    description?: string | undefined;
+    name?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    endDate?: string | null | undefined;
+    isArchived?: boolean | undefined;
+}>;
 /**
  * Project filter schema
  */
@@ -1121,13 +1319,27 @@ declare const projectFilterSchema: z.ZodObject<{
     search: z.ZodOptional<z.ZodString>;
     isArchived: z.ZodOptional<z.ZodBoolean>;
     color: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    search?: string | undefined;
+    color?: string | undefined;
+    workspaceId?: string | undefined;
+    isArchived?: boolean | undefined;
+}, {
+    search?: string | undefined;
+    color?: string | undefined;
+    workspaceId?: string | undefined;
+    isArchived?: boolean | undefined;
+}>;
 /**
  * Archive project schema
  */
 declare const archiveProjectSchema: z.ZodObject<{
     isArchived: z.ZodBoolean;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    isArchived: boolean;
+}, {
+    isArchived: boolean;
+}>;
 /**
  * Duplicate project schema
  */
@@ -1135,7 +1347,15 @@ declare const duplicateProjectSchema: z.ZodObject<{
     name: z.ZodString;
     includeTasks: z.ZodDefault<z.ZodBoolean>;
     includeMembers: z.ZodDefault<z.ZodBoolean>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    includeTasks: boolean;
+    includeMembers: boolean;
+}, {
+    name: string;
+    includeTasks?: boolean | undefined;
+    includeMembers?: boolean | undefined;
+}>;
 /**
  * Type exports
  */
@@ -1166,14 +1386,24 @@ declare const workspaceBaseSchema: z.ZodObject<{
     name: z.ZodString;
     slug: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodString>;
-    type: z.ZodEnum<{
-        PERSONAL: "PERSONAL";
-        WORK: "WORK";
-        TEAM: "TEAM";
-    }>;
+    type: z.ZodEnum<["PERSONAL", "WORK", "TEAM"]>;
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    type: "PERSONAL" | "WORK" | "TEAM";
+    name: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    slug?: string | undefined;
+}, {
+    type: "PERSONAL" | "WORK" | "TEAM";
+    name: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    slug?: string | undefined;
+}>;
 /**
  * Create workspace schema
  */
@@ -1181,14 +1411,24 @@ declare const createWorkspaceSchema: z.ZodObject<{
     name: z.ZodString;
     slug: z.ZodOptional<z.ZodString>;
     description: z.ZodOptional<z.ZodString>;
-    type: z.ZodEnum<{
-        PERSONAL: "PERSONAL";
-        WORK: "WORK";
-        TEAM: "TEAM";
-    }>;
+    type: z.ZodEnum<["PERSONAL", "WORK", "TEAM"]>;
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    type: "PERSONAL" | "WORK" | "TEAM";
+    name: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    slug?: string | undefined;
+}, {
+    type: "PERSONAL" | "WORK" | "TEAM";
+    name: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    slug?: string | undefined;
+}>;
 /**
  * Update workspace schema
  */
@@ -1196,81 +1436,105 @@ declare const updateWorkspaceSchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
     slug: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     description: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    type: z.ZodOptional<z.ZodEnum<{
-        PERSONAL: "PERSONAL";
-        WORK: "WORK";
-        TEAM: "TEAM";
-    }>>;
+    type: z.ZodOptional<z.ZodEnum<["PERSONAL", "WORK", "TEAM"]>>;
     color: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     icon: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    description?: string | undefined;
+    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
+    name?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    slug?: string | undefined;
+}, {
+    description?: string | undefined;
+    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
+    name?: string | undefined;
+    color?: string | undefined;
+    icon?: string | undefined;
+    slug?: string | undefined;
+}>;
 /**
  * Workspace settings schema
  */
 declare const workspaceSettingsSchema: z.ZodObject<{
-    defaultTaskPriority: z.ZodOptional<z.ZodEnum<{
-        LOW: "LOW";
-        MEDIUM: "MEDIUM";
-        HIGH: "HIGH";
-    }>>;
-    defaultTaskStatus: z.ZodOptional<z.ZodEnum<{
-        TODO: "TODO";
-        IN_PROGRESS: "IN_PROGRESS";
-        IN_REVIEW: "IN_REVIEW";
-        DONE: "DONE";
-        CANCELLED: "CANCELLED";
-    }>>;
+    defaultTaskPriority: z.ZodOptional<z.ZodEnum<["LOW", "MEDIUM", "HIGH"]>>;
+    defaultTaskStatus: z.ZodOptional<z.ZodEnum<["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]>>;
     enableNotifications: z.ZodOptional<z.ZodBoolean>;
     enableEmailDigest: z.ZodOptional<z.ZodBoolean>;
     timezone: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    defaultTaskPriority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+    defaultTaskStatus?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    enableNotifications?: boolean | undefined;
+    enableEmailDigest?: boolean | undefined;
+    timezone?: string | undefined;
+}, {
+    defaultTaskPriority?: "LOW" | "MEDIUM" | "HIGH" | undefined;
+    defaultTaskStatus?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED" | undefined;
+    enableNotifications?: boolean | undefined;
+    enableEmailDigest?: boolean | undefined;
+    timezone?: string | undefined;
+}>;
 /**
  * Invite member schema
  */
 declare const inviteMemberSchema: z.ZodObject<{
     email: z.ZodString;
-    role: z.ZodEnum<{
-        OWNER: "OWNER";
-        ADMIN: "ADMIN";
-        MEMBER: "MEMBER";
-        VIEWER: "VIEWER";
-    }>;
+    role: z.ZodEnum<["OWNER", "ADMIN", "MEMBER", "VIEWER"]>;
     message: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    email: string;
+    role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+    message?: string | undefined;
+}, {
+    email: string;
+    role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+    message?: string | undefined;
+}>;
 /**
  * Update member role schema
  */
 declare const updateMemberRoleSchema: z.ZodObject<{
-    role: z.ZodEnum<{
-        OWNER: "OWNER";
-        ADMIN: "ADMIN";
-        MEMBER: "MEMBER";
-        VIEWER: "VIEWER";
-    }>;
-}, z.core.$strip>;
+    role: z.ZodEnum<["OWNER", "ADMIN", "MEMBER", "VIEWER"]>;
+}, "strip", z.ZodTypeAny, {
+    role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+}, {
+    role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+}>;
 /**
  * Accept invitation schema
  */
 declare const acceptInvitationSchema: z.ZodObject<{
     token: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    token: string;
+}, {
+    token: string;
+}>;
 /**
  * Transfer ownership schema
  */
 declare const transferOwnershipSchema: z.ZodObject<{
     newOwnerId: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    newOwnerId: string;
+}, {
+    newOwnerId: string;
+}>;
 /**
  * Workspace filter schema
  */
 declare const workspaceFilterSchema: z.ZodObject<{
-    type: z.ZodOptional<z.ZodEnum<{
-        PERSONAL: "PERSONAL";
-        WORK: "WORK";
-        TEAM: "TEAM";
-    }>>;
+    type: z.ZodOptional<z.ZodEnum<["PERSONAL", "WORK", "TEAM"]>>;
     search: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    search?: string | undefined;
+    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
+}, {
+    search?: string | undefined;
+    type?: "PERSONAL" | "WORK" | "TEAM" | undefined;
+}>;
 /**
  * Type exports
  * Note: WorkspaceType is defined in workspaces domain, so we use WorkspaceTypeValue here
@@ -1298,35 +1562,66 @@ type WorkspaceFilter = z.infer<typeof workspaceFilterSchema>;
 declare const tagBaseSchema: z.ZodObject<{
     name: z.ZodString;
     color: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    color?: string | undefined;
+}, {
+    name: string;
+    color?: string | undefined;
+}>;
 /**
  * Create tag schema
  */
 declare const createTagSchema: z.ZodObject<{
     name: z.ZodString;
     color: z.ZodOptional<z.ZodString>;
+} & {
     workspaceId: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    workspaceId: string;
+    color?: string | undefined;
+}, {
+    name: string;
+    workspaceId: string;
+    color?: string | undefined;
+}>;
 /**
  * Update tag schema
  */
 declare const updateTagSchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
     color: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name?: string | undefined;
+    color?: string | undefined;
+}, {
+    name?: string | undefined;
+    color?: string | undefined;
+}>;
 /**
  * Tag filter schema
  */
 declare const tagFilterSchema: z.ZodObject<{
     workspaceId: z.ZodOptional<z.ZodString>;
     search: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    search?: string | undefined;
+    workspaceId?: string | undefined;
+}, {
+    search?: string | undefined;
+    workspaceId?: string | undefined;
+}>;
 /**
  * Assign tags to task schema
  */
 declare const assignTagsSchema: z.ZodObject<{
-    tagIds: z.ZodArray<z.ZodString>;
-}, z.core.$strip>;
+    tagIds: z.ZodArray<z.ZodString, "many">;
+}, "strip", z.ZodTypeAny, {
+    tagIds: string[];
+}, {
+    tagIds: string[];
+}>;
 /**
  * Type exports
  */
@@ -1349,14 +1644,30 @@ declare const registerUserSchema: z.ZodObject<{
     username: z.ZodString;
     email: z.ZodString;
     password: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    email: string;
+    username: string;
+    password: string;
+}, {
+    name: string;
+    email: string;
+    username: string;
+    password: string;
+}>;
 /**
  * User login schema
  */
 declare const loginUserSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    email: string;
+    password: string;
+}, {
+    email: string;
+    password: string;
+}>;
 /**
  * Update user profile schema
  */
@@ -1365,52 +1676,76 @@ declare const updateUserProfileSchema: z.ZodObject<{
     bio: z.ZodOptional<z.ZodString>;
     avatar: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     timezone: z.ZodOptional<z.ZodString>;
-    language: z.ZodOptional<z.ZodEnum<{
-        en: "en";
-        es: "es";
-        "pt-BR": "pt-BR";
-    }>>;
-}, z.core.$strip>;
+    language: z.ZodOptional<z.ZodEnum<["en", "es", "pt-BR"]>>;
+}, "strip", z.ZodTypeAny, {
+    name?: string | undefined;
+    timezone?: string | undefined;
+    bio?: string | undefined;
+    avatar?: string | null | undefined;
+    language?: "en" | "es" | "pt-BR" | undefined;
+}, {
+    name?: string | undefined;
+    timezone?: string | undefined;
+    bio?: string | undefined;
+    avatar?: string | null | undefined;
+    language?: "en" | "es" | "pt-BR" | undefined;
+}>;
 /**
  * Change password schema
  */
 declare const changePasswordSchema: z.ZodObject<{
     currentPassword: z.ZodString;
     newPassword: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    currentPassword: string;
+    newPassword: string;
+}, {
+    currentPassword: string;
+    newPassword: string;
+}>;
 /**
  * Reset password request schema
  */
 declare const resetPasswordRequestSchema: z.ZodObject<{
     email: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    email: string;
+}, {
+    email: string;
+}>;
 /**
  * Reset password schema
  */
 declare const resetPasswordSchema: z.ZodObject<{
     token: z.ZodString;
     newPassword: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    token: string;
+    newPassword: string;
+}, {
+    token: string;
+    newPassword: string;
+}>;
 /**
  * User preferences schema
  */
 declare const userPreferencesSchema: z.ZodObject<{
-    theme: z.ZodOptional<z.ZodEnum<{
-        light: "light";
-        dark: "dark";
-        system: "system";
-    }>>;
-    language: z.ZodOptional<z.ZodEnum<{
-        en: "en";
-        es: "es";
-        "pt-BR": "pt-BR";
-    }>>;
+    theme: z.ZodOptional<z.ZodEnum<["light", "dark", "system"]>>;
+    language: z.ZodOptional<z.ZodEnum<["en", "es", "pt-BR"]>>;
     timezone: z.ZodOptional<z.ZodString>;
     notifications: z.ZodOptional<z.ZodObject<{
         email: z.ZodOptional<z.ZodBoolean>;
         push: z.ZodOptional<z.ZodBoolean>;
         desktop: z.ZodOptional<z.ZodBoolean>;
-    }, z.core.$strip>>;
+    }, "strip", z.ZodTypeAny, {
+        push?: boolean | undefined;
+        email?: boolean | undefined;
+        desktop?: boolean | undefined;
+    }, {
+        push?: boolean | undefined;
+        email?: boolean | undefined;
+        desktop?: boolean | undefined;
+    }>>;
     pomodoro: z.ZodOptional<z.ZodObject<{
         workDuration: z.ZodOptional<z.ZodNumber>;
         shortBreakDuration: z.ZodOptional<z.ZodNumber>;
@@ -1419,8 +1754,60 @@ declare const userPreferencesSchema: z.ZodObject<{
         autoStartBreaks: z.ZodOptional<z.ZodBoolean>;
         autoStartPomodoros: z.ZodOptional<z.ZodBoolean>;
         soundEnabled: z.ZodOptional<z.ZodBoolean>;
-    }, z.core.$strip>>;
-}, z.core.$strip>;
+    }, "strip", z.ZodTypeAny, {
+        workDuration?: number | undefined;
+        shortBreakDuration?: number | undefined;
+        longBreakDuration?: number | undefined;
+        pomodorosUntilLongBreak?: number | undefined;
+        autoStartBreaks?: boolean | undefined;
+        autoStartPomodoros?: boolean | undefined;
+        soundEnabled?: boolean | undefined;
+    }, {
+        workDuration?: number | undefined;
+        shortBreakDuration?: number | undefined;
+        longBreakDuration?: number | undefined;
+        pomodorosUntilLongBreak?: number | undefined;
+        autoStartBreaks?: boolean | undefined;
+        autoStartPomodoros?: boolean | undefined;
+        soundEnabled?: boolean | undefined;
+    }>>;
+}, "strip", z.ZodTypeAny, {
+    timezone?: string | undefined;
+    language?: "en" | "es" | "pt-BR" | undefined;
+    theme?: "light" | "dark" | "system" | undefined;
+    notifications?: {
+        push?: boolean | undefined;
+        email?: boolean | undefined;
+        desktop?: boolean | undefined;
+    } | undefined;
+    pomodoro?: {
+        workDuration?: number | undefined;
+        shortBreakDuration?: number | undefined;
+        longBreakDuration?: number | undefined;
+        pomodorosUntilLongBreak?: number | undefined;
+        autoStartBreaks?: boolean | undefined;
+        autoStartPomodoros?: boolean | undefined;
+        soundEnabled?: boolean | undefined;
+    } | undefined;
+}, {
+    timezone?: string | undefined;
+    language?: "en" | "es" | "pt-BR" | undefined;
+    theme?: "light" | "dark" | "system" | undefined;
+    notifications?: {
+        push?: boolean | undefined;
+        email?: boolean | undefined;
+        desktop?: boolean | undefined;
+    } | undefined;
+    pomodoro?: {
+        workDuration?: number | undefined;
+        shortBreakDuration?: number | undefined;
+        longBreakDuration?: number | undefined;
+        pomodorosUntilLongBreak?: number | undefined;
+        autoStartBreaks?: boolean | undefined;
+        autoStartPomodoros?: boolean | undefined;
+        soundEnabled?: boolean | undefined;
+    } | undefined;
+}>;
 /**
  * Type exports
  */
@@ -1435,7 +1822,11 @@ type ResetPassword = z.infer<typeof resetPasswordSchema>;
  */
 declare const usernameValidationSchema: z.ZodObject<{
     username: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    username: string;
+}, {
+    username: string;
+}>;
 type UserPreferences = z.infer<typeof userPreferencesSchema>;
 type UsernameValidation = z.infer<typeof usernameValidationSchema>;
 
@@ -1449,22 +1840,41 @@ type UsernameValidation = z.infer<typeof usernameValidationSchema>;
  */
 declare const commentBaseSchema: z.ZodObject<{
     content: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    content: string;
+}, {
+    content: string;
+}>;
 /**
  * Create comment schema
  */
 declare const createCommentSchema: z.ZodObject<{
     content: z.ZodString;
+} & {
     taskId: z.ZodString;
     parentCommentId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-    mentions: z.ZodOptional<z.ZodArray<z.ZodString>>;
-}, z.core.$strip>;
+    mentions: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, "strip", z.ZodTypeAny, {
+    taskId: string;
+    content: string;
+    parentCommentId?: string | null | undefined;
+    mentions?: string[] | undefined;
+}, {
+    taskId: string;
+    content: string;
+    parentCommentId?: string | null | undefined;
+    mentions?: string[] | undefined;
+}>;
 /**
  * Update comment schema
  */
 declare const updateCommentSchema: z.ZodObject<{
     content: z.ZodString;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    content: string;
+}, {
+    content: string;
+}>;
 /**
  * Comment filter schema
  */
@@ -1472,7 +1882,15 @@ declare const commentFilterSchema: z.ZodObject<{
     taskId: z.ZodOptional<z.ZodString>;
     userId: z.ZodOptional<z.ZodString>;
     parentCommentId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    taskId?: string | undefined;
+    parentCommentId?: string | null | undefined;
+    userId?: string | undefined;
+}, {
+    taskId?: string | undefined;
+    parentCommentId?: string | null | undefined;
+    userId?: string | undefined;
+}>;
 /**
  * Type exports
  */

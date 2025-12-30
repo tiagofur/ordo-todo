@@ -16,6 +16,7 @@
   "scripts": {
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "build": "tsup src/index.ts --format cjs,esm --dts --minify",
+    "check-types": "tsc --noEmit -p tsconfig.build.json",
     "test": "jest --watchAll --collectCoverage",
     "test:ci": "jest --coverage"
   },
