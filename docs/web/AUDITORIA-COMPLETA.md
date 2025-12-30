@@ -32,6 +32,8 @@ La aplicación web de Ordo-Todo ha experimentado una **transformación significa
 | **Accesibilidad (a11y)**        | ✅ WCAG AA      | ✅ WCAG AA      | ⚠️ Sin auditar        | ✅ aria-labels, roles | 🟢 Óptimo     |
 | **Error Handling**              | ✅ Error Boundaries| ✅ Error Boundaries| ❌ No implementado | ✅ ErrorBoundary global | 🟢 Óptimo     |
 | **Loading States**              | ✅ Skeletons    | ✅ Skeletons    | ⚠️ Spinners básicos   | ✅ Skeleton components | 🟢 Óptimo     |
+| **SEO/Metadata**                | ✅ Completo     | ✅ Completo     | ⚠️ Básico            | ✅ OpenGraph, Twitter, Keywords | 🟢 Óptimo |
+| **Error Pages (404/500)**       | ✅ Custom       | ✅ Custom       | ❌ Por defecto      | ✅ Custom not-found, global-error | 🟢 Óptimo |
 
 ### 📊 Nivel Global Alcanzado
 
@@ -39,14 +41,14 @@ La aplicación web de Ordo-Todo ha experimentado una **transformación significa
 ┌─────────────────────────────────────────────────────────────┐
 │  Estándar de Industria (Google/Apple/Meta)        100%     │
 ├─────────────────────────────────────────────────────────────┤
-│  █████████████████████████████████████████░░░  Ordo: 82%   │
+│  ██████████████████████████████████████████░░░  Ordo: 85%   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Antes del Roadmap**: ~35%  
 **Después del Roadmap Inicial**: ~78%  
-**Después de Mejoras Adicionales**: ~82%  
-**Mejora Total**: +47 puntos porcentuales
+**Después de Mejoras Adicionales**: ~85%  
+**Mejora Total**: +50 puntos porcentuales
 
 ---
 

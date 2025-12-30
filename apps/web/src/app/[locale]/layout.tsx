@@ -1,20 +1,20 @@
 import "../globals.css";
 import { Montserrat } from "next/font/google";
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Providers } from "@/components/providers";
 import { PWAProvider } from "@/components/providers/pwa-provider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { WebVitalsReporter } from "@/components/analytics/web-vitals";
+import { defaultMetadata } from "@/lib/seo";
 
 const font = Montserrat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Ordo-Todo",
-  description: "The Modern Task Organization Platform",
-  manifest: "/manifest.json",
+// Export comprehensive SEO metadata
+export const metadata = {
+  ...defaultMetadata,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -22,10 +22,6 @@ export const metadata: Metadata = {
   },
   formatDetection: {
     telephone: false,
-  },
-  icons: {
-    icon: "/icons/icon-192.png",
-    apple: "/icons/icon-192.png",
   },
   other: {
     "apple-mobile-web-app-capable": "yes",
