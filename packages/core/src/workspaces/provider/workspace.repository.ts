@@ -31,5 +31,5 @@ export interface WorkspaceRepository {
       email: string | null;
       image: string | null;
     };
-  }>;
+  }>>;
 }

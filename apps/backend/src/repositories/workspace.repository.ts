@@ -457,11 +457,11 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   async listMembersWithUser(workspaceId: string): Promise<
     Array<{
       userId: string;
-      role: string;
+      role: MemberRole;
       user: {
         id: string;
         name: string | null;
-        email: string;
+        email: string | null;
         image: string | null;
       };
     }>
@@ -477,7 +477,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
     return members.map((m) => ({
       userId: m.userId,
-      role: m.role,
+      role: this.mapRoleToDomain(m.role),
       user: m.user,
     }));
   }
