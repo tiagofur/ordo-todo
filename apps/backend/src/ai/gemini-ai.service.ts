@@ -8,6 +8,7 @@ import type {
   WorkflowSuggestion,
   ChatMessageDto,
 } from './dto/ai-chat.dto';
+import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
 
 export interface ProductivityReportData {
   summary: string;
@@ -106,6 +107,7 @@ export class GeminiAIService {
    * Public method for generating content with a system and user prompt
    * Used by other services like MeetingAssistantService
    */
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 10000 })
   async generate(systemPrompt: string, userPrompt: string): Promise<string> {
     if (!this.ai) {
       throw new Error('AI not initialized');
@@ -120,6 +122,7 @@ export class GeminiAIService {
    * Decompose a complex task into subtasks
    * Uses FLASH model for quick task breakdown
    */
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 15000 })
   async decomposeTask(
     taskTitle: string,
     taskDescription?: string,
@@ -240,6 +243,7 @@ Responde SOLO con JSON válido:
    * AI Chat with function calling capabilities
    * Uses FLASH for quick responses, PRO for complex queries
    */
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 30000 })
   async chat(
     message: string,
     history: ChatMessageDto[] = [],
@@ -332,6 +336,7 @@ Responde siempre en español y sé conciso pero amigable.`;
    * Parse natural language into structured task data
    * Uses FLASH for quick parsing
    */
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 10000 })
   async parseNaturalLanguageTask(
     input: string,
     timezone = 'America/Mexico_City',
@@ -434,6 +439,7 @@ Ejemplos:
    * Analyze user wellbeing based on work patterns
    * Uses PRO model for nuanced, sensitive analysis
    */
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
   async analyzeWellbeing(metrics: {
     dailyMetrics: any[];
     sessions: any[];
@@ -563,9 +569,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       Math.min(
         100,
         100 -
-          weekendWorkPercentage * 0.5 -
-          lateNightWorkPercentage * 0.5 -
-          Math.max(0, (avgHoursPerDay - 8) * 10),
+        weekendWorkPercentage * 0.5 -
+        lateNightWorkPercentage * 0.5 -
+        Math.max(0, (avgHoursPerDay - 8) * 10),
       ),
     );
 
@@ -607,6 +613,7 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
    * Suggest workflow/phases for a project
    * Uses FLASH for quick suggestions
    */
+  @CircuitBreaker({ failureThreshold: 5, resetTimeout: 20000 })
   async suggestWorkflow(
     projectName: string,
     projectDescription?: string,
@@ -723,13 +730,14 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
    * Generate a productivity report based on metrics and sessions
    * Uses FLASH for weekly, PRO for monthly
    */
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
   async generateProductivityReport(context: {
     userId: string;
     scope:
-      | 'TASK_COMPLETION'
-      | 'WEEKLY_SCHEDULED'
-      | 'MONTHLY_SCHEDULED'
-      | 'PROJECT_SUMMARY';
+    | 'TASK_COMPLETION'
+    | 'WEEKLY_SCHEDULED'
+    | 'MONTHLY_SCHEDULED'
+    | 'PROJECT_SUMMARY';
     metricsSnapshot: any;
     sessions?: any[];
     profile?: any;
@@ -789,12 +797,12 @@ ${projectName ? `- Project: ${projectName}` : ''}
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
 ${sessions
-  .slice(0, 10)
-  .map(
-    (s: any, i: number) =>
-      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
-  )
-  .join('\n')}
+          .slice(0, 10)
+          .map(
+            (s: any, i: number) =>
+              `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+          )
+          .join('\n')}
 `;
     }
 

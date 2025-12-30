@@ -2211,7 +2211,20 @@ interface WorkspaceRepository {
     removeMember(workspaceId: string, userId: string): Promise<void>;
     findMember(workspaceId: string, userId: string): Promise<WorkspaceMember | null>;
     listMembers(workspaceId: string): Promise<WorkspaceMember[]>;
+<<<<<<< HEAD
     listMembersWithUser(workspaceId: string): Promise<MemberWithUser[]>;
+=======
+    listMembersWithUser(workspaceId: string): Promise<Array<{
+        userId: string;
+        role: MemberRole;
+        user: {
+            id: string;
+            name: string | null;
+            email: string | null;
+            image: string | null;
+        };
+    }>>;
+>>>>>>> 8f35cbce2324f5ccb0e01484268635930fbe98c0
 }
 
 interface WorkspaceSettingsRepository {

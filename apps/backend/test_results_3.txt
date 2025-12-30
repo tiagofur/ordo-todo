@@ -1,0 +1,51 @@
+FAIL src/tasks/tasks.controller.spec.ts
+  TasksController
+    ÔêÜ should be defined (14 ms)
+    create
+      ÔêÜ should create a task with valid data (5 ms)
+      ÔêÜ should throw BadRequestException if title is missing (17 ms)
+    findAll
+      ÔêÜ should return all tasks for user (2 ms)
+      ÔêÜ should filter tasks by project ID (3 ms)
+      ÔêÜ should filter tasks by tags (3 ms)
+    findOne
+      ÔêÜ should return a task by ID (3 ms)
+      ÔêÜ should throw NotFoundException if task not found (2 ms)
+      ÔêÜ should throw ForbiddenException if user does not own task (12 ms)
+    findOneWithDetails
+      ├ù should return task with all relations (3 ms)
+    update
+      ÔêÜ should update a task (2 ms)
+      ÔêÜ should throw NotFoundException if task not found (1 ms)
+      ÔêÜ should throw ForbiddenException if user does not own task (2 ms)
+    complete
+      ÔêÜ should complete a task (2 ms)
+      ÔêÜ should throw NotFoundException if task not found (2 ms)
+    remove
+      ÔêÜ should delete a task (1 ms)
+      ÔêÜ should throw NotFoundException if task not found (2 ms)
+      ÔêÜ should throw ForbiddenException if user does not own task (2 ms)
+    createSubtask
+      ÔêÜ should create a subtask (2 ms)
+      ÔêÜ should throw NotFoundException if parent task not found (2 ms)
+
+  ÔùÅ TasksController ÔÇ║ findOneWithDetails ÔÇ║ should return task with all relations
+
+    ForbiddenException: You do not have permission to access this task
+
+      213 |     const task = await this.tasksService.findOneWithDetails(id);
+      214 |     if (task.ownerId !== user.id) {
+    > 215 |       throw new ForbiddenException('You do not have permission to access this task');
+          |             ^
+      216 |     }
+      217 |     return task;
+      218 |   }
+
+      at TasksController.findOneWithDetails (tasks/tasks.controller.ts:215:13)
+      at Object.<anonymous> (tasks/tasks.controller.spec.ts:249:22)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 19 passed, 20 total
+Snapshots:   0 total
+Time:        2.316 s
+Ran all test suites matching src/tasks/tasks.controller.spec.ts.

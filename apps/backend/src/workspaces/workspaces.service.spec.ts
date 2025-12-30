@@ -460,17 +460,6 @@ describe('WorkspacesService', () => {
       expect(result[0].ownerId).toBe(userId);
     });
 
-      const result = await service.findAll(userId);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].ownerId).toBe(userId);
-      expect(result[0].stats).toEqual({
-        projectCount: 3,
-        memberCount: 1,
-        taskCount: 15,
-      });
-    });
-
     it('should return all workspaces where user is a member', async () => {
       const userId = 'user-123';
       const ownerId = 'user-owner';

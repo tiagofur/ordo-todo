@@ -1,6 +1,6 @@
 # =============================================================================
-# Marketing Web Dockerfile
-# Next.js application for ordotodo.com marketing site
+# Landing Page / Webpage Dockerfile
+# Next.js application for ordotodo.com
 # =============================================================================
 
 # Stage 1: Dependencies
@@ -11,12 +11,16 @@ RUN apk add --no-cache libc6-compat
 
 # Copy package files
 COPY package.json package-lock.json ./
-COPY webpage/web/package.json ./webpage/web/
+COPY apps/webpage/package.json ./apps/webpage/
 COPY packages/core/package.json ./packages/core/
 COPY packages/config/package.json ./packages/config/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/styles/package.json ./packages/styles/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/hooks/package.json ./packages/hooks/
+COPY packages/i18n/package.json ./packages/i18n/
+COPY packages/stores/package.json ./packages/stores/
 
 # Install dependencies
 RUN npm ci --legacy-peer-deps --ignore-scripts
@@ -32,7 +36,7 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Copy source
 COPY package.json package-lock.json turbo.json ./
-COPY webpage/web ./webpage/web
+COPY apps/webpage ./apps/webpage
 COPY packages ./packages
 
 # Build arguments for environment variables
@@ -46,7 +50,7 @@ RUN npm install -g tsup typescript
 RUN npx turbo run build --filter=@ordo-todo/core --filter=@ordo-todo/config --filter=@ordo-todo/ui --filter=@ordo-todo/styles
 
 # Build Next.js app
-WORKDIR /app/webpage/web
+WORKDIR /app/apps/webpage
 RUN npm run build
 
 # =============================================================================
@@ -63,9 +67,9 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 # Copy built application
-COPY --from=builder /app/webpage/web/public ./webpage/web/public
-COPY --from=builder --chown=nextjs:nodejs /app/webpage/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/webpage/web/.next/static ./webpage/web/.next/static
+COPY --from=builder /app/apps/webpage/public ./apps/webpage/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/webpage/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/webpage/.next/static ./apps/webpage/.next/static
 
 USER nextjs
 
@@ -73,4 +77,4 @@ EXPOSE 3000
 
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "webpage/web/server.js"]
+CMD ["node", "apps/webpage/server.js"]
