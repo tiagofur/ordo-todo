@@ -1,0 +1,84 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [active]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - navigation [ref=e7]:
+            - button "previous" [disabled] [ref=e8]:
+              - img "previous" [ref=e9]
+            - generic [ref=e11]:
+              - generic [ref=e12]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e13]:
+              - img "next" [ref=e14]
+          - img
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - img [ref=e18]
+            - generic "Latest available version is detected (16.1.1)." [ref=e20]: Next.js 16.1.1
+            - generic [ref=e21]: Turbopack
+          - img
+      - dialog "Console TypeError" [ref=e23]:
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - generic [ref=e30]: Console TypeError
+              - generic [ref=e31]:
+                - button "Copy Error Info" [ref=e32] [cursor=pointer]:
+                  - img [ref=e33]
+                - button "No related documentation found" [disabled] [ref=e35]:
+                  - img [ref=e36]
+                - button "Attach Node.js inspector" [ref=e38] [cursor=pointer]:
+                  - img [ref=e39]
+            - generic [ref=e51]: undefined is not a constructor (evaluating 'new (window.AudioContext || window.webkitAudioContext)()')
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - paragraph [ref=e55]:
+                - img [ref=e57]
+                - generic [ref=e61]: src/hooks/use-timer-notifications.ts (24:101) @ useTimerNotifications.useEffect
+                - button "Open in editor" [ref=e62] [cursor=pointer]:
+                  - img [ref=e64]
+              - generic [ref=e67]:
+                - generic [ref=e68]: "22 | useEffect(() => {"
+                - generic [ref=e69]: "23 | if (soundEnabled && !audioContextRef.current) {"
+                - generic [ref=e70]: "> 24 | audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();"
+                - generic [ref=e71]: "| ^"
+                - generic [ref=e72]: "25 | }"
+                - generic [ref=e73]: "26 | }, [soundEnabled]);"
+                - generic [ref=e74]: 27 |
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - paragraph [ref=e77]:
+                  - text: Call Stack
+                  - generic [ref=e78]: "55"
+                - button "Show 54 ignore-listed frame(s)" [ref=e79] [cursor=pointer]:
+                  - text: Show 54 ignore-listed frame(s)
+                  - img [ref=e80]
+              - generic [ref=e82]:
+                - generic [ref=e83]:
+                  - text: useTimerNotifications.useEffect
+                  - button "Open useTimerNotifications.useEffect in editor" [ref=e84] [cursor=pointer]:
+                    - img [ref=e85]
+                - text: src/hooks/use-timer-notifications.ts (24:101)
+        - generic [ref=e87]: "1"
+        - generic [ref=e88]: "2"
+    - generic [ref=e93] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e94]:
+        - img [ref=e95]
+      - generic [ref=e100]:
+        - button "Open issues overlay" [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: "0"
+            - generic [ref=e104]: "1"
+          - generic [ref=e105]: Issue
+        - button "Collapse issues badge" [ref=e106]:
+          - img [ref=e107]
+  - generic [ref=e110]:
+    - heading "System Error" [level=1] [ref=e111]
+    - paragraph [ref=e112]: A critical error occurred. Please try refreshing the page.
+    - generic [ref=e113]: undefined is not a constructor (evaluating 'new (window.AudioContext || window.webkitAudioContext)()')
+    - button "Try again" [ref=e114]
+```

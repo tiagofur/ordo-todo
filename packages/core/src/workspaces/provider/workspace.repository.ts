@@ -1,6 +1,17 @@
 import { Workspace } from "../model/workspace.entity";
 import { WorkspaceMember, MemberRole } from "../model/workspace-member.entity";
 
+export interface MemberWithUser {
+  userId: string;
+  role: MemberRole;
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
+}
+
 export interface WorkspaceRepository {
   create(workspace: Workspace): Promise<Workspace>;
   findById(id: string): Promise<Workspace | null>;
@@ -22,14 +33,5 @@ export interface WorkspaceRepository {
     userId: string,
   ): Promise<WorkspaceMember | null>;
   listMembers(workspaceId: string): Promise<WorkspaceMember[]>;
-  listMembersWithUser(workspaceId: string): Promise<Array<{
-    userId: string;
-    role: MemberRole;
-    user: {
-      id: string;
-      name: string | null;
-      email: string | null;
-      image: string | null;
-    };
-  }>;
+  listMembersWithUser(workspaceId: string): Promise<MemberWithUser[]>;
 }

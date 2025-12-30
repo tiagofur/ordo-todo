@@ -31,7 +31,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
         <TopBar onMenuClick={() => setMobileMenuOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+        <main 
+          id="main-content"
+          role="main"
+          aria-label="Contenido principal"
+          className="flex-1 overflow-y-auto p-4 sm:p-6"
+        >
+          {children}
+        </main>
       </div>
 
       {/* Keyboard Shortcuts Help Modal */}

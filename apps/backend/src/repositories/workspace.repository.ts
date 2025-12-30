@@ -13,12 +13,13 @@ import {
   WorkspaceTier,
   WorkspaceMember,
   MemberRole,
+  MemberWithUser,
 } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaWorkspace: PrismaWorkspace): Workspace {
     return new Workspace({
@@ -457,7 +458,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   async listMembersWithUser(workspaceId: string): Promise<
     Array<{
       userId: string;
-      role: string;
+      role: MemberRole;
       user: {
         id: string;
         name: string | null;
@@ -477,7 +478,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
     return members.map((m) => ({
       userId: m.userId,
-      role: m.role,
+      role: m.role as MemberRole,
       user: m.user,
     }));
   }

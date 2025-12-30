@@ -458,6 +458,7 @@ model Workspace {
   @@index([ownerId])
   @@index([slug])
   @@index([deletedAt])
+  @@index([isDeleted])
 }
 
 enum WorkspaceTier {
@@ -803,6 +804,8 @@ model Task {
   @@index([priority])
   @@index([scheduledDate])
   // Composite indexes for common query patterns
+  @@index([ownerId, projectId])
+  @@index([ownerId, status])
   @@index([projectId, status, dueDate])
   @@index([assigneeId, status, priority])
   @@index([deletedAt])

@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - img [ref=e19]
+      - heading "Bienvenido de nuevo" [level=1] [ref=e22]
+      - paragraph [ref=e23]: Inicia sesión para continuar con Ordo
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - text: Correo Electrónico
+          - generic [ref=e27]:
+            - img [ref=e29]
+            - textbox "Correo Electrónico" [ref=e32]:
+              - /placeholder: tu@email.com
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: Contraseña
+            - link "¿Olvidaste tu contraseña?" [ref=e36] [cursor=pointer]:
+              - /url: /forgot-password
+          - generic [ref=e37]:
+            - img [ref=e39]
+            - textbox "Contraseña" [ref=e42]:
+              - /placeholder: Tu contraseña
+        - generic [ref=e43]:
+          - checkbox "Recordarme" [ref=e44]
+          - generic [ref=e45]: Recordarme
+        - button "Iniciar Sesión" [ref=e46]:
+          - generic [ref=e47]:
+            - text: Iniciar Sesión
+            - img [ref=e48]
+      - generic [ref=e52]: O continúa con
+      - generic [ref=e54]:
+        - button "Google" [ref=e55]:
+          - img [ref=e56]
+          - text: Google
+        - button "GitHub" [ref=e61]:
+          - img [ref=e62]
+          - text: GitHub
+      - paragraph [ref=e66]:
+        - text: ¿No tienes una cuenta?
+        - link "Regístrate gratis" [ref=e67] [cursor=pointer]:
+          - /url: /register
+          - text: Regístrate gratis
+          - img [ref=e68]
+    - paragraph [ref=e71]:
+      - text: Al continuar, aceptas nuestros
+      - link "Términos de Servicio" [ref=e72] [cursor=pointer]:
+        - /url: /terms
+      - text: "y"
+      - link "Política de Privacidad" [ref=e73] [cursor=pointer]:
+        - /url: /privacy
+  - region "Notifications alt+T"
+  - generic [ref=e76]:
+    - generic [ref=e77]:
+      - generic [ref=e79]:
+        - img [ref=e80]
+        - text: Personal
+      - button [ref=e83]:
+        - img
+      - generic [ref=e84]:
+        - img [ref=e86]
+        - generic [ref=e89]:
+          - paragraph [ref=e90]: Paso 1 de 6
+          - heading "¡Nuevas Funciones de IA!" [level=2] [ref=e91]
+    - paragraph [ref=e93]: Hemos añadido potentes herramientas de inteligencia artificial para impulsar tu productividad personal. Te mostramos lo nuevo.
+    - button "Siguiente" [ref=e103]:
+      - text: Siguiente
+      - img
+  - button "DevTools" [ref=e105]:
+    - img
+    - generic [ref=e106]: DevTools
+    - img
+  - generic [ref=e108]:
+    - img
+    - text: Development Mode
+```

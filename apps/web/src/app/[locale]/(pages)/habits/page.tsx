@@ -19,11 +19,24 @@ import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
 import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/lib/api-hooks";
 import { toast } from "sonner";
-import { CreateHabitDialog } from "@/components/habit/create-habit-dialog";
-import { HabitDetailPanel } from "@/components/habit/habit-detail-panel";
 import { HabitCelebration, useHabitCelebration } from "@/components/habit/habit-celebration";
 import { StreakBadge } from "@/components/habit/streak-badge";
-import { HabitOnboarding } from "@/components/habit/habit-onboarding";
+import dynamic from "next/dynamic";
+
+const CreateHabitDialog = dynamic(
+  () => import("@/components/habit/create-habit-dialog").then((mod) => mod.CreateHabitDialog),
+  { ssr: false }
+);
+
+const HabitDetailPanel = dynamic(
+  () => import("@/components/habit/habit-detail-panel").then((mod) => mod.HabitDetailPanel),
+  { ssr: false }
+);
+
+const HabitOnboarding = dynamic(
+  () => import("@/components/habit/habit-onboarding").then((mod) => mod.HabitOnboarding),
+  { ssr: false }
+);
 
 const accentColor = "#10B981"; // Emerald
 

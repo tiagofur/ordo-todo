@@ -87,9 +87,9 @@ export function TopBar({
           size="icon"
           className="lg:hidden h-10 w-10 rounded-xl"
           onClick={onMenuClick}
-          title={t.menu}
+          aria-label={t.menu}
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-5 w-5" aria-hidden="true" />
         </Button>
       )}
 
@@ -173,10 +173,10 @@ export function TopBar({
           variant="ghost"
           size="icon"
           className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20 h-10 w-10 rounded-xl"
-          title={t.aiCopilot}
+          aria-label={t.aiCopilot}
           onClick={onAICopilotClick}
         >
-          <Sparkles className="h-5 w-5" />
+          <Sparkles className="h-5 w-5" aria-hidden="true" />
         </Button>
 
         {/* Notifications */}
@@ -185,8 +185,11 @@ export function TopBar({
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex h-10 items-center gap-2 rounded-xl px-3 transition-all duration-200 hover:bg-muted/50">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+            <button 
+              className="flex h-10 items-center gap-2 rounded-xl px-3 transition-all duration-200 hover:bg-muted/50"
+              aria-label={`Menú de usuario: ${userName}`}
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground" aria-hidden="true">
                 {userInitial}
               </div>
               <span className="hidden text-sm font-medium md:inline-block">

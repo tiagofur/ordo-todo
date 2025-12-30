@@ -5,10 +5,18 @@ import { AppLayout } from "@/components/shared/app-layout";
 import { FolderKanban, Plus } from "lucide-react";
 import { useProjects } from "@/lib/api-hooks";
 import { ProjectCard } from "@/components/project/project-card";
-import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+
+const CreateProjectDialog = dynamic(
+  () =>
+    import("@/components/project/create-project-dialog").then(
+      (mod) => mod.CreateProjectDialog
+    ),
+  { ssr: false }
+);
 
 export default function ProjectsPage() {
   const t = useTranslations('Projects');

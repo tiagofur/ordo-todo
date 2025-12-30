@@ -34,6 +34,15 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Button component with support for multiple variants and sizes.
+ * Built on top of Radix Slot for polymorphism.
+ *
+ * @param className - Additional CSS classes
+ * @param variant - Visual style variant (default, destructive, outline, etc.)
+ * @param size - Size variant (default, sm, lg, icon)
+ * @param asChild - If true, renders the child component while passing props (polymorphism)
+ */
 function Button({
   className,
   variant,

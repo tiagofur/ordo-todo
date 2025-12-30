@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import { PWAProvider } from "@/components/providers/pwa-provider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { WebVitalsReporter } from "@/components/analytics/web-vitals";
 
 const font = Montserrat({
   subsets: ["latin"],
@@ -63,7 +64,10 @@ export default async function RootLayout({
       <body className={`${font.className} antialiased`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <PWAProvider>
-            <Providers>{children}</Providers>
+            <Providers>
+              <WebVitalsReporter />
+              {children}
+            </Providers>
           </PWAProvider>
         </NextIntlClientProvider>
       </body>

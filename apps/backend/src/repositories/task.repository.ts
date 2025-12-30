@@ -307,6 +307,88 @@ export class PrismaTaskRepository implements TaskRepository {
     return tasks.map((t) => this.toDomain(t));
   }
 
+  async findByWorkspaceMemberships(
+    userId: string,
+    filters?: { projectId?: string; tags?: string[] },
+  ): Promise<Task[]> {
+    const where: any = {
+      isDeleted: false,
+      OR: [
+        { ownerId: userId },
+        { assigneeId: userId },
+        {
+          project: {
+            workspace: {
+              members: {
+                some: {
+                  userId,
+                  workspace: {
+                    isDeleted: false,
+                  },
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    if (filters?.projectId) {
+      where.projectId = filters.projectId;
+    }
+
+    if (filters?.tags && filters.tags.length > 0) {
+      where.tags = {
+        some: {
+          tagId: {
+            in: filters.tags,
+          },
+        },
+      };
+    }
+
+    const tasks = await this.prisma.task.findMany({
+      where,
+      include: {
+        subTasks: true,
+        recurrence: true,
+        tags: {
+          include: { tag: true },
+        },
+        project: {
+          include: {
+            workspace: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+    return tasks.map((t) => this.toDomain(t));
+  }
+
   async update(task: Task): Promise<void> {
     const data: any = {
       title: task.props.title,

@@ -98,6 +98,11 @@ export function createHooks(config: CreateHooksConfig) {
 
   // ============ USER HOOKS ============
 
+  /**
+   * Retrieves the currently authenticated user.
+   * Cached with `currentUser` query key.
+   * @returns The current user profile or null if not authenticated.
+   */
   function useCurrentUser() {
     return useQuery({
       queryKey: queryKeys.currentUser,
@@ -106,6 +111,10 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  /**
+   * Updates the user's profile information.
+   * Invalidates `currentUser` and `userProfile` queries on success.
+   */
   function useUpdateProfile() {
     const queryClient = useQueryClient();
 
@@ -174,6 +183,10 @@ export function createHooks(config: CreateHooksConfig) {
 
   // ============ WORKSPACE HOOKS ============
 
+  /**
+   * Retrieves all workspaces the user is a member of.
+   * @returns A list of workspaces.
+   */
   function useWorkspaces() {
     return useQuery({
       queryKey: queryKeys.workspaces,

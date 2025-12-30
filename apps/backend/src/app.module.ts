@@ -4,6 +4,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { RepositoriesModule } from './repositories/repositories.module';
+import { CacheModule } from './cache/cache.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
@@ -51,6 +52,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         limit: 100, // Default limit (100 requests per minute)
       },
     ]),
+    CacheModule,
     ConfigModule,
     DatabaseModule,
     RepositoriesModule,
@@ -99,4 +101,4 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

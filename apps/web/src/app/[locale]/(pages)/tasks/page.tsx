@@ -13,13 +13,18 @@ import {
 } from "lucide-react";
 import { useTasks, useTags, useProjects } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
-import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { QuickFilters, useQuickFilters, FilterPreset } from "@/components/tasks/quick-filters";
 import { ExportDataButton } from "@/components/data/export-data";
 import { motion } from "framer-motion";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+
+const CreateTaskDialog = dynamic(
+  () => import("@/components/task/create-task-dialog").then((mod) => mod.CreateTaskDialog),
+  { ssr: false }
+);
 
 type ViewMode = "list" | "grid";
 

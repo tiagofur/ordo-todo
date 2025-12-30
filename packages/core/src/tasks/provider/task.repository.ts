@@ -7,6 +7,10 @@ export interface TaskRepository {
     ownerId: string,
     filters?: { projectId?: string; tags?: string[] },
   ): Promise<Task[]>;
+  findByWorkspaceMemberships(
+    userId: string,
+    filters?: { projectId?: string; tags?: string[] },
+  ): Promise<Task[]>;
   update(task: Task): Promise<void>;
   delete(id: string): Promise<void>;
   softDelete(id: string): Promise<void>;

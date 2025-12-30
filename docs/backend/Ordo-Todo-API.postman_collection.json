@@ -1,0 +1,1121 @@
+{
+  "info": {
+    "name": "Ordo-Todo API",
+    "description": "Complete API collection for Ordo-Todo backend. Includes all endpoints for authentication, tasks, projects, workspaces, timers, and analytics.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3101/api/v1",
+      "type": "string",
+      "description": "API base URL"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT access token (auto-populated after login)"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string",
+      "description": "Current user ID (auto-populated after login)"
+    },
+    {
+      "key": "workspaceId",
+      "value": "",
+      "type": "string",
+      "description": "Workspace ID for testing"
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "string",
+      "description": "Project ID for testing"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string",
+      "description": "Task ID for testing"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"userId\", jsonData.user.id);",
+                  "    console.log(\"User registered with ID:\", jsonData.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"username\": \"testuser\",\n  \"password\": \"Test123!\",\n  \"name\": \"Test User\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"token\", jsonData.accessToken);",
+                  "    pm.collectionVariables.set(\"userId\", jsonData.user.id);",
+                  "    console.log(\"Login successful, token saved\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your-refresh-token-here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh access token using refresh token"
+          }
+        },
+        {
+          "name": "Check Username Availability",
+          "auth": {
+            "type": "noauth"
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/check-username",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "check-username"]
+            },
+            "description": "Check if username is available"
+          }
+        },
+        {
+          "name": "Logout",
+          "auth": {
+            "type": "noauth"
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout user (client-side token removal)"
+          }
+        }
+      ],
+      "description": "Authentication endpoints - no auth required"
+    },
+    {
+      "name": "Workspaces",
+      "item": [
+        {
+          "name": "Get All Workspaces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces"]
+            },
+            "description": "Get all workspaces for current user"
+          }
+        },
+        {
+          "name": "Create Workspace",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"workspaceId\", jsonData.id);",
+                  "    console.log(\"Workspace created with ID:\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Workspace\",\n  \"description\": \"A workspace for my projects\",\n  \"type\": \"PERSONAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/workspaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces"]
+            },
+            "description": "Create a new workspace"
+          }
+        },
+        {
+          "name": "Get Workspace by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Get workspace by ID"
+          }
+        },
+        {
+          "name": "Update Workspace",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Workspace\",\n  \"description\": \"Updated description\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Update workspace details"
+          }
+        },
+        {
+          "name": "Delete Workspace (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Delete workspace (soft delete)"
+          }
+        },
+        {
+          "name": "Restore Workspace",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id", "restore"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Restore a deleted workspace"
+          }
+        },
+        {
+          "name": "Get Workspace Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id", "members"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Get all workspace members"
+          }
+        },
+        {
+          "name": "Add Member to Workspace",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-here\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id", "members"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Add member to workspace"
+          }
+        },
+        {
+          "name": "Invite Member to Workspace",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newmember@example.com\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/workspaces/:id/invitations",
+              "host": ["{{baseUrl}}"],
+              "path": ["workspaces", ":id", "invitations"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{workspaceId}}",
+                  "description": "Workspace ID"
+                }
+              ]
+            },
+            "description": "Invite user to workspace"
+          }
+        }
+      ],
+      "description": "Workspace management endpoints"
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "Get All Projects (by workspace)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects?workspaceId=:workspaceId",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"],
+              "query": [
+                {
+                  "key": "workspaceId",
+                  "value": "{{workspaceId}}"
+                }
+              ]
+            },
+            "description": "Get all projects in a workspace"
+          }
+        },
+        {
+          "name": "Get All Projects (all workspaces)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "all"]
+            },
+            "description": "Get all projects across all workspaces"
+          }
+        },
+        {
+          "name": "Create Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"projectId\", jsonData.id);",
+                  "    console.log(\"Project created with ID:\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Project\",\n  \"description\": \"A sample project\",\n  \"workspaceId\": \"{{workspaceId}}\",\n  \"color\": \"#2563EB\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Create a new project"
+          }
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{projectId}}",
+                  "description": "Project ID"
+                }
+              ]
+            },
+            "description": "Get project by ID"
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Project\",\n  \"description\": \"Updated description\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{projectId}}",
+                  "description": "Project ID"
+                }
+              ]
+            },
+            "description": "Update project details"
+          }
+        },
+        {
+          "name": "Delete Project (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{projectId}}",
+                  "description": "Project ID"
+                }
+              ]
+            },
+            "description": "Delete project (soft delete)"
+          }
+        }
+      ],
+      "description": "Project management endpoints"
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
+            },
+            "description": "Get all tasks with optional filters"
+          }
+        },
+        {
+          "name": "Get Today's Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/today",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "today"]
+            },
+            "description": "Get tasks categorized for today"
+          }
+        },
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"taskId\", jsonData.id);",
+                  "    console.log(\"Task created with ID:\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Complete documentation\",\n  \"description\": \"Write comprehensive docs for API\",\n  \"status\": \"TODO\",\n  \"priority\": \"HIGH\",\n  \"projectId\": \"{{projectId}}\",\n  \"dueDate\": \"2025-01-15T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
+            },
+            "description": "Create a new task"
+          }
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Get task by ID"
+          }
+        },
+        {
+          "name": "Get Task with Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/details",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "details"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Get task with full details (subtasks, tags, comments, attachments)"
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated task title\",\n  \"status\": \"IN_PROGRESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Update task (partial update)"
+          }
+        },
+        {
+          "name": "Complete Task",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "complete"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Mark task as complete"
+          }
+        },
+        {
+          "name": "Delete Task (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Delete task (soft delete)"
+          }
+        },
+        {
+          "name": "Restore Task",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "restore"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Restore a deleted task"
+          }
+        },
+        {
+          "name": "Create Subtask",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Complete first section\",\n  \"status\": \"TODO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/subtasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "subtasks"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Parent task ID"
+                }
+              ]
+            },
+            "description": "Create a subtask"
+          }
+        },
+        {
+          "name": "Get Task Dependencies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/dependencies",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "dependencies"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Get task dependencies"
+          }
+        },
+        {
+          "name": "Add Task Dependency",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"blockingTaskId\": \"another-task-id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/dependencies",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "dependencies"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                }
+              ]
+            },
+            "description": "Add a blocking task dependency"
+          }
+        },
+        {
+          "name": "Remove Task Dependency",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:id/dependencies/:blockingTaskId",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":id", "dependencies", ":blockingTaskId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{taskId}}",
+                  "description": "Task ID"
+                },
+                {
+                  "key": "blockingTaskId",
+                  "value": "blocking-task-id",
+                  "description": "Blocking task ID"
+                }
+              ]
+            },
+            "description": "Remove a task dependency"
+          }
+        }
+      ],
+      "description": "Task management endpoints"
+    },
+    {
+      "name": "Timers",
+      "item": [
+        {
+          "name": "Start Timer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taskId\": \"{{taskId}}\",\n  \"type\": \"POMODORO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/timers/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "start"]
+            },
+            "description": "Start a timer session"
+          }
+        },
+        {
+          "name": "Stop Timer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"session-id-here\",\n  \"notes\": \"Work completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/timers/stop",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "stop"]
+            },
+            "description": "Stop timer session"
+          }
+        },
+        {
+          "name": "Pause Timer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/timers/pause",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "pause"]
+            },
+            "description": "Pause current timer"
+          }
+        },
+        {
+          "name": "Resume Timer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/timers/resume",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "resume"]
+            },
+            "description": "Resume paused timer"
+          }
+        },
+        {
+          "name": "Get Active Timer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/timers/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "active"]
+            },
+            "description": "Get currently active timer"
+          }
+        },
+        {
+          "name": "Get Timer Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/timers/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "sessions"]
+            },
+            "description": "Get timer sessions"
+          }
+        },
+        {
+          "name": "Get Timer Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/timers/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["timers", "stats"]
+            },
+            "description": "Get timer statistics"
+          }
+        }
+      ],
+      "description": "Timer and time tracking endpoints"
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Daily Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/daily?date=:date",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "daily"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-01-15",
+                  "description": "Date in ISO format"
+                }
+              ]
+            },
+            "description": "Get daily productivity metrics"
+          }
+        },
+        {
+          "name": "Get Weekly Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/weekly?weekStart=:weekStart",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "weekly"],
+              "query": [
+                {
+                  "key": "weekStart",
+                  "value": "2025-01-13",
+                  "description": "Week start date (Monday)"
+                }
+              ]
+            },
+            "description": "Get weekly productivity metrics"
+          }
+        },
+        {
+          "name": "Get Monthly Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/monthly?monthStart=:monthStart",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "monthly"],
+              "query": [
+                {
+                  "key": "monthStart",
+                  "value": "2025-01-01",
+                  "description": "Month start date"
+                }
+              ]
+            },
+            "description": "Get monthly productivity metrics"
+          }
+        },
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/dashboard-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "dashboard-stats"]
+            },
+            "description": "Get dashboard summary statistics"
+          }
+        }
+      ],
+      "description": "Analytics and productivity metrics"
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "auth": {
+            "type": "noauth"
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Basic health check"
+          }
+        },
+        {
+          "name": "Readiness Check",
+          "auth": {
+            "type": "noauth"
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Readiness check (verifies DB connection)"
+          }
+        },
+        {
+          "name": "Liveness Check",
+          "auth": {
+            "type": "noauth"
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "live"]
+            },
+            "description": "Liveness check (verifies services)"
+          }
+        }
+      ],
+      "description": "Health check endpoints (no auth required)"
+    }
+  ]
+}

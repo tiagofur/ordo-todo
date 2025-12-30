@@ -21,10 +21,15 @@ import {
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
-import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+
+const CreateWorkspaceDialog = dynamic(
+  () => import("@/components/workspace/create-workspace-dialog").then((mod) => mod.CreateWorkspaceDialog),
+  { ssr: false }
+);
 
 export function Sidebar() {
   const t = useTranslations("Sidebar");

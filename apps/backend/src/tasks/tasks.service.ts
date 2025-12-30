@@ -217,7 +217,7 @@ export class TasksService {
     this.logger.debug(
       `Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`,
     );
-    const tasks = await this.taskRepository.findByOwnerId(userId, {
+    const tasks = await this.taskRepository.findByWorkspaceMemberships(userId, {
       projectId,
       tags,
     });

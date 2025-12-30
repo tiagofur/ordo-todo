@@ -24,6 +24,8 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { CacheTTL } from '@nestjs/cache-manager';
+import { CACHE_TTL } from '../cache/cache.constants';
 import { MemberRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TaskGuard } from '../common/guards/task.guard';
@@ -116,6 +118,7 @@ export class TasksController {
    * Returns: overdue, dueToday, scheduledToday, available, notYetAvailable
    */
   @Get('today')
+  @CacheTTL(CACHE_TTL.TASKS)
   findToday(@CurrentUser() user: RequestUser) {
     return this.tasksService.findToday(user.id);
   }
@@ -124,6 +127,7 @@ export class TasksController {
    * Get tasks scheduled for a specific date
    */
   @Get('scheduled')
+  @CacheTTL(CACHE_TTL.TASKS)
   findScheduled(
     @CurrentUser() user: RequestUser,
     @Query('date') dateStr?: string,
@@ -136,6 +140,7 @@ export class TasksController {
    * Get all available tasks (can be started today)
    */
   @Get('available')
+  @CacheTTL(CACHE_TTL.TASKS)
   findAvailable(
     @CurrentUser() user: RequestUser,
     @Query('projectId') projectId?: string,
@@ -169,9 +174,10 @@ export class TasksController {
   }
 
   @Get()
+  @CacheTTL(CACHE_TTL.TASKS)
   // List filtering is usually done by service (only return tasks user can see).
   // The service currently filters by 'ownerId' which is WRONG for a team app (should be workspace based).
-  // But fixing the service logic is a bigger refactor of the 'findAll' method.
+  // But fixing that service logic is a bigger refactor of the 'findAll' method.
   // For now, let's keep it but ideally we should update findAll to filter by workspace permissions.
   findAll(
     @CurrentUser() user: RequestUser,
@@ -200,6 +206,7 @@ export class TasksController {
     MemberRole.MEMBER,
     MemberRole.VIEWER,
   )
+  @CacheTTL(CACHE_TTL.TASKS)
   getDeleted(@Query('projectId') projectId: string) {
     return this.tasksService.getDeleted(projectId);
   }
@@ -252,6 +259,7 @@ export class TasksController {
     MemberRole.MEMBER,
     MemberRole.VIEWER,
   )
+  @CacheTTL(CACHE_TTL.TAGS)
   findTags(@Param('id') taskId: string) {
     return this.tagsService.findByTask(taskId);
   }
@@ -264,6 +272,7 @@ export class TasksController {
     MemberRole.MEMBER,
     MemberRole.VIEWER,
   )
+  @CacheTTL(CACHE_TTL.COMMENTS)
   findComments(@Param('id') taskId: string) {
     return this.commentsService.findByTask(taskId);
   }
@@ -276,6 +285,7 @@ export class TasksController {
     MemberRole.MEMBER,
     MemberRole.VIEWER,
   )
+  @CacheTTL(CACHE_TTL.ATTACHMENTS)
   findAttachments(@Param('id') taskId: string) {
     return this.attachmentsService.findByTask(taskId);
   }
@@ -305,8 +315,9 @@ export class TasksController {
     MemberRole.MEMBER,
     MemberRole.VIEWER,
   )
-  getDependencies(@Param('id') id: string) {
-    return this.tasksService.getDependencies(id);
+  @CacheTTL(CACHE_TTL.TASKS)
+  findDependencies(@Param('id') taskId: string) {
+    return this.tasksService.getDependencies(taskId);
   }
 
   @Post(':id/dependencies')

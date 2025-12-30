@@ -13,7 +13,7 @@ describe('TasksService', () => {
   let activitiesService: ActivitiesService;
 
   const mockTaskRepository = {
-    findByOwnerId: jest.fn(),
+    findByWorkspaceMemberships: jest.fn(),
     findById: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
@@ -118,11 +118,15 @@ describe('TasksService', () => {
         },
       ];
 
-      mockTaskRepository.findByOwnerId.mockResolvedValue(mockTasks);
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue(
+        mockTasks,
+      );
 
       const result = await service.findAll(userId);
 
-      expect(mockTaskRepository.findByOwnerId).toHaveBeenCalledWith(userId, {
+      expect(
+        mockTaskRepository.findByWorkspaceMemberships,
+      ).toHaveBeenCalledWith(userId, {
         projectId: undefined,
         tags: undefined,
       });
@@ -151,7 +155,9 @@ describe('TasksService', () => {
         },
       ];
 
-      mockTaskRepository.findByOwnerId.mockResolvedValue(mockTasks);
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue(
+        mockTasks,
+      );
 
       const result = await service.findAll(userId);
 
@@ -163,11 +169,13 @@ describe('TasksService', () => {
       const userId = 'user-123';
       const projectId = 'project-123';
 
-      mockTaskRepository.findByOwnerId.mockResolvedValue([]);
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue([]);
 
       await service.findAll(userId, projectId);
 
-      expect(mockTaskRepository.findByOwnerId).toHaveBeenCalledWith(userId, {
+      expect(
+        mockTaskRepository.findByWorkspaceMemberships,
+      ).toHaveBeenCalledWith(userId, {
         projectId,
         tags: undefined,
       });
@@ -177,11 +185,13 @@ describe('TasksService', () => {
       const userId = 'user-123';
       const tags = ['urgent', 'bug'];
 
-      mockTaskRepository.findByOwnerId.mockResolvedValue([]);
+      mockTaskRepository.findByWorkspaceMemberships.mockResolvedValue([]);
 
       await service.findAll(userId, undefined, tags);
 
-      expect(mockTaskRepository.findByOwnerId).toHaveBeenCalledWith(userId, {
+      expect(
+        mockTaskRepository.findByWorkspaceMemberships,
+      ).toHaveBeenCalledWith(userId, {
         projectId: undefined,
         tags,
       });

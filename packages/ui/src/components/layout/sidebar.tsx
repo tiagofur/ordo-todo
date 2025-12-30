@@ -143,7 +143,7 @@ export function Sidebar({
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto">
           {/* Navigation */}
-          <nav className="space-y-1 px-3 py-4">
+          <nav role="navigation" aria-label="Navegación principal" className="space-y-1 px-3 py-4">
             {navigation.map((item) => {
               const isActive = isActiveRoute(item.href);
               const color = item.color || 'cyan';

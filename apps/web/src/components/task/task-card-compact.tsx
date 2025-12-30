@@ -275,6 +275,7 @@ export function TaskCardCompact({
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={handleMenuClick}>
                 <button
+                  aria-label={`Cambiar estado de la tarea: ${statusConfig.label}`}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
                     "hover:ring-2 hover:ring-offset-1 hover:ring-offset-background",
@@ -285,9 +286,9 @@ export function TaskCardCompact({
                     color: statusConfig.color,
                   }}
                 >
-                  <StatusIcon className="h-4 w-4" />
+                  <StatusIcon className="h-4 w-4" aria-hidden="true" />
                   <span className="hidden sm:inline">{statusConfig.label}</span>
-                  <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                  <ChevronDown className="h-3.5 w-3.5 opacity-60" aria-hidden="true" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
@@ -365,12 +366,13 @@ export function TaskCardCompact({
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={handleMenuClick}>
                 <button
+                  aria-label="Más opciones de tarea"
                   className={cn(
                     "opacity-0 group-hover:opacity-100 transition-opacity duration-150",
                     "rounded-lg p-2 hover:bg-muted text-muted-foreground hover:text-foreground shrink-0"
                   )}
                 >
-                  <MoreVertical className="h-4 w-4" />
+                  <MoreVertical className="h-4 w-4" aria-hidden="true" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
