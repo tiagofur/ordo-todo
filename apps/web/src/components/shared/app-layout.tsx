@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import { Sidebar } from "./sidebar";
 import { MobileSidebar } from "./mobile-sidebar";
 import { TopBar } from "./topbar";
+import { ErrorBoundary } from "./error-boundary";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { KeyboardShortcutsHelp } from "@/components/shortcuts/keyboard-shortcuts-help";
 
@@ -37,7 +38,9 @@ export function AppLayout({ children }: AppLayoutProps) {
           aria-label="Contenido principal"
           className="flex-1 overflow-y-auto p-4 sm:p-6"
         >
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </main>
       </div>
 
