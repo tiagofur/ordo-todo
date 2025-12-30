@@ -2199,11 +2199,11 @@ interface WorkspaceRepository {
     listMembers(workspaceId: string): Promise<WorkspaceMember[]>;
     listMembersWithUser(workspaceId: string): Promise<Array<{
         userId: string;
-        role: string;
+        role: MemberRole;
         user: {
             id: string;
             name: string | null;
-            email: string;
+            email: string | null;
             image: string | null;
         };
     }>>;
