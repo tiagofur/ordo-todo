@@ -35,32 +35,56 @@
     "eisenhower": {
       "title": "Matriz de Eisenhower",
       "description": "Prioriza tareas por urgencia e importancia. Ve de un vistazo qué necesita tu atención ahora.",
-      "highlights": ["Prioridad Visual", "Ordenamiento Inteligente", "Acciones Rápidas"]
+      "highlights": [
+        "Prioridad Visual",
+        "Ordenamiento Inteligente",
+        "Acciones Rápidas"
+      ]
     },
     "kanban": {
       "title": "Tableros Kanban",
       "description": "Visualiza tu flujo de trabajo con tableros flexibles. Arrastra y suelta tareas entre columnas.",
-      "highlights": ["Arrastrar y Soltar", "Columnas Personalizadas", "Seguimiento de Progreso"]
+      "highlights": [
+        "Arrastrar y Soltar",
+        "Columnas Personalizadas",
+        "Seguimiento de Progreso"
+      ]
     },
     "time_blocking": {
       "title": "Bloqueo de Tiempo",
       "description": "Programa tareas en tu calendario. Bloquea tiempo para trabajo profundo y protege tu productividad.",
-      "highlights": ["Vista Calendario", "Bloques de Tiempo", "Recordatorios"]
+      "highlights": [
+        "Vista Calendario",
+        "Bloques de Tiempo",
+        "Recordatorios"
+      ]
     },
     "focus_timer": {
       "title": "Timer de Enfoque",
       "description": "Timer Pomodoro integrado con sesiones personalizables. Rastrea tu tiempo de enfoque y toma descansos inteligentes.",
-      "highlights": ["Pomodoro", "Estadísticas", "Alertas de Descanso"]
+      "highlights": [
+        "Pomodoro",
+        "Estadísticas",
+        "Alertas de Descanso"
+      ]
     },
     "okrs": {
       "title": "OKRs y Metas",
       "description": "Establece objetivos y resultados clave. Rastrea el progreso en lo que más te importa.",
-      "highlights": ["Objetivos", "Resultados Clave", "Progreso"]
+      "highlights": [
+        "Objetivos",
+        "Resultados Clave",
+        "Progreso"
+      ]
     },
     "collaboration": {
       "title": "Colaboración en Equipo",
       "description": "Invita miembros del equipo, asigna tareas y trabaja juntos sin problemas en espacios compartidos.",
-      "highlights": ["Espacios", "Asignaciones", "Comentarios"]
+      "highlights": [
+        "Espacios",
+        "Asignaciones",
+        "Comentarios"
+      ]
     }
   },
   "AIFeatures": {
@@ -120,14 +144,13 @@
     "still_need_help": "¿No encuentras lo que buscas?",
     "contact_us": "Contáctanos"
   },
-
   "Navigation": {
     "home": "Inicio",
     "guide": "Guía de Usuario",
     "blog": "Blog",
     "faq": "FAQ",
     "changelog": "Novedades",
-    "roadmap": "Roadmap",
+    "roadmap": "Hoja de Ruta",
     "login": "Iniciar Sesión",
     "register": "Empieza Gratis"
   },
@@ -190,22 +213,42 @@
       "tasks": {
         "title": "Gestión de Tareas Inteligente",
         "description": "Organiza tareas con proyectos, etiquetas, prioridades y fechas. Nuestra interfaz intuitiva facilita la gestión de flujos complejos.",
-        "features": ["Arrastrar y Soltar", "Subtareas", "Dependencias", "Etiquetas"]
+        "features": [
+          "Arrastrar y Soltar",
+          "Subtareas",
+          "Dependencias",
+          "Etiquetas"
+        ]
       },
       "focus": {
         "title": "Timer de Enfoque y Pomodoro",
         "description": "Mantén el foco con nuestro timer Pomodoro integrado. Rastrea tus sesiones de trabajo profundo y toma descansos inteligentes.",
-        "features": ["Timers Personalizables", "Historial de Sesiones", "Analíticas de Foco", "Recordatorios de Descanso"]
+        "features": [
+          "Timers Personalizables",
+          "Historial de Sesiones",
+          "Analíticas de Foco",
+          "Recordatorios de Descanso"
+        ]
       },
       "ai": {
         "title": "Agenda con IA",
         "description": "Deja que nuestro asistente IA te ayude a priorizar tareas y programar tu día para máxima productividad.",
-        "features": ["Sugerencias Inteligentes", "Auto-Programación", "Insights de Prioridad", "Balance de Carga"]
+        "features": [
+          "Sugerencias Inteligentes",
+          "Auto-Programación",
+          "Insights de Prioridad",
+          "Balance de Carga"
+        ]
       },
       "analytics": {
         "title": "Analíticas Hermosas",
         "description": "Entiende tus patrones de productividad con gráficos detallados. Ve qué funciona y optimiza tu flujo.",
-        "features": ["Reportes Semanales", "Seguimiento de Tiempo", "Progreso de Metas", "Tendencias de Productividad"]
+        "features": [
+          "Reportes Semanales",
+          "Seguimiento de Tiempo",
+          "Progreso de Metas",
+          "Tendencias de Productividad"
+        ]
       }
     }
   },
@@ -585,7 +628,7 @@
     "success_title": "¡Mensaje Enviado!",
     "success_message": "Gracias por contactarnos. Te responderemos en 24 horas.",
     "name_label": "Nombre",
-    "email_label": "Email",
+    "email_label": "Correo Electrónico",
     "subject_label": "Asunto",
     "message_label": "Mensaje",
     "name_placeholder": "Tu nombre",

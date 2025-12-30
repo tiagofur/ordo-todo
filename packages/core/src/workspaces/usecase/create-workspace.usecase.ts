@@ -5,7 +5,7 @@ export class CreateWorkspaceUseCase {
   constructor(
     private workspaceRepository: WorkspaceRepository,
     private ownerUsername?: string,
-  ) {}
+  ) { }
 
   async execute(
     props: Omit<
@@ -23,12 +23,7 @@ export class CreateWorkspaceUseCase {
     const username = ownerUsername || this.ownerUsername;
     const workspaceNameSlug = this.generateSlug(props.name);
 
-    let slug: string;
-    if (username) {
-      slug = `${username}/${workspaceNameSlug}`;
-    } else {
-      slug = workspaceNameSlug;
-    }
+    const slug = workspaceNameSlug;
 
     let finalSlug = slug;
     let counter = 1;

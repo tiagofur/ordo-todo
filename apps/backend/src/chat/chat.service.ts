@@ -26,7 +26,7 @@ export class ChatService {
   constructor(
     private readonly chatRepository: ChatRepository,
     private readonly coachService: ProductivityCoachService,
-  ) {}
+  ) { }
 
   /**
    * Create a new conversation, optionally with an initial message
@@ -104,15 +104,15 @@ export class ChatService {
         content: m.content,
         metadata: m.metadata as
           | {
-              actions?: Array<{
-                type: string;
-                data?: any;
-                result?: any;
-              }>;
-              suggestions?: string[];
-              modelUsed?: string;
-              processingTimeMs?: number;
-            }
+            actions?: Array<{
+              type: string;
+              data?: any;
+              result?: any;
+            }>;
+            suggestions?: string[];
+            modelUsed?: string;
+            processingTimeMs?: number;
+          }
           | undefined,
         createdAt: m.createdAt,
       })),
@@ -289,7 +289,8 @@ export class ChatService {
    * Get proactive insights for user
    */
   async getInsights(userId: string) {
-    return this.coachService.getProactiveInsights(userId);
+    const insights = await this.coachService.getProactiveInsights(userId);
+    return { insights };
   }
 
   // ============ PRIVATE HELPERS ============

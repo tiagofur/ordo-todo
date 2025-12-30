@@ -149,6 +149,7 @@ export const queryKeys = {
     category?: string;
     priority?: string;
   }) => ["ai", "predict-duration", params] as const,
+  aiInsights: ["ai", "insights"] as const,
 
   // Time Blocking
   timeBlocks: (start?: string, end?: string) =>
@@ -1304,6 +1305,15 @@ export function useTaskDurationPrediction(params?: {
   });
 }
 
+export function useAIInsights(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: queryKeys.aiInsights,
+    queryFn: () => apiClient.getAIInsights(),
+    enabled: (options?.enabled ?? true) && isAuthenticated(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 // ============ AI REPORTS HOOKS ============
 
 export function useGenerateWeeklyReport() {
@@ -1615,15 +1625,15 @@ export function useCompleteHabit() {
           habits: old.habits?.map((h: any) =>
             h.id === habitId
               ? {
-                  ...h,
-                  completions: [
-                    {
-                      id: "temp",
-                      habitId,
-                      completedAt: new Date().toISOString(),
-                    },
-                  ],
-                }
+                ...h,
+                completions: [
+                  {
+                    id: "temp",
+                    habitId,
+                    completedAt: new Date().toISOString(),
+                  },
+                ],
+              }
               : h,
           ),
           summary: {
@@ -1633,9 +1643,9 @@ export function useCompleteHabit() {
             percentage:
               old.summary?.total > 0
                 ? Math.round(
-                    (((old.summary?.completed || 0) + 1) / old.summary.total) *
-                      100,
-                  )
+                  (((old.summary?.completed || 0) + 1) / old.summary.total) *
+                  100,
+                )
                 : 0,
           },
         };
@@ -1646,16 +1656,16 @@ export function useCompleteHabit() {
         return old.map((h: any) =>
           h.id === habitId
             ? {
-                ...h,
-                completions: [
-                  ...(h.completions || []),
-                  {
-                    id: "temp",
-                    habitId,
-                    completedAt: new Date().toISOString(),
-                  },
-                ],
-              }
+              ...h,
+              completions: [
+                ...(h.completions || []),
+                {
+                  id: "temp",
+                  habitId,
+                  completedAt: new Date().toISOString(),
+                },
+              ],
+            }
             : h,
         );
       });
@@ -1716,10 +1726,10 @@ export function useUncompleteHabit() {
             percentage:
               old.summary?.total > 0
                 ? Math.round(
-                    (Math.max((old.summary?.completed || 0) - 1, 0) /
-                      old.summary.total) *
-                      100,
-                  )
+                  (Math.max((old.summary?.completed || 0) - 1, 0) /
+                    old.summary.total) *
+                  100,
+                )
                 : 0,
           },
         };

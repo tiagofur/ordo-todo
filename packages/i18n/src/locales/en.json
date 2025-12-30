@@ -246,7 +246,15 @@
       "anytime": "Anytime"
     },
     "daysOfWeek": {
-      "short": ["S", "M", "T", "W", "T", "F", "S"],
+      "short": [
+        "S",
+        "M",
+        "T",
+        "W",
+        "T",
+        "F",
+        "S"
+      ],
       "long": [
         "Sunday",
         "Monday",
@@ -430,7 +438,8 @@
       "dueDate": "Due Date",
       "estimatedMinutes": "Estimated Minutes (min)",
       "description": "Description",
-      "descriptionPlaceholder": "Additional task details..."
+      "descriptionPlaceholder": "Additional task details...",
+      "assignee": "Assignee"
     },
     "priorities": {
       "low": "Low",
@@ -511,7 +520,6 @@
       "create": "Create Workspace"
     }
   },
-
   "SubtaskList": {
     "title": "Subtasks",
     "empty": "No subtasks. Add one to split this task.",
@@ -1030,7 +1038,10 @@
       "admin": "Admin",
       "member": "Member",
       "viewer": "Viewer"
-    }
+    },
+    "memberRemoved": "Member removed",
+    "errorRemoving": "Error removing member",
+    "noMembers": "No members"
   },
   "AcceptInvitationPage": {
     "title": "Accept Invitation",
@@ -1198,7 +1209,10 @@
       "startDate": "Start Date",
       "scheduledDate": "Scheduled",
       "estimation": "Estimated Time (min)",
-      "linkToGoal": "Link to Goal"
+      "linkToGoal": "Link to Goal",
+      "addAnotherGoal": "Add another goal",
+      "selectGoal": "Select Key Result",
+      "noActiveObjectives": "No active objectives"
     },
     "tabs": {
       "subtasks": "Subtasks",
@@ -1910,6 +1924,36 @@
         "NUMBER": "Number",
         "CURRENCY": "Currency",
         "BOOLEAN": "True/False"
+      },
+      "subtitle": "Define metrics to measure your progress",
+      "addFirst": "Add first key result",
+      "empty": "No key results. Add one to start measuring your progress.",
+      "createTitle": "Add Key Result",
+      "createDescription": "Define a measurable result for your goal",
+      "confirmDelete": "Delete this key result?",
+      "deleted": "Key result deleted",
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "e.g. Increase monthly sales",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe how you will measure progress...",
+        "metricType": "Metric type",
+        "startValue": "Start value",
+        "targetValue": "Target value",
+        "unit": "Unit",
+        "unitPlaceholder": "e.g. sales, users, hours"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "create": "Create",
+        "creating": "Creating..."
+      },
+      "validation": {
+        "titleRequired": "Title is required"
+      },
+      "toast": {
+        "created": "Key result created",
+        "error": "Error creating key result"
       }
     },
     "stats": {
@@ -1930,7 +1974,9 @@
     "progress": "Progress",
     "dueDate": "Due Date",
     "okrsAtRisk": "OKRs At Risk",
-    "left": "left"
+    "left": "left",
+    "notFound": "Goal not found",
+    "edit": "Edit"
   },
   "CustomFields": {
     "title": "Custom Fields",

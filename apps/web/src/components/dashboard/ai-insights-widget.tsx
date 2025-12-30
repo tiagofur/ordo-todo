@@ -19,9 +19,10 @@ import {
 } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@ordo-todo/ui';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api-client';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
+import { useAIInsights } from '@/lib/api-hooks';
+import { useAuth } from '@/contexts/auth-context';
 
 interface Insight {
   type: 'PRODUCTIVITY_PEAK' | 'UPCOMING_DEADLINES' | 'SUGGESTED_BREAKS' | 
@@ -56,6 +57,19 @@ const INSIGHT_COLORS: Record<string, string> = {
   ACHIEVEMENT_CELEBRATION: 'text-emerald-500 bg-emerald-500/10',
 };
 
+const BACKEND_TYPE_MAP: Record<string, Insight['type']> = {
+  'OVERDUE_ALERT': 'UPCOMING_DEADLINES',
+  'WORKLOAD_IMBALANCE': 'WORKLOAD_IMBALANCE',
+  'PEAK_HOUR_TIP': 'PRODUCTIVITY_PEAK',
+  'ENERGY_OPTIMIZATION': 'ENERGY_OPTIMIZATION',
+  'BREAK_REMINDER': 'SUGGESTED_BREAKS',
+  'REST_SUGGESTION': 'REST_SUGGESTION',
+  'ACHIEVEMENT_CELEBRATION': 'ACHIEVEMENT_CELEBRATION',
+  'STREAK_MOTIVATION': 'ACHIEVEMENT_CELEBRATION',
+  'STREAK_MILESTONE': 'ACHIEVEMENT_CELEBRATION',
+  'WEEKLY_ACCOMPLISHMENT': 'COMPLETION_CELEBRATION',
+};
+
 interface AIInsightsWidgetProps {
   className?: string;
   maxInsights?: number;
@@ -64,31 +78,29 @@ interface AIInsightsWidgetProps {
 export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidgetProps) {
   const t = useTranslations('Dashboard');
   const router = useRouter();
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
   const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchInsights = async () => {
-    try {
-      setIsRefreshing(true);
-      const response = await apiClient.getAIInsights();
-      setInsights(response.insights || []);
-      setDismissedIds(new Set());
-    } catch (error) {
-      console.error('Failed to fetch AI insights:', error);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
+  const {
+    data,
+    isLoading,
+    isRefetching: isRefreshing,
+    refetch: fetchInsights,
+    error
+  } = useAIInsights({ enabled: isAuthenticated });
+
+  const insights: Insight[] = (data?.insights || []).map((i: any) => ({
+    ...i,
+    type: BACKEND_TYPE_MAP[i.type] || i.type
+  }));
 
   useEffect(() => {
-    fetchInsights();
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchInsights, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+    // If we have a 401 error, don't log it as an error in console
+    // since AuthContext handles redirection
+    if (error && (error as any).response?.status === 401) {
+      // Quietly fail
+    }
+  }, [error]);
 
   const handleDismiss = (index: number) => {
     setDismissedIds(prev => new Set(prev).add(index));
@@ -101,7 +113,7 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
   };
 
   const visibleInsights = insights
-    .filter((_, index) => !dismissedIds.has(index))
+    .filter((_: Insight, index: number) => !dismissedIds.has(index))
     .slice(0, maxInsights);
 
   if (isLoading) {
@@ -143,7 +155,7 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={fetchInsights}
+              onClick={() => fetchInsights()}
               disabled={isRefreshing}
             >
               <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
@@ -180,7 +192,7 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={fetchInsights}
+            onClick={() => fetchInsights()}
             disabled={isRefreshing}
           >
             <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />

@@ -40,7 +40,7 @@ import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto'
 @Controller('workspaces')
 @UseGuards(JwtAuthGuard)
 export class WorkspacesController {
-  constructor(private readonly workspacesService: WorkspacesService) {}
+  constructor(private readonly workspacesService: WorkspacesService) { }
 
   /**
    * Creates a new workspace
@@ -170,7 +170,7 @@ export class WorkspacesController {
   }
 
   /**
-   * Gets workspace details by ID
+    * Gets workspace details by ID
    * Requires user to be a member with any role
    */
   @Get(':id')

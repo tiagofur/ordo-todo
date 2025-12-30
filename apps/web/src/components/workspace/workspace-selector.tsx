@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Input, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@ordo-todo/ui";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Check, ChevronsUpDown, Plus, Search, Briefcase, User, Users, FolderKanban, ListTodo } from "lucide-react";
 import { useWorkspaces } from "@/lib/api-hooks";
 import { useProjects } from "@/lib/api-hooks";

@@ -1,0 +1,23 @@
+{
+  "missingInEs": [],
+  "untranslatedEs": [
+    "Navigation.blog",
+    "Navigation.faq",
+    "Navigation.roadmap",
+    "Testimonials.items.user1.role",
+    "Testimonials.items.user1.company",
+    "Testimonials.items.user2.name",
+    "Testimonials.items.user2.company",
+    "Footer.blog",
+    "Footer.legal",
+    "Guide.main.pro_tip_shortcut",
+    "GuideFocus.modes.focus.duration",
+    "GuideFocus.modes.short.duration",
+    "GuideFocus.modes.long.duration",
+    "GuideTasks.quick_add_shortcut",
+    "GuideAnalytics.metrics.score.example",
+    "Blog.title",
+    "Pricing.plans.pro.name",
+    "Contact.email_label"
+  ]
+}
