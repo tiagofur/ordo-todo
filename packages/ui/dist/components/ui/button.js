@@ -24,6 +24,15 @@ const buttonVariants = cva("inline-flex items-center justify-center gap-2 whites
         size: "default",
     },
 });
+/**
+ * Button component with support for multiple variants and sizes.
+ * Built on top of Radix Slot for polymorphism.
+ *
+ * @param className - Additional CSS classes
+ * @param variant - Visual style variant (default, destructive, outline, etc.)
+ * @param size - Size variant (default, sm, lg, icon)
+ * @param asChild - If true, renders the child component while passing props (polymorphism)
+ */
 function Button({ className, variant, size, asChild = false, ...props }) {
     const Comp = asChild ? Slot : "button";
     return (_jsx(Comp, { "data-slot": "button", className: cn(buttonVariants({ variant, size, className })), ...props }));

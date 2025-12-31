@@ -2,22 +2,31 @@ import { z } from 'zod';
 declare const createHabitSchema: z.ZodObject<{
     name: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
-    frequency: z.ZodEnum<{
-        custom: "custom";
-        daily: "daily";
-        weekly: "weekly";
-    }>;
-    daysOfWeek: z.ZodOptional<z.ZodArray<z.ZodNumber>>;
-    timeOfDay: z.ZodOptional<z.ZodEnum<{
-        morning: "morning";
-        afternoon: "afternoon";
-        evening: "evening";
-        anytime: "anytime";
-    }>>;
+    frequency: z.ZodEnum<["daily", "weekly", "custom"]>;
+    daysOfWeek: z.ZodOptional<z.ZodArray<z.ZodNumber, "many">>;
+    timeOfDay: z.ZodOptional<z.ZodEnum<["morning", "afternoon", "evening", "anytime"]>>;
     color: z.ZodOptional<z.ZodString>;
     icon: z.ZodOptional<z.ZodString>;
     reminderTime: z.ZodOptional<z.ZodString>;
-}, z.core.$strip>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    frequency: "custom" | "daily" | "weekly";
+    color?: string | undefined;
+    icon?: string | undefined;
+    description?: string | undefined;
+    daysOfWeek?: number[] | undefined;
+    timeOfDay?: "morning" | "afternoon" | "evening" | "anytime" | undefined;
+    reminderTime?: string | undefined;
+}, {
+    name: string;
+    frequency: "custom" | "daily" | "weekly";
+    color?: string | undefined;
+    icon?: string | undefined;
+    description?: string | undefined;
+    daysOfWeek?: number[] | undefined;
+    timeOfDay?: "morning" | "afternoon" | "evening" | "anytime" | undefined;
+    reminderTime?: string | undefined;
+}>;
 export type CreateHabitFormData = z.infer<typeof createHabitSchema>;
 export interface CreateHabitDialogProps {
     open: boolean;

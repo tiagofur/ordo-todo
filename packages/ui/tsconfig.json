@@ -11,6 +11,15 @@
     "moduleResolution": "Bundler",
     "types": []
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "src/stories/**/*"]
+  "include": [
+    "src/**/*",
+    "src/types/lucide-react.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/stories/**/*"
+  ]
 }

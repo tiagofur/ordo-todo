@@ -52,7 +52,7 @@ export function Sidebar({ pathname = '', navItems, renderLink, renderWorkspaceSe
                         href: logoHref,
                         className: 'flex items-center gap-3 group',
                         children: (_jsxs(_Fragment, { children: [_jsx("div", { className: "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/20 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3", children: _jsx(CheckSquare, { className: "h-6 w-6" }) }), _jsx("span", { className: "text-2xl font-bold text-foreground", children: t.appName })] })),
-                    }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { className: "space-y-1 px-3 py-4", children: navigation.map((item) => {
+                    }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { role: "navigation", "aria-label": "Navegaci\u00F3n principal", className: "space-y-1 px-3 py-4", children: navigation.map((item) => {
                                 const isActive = isActiveRoute(item.href);
                                 const color = item.color || 'cyan';
                                 return (_jsx("div", { children: renderLink({

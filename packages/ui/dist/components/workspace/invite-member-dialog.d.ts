@@ -1,12 +1,14 @@
 import * as z from "zod";
 declare const inviteMemberSchema: z.ZodObject<{
     email: z.ZodString;
-    role: z.ZodEnum<{
-        ADMIN: "ADMIN";
-        MEMBER: "MEMBER";
-        VIEWER: "VIEWER";
-    }>;
-}, z.core.$strip>;
+    role: z.ZodEnum<["ADMIN", "MEMBER", "VIEWER"]>;
+}, "strip", z.ZodTypeAny, {
+    role: "ADMIN" | "MEMBER" | "VIEWER";
+    email: string;
+}, {
+    role: "ADMIN" | "MEMBER" | "VIEWER";
+    email: string;
+}>;
 export type InviteFormValues = z.infer<typeof inviteMemberSchema>;
 export interface InviteMemberDialogLabels {
     title?: string;

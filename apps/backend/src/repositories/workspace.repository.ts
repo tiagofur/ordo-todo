@@ -478,11 +478,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
     return members.map((m) => ({
       userId: m.userId,
-<<<<<<< HEAD
-      role: m.role as MemberRole,
-=======
       role: this.mapRoleToDomain(m.role),
->>>>>>> 8f35cbce2324f5ccb0e01484268635930fbe98c0
       user: m.user,
     }));
   }
