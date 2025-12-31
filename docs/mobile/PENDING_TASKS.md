@@ -1,6 +1,6 @@
 # Tareas Pendientes - Mobile Parity
 
-Estado actual: **82%** completado (25 de 25 features faltantes)
+Estado actual: **85%** completado (24 de 24 features faltantes)
 
 ---
 
@@ -9,7 +9,7 @@ Estado actual: **82%** completado (25 de 25 features faltantes)
 ### Analytics
 
 - [ ] ~~Daily Metrics - Métricas diarias de productividad~~ ✅ Completado
-- [ ] Weekly/Monthly Reports - Reports semanales y mensuales
+- [ ] ~~Weekly/Monthly Reports - Reports semanales y mensuales~~ ✅ Completado
 
 ### Productivity
 
