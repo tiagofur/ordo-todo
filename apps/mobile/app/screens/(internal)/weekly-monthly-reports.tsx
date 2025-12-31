@@ -65,17 +65,20 @@ export default function ReportsView({
   const [activePeriod, setActivePeriod] = useState<"week" | "month">("week");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const totalPomodoros = activePeriod === "week"
-    ? MOCK_WEEKLY_DATA.reduce((sum, d) => sum + d.pomodoros, 0)
-    : MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.pomodoros, 0);
+  const totalPomodoros =
+    activePeriod === "week"
+      ? MOCK_WEEKLY_DATA.reduce((sum, d) => sum + d.pomodoros, 0)
+      : MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.pomodoros, 0);
 
-  const totalTasks = activePeriod === "week"
-    ? MOCK_WEEKLY_DATA.reduce((sum, d) => sum + d.tasks, 0)
-    : MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.tasks, 0);
+  const totalTasks =
+    activePeriod === "week"
+      ? MOCK_WEEKLY_DATA.reduce((sum, d) => sum + d.tasks, 0)
+      : MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.tasks, 0);
 
-  const avgPomodoros = activePeriod === "week"
-    ? (totalPomodoros / 7).toFixed(1)
-    : (totalPomodoros / 4).toFixed(1);
+  const avgPomodoros =
+    activePeriod === "week"
+      ? (totalPomodoros / 7).toFixed(1)
+      : (totalPomodoros / 4).toFixed(1);
 
   const getChartData = () => {
     const data = activePeriod === "week" ? MOCK_WEEKLY_DATA : MOCK_MONTHLY_DATA;
@@ -84,7 +87,7 @@ export default function ReportsView({
 
   const getLabels = () => {
     const data = activePeriod === "week" ? MOCK_WEEKLY_DATA : MOCK_MONTHLY_DATA;
-    return data.map((d) => activePeriod === "week" ? d.day : d.week);
+    return data.map((d) => (activePeriod === "week" ? d.day : d.week));
   };
 
   const handleGenerate = async () => {
@@ -101,20 +104,14 @@ export default function ReportsView({
   };
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View
-        style={[styles.header, { borderBottomColor: colors.border }]}
-      >
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <View>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             Reports
           </Text>
-          <Text
-            style={[styles.headerSubtitle, { color: colors.textMuted }]}
-          >
+          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
             {activePeriod === "week"
               ? "Productividad semanal"
               : "Productividad mensual"}
@@ -123,13 +120,14 @@ export default function ReportsView({
         <View style={styles.headerActions}>
           {onRefresh && (
             <TouchableOpacity
-              style={[
-                styles.headerButton,
-                { backgroundColor: colors.surface },
-              ]}
+              style={[styles.headerButton, { backgroundColor: colors.surface }]}
               onPress={onRefresh}
             >
-              <Feather name="refresh-cw" size={18} color={colors.textSecondary} />
+              <Feather
+                name="refresh-cw"
+                size={18}
+                color={colors.textSecondary}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -150,9 +148,7 @@ export default function ReportsView({
                     ? colors.primary + "15"
                     : "transparent",
                 borderColor:
-                  activePeriod === period.key
-                    ? colors.primary
-                    : "transparent",
+                  activePeriod === period.key ? colors.primary : "transparent",
               },
             ]}
             onPress={() => setActivePeriod(period.key as "week" | "month")}
@@ -165,8 +161,7 @@ export default function ReportsView({
                     activePeriod === period.key
                       ? colors.primary
                       : colors.textSecondary,
-                  fontWeight:
-                    activePeriod === period.key ? "700" : "500",
+                  fontWeight: activePeriod === period.key ? "700" : "500",
                 },
               ]}
             >
@@ -188,14 +183,10 @@ export default function ReportsView({
           >
             <Feather name="clock" size={24} color={colors.primary} />
             <View style={styles.summaryContent}>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textMuted }]}
-              >
+              <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>
                 Total Pomodoros
               </Text>
-              <Text
-                style={[styles.summaryValue, { color: colors.text }]}
-              >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {totalPomodoros}
               </Text>
             </View>
@@ -206,14 +197,10 @@ export default function ReportsView({
           >
             <Feather name="check-square" size={24} color="#10B981" />
             <View style={styles.summaryContent}>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textMuted }]}
-              >
+              <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>
                 Tareas Completadas
               </Text>
-              <Text
-                style={[styles.summaryValue, { color: colors.text }]}
-              >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {totalTasks}
               </Text>
             </View>
@@ -224,14 +211,10 @@ export default function ReportsView({
           >
             <Feather name="bar-chart-2" size={24} color="#F59E0B" />
             <View style={styles.summaryContent}>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textMuted }]}
-              >
+              <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>
                 Promedio/Día
               </Text>
-              <Text
-                style={[styles.summaryValue, { color: colors.text }]}
-              >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {avgPomodoros}
               </Text>
             </View>
@@ -242,14 +225,10 @@ export default function ReportsView({
           >
             <Feather name="target" size={24} color="#3B82F6" />
             <View style={styles.summaryContent}>
-              <Text
-                style={[styles.summaryLabel, { color: colors.textMuted }]}
-              >
+              <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>
                 Meta Diaria
               </Text>
-              <Text
-                style={[styles.summaryValue, { color: colors.text }]}
-              >
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {activePeriod === "week" ? "4" : "28"}
               </Text>
             </View>
@@ -278,10 +257,7 @@ export default function ReportsView({
                 return (
                   <View key={index} style={styles.barGroup}>
                     <Text
-                      style={[
-                        styles.barLabel,
-                        { color: colors.textMuted },
-                      ]}
+                      style={[styles.barLabel, { color: colors.textMuted }]}
                     >
                       {getLabels()[index]}
                     </Text>
@@ -295,12 +271,7 @@ export default function ReportsView({
                           },
                         ]}
                       />
-                      <Text
-                        style={[
-                          styles.barValue,
-                          { color: colors.text },
-                        ]}
-                      >
+                      <Text style={[styles.barValue, { color: colors.text }]}>
                         {value}
                       </Text>
                     </View>
@@ -313,7 +284,10 @@ export default function ReportsView({
 
         {/* Insights */}
         <View
-          style={[styles.insightsContainer, { backgroundColor: colors.surface }]}
+          style={[
+            styles.insightsContainer,
+            { backgroundColor: colors.surface },
+          ]}
         >
           <Text style={[styles.insightsTitle, { color: colors.text }]}>
             Insights
@@ -357,9 +331,7 @@ export default function ReportsView({
           ) : (
             <>
               <Feather name="file-text" size={20} color="#FFFFFF" />
-              <Text style={styles.generateButtonText}>
-                Generar Reporte
-              </Text>
+              <Text style={styles.generateButtonText}>Generar Reporte</Text>
             </>
           )}
         </TouchableOpacity>
