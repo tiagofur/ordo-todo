@@ -2,7 +2,7 @@
 
 **Fecha:** 31 Diciembre 2025
 **Estado Web:** 90% (Producción)
-**Estado Mobile:** 88% (En desarrollo)
+**Estado Mobile:** 95% (En desarrollo)
 
 ---
 
