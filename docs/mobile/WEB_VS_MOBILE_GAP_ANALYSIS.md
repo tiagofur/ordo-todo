@@ -11,12 +11,12 @@
 | Categoría             | Web     | Mobile  | Gap     |
 | --------------------- | ------- | ------- | ------- |
 | Core CRUD             | ✅ 100% | 🟡 90%  | 10%     |
-| Task Management       | ✅ 100% | 🟡 90%  | 10%     |
+| Task Management       | ✅ 100% | 🟡 95%  | 5%      |
 | Productivity Features | ✅ 100% | 🟡 85%  | 15%     |
 | Analytics             | ✅ 90%  | 🟡 70%  | 20%     |
 | Collaboration         | ✅ 90%  | 🟡 60%  | 30%     |
 | AI Features           | ✅ 80%  | 🟡 60%  | 20%     |
-| **Promedio**          | **93%** | **76%** | **17%** |
+| **Promedio**          | **93%** | **78%** | **15%** |
 
 ---
 
@@ -47,9 +47,9 @@
 | Due Dates                              | ✅  | ✅     | -         | Completado                          |
 | Time Blocking                          | ✅  | ❌     | Alta      | Faltan en mobile                    |
 | Task Filtering                         | ✅  | 🟡     | Media     | Mobile tiene filtros básicos        |
-| Task Search                            | ✅  | ❌     | Media     | Faltan en mobile                    |
+| Task Search                            | ✅  | ✅     | -         | Completado                          |
 | Batch Operations                       | ✅  | ❌     | Baja      | Faltan en mobile                    |
-| **Task Trash**                         | ✅  | ❌     | Media     | Faltan en mobile                    |
+| **Task Trash**                         | ✅  | ✅     | -         | Completado (UI solamente)           |
 | **Tasks by Period** (Today/Week/Month) | ✅  | ✅     | -         | Completado                          |
 | **Export JSON/CSV**                    | ✅  | ❌     | Baja      | Faltan en mobile                    |
 
