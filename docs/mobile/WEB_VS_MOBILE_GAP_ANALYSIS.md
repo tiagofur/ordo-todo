@@ -2,7 +2,7 @@
 
 **Fecha:** 31 Diciembre 2025
 **Estado Web:** 90% (Producción)
-**Estado Mobile:** 70% (En desarrollo)
+**Estado Mobile:** 78% (En desarrollo)
 
 ---
 
@@ -10,13 +10,13 @@
 
 | Categoría             | Web     | Mobile  | Gap     |
 | --------------------- | ------- | ------- | ------- |
-| Core CRUD             | ✅ 100% | 🟡 85%  | 15%     |
-| Task Management       | ✅ 100% | 🟡 80%  | 20%     |
-| Productivity Features | ✅ 100% | 🟡 80%  | 20%     |
+| Core CRUD             | ✅ 100% | 🟡 90%  | 10%     |
+| Task Management       | ✅ 100% | 🟡 90%  | 10%     |
+| Productivity Features | ✅ 100% | 🟡 85%  | 15%     |
 | Analytics             | ✅ 90%  | 🟡 70%  | 20%     |
-| Collaboration         | ✅ 90%  | 🟡 55%  | 35%     |
+| Collaboration         | ✅ 90%  | 🟡 60%  | 30%     |
 | AI Features           | ✅ 80%  | 🟡 60%  | 20%     |
-| **Promedio**          | **93%** | **72%** | **21%** |
+| **Promedio**          | **93%** | **76%** | **17%** |
 
 ---
 
@@ -41,8 +41,8 @@
 | Task Delete                            | ✅  | ✅     | -         | Completado                          |
 | Task Detail View                       | ✅  | 🟡     | Media     | Mobile tiene pantalla básica        |
 | Subtasks                               | ✅  | ✅     | -         | Completado                          |
-| Task Dependencies                      | ✅  | ❌     | Media     | Faltan en mobile                    |
-| Recurring Tasks                        | ✅  | ❌     | Alta      | Faltan en mobile                    |
+| Task Dependencies                      | ✅  | ✅     | -         | Completado (UI solamente)           |
+| Recurring Tasks                        | ✅  | ✅     | -         | Completado                          |
 | Task Priority                          | ✅  | ✅     | -         | Completado                          |
 | Due Dates                              | ✅  | ✅     | -         | Completado                          |
 | Time Blocking                          | ✅  | ❌     | Alta      | Faltan en mobile                    |
@@ -126,11 +126,11 @@
 
 ### 10. Notifications
 
-| Feature                         | Web | Mobile | Prioridad | Notas                    |
-| ------------------------------- | --- | ------ | --------- | ------------------------ |
-| In-app Notifications            | ✅  | ✅     | -         | Completado               |
-| **Push Notifications** (Native) | 🟡  | ❌     | Alta      | Web tiene, mobile faltan |
-| Notification Settings           | ✅  | ❌     | Media     | Faltan en mobile         |
+| Feature                         | Web | Mobile | Prioridad | Notas                                 |
+| ------------------------------- | --- | ------ | --------- | ------------------------------------- |
+| In-app Notifications            | ✅  | ✅     | -         | Completado                            |
+| **Push Notifications** (Native) | 🟡  | ✅     | -         | Completado (requiere EXPO_PROJECT_ID) |
+| Notification Settings           | ✅  | ❌     | Media     | Faltan en mobile                      |
 
 ### 11. Offline & Sync
 

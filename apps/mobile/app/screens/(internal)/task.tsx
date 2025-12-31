@@ -29,6 +29,14 @@ import {
   CustomFieldInputs,
 } from "../../components/task/custom-field-inputs";
 import { SubtaskSection } from "./subtask-section";
+import {
+  RecurrenceSelector,
+  type RecurrenceValue,
+} from "../../components/task/recurrence-selector";
+import {
+  TaskDependencySelector,
+  type TaskDependency,
+} from "../../components/task/task-dependency-selector";
 
 const PRIORITIES = [
   { value: "LOW", label: "Baja", color: "#48BB78" },
@@ -62,7 +70,19 @@ export default function TaskScreen() {
   const [scheduledTime, setScheduledTime] = useState<string>("");
   const [scheduledEndTime, setScheduledEndTime] = useState<string>("");
   const [isTimeBlocked, setIsTimeBlocked] = useState(false);
+  const [recurrence, setRecurrence] = useState<RecurrenceValue | undefined>(
+    undefined,
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dependencies, setDependencies] = useState<TaskDependency[]>([]);
+
+  const handleAddDependency = (dependency: TaskDependency) => {
+    setDependencies([...dependencies, dependency]);
+  };
+
+  const handleRemoveDependency = (dependsOnId: string) => {
+    setDependencies(dependencies.filter((d) => d.dependsOnId !== dependsOnId));
+  };
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [activeTimeField, setActiveTimeField] = useState<"start" | "end">(
     "start",
@@ -532,6 +552,22 @@ export default function TaskScreen() {
 
         {/* Subtasks - Only show when editing an existing task */}
         {isEditing && taskId && <SubtaskSection taskId={taskId} />}
+
+        {/* Recurrence - Only show when creating a new task */}
+        {!isEditing && (
+          <RecurrenceSelector value={recurrence} onChange={setRecurrence} />
+        )}
+
+        {/* Dependencies - Only show when creating a new task */}
+        {!isEditing && (
+          <TaskDependencySelector
+            projectId={existingTask?.projectId || ""}
+            selectedDependencies={dependencies}
+            onAddDependency={handleAddDependency}
+            onRemoveDependency={handleRemoveDependency}
+            excludeTaskId={taskId}
+          />
+        )}
 
         <View style={styles.footer}>
           <CustomButton
