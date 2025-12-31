@@ -550,6 +550,43 @@ class OrdoApiClient {
      */
     async updateTask(taskId, data) {
         const response = await this.axios.put(`/tasks/${taskId}`, data);
+        /**
+         * Get today's tasks (overdue, dueToday, scheduledToday, available)
+         */
+        async;
+        getTodayTasks();
+        Promise < types_1.TodayTasksResponse > {
+            const: response = await this.axios.get('/tasks/today'),
+            return: response.data
+        };
+        /**
+         * Get available tasks (can be started today)
+         */
+        async;
+        getAvailableTasks(projectId ?  : string);
+        Promise < types_1.Task[] > {
+            const: params = projectId ? `?projectId=${projectId}` : '',
+            const: response = await this.axios.get(`/tasks/available${params}`),
+            return: response.data
+        };
+        /**
+         * Get scheduled tasks for a specific date
+         */
+        async;
+        getScheduledTasks(date, string);
+        Promise < types_1.Task[] > {
+            const: response = await this.axios.get(`/tasks/scheduled?date=${date}`),
+            return: response.data
+        };
+        /**
+         * Get time-blocked tasks within a date range
+         */
+        async;
+        getTimeBlocks(start, string, end, string);
+        Promise < types_1.Task[] > {
+            const: response = await this.axios.get(`/tasks/time-blocks?start=${start}&end=${end}`),
+            return: response.data
+        };
         return response.data;
     }
     /**

@@ -246,7 +246,15 @@
       "anytime": "Qualquer hora"
     },
     "daysOfWeek": {
-      "short": ["D", "S", "T", "Q", "Q", "S", "S"],
+      "short": [
+        "D",
+        "S",
+        "T",
+        "Q",
+        "Q",
+        "S",
+        "S"
+      ],
       "long": [
         "Domingo",
         "Segunda",
@@ -430,7 +438,11 @@
       "dueDate": "Data de Vencimento",
       "estimatedMinutes": "Minutos Estimados (min)",
       "description": "Descrição",
-      "descriptionPlaceholder": "Detalhes adicionais da tarefa..."
+      "descriptionPlaceholder": "Detalhes adicionais da tarefa...",
+      "assignee": "Atribuir a",
+      "selectAssignee": "Selecionar membro (opcional)",
+      "workspaceMembers": "Membros do workspace",
+      "assignToMe": "Atribuir a mim (padrão)"
     },
     "priorities": {
       "low": "Baixa",
@@ -511,7 +523,6 @@
       "create": "Criar Espaço de Trabalho"
     }
   },
-
   "SubtaskList": {
     "title": "Subtarefas",
     "empty": "Sem subtarefas. Adicione uma para dividir esta tarefa.",
@@ -814,7 +825,8 @@
       "uncompleted": "Projeto marcado como incompleto",
       "completeError": "Erro ao concluir projeto",
       "deleted": "Projeto excluído"
-    }
+    },
+    "backToWorkspace": "Voltar ao workspace"
   },
   "WorkspaceCard": {
     "types": {
@@ -964,7 +976,12 @@
       "admin": "Administrador",
       "member": "Membro",
       "viewer": "Visualizador"
-    }
+    },
+    "memberRemoved": "Membro removido",
+    "errorRemoving": "Erro ao remover membro",
+    "noMembers": "Nenhum membro",
+    "removeSuccess": "Membro removido com sucesso",
+    "removeError": "Erro ao remover membro"
   },
   "AcceptInvitationPage": {
     "title": "Aceitar Convite",
@@ -1132,7 +1149,10 @@
       "startDate": "Data de Início",
       "scheduledDate": "Agendado",
       "estimation": "Tempo Estimado (min)",
-      "linkToGoal": "Vincular à Meta"
+      "linkToGoal": "Vincular à Meta",
+      "addAnotherGoal": "Adicionar outro objetivo",
+      "selectGoal": "Selecionar Resultado Chave",
+      "noActiveObjectives": "Nenhum objetivo ativo"
     },
     "tabs": {
       "subtasks": "Subtarefas",
@@ -1485,9 +1505,9 @@
       "projects": "Projetos",
       "tasks": "Tarefas",
       "members": "Membros"
-    }
+    },
+    "deleteError": "Erro ao excluir widget do painel"
   },
-
   "WorkspaceActivityLog": {
     "empty": {
       "title": "Sem atividade ainda",
@@ -1911,6 +1931,36 @@
         "NUMBER": "Número",
         "CURRENCY": "Moeda",
         "BOOLEAN": "Verdadeiro/Falso"
+      },
+      "subtitle": "Defina métricas para medir seu progresso",
+      "addFirst": "Adicionar primeiro resultado chave",
+      "empty": "Nenhum resultado chave. Adicione um para começar a medir seu progresso.",
+      "createTitle": "Adicionar Resultado Chave",
+      "createDescription": "Defina um resultado mensurável para seu objetivo",
+      "confirmDelete": "Excluir este resultado chave?",
+      "deleted": "Resultado chave excluído",
+      "form": {
+        "title": "Título",
+        "titlePlaceholder": "Ex: Aumentar vendas mensais",
+        "description": "Descrição",
+        "descriptionPlaceholder": "Descreva como você medirá o progresso...",
+        "metricType": "Tipo de métrica",
+        "startValue": "Valor inicial",
+        "targetValue": "Valor alvo",
+        "unit": "Unidade",
+        "unitPlaceholder": "Ex: vendas, usuários, horas"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "create": "Criar",
+        "creating": "Criando..."
+      },
+      "validation": {
+        "titleRequired": "O título é obrigatório"
+      },
+      "toast": {
+        "created": "Resultado chave criado",
+        "error": "Erro ao criar resultado chave"
       }
     },
     "stats": {
@@ -1931,7 +1981,9 @@
     "progress": "Progresso",
     "dueDate": "Data limite",
     "okrsAtRisk": "OKRs em Risco",
-    "left": "restantes"
+    "left": "restantes",
+    "notFound": "Objetivo não encontrado",
+    "edit": "Editar"
   },
   "CustomFields": {
     "title": "Campos Personalizados",

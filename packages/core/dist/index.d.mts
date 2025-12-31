@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-interface ValueObject<T, V = any> {
+interface ValueObject<T, V = unknown> {
     value: V;
     equals(other: T): boolean;
     toString(): string;
@@ -49,8 +49,13 @@ declare class PersonName implements ValueObject<PersonName, string> {
     toFormattedString(): string;
 }
 
+interface LoggedUser {
+    id: string;
+    email: string;
+    role: string;
+}
 interface UseCase<IN, OUT> {
-    execute(data: IN, loggedUser?: any): Promise<OUT>;
+    execute(data: IN, loggedUser?: LoggedUser): Promise<OUT>;
 }
 
 declare class Id implements ValueObject<Id, string> {
@@ -1927,6 +1932,9 @@ interface UserRepository {
     findByEmail(email: string, withPassword?: boolean): Promise<User | null>;
     findByUsername(username: string): Promise<User | null>;
     findById(id: string): Promise<User | null>;
+    findByProvider(provider: string, providerId: string): Promise<User | null>;
+    linkOAuthAccount(userId: string, provider: string, providerId: string): Promise<User>;
+    create(props: any): Promise<User>;
 }
 
 interface CryptoProvider {
@@ -1937,7 +1945,7 @@ interface CryptoProvider {
 declare class ChangeUserName implements UseCase<string, void> {
     private readonly repo;
     constructor(repo: UserRepository);
-    execute(newName: string, loggedUser: User): Promise<void>;
+    execute(newName: string, loggedUser?: LoggedUser): Promise<void>;
 }
 
 type Input$1 = {
@@ -1970,6 +1978,18 @@ declare class UserLogin implements UseCase<Input, User> {
     execute(input: Input): Promise<User>;
 }
 
+interface TagProps extends EntityProps {
+    name: string;
+    color: string;
+    workspaceId?: string;
+    createdAt?: Date;
+}
+declare class Tag extends Entity<TagProps> {
+    constructor(props: TagProps);
+    static create(props: Omit<TagProps, "id" | "createdAt">): Tag;
+    update(props: Partial<Omit<TagProps, "id" | "workspaceId" | "createdAt">>): Tag;
+}
+
 type TaskStatus = "TODO" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 interface TaskProps extends EntityProps {
@@ -1990,7 +2010,7 @@ interface TaskProps extends EntityProps {
     parentTaskId?: string;
     subTasks?: Task[];
     estimatedTime?: number;
-    tags?: any[];
+    tags?: TagProps[];
     project?: {
         id: string;
         name: string;
@@ -2104,7 +2124,7 @@ declare class PermanentDeleteTaskUseCase {
 declare class GetDeletedTasksUseCase {
     private taskRepository;
     constructor(taskRepository: TaskRepository);
-    execute(projectId: string): Promise<any[]>;
+    execute(projectId: string): Promise<Task[]>;
 }
 
 type WorkspaceType = "PERSONAL" | "WORK" | "TEAM";
@@ -2493,7 +2513,7 @@ declare class PermanentDeleteProjectUseCase {
 declare class GetDeletedProjectsUseCase {
     private projectRepository;
     constructor(projectRepository: ProjectRepository);
-    execute(workspaceId: string): Promise<any[]>;
+    execute(workspaceId: string): Promise<Project[]>;
 }
 
 interface WorkflowProps extends EntityProps {
@@ -2557,18 +2577,6 @@ declare class DeleteWorkflowUseCase implements UseCase<string, void> {
     private readonly workflowRepository;
     constructor(workflowRepository: WorkflowRepository);
     execute(id: string): Promise<void>;
-}
-
-interface TagProps extends EntityProps {
-    name: string;
-    color: string;
-    workspaceId?: string;
-    createdAt?: Date;
-}
-declare class Tag extends Entity<TagProps> {
-    constructor(props: TagProps);
-    static create(props: Omit<TagProps, "id" | "createdAt">): Tag;
-    update(props: Partial<Omit<TagProps, "id" | "workspaceId" | "createdAt">>): Tag;
 }
 
 interface TagRepository {
@@ -3073,13 +3081,42 @@ interface WeeklyReportData {
     patterns: string[];
     productivityScore: number;
 }
+interface WeeklyReportContext {
+    userId: string;
+    scope: string;
+    metricsSnapshot: {
+        tasksCreated: number;
+        tasksCompleted: number;
+        minutesWorked: number;
+        pomodorosCompleted: number;
+        focusScore: number;
+        sessionsCount: number;
+    };
+    sessions: Array<{
+        startedAt: Date;
+        endedAt?: Date;
+        duration?: number;
+        taskId?: string;
+        userId: string;
+        type: string;
+        wasCompleted: boolean;
+    }>;
+    profile?: {
+        userId: string;
+        peakHours: Record<number, number>;
+        peakDays: Record<number, number>;
+        avgTaskDuration: number;
+        completionRate: number;
+        categoryPreferences: Record<string, number>;
+    };
+}
 declare class GenerateWeeklyReportUseCase implements UseCase<GenerateWeeklyReportInput, GenerateWeeklyReportOutput> {
     private readonly reportRepository;
     private readonly analyticsRepository;
     private readonly timerRepository;
     private readonly aiProfileRepository;
     private readonly generateReportData;
-    constructor(reportRepository: ProductivityReportRepository, analyticsRepository: AnalyticsRepository, timerRepository: TimerRepository, aiProfileRepository: AIProfileRepository, generateReportData: (context: any) => Promise<WeeklyReportData>);
+    constructor(reportRepository: ProductivityReportRepository, analyticsRepository: AnalyticsRepository, timerRepository: TimerRepository, aiProfileRepository: AIProfileRepository, generateReportData: (context: WeeklyReportContext) => Promise<WeeklyReportData>);
     execute(input: GenerateWeeklyReportInput): Promise<GenerateWeeklyReportOutput>;
     /**
      * Get the start of the week (Monday) for a given date
@@ -3091,6 +3128,17 @@ declare class GenerateWeeklyReportUseCase implements UseCase<GenerateWeeklyRepor
     private isSameWeek;
 }
 
+interface AIChatContext {
+    userId?: string;
+    workspaceId?: string;
+    projectId?: string;
+    taskId?: string;
+    conversationHistory?: Array<{
+        role: "user" | "assistant";
+        content: string;
+        timestamp: Date;
+    }>;
+}
 interface AIService {
     suggestTaskDetails(input: string): Promise<{
         title: string;
@@ -3098,7 +3146,7 @@ interface AIService {
         dueDate?: Date;
         priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
     }>;
-    chat(message: string, context?: any): Promise<string>;
+    chat(message: string, context?: AIChatContext): Promise<string>;
 }
 declare class MockAIService implements AIService {
     suggestTaskDetails(input: string): Promise<{
@@ -3107,7 +3155,7 @@ declare class MockAIService implements AIService {
         priority: "MEDIUM" | "HIGH" | "URGENT";
         dueDate: Date | undefined;
     }>;
-    chat(message: string, context?: any): Promise<string>;
+    chat(message: string, context?: AIChatContext): Promise<string>;
 }
 declare const aiService: MockAIService;
 
@@ -3177,17 +3225,17 @@ declare class Habit extends Entity<HabitProps> {
 }
 
 interface IHabitRepository {
-    findById(id: string): Promise<any>;
-    findByUserId(userId: string): Promise<any[]>;
-    findActiveByUserId(userId: string): Promise<any[]>;
-    findTodayHabits(userId: string): Promise<any[]>;
-    create(habit: any): Promise<any>;
-    update(id: string, data: any): Promise<any>;
+    findById(id: string): Promise<Habit | null>;
+    findByUserId(userId: string): Promise<Habit[]>;
+    findActiveByUserId(userId: string): Promise<Habit[]>;
+    findTodayHabits(userId: string): Promise<Habit[]>;
+    create(habit: Habit): Promise<Habit>;
+    update(id: string, data: Partial<HabitProps>): Promise<Habit>;
     delete(id: string): Promise<void>;
-    createCompletion(habitId: string, data: any): Promise<any>;
+    createCompletion(habitId: string, data: HabitCompletionProps): Promise<Habit>;
     deleteCompletion(habitId: string, date: Date): Promise<void>;
-    getCompletions(habitId: string, startDate: Date, endDate: Date): Promise<any[]>;
-    getCompletionForDate(habitId: string, date: Date): Promise<any | null>;
+    getCompletions(habitId: string, startDate: Date, endDate: Date): Promise<HabitCompletionProps[]>;
+    getCompletionForDate(habitId: string, date: Date): Promise<HabitCompletionProps | null>;
     getStats(habitId: string): Promise<{
         currentStreak: number;
         longestStreak: number;
@@ -3198,4 +3246,4 @@ interface IHabitRepository {
     }>;
 }
 
-export { AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, AddMemberToWorkspaceUseCase, type AnalyticsRepository, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, AssignTagToTaskUseCase, type AssignTags, type AuditAction, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, type CommentBase, type CommentFilter, type CompleteTaskInput, CompleteTaskUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateProjectDTO, CreateProjectUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, FILE_LIMITS, type FocusScoreInput, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IHabitRepository, Id, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, type LearnFromSessionInput, LearnFromSessionUseCase, ListWorkflowsUseCase, type LoginUserDTO, MEMBER_ROLES, type MemberRole, type MemberRoleValue, type MemberWithUser, type MetricsSnapshot, MockAIService, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecurrenceProps, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, type SessionFilters, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRepository, type TaskStatus, type TaskStatusValue, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMemberRole, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UseCase, User, UserByEmail, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberProps, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };
+export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, AddMemberToWorkspaceUseCase, type AnalyticsRepository, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, AssignTagToTaskUseCase, type AssignTags, type AuditAction, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, type CommentBase, type CommentFilter, type CompleteTaskInput, CompleteTaskUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateProjectDTO, CreateProjectUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, FILE_LIMITS, type FocusScoreInput, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IHabitRepository, Id, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, type LearnFromSessionInput, LearnFromSessionUseCase, ListWorkflowsUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MemberRole, type MemberRoleValue, type MemberWithUser, type MetricsSnapshot, MockAIService, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecurrenceProps, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, type SessionFilters, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRepository, type TaskStatus, type TaskStatusValue, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMemberRole, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UseCase, User, UserByEmail, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberProps, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };

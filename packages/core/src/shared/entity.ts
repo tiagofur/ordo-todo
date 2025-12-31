@@ -19,7 +19,7 @@ export abstract class Entity<PROPS extends EntityProps> {
     this.mode = mode;
     this.id = this.props.id!;
 
-    if ((props as any).props) {
+    if ("props" in props) {
       throw new Error("Props should not contain 'props' property");
     }
   }
@@ -49,7 +49,6 @@ export abstract class Entity<PROPS extends EntityProps> {
   }
 
   protected sameId(other: Entity<PROPS>): boolean {
-    const id: any = this.id as any;
     return this.id === other.id;
   }
 
@@ -62,12 +61,16 @@ export abstract class Entity<PROPS extends EntityProps> {
   }
 
   clone(newProps: Partial<PROPS>, newMode: EntityMode = this.mode): this {
-    return new (this.constructor as any)(
+    const Self = this.constructor as new (
+      props: Readonly<PROPS>,
+      mode: EntityMode,
+    ) => this;
+    return new Self(
       {
         ...this.props,
         ...newProps,
       },
-      newMode
+      newMode,
     );
   }
 }

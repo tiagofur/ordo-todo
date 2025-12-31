@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   Inject,
   ConflictException,
+  forwardRef,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +12,8 @@ import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { OAuthDto } from './dto/oauth.dto';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +23,8 @@ export class AuthService {
     private readonly cryptoProvider: BcryptCryptoProvider,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => WorkspacesService))
+    private readonly workspacesService: WorkspacesService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -226,5 +231,91 @@ export class AuthService {
     }
 
     return { available: true, message: 'Username is available' };
+  }
+
+  /**
+   * OAuth login handler
+   * Creates or finds user by OAuth provider and returns tokens
+   */
+  async oauthLogin(oauthDto: OAuthDto): Promise<AuthResponseDto> {
+    const { provider, providerId, email, name, avatar } = oauthDto;
+
+    // Try to find user by OAuth provider and providerId
+    let user = await this.userRepository.findByProvider(provider, providerId);
+
+    if (!user) {
+      // Check if user exists by email
+      const existingUser = await this.userRepository.findByEmail(email, false);
+
+      if (existingUser) {
+        // Link OAuth account to existing user
+        user = await this.userRepository.linkOAuthAccount(
+          existingUser.id,
+          provider,
+          providerId,
+        );
+      } else {
+        // Create new user with OAuth
+        // Generate a random username based on email
+        const baseUsername = email.split('@')[0].replace(/[^a-z0-9]/g, '');
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const username = `${baseUsername}${randomSuffix}`;
+
+        // Create user without password (OAuth users don't need password)
+        user = await this.userRepository.create({
+          name,
+          email,
+          username,
+          avatar,
+          provider,
+          providerId,
+        });
+
+        // Create default workspace for new user
+        try {
+          await this.workspacesService.create(
+            {
+              name: 'My Workspace',
+              slug: 'my-workspace',
+              description: 'Your personal workspace',
+              color: '#2563EB',
+              type: 'PERSONAL',
+            },
+            user.id,
+          );
+        } catch (error) {
+          console.error(
+            'Failed to create default workspace for OAuth user:',
+            error,
+          );
+        }
+      }
+    }
+
+    // Generate JWT tokens
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: this.configService.get<string>(
+        'JWT_REFRESH_EXPIRATION',
+      )! as any,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email || '',
+        username: user.username,
+        name: user.name || '',
+      },
+    };
   }
 }

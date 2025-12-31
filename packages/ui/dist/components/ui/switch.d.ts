@@ -1,5 +1,5 @@
 import * as React from "react";
-export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
     checked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
 }

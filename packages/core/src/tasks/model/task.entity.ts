@@ -1,4 +1,5 @@
 import { Entity, EntityProps } from "../../shared/entity";
+import type { TagProps } from "../../tags/model/tag.entity";
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
@@ -21,7 +22,7 @@ export interface TaskProps extends EntityProps {
   parentTaskId?: string;
   subTasks?: Task[];
   estimatedTime?: number;
-  tags?: any[]; // Using any[] to avoid circular dependency for now, or import Tag
+  tags?: TagProps[];
   project?: { id: string; name: string; color: string }; // Project information for display
   assignee?: { id: string; name: string; image?: string }; // Assignee information for display
   owner?: { id: string; name: string; image?: string }; // Owner information for display
@@ -54,7 +55,10 @@ export class Task extends Entity<TaskProps> {
   }
 
   static create(
-    props: Omit<TaskProps, "id" | "createdAt" | "updatedAt" | "status" | "isDeleted" | "deletedAt">,
+    props: Omit<
+      TaskProps,
+      "id" | "createdAt" | "updatedAt" | "status" | "isDeleted" | "deletedAt"
+    >,
   ): Task {
     return new Task({
       ...props,

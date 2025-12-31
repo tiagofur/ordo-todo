@@ -1,8 +1,8 @@
 # 📦 Ordo-Todo Packages - Auditoría Completa
 
-> **Última auditoría:** 31 de Diciembre 2025
-> **Score Global:** 61/100 ⚠️ **REQUIERE MEJORAS SIGNIFICATIVAS**
-> **Leer primero:** [RESUMEN-EJECUTIVO.md](./RESUMEN-EJECUTIVO.md) | [PLAN-ACCION.md](./PLAN-ACCION.md)
+> **Última actualización:** 31 Diciembre 2025
+> **Score Global:** 65/100 🟡 **EN MEJORA**
+> **Leer primero:** [RESUMEN-EJECUTIVO.md](./RESUMEN-EJECUTIVO.md) | [ROADMAP.md](./ROADMAP.md) | [VIOLACIONES-POR-PAQUETE/](./VIOLACIONES-POR-PAQUETE/)
 
 ## 📊 Puntuaciones por Paquete
 
@@ -15,7 +15,7 @@
 | packages/i18n              | 72/100 | 🟡 BUENO   | Media     |
 | packages/db                | 62/100 | 🟠 REGULAR | Alta      |
 | packages/hooks             | 62/100 | 🟠 REGULAR | Alta      |
-| packages/core              | 65/100 | 🟠 REGULAR | Alta      |
+| packages/core              | 70/100 | 🟠 REGULAR | Alta      |
 | packages/stores            | 58/100 | 🟠 REGULAR | Alta      |
 | packages/styles            | 58/100 | 🔴 CRÍTICO | CRÍTICA   |
 | packages/ui                | 42/100 | 🔴 CRÍTICO | CRÍTICA   |
@@ -46,13 +46,31 @@ docs/packages/
 
 ## 🎯 Plan de Acción Rápido
 
+### Cambios Recientes (Diciembre 2025) ✅
+
+1. **OAuth Implementation** - Backend + Mobile
+   - Google OAuth Strategy (passport-google-oauth20)
+   - GitHub OAuth Strategy (passport-github2)
+   - Método `oauthLogin()` en AuthService
+   - Métodos OAuth en UserRepository: `findByProvider()`, `linkOAuthAccount()`, `create(props: any)`
+
+2. **Mobile Parity Progress** - 🟡 61% → 65%
+   - Gap Analysis creado: docs/mobile/WEB_VS_MOBILE_GAP_ANALYSIS.md
+   - 60+ features comparados entre Web y Mobile
+   - Tags page implementada en Mobile
+
+3. **Packages Integration** - Sprint 9 Completado ✅
+   - Mobile: Hooks, i18n, stores, styles integrados
+   - Desktop: Shared hooks migrados
+   - Tokens de diseño para React Native
+
 ### Fase 1: CRÍTICO (4-6 semanas) → 75/100
 
 1. **packages/ui** - Refactorización completa (3-4 semanas)
    - Eliminar `'use client'` y hooks de TODOS los componentes
    - Eliminar transparencias y gradientes
 2. **packages/core + api-client** - Eliminar tipos `any` (1 semana)
-   - 14 usos en core, 16 en api-client
+   - 14 usos en core, 16 en api-client (reducido recientemente)
 3. **packages/db** - Agregar índices críticos (2 días)
    - 6 foreign keys sin índices
 
@@ -104,14 +122,15 @@ packages/core/src/
 │   ├── value-object.base.ts
 │   └── types.ts            # Shared types
 │
-├── users/                  # User Domain
-│   ├── model/
-│   │   └── user.entity.ts
-│   ├── provider/
-│   │   └── user.repository.ts
-│   └── usecase/
-│       ├── create-user.usecase.ts
-│       └── update-user.usecase.ts
+ ├── users/                  # User Domain
+ │   ├── model/
+ │   │   └── user.entity.ts
+ │   ├── provider/
+ │   │   └── user.repository.ts
+ │   └── usecase/
+ │       ├── register-user.usecase.ts
+ │       ├── change-user-name.usecase.ts
+ │       └── update-user.usecase.ts
 │
 ├── workspaces/             # Workspace Domain
 │   ├── model/
@@ -150,6 +169,18 @@ const task = Task.create({
 // Validar cambios
 task.updateStatus(TaskStatus.IN_PROGRESS);
 task.complete();
+
+// OAuth (new methods)
+await userRepository.create({
+  name: "John Doe",
+  email: "john@example.com",
+  username: "johndoe",
+  avatar: "https://...",
+  provider: "google",
+  providerId: "123456789",
+});
+
+await userRepository.findByProvider("google", "123456789");
 
 // Para el backend: implementar repository
 class PrismaTaskRepository implements TaskRepository {
@@ -303,6 +334,14 @@ export function useCreateTask() {
     onSuccess: () => queryClient.invalidateQueries(["tasks"]),
   });
 }
+
+// Tags (new in mobile)
+export function useTags(workspaceId: string) {
+  return useQuery({
+    queryKey: ["tags", workspaceId],
+    queryFn: () => apiClient.getTags(workspaceId),
+  });
+}
 ```
 
 ---
@@ -331,6 +370,23 @@ export function useCreateTask() {
 | `shared/`    | 7           | ✅ Completo |
 
 **Total: 91+ componentes**
+
+### Mobile Integration ✅
+
+**Estado:** Componentes UI NO son compatibles con React Native (usan DOM APIs). Para Mobile se usan componentes nativos.
+
+**Patrón para Mobile:**
+
+```typescript
+// apps/mobile/app/screens/(internal)/tags.tsx
+import { useTags, useDeleteTag } from "../../lib/shared-hooks";
+import { Feather } from "@expo/vector-icons";
+
+// Usar shared hooks (data layer) pero componentes RN (presentation layer)
+const { data: tags } = useTags(workspaceId);
+
+// UI components específicos de React Native (no reutilizar de @ordo-todo/ui)
+```
 
 ### Build Status
 
@@ -445,6 +501,37 @@ import {
 ```
 
 > **Estado:** 🟢 Fases 1-4 completadas. Fase 5: Integración completa en apps.
+
+### Mobile Integration ✅
+
+**Apps integradas:**
+
+- ✅ Web - usa @ordo-todo/ui (91+ componentes)
+- ✅ Desktop - usa @ordo-todo/ui (91+ componentes)
+- 🟡 Mobile - usa componentes nativos RN + shared hooks
+
+**Shared Hooks Implementation ✅:**
+
+```typescript
+// packages/hooks/src/hooks.ts - createHooks() factory
+export function createHooks(apiClient: OrdoApiClient, queryClient: QueryClient) {
+  return {
+    useCurrentUser: () => useQuery(...),
+    useLogin: () => useMutation(...),
+    useTags: (workspaceId: string) => useQuery(...),
+    useCreateTag: () => useMutation(...),
+    useDeleteTag: () => useMutation(...),
+    // ... 90+ more hooks
+  };
+}
+```
+
+**Mobile Shared Hooks:**
+
+```typescript
+// apps/mobile/app/lib/shared-hooks.ts
+export const sharedHooks = createHooks(apiClient, queryClient);
+```
 
 ---
 

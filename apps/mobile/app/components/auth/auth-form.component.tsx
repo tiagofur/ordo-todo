@@ -26,11 +26,14 @@ import CustomTextInput from "../shared/text-input.component";
 import PasswordInput from "../shared/password-input.component";
 import CustomButton from "../shared/button.component";
 import UsernameInput from "./username-input.component";
+import OAuthButton from "./oauth-button.component";
 import { apiClient } from "../../lib/api-client";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
+import { useRouter } from "expo-router";
 
 export default function AuthForm() {
   const colors = useThemeColors();
+  const router = useRouter();
   const {
     mode,
     name,
@@ -76,22 +79,42 @@ export default function AuthForm() {
     score += checks.number ? 1 : 0;
     score += checks.special ? 1 : 0;
 
-    if (score <= 2) return { score, label: "Débil", color: colors.error || "#ef4444", checks };
-    if (score <= 3) return { score, label: "Media", color: colors.warning || "#f59e0b", checks };
-    if (score <= 4) return { score, label: "Buena", color: colors.info || "#3b82f6", checks };
-    return { score, label: "Excelente", color: colors.success || "#22c55e", checks };
+    if (score <= 2)
+      return {
+        score,
+        label: "Débil",
+        color: colors.error || "#ef4444",
+        checks,
+      };
+    if (score <= 3)
+      return {
+        score,
+        label: "Media",
+        color: colors.warning || "#f59e0b",
+        checks,
+      };
+    if (score <= 4)
+      return { score, label: "Buena", color: colors.info || "#3b82f6", checks };
+    return {
+      score,
+      label: "Excelente",
+      color: colors.success || "#22c55e",
+      checks,
+    };
   }, [password, colors]);
 
   // Password matching check
-  const passwordsMatch = password && confirmPassword && password === confirmPassword;
-  const passwordsMismatch = password && confirmPassword && password !== confirmPassword;
+  const passwordsMatch =
+    password && confirmPassword && password === confirmPassword;
+  const passwordsMismatch =
+    password && confirmPassword && password !== confirmPassword;
 
   useEffect(() => {
     logoScale.value = withSpring(1, { damping: 12 });
     logoRotate.value = withSequence(
       withTiming(-5, { duration: 300 }),
       withTiming(5, { duration: 300 }),
-      withTiming(0, { duration: 300 })
+      withTiming(0, { duration: 300 }),
     );
   }, []);
 
@@ -134,10 +157,7 @@ export default function AuthForm() {
               </Text>
             </View>
 
-            <Animated.View
-              entering={FadeIn.delay(400)}
-              style={styles.form}
-            >
+            <Animated.View entering={FadeIn.delay(400)} style={styles.form}>
               {mode === "register" && (
                 <>
                   <Animated.View entering={FadeInDown.springify()}>
@@ -147,7 +167,11 @@ export default function AuthForm() {
                       value={name}
                       onChangeText={setName}
                       leftIcon={
-                        <Feather name="user" size={20} color={colors.textMuted} />
+                        <Feather
+                          name="user"
+                          size={20}
+                          color={colors.textMuted}
+                        />
                       }
                     />
                   </Animated.View>
@@ -157,7 +181,9 @@ export default function AuthForm() {
                     onChangeText={setUsername}
                     label="Nome de usuário"
                     placeholder="usuario123"
-                    checkAvailability={(username) => (apiClient as any).checkUsernameAvailability(username)}
+                    checkAvailability={(username) =>
+                      (apiClient as any).checkUsernameAvailability(username)
+                    }
                   />
                 </>
               )}
@@ -182,7 +208,10 @@ export default function AuthForm() {
 
               {/* Password Strength Indicator for Register Mode */}
               {mode === "register" && password && (
-                <Animated.View entering={FadeInDown.springify()} style={styles.passwordStrength}>
+                <Animated.View
+                  entering={FadeInDown.springify()}
+                  style={styles.passwordStrength}
+                >
                   <View style={styles.strengthHeader}>
                     <View style={styles.strengthBarContainer}>
                       <View
@@ -195,16 +224,29 @@ export default function AuthForm() {
                         ]}
                       />
                     </View>
-                    <Text style={[styles.strengthLabel, { color: passwordStrength.color }]}>
+                    <Text
+                      style={[
+                        styles.strengthLabel,
+                        { color: passwordStrength.color },
+                      ]}
+                    >
                       {passwordStrength.label}
                     </Text>
                   </View>
                   <View style={styles.checksContainer}>
                     <View style={styles.checkItem}>
                       <Feather
-                        name={passwordStrength.checks?.length ? "check-circle" : "circle"}
+                        name={
+                          passwordStrength.checks?.length
+                            ? "check-circle"
+                            : "circle"
+                        }
                         size={14}
-                        color={passwordStrength.checks?.length ? colors.success : colors.textMuted}
+                        color={
+                          passwordStrength.checks?.length
+                            ? colors.success
+                            : colors.textMuted
+                        }
                       />
                       <Text
                         style={[
@@ -221,9 +263,17 @@ export default function AuthForm() {
                     </View>
                     <View style={styles.checkItem}>
                       <Feather
-                        name={passwordStrength.checks?.uppercase ? "check-circle" : "circle"}
+                        name={
+                          passwordStrength.checks?.uppercase
+                            ? "check-circle"
+                            : "circle"
+                        }
                         size={14}
-                        color={passwordStrength.checks?.uppercase ? colors.success : colors.textMuted}
+                        color={
+                          passwordStrength.checks?.uppercase
+                            ? colors.success
+                            : colors.textMuted
+                        }
                       />
                       <Text
                         style={[
@@ -240,9 +290,17 @@ export default function AuthForm() {
                     </View>
                     <View style={styles.checkItem}>
                       <Feather
-                        name={passwordStrength.checks?.number ? "check-circle" : "circle"}
+                        name={
+                          passwordStrength.checks?.number
+                            ? "check-circle"
+                            : "circle"
+                        }
                         size={14}
-                        color={passwordStrength.checks?.number ? colors.success : colors.textMuted}
+                        color={
+                          passwordStrength.checks?.number
+                            ? colors.success
+                            : colors.textMuted
+                        }
                       />
                       <Text
                         style={[
@@ -259,9 +317,17 @@ export default function AuthForm() {
                     </View>
                     <View style={styles.checkItem}>
                       <Feather
-                        name={passwordStrength.checks?.special ? "check-circle" : "circle"}
+                        name={
+                          passwordStrength.checks?.special
+                            ? "check-circle"
+                            : "circle"
+                        }
                         size={14}
-                        color={passwordStrength.checks?.special ? colors.success : colors.textMuted}
+                        color={
+                          passwordStrength.checks?.special
+                            ? colors.success
+                            : colors.textMuted
+                        }
                       />
                       <Text
                         style={[
@@ -290,7 +356,12 @@ export default function AuthForm() {
                     onChangeText={setConfirmPassword}
                   />
                   {passwordsMatch && (
-                    <View style={[styles.matchIndicator, { backgroundColor: "#D1FAE5", borderColor: "#22C55E" }]}>
+                    <View
+                      style={[
+                        styles.matchIndicator,
+                        { backgroundColor: "#D1FAE5", borderColor: "#22C55E" },
+                      ]}
+                    >
                       <Feather name="check-circle" size={16} color="#22C55E" />
                       <Text style={[styles.matchText, { color: "#166534" }]}>
                         ¡Perfecto! Las contraseñas coinciden
@@ -298,7 +369,12 @@ export default function AuthForm() {
                     </View>
                   )}
                   {passwordsMismatch && (
-                    <View style={[styles.matchIndicator, { backgroundColor: "#FEE2E2", borderColor: "#FF6B6B" }]}>
+                    <View
+                      style={[
+                        styles.matchIndicator,
+                        { backgroundColor: "#FEE2E2", borderColor: "#FF6B6B" },
+                      ]}
+                    >
                       <Feather name="x-circle" size={16} color="#FF6B6B" />
                       <Text style={[styles.matchText, { color: "#991B1B" }]}>
                         ¡Las contraseñas no coinciden!
@@ -323,29 +399,70 @@ export default function AuthForm() {
 
               <View style={styles.divider}>
                 <View
-                  style={[styles.dividerLine, { backgroundColor: colors.border }]}
+                  style={[
+                    styles.dividerLine,
+                    { backgroundColor: colors.border },
+                  ]}
                 />
                 <Text style={[styles.dividerText, { color: colors.textMuted }]}>
                   OU
                 </Text>
                 <View
-                  style={[styles.dividerLine, { backgroundColor: colors.border }]}
+                  style={[
+                    styles.dividerLine,
+                    { backgroundColor: colors.border },
+                  ]}
                 />
               </View>
 
-              <TouchableOpacity onPress={toggleMode} style={styles.toggleButton}>
-                <Text style={[styles.toggleText, { color: colors.textSecondary }]}>
+              <Animated.View
+                entering={FadeInDown.springify()}
+                style={styles.oauthButtons}
+              >
+                <OAuthButton
+                  provider="google"
+                  onSuccess={() => router.replace("/(tabs)")}
+                  onError={(error) =>
+                    console.error("Google OAuth error:", error)
+                  }
+                />
+                <OAuthButton
+                  provider="github"
+                  onSuccess={() => router.replace("/(tabs)")}
+                  onError={(error) =>
+                    console.error("GitHub OAuth error:", error)
+                  }
+                />
+              </Animated.View>
+
+              <TouchableOpacity
+                onPress={toggleMode}
+                style={styles.toggleButton}
+              >
+                <Text
+                  style={[styles.toggleText, { color: colors.textSecondary }]}
+                >
                   {mode === "login" ? (
                     <>
                       Não tem uma conta?{" "}
-                      <Text style={[styles.toggleTextBold, { color: colors.primary }]}>
+                      <Text
+                        style={[
+                          styles.toggleTextBold,
+                          { color: colors.primary },
+                        ]}
+                      >
                         Cadastre-se
                       </Text>
                     </>
                   ) : (
                     <>
                       Já tem uma conta?{" "}
-                      <Text style={[styles.toggleTextBold, { color: colors.primary }]}>
+                      <Text
+                        style={[
+                          styles.toggleTextBold,
+                          { color: colors.primary },
+                        ]}
+                      >
                         Entrar!
                       </Text>
                     </>
@@ -607,5 +724,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 8,
     paddingHorizontal: 4,
+  },
+  oauthButtons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+    marginTop: 16,
   },
 });

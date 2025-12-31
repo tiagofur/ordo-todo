@@ -1,7 +1,11 @@
-"use client";
-
-import { useState } from "react";
-import { CheckSquare, Flag, Calendar, MoreVertical, Edit, Trash2 } from "lucide-react";
+import {
+  CheckSquare,
+  Flag,
+  Calendar,
+  MoreVertical,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
@@ -34,6 +38,10 @@ interface KanbanTaskCardProps {
   onEditClick?: (taskId: string) => void;
   /** Callback when delete is clicked */
   onDeleteClick?: (taskId: string) => void;
+  /** Callback when detail panel should open/close */
+  onDetailOpenChange?: (taskId: string, open: boolean) => void;
+  /** Whether detail panel is open for this task */
+  isDetailOpen?: boolean;
   /** Labels for i18n */
   labels?: {
     priorityLow?: string;
@@ -51,19 +59,38 @@ export function KanbanTaskCard({
   onTaskClick,
   onEditClick,
   onDeleteClick,
-  labels = {}
+  onDetailOpenChange,
+  isDetailOpen = false,
+  labels = {},
 }: KanbanTaskCardProps) {
-  const [showDetail, setShowDetail] = useState(false);
   const isCompleted = task.status === "COMPLETED";
 
   const priorityConfig = {
-    LOW: { label: labels.priorityLow ?? 'Low', color: "text-gray-500", bg: "bg-gray-500/10" },
-    MEDIUM: { label: labels.priorityMedium ?? 'Medium', color: "text-blue-500", bg: "bg-blue-500/10" },
-    HIGH: { label: labels.priorityHigh ?? 'High', color: "text-orange-500", bg: "bg-orange-500/10" },
-    URGENT: { label: labels.priorityUrgent ?? 'Urgent', color: "text-red-500", bg: "bg-red-500/10" },
+    LOW: {
+      label: labels.priorityLow ?? "Low",
+      color: "text-gray-500",
+      bg: "bg-gray-500/10",
+    },
+    MEDIUM: {
+      label: labels.priorityMedium ?? "Medium",
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+    },
+    HIGH: {
+      label: labels.priorityHigh ?? "High",
+      color: "text-orange-500",
+      bg: "bg-orange-500/10",
+    },
+    URGENT: {
+      label: labels.priorityUrgent ?? "Urgent",
+      color: "text-red-500",
+      bg: "bg-red-500/10",
+    },
   };
 
-  const priority = priorityConfig[task.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
+  const priority =
+    priorityConfig[task.priority as keyof typeof priorityConfig] ||
+    priorityConfig.MEDIUM;
   const accentColor = task.project?.color || "#8b5cf6";
 
   const formatDueDate = (date: Date | string | null | undefined) => {
@@ -72,7 +99,8 @@ export function KanbanTaskCard({
     return format(dateObj, "d MMM", { locale: es });
   };
 
-  const isOverdue = !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+  const isOverdue =
+    !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
 
   return (
     <>
@@ -84,12 +112,13 @@ export function KanbanTaskCard({
         whileHover={{ y: -2, scale: 1.01 }}
         onClick={() => {
           if (onTaskClick) onTaskClick(String(task.id));
-          setShowDetail(true);
+          if (onDetailOpenChange && task.id)
+            onDetailOpenChange(String(task.id), true);
         }}
         className={cn(
           "group relative flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-4 shadow-sm transition-all cursor-pointer",
           "hover:shadow-md hover:border-primary/20",
-          isCompleted && "opacity-60"
+          isCompleted && "opacity-60",
         )}
         style={{
           borderLeftWidth: "3px",
@@ -97,7 +126,12 @@ export function KanbanTaskCard({
         }}
       >
         <div className="flex items-start justify-between gap-2">
-          <h4 className={cn("font-medium text-sm leading-tight line-clamp-2", isCompleted && "line-through text-muted-foreground")}>
+          <h4
+            className={cn(
+              "font-medium text-sm leading-tight line-clamp-2",
+              isCompleted && "line-through text-muted-foreground",
+            )}
+          >
             {task.title}
           </h4>
           <DropdownMenu>
@@ -107,13 +141,16 @@ export function KanbanTaskCard({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                if (onEditClick) onEditClick(String(task.id));
-                setShowDetail(true);
-              }}>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onEditClick) onEditClick(String(task.id));
+                  if (onDetailOpenChange && task.id)
+                    onDetailOpenChange(String(task.id), true);
+                }}
+              >
                 <Edit className="mr-2 h-3.5 w-3.5" />
-                {labels.viewEdit ?? 'View/Edit'}
+                {labels.viewEdit ?? "View/Edit"}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -124,7 +161,7 @@ export function KanbanTaskCard({
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-3.5 w-3.5" />
-                {labels.delete ?? 'Delete'}
+                {labels.delete ?? "Delete"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -137,7 +174,7 @@ export function KanbanTaskCard({
                 key={tag.id}
                 className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
                 style={{
-                  backgroundColor: tag.color + '15',
+                  backgroundColor: tag.color + "15",
                   color: tag.color,
                 }}
               >
@@ -153,13 +190,26 @@ export function KanbanTaskCard({
         )}
 
         <div className="flex items-center justify-between mt-1 pt-2 border-t border-border/30">
-          <div className={cn("flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium", priority.bg, priority.color)}>
+          <div
+            className={cn(
+              "flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium",
+              priority.bg,
+              priority.color,
+            )}
+          >
             <Flag className="h-3 w-3" />
             {priority.label}
           </div>
-          
+
           {task.dueDate && (
-            <div className={cn("flex items-center gap-1 text-[10px]", isOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+            <div
+              className={cn(
+                "flex items-center gap-1 text-[10px]",
+                isOverdue
+                  ? "text-red-500 font-medium"
+                  : "text-muted-foreground",
+              )}
+            >
               <Calendar className="h-3 w-3" />
               {formatDueDate(task.dueDate)}
             </div>
@@ -167,10 +217,14 @@ export function KanbanTaskCard({
         </div>
       </motion.div>
 
-      <TaskDetailPanel 
-        taskId={task.id ? String(task.id) : null} 
-        open={showDetail} 
-        onOpenChange={setShowDetail} 
+      <TaskDetailPanel
+        taskId={task.id ? String(task.id) : null}
+        open={isDetailOpen}
+        onOpenChange={(open) => {
+          if (onDetailOpenChange && task.id) {
+            onDetailOpenChange(String(task.id), open);
+          }
+        }}
       />
     </>
   );

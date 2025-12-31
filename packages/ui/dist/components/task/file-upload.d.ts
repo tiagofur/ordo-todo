@@ -1,4 +1,3 @@
-import { File } from 'lucide-react';
 interface FileUploadProps {
     taskId: string;
     onUpload?: (file: File, onProgress: (progress: number) => void) => Promise<void>;

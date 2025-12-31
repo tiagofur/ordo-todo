@@ -29,18 +29,53 @@ export interface WeeklyReportData {
   productivityScore: number;
 }
 
-export class GenerateWeeklyReportUseCase
-  implements UseCase<GenerateWeeklyReportInput, GenerateWeeklyReportOutput>
-{
+export interface WeeklyReportContext {
+  userId: string;
+  scope: string;
+  metricsSnapshot: {
+    tasksCreated: number;
+    tasksCompleted: number;
+    minutesWorked: number;
+    pomodorosCompleted: number;
+    focusScore: number;
+    sessionsCount: number;
+  };
+  sessions: Array<{
+    startedAt: Date;
+    endedAt?: Date;
+    duration?: number;
+    taskId?: string;
+    userId: string;
+    type: string;
+    wasCompleted: boolean;
+  }>;
+  profile?: {
+    userId: string;
+    peakHours: Record<number, number>;
+    peakDays: Record<number, number>;
+    avgTaskDuration: number;
+    completionRate: number;
+    categoryPreferences: Record<string, number>;
+  };
+}
+
+export class GenerateWeeklyReportUseCase implements UseCase<
+  GenerateWeeklyReportInput,
+  GenerateWeeklyReportOutput
+> {
   constructor(
     private readonly reportRepository: ProductivityReportRepository,
     private readonly analyticsRepository: AnalyticsRepository,
     private readonly timerRepository: TimerRepository,
     private readonly aiProfileRepository: AIProfileRepository,
-    private readonly generateReportData: (context: any) => Promise<WeeklyReportData>
+    private readonly generateReportData: (
+      context: WeeklyReportContext,
+    ) => Promise<WeeklyReportData>,
   ) {}
 
-  async execute(input: GenerateWeeklyReportInput): Promise<GenerateWeeklyReportOutput> {
+  async execute(
+    input: GenerateWeeklyReportInput,
+  ): Promise<GenerateWeeklyReportOutput> {
     const { userId, weekStart } = input;
 
     // Calculate week range
@@ -51,7 +86,7 @@ export class GenerateWeeklyReportUseCase
     // Check if report already exists for this week
     const existing = await this.reportRepository.findLatestByScope(
       userId,
-      "WEEKLY_SCHEDULED"
+      "WEEKLY_SCHEDULED",
     );
 
     if (existing && this.isSameWeek(existing.props.generatedAt!, startDate)) {
@@ -67,17 +102,28 @@ export class GenerateWeeklyReportUseCase
 
     // Calculate metrics snapshot
     const metricsSnapshot = {
-      tasksCreated: dailyMetrics.reduce((sum: number, m: DailyMetrics) => sum + m.props.tasksCreated, 0),
-      tasksCompleted: dailyMetrics.reduce((sum: number, m: DailyMetrics) => sum + m.props.tasksCompleted, 0),
-      minutesWorked: dailyMetrics.reduce((sum: number, m: DailyMetrics) => sum + m.props.minutesWorked, 0),
+      tasksCreated: dailyMetrics.reduce(
+        (sum: number, m: DailyMetrics) => sum + m.props.tasksCreated,
+        0,
+      ),
+      tasksCompleted: dailyMetrics.reduce(
+        (sum: number, m: DailyMetrics) => sum + m.props.tasksCompleted,
+        0,
+      ),
+      minutesWorked: dailyMetrics.reduce(
+        (sum: number, m: DailyMetrics) => sum + m.props.minutesWorked,
+        0,
+      ),
       pomodorosCompleted: dailyMetrics.reduce(
         (sum: number, m: DailyMetrics) => sum + m.props.pomodorosCompleted,
-        0
+        0,
       ),
       focusScore:
         dailyMetrics.length > 0
-          ? dailyMetrics.reduce((sum: number, m: DailyMetrics) => sum + (m.props.focusScore ?? 0), 0) /
-            dailyMetrics.length
+          ? dailyMetrics.reduce(
+              (sum: number, m: DailyMetrics) => sum + (m.props.focusScore ?? 0),
+              0,
+            ) / dailyMetrics.length
           : 0,
       sessionsCount: sessions.length,
     };

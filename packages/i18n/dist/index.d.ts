@@ -449,6 +449,10 @@ export declare const locales: {
                 estimatedMinutes: string;
                 description: string;
                 descriptionPlaceholder: string;
+                assignee: string;
+                selectAssignee: string;
+                workspaceMembers: string;
+                assignToMe: string;
             };
             priorities: {
                 low: string;
@@ -832,6 +836,7 @@ export declare const locales: {
                 completeError: string;
                 deleted: string;
             };
+            backToWorkspace: string;
         };
         WorkspaceCard: {
             types: {
@@ -890,6 +895,7 @@ export declare const locales: {
                 tasks: string;
                 members: string;
             };
+            deleteError: string;
         };
         WorkspaceSelector: {
             create: string;
@@ -1048,6 +1054,11 @@ export declare const locales: {
                 member: string;
                 viewer: string;
             };
+            memberRemoved: string;
+            errorRemoving: string;
+            noMembers: string;
+            removeSuccess: string;
+            removeError: string;
         };
         AcceptInvitationPage: {
             title: string;
@@ -1216,6 +1227,9 @@ export declare const locales: {
                 scheduledDate: string;
                 estimation: string;
                 linkToGoal: string;
+                addAnotherGoal: string;
+                selectGoal: string;
+                noActiveObjectives: string;
             };
             tabs: {
                 subtasks: string;
@@ -1928,6 +1942,36 @@ export declare const locales: {
                     CURRENCY: string;
                     BOOLEAN: string;
                 };
+                subtitle: string;
+                addFirst: string;
+                empty: string;
+                createTitle: string;
+                createDescription: string;
+                confirmDelete: string;
+                deleted: string;
+                form: {
+                    title: string;
+                    titlePlaceholder: string;
+                    description: string;
+                    descriptionPlaceholder: string;
+                    metricType: string;
+                    startValue: string;
+                    targetValue: string;
+                    unit: string;
+                    unitPlaceholder: string;
+                };
+                actions: {
+                    cancel: string;
+                    create: string;
+                    creating: string;
+                };
+                validation: {
+                    titleRequired: string;
+                };
+                toast: {
+                    created: string;
+                    error: string;
+                };
             };
             stats: {
                 totalObjectives: string;
@@ -1948,6 +1992,8 @@ export declare const locales: {
             dueDate: string;
             okrsAtRisk: string;
             left: string;
+            notFound: string;
+            edit: string;
         };
         CustomFields: {
             title: string;
@@ -2721,6 +2767,10 @@ export declare const locales: {
                 estimatedMinutes: string;
                 description: string;
                 descriptionPlaceholder: string;
+                assignee: string;
+                selectAssignee: string;
+                workspaceMembers: string;
+                assignToMe: string;
             };
             priorities: {
                 low: string;
@@ -3104,6 +3154,7 @@ export declare const locales: {
                 completeError: string;
                 deleted: string;
             };
+            backToWorkspace: string;
         };
         WorkspaceCard: {
             types: {
@@ -3180,6 +3231,7 @@ export declare const locales: {
                 tasks: string;
                 members: string;
             };
+            deleteError: string;
         };
         WorkspaceSettingsDialog: {
             title: string;
@@ -3323,6 +3375,8 @@ export declare const locales: {
                 member: string;
                 viewer: string;
             };
+            removeSuccess: string;
+            removeError: string;
         };
         AcceptInvitationPage: {
             title: string;
@@ -5031,6 +5085,10 @@ export declare const locales: {
                 estimatedMinutes: string;
                 description: string;
                 descriptionPlaceholder: string;
+                assignee: string;
+                selectAssignee: string;
+                workspaceMembers: string;
+                assignToMe: string;
             };
             priorities: {
                 low: string;
@@ -5414,6 +5472,7 @@ export declare const locales: {
                 completeError: string;
                 deleted: string;
             };
+            backToWorkspace: string;
         };
         WorkspaceCard: {
             types: {
@@ -5564,6 +5623,11 @@ export declare const locales: {
                 member: string;
                 viewer: string;
             };
+            memberRemoved: string;
+            errorRemoving: string;
+            noMembers: string;
+            removeSuccess: string;
+            removeError: string;
         };
         AcceptInvitationPage: {
             title: string;
@@ -5732,6 +5796,9 @@ export declare const locales: {
                 scheduledDate: string;
                 estimation: string;
                 linkToGoal: string;
+                addAnotherGoal: string;
+                selectGoal: string;
+                noActiveObjectives: string;
             };
             tabs: {
                 subtasks: string;
@@ -6085,6 +6152,7 @@ export declare const locales: {
                 tasks: string;
                 members: string;
             };
+            deleteError: string;
         };
         WorkspaceActivityLog: {
             empty: {
@@ -6510,6 +6578,36 @@ export declare const locales: {
                     CURRENCY: string;
                     BOOLEAN: string;
                 };
+                subtitle: string;
+                addFirst: string;
+                empty: string;
+                createTitle: string;
+                createDescription: string;
+                confirmDelete: string;
+                deleted: string;
+                form: {
+                    title: string;
+                    titlePlaceholder: string;
+                    description: string;
+                    descriptionPlaceholder: string;
+                    metricType: string;
+                    startValue: string;
+                    targetValue: string;
+                    unit: string;
+                    unitPlaceholder: string;
+                };
+                actions: {
+                    cancel: string;
+                    create: string;
+                    creating: string;
+                };
+                validation: {
+                    titleRequired: string;
+                };
+                toast: {
+                    created: string;
+                    error: string;
+                };
             };
             stats: {
                 totalObjectives: string;
@@ -6530,6 +6628,8 @@ export declare const locales: {
             dueDate: string;
             okrsAtRisk: string;
             left: string;
+            notFound: string;
+            edit: string;
         };
         CustomFields: {
             title: string;

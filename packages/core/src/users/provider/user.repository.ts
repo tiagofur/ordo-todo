@@ -6,4 +6,11 @@ export default interface UserRepository {
   findByEmail(email: string, withPassword?: boolean): Promise<User | null>;
   findByUsername(username: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
+  findByProvider(provider: string, providerId: string): Promise<User | null>;
+  linkOAuthAccount(
+    userId: string,
+    provider: string,
+    providerId: string,
+  ): Promise<User>;
+  create(props: any): Promise<User>;
 }

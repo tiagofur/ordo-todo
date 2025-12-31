@@ -16,7 +16,7 @@
     "habits": "Hábitos",
     "calendar": "Calendario",
     "projects": "Proyectos",
-    "workspaces": "Workspaces",
+    "workspaces": "Espacios de Trabajo",
     "workspacesTrash": "Papelera de Workspaces",
     "projectsTrash": "Papelera de Proyectos",
     "tasksTrash": "Papelera de Tareas",
@@ -135,7 +135,7 @@
     "createProject": "Crear Proyecto"
   },
   "Workspaces": {
-    "title": "Workspaces",
+    "title": "Espacios de Trabajo",
     "subtitle": "Organiza tus proyectos y tareas en diferentes espacios de trabajo",
     "newWorkspace": "Nuevo Workspace",
     "noWorkspaces": "No tienes workspaces",
@@ -246,7 +246,15 @@
       "anytime": "Cualquier momento"
     },
     "daysOfWeek": {
-      "short": ["D", "L", "M", "X", "J", "V", "S"],
+      "short": [
+        "D",
+        "L",
+        "M",
+        "X",
+        "J",
+        "V",
+        "S"
+      ],
       "long": [
         "Domingo",
         "Lunes",
@@ -345,10 +353,10 @@
     "streak": "Racha",
     "avgPerDay": "Promedio/día",
     "tabs": {
-      "overview": "Overview",
+      "overview": "Resumen",
       "weekly": "Semanal",
       "focus": "Enfoque",
-      "aiInsights": "AI Insights"
+      "aiInsights": "Análisis IA"
     },
     "focusScore": {
       "label": "Focus Score de Hoy",
@@ -412,7 +420,7 @@
     "ai": {
       "generatedDescription": "Descripción generada automáticamente para: {title}\n\n- Paso 1: Investigar\n- Paso 2: Implementar\n- Paso 3: Probar",
       "generating": "Generando...",
-      "magic": "AI Magic"
+      "magic": "Magia IA"
     },
     "emptyState": {
       "title": "No hay proyectos",
@@ -430,7 +438,11 @@
       "dueDate": "Fecha de vencimiento",
       "estimatedMinutes": "Minutos Estimados (min)",
       "description": "Descripción",
-      "descriptionPlaceholder": "Detalles adicionales de la tarea..."
+      "descriptionPlaceholder": "Detalles adicionales de la tarea...",
+      "assignee": "Asignar a",
+      "selectAssignee": "Seleccionar miembro (opcional)",
+      "workspaceMembers": "Miembros del workspace",
+      "assignToMe": "Asignarme a mí (por defecto)"
     },
     "priorities": {
       "low": "Baja",
@@ -470,7 +482,7 @@
       "color": "Color del Proyecto",
       "name": "Nombre *",
       "namePlaceholder": "Ej: Rediseño Web, Marketing Q4",
-      "workspace": "Workspace *",
+      "workspace": "Espacio de Trabajo *",
       "description": "Descripción",
       "descriptionPlaceholder": "Descripción opcional del proyecto..."
     },
@@ -511,7 +523,6 @@
       "create": "Crear Workspace"
     }
   },
-
   "SubtaskList": {
     "title": "Subtareas",
     "empty": "No hay subtareas. Agrega una para dividir esta tarea.",
@@ -814,7 +825,8 @@
       "uncompleted": "Proyecto marcado como incompleto",
       "completeError": "Error al completar proyecto",
       "deleted": "Proyecto eliminado"
-    }
+    },
+    "backToWorkspace": "Volver al workspace"
   },
   "WorkspaceCard": {
     "types": {
@@ -858,8 +870,8 @@
   },
   "WorkspaceSelector": {
     "create": "Crear Workspace",
-    "label": "Workspaces",
-    "defaultName": "Workspace",
+    "label": "Espacios de Trabajo",
+    "defaultName": "Espacio de Trabajo",
     "search": "Buscar workspaces...",
     "noResults": "No se encontraron workspaces",
     "types": {
@@ -890,7 +902,8 @@
       "projects": "Proyectos",
       "tasks": "Tareas",
       "members": "Miembros"
-    }
+    },
+    "deleteError": "Error al eliminar widget del panel"
   },
   "WorkspaceSettingsDialog": {
     "title": "Configuración del Workspace",
@@ -1033,7 +1046,9 @@
       "admin": "Administrador",
       "member": "Miembro",
       "viewer": "Observador"
-    }
+    },
+    "removeSuccess": "Miembro eliminado exitosamente",
+    "removeError": "Error al eliminar miembro"
   },
   "AcceptInvitationPage": {
     "title": "Aceptar Invitación",
@@ -1310,7 +1325,7 @@
     "notFound": "Tarea no encontrada"
   },
   "AIAssistantSidebar": {
-    "title": "Ordo AI Copilot",
+    "title": "Copiloto Ordo AI",
     "welcome": "¡Hola! Soy Ordo AI. ¿Cómo puedo ayudarte a organizar tu día?",
     "thinking": "Pensando...",
     "placeholder": "Pregunta a la IA...",
@@ -1778,7 +1793,7 @@
     }
   },
   "Timer": {
-    "title": "Timer",
+    "title": "Temporizador",
     "subtitle": "Gestiona tu tiempo con Pomodoro",
     "tabs": {
       "timer": "Timer",
@@ -2024,7 +2039,7 @@
     "removeFromFavorites": "Quitar de favoritos",
     "categories": {
       "nature": "Naturaleza",
-      "cafe": "Café",
+      "cafe": "Cafetería",
       "whiteNoise": "Ruido Blanco",
       "binaural": "Binaural",
       "music": "Música"
@@ -2094,7 +2109,7 @@
     "transcriptPlaceholder": "Pega aquí la transcripción de tu reunión...",
     "summary": "Resumen",
     "keyPoints": "Puntos Clave",
-    "actionItems": "Action Items",
+    "actionItems": "Tareas de Seguimiento",
     "decisions": "Decisiones",
     "participants": "Participantes",
     "topics": "Temas Discutidos",
@@ -2179,7 +2194,7 @@
       "avgHoursPerDay": "Horas/Día Promedio"
     },
     "weeklySummary": "Resumen Semanal",
-    "insights": "Insights",
+    "insights": "Análisis",
     "intervention": {
       "gentleReminder": "Recordatorio Suave",
       "strongWarning": "Advertencia",
@@ -2197,7 +2212,7 @@
       "retry": "Reintentar",
       "noTasks": "No tienes tareas pendientes",
       "noTasksInView": "No hay tareas en esta vista",
-      "okrsGoals": "OKRs & Goals",
+      "okrsGoals": "OKRs y Objetivos",
       "active": "activos"
     },
     "filters": {
@@ -2293,7 +2308,7 @@
       "days": "días"
     },
     "calendar": {
-      "title": "Time Blocking",
+      "title": "Bloqueo de Tiempo",
       "subtitle": "Organiza tu tiempo",
       "noBlocks": "No hay bloques programados",
       "noBlocksHint": "Programa tareas con hora y activa 'Time Block'"

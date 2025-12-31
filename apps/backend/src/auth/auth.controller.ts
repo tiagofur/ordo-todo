@@ -1,15 +1,27 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Public } from '../common/decorators/public.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @ApiBearerAuth()
@@ -170,5 +182,75 @@ export class AuthController {
   })
   async checkUsername(@Body() body: { username: string }) {
     return this.authService.checkUsernameAvailability(body.username);
+  }
+
+  /**
+   * Google OAuth login
+   * Redirects to Google OAuth consent screen
+   */
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({
+    summary: 'Google OAuth login',
+    description: 'Redirects to Google OAuth consent screen',
+  })
+  async googleAuth() {}
+
+  /**
+   * Google OAuth callback
+   * Handles OAuth callback from Google
+   */
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({
+    summary: 'Google OAuth callback',
+    description: 'Handles OAuth callback from Google and returns JWT tokens',
+  })
+  async googleAuthCallback(@Req() req, @Res() res: Response) {
+    const { accessToken, refreshToken, user } = req.user;
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?` +
+        `access_token=${accessToken}&` +
+        `refresh_token=${refreshToken}&` +
+        `user_id=${user.id}`,
+    );
+  }
+
+  /**
+   * GitHub OAuth login
+   * Redirects to GitHub OAuth consent screen
+   */
+  @Public()
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  @ApiOperation({
+    summary: 'GitHub OAuth login',
+    description: 'Redirects to GitHub OAuth consent screen',
+  })
+  async githubAuth() {}
+
+  /**
+   * GitHub OAuth callback
+   * Handles OAuth callback from GitHub
+   */
+  @Public()
+  @Get('github/callback')
+  @UseGuards(AuthGuard('github'))
+  @ApiOperation({
+    summary: 'GitHub OAuth callback',
+    description: 'Handles OAuth callback from GitHub and returns JWT tokens',
+  })
+  async githubAuthCallback(@Req() req, @Res() res: Response) {
+    const { accessToken, refreshToken, user } = req.user;
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?` +
+        `access_token=${accessToken}&` +
+        `refresh_token=${refreshToken}&` +
+        `user_id=${user.id}`,
+    );
   }
 }

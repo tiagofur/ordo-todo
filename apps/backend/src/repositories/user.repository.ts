@@ -95,4 +95,75 @@ export class PrismaUserRepository implements UserRepository {
     if (!user) return null;
     return this.toDomain(user as any);
   }
+
+  async findByProvider(
+    provider: string,
+    providerId: string,
+  ): Promise<User | null> {
+    const account = await this.prisma.account.findUnique({
+      where: {
+        provider_providerAccountId: {
+          provider,
+          providerAccountId: providerId,
+        },
+      },
+      include: {
+        user: {
+          select: this.userSelectFields,
+        },
+      },
+    });
+
+    if (!account || !account.user) return null;
+    return this.toDomain(account.user as any);
+  }
+
+  async linkOAuthAccount(
+    userId: string,
+    provider: string,
+    providerId: string,
+  ): Promise<User> {
+    await this.prisma.account.create({
+      data: {
+        userId,
+        provider,
+        providerAccountId: providerId,
+        type: 'oauth',
+      },
+    });
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: this.userSelectFields,
+    });
+
+    if (!user) throw new Error('User not found');
+    return this.toDomain(user as any);
+  }
+
+  async create(props: any): Promise<User> {
+    const user = await this.prisma.user.create({
+      data: {
+        email: props.email,
+        username: props.username,
+        name: props.name,
+        image: props.avatar || props.image,
+        hashedPassword: props.password,
+      },
+      select: this.userSelectFields,
+    });
+
+    if (props.provider && props.providerId) {
+      await this.prisma.account.create({
+        data: {
+          userId: user.id,
+          provider: props.provider,
+          providerAccountId: props.providerId,
+          type: 'oauth',
+        },
+      });
+    }
+
+    return this.toDomain(user as any);
+  }
 }

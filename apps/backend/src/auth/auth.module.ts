@@ -6,13 +6,17 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { GitHubStrategy } from './strategies/github.strategy';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { RepositoriesModule } from '../repositories/repositories.module';
+import { WorkspacesModule } from '../workspaces/workspaces.module';
 
 @Module({
   imports: [
     PassportModule,
     RepositoriesModule,
+    WorkspacesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -25,7 +29,14 @@ import { RepositoriesModule } from '../repositories/repositories.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, BcryptCryptoProvider],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    LocalStrategy,
+    GoogleStrategy,
+    GitHubStrategy,
+    BcryptCryptoProvider,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

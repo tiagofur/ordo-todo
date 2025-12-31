@@ -50,6 +50,11 @@ function createHooks(config) {
         });
     }
     // ============ USER HOOKS ============
+    /**
+     * Retrieves the currently authenticated user.
+     * Cached with `currentUser` query key.
+     * @returns The current user profile or null if not authenticated.
+     */
     function useCurrentUser() {
         return (0, react_query_1.useQuery)({
             queryKey: query_keys_1.queryKeys.currentUser,
@@ -57,6 +62,10 @@ function createHooks(config) {
             retry: false,
         });
     }
+    /**
+     * Updates the user's profile information.
+     * Invalidates `currentUser` and `userProfile` queries on success.
+     */
     function useUpdateProfile() {
         const queryClient = (0, react_query_1.useQueryClient)();
         return (0, react_query_1.useMutation)({
@@ -113,6 +122,10 @@ function createHooks(config) {
         });
     }
     // ============ WORKSPACE HOOKS ============
+    /**
+     * Retrieves all workspaces the user is a member of.
+     * @returns A list of workspaces.
+     */
     function useWorkspaces() {
         return (0, react_query_1.useQuery)({
             queryKey: query_keys_1.queryKeys.workspaces,

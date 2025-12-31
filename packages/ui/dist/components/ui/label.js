@@ -1,4 +1,3 @@
-"use client";
 import { jsx as _jsx } from "react/jsx-runtime";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cn } from "../../utils/index.js";

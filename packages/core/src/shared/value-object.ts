@@ -1,4 +1,4 @@
-export interface ValueObject<T, V = any> {
+export interface ValueObject<T, V = unknown> {
   value: V;
   equals(other: T): boolean;
   toString(): string;
