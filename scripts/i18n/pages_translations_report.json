@@ -1,0 +1,61 @@
+[
+  {
+    "file": "(pages)/(internal)/[username]/[slug]/projects/[projectSlug]/page.tsx",
+    "namespace": "ProjectDetail",
+    "totalKeys": 36,
+    "missing": [
+      "backToWorkspace"
+    ]
+  },
+  {
+    "file": "(pages)/(internal)/workspaces/[slug]/projects/[projectSlug]/page.tsx",
+    "namespace": "ProjectDetail",
+    "totalKeys": 36,
+    "missing": [
+      "backToWorkspace"
+    ]
+  },
+  {
+    "file": "(pages)/habits/page.tsx",
+    "namespace": "Habits",
+    "totalKeys": 21,
+    "missing": [
+      "@/components/habit/create-habit-dialog",
+      "@/components/habit/habit-detail-panel",
+      "@/components/habit/habit-onboarding"
+    ]
+  },
+  {
+    "file": "(pages)/projects/page.tsx",
+    "namespace": "Projects",
+    "totalKeys": 9,
+    "missing": [
+      "@/components/project/create-project-dialog"
+    ]
+  },
+  {
+    "file": "(pages)/tasks/page.tsx",
+    "namespace": "Tasks",
+    "totalKeys": 9,
+    "missing": [
+      "@/components/task/create-task-dialog",
+      "tag"
+    ]
+  },
+  {
+    "file": "(pages)/tasks/tasks-view.tsx",
+    "namespace": "Tasks",
+    "totalKeys": 8,
+    "missing": [
+      "tag"
+    ]
+  },
+  {
+    "file": "invitations/accept/page.tsx",
+    "namespace": "AcceptInvitationPage",
+    "totalKeys": 13,
+    "missing": [
+      "token"
+    ]
+  }
+]

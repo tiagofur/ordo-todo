@@ -1,0 +1,21 @@
+{
+  "task": [],
+  "project": [],
+  "workspace": [
+    {
+      "file": "workspace-dashboard.tsx",
+      "namespace": "WorkspaceDashboard",
+      "key": "deleteError"
+    },
+    {
+      "file": "workspace-members-settings.tsx",
+      "namespace": "WorkspaceMembersSettings",
+      "key": "removeSuccess"
+    },
+    {
+      "file": "workspace-members-settings.tsx",
+      "namespace": "WorkspaceMembersSettings",
+      "key": "removeError"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "task": {
+    "files": [
+      {
+        "file": "activity-feed.tsx",
+        "namespace": "ActivityFeed",
+        "totalKeys": 6,
+        "missing": [
+          " "
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "assignee-selector.tsx",
+        "namespace": null,
+        "totalKeys": 1,
+        "missing": [],
+        "status": "missing-namespace"
+      },
+      {
+        "file": "attachment-list.tsx",
+        "namespace": "AttachmentList",
+        "totalKeys": 10,
+        "missing": [
+          "a"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "comment-thread.tsx",
+        "namespace": "CommentThread",
+        "totalKeys": 20,
+        "missing": [
+          " "
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "create-task-custom-fields-wrapper.tsx",
+        "namespace": null,
+        "totalKeys": 0,
+        "missing": [],
+        "status": "missing-namespace"
+      },
+      {
+        "file": "create-task-dialog.tsx",
+        "namespace": "CreateTaskDialog",
+        "totalKeys": 29,
+        "missing": [
+          " "
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "custom-field-inputs.tsx",
+        "namespace": null,
+        "totalKeys": 1,
+        "missing": [],
+        "status": "missing-namespace"
+      },
+      {
+        "file": "file-upload.tsx",
+        "namespace": "FileUpload",
+        "totalKeys": 8,
+        "missing": [
+          "/"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "recurrence-selector.tsx",
+        "namespace": "Tasks",
+        "totalKeys": 0,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "subtask-list.tsx",
+        "namespace": "SubtaskList",
+        "totalKeys": 19,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "task-card-compact.tsx",
+        "namespace": "TaskCard",
+        "totalKeys": 0,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "task-card.tsx",
+        "namespace": "TaskCard",
+        "totalKeys": 7,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "task-detail-panel.tsx",
+        "namespace": "TaskDetailPanel",
+        "totalKeys": 46,
+        "missing": [
+          "T",
+          "T",
+          "T"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "task-detail-view.tsx",
+        "namespace": "TaskDetailView",
+        "totalKeys": 8,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "task-filters.tsx",
+        "namespace": "TaskFilters",
+        "totalKeys": 13,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "task-form.tsx",
+        "namespace": "TaskForm",
+        "totalKeys": 6,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "task-list.tsx",
+        "namespace": "TaskList",
+        "totalKeys": 5,
+        "missing": [],
+        "status": "ok"
+      }
+    ]
+  },
+  "project": {
+    "files": [
+      {
+        "file": "create-project-dialog.tsx",
+        "namespace": "CreateProjectDialog",
+        "totalKeys": 20,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "custom-fields-editor.tsx",
+        "namespace": null,
+        "totalKeys": 0,
+        "missing": [],
+        "status": "missing-namespace"
+      },
+      {
+        "file": "project-board.tsx",
+        "namespace": "ProjectBoard",
+        "totalKeys": 4,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "project-card.tsx",
+        "namespace": "ProjectCard",
+        "totalKeys": 11,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "project-files.tsx",
+        "namespace": "ProjectFiles",
+        "totalKeys": 7,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "project-list.tsx",
+        "namespace": "ProjectList",
+        "totalKeys": 6,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "project-settings-dialog.tsx",
+        "namespace": "ProjectSettingsDialog",
+        "totalKeys": 13,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "project-settings.tsx",
+        "namespace": "ProjectSettings",
+        "totalKeys": 32,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "project-timeline.tsx",
+        "namespace": null,
+        "totalKeys": 0,
+        "missing": [],
+        "status": "missing-namespace"
+      }
+    ]
+  },
+  "workspace": {
+    "files": [
+      {
+        "file": "create-workspace-dialog.tsx",
+        "namespace": "CreateWorkspaceDialog",
+        "totalKeys": 19,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "invite-member-dialog.tsx",
+        "namespace": "InviteMemberDialog",
+        "totalKeys": 17,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "workspace-activity-log.tsx",
+        "namespace": "WorkspaceActivityLog",
+        "totalKeys": 4,
+        "missing": [
+          "_"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "workspace-auto-selector.tsx",
+        "namespace": null,
+        "totalKeys": 0,
+        "missing": [],
+        "status": "missing-namespace"
+      },
+      {
+        "file": "workspace-card.tsx",
+        "namespace": "WorkspaceCard",
+        "totalKeys": 5,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "workspace-configuration-settings.tsx",
+        "namespace": "WorkspaceConfigurationSettings",
+        "totalKeys": 20,
+        "missing": [
+          ":"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "workspace-dashboard.tsx",
+        "namespace": "WorkspaceDashboard",
+        "totalKeys": 14,
+        "missing": [
+          "deleteError",
+          "_"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "workspace-info-bar.tsx",
+        "namespace": "WorkspaceInfoBar",
+        "totalKeys": 4,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "workspace-members-settings.tsx",
+        "namespace": "WorkspaceMembersSettings",
+        "totalKeys": 18,
+        "missing": [
+          "removeSuccess",
+          "removeError"
+        ],
+        "status": "missing-keys"
+      },
+      {
+        "file": "workspace-selector.tsx",
+        "namespace": "WorkspaceSelector",
+        "totalKeys": 10,
+        "missing": [],
+        "status": "ok"
+      },
+      {
+        "file": "workspace-settings-dialog.tsx",
+        "namespace": "WorkspaceSettingsDialog",
+        "totalKeys": 27,
+        "missing": [],
+        "status": "ok"
+      }
+    ]
+  }
+}
