@@ -1,4 +1,73 @@
-# 📦 Ordo-Todo Packages
+# 📦 Ordo-Todo Packages - Auditoría Completa
+
+> **Última auditoría:** 31 de Diciembre 2025
+> **Score Global:** 61/100 ⚠️ **REQUIERE MEJORAS SIGNIFICATIVAS**
+> **Leer primero:** [RESUMEN-EJECUTIVO.md](./RESUMEN-EJECUTIVO.md) | [PLAN-ACCION.md](./PLAN-ACCION.md)
+
+## 📊 Puntuaciones por Paquete
+
+| Paquete                    | Score  | Estado     | Prioridad |
+| -------------------------- | ------ | ---------- | --------- |
+| packages/typescript-config | 78/100 | 🟡 BUENO   | Baja      |
+| packages/eslint-config     | 75/100 | 🟡 BUENO   | Baja      |
+| packages/api-client        | 72/100 | 🟡 BUENO   | Media     |
+| packages/config            | 72/100 | 🟡 BUENO   | Media     |
+| packages/i18n              | 72/100 | 🟡 BUENO   | Media     |
+| packages/db                | 62/100 | 🟠 REGULAR | Alta      |
+| packages/hooks             | 62/100 | 🟠 REGULAR | Alta      |
+| packages/core              | 65/100 | 🟠 REGULAR | Alta      |
+| packages/stores            | 58/100 | 🟠 REGULAR | Alta      |
+| packages/styles            | 58/100 | 🔴 CRÍTICO | CRÍTICA   |
+| packages/ui                | 42/100 | 🔴 CRÍTICO | CRÍTICA   |
+
+## 📁 Documentos de Auditoría
+
+```
+docs/packages/
+├── README.md                        # Este archivo
+├── RESUMEN-EJECUTIVO.md           # Resumen de 5 minutos
+├── PLAN-ACCION.md                  # Plan detallado por fases
+├── VIOLACIONES-POR-PAQUETE/       # Análisis individual por paquete
+│   ├── packages-core.md            # Violaciones detalladas de core
+│   ├── packages-ui.md              # Violaciones detalladas de ui
+│   ├── packages-hooks.md           # Violaciones detalladas de hooks
+│   ├── packages-api-client.md      # Violaciones detalladas de api-client
+│   ├── packages-stores.md          # Violaciones detalladas de stores
+│   ├── packages-i18n.md           # Violaciones detalladas de i18n
+│   ├── packages-db.md             # Violaciones detalladas de db
+│   ├── packages-styles.md          # Violaciones detalladas de styles
+│   ├── packages-config.md          # Violaciones detalladas de config
+│   ├── packages-typescript-config.md # Violaciones detalladas de ts-config
+│   └── packages-eslint-config.md  # Violaciones detalladas de eslint-config
+└── METRICAS-POR-PAQUETE.md      # Tabla comparativa de métricas
+```
+
+---
+
+## 🎯 Plan de Acción Rápido
+
+### Fase 1: CRÍTICO (4-6 semanas) → 75/100
+
+1. **packages/ui** - Refactorización completa (3-4 semanas)
+   - Eliminar `'use client'` y hooks de TODOS los componentes
+   - Eliminar transparencias y gradientes
+2. **packages/core + api-client** - Eliminar tipos `any` (1 semana)
+   - 14 usos en core, 16 en api-client
+3. **packages/db** - Agregar índices críticos (2 días)
+   - 6 foreign keys sin índices
+
+### Fase 2: ALTA (3-4 semanas) → 88/100
+
+4. **packages/hooks + stores** - Testing (2 semanas)
+   - 0% test coverage actual
+5. **packages/ui** - Accessibility (2 semanas)
+   - ARIA labels, keyboard navigation
+6. **packages/i18n** - Completar traducciones (1 semana)
+   - 104 keys faltantes
+
+**Meta Producción (85+/100):** 7-10 semanas
+
+---
 
 Documentación de los packages compartidos del monorepo.
 
@@ -68,13 +137,13 @@ packages/core/src/
 
 ```typescript
 // Importar entidades
-import { Task, TaskStatus, Priority } from '@ordo-todo/core';
+import { Task, TaskStatus, Priority } from "@ordo-todo/core";
 
 // Crear una tarea
 const task = Task.create({
-  title: 'Nueva tarea',
-  projectId: 'proj_123',
-  creatorId: 'user_456',
+  title: "Nueva tarea",
+  projectId: "proj_123",
+  creatorId: "user_456",
   priority: Priority.HIGH,
 });
 
@@ -88,7 +157,7 @@ class PrismaTaskRepository implements TaskRepository {
     const data = await this.prisma.task.findUnique({ where: { id } });
     return data ? this.toDomain(data) : null;
   }
-  
+
   async save(task: Task): Promise<Task> {
     // Persistir en DB
   }
@@ -164,13 +233,13 @@ npx prisma format            # Formatear schema
 
 ```typescript
 // apps/backend/src/prisma.service.ts
-import { PrismaClient } from '@ordo-todo/db';
+import { PrismaClient } from "@ordo-todo/db";
 
 const prisma = new PrismaClient();
 
 // Queries
 const tasks = await prisma.task.findMany({
-  where: { projectId: 'proj_123' },
+  where: { projectId: "proj_123" },
   include: { subtasks: true },
 });
 ```
@@ -201,37 +270,37 @@ packages/api-client/
 ### Uso
 
 ```typescript
-import { apiClient, Task, CreateTaskDto } from '@ordo-todo/api-client';
+import { apiClient, Task, CreateTaskDto } from "@ordo-todo/api-client";
 
 // Configurar base URL
-apiClient.defaults.baseURL = 'http://localhost:3101';
+apiClient.defaults.baseURL = "http://localhost:3101";
 
 // Configurar token
-apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
 // Hacer requests
-const tasks = await apiClient.get<Task[]>('/tasks');
-const newTask = await apiClient.post<Task>('/tasks', createTaskDto);
+const tasks = await apiClient.get<Task[]>("/tasks");
+const newTask = await apiClient.post<Task>("/tasks", createTaskDto);
 ```
 
 ### Con React Query (en apps)
 
 ```typescript
 // apps/web/src/lib/api-hooks.ts
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { apiClient, Task } from '@ordo-todo/api-client';
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiClient, Task } from "@ordo-todo/api-client";
 
 export function useTasks(projectId: string) {
   return useQuery({
-    queryKey: ['tasks', projectId],
+    queryKey: ["tasks", projectId],
     queryFn: () => apiClient.get<Task[]>(`/tasks?projectId=${projectId}`),
   });
 }
 
 export function useCreateTask() {
   return useMutation({
-    mutationFn: (data: CreateTaskDto) => apiClient.post('/tasks', data),
-    onSuccess: () => queryClient.invalidateQueries(['tasks']),
+    mutationFn: (data: CreateTaskDto) => apiClient.post("/tasks", data),
+    onSuccess: () => queryClient.invalidateQueries(["tasks"]),
   });
 }
 ```
@@ -246,20 +315,20 @@ export function useCreateTask() {
 
 ### Estado de Migración
 
-| Categoría | Componentes | Estado |
-|-----------|-------------|--------|
-| `ui/` | 31 | ✅ Completo |
-| `timer/` | 4 | ✅ Completo |
-| `task/` | 15 | ✅ Completo |
-| `project/` | 11 | ✅ Completo |
-| `analytics/` | 7 | ✅ Completo |
-| `tag/` | 3 | ✅ Completo |
-| `workspace/` | 3 | ✅ Completo |
-| `dashboard/` | 5 | ✅ Completo |
-| `ai/` | 2 | ✅ Completo |
-| `auth/` | 1 | ✅ Completo |
-| `layout/` | 2 | ✅ Completo |
-| `shared/` | 7 | ✅ Completo |
+| Categoría    | Componentes | Estado      |
+| ------------ | ----------- | ----------- |
+| `ui/`        | 31          | ✅ Completo |
+| `timer/`     | 4           | ✅ Completo |
+| `task/`      | 15          | ✅ Completo |
+| `project/`   | 11          | ✅ Completo |
+| `analytics/` | 7           | ✅ Completo |
+| `tag/`       | 3           | ✅ Completo |
+| `workspace/` | 3           | ✅ Completo |
+| `dashboard/` | 5           | ✅ Completo |
+| `ai/`        | 2           | ✅ Completo |
+| `auth/`      | 1           | ✅ Completo |
+| `layout/`    | 2           | ✅ Completo |
+| `shared/`    | 7           | ✅ Completo |
 
 **Total: 91+ componentes**
 
@@ -372,7 +441,7 @@ import {
   ProjectBoard,
   ActivityFeed,
   cn,
-} from '@ordo-todo/ui';
+} from "@ordo-todo/ui";
 ```
 
 > **Estado:** 🟢 Fases 1-4 completadas. Fase 5: Integración completa en apps.
@@ -387,19 +456,19 @@ import {
 
 ```typescript
 // Debounce
-import { useDebounce } from '@ordo-todo/hooks';
+import { useDebounce } from "@ordo-todo/hooks";
 const debouncedSearch = useDebounce(searchTerm, 300);
 
 // Local Storage
-import { useLocalStorage } from '@ordo-todo/hooks';
-const [value, setValue] = useLocalStorage('key', defaultValue);
+import { useLocalStorage } from "@ordo-todo/hooks";
+const [value, setValue] = useLocalStorage("key", defaultValue);
 
 // Media Query
-import { useMediaQuery } from '@ordo-todo/hooks';
-const isMobile = useMediaQuery('(max-width: 768px)');
+import { useMediaQuery } from "@ordo-todo/hooks";
+const isMobile = useMediaQuery("(max-width: 768px)");
 
 // Click Outside
-import { useClickOutside } from '@ordo-todo/hooks';
+import { useClickOutside } from "@ordo-todo/hooks";
 const ref = useClickOutside(() => setOpen(false));
 ```
 
@@ -451,7 +520,7 @@ packages/i18n/
 
 ```javascript
 // apps/web/eslint.config.js
-import baseConfig from '@ordo-todo/eslint-config';
+import baseConfig from "@ordo-todo/eslint-config";
 
 export default [
   ...baseConfig,
