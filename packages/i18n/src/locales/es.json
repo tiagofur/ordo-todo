@@ -439,7 +439,10 @@
       "estimatedMinutes": "Minutos Estimados (min)",
       "description": "Descripción",
       "descriptionPlaceholder": "Detalles adicionales de la tarea...",
-      "assignee": "Asignar a"
+      "assignee": "Asignar a",
+      "selectAssignee": "Seleccionar miembro (opcional)",
+      "workspaceMembers": "Miembros del workspace",
+      "assignToMe": "Asignarme a mí (por defecto)"
     },
     "priorities": {
       "low": "Baja",
@@ -822,7 +825,8 @@
       "uncompleted": "Proyecto marcado como incompleto",
       "completeError": "Error al completar proyecto",
       "deleted": "Proyecto eliminado"
-    }
+    },
+    "backToWorkspace": "Volver al workspace"
   },
   "WorkspaceCard": {
     "types": {
@@ -898,7 +902,8 @@
       "projects": "Proyectos",
       "tasks": "Tareas",
       "members": "Miembros"
-    }
+    },
+    "deleteError": "Error al eliminar widget del panel"
   },
   "WorkspaceSettingsDialog": {
     "title": "Configuración del Workspace",
@@ -1041,7 +1046,9 @@
       "admin": "Administrador",
       "member": "Miembro",
       "viewer": "Observador"
-    }
+    },
+    "removeSuccess": "Miembro eliminado exitosamente",
+    "removeError": "Error al eliminar miembro"
   },
   "AcceptInvitationPage": {
     "title": "Aceptar Invitación",
