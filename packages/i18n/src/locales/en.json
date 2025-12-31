@@ -439,10 +439,7 @@
       "estimatedMinutes": "Estimated Minutes (min)",
       "description": "Description",
       "descriptionPlaceholder": "Additional task details...",
-      "assignee": "Assignee",
-      "selectAssignee": "Select assignee (optional)",
-      "workspaceMembers": "Workspace members",
-      "assignToMe": "Assign to me (default)"
+      "assignee": "Assignee"
     },
     "priorities": {
       "low": "Low",
@@ -825,8 +822,7 @@
       "uncompleted": "Project marked as incomplete",
       "completeError": "Error completing project",
       "deleted": "Project deleted"
-    },
-    "backToWorkspace": "Back to workspace"
+    }
   },
   "WorkspaceCard": {
     "types": {
@@ -884,8 +880,7 @@
       "projects": "Projects",
       "tasks": "Tasks",
       "members": "Members"
-    },
-    "deleteError": "Error deleting dashboard widget"
+    }
   },
   "WorkspaceSelector": {
     "create": "Create Workspace",
@@ -1046,9 +1041,7 @@
     },
     "memberRemoved": "Member removed",
     "errorRemoving": "Error removing member",
-    "noMembers": "No members",
-    "removeSuccess": "Member removed successfully",
-    "removeError": "Error removing member"
+    "noMembers": "No members"
   },
   "AcceptInvitationPage": {
     "title": "Accept Invitation",
