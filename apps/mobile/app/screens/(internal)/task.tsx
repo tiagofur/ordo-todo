@@ -4,21 +4,31 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { useCreateTask, useUpdateTask, useTask, useWorkspaces, useProjects, useObjectives, useLinkTaskToKeyResult } from "@/app/lib/shared-hooks";
+import {
+  useCreateTask,
+  useUpdateTask,
+  useTask,
+  useWorkspaces,
+  useProjects,
+} from "@/app/lib/shared-hooks";
+import { useWorkspaceStore } from "@ordo-todo/stores";
 import CustomTextInput from "../../components/shared/text-input.component";
 import CustomButton from "../../components/shared/button.component";
 import { Feather } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CustomFieldInputs, useCustomFieldForm } from "@/app/components/task/custom-field-inputs";
-import { useWorkspaceStore } from "@/app/lib/stores";
-import { useTranslation } from "react-i18next";
+import {
+  useCustomFieldForm,
+  CustomFieldInputs,
+} from "../../components/task/custom-field-inputs";
+import { SubtaskSection } from "./subtask-section";
 
 const PRIORITIES = [
   { value: "LOW", label: "Baja", color: "#48BB78" },
@@ -29,44 +39,40 @@ const PRIORITIES = [
 export default function TaskScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const taskId = typeof params.id === 'string' ? params.id : undefined;
+  const taskId = typeof params.id === "string" ? params.id : undefined;
   const isEditing = !!taskId;
-  
+
   const colors = useThemeColors();
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const { data: existingTask } = useTask(taskId || "");
-  
+
   // Workspace and Project fetching logic
   const { data: workspaces } = useWorkspaces();
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const { t } = useTranslation();
-  
-  const effectiveWorkspaceId = selectedWorkspaceId || workspaces?.[0]?.id;
-  const { data: projects } = useProjects(effectiveWorkspaceId || "");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("MEDIUM");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(
+    undefined,
+  );
   const [scheduledTime, setScheduledTime] = useState<string>("");
   const [scheduledEndTime, setScheduledEndTime] = useState<string>("");
   const [isTimeBlocked, setIsTimeBlocked] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [activeTimeField, setActiveTimeField] = useState<'start' | 'end'>('start');
-  const [activeDateField, setActiveDateField] = useState<'due' | 'start' | 'scheduled'>('due');
-  
-  // Link to Goal State
-  const { data: objectives } = useObjectives();
-  const linkTaskToKR = useLinkTaskToKeyResult();
-  const [selectedKeyResultId, setSelectedKeyResultId] = useState<string | null>(null);
-  const [showGoalSelector, setShowGoalSelector] = useState(false);
+  const [activeTimeField, setActiveTimeField] = useState<"start" | "end">(
+    "start",
+  );
+  const [activeDateField, setActiveDateField] = useState<
+    "due" | "start" | "scheduled"
+  >("due");
 
   // Custom Fields - get current projectId
-  const currentProjectId = existingTask?.projectId || (projects?.[0]?.id ?? "");
+  const currentProjectId = existingTask?.projectId || "";
   const customFieldsForm = useCustomFieldForm(currentProjectId, taskId);
 
   useEffect(() => {
@@ -83,32 +89,32 @@ export default function TaskScreen() {
       if (existingTask.scheduledDate) {
         setScheduledDate(new Date(existingTask.scheduledDate));
       }
-      setScheduledTime((existingTask as any).scheduledTime || "");
-      setScheduledEndTime((existingTask as any).scheduledEndTime || "");
+      if ((existingTask as any).scheduledTime) {
+        setScheduledTime((existingTask as any).scheduledTime || "");
+      }
+      if ((existingTask as any).scheduledEndTime) {
+        setScheduledEndTime((existingTask as any).scheduledEndTime || "");
+      }
       setIsTimeBlocked(existingTask.isTimeBlocked || false);
     }
   }, [existingTask]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert(t('Mobile.common.error'), t('Mobile.task.title') + " " + t('Mobile.common.required')); // Fallback translation
+      Alert.alert("Error", "El título es obligatorio");
       return;
     }
 
     // Determine projectId: Use existing task's project, or first available project, or error
     let targetProjectId = existingTask?.projectId;
-    if (!targetProjectId && projects && projects.length > 0) {
-      targetProjectId = projects[0].id;
-    }
+    const { data: projects } = useProjects(selectedWorkspaceId || "");
 
     if (!targetProjectId && !isEditing) {
-       // If clean workspace, we might fail here.
-       // However, to unblock, let's try to proceed if backend handles implicit default, 
-       // OR alert user.
-       if (!projects || projects.length === 0) {
-          Alert.alert("Error", "No se encontraron proyectos. Crea un proyecto primero.");
-          return;
-       }
+      Alert.alert(
+        "Error",
+        "No se encontraron proyectos. Crea un proyecto primero.",
+      );
+      return;
     }
 
     try {
@@ -121,50 +127,30 @@ export default function TaskScreen() {
             priority: priority as any,
             dueDate: dueDate ? dueDate.toISOString() : undefined,
             startDate: startDate ? startDate.toISOString() : undefined,
-            scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined,
+            scheduledDate: scheduledDate
+              ? scheduledDate.toISOString()
+              : undefined,
             scheduledTime: scheduledTime || null,
             scheduledEndTime: scheduledEndTime || null,
             isTimeBlocked,
           },
         });
       } else {
-        if (!targetProjectId) {
-             Alert.alert("Error", "No se pudo determinar el proyecto para la tarea.");
-             return;
-        }
-
         const newTask = await createTask.mutateAsync({
           title,
           description,
           priority: priority as any,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
           startDate: startDate ? startDate.toISOString() : undefined,
-          scheduledDate: scheduledDate ? scheduledDate.toISOString() : undefined,
-          projectId: targetProjectId,
+          projectId: targetProjectId!,
         });
 
         // Save custom field values if any
         if (customFieldsForm.getValuesForSubmit().length > 0 && newTask?.id) {
           await customFieldsForm.saveValues(newTask.id);
         }
-        
-        // Link to Goal if selected
-        if (selectedKeyResultId) {
-            await linkTaskToKR.mutateAsync({ 
-                keyResultId: selectedKeyResultId, 
-                data: { taskId: newTask.id, weight: 1 } 
-            });
-        }
       }
-      
-      // Handle Link for existing task (if changed - simplistically just link again if selected)
-      if (isEditing && taskId && selectedKeyResultId) {
-            // Check if already linked? API should handle idempotency or replacement
-            await linkTaskToKR.mutateAsync({ 
-                keyResultId: selectedKeyResultId, 
-                data: { taskId, weight: 1 } 
-            });
-      }
+
       router.back();
     } catch (error) {
       console.error(error);
@@ -173,41 +159,41 @@ export default function TaskScreen() {
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
+    setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
       switch (activeDateField) {
-        case 'due':
+        case "due":
           setDueDate(selectedDate);
           break;
-        case 'start':
+        case "start":
           setStartDate(selectedDate);
           break;
-        case 'scheduled':
+        case "scheduled":
           setScheduledDate(selectedDate);
           break;
       }
     }
   };
 
-  const openDatePicker = (field: 'due' | 'start' | 'scheduled') => {
+  const openDatePicker = (field: "due" | "start" | "scheduled") => {
     setActiveDateField(field);
     setShowDatePicker(true);
   };
 
-  const openTimePicker = (field: 'start' | 'end') => {
+  const openTimePicker = (field: "start" | "end") => {
     setActiveTimeField(field);
     setShowTimePicker(true);
   };
 
   const onTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios');
+    setShowTimePicker(Platform.OS === "ios");
     if (selectedTime) {
-      const timeString = selectedTime.toLocaleTimeString('es', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: false 
+      const timeString = selectedTime.toLocaleTimeString("es", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
       });
-      if (activeTimeField === 'start') {
+      if (activeTimeField === "start") {
         setScheduledTime(timeString);
       } else {
         setScheduledEndTime(timeString);
@@ -218,7 +204,7 @@ export default function TaskScreen() {
   const parseTimeToDate = (timeStr: string): Date => {
     const date = new Date();
     if (timeStr) {
-      const [hours, minutes] = timeStr.split(':').map(Number);
+      const [hours, minutes] = timeStr.split(":").map(Number);
       date.setHours(hours, minutes, 0, 0);
     }
     return date;
@@ -244,7 +230,9 @@ export default function TaskScreen() {
             placeholder="¿Qué necesitas hacer?"
             value={title}
             onChangeText={setTitle}
-            leftIcon={<Feather name="check-square" size={20} color={colors.textMuted} />}
+            leftIcon={
+              <Feather name="check-square" size={20} color={colors.textMuted} />
+            }
           />
         </View>
 
@@ -257,8 +245,10 @@ export default function TaskScreen() {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
-            style={{ height: 100, paddingTop: 12 }} 
-            leftIcon={<Feather name="align-left" size={20} color={colors.textMuted} />}
+            style={{ height: 100, paddingTop: 12 }}
+            leftIcon={
+              <Feather name="align-left" size={20} color={colors.textMuted} />
+            }
           />
         </View>
 
@@ -272,17 +262,21 @@ export default function TaskScreen() {
                   styles.priorityOption,
                   {
                     borderColor: priority === p.value ? p.color : colors.border,
-                    backgroundColor: priority === p.value ? `${p.color}20` : colors.card,
+                    backgroundColor:
+                      priority === p.value ? `${p.color}20` : colors.card,
                   },
                 ]}
                 onPress={() => setPriority(p.value)}
               >
-                <View style={[styles.priorityDot, { backgroundColor: p.color }]} />
+                <View
+                  style={[styles.priorityDot, { backgroundColor: p.color }]}
+                />
                 <Text
                   style={[
                     styles.priorityText,
                     {
-                      color: priority === p.value ? p.color : colors.textSecondary,
+                      color:
+                        priority === p.value ? p.color : colors.textSecondary,
                       fontWeight: priority === p.value ? "700" : "500",
                     },
                   ]}
@@ -295,19 +289,29 @@ export default function TaskScreen() {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={[styles.label, { color: colors.text }]}>Fecha de Vencimiento</Text>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Fecha de Vencimiento
+          </Text>
           <Pressable
-            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: '#F97316' }]}
-            onPress={() => openDatePicker('due')}
+            style={[
+              styles.dateButton,
+              { backgroundColor: colors.card, borderColor: "#F97316" },
+            ]}
+            onPress={() => openDatePicker("due")}
           >
             <Feather name="calendar" size={20} color="#F97316" />
-            <Text style={[styles.dateText, { color: dueDate ? colors.text : colors.textMuted }]}>
+            <Text
+              style={[
+                styles.dateText,
+                { color: dueDate ? colors.text : colors.textMuted },
+              ]}
+            >
               {dueDate ? dueDate.toLocaleDateString() : "Sin fecha límite"}
             </Text>
             {dueDate && (
               <Pressable
                 style={styles.clearDateButton}
-                onPress={(e) => {
+                onPress={(e: any) => {
                   e.stopPropagation();
                   setDueDate(undefined);
                 }}
@@ -320,19 +324,31 @@ export default function TaskScreen() {
 
         {/* Start Date Field */}
         <View style={styles.formGroup}>
-          <Text style={[styles.label, { color: colors.text }]}>Fecha de Inicio</Text>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Fecha de Inicio
+          </Text>
           <Pressable
-            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: '#22C55E' }]}
-            onPress={() => openDatePicker('start')}
+            style={[
+              styles.dateButton,
+              { backgroundColor: colors.card, borderColor: "#22C55E" },
+            ]}
+            onPress={() => openDatePicker("start")}
           >
             <Feather name="check-square" size={20} color="#22C55E" />
-            <Text style={[styles.dateText, { color: startDate ? colors.text : colors.textMuted }]}>
-              {startDate ? startDate.toLocaleDateString() : "Disponible desde hoy"}
+            <Text
+              style={[
+                styles.dateText,
+                { color: startDate ? colors.text : colors.textMuted },
+              ]}
+            >
+              {startDate
+                ? startDate.toLocaleDateString()
+                : "Disponible desde hoy"}
             </Text>
             {startDate && (
               <Pressable
                 style={styles.clearDateButton}
-                onPress={(e) => {
+                onPress={(e: any) => {
                   e.stopPropagation();
                   setStartDate(undefined);
                 }}
@@ -345,19 +361,31 @@ export default function TaskScreen() {
 
         {/* Scheduled Date Field */}
         <View style={styles.formGroup}>
-          <Text style={[styles.label, { color: colors.text }]}>Programado para</Text>
+          <Text style={[styles.label, { color: colors.text }]}>
+            Programado para
+          </Text>
           <Pressable
-            style={[styles.dateButton, { backgroundColor: colors.card, borderColor: '#3B82F6' }]}
-            onPress={() => openDatePicker('scheduled')}
+            style={[
+              styles.dateButton,
+              { backgroundColor: colors.card, borderColor: "#3B82F6" },
+            ]}
+            onPress={() => openDatePicker("scheduled")}
           >
             <Feather name="clock" size={20} color="#3B82F6" />
-            <Text style={[styles.dateText, { color: scheduledDate ? colors.text : colors.textMuted }]}>
-              {scheduledDate ? scheduledDate.toLocaleDateString() : "Sin fecha programada"}
+            <Text
+              style={[
+                styles.dateText,
+                { color: scheduledDate ? colors.text : colors.textMuted },
+              ]}
+            >
+              {scheduledDate
+                ? scheduledDate.toLocaleDateString()
+                : "Sin fecha programada"}
             </Text>
             {scheduledDate && (
               <Pressable
                 style={styles.clearDateButton}
-                onPress={(e) => {
+                onPress={(e: any) => {
                   e.stopPropagation();
                   setScheduledDate(undefined);
                 }}
@@ -374,18 +402,33 @@ export default function TaskScreen() {
             <Text style={[styles.sectionTitle, { color: colors.primary }]}>
               ⏰ Time Blocking
             </Text>
-            
+
             {/* Time Pickers Row */}
             <View style={styles.timePickersRow}>
               {/* Start Time */}
               <View style={styles.timePickerContainer}>
-                <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>Hora inicio</Text>
+                <Text
+                  style={[styles.timeLabel, { color: colors.textSecondary }]}
+                >
+                  Hora inicio
+                </Text>
                 <Pressable
-                  style={[styles.timeButton, { backgroundColor: colors.card, borderColor: colors.primary }]}
-                  onPress={() => openTimePicker('start')}
+                  style={[
+                    styles.timeButton,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: colors.primary,
+                    },
+                  ]}
+                  onPress={() => openTimePicker("start")}
                 >
                   <Feather name="clock" size={16} color={colors.primary} />
-                  <Text style={[styles.timeText, { color: scheduledTime ? colors.text : colors.textMuted }]}>
+                  <Text
+                    style={[
+                      styles.timeText,
+                      { color: scheduledTime ? colors.text : colors.textMuted },
+                    ]}
+                  >
                     {scheduledTime || "00:00"}
                   </Text>
                 </Pressable>
@@ -393,13 +436,29 @@ export default function TaskScreen() {
 
               {/* End Time */}
               <View style={styles.timePickerContainer}>
-                <Text style={[styles.timeLabel, { color: colors.textSecondary }]}>Hora fin</Text>
+                <Text
+                  style={[styles.timeLabel, { color: colors.textSecondary }]}
+                >
+                  Hora fin
+                </Text>
                 <Pressable
-                  style={[styles.timeButton, { backgroundColor: colors.card, borderColor: '#8B5CF6' }]}
-                  onPress={() => openTimePicker('end')}
+                  style={[
+                    styles.timeButton,
+                    { backgroundColor: colors.card, borderColor: "#8B5CF6" },
+                  ]}
+                  onPress={() => openTimePicker("end")}
                 >
                   <Feather name="clock" size={16} color="#8B5CF6" />
-                  <Text style={[styles.timeText, { color: scheduledEndTime ? colors.text : colors.textMuted }]}>
+                  <Text
+                    style={[
+                      styles.timeText,
+                      {
+                        color: scheduledEndTime
+                          ? colors.text
+                          : colors.textMuted,
+                      },
+                    ]}
+                  >
                     {scheduledEndTime || "00:00"}
                   </Text>
                 </Pressable>
@@ -407,12 +466,31 @@ export default function TaskScreen() {
             </View>
 
             {/* Time Block Toggle */}
-            <View style={[styles.toggleContainer, { backgroundColor: colors.card, borderColor: isTimeBlocked ? colors.primary : colors.border }]}>
+            <View
+              style={[
+                styles.toggleContainer,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: isTimeBlocked ? colors.primary : colors.border,
+                },
+              ]}
+            >
               <View style={styles.toggleInfo}>
-                <Feather name="calendar" size={20} color={isTimeBlocked ? colors.primary : colors.textMuted} />
+                <Feather
+                  name="calendar"
+                  size={20}
+                  color={isTimeBlocked ? colors.primary : colors.textMuted}
+                />
                 <View style={styles.toggleTextContainer}>
-                  <Text style={[styles.toggleTitle, { color: colors.text }]}>Bloque de tiempo</Text>
-                  <Text style={[styles.toggleDescription, { color: colors.textMuted }]}>
+                  <Text style={[styles.toggleTitle, { color: colors.text }]}>
+                    Bloque de tiempo
+                  </Text>
+                  <Text
+                    style={[
+                      styles.toggleDescription,
+                      { color: colors.textMuted },
+                    ]}
+                  >
                     Mostrar en el calendario semanal
                   </Text>
                 </View>
@@ -420,93 +498,26 @@ export default function TaskScreen() {
               <Pressable
                 style={[
                   styles.toggleSwitch,
-                  { backgroundColor: isTimeBlocked ? colors.primary : colors.border }
+                  {
+                    backgroundColor: isTimeBlocked
+                      ? colors.primary
+                      : colors.border,
+                  },
                 ]}
                 onPress={() => setIsTimeBlocked(!isTimeBlocked)}
               >
-                <View style={[
-                  styles.toggleThumb,
-                  { 
-                    backgroundColor: '#FFFFFF',
-                    transform: [{ translateX: isTimeBlocked ? 20 : 0 }]
-                  }
-                ]} />
+                <View
+                  style={[
+                    styles.toggleThumb,
+                    {
+                      backgroundColor: "#FFFFFF",
+                      transform: [{ translateX: isTimeBlocked ? 20 : 0 }],
+                    },
+                  ]}
+                />
               </Pressable>
             </View>
           </View>
-        )}
-
-        {/* Link to Goal Section */}
-        <View style={styles.formGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Link to Goal</Text>
-            <Pressable
-                style={[styles.dateButton, { backgroundColor: colors.card, borderColor: selectedKeyResultId ? '#db2777' : colors.border }]}
-                onPress={() => setShowGoalSelector(!showGoalSelector)}
-            >
-                <Feather name="target" size={20} color={selectedKeyResultId ? '#db2777' : colors.textMuted} />
-                <Text style={[styles.dateText, { color: selectedKeyResultId ? '#db2777' : colors.textMuted }]}>
-                    {selectedKeyResultId 
-                        ? (objectives?.flatMap(o => (o as any).keyResults || [])?.find(kr => kr.id === selectedKeyResultId)?.title || "Goal Linked")
-                        : "Select a Goal (Optional)"}
-                </Text>
-                {selectedKeyResultId && (
-                    <Pressable
-                        style={styles.clearDateButton}
-                        onPress={(e) => { e.stopPropagation(); setSelectedKeyResultId(null); }}
-                    >
-                        <Feather name="x" size={16} color={colors.textMuted} />
-                    </Pressable>
-                )}
-            </Pressable>
-
-            {showGoalSelector && objectives && (
-                <View style={[styles.card, { marginTop: 8, borderColor: colors.border, borderWidth: 1, padding: 8 }]}>
-                    {objectives.map(obj => (
-                        <View key={obj.id} style={{marginBottom: 8}}>
-                            <Text style={{fontWeight: 'bold', color: colors.text, marginBottom: 4}}>{obj.title}</Text>
-                            {obj.keyResults?.map(kr => (
-                                <Pressable
-                                    key={kr.id}
-                                    style={{
-                                        padding: 8,
-                                        backgroundColor: selectedKeyResultId === kr.id ? '#fce7f3' : 'transparent',
-                                        borderRadius: 8
-                                    }}
-                                    onPress={() => {
-                                        setSelectedKeyResultId(kr.id);
-                                        setShowGoalSelector(false);
-                                    }}
-                                >
-                                    <Text style={{color: selectedKeyResultId === kr.id ? '#db2777' : colors.textSecondary}}>• {kr.title}</Text>
-                                </Pressable>
-                            ))}
-                            {(!obj.keyResults || obj.keyResults.length === 0) && <Text style={{fontSize: 12, color: colors.textMuted, marginLeft: 8}}>No key results</Text>}
-                        </View>
-                    ))}
-                    {objectives.length === 0 && <Text style={{color: colors.textMuted}}>No active goals.</Text>}
-                </View>
-            )}
-        </View>
-          
-        {showDatePicker && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={(activeDateField === 'due' ? dueDate : activeDateField === 'start' ? startDate : scheduledDate) || new Date()}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={onDateChange}
-          />
-        )}
-
-        {showTimePicker && (
-          <DateTimePicker
-            testID="timePicker"
-            value={parseTimeToDate(activeTimeField === 'start' ? scheduledTime : scheduledEndTime)}
-            mode="time"
-            is24Hour={true}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={onTimeChange}
-          />
         )}
 
         {/* Custom Fields */}
@@ -519,16 +530,23 @@ export default function TaskScreen() {
           />
         )}
 
+        {/* Subtasks - Only show when editing an existing task */}
+        {isEditing && taskId && <SubtaskSection taskId={taskId} />}
+
         <View style={styles.footer}>
           <CustomButton
             title={isEditing ? "Guardar Cambios" : "Crear Tarea"}
             onPress={handleSubmit}
             isLoading={createTask.isPending || updateTask.isPending}
             style={styles.submitButton}
-            icon={<Feather name="save" size={20} color={colors.buttonPrimaryText} />}
+            icon={
+              <Feather name="save" size={20} color={colors.buttonPrimaryText} />
+            }
           />
           <Pressable style={styles.cancelButton} onPress={() => router.back()}>
-            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancelar</Text>
+            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>
+              Cancelar
+            </Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -612,7 +630,7 @@ const styles = StyleSheet.create({
   },
   // Time Blocking styles
   timeBlockSection: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     paddingTop: 8,
   },
   sectionTitle: {
@@ -685,7 +703,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 12,
-    backgroundColor: '#fff', 
-    // Additional styling if needed, but background/border handled inline
-  }
+    backgroundColor: "#fff",
+  },
 });
