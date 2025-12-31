@@ -14,7 +14,7 @@ const MOCK_METRICS = {
 const MOCK_TIMER_STATS = {
   totalMinutesWorked: 180,
   pomodorosCompleted: 4,
-};
+} as any;
 
 describe('DailyMetricsCard', () => {
   it('should render metrics correctly', () => {
