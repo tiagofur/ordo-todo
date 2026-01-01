@@ -20,14 +20,12 @@ import {
 interface Invitation {
   id: string;
   workspaceId: string;
-  workspaceName: string;
-  workspaceColor: string;
-  invitedBy: string;
-  invitedByEmail: string;
-  invitedByName: string;
+  email: string;
+  role: string;
   status: "PENDING" | "ACCEPTED" | "DECLINED" | "EXPIRED";
   createdAt: Date;
   expiresAt: Date;
+  invitedById?: string;
 }
 
 export default function WorkspaceInvitationsScreen() {
@@ -48,6 +46,9 @@ export default function WorkspaceInvitationsScreen() {
   const acceptedInvitations = invitations.filter(
     (inv) => inv.status === "ACCEPTED",
   );
+  const declinedInvitations = invitations.filter(
+    (inv) => inv.status === "DECLINED",
+  );
 
   const handleAccept = async (invitationId: string) => {
     Alert.alert("Aceptar Invitación", "¿Quieres unirte a este workspace?", [
@@ -56,12 +57,8 @@ export default function WorkspaceInvitationsScreen() {
         text: "Aceptar",
         style: "default",
         onPress: async () => {
-          try {
-            await acceptInvitation.mutateAsync(invitationId);
-            Alert.alert("Éxito", "Te has unido al workspace");
-          } catch (error) {
-            Alert.alert("Error", "No se pudo aceptar la invitación");
-          }
+          // TODO: Implement accept invitation with token
+          Alert.alert("Info", "Feature en desarrollo");
         },
       },
     ]);
@@ -164,16 +161,31 @@ export default function WorkspaceInvitationsScreen() {
                   <View
                     style={[
                       styles.workspaceIndicator,
-                      { backgroundColor: invitation.workspaceColor + "15" },
+                      { backgroundColor: colors.primary + "15" },
                     ]}
                   >
                     <View
                       style={[
                         styles.workspaceDot,
-                        { backgroundColor: invitation.workspaceColor },
+                        { backgroundColor: colors.primary },
                       ]}
                     />
                   </View>
+                  <View style={styles.invitationInfo}>
+                    <Text
+                      style={[styles.workspaceName, { color: colors.text }]}
+                      numberOfLines={1}
+                    >
+                      {invitation.workspaceId}
+                    </Text>
+                    <Text
+                      style={[styles.inviterInfo, { color: colors.textMuted }]}
+                      numberOfLines={2}
+                    >
+                      Invitado por {invitation.invitedById || invitation.email}
+                    </Text>
+                  </View>
+                </View>
                   <View style={styles.invitationInfo}>
                     <Text
                       style={[styles.workspaceName, { color: colors.text }]}
@@ -334,22 +346,22 @@ export default function WorkspaceInvitationsScreen() {
                     },
                   ]}
                 >
-                  <View style={styles.pastInvitationInfo}>
-                    <Text
-                      style={[styles.workspaceName, { color: colors.text }]}
-                      numberOfLines={1}
-                    >
-                      {invitation.workspaceName}
-                    </Text>
-                    <Text
-                      style={[styles.inviterInfo, { color: colors.textMuted }]}
-                      numberOfLines={1}
-                    >
-                      {invitation.status === "ACCEPTED"
-                        ? "Aceptada"
-                        : "Rechazada"}
-                    </Text>
-                  </View>
+                <View style={styles.pastInvitationInfo}>
+                  <Text
+                    style={[styles.workspaceName, { color: colors.text }]}
+                    numberOfLines={1}
+                  >
+                    {invitation.workspaceId}
+                  </Text>
+                  <Text
+                    style={[styles.inviterInfo, { color: colors.textMuted }]}
+                    numberOfLines={1}
+                  >
+                    {invitation.status === "ACCEPTED"
+                      ? "Aceptada"
+                      : "Rechazada"}
+                  </Text>
+                </View>
                   <View
                     style={[
                       styles.pastStatusBadge,
