@@ -36,34 +36,40 @@ export default function WorkspaceInvitationsScreen() {
   const [email, setEmail] = useState("");
   const [showInviteForm, setShowInviteForm] = useState(false);
 
-  const { data: invitations = [], isLoading, refetch } = useWorkspaceInvitations();
+  const {
+    data: invitations = [],
+    isLoading,
+    refetch,
+  } = useWorkspaceInvitations();
   const acceptInvitation = useAcceptInvitation();
   const declineInvitation = useDeclineInvitation();
 
-  const pendingInvitations = invitations.filter((inv) => inv.status === "PENDING");
-  const acceptedInvitations = invitations.filter((inv) => inv.status === "ACCEPTED");
-  const declinedInvitations = invitations.filter((inv) => inv.status === "DECLINED");
+  const pendingInvitations = invitations.filter(
+    (inv) => inv.status === "PENDING",
+  );
+  const acceptedInvitations = invitations.filter(
+    (inv) => inv.status === "ACCEPTED",
+  );
+  const declinedInvitations = invitations.filter(
+    (inv) => inv.status === "DECLINED",
+  );
 
   const handleAccept = async (invitationId: string) => {
-    Alert.alert(
-      "Aceptar Invitación",
-      "¿Quieres unirte a este workspace?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Aceptar",
-          style: "default",
-          onPress: async () => {
-            try {
-              await acceptInvitation.mutateAsync(invitationId);
-              Alert.alert("Éxito", "Te has unido al workspace");
-            } catch (error: {
-              Alert.alert("Error", "No se pudo aceptar la invitación");
-            }
-          },
+    Alert.alert("Aceptar Invitación", "¿Quieres unirte a este workspace?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Aceptar",
+        style: "default",
+        onPress: async () => {
+          try {
+            await acceptInvitation.mutateAsync(invitationId);
+            Alert.alert("Éxito", "Te has unido al workspace");
+          } catch (error) {
+            Alert.alert("Error", "No se pudo aceptar la invitación");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleDecline = async (invitationId: string) => {
@@ -83,7 +89,7 @@ export default function WorkspaceInvitationsScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -128,9 +134,7 @@ export default function WorkspaceInvitationsScreen() {
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             Invitaciones
           </Text>
-          <Text
-            style={[styles.headerSubtitle, { color: colors.textMuted }]}
-          >
+          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
             {pendingInvitations.length} pendientes
           </Text>
         </View>
@@ -142,7 +146,10 @@ export default function WorkspaceInvitationsScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Pending Invitations */}
         {pendingInvitations.length > 0 && (
           <View style={styles.section}>
@@ -154,7 +161,10 @@ export default function WorkspaceInvitationsScreen() {
                 key={invitation.id}
                 style={[
                   styles.invitationCard,
-                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
                 ]}
               >
                 {/* Workspace Info */}
@@ -181,9 +191,10 @@ export default function WorkspaceInvitationsScreen() {
                     </Text>
                     <Text
                       style={[styles.inviterInfo, { color: colors.textMuted }]}
-                      numberOfLines={2)}
+                      numberOfLines={2}
                     >
-                      Invitado por {invitation.invitedByName || invitation.invitedByEmail}
+                      Invitado por{" "}
+                      {invitation.invitedByName || invitation.invitedByEmail}
                     </Text>
                   </View>
                 </View>
@@ -192,7 +203,9 @@ export default function WorkspaceInvitationsScreen() {
                 <View
                   style={[
                     styles.statusBadge,
-                    { backgroundColor: getStatusColor(invitation.status) + "15" },
+                    {
+                      backgroundColor: getStatusColor(invitation.status) + "15",
+                    },
                   ]}
                 >
                   <Text
@@ -204,102 +217,106 @@ export default function WorkspaceInvitationsScreen() {
                     {formatStatus(invitation.status)}
                   </Text>
                 </View>
+
+                {/* Actions */}
+                <View style={styles.invitationActions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.actionButton,
+                      styles.acceptButton,
+                      { backgroundColor: "#10B981" },
+                    ]}
+                    onPress={() => handleAccept(invitation.id)}
+                    disabled={acceptInvitation.isPending}
+                  >
+                    {acceptInvitation.isPending ? (
+                      <ActivityIndicator color="#FFFFFF" size="small" />
+                    ) : (
+                      <Feather name="check" size={18} color="#FFFFFF" />
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.actionButton,
+                      styles.declineButton,
+                      { backgroundColor: "#EF4444" },
+                    ]}
+                    onPress={() => handleDecline(invitation.id)}
+                    disabled={declineInvitation.isPending}
+                  >
+                    {declineInvitation.isPending ? (
+                      <ActivityIndicator color="#FFFFFF" size="small" />
+                    ) : (
+                      <Feather name="x" size={18} color="#FFFFFF" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+
+                {/* Time Info */}
+                <View style={styles.timeInfo}>
+                  <Feather name="clock" size={14} color={colors.textMuted} />
+                  <Text style={[styles.timeText, { color: colors.textMuted }]}>
+                    Expira en{" "}
+                    {new Date(invitation.expiresAt).toLocaleDateString()}
+                  </Text>
+                </View>
               </View>
+            ))}
 
-              {/* Actions */}
-              <View style={styles.invitationActions}>
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    styles.acceptButton,
-                    { backgroundColor: "#10B981" },
-                  ]}
-                  onPress={() => handleAccept(invitation.id)}
-                  disabled={acceptInvitation.isPending}
-                >
-                  {acceptInvitation.isPending ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
-                  ) : (
-                    <Feather name="check" size={18} color="#FFFFFF" />
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    styles.declineButton,
-                    { backgroundColor: "#EF4444" },
-                  ]}
-                  onPress={() => handleDecline(invitation.id)}
-                  disabled={declineInvitation.isPending}
-                >
-                  {declineInvitation.isPending ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
-                  ) : (
-                    <Feather name="x" size={18} color="#FFFFFF" />
-                  )}
-                </TouchableOpacity>
-              </View>
-
-              {/* Time Info */}
-              <View style={styles.timeInfo}>
-                <Feather
-                  name="clock"
-                  size={14}
-                  color={colors.textMuted}
-                />
-                <Text
-                  style={[styles.timeText, { color: colors.textMuted }]}
-                >
-                  Expira en {new Date(invitation.expiresAt).toLocaleDateString()}
-                </Text>
-              </View>
-            </View>
-          ))}
-
-          {/* Invite New Members Form */}
-          <TouchableOpacity
-            style={[styles.inviteFormToggle, { backgroundColor: colors.primary }]}
-            onPress={() => setShowInviteForm(!showInviteForm)}
-          >
-            <Feather name="plus" size={20} color="#FFFFFF" />
-            <Text style={styles.inviteFormText}>
-              {showInviteForm ? "Ocultar formulario" : "Invitar nuevos miembros"}
-            </Text>
-          </TouchableOpacity>
-
-          {showInviteForm && (
-            <View
-              style={[styles.inviteForm, { backgroundColor: colors.surface }]}
+            {/* Invite New Members Form */}
+            <TouchableOpacity
+              style={[
+                styles.inviteFormToggle,
+                { backgroundColor: colors.primary },
+              ]}
+              onPress={() => setShowInviteForm(!showInviteForm)}
             >
-              <Text
-                style={[styles.formTitle, { color: colors.text }]}
-              >
-                Invitar por email
+              <Feather name="plus" size={20} color="#FFFFFF" />
+              <Text style={styles.inviteFormText}>
+                {showInviteForm
+                  ? "Ocultar formulario"
+                  : "Invitar nuevos miembros"}
               </Text>
-              <TextInput
-                style={[
-                  styles.emailInput,
-                  { backgroundColor: colors.background, borderColor: colors.border, color: colors.text },
-                ]}
-                placeholder="ejemplo@correo.com"
-                placeholderTextColor={colors.textMuted}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                style={[styles.sendButton, { backgroundColor: colors.primary }]}
-                onPress={() => {
-                  // TODO: Implement send invitation
-                  console.log("Send invitation to:", email);
-                }}
+            </TouchableOpacity>
+
+            {showInviteForm && (
+              <View
+                style={[styles.inviteForm, { backgroundColor: colors.surface }]}
               >
-                <Text style={styles.sendButtonText}>Enviar invitación</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+                <Text style={[styles.formTitle, { color: colors.text }]}>
+                  Invitar por email
+                </Text>
+                <TextInput
+                  style={[
+                    styles.emailInput,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
+                  placeholder="ejemplo@correo.com"
+                  placeholderTextColor={colors.textMuted}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  style={[
+                    styles.sendButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={() => {
+                    // TODO: Implement send invitation
+                    console.log("Send invitation to:", email);
+                  }}
+                >
+                  <Text style={styles.sendButtonText}>Enviar invitación</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         )}
 
         {/* Empty State */}
@@ -314,9 +331,7 @@ export default function WorkspaceInvitationsScreen() {
             <Text style={[styles.emptyTitle, { color: colors.text }]}>
               Sin invitaciones pendientes
             </Text>
-            <Text
-              style={[styles.emptySubtitle, { color: colors.textMuted }]}
-            >
+            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
               Las invitaciones a tus workspaces aparecerán aquí
             </Text>
           </View>
@@ -326,49 +341,58 @@ export default function WorkspaceInvitationsScreen() {
         {(acceptedInvitations.length > 0 || declinedInvitations.length > 0) && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Historial ({acceptedInvitations.length + declinedInvitations.length})
+              Historial (
+              {acceptedInvitations.length + declinedInvitations.length})
             </Text>
-            {[...acceptedInvitations, ...declinedInvitations].slice(0, 10).map((invitation) => (
-              <View
-                key={invitation.id}
-                style={[
-                  styles.pastInvitationItem,
-                  { backgroundColor: colors.surface, borderColor: colors.border },
-                ]}
-              >
-                <View style={styles.pastInvitationInfo}>
-                  <Text
-                    style={[styles.workspaceName, { color: colors.text }]}
-                    numberOfLines={1}
-                  >
-                    {invitation.workspaceName}
-                  </Text>
-                  <Text
-                    style={[styles.inviterInfo, { color: colors.textMuted }]}
-                    numberOfLines={1}
-                  >
-                    {invitation.status === "ACCEPTED"
-                      ? "Aceptada"
-                      : "Rechazada"}
-                  </Text>
-                </View>
+            {[...acceptedInvitations, ...declinedInvitations]
+              .slice(0, 10)
+              .map((invitation) => (
                 <View
+                  key={invitation.id}
                   style={[
-                    styles.pastStatusBadge,
-                    { backgroundColor: getStatusColor(invitation.status) + "15" },
+                    styles.pastInvitationItem,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                    },
                   ]}
                 >
-                  <Text
+                  <View style={styles.pastInvitationInfo}>
+                    <Text
+                      style={[styles.workspaceName, { color: colors.text }]}
+                      numberOfLines={1}
+                    >
+                      {invitation.workspaceName}
+                    </Text>
+                    <Text
+                      style={[styles.inviterInfo, { color: colors.textMuted }]}
+                      numberOfLines={1}
+                    >
+                      {invitation.status === "ACCEPTED"
+                        ? "Aceptada"
+                        : "Rechazada"}
+                    </Text>
+                  </View>
+                  <View
                     style={[
-                      styles.statusText,
-                      { color: getStatusColor(invitation.status) },
+                      styles.pastStatusBadge,
+                      {
+                        backgroundColor:
+                          getStatusColor(invitation.status) + "15",
+                      },
                     ]}
                   >
-                    {formatStatus(invitation.status)}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.statusText,
+                        { color: getStatusColor(invitation.status) },
+                      ]}
+                    >
+                      {formatStatus(invitation.status)}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))}
           </View>
         )}
       </ScrollView>

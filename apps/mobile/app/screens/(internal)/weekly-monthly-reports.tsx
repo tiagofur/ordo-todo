@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,9 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { Dimensions } from "react-native";
+import { useWeeklyMetrics, useMonthlyMetrics } from "@/lib/shared-hooks";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -35,23 +38,6 @@ interface ReportsViewProps {
   onGenerateReport?: () => void;
 }
 
-const MOCK_WEEKLY_DATA: WeeklyData[] = [
-  { day: "Lun", pomodoros: 6, tasks: 5 },
-  { day: "Mar", pomodoros: 8, tasks: 7 },
-  { day: "Mie", pomodoros: 4, tasks: 3 },
-  { day: "Jue", pomodoros: 7, tasks: 6 },
-  { day: "Vie", pomodoros: 5, tasks: 4 },
-  { day: "Sab", pomodoros: 2, tasks: 2 },
-  { day: "Dom", pomodoros: 0, tasks: 1 },
-];
-
-const MOCK_MONTHLY_DATA: MonthlyData[] = [
-  { week: "Sem 1", pomodoros: 32, tasks: 28 },
-  { week: "Sem 2", pomodoros: 28, tasks: 25 },
-  { week: "Sem 3", pomodoros: 35, tasks: 30 },
-  { week: "Sem 4", pomodoros: 30, tasks: 26 },
-];
-
 const PERIODS: Period[] = [
   { key: "week", label: "Semana" },
   { key: "month", label: "Mes" },
@@ -65,29 +51,51 @@ export default function ReportsView({
   const [activePeriod, setActivePeriod] = useState<"week" | "month">("week");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const totalPomodoros =
-    activePeriod === "week"
-      ? MOCK_WEEKLY_DATA.reduce((sum, d) => sum + d.pomodoros, 0)
-      : MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.pomodoros, 0);
+  const { data: weeklyMetrics, isLoading: weeklyLoading } = useWeeklyMetrics();
+  const { data: monthlyMetrics, isLoading: monthlyLoading } =
+    useMonthlyMetrics();
 
-  const totalTasks =
-    activePeriod === "week"
-      ? MOCK_WEEKLY_DATA.reduce((sum, d) => sum + d.tasks, 0)
-      : MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.tasks, 0);
+  const isLoading = activePeriod === "week" ? weeklyLoading : monthlyLoading;
 
-  const avgPomodoros =
-    activePeriod === "week"
-      ? (totalPomodoros / 7).toFixed(1)
-      : (totalPomodoros / 4).toFixed(1);
+  const weeklyData = useMemo(() => {
+    if (!weeklyMetrics || weeklyMetrics.length === 0) return [];
+    return weeklyMetrics.map((m) => ({
+      day: format(new Date(m.date), "EEE", { locale: es }),
+      pomodoros: Math.floor((m.minutesWorked || 0) / 25),
+      tasks: m.tasksCompleted || 0,
+    }));
+  }, [weeklyMetrics]);
+
+  const monthlyData = useMemo(() => {
+    if (!monthlyMetrics || monthlyMetrics.length === 0) return [];
+    return monthlyMetrics.map((m) => ({
+      week: `Sem ${m.weekNumber || 0}`,
+      pomodoros: Math.floor((m.minutesWorked || 0) / 25),
+      tasks: m.tasksCompleted || 0,
+    }));
+  }, [monthlyMetrics]);
+
+  const currentData = activePeriod === "week" ? weeklyData : monthlyData;
+
+  const totalPomodoros = useMemo(() => {
+    return currentData.reduce((sum, d) => sum + d.pomodoros, 0);
+  }, [currentData]);
+
+  const totalTasks = useMemo(() => {
+    return currentData.reduce((sum, d) => sum + d.tasks, 0);
+  }, [currentData]);
+
+  const avgPomodoros = useMemo(() => {
+    const count = activePeriod === "week" ? 7 : 4;
+    return (totalPomodoros / count).toFixed(1);
+  }, [totalPomodoros, activePeriod]);
 
   const getChartData = () => {
-    const data = activePeriod === "week" ? MOCK_WEEKLY_DATA : MOCK_MONTHLY_DATA;
-    return data.map((d) => d.pomodoros);
+    return currentData.map((d) => d.pomodoros);
   };
 
   const getLabels = () => {
-    const data = activePeriod === "week" ? MOCK_WEEKLY_DATA : MOCK_MONTHLY_DATA;
-    return data.map((d) => (activePeriod === "week" ? d.day : d.week));
+    return currentData.map((d) => (activePeriod === "week" ? d.day : d.week));
   };
 
   const handleGenerate = async () => {
@@ -236,89 +244,127 @@ export default function ReportsView({
         </View>
 
         {/* Chart */}
-        <View
-          style={[styles.chartContainer, { backgroundColor: colors.surface }]}
-        >
-          <Text style={[styles.chartTitle, { color: colors.text }]}>
-            Productividad - {activePeriod === "week" ? "Días" : "Semanas"}
-          </Text>
-          <View style={styles.chartPlaceholder}>
-            <View
-              style={[
-                styles.barChart,
-                {
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              {getChartData().map((value, index) => {
-                const max = Math.max(...getChartData());
-                const height = (value / max) * 150;
-                return (
-                  <View key={index} style={styles.barGroup}>
-                    <Text
-                      style={[styles.barLabel, { color: colors.textMuted }]}
-                    >
-                      {getLabels()[index]}
-                    </Text>
-                    <View style={styles.barContainer}>
-                      <View
-                        style={[
-                          styles.bar,
-                          {
-                            backgroundColor: colors.primary,
-                            height,
-                          },
-                        ]}
-                      />
-                      <Text style={[styles.barValue, { color: colors.text }]}>
-                        {value}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              })}
+        {isLoading ? (
+          <View
+            style={[styles.chartContainer, { backgroundColor: colors.surface }]}
+          >
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator color={colors.primary} size="large" />
+              <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+                Cargando datos...
+              </Text>
             </View>
           </View>
-        </View>
+        ) : currentData.length > 0 ? (
+          <View
+            style={[styles.chartContainer, { backgroundColor: colors.surface }]}
+          >
+            <Text style={[styles.chartTitle, { color: colors.text }]}>
+              Productividad - {activePeriod === "week" ? "Días" : "Semanas"}
+            </Text>
+            <View style={styles.chartPlaceholder}>
+              <View
+                style={[
+                  styles.barChart,
+                  {
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                {getChartData().map((value, index) => {
+                  const max = Math.max(...getChartData(), 1);
+                  const height = (value / max) * 150;
+                  return (
+                    <View key={index} style={styles.barGroup}>
+                      <Text
+                        style={[styles.barLabel, { color: colors.textMuted }]}
+                      >
+                        {getLabels()[index]}
+                      </Text>
+                      <View style={styles.barContainer}>
+                        <View
+                          style={[
+                            styles.bar,
+                            {
+                              backgroundColor: colors.primary,
+                              height,
+                            },
+                          ]}
+                        />
+                        <Text style={[styles.barValue, { color: colors.text }]}>
+                          {value}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View
+            style={[styles.chartContainer, { backgroundColor: colors.surface }]}
+          >
+            <View style={styles.emptyContainer}>
+              <Feather
+                name="bar-chart-2"
+                size={48}
+                color={colors.textMuted}
+                style={styles.emptyIcon}
+              />
+              <Text style={[styles.emptyText, { color: colors.text }]}>
+                Sin datos disponibles
+              </Text>
+              <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
+                {activePeriod === "week"
+                  ? "Completa sesiones para ver tu reporte semanal"
+                  : "Completa sesiones para ver tu reporte mensual"}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Insights */}
-        <View
-          style={[
-            styles.insightsContainer,
-            { backgroundColor: colors.surface },
-          ]}
-        >
-          <Text style={[styles.insightsTitle, { color: colors.text }]}>
-            Insights
-          </Text>
-          <View style={styles.insightList}>
-            <View style={styles.insightItem}>
-              <Feather name="trending-up" size={16} color="#10B981" />
-              <Text style={[styles.insightText, { color: colors.text }]}>
-                Productividad un 15% mayor que el período anterior
-              </Text>
-            </View>
-            <View style={styles.insightItem}>
-              <Feather name="award" size={16} color="#F59E0B" />
-              <Text style={[styles.insightText, { color: colors.text }]}>
-                Racha de 4 días con más de 4 pomodoros
-              </Text>
-            </View>
-            <View style={styles.insightItem}>
-              <Feather name="zap" size={16} color="#3B82F6" />
-              <Text style={[styles.insightText, { color: colors.text }]}>
-                Mejor día: {activePeriod === "week" ? "Martes" : "Semana 2"}
-              </Text>
-            </View>
-            <View style={styles.insightItem}>
-              <Feather name="info" size={16} color={colors.textSecondary} />
-              <Text style={[styles.insightText, { color: colors.text }]}>
-                Pico de productividad: 9:00 - 11:00
-              </Text>
+        {currentData.length > 0 && (
+          <View
+            style={[
+              styles.insightsContainer,
+              { backgroundColor: colors.surface },
+            ]}
+          >
+            <Text style={[styles.insightsTitle, { color: colors.text }]}>
+              Insights
+            </Text>
+            <View style={styles.insightList}>
+              <View style={styles.insightItem}>
+                <Feather name="trending-up" size={16} color="#10B981" />
+                <Text style={[styles.insightText, { color: colors.text }]}>
+                  Total de {totalPomodoros} pomodoros completados
+                </Text>
+              </View>
+              <View style={styles.insightItem}>
+                <Feather name="award" size={16} color="#F59E0B" />
+                <Text style={[styles.insightText, { color: colors.text }]}>
+                  {totalTasks} tareas completadas este período
+                </Text>
+              </View>
+              <View style={styles.insightItem}>
+                <Feather name="zap" size={16} color="#3B82F6" />
+                <Text style={[styles.insightText, { color: colors.text }]}>
+                  Promedio de {avgPomodoros} pomodoros por día
+                </Text>
+              </View>
+              {activePeriod === "week" && totalPomodoros > 28 && (
+                <View style={styles.insightItem}>
+                  <Feather name="star" size={16} color={colors.primary} />
+                  <Text style={[styles.insightText, { color: colors.text }]}>
+                    ¡Superaste tu meta semanal!
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
-        </View>
+        )}
 
         {/* Generate Report Button */}
         <TouchableOpacity
@@ -501,5 +547,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 14,
+    marginTop: 12,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 32,
+  },
+  emptyIcon: {
+    marginBottom: 16,
+    opacity: 0.3,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    textAlign: "center",
   },
 });

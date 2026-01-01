@@ -48,7 +48,7 @@ class OrdoApiClient {
             baseURL: config.baseURL,
             timeout: config.timeout || 30000,
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
         });
         this.setupInterceptors();
@@ -61,7 +61,7 @@ class OrdoApiClient {
         this.axios.interceptors.request.use(async (config) => {
             // Skip for refresh endpoint to avoid circular dependency/deadlock
             // and to prevent sending expired tokens to the refresh endpoint
-            if (config.url?.includes('/auth/refresh')) {
+            if (config.url?.includes("/auth/refresh")) {
                 return config;
             }
             if (this.tokenStorage) {
@@ -109,11 +109,11 @@ class OrdoApiClient {
         this.refreshPromise = (async () => {
             try {
                 if (!this.tokenStorage) {
-                    throw new Error('No token storage configured');
+                    throw new Error("No token storage configured");
                 }
                 const refreshToken = await this.tokenStorage.getRefreshToken();
                 if (!refreshToken) {
-                    throw new Error('No refresh token available');
+                    throw new Error("No refresh token available");
                 }
                 // Call refresh endpoint
                 const response = await this.refreshToken({ refreshToken });
@@ -139,7 +139,7 @@ class OrdoApiClient {
      * POST /auth/register
      */
     async register(data) {
-        const response = await this.axios.post('/auth/register', data);
+        const response = await this.axios.post("/auth/register", data);
         // Store tokens if storage is available
         if (this.tokenStorage) {
             await this.tokenStorage.setToken(response.data.accessToken);
@@ -152,7 +152,7 @@ class OrdoApiClient {
      * POST /auth/login
      */
     async login(data) {
-        const response = await this.axios.post('/auth/login', data);
+        const response = await this.axios.post("/auth/login", data);
         // Store tokens if storage is available
         if (this.tokenStorage) {
             await this.tokenStorage.setToken(response.data.accessToken);
@@ -165,7 +165,7 @@ class OrdoApiClient {
      * POST /auth/refresh
      */
     async refreshToken(data) {
-        const response = await this.axios.post('/auth/refresh', data);
+        const response = await this.axios.post("/auth/refresh", data);
         return response.data;
     }
     /**
@@ -173,7 +173,7 @@ class OrdoApiClient {
      * POST /auth/check-username
      */
     async checkUsernameAvailability(username) {
-        const response = await this.axios.post('/auth/check-username', { username });
+        const response = await this.axios.post("/auth/check-username", { username });
         return response.data;
     }
     /**
@@ -192,7 +192,7 @@ class OrdoApiClient {
      * GET /users/me
      */
     async getCurrentUser() {
-        const response = await this.axios.get('/users/me');
+        const response = await this.axios.get("/users/me");
         return response.data;
     }
     /**
@@ -200,7 +200,7 @@ class OrdoApiClient {
      * GET /users/me/profile
      */
     async getFullProfile() {
-        const response = await this.axios.get('/users/me/profile');
+        const response = await this.axios.get("/users/me/profile");
         return response.data;
     }
     /**
@@ -208,7 +208,7 @@ class OrdoApiClient {
      * PUT /users/me
      */
     async updateProfile(data) {
-        const response = await this.axios.put('/users/me', data);
+        const response = await this.axios.put("/users/me", data);
         return response.data;
     }
     /**
@@ -216,7 +216,7 @@ class OrdoApiClient {
      * GET /users/me/preferences
      */
     async getPreferences() {
-        const response = await this.axios.get('/users/me/preferences');
+        const response = await this.axios.get("/users/me/preferences");
         return response.data;
     }
     /**
@@ -224,7 +224,7 @@ class OrdoApiClient {
      * PATCH /users/me/preferences
      */
     async updatePreferences(data) {
-        const response = await this.axios.patch('/users/me/preferences', data);
+        const response = await this.axios.patch("/users/me/preferences", data);
         return response.data;
     }
     /**
@@ -232,7 +232,7 @@ class OrdoApiClient {
      * GET /users/me/integrations
      */
     async getIntegrations() {
-        const response = await this.axios.get('/users/me/integrations');
+        const response = await this.axios.get("/users/me/integrations");
         return response.data;
     }
     /**
@@ -240,8 +240,8 @@ class OrdoApiClient {
      * POST /users/me/export
      */
     async exportData() {
-        const response = await this.axios.post('/users/me/export', null, {
-            responseType: 'blob',
+        const response = await this.axios.post("/users/me/export", null, {
+            responseType: "blob",
         });
         return response.data;
     }
@@ -250,7 +250,7 @@ class OrdoApiClient {
      * DELETE /users/me
      */
     async deleteAccount() {
-        const response = await this.axios.delete('/users/me');
+        const response = await this.axios.delete("/users/me");
         return response.data;
     }
     // ============ WORKSPACE ENDPOINTS (7) ============
@@ -259,7 +259,7 @@ class OrdoApiClient {
      * POST /workspaces
      */
     async createWorkspace(data) {
-        const response = await this.axios.post('/workspaces', data);
+        const response = await this.axios.post("/workspaces", data);
         return response.data;
     }
     /**
@@ -267,7 +267,7 @@ class OrdoApiClient {
      * GET /workspaces
      */
     async getWorkspaces() {
-        const response = await this.axios.get('/workspaces');
+        const response = await this.axios.get("/workspaces");
         return response.data;
     }
     /**
@@ -306,7 +306,7 @@ class OrdoApiClient {
      * GET /workspaces/deleted
      */
     async getDeletedWorkspaces() {
-        const response = await this.axios.get('/workspaces/deleted');
+        const response = await this.axios.get("/workspaces/deleted");
         return response.data;
     }
     /**
@@ -345,7 +345,7 @@ class OrdoApiClient {
      * POST /workflows
      */
     async createWorkflow(data) {
-        const response = await this.axios.post('/workflows', data);
+        const response = await this.axios.post("/workflows", data);
         return response.data;
     }
     /**
@@ -353,7 +353,7 @@ class OrdoApiClient {
      * GET /workflows?workspaceId=xxx
      */
     async getWorkflows(workspaceId) {
-        const response = await this.axios.get('/workflows', {
+        const response = await this.axios.get("/workflows", {
             params: { workspaceId },
         });
         return response.data;
@@ -379,7 +379,7 @@ class OrdoApiClient {
      * POST /projects
      */
     async createProject(data) {
-        const response = await this.axios.post('/projects', data);
+        const response = await this.axios.post("/projects", data);
         return response.data;
     }
     /**
@@ -387,7 +387,7 @@ class OrdoApiClient {
      * GET /projects?workspaceId=xxx
      */
     async getProjects(workspaceId) {
-        const response = await this.axios.get('/projects', {
+        const response = await this.axios.get("/projects", {
             params: { workspaceId },
         });
         return response.data;
@@ -397,7 +397,7 @@ class OrdoApiClient {
      * GET /projects/all
      */
     async getAllProjects() {
-        const response = await this.axios.get('/projects/all');
+        const response = await this.axios.get("/projects/all");
         return response.data;
     }
     /**
@@ -461,7 +461,7 @@ class OrdoApiClient {
      * POST /tasks
      */
     async createTask(data) {
-        const response = await this.axios.post('/tasks', data);
+        const response = await this.axios.post("/tasks", data);
         return response.data;
     }
     /**
@@ -482,7 +482,7 @@ class OrdoApiClient {
             params.projectId = projectId;
         if (tags && tags.length > 0)
             params.tags = tags;
-        const response = await this.axios.get('/tasks', {
+        const response = await this.axios.get("/tasks", {
             params,
         });
         return response.data;
@@ -493,7 +493,7 @@ class OrdoApiClient {
      * Returns: overdue, dueToday, scheduledToday, available, notYetAvailable
      */
     async getTasksToday() {
-        const response = await this.axios.get('/tasks/today');
+        const response = await this.axios.get("/tasks/today");
         return response.data;
     }
     /**
@@ -503,9 +503,11 @@ class OrdoApiClient {
     async getScheduledTasks(date) {
         const params = {};
         if (date) {
-            params.date = typeof date === 'string' ? date : date.toISOString();
+            params.date = typeof date === "string" ? date : date.toISOString();
         }
-        const response = await this.axios.get('/tasks/scheduled', { params });
+        const response = await this.axios.get("/tasks/scheduled", {
+            params,
+        });
         return response.data;
     }
     /**
@@ -516,7 +518,9 @@ class OrdoApiClient {
         const params = {};
         if (projectId)
             params.projectId = projectId;
-        const response = await this.axios.get('/tasks/available', { params });
+        const response = await this.axios.get("/tasks/available", {
+            params,
+        });
         return response.data;
     }
     /**
@@ -529,7 +533,9 @@ class OrdoApiClient {
             params.start = start instanceof Date ? start.toISOString() : start;
         if (end)
             params.end = end instanceof Date ? end.toISOString() : end;
-        const response = await this.axios.get('/tasks/time-blocks', { params });
+        const response = await this.axios.get("/tasks/time-blocks", {
+            params,
+        });
         return response.data;
     }
     async getTask(taskId) {
@@ -550,43 +556,6 @@ class OrdoApiClient {
      */
     async updateTask(taskId, data) {
         const response = await this.axios.put(`/tasks/${taskId}`, data);
-        /**
-         * Get today's tasks (overdue, dueToday, scheduledToday, available)
-         */
-        async;
-        getTodayTasks();
-        Promise < types_1.TodayTasksResponse > {
-            const: response = await this.axios.get('/tasks/today'),
-            return: response.data
-        };
-        /**
-         * Get available tasks (can be started today)
-         */
-        async;
-        getAvailableTasks(projectId ?  : string);
-        Promise < types_1.Task[] > {
-            const: params = projectId ? `?projectId=${projectId}` : '',
-            const: response = await this.axios.get(`/tasks/available${params}`),
-            return: response.data
-        };
-        /**
-         * Get scheduled tasks for a specific date
-         */
-        async;
-        getScheduledTasks(date, string);
-        Promise < types_1.Task[] > {
-            const: response = await this.axios.get(`/tasks/scheduled?date=${date}`),
-            return: response.data
-        };
-        /**
-         * Get time-blocked tasks within a date range
-         */
-        async;
-        getTimeBlocks(start, string, end, string);
-        Promise < types_1.Task[] > {
-            const: response = await this.axios.get(`/tasks/time-blocks?start=${start}&end=${end}`),
-            return: response.data
-        };
         return response.data;
     }
     /**
@@ -609,7 +578,9 @@ class OrdoApiClient {
      * POST /tasks/:id/assign
      */
     async assignTask(taskId, userId) {
-        const response = await this.axios.post(`/tasks/${taskId}/assign`, { userId });
+        const response = await this.axios.post(`/tasks/${taskId}/assign`, {
+            userId,
+        });
         return response.data;
     }
     /**
@@ -626,7 +597,7 @@ class OrdoApiClient {
      * POST /tags
      */
     async createTag(data) {
-        const response = await this.axios.post('/tags', data);
+        const response = await this.axios.post("/tags", data);
         return response.data;
     }
     /**
@@ -634,7 +605,7 @@ class OrdoApiClient {
      * GET /tags?workspaceId=xxx
      */
     async getTags(workspaceId) {
-        const response = await this.axios.get('/tags', {
+        const response = await this.axios.get("/tags", {
             params: { workspaceId },
         });
         return response.data;
@@ -675,7 +646,7 @@ class OrdoApiClient {
      * POST /timers/start
      */
     async startTimer(data) {
-        const response = await this.axios.post('/timers/start', data);
+        const response = await this.axios.post("/timers/start", data);
         return response.data;
     }
     /**
@@ -683,7 +654,7 @@ class OrdoApiClient {
      * POST /timers/stop
      */
     async stopTimer(data) {
-        const response = await this.axios.post('/timers/stop', data);
+        const response = await this.axios.post("/timers/stop", data);
         return response.data;
     }
     /**
@@ -691,7 +662,7 @@ class OrdoApiClient {
      * GET /timers/active
      */
     async getActiveTimer() {
-        const response = await this.axios.get('/timers/active');
+        const response = await this.axios.get("/timers/active");
         return response.data;
     }
     /**
@@ -699,7 +670,7 @@ class OrdoApiClient {
      * POST /timers/pause
      */
     async pauseTimer(data) {
-        const response = await this.axios.post('/timers/pause', data || {});
+        const response = await this.axios.post("/timers/pause", data || {});
         return response.data;
     }
     /**
@@ -707,7 +678,7 @@ class OrdoApiClient {
      * POST /timers/resume
      */
     async resumeTimer(data) {
-        const response = await this.axios.post('/timers/resume', data);
+        const response = await this.axios.post("/timers/resume", data);
         return response.data;
     }
     /**
@@ -715,7 +686,7 @@ class OrdoApiClient {
      * POST /timers/switch-task
      */
     async switchTask(data) {
-        const response = await this.axios.post('/timers/switch-task', data);
+        const response = await this.axios.post("/timers/switch-task", data);
         return response.data;
     }
     /**
@@ -723,7 +694,7 @@ class OrdoApiClient {
      * GET /timers/history
      */
     async getSessionHistory(params) {
-        const response = await this.axios.get('/timers/history', {
+        const response = await this.axios.get("/timers/history", {
             params,
         });
         return response.data;
@@ -733,7 +704,7 @@ class OrdoApiClient {
      * GET /timers/stats
      */
     async getTimerStats(params) {
-        const response = await this.axios.get('/timers/stats', {
+        const response = await this.axios.get("/timers/stats", {
             params,
         });
         return response.data;
@@ -752,7 +723,7 @@ class OrdoApiClient {
      * GET /analytics/daily?startDate=xxx&endDate=xxx
      */
     async getDailyMetrics(params) {
-        const response = await this.axios.get('/analytics/daily', {
+        const response = await this.axios.get("/analytics/daily", {
             params,
         });
         return response.data;
@@ -762,7 +733,7 @@ class OrdoApiClient {
      * GET /analytics/dashboard-stats
      */
     async getDashboardStats() {
-        const response = await this.axios.get('/analytics/dashboard-stats');
+        const response = await this.axios.get("/analytics/dashboard-stats");
         return response.data;
     }
     /**
@@ -770,7 +741,7 @@ class OrdoApiClient {
      * GET /analytics/weekly
      */
     async getWeeklyMetrics() {
-        const response = await this.axios.get('/analytics/weekly');
+        const response = await this.axios.get("/analytics/weekly");
         return response.data;
     }
     /**
@@ -778,7 +749,7 @@ class OrdoApiClient {
      * GET /analytics/heatmap
      */
     async getHeatmapData() {
-        const response = await this.axios.get('/analytics/heatmap');
+        const response = await this.axios.get("/analytics/heatmap");
         return response.data;
     }
     /**
@@ -786,7 +757,7 @@ class OrdoApiClient {
      * GET /analytics/project-distribution
      */
     async getProjectDistribution() {
-        const response = await this.axios.get('/analytics/project-distribution');
+        const response = await this.axios.get("/analytics/project-distribution");
         return response.data;
     }
     /**
@@ -794,7 +765,7 @@ class OrdoApiClient {
      * GET /analytics/task-status-distribution
      */
     async getTaskStatusDistribution() {
-        const response = await this.axios.get('/analytics/task-status-distribution');
+        const response = await this.axios.get("/analytics/task-status-distribution");
         return response.data;
     }
     // ============ COMMENT ENDPOINTS (4) ============
@@ -803,7 +774,7 @@ class OrdoApiClient {
      * POST /comments
      */
     async createComment(data) {
-        const response = await this.axios.post('/comments', data);
+        const response = await this.axios.post("/comments", data);
         return response.data;
     }
     /**
@@ -835,7 +806,7 @@ class OrdoApiClient {
      * POST /attachments
      */
     async createAttachment(data) {
-        const response = await this.axios.post('/attachments', data);
+        const response = await this.axios.post("/attachments", data);
         return response.data;
     }
     /**
@@ -859,7 +830,7 @@ class OrdoApiClient {
      * GET /ai/profile
      */
     async getAIProfile() {
-        const response = await this.axios.get('/ai/profile');
+        const response = await this.axios.get("/ai/profile");
         return response.data;
     }
     /**
@@ -867,7 +838,7 @@ class OrdoApiClient {
      * GET /ai/optimal-schedule
      */
     async getOptimalSchedule(topN) {
-        const response = await this.axios.get('/ai/optimal-schedule', {
+        const response = await this.axios.get("/ai/optimal-schedule", {
             params: { topN },
         });
         return response.data;
@@ -877,7 +848,7 @@ class OrdoApiClient {
      * GET /ai/predict-duration
      */
     async predictTaskDuration(params) {
-        const response = await this.axios.get('/ai/predict-duration', {
+        const response = await this.axios.get("/ai/predict-duration", {
             params,
         });
         return response.data;
@@ -887,7 +858,7 @@ class OrdoApiClient {
      * POST /ai/reports/weekly
      */
     async generateWeeklyReport(weekStart) {
-        const response = await this.axios.post('/ai/reports/weekly', null, {
+        const response = await this.axios.post("/ai/reports/weekly", null, {
             params: { weekStart },
         });
         return response.data;
@@ -897,7 +868,7 @@ class OrdoApiClient {
      * GET /ai/reports
      */
     async getReports(params) {
-        const response = await this.axios.get('/ai/reports', {
+        const response = await this.axios.get("/ai/reports", {
             params,
         });
         return response.data;
@@ -947,7 +918,7 @@ class OrdoApiClient {
      * POST /workspaces/invitations/accept
      */
     async acceptWorkspaceInvitation(data) {
-        const response = await this.axios.post('/workspaces/invitations/accept', data);
+        const response = await this.axios.post("/workspaces/invitations/accept", data);
         return response.data;
     }
     /**
@@ -1007,7 +978,9 @@ class OrdoApiClient {
      * GET /timers?taskId=xxx
      */
     async getTimerSessions(taskId) {
-        const response = await this.axios.get('/timers', { params: { taskId } });
+        const response = await this.axios.get("/timers", {
+            params: { taskId },
+        });
         return response.data;
     }
     /**
@@ -1023,7 +996,7 @@ class OrdoApiClient {
      * POST /timers/session
      */
     async createTimerSession(data) {
-        const response = await this.axios.post('/timers/session', data);
+        const response = await this.axios.post("/timers/session", data);
         return response.data;
     }
     /**
@@ -1064,7 +1037,7 @@ class OrdoApiClient {
      * GET /analytics/monthly
      */
     async getMonthlyMetrics(params) {
-        const response = await this.axios.get('/analytics/monthly', {
+        const response = await this.axios.get("/analytics/monthly", {
             params,
         });
         return response.data;
@@ -1074,7 +1047,7 @@ class OrdoApiClient {
      * GET /analytics/range
      */
     async getDateRangeMetrics(startDate, endDate) {
-        const response = await this.axios.get('/analytics/range', {
+        const response = await this.axios.get("/analytics/range", {
             params: { startDate, endDate },
         });
         return response.data;
@@ -1094,7 +1067,7 @@ class OrdoApiClient {
      * GET /notifications
      */
     async getNotifications() {
-        const response = await this.axios.get('/notifications');
+        const response = await this.axios.get("/notifications");
         return response.data;
     }
     /**
@@ -1102,7 +1075,7 @@ class OrdoApiClient {
      * GET /notifications/unread-count
      */
     async getUnreadNotificationsCount() {
-        const response = await this.axios.get('/notifications/unread-count');
+        const response = await this.axios.get("/notifications/unread-count");
         return response.data;
     }
     /**
@@ -1118,7 +1091,7 @@ class OrdoApiClient {
      * POST /notifications/mark-all-read
      */
     async markAllNotificationsAsRead() {
-        const response = await this.axios.post('/notifications/mark-all-read');
+        const response = await this.axios.post("/notifications/mark-all-read");
         return response.data;
     }
     // ============ CHAT ENDPOINTS ============
@@ -1127,7 +1100,7 @@ class OrdoApiClient {
      * GET /chat/conversations
      */
     async getConversations(params) {
-        const response = await this.axios.get('/chat/conversations', {
+        const response = await this.axios.get("/chat/conversations", {
             params,
         });
         return response.data;
@@ -1145,7 +1118,7 @@ class OrdoApiClient {
      * POST /chat/conversations
      */
     async createConversation(data) {
-        const response = await this.axios.post('/chat/conversations', data);
+        const response = await this.axios.post("/chat/conversations", data);
         return response.data;
     }
     /**
@@ -1184,7 +1157,7 @@ class OrdoApiClient {
      * GET /chat/insights
      */
     async getAIInsights() {
-        const response = await this.axios.get('/chat/insights');
+        const response = await this.axios.get("/chat/insights");
         return response.data;
     }
     // ============ HABIT ENDPOINTS (11) ============
@@ -1193,7 +1166,7 @@ class OrdoApiClient {
      * POST /habits
      */
     async createHabit(data) {
-        const response = await this.axios.post('/habits', data);
+        const response = await this.axios.post("/habits", data);
         return response.data;
     }
     /**
@@ -1201,8 +1174,8 @@ class OrdoApiClient {
      * GET /habits
      */
     async getHabits(includeArchived) {
-        const response = await this.axios.get('/habits', {
-            params: { includeArchived: includeArchived ? 'true' : undefined },
+        const response = await this.axios.get("/habits", {
+            params: { includeArchived: includeArchived ? "true" : undefined },
         });
         return response.data;
     }
@@ -1211,7 +1184,7 @@ class OrdoApiClient {
      * GET /habits/today
      */
     async getTodayHabits() {
-        const response = await this.axios.get('/habits/today');
+        const response = await this.axios.get("/habits/today");
         return response.data;
     }
     /**
@@ -1283,7 +1256,7 @@ class OrdoApiClient {
      * POST /objectives
      */
     async createObjective(data) {
-        const response = await this.axios.post('/objectives', data);
+        const response = await this.axios.post("/objectives", data);
         return response.data;
     }
     /**
@@ -1291,7 +1264,9 @@ class OrdoApiClient {
      * GET /objectives
      */
     async getObjectives(options) {
-        const response = await this.axios.get('/objectives', { params: options });
+        const response = await this.axios.get("/objectives", {
+            params: options,
+        });
         return response.data;
     }
     /**
@@ -1299,7 +1274,7 @@ class OrdoApiClient {
      * GET /objectives/current-period
      */
     async getCurrentPeriodObjectives() {
-        const response = await this.axios.get('/objectives/current-period');
+        const response = await this.axios.get("/objectives/current-period");
         return response.data;
     }
     /**
@@ -1307,7 +1282,7 @@ class OrdoApiClient {
      * GET /objectives/dashboard-summary
      */
     async getObjectivesDashboardSummary() {
-        const response = await this.axios.get('/objectives/dashboard-summary');
+        const response = await this.axios.get("/objectives/dashboard-summary");
         return response.data;
     }
     /**
@@ -1425,7 +1400,7 @@ class OrdoApiClient {
      * GET /ai/burnout/analysis
      */
     async getBurnoutAnalysis() {
-        const response = await this.axios.get('/ai/burnout/analysis');
+        const response = await this.axios.get("/ai/burnout/analysis");
         return response.data;
     }
     /**
@@ -1433,7 +1408,7 @@ class OrdoApiClient {
      * GET /ai/burnout/patterns
      */
     async getWorkPatterns() {
-        const response = await this.axios.get('/ai/burnout/patterns');
+        const response = await this.axios.get("/ai/burnout/patterns");
         return response.data;
     }
     /**
@@ -1441,7 +1416,7 @@ class OrdoApiClient {
      * GET /ai/burnout/recommendations
      */
     async getRestRecommendations() {
-        const response = await this.axios.get('/ai/burnout/recommendations');
+        const response = await this.axios.get("/ai/burnout/recommendations");
         return response.data;
     }
     /**
@@ -1449,7 +1424,7 @@ class OrdoApiClient {
      * GET /ai/burnout/intervention
      */
     async checkBurnoutIntervention() {
-        const response = await this.axios.get('/ai/burnout/intervention');
+        const response = await this.axios.get("/ai/burnout/intervention");
         return response.data;
     }
     /**
@@ -1457,7 +1432,7 @@ class OrdoApiClient {
      * GET /ai/burnout/weekly-summary
      */
     async getWeeklyWellbeingSummary() {
-        const response = await this.axios.get('/ai/burnout/weekly-summary');
+        const response = await this.axios.get("/ai/burnout/weekly-summary");
         return response.data;
     }
     // ============ TEAM WORKLOAD ENDPOINTS ============
@@ -1484,7 +1459,7 @@ class OrdoApiClient {
      * GET /workload/me
      */
     async getMyWorkload(workspaceId) {
-        const response = await this.axios.get('/workload/me', {
+        const response = await this.axios.get("/workload/me", {
             params: { workspaceId },
         });
         return response.data;

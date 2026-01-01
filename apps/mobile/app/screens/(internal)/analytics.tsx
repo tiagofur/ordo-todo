@@ -5,6 +5,8 @@ import { useDailyMetrics, useDashboardStats } from "../../lib/shared-hooks";
 import { useDesignTokens } from "../../lib/use-design-tokens";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import ReportsView from "./weekly-monthly-reports";
+import { AIWeeklyReport } from "./ai-weekly-report";
 
 interface StatCardProps {
   title: string;
@@ -110,8 +112,8 @@ function StatCard({ title, value, subtitle, iconName, trend }: StatCardProps) {
 
 export default function AnalyticsScreen() {
   const { t } = useTranslation();
-  const [selectedTab, setSelectedTab] = useState<
-    "overview" | "weekly" | "focus" | "ai"
+  const [selectedView, setSelectedView] = useState<
+    "overview" | "weekly" | "monthly" | "ai"
   >("overview");
   const { colors, spacing } = useDesignTokens();
 
@@ -124,10 +126,10 @@ export default function AnalyticsScreen() {
   });
   const todayMetrics = todayMetricsArray?.[0];
 
-  const tabs = [
+  const views = [
     { id: "overview" as const, label: "Resumen" },
     { id: "weekly" as const, label: "Semanal" },
-    { id: "focus" as const, label: "Enfoque" },
+    { id: "monthly" as const, label: "Mensual" },
     { id: "ai" as const, label: "IA" },
   ];
 
@@ -171,7 +173,7 @@ export default function AnalyticsScreen() {
         </View>
       </View>
 
-      {/* Tab Selector */}
+      {/* View Selector */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -182,10 +184,10 @@ export default function AnalyticsScreen() {
         }}
         contentContainerStyle={{ gap: 8 }}
       >
-        {tabs.map((tab) => (
+        {views.map((view) => (
           <TouchableOpacity
-            key={tab.id}
-            onPress={() => setSelectedTab(tab.id)}
+            key={view.id}
+            onPress={() => setSelectedView(view.id)}
             style={[
               {
                 flexDirection: "row",
@@ -195,11 +197,12 @@ export default function AnalyticsScreen() {
                 paddingVertical: 10,
                 borderRadius: 8,
                 backgroundColor:
-                  selectedTab === tab.id
+                  selectedView === view.id
                     ? "rgba(124, 58, 237, 0.1)"
                     : "transparent",
                 borderWidth: 1,
-                borderColor: selectedTab === tab.id ? "#7C3AED" : colors.border,
+                borderColor:
+                  selectedView === view.id ? "#7C3AED" : colors.border,
               },
             ]}
           >
@@ -208,19 +211,19 @@ export default function AnalyticsScreen() {
                 fontSize: 14,
                 fontWeight: "600",
                 color:
-                  selectedTab === tab.id ? "#7C3AED" : colors.mutedForeground,
+                  selectedView === view.id ? "#7C3AED" : colors.mutedForeground,
               }}
             >
-              {tab.label}
+              {view.label}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {/* Content */}
-      <ScrollView style={{ flex: 1, padding: 16 }}>
-        {selectedTab === "overview" && (
-          <View style={{ gap: 16 }}>
+      <ScrollView style={{ flex: 1 }}>
+        {selectedView === "overview" && (
+          <View style={{ gap: 16, padding: 16 }}>
             {/* Quick Stats */}
             {dashboardStats && (
               <>
@@ -445,335 +448,11 @@ export default function AnalyticsScreen() {
           </View>
         )}
 
-        {selectedTab === "weekly" && (
-          <View style={{ gap: 16 }}>
-            <View
-              style={{
-                backgroundColor: colors.card,
-                borderRadius: 16,
-                padding: 16,
-              }}
-            >
-              <Text
-                style={{
-                  color: colors.foreground,
-                  fontSize: 18,
-                  fontWeight: "700",
-                  marginBottom: 16,
-                }}
-              >
-                Resumen Semanal
-              </Text>
-              {dashboardStats ? (
-                <View
-                  style={{ flexDirection: "row", flexWrap: "wrap", gap: 16 }}
-                >
-                  <View
-                    style={{ flex: 1, minWidth: 100, alignItems: "center" }}
-                  >
-                    <Text
-                      style={{
-                        color: colors.foreground,
-                        fontSize: 28,
-                        fontWeight: "700",
-                      }}
-                    >
-                      {Math.floor((dashboardStats.minutes || 0) / 60)}h{" "}
-                      {(dashboardStats.minutes || 0) % 60}m
-                    </Text>
-                    <Text
-                      style={{
-                        color: colors.mutedForeground,
-                        fontSize: 12,
-                        marginTop: 4,
-                      }}
-                    >
-                      Tiempo total
-                    </Text>
-                  </View>
-                  <View
-                    style={{ flex: 1, minWidth: 100, alignItems: "center" }}
-                  >
-                    <Text
-                      style={{
-                        color: colors.foreground,
-                        fontSize: 28,
-                        fontWeight: "700",
-                      }}
-                    >
-                      {dashboardStats.pomodoros || 0}
-                    </Text>
-                    <Text
-                      style={{
-                        color: colors.mutedForeground,
-                        fontSize: 12,
-                        marginTop: 4,
-                      }}
-                    >
-                      Pomodoros
-                    </Text>
-                  </View>
-                  <View
-                    style={{ flex: 1, minWidth: 100, alignItems: "center" }}
-                  >
-                    <Text
-                      style={{
-                        color: colors.foreground,
-                        fontSize: 28,
-                        fontWeight: "700",
-                      }}
-                    >
-                      {dashboardStats.tasks || 0}
-                    </Text>
-                    <Text
-                      style={{
-                        color: colors.mutedForeground,
-                        fontSize: 12,
-                        marginTop: 4,
-                      }}
-                    >
-                      Tareas
-                    </Text>
-                  </View>
-                </View>
-              ) : (
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  Cargando...
-                </Text>
-              )}
-            </View>
-          </View>
-        )}
+        {selectedView === "weekly" && <ReportsView />}
 
-        {selectedTab === "focus" && (
-          <View style={{ gap: 16 }}>
-            {todayMetrics?.focusScore !== undefined ? (
-              <>
-                <View
-                  style={{
-                    backgroundColor: colors.card,
-                    borderRadius: 16,
-                    padding: 16,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: colors.foreground,
-                      fontSize: 18,
-                      fontWeight: "700",
-                      marginBottom: 16,
-                    }}
-                  >
-                    Focus Score
-                  </Text>
-                  <View style={{ alignItems: "center", paddingVertical: 32 }}>
-                    <View
-                      style={{
-                        width: 180,
-                        height: 180,
-                        borderRadius: 90,
-                        borderWidth: 16,
-                        borderColor: "#10B981",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: colors.foreground,
-                          fontSize: 42,
-                          fontWeight: "700",
-                        }}
-                      >
-                        {todayMetrics.focusScore}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+        {selectedView === "monthly" && <ReportsView />}
 
-                {/* Tips */}
-                <View
-                  style={{
-                    backgroundColor: colors.card,
-                    borderRadius: 16,
-                    padding: 16,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: colors.foreground,
-                      fontSize: 16,
-                      fontWeight: "600",
-                      marginBottom: 16,
-                    }}
-                  >
-                    Cómo mejorar
-                  </Text>
-                  <View style={{ gap: 12 }}>
-                    <Text
-                      style={{ color: colors.mutedForeground, fontSize: 14 }}
-                    >
-                      • Reduce el número de pausas
-                    </Text>
-                    <Text
-                      style={{ color: colors.mutedForeground, fontSize: 14 }}
-                    >
-                      • Acorta tus descansos
-                    </Text>
-                    <Text
-                      style={{ color: colors.mutedForeground, fontSize: 14 }}
-                    >
-                      • Usa la técnica Pomodoro
-                    </Text>
-                    <Text
-                      style={{ color: colors.mutedForeground, fontSize: 14 }}
-                    >
-                      • Elimina distracciones
-                    </Text>
-                  </View>
-                </View>
-              </>
-            ) : (
-              <View style={{ alignItems: "center", paddingVertical: 48 }}>
-                <Ionicons
-                  name="construct"
-                  size={48}
-                  color={colors.mutedForeground}
-                />
-                <Text
-                  style={{
-                    color: colors.foreground,
-                    fontSize: 18,
-                    fontWeight: "600",
-                    marginTop: 16,
-                  }}
-                >
-                  Sin datos
-                </Text>
-                <Text
-                  style={{
-                    color: colors.mutedForeground,
-                    fontSize: 14,
-                    marginTop: 8,
-                  }}
-                >
-                  Completa sesiones de timer para ver tu focus score
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {selectedTab === "ai" && (
-          <View style={{ gap: 16 }}>
-            <View
-              style={{
-                backgroundColor: colors.card,
-                borderRadius: 16,
-                padding: 16,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 16,
-                }}
-              >
-                <Ionicons name="bulb" size={20} color="#7C3AED" />
-                <Text
-                  style={{
-                    color: colors.foreground,
-                    fontSize: 18,
-                    fontWeight: "700",
-                  }}
-                >
-                  IA de Productividad
-                </Text>
-              </View>
-              <Text
-                style={{
-                  color: colors.mutedForeground,
-                  fontSize: 14,
-                  lineHeight: 22,
-                }}
-              >
-                Ordo-Todo aprende de tus patrones de trabajo para ofrecerte
-                insights personalizados y recomendaciones inteligentes.
-              </Text>
-            </View>
-
-            <View
-              style={{
-                backgroundColor: colors.card,
-                borderRadius: 16,
-                padding: 16,
-              }}
-            >
-              <Text
-                style={{
-                  color: colors.foreground,
-                  fontSize: 16,
-                  fontWeight: "600",
-                  marginBottom: 16,
-                }}
-              >
-                Qué analiza
-              </Text>
-              <View style={{ gap: 12 }}>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Horas de mayor productividad
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Días más productivos
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Duración promedio de sesiones
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Tasa de finalización
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Patrones de comportamiento
-                </Text>
-              </View>
-            </View>
-
-            <View
-              style={{
-                backgroundColor: colors.card,
-                borderRadius: 16,
-                padding: 16,
-              }}
-            >
-              <Text
-                style={{
-                  color: colors.foreground,
-                  fontSize: 16,
-                  fontWeight: "600",
-                  marginBottom: 16,
-                }}
-              >
-                Qué ofrece
-              </Text>
-              <View style={{ gap: 12 }}>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Recomendaciones personalizadas
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Predicciones de carga de trabajo
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Insights de comportamiento
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>
-                  • Visualizaciones de datos
-                </Text>
-              </View>
-            </View>
-          </View>
-        )}
+        {selectedView === "ai" && <AIWeeklyReport />}
       </ScrollView>
     </SafeAreaView>
   );

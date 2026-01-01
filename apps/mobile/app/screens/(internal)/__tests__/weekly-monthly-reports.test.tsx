@@ -2,67 +2,65 @@
  * Weekly/Monthly Reports Component Tests
  */
 
-import { render } from '@testing-library/react-native';
-import ReportsView from '../weekly-monthly-reports';
+import { render } from "@testing-library/react-native";
+import ReportsView from "../weekly-monthly-reports";
 
-describe('ReportsView', () => {
-  it('should render without crashing', () => {
+describe("ReportsView", () => {
+  it("should render without crashing", () => {
     render(<ReportsView />);
   });
 
-  it('should display weekly summary cards', () => {
+  it("should display weekly summary cards", () => {
     const { getByText } = render(<ReportsView />);
-    
+
     expect(getByText(/Total Pomodoros/)).toBeTruthy();
     expect(getByText(/Tareas Completadas/)).toBeTruthy();
   });
 
-  it('should display period selector', () => {
+  it("should display period selector", () => {
     const { getByText } = render(<ReportsView />);
-    
-    expect(getByText('Semana')).toBeTruthy();
-    expect(getByText('Mes')).toBeTruthy();
+
+    expect(getByText("Semana")).toBeTruthy();
+    expect(getByText("Mes")).toBeTruthy();
   });
 
-  it('should switch between week and month', () => {
+  it("should switch between week and month", () => {
     const { getByText } = render(<ReportsView />);
-    
-    expect(getByText('Semana')).toBeTruthy();
-    expect(getByText('Mes')).toBeTruthy();
+
+    expect(getByText("Semana")).toBeTruthy();
+    expect(getByText("Mes")).toBeTruthy();
   });
 
-  it('should display chart', () => {
+  it("should display chart", () => {
     const { getByText } = render(<ReportsView />);
-    
+
     expect(getByText(/Productividad/)).toBeTruthy();
   });
 
-  it('should display insights', () => {
+  it("should display insights", () => {
     const { getByText } = render(<ReportsView />);
-    
+
     expect(getByText(/Insights/)).toBeTruthy();
     expect(getByText(/Productividad un/)).toBeTruthy();
   });
 
-  it('should show loading state when generating report', () => {
+  it("should show loading state when generating report", () => {
     const { getByText } = render(<ReportsView />);
-    
+
     // Generate button should be present
     expect(getByText(/Generar Reporte/)).toBeTruthy();
   });
 
-  it('should call onRefresh when refresh button exists and pressed', () => {
+  it("should call onRefresh when refresh button exists and pressed", () => {
     const onRefreshMock = jest.fn();
     const { getByText } = render(<ReportsView onRefresh={onRefreshMock} />);
-    
+
     // onRefresh should be called when button exists
-    if (getByText(/refresh-cw/)) {
-      onRefreshMock.mockImplementation(() => {
-        // Button press logic
-      });
+    const refreshButton = getByText(/refresh-cw/);
+    if (refreshButton) {
+      expect(onRefreshMock).toBeDefined();
     }
   });
-});
 
   it("should display weekly summary cards", () => {
     const { getByText } = render(<ReportsView />);

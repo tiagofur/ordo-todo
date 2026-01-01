@@ -95,7 +95,7 @@
     "jest-expo": "~52.0.6",
     "jsdom": "^27.3.0",
     "metro-react-native-babel-transformer": "^0.77.0",
-    "react-test-renderer": "19.2.0",
+    "react-test-renderer": "^19.2.1",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.3",
     "vitest": "^4.0.16"

@@ -20,6 +20,10 @@ interface KanbanTaskCardProps {
     onEditClick?: (taskId: string) => void;
     /** Callback when delete is clicked */
     onDeleteClick?: (taskId: string) => void;
+    /** Callback when detail panel should open/close */
+    onDetailOpenChange?: (taskId: string, open: boolean) => void;
+    /** Whether detail panel is open for this task */
+    isDetailOpen?: boolean;
     /** Labels for i18n */
     labels?: {
         priorityLow?: string;
@@ -30,6 +34,6 @@ interface KanbanTaskCardProps {
         delete?: string;
     };
 }
-export declare function KanbanTaskCard({ task, index, onTaskClick, onEditClick, onDeleteClick, labels }: KanbanTaskCardProps): import("react/jsx-runtime").JSX.Element;
+export declare function KanbanTaskCard({ task, index, onTaskClick, onEditClick, onDeleteClick, onDetailOpenChange, isDetailOpen, labels, }: KanbanTaskCardProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=kanban-task-card.d.ts.map

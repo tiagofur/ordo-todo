@@ -54,11 +54,7 @@ export default function AllTasksScreen() {
     { label: "Completadas", value: "COMPLETED" },
   ];
 
-  const SORT_OPTIONS: SortType[] = [
-    "DUE_DATE",
-    "PRIORITY",
-    "CREATED_AT",
-  ];
+  const SORT_OPTIONS: SortType[] = ["DUE_DATE", "PRIORITY", "CREATED_AT"];
 
   const filteredTasks = tasks.filter((task) => {
     // Filter by status
@@ -68,7 +64,8 @@ export default function AllTasksScreen() {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       const matchesTitle = task.title.toLowerCase().includes(query);
-      const matchesDesc = task.description?.toLowerCase().includes(query) || false;
+      const matchesDesc =
+        task.description?.toLowerCase().includes(query) || false;
       if (!matchesTitle && !matchesDesc) return false;
     }
 
@@ -84,13 +81,10 @@ export default function AllTasksScreen() {
         );
       case "PRIORITY":
         const priorityOrder = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-        return (
-          priorityOrder[a.priority] - priorityOrder[b.priority]
-        );
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
       case "CREATED_AT":
         return (
-          new Date(a.createdAt).getTime() -
-          new Date(b.createdAt).getTime()
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
       default:
         return 0;
@@ -150,9 +144,7 @@ export default function AllTasksScreen() {
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             Todas las Tareas
           </Text>
-          <Text
-            style={[styles.headerSubtitle, { color: colors.textMuted }]}
-          >
+          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
             {filteredTasks.length} tareas
           </Text>
         </View>
@@ -191,9 +183,10 @@ export default function AllTasksScreen() {
           contentContainerStyle={styles.filtersScroll}
         >
           {FILTERS.map((f) => {
-            const count = f.value === "ALL"
-              ? tasks.length
-              : tasks.filter((t) => t.status === f.value).length;
+            const count =
+              f.value === "ALL"
+                ? tasks.length
+                : tasks.filter((t) => t.status === f.value).length;
 
             return (
               <TouchableOpacity
@@ -202,13 +195,9 @@ export default function AllTasksScreen() {
                   styles.filterButton,
                   {
                     backgroundColor:
-                      filter === f.value
-                        ? colors.primary
-                        : colors.surface,
+                      filter === f.value ? colors.primary : colors.surface,
                     borderColor:
-                      filter === f.value
-                        ? colors.primary
-                        : colors.border,
+                      filter === f.value ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => setFilter(f.value as FilterType)}
@@ -218,11 +207,8 @@ export default function AllTasksScreen() {
                     styles.filterText,
                     {
                       color:
-                      filter === f.value
-                        ? "#FFFFFF"
-                        : colors.textSecondary,
-                      fontWeight:
-                        filter === f.value ? "700" : "500",
+                        filter === f.value ? "#FFFFFF" : colors.textSecondary,
+                      fontWeight: filter === f.value ? "700" : "500",
                     },
                   ]}
                 >
@@ -235,9 +221,7 @@ export default function AllTasksScreen() {
                       { backgroundColor: colors.primary },
                     ]}
                   >
-                    <Text style={styles.filterCountText}>
-                      {count}
-                    </Text>
+                    <Text style={styles.filterCountText}>{count}</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -291,9 +275,7 @@ export default function AllTasksScreen() {
             <Text style={[styles.emptyTitle, { color: colors.text }]}>
               Sin tareas
             </Text>
-            <Text
-              style={[styles.emptySubtitle, { color: colors.textMuted }]}
-            >
+            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
               {filter === "ALL"
                 ? "No tienes tareas"
                 : `No hay tareas ${FILTERS.find((f) => f.value === filter)?.label.toLowerCase()}`}
@@ -326,8 +308,7 @@ export default function AllTasksScreen() {
                     style={[
                       styles.statusContainer,
                       {
-                        backgroundColor:
-                          getStatusColor(task.status) + "15",
+                        backgroundColor: getStatusColor(task.status) + "15",
                       },
                     ]}
                   >
@@ -345,9 +326,10 @@ export default function AllTasksScreen() {
                         styles.taskTitle,
                         {
                           color:
-                          task.status === "COMPLETED" || task.status === "CANCELLED"
-                            ? colors.textMuted
-                            : colors.text,
+                            task.status === "COMPLETED" ||
+                            task.status === "CANCELLED"
+                              ? colors.textMuted
+                              : colors.text,
                           textDecorationLine:
                             task.status === "COMPLETED"
                               ? "line-through"
@@ -363,10 +345,7 @@ export default function AllTasksScreen() {
                     <View style={styles.taskMeta}>
                       {task.projectName && (
                         <Text
-                          style={[
-                            styles.projectTag,
-                            { color: colors.primary },
-                          ]}
+                          style={[styles.projectTag, { color: colors.primary }]}
                         >
                           {task.projectName}
                         </Text>
@@ -412,9 +391,7 @@ export default function AllTasksScreen() {
                         { backgroundColor: getPriorityColor(task.priority) },
                       ]}
                     >
-                      <Text
-                        style={[styles.priorityText, { color: "#FFFFFF" }]}
-                      >
+                      <Text style={[styles.priorityText, { color: "#FFFFFF" }]}>
                         {task.priority}
                       </Text>
                     </View>
@@ -428,7 +405,10 @@ export default function AllTasksScreen() {
                           color={colors.textMuted}
                         />
                         <Text
-                          style={[styles.dueDateText, { color: colors.textMuted }]}
+                          style={[
+                            styles.dueDateText,
+                            { color: colors.textMuted },
+                          ]}
                         >
                           {formatDate(task.dueDate)}
                         </Text>
@@ -442,10 +422,11 @@ export default function AllTasksScreen() {
                   <TouchableOpacity
                     style={[
                       styles.actionButton,
-                      { backgroundColor:
-                        task.status === "COMPLETED"
-                          ? "#10B981" + "15"
-                          : colors.background + "50",
+                      {
+                        backgroundColor:
+                          task.status === "COMPLETED"
+                            ? "#10B981" + "15"
+                            : colors.background + "50",
                       },
                     ]}
                     onPress={() => {
@@ -454,12 +435,14 @@ export default function AllTasksScreen() {
                   >
                     <Feather
                       name={
-                        task.status === "COMPLETED"
-                          ? "check-circle"
-                          : "circle"
+                        task.status === "COMPLETED" ? "check-circle" : "circle"
                       }
                       size={18}
-                      color={task.status === "COMPLETED" ? "#10B981" : colors.textSecondary}
+                      color={
+                        task.status === "COMPLETED"
+                          ? "#10B981"
+                          : colors.textSecondary
+                      }
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -591,7 +574,7 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: 14,
     textAlign: "center",
-    },
+  },
   taskCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -611,8 +594,8 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    alignItems: " center",
-    justifyContent: center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   taskContent: {
     flex: 1,

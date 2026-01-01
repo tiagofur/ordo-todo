@@ -9,6 +9,7 @@ import {
   GetOptimalScheduleUseCase,
   PredictTaskDurationUseCase,
   GenerateWeeklyReportUseCase,
+  type WeeklyReportContext,
 } from '@ordo-todo/core';
 import { GeminiAIService } from './gemini-ai.service';
 import type { ChatMessageDto } from './dto/ai-chat.dto';
@@ -31,7 +32,7 @@ export class AIService {
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   // ============ AI CHAT ============
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 30000 })
@@ -260,18 +261,15 @@ export class AIService {
       this.analyticsRepository,
       this.timerRepository,
       this.aiProfileRepository,
-      (context: {
-        userId: string;
-        scope:
-        | 'TASK_COMPLETION'
-        | 'WEEKLY_SCHEDULED'
-        | 'MONTHLY_SCHEDULED'
-        | 'PROJECT_SUMMARY';
-        metricsSnapshot: unknown;
-        sessions?: unknown[];
-        profile?: unknown;
-        projectName?: string;
-      }) => this.geminiService.generateProductivityReport(context),
+      (context: WeeklyReportContext) =>
+        this.geminiService.generateProductivityReport({
+          userId: context.userId,
+          scope: context.scope as any,
+          metricsSnapshot: context.metricsSnapshot as any,
+          sessions: context.sessions as any,
+          profile: context.profile as any,
+          projectName: undefined,
+        }),
     );
 
     const result = await useCase.execute({ userId, weekStart });
@@ -328,7 +326,7 @@ export class AIService {
       avgFocusScore:
         dailyMetrics.length > 0
           ? dailyMetrics.reduce((sum, d) => sum + (d.focusScore || 0), 0) /
-          dailyMetrics.length
+            dailyMetrics.length
           : 0,
       daysWorked: dailyMetrics.filter((d) => d.minutesWorked > 0).length,
     };
@@ -408,7 +406,7 @@ export class AIService {
       avgTaskDuration:
         project.tasks.length > 0
           ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) /
-          project.tasks.filter((t) => t.status === 'COMPLETED').length
+            project.tasks.filter((t) => t.status === 'COMPLETED').length
           : 0,
       estimateAccuracy: this.calculateEstimateAccuracy(project.tasks),
     };

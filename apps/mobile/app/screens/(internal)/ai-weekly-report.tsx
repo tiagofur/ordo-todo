@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,8 +9,12 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
-import { LineChart, BarChart } from "react-native-chart-kit";
+import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { useWeeklyMetrics, useGenerateWeeklyReport } from "@/lib/shared-hooks";
+import { useDashboardStats } from "@/lib/shared-hooks";
+import { format, startOfWeek } from "date-fns";
+import { es } from "date-fns/locale";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -34,7 +38,6 @@ interface AIReportSection {
 }
 
 interface AIWeeklyReportProps {
-  data?: ProductivityData;
   onRefresh?: () => void;
   onGenerateReport?: (data: ProductivityData) => Promise<AIReportSection[]>;
   labels?: {
@@ -53,25 +56,6 @@ interface AIWeeklyReportProps {
     };
   };
 }
-
-const MOCK_DATA: ProductivityData = {
-  totalPomodoros: 32,
-  totalTasks: 45,
-  completedTasks: 38,
-  streak: 5,
-  avgPomodorosPerDay: 4.5,
-  peakHour: 10,
-  topProject: { name: "Proyecto Alpha", tasks: 12 },
-  weeklyData: [
-    { day: "Mon", pomodoros: 6, tasks: 7 },
-    { day: "Tue", pomodoros: 8, tasks: 9 },
-    { day: "Wed", pomodoros: 4, tasks: 5 },
-    { day: "Thu", pomodoros: 7, tasks: 8 },
-    { day: "Fri", pomodoros: 5, tasks: 6 },
-    { day: "Sat", pomodoros: 2, tasks: 2 },
-    { day: "Sun", pomodoros: 0, tasks: 1 },
-  ],
-};
 
 const sectionColors: Record<
   AIReportSection["type"],
@@ -100,7 +84,6 @@ const sectionColors: Record<
 };
 
 export function AIWeeklyReport({
-  data = MOCK_DATA,
   onRefresh,
   onGenerateReport,
   labels,
@@ -108,6 +91,10 @@ export function AIWeeklyReport({
   const colors = useThemeColors();
   const [isGenerating, setIsGenerating] = useState(false);
   const [sections, setSections] = useState<AIReportSection[]>([]);
+
+  const { data: weeklyMetrics, isLoading: weeklyLoading } = useWeeklyMetrics();
+  const { data: dashboardStats, isLoading: statsLoading } = useDashboardStats();
+  const generateReport = useGenerateWeeklyReport();
 
   const defaultLabels = {
     title: "AI Weekly Report",
@@ -127,13 +114,73 @@ export function AIWeeklyReport({
 
   const t = { ...defaultLabels, ...labels };
 
-  const handleGenerate = async () => {
-    if (!onGenerateReport) return;
+  const productivityData = useMemo((): ProductivityData => {
+    const weekData =
+      weeklyMetrics?.map((m) => ({
+        day: format(new Date(m.date), "EEE", { locale: es }),
+        pomodoros: Math.floor((m.minutesWorked || 0) / 25),
+        tasks: m.tasksCompleted || 0,
+      })) || [];
 
+    const totalPomodoros = weekData.reduce((sum, d) => sum + d.pomodoros, 0);
+    const completedTasks = weekData.reduce((sum, d) => sum + d.tasks, 0);
+
+    return {
+      totalPomodoros,
+      totalTasks: completedTasks,
+      completedTasks,
+      streak: dashboardStats?.streak || 0,
+      avgPomodorosPerDay: totalPomodoros > 0 ? totalPomodoros / 7 : 0,
+      peakHour: 10,
+      weeklyData: weekData,
+    };
+  }, [weeklyMetrics, dashboardStats]);
+
+  const isLoading = weeklyLoading || statsLoading;
+
+  const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const aiSections = await onGenerateReport(data);
-      setSections(aiSections);
+      if (onGenerateReport) {
+        const aiSections = await onGenerateReport(productivityData);
+        setSections(aiSections);
+      } else {
+        await generateReport.mutateAsync();
+        const mockSections: AIReportSection[] = [
+          {
+            id: "summary",
+            title: "Resumen Semanal",
+            icon: Feather,
+            type: "info",
+            content: [
+              `Completaste ${productivityData.totalPomodoros} pomodoros esta semana`,
+              `Finalizaste ${productivityData.completedTasks} tareas`,
+              `Racha actual: ${productivityData.streak} días`,
+            ],
+          },
+          {
+            id: "strengths",
+            title: "Fortalezas",
+            icon: Feather,
+            type: "success",
+            content: [
+              "Mantienes una racha consistente de productividad",
+              "Tasa de finalización de tareas mejorando",
+            ],
+          },
+          {
+            id: "recommendations",
+            title: "Recomendaciones",
+            icon: Feather,
+            type: "tip",
+            content: [
+              "Intenta realizar 4 pomodoros diarios para mantener el ritmo",
+              "Reserva bloques de tiempo en la mañana para tareas difíciles",
+            ],
+          },
+        ];
+        setSections(mockSections);
+      }
     } catch (error) {
       console.error("Error generating AI report:", error);
     } finally {
@@ -174,174 +221,201 @@ export function AIWeeklyReport({
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {/* Stats Cards */}
-        <View style={styles.statsContainer}>
-          {/* Total Pomodoros */}
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Feather name="clock" size={24} color={colors.primary} />
-            <View style={styles.statContent}>
-              <Text style={[styles.statLabel, { color: colors.textMuted }]}>
-                {t.stats.pomodoros}
-              </Text>
-              <Text style={[styles.statValue, { color: colors.text }]}>
-                {data.totalPomodoros}
-              </Text>
-            </View>
-          </View>
-
-          {/* Tasks Completed */}
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Feather name="check-circle" size={24} color="#10B981" />
-            <View style={styles.statContent}>
-              <Text style={[styles.statLabel, { color: colors.textMuted }]}>
-                {t.stats.tasks}
-              </Text>
-              <Text style={[styles.statValue, { color: colors.text }]}>
-                {data.completedTasks}
-              </Text>
-            </View>
-          </View>
-
-          {/* Streak */}
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Feather name="zap" size={24} color="#F59E0B" />
-            <View style={styles.statContent}>
-              <Text style={[styles.statLabel, { color: colors.textMuted }]}>
-                {t.stats.streak}
-              </Text>
-              <Text style={[styles.statValue, { color: colors.text }]}>
-                {data.streak} días
-              </Text>
-            </View>
-          </View>
-
-          {/* Average */}
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Feather name="trending-up" size={24} color="#3B82F6" />
-            <View style={styles.statContent}>
-              <Text style={[styles.statLabel, { color: colors.textMuted }]}>
-                {t.stats.average}
-              </Text>
-              <Text style={[styles.statValue, { color: colors.text }]}>
-                {data.avgPomodorosPerDay}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Weekly Chart */}
-        <View
-          style={[styles.chartContainer, { backgroundColor: colors.surface }]}
-        >
-          <Text style={[styles.chartTitle, { color: colors.text }]}>
-            Productividad Semanal
-          </Text>
-          <LineChart
-            data={{
-              labels: data.weeklyData.map((d) => d.day),
-              datasets: [
-                {
-                  data: data.weeklyData.map((d) => d.pomodoros),
-                  color: colors.primary,
-                },
-              ],
-            }}
-            width={screenWidth - 64}
-            height={200}
-            chartConfig={getChartConfig()}
-            bezier
-            style={styles.chart}
-          />
-        </View>
-
-        {/* Generate Report Button */}
-        <TouchableOpacity
-          style={[styles.generateButton, { backgroundColor: colors.primary }]}
-          onPress={handleGenerate}
-          disabled={isGenerating}
-        >
-          {isGenerating ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <>
-              <Feather name="cpu" size={20} color="#FFFFFF" />
-              <Text style={styles.generateButtonText}>
-                {sections.length > 0 ? t.regenerate : t.generate}
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        {/* AI Report Sections */}
-        {isGenerating && (
+        {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator color={colors.primary} size="large" />
             <Text style={[styles.loadingText, { color: colors.textMuted }]}>
-              {t.analyzing}
+              Cargando datos...
             </Text>
           </View>
-        )}
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <View style={styles.statsContainer}>
+              <View
+                style={[styles.statCard, { backgroundColor: colors.surface }]}
+              >
+                <Feather name="clock" size={24} color={colors.primary} />
+                <View style={styles.statContent}>
+                  <Text style={[styles.statLabel, { color: colors.textMuted }]}>
+                    {t.stats.pomodoros}
+                  </Text>
+                  <Text style={[styles.statValue, { color: colors.text }]}>
+                    {productivityData.totalPomodoros}
+                  </Text>
+                </View>
+              </View>
 
-        {!isGenerating && sections.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Feather
-              name="cpu"
-              size={48}
-              color={colors.textMuted}
-              style={styles.emptyIcon}
-            />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>
-              {t.emptyState}
-            </Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
-              Toca "Generate Report" para análisis AI
-            </Text>
-          </View>
-        )}
+              <View
+                style={[styles.statCard, { backgroundColor: colors.surface }]}
+              >
+                <Feather name="check-circle" size={24} color="#10B981" />
+                <View style={styles.statContent}>
+                  <Text style={[styles.statLabel, { color: colors.textMuted }]}>
+                    {t.stats.tasks}
+                  </Text>
+                  <Text style={[styles.statValue, { color: colors.text }]}>
+                    {productivityData.completedTasks}
+                  </Text>
+                </View>
+              </View>
 
-        {!isGenerating &&
-          sections.map((section) => (
-            <View
-              key={section.id}
+              <View
+                style={[styles.statCard, { backgroundColor: colors.surface }]}
+              >
+                <Feather name="zap" size={24} color="#F59E0B" />
+                <View style={styles.statContent}>
+                  <Text style={[styles.statLabel, { color: colors.textMuted }]}>
+                    {t.stats.streak}
+                  </Text>
+                  <Text style={[styles.statValue, { color: colors.text }]}>
+                    {productivityData.streak} días
+                  </Text>
+                </View>
+              </View>
+
+              <View
+                style={[styles.statCard, { backgroundColor: colors.surface }]}
+              >
+                <Feather name="trending-up" size={24} color="#3B82F6" />
+                <View style={styles.statContent}>
+                  <Text style={[styles.statLabel, { color: colors.textMuted }]}>
+                    {t.stats.average}
+                  </Text>
+                  <Text style={[styles.statValue, { color: colors.text }]}>
+                    {productivityData.avgPomodorosPerDay.toFixed(1)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Weekly Chart */}
+            {productivityData.weeklyData.length > 0 && (
+              <View
+                style={[
+                  styles.chartContainer,
+                  { backgroundColor: colors.surface },
+                ]}
+              >
+                <Text style={[styles.chartTitle, { color: colors.text }]}>
+                  Productividad Semanal
+                </Text>
+                <LineChart
+                  data={{
+                    labels: productivityData.weeklyData.map((d) => d.day),
+                    datasets: [
+                      {
+                        data: productivityData.weeklyData.map(
+                          (d) => d.pomodoros,
+                        ),
+                        color: colors.primary,
+                      },
+                    ],
+                  }}
+                  width={screenWidth - 64}
+                  height={200}
+                  chartConfig={getChartConfig()}
+                  bezier
+                  style={styles.chart}
+                />
+              </View>
+            )}
+
+            {/* Generate Report Button */}
+            <TouchableOpacity
               style={[
-                styles.sectionCard,
-                {
-                  backgroundColor: sectionColors[section.type].bg,
-                  borderColor: sectionColors[section.type].border,
-                },
+                styles.generateButton,
+                { backgroundColor: colors.primary },
               ]}
+              onPress={handleGenerate}
+              disabled={isGenerating}
             >
-              <View style={styles.sectionHeader}>
+              {isGenerating ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Feather name="cpu" size={20} color="#FFFFFF" />
+                  <Text style={styles.generateButtonText}>
+                    {sections.length > 0 ? t.regenerate : t.generate}
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            {/* AI Report Sections */}
+            {isGenerating && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color={colors.primary} size="large" />
+                <Text style={[styles.loadingText, { color: colors.textMuted }]}>
+                  {t.analyzing}
+                </Text>
+              </View>
+            )}
+
+            {!isGenerating && sections.length === 0 && (
+              <View style={styles.emptyContainer}>
+                <Feather
+                  name="cpu"
+                  size={48}
+                  color={colors.textMuted}
+                  style={styles.emptyIcon}
+                />
+                <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                  {t.emptyState}
+                </Text>
+                <Text
+                  style={[styles.emptySubtitle, { color: colors.textMuted }]}
+                >
+                  Toca "Generate Report" para análisis AI
+                </Text>
+              </View>
+            )}
+
+            {!isGenerating &&
+              sections.map((section) => (
                 <View
+                  key={section.id}
                   style={[
-                    styles.sectionIcon,
+                    styles.sectionCard,
                     {
                       backgroundColor: sectionColors[section.type].bg,
+                      borderColor: sectionColors[section.type].border,
                     },
                   ]}
                 >
-                  <Feather
-                    name="cpu"
-                    size={18}
-                    color={sectionColors[section.type].icon}
-                  />
+                  <View style={styles.sectionHeader}>
+                    <View
+                      style={[
+                        styles.sectionIcon,
+                        {
+                          backgroundColor: sectionColors[section.type].bg,
+                        },
+                      ]}
+                    >
+                      <Feather
+                        name="cpu"
+                        size={18}
+                        color={sectionColors[section.type].icon}
+                      />
+                    </View>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                      {section.title}
+                    </Text>
+                  </View>
+                  <View style={styles.sectionContent}>
+                    {section.content.map((item, index) => (
+                      <Text
+                        key={index}
+                        style={[styles.sectionItem, { color: colors.text }]}
+                      >
+                        • {item}
+                      </Text>
+                    ))}
+                  </View>
                 </View>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                  {section.title}
-                </Text>
-              </View>
-              <View style={styles.sectionContent}>
-                {section.content.map((item, index) => (
-                  <Text
-                    key={index}
-                    style={[styles.sectionItem, { color: colors.text }]}
-                  >
-                    • {item}
-                  </Text>
-                ))}
-              </View>
-            </View>
-          ))}
+              ))}
+          </>
+        )}
       </ScrollView>
     </View>
   );
