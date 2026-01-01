@@ -15,7 +15,6 @@ import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import {
   useWorkspaceInvitations,
   useAcceptInvitation,
-  useDeclineInvitation,
 } from "@/app/lib/shared-hooks";
 
 interface Invitation {
@@ -42,16 +41,12 @@ export default function WorkspaceInvitationsScreen() {
     refetch,
   } = useWorkspaceInvitations();
   const acceptInvitation = useAcceptInvitation();
-  const declineInvitation = useDeclineInvitation();
 
   const pendingInvitations = invitations.filter(
     (inv) => inv.status === "PENDING",
   );
   const acceptedInvitations = invitations.filter(
     (inv) => inv.status === "ACCEPTED",
-  );
-  const declinedInvitations = invitations.filter(
-    (inv) => inv.status === "DECLINED",
   );
 
   const handleAccept = async (invitationId: string) => {
@@ -82,11 +77,8 @@ export default function WorkspaceInvitationsScreen() {
           text: "Rechazar",
           style: "destructive",
           onPress: async () => {
-            try {
-              await declineInvitation.mutateAsync(invitationId);
-            } catch (error) {
-              Alert.alert("Error", "No se pudo rechazar la invitación");
-            }
+            // TODO: Implement decline invitation when hook is available
+            console.log("Decline invitation:", invitationId);
           },
         },
       ],
@@ -233,21 +225,6 @@ export default function WorkspaceInvitationsScreen() {
                       <ActivityIndicator color="#FFFFFF" size="small" />
                     ) : (
                       <Feather name="check" size={18} color="#FFFFFF" />
-                    )}
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.actionButton,
-                      styles.declineButton,
-                      { backgroundColor: "#EF4444" },
-                    ]}
-                    onPress={() => handleDecline(invitation.id)}
-                    disabled={declineInvitation.isPending}
-                  >
-                    {declineInvitation.isPending ? (
-                      <ActivityIndicator color="#FFFFFF" size="small" />
-                    ) : (
-                      <Feather name="x" size={18} color="#FFFFFF" />
                     )}
                   </TouchableOpacity>
                 </View>

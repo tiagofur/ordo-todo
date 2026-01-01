@@ -126,7 +126,7 @@ export default function TaskScreen() {
     }
 
     // Determine projectId: Use existing task's project, or first available project, or error
-    let targetProjectId = existingTask?.projectId;
+    const targetProjectId = existingTask?.projectId;
     const { data: projects } = useProjects(selectedWorkspaceId || "");
 
     if (!targetProjectId && !isEditing) {

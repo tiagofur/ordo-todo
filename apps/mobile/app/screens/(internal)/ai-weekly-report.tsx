@@ -11,8 +11,8 @@ import { Feather } from "@expo/vector-icons";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
-import { useWeeklyMetrics, useGenerateWeeklyReport } from "@/lib/shared-hooks";
-import { useDashboardStats } from "@/lib/shared-hooks";
+import { useWeeklyMetrics, useGenerateWeeklyReport } from "@/app/lib/shared-hooks";
+import { useDashboardStats } from "@/app/lib/shared-hooks";
 import { format, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -122,8 +122,8 @@ export function AIWeeklyReport({
         tasks: m.tasksCompleted || 0,
       })) || [];
 
-    const totalPomodoros = weekData.reduce((sum, d) => sum + d.pomodoros, 0);
-    const completedTasks = weekData.reduce((sum, d) => sum + d.tasks, 0);
+    const totalPomodoros = weekData.reduce((sum: number, d) => sum + d.pomodoros, 0);
+    const completedTasks = weekData.reduce((sum: number, d) => sum + d.tasks, 0);
 
     return {
       totalPomodoros,

@@ -77,7 +77,7 @@ describe("AllTasksScreen", () => {
   });
 
   it("should show loading state", () => {
-    const { getByTestId } = render(<AllTasksScreen />);
+    const { getByTestId, getByText } = render(<AllTasksScreen />);
 
     // Loading indicator should be present
     expect(getByText(/Cargando tareas/)).toBeTruthy();

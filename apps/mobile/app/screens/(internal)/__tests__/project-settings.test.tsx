@@ -62,7 +62,7 @@ describe('ProjectSettingsScreen', () => {
   });
 
   it('should disable inputs when no projectId', () => {
-    const { getByPlaceholderText } = render(<ProjectSettingsScreen />);
+    const { getByPlaceholderText, getByText } = render(<ProjectSettingsScreen projectId="" />);
     const saveBtn = getByText(/Guardar/);
     
     expect(saveBtn.parent?.props.disabled).toBeTruthy();

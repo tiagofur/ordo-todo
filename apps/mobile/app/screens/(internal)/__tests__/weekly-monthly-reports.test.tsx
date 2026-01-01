@@ -101,7 +101,7 @@ describe("ReportsView", () => {
   });
 
   it("should show loading state when generating report", () => {
-    const { getByTestId } = render(<ReportsView />);
+    const { getByTestId, getByText } = render(<ReportsView />);
 
     // Generate button should be present
     expect(getByText(/Generar Reporte/)).toBeTruthy();

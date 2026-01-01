@@ -10,7 +10,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { Dimensions } from "react-native";
-import { useWeeklyMetrics, useMonthlyMetrics } from "@/lib/shared-hooks";
+import { useWeeklyMetrics, useMonthlyMetrics } from "@/app/lib/shared-hooks";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -78,11 +78,11 @@ export default function ReportsView({
   const currentData = activePeriod === "week" ? weeklyData : monthlyData;
 
   const totalPomodoros = useMemo(() => {
-    return currentData.reduce((sum, d) => sum + d.pomodoros, 0);
+    return currentData.reduce((sum: number, d) => sum + d.pomodoros, 0);
   }, [currentData]);
 
   const totalTasks = useMemo(() => {
-    return currentData.reduce((sum, d) => sum + d.tasks, 0);
+    return currentData.reduce((sum: number, d) => sum + d.tasks, 0);
   }, [currentData]);
 
   const avgPomodoros = useMemo(() => {
@@ -271,7 +271,7 @@ export default function ReportsView({
                   },
                 ]}
               >
-                {getChartData().map((value, index) => {
+                {getChartData().map((value: number, index: number) => {
                   const max = Math.max(...getChartData(), 1);
                   const height = (value / max) * 150;
                   return (

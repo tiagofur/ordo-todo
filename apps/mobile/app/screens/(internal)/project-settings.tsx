@@ -39,6 +39,7 @@ export default function ProjectSettingsScreen({
   const colors = useThemeColors();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [settings, setSettings] = useState<ProjectSettings>({
     name: "",
@@ -82,7 +83,7 @@ export default function ProjectSettingsScreen({
     }
   };
 
-  const handleDeleteProject = () => {
+  const handleDeleteProject = async () => {
     Alert.alert(
       "Eliminar Proyecto",
       "¿Seguro que quieres eliminar este proyecto? Esta acción no se puede deshacer.",
@@ -93,7 +94,9 @@ export default function ProjectSettingsScreen({
           style: "destructive",
           onPress: async () => {
             // TODO: Implement delete project hook
+            setIsDeleting(true);
             Alert.alert("Info", "Feature en desarrollo");
+            setIsDeleting(false);
           },
         },
       ],
@@ -298,11 +301,10 @@ export default function ProjectSettingsScreen({
               </Text>
               <View style={styles.permissionValue}>
                 <Switch
-                  value={settings.allowComments}
+                  value={settings.allowAttachments}
                   onValueChange={(value) =>
-                    setSettings((prev) => ({ ...prev, allowComments: value }))
+                    setSettings((prev) => ({ ...prev, allowAttachments: value }))
                   }
-                  trackColor={colors.primary}
                 />
               </View>
             </View>
@@ -331,11 +333,10 @@ export default function ProjectSettingsScreen({
               </Text>
               <View style={styles.permissionValue}>
                 <Switch
-                  value={settings.allowGuests}
+                  value={settings.isPublic}
                   onValueChange={(value) =>
-                    setSettings((prev) => ({ ...prev, allowGuests: value }))
+                    setSettings((prev) => ({ ...prev, isPublic: value }))
                   }
-                  trackColor={colors.primary}
                 />
               </View>
             </View>
@@ -400,11 +401,10 @@ export default function ProjectSettingsScreen({
               </Text>
               <View style={styles.permissionValue}>
                 <Switch
-                  value={settings.isPublic}
+                  value={settings.notifyOnDueDateReminder}
                   onValueChange={(value) =>
-                    setSettings((prev) => ({ ...prev, isPublic: value }))
+                    setSettings((prev) => ({ ...prev, notifyOnDueDateReminder: value }))
                   }
-                  trackColor={colors.primary}
                 />
               </View>
             </View>
