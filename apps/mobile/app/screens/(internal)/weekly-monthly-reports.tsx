@@ -58,8 +58,8 @@ export default function ReportsView({
   const isLoading = activePeriod === "week" ? weeklyLoading : monthlyLoading;
 
   const weeklyData = useMemo(() => {
-    if (!weeklyMetrics || weeklyMetrics.length === 0) return [];
-    return weeklyMetrics.map((m) => ({
+    if (!weeklyMetrics || !Array.isArray(weeklyMetrics) || weeklyMetrics.length === 0) return [];
+    return weeklyMetrics.map((m: any) => ({
       day: format(new Date(m.date), "EEE", { locale: es }),
       pomodoros: Math.floor((m.minutesWorked || 0) / 25),
       tasks: m.tasksCompleted || 0,
@@ -67,8 +67,8 @@ export default function ReportsView({
   }, [weeklyMetrics]);
 
   const monthlyData = useMemo(() => {
-    if (!monthlyMetrics || monthlyMetrics.length === 0) return [];
-    return monthlyMetrics.map((m) => ({
+    if (!monthlyMetrics || !Array.isArray(monthlyMetrics) || monthlyMetrics.length === 0) return [];
+    return monthlyMetrics.map((m: any) => ({
       week: `Sem ${m.weekNumber || 0}`,
       pomodoros: Math.floor((m.minutesWorked || 0) / 25),
       tasks: m.tasksCompleted || 0,
