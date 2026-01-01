@@ -773,7 +773,7 @@ export class OrdoApiClient {
    * GET /tasks?projectId=xxx
    */
   async getTasks(projectId?: string, tags?: string[]): Promise<Task[]> {
-    const params: any = {};
+    const params: Record<string, unknown> = {};
     if (projectId) params.projectId = projectId;
     if (tags && tags.length > 0) params.tags = tags;
 
@@ -798,7 +798,7 @@ export class OrdoApiClient {
    * GET /tasks/scheduled?date=xxx
    */
   async getScheduledTasks(date?: Date | string): Promise<Task[]> {
-    const params: any = {};
+    const params: Record<string, unknown> = {};
     if (date) {
       params.date = typeof date === "string" ? date : date.toISOString();
     }
@@ -813,7 +813,7 @@ export class OrdoApiClient {
    * GET /tasks/available?projectId=xxx
    */
   async getAvailableTasks(projectId?: string): Promise<Task[]> {
-    const params: any = {};
+    const params: Record<string, unknown> = {};
     if (projectId) params.projectId = projectId;
     const response = await this.axios.get<Task[]>("/tasks/available", {
       params,
@@ -829,7 +829,7 @@ export class OrdoApiClient {
     start?: Date | string,
     end?: Date | string,
   ): Promise<TimeBlock[]> {
-    const params: any = {};
+    const params: Record<string, unknown> = {};
     if (start)
       params.start = start instanceof Date ? start.toISOString() : start;
     if (end) params.end = end instanceof Date ? end.toISOString() : end;

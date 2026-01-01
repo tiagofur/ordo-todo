@@ -64,15 +64,15 @@ docs/packages/
    - Desktop: Shared hooks migrados
    - Tokens de diseño para React Native
 
-### Fase 1: CRÍTICO (4-6 semanas) → 75/100
+### Fase 1: CRÍTICO (4-6 semanas) → 75/100 🟡 EN PROGRESO
 
-1. **packages/ui** - Refactorización completa (3-4 semanas)
-   - Eliminar `'use client'` y hooks de TODOS los componentes
+1. **packages/ui** - Refactorización completa (3-4 semanas) 🔴 NO INICIADO REALMENTE
+   - Eliminar `'use client'` y hooks de TODOS los componentes (79 usos de 'use client', 126 usos de 'useState' encontrados)
    - Eliminar transparencias y gradientes
-2. **packages/core + api-client** - Eliminar tipos `any` (1 semana)
-   - 14 usos en core, 16 en api-client (reducido recientemente)
-3. **packages/db** - Agregar índices críticos (2 días)
-   - 6 foreign keys sin índices
+2. **packages/core + api-client** - Eliminar tipos `any` (1 semana) 🟡 EN PROGRESO
+   - 1 uso en core, 8 en api-client (reducido significativamente)
+3. **packages/db** - Agregar índices críticos (2 días) 🟡 EN PROGRESO
+   - 6 foreign keys sin índices identificadas
 
 ### Fase 2: ALTA (3-4 semanas) → 88/100
 
@@ -348,7 +348,7 @@ export function useTags(workspaceId: string) {
 
 ## 📍 @ordo-todo/ui
 
-**Componentes UI compartidos** entre web y desktop. ✅ **Fases 1-4 Completadas (2025-12-09)**
+**Componentes UI compartidos** entre web y desktop. 🔴 **Fase 1: Refactorización Crítica Pendiente**
 
 > **MANDATORY**: See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for creating new components.
 
@@ -356,9 +356,9 @@ export function useTags(workspaceId: string) {
 
 | Categoría    | Componentes | Estado      |
 | ------------ | ----------- | ----------- |
-| `ui/`        | 31          | ✅ Completo |
-| `timer/`     | 4           | ✅ Completo |
-| `task/`      | 15          | ✅ Completo |
+| `ui/`        | 31          | 🔴 Pendiente Refactor (use client/hooks) |
+| `timer/`     | 4           | 🔴 Pendiente Refactor (use client/hooks) |
+| `task/`      | 15          | 🔴 Pendiente Refactor (use client/hooks) |
 | `project/`   | 11          | ✅ Completo |
 | `analytics/` | 7           | ✅ Completo |
 | `tag/`       | 3           | ✅ Completo |
@@ -500,7 +500,7 @@ import {
 } from "@ordo-todo/ui";
 ```
 
-> **Estado:** 🟢 Fases 1-4 completadas. Fase 5: Integración completa en apps.
+> **Estado:** 🔴 Fase 1 en curso. Se requiere eliminar `use client` y hooks de todos los componentes.
 
 ### Mobile Integration ✅
 

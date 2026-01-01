@@ -1910,6 +1910,9 @@ interface UserProps extends EntityProps<string> {
     email?: string;
     password?: string;
     image?: string | null;
+    avatar?: string | null;
+    provider?: string;
+    providerId?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -1934,7 +1937,7 @@ interface UserRepository {
     findById(id: string): Promise<User | null>;
     findByProvider(provider: string, providerId: string): Promise<User | null>;
     linkOAuthAccount(userId: string, provider: string, providerId: string): Promise<User>;
-    create(props: any): Promise<User>;
+    create(props: Partial<UserProps>): Promise<User>;
 }
 
 interface CryptoProvider {

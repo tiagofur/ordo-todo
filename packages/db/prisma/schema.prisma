@@ -497,6 +497,8 @@ model WorkspaceInvitation {
   invitedBy   User?   @relation(fields: [invitedById], references: [id])
 
   expiresAt  DateTime
+
+  @@index([invitedById])
   acceptedAt DateTime?
 
   createdAt DateTime @default(now())
@@ -528,6 +530,7 @@ model WorkspaceAuditLog {
   createdAt DateTime @default(now())
 
   @@index([workspaceId, createdAt])
+  @@index([actorId])
 }
 
 enum WorkspaceType {
@@ -1217,6 +1220,8 @@ model Habit {
   // Workspace (optional - habits can be personal)
   workspaceId String?
 
+  @@index([workspaceId])
+
   // Schedule
   frequency        HabitFrequency @default(DAILY)
   targetDaysOfWeek Int[] // [0,1,2,3,4,5,6] for daily selection
@@ -1373,6 +1378,7 @@ model Objective {
 
   @@index([userId])
   @@index([workspaceId])
+  @@index([workspaceId])
   @@index([endDate])
 }
 
@@ -1488,4 +1494,7 @@ model BlogComment {
   postId String
 
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([postId])
 }

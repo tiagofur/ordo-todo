@@ -8,6 +8,9 @@ export interface UserProps extends EntityProps<string> {
   email?: string;
   password?: string;
   image?: string | null;
+  avatar?: string | null; // Alias for image
+  provider?: string;
+  providerId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -18,8 +18,8 @@ export interface ChatMessageResponse {
     metadata?: {
         actions?: Array<{
             type: string;
-            data?: any;
-            result?: any;
+            data?: Record<string, unknown>;
+            result?: Record<string, unknown>;
         }>;
         suggestions?: string[];
         modelUsed?: string;
@@ -31,7 +31,7 @@ export interface ChatMessageResponse {
 export interface ConversationResponse {
     id: string;
     title: string | null;
-    context: any | null;
+    context: Record<string, unknown> | null;
     messageCount: number;
     lastMessage?: string;
     createdAt: string | Date;
@@ -41,7 +41,7 @@ export interface ConversationResponse {
 export interface ConversationDetail {
     id: string;
     title: string | null;
-    context: any | null;
+    context: Record<string, unknown> | null;
     messages: ChatMessageResponse[];
     isArchived: boolean;
     createdAt: string | Date;

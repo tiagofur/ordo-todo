@@ -12,5 +12,5 @@ export default interface UserRepository {
     provider: string,
     providerId: string,
   ): Promise<User>;
-  create(props: any): Promise<User>;
+  create(props: Partial<UserProps>): Promise<User>;
 }
