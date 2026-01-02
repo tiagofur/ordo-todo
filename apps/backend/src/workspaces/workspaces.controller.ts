@@ -34,13 +34,14 @@ import { AddMemberDto } from './dto/add-member.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto';
+import { CreateAuditLogDto } from './dto/create-audit-log.dto';
 
 @ApiTags('Workspaces')
 @ApiBearerAuth()
 @Controller('workspaces')
 @UseGuards(JwtAuthGuard)
 export class WorkspacesController {
-  constructor(private readonly workspacesService: WorkspacesService) { }
+  constructor(private readonly workspacesService: WorkspacesService) {}
 
   /**
    * Creates a new workspace
@@ -170,7 +171,7 @@ export class WorkspacesController {
   }
 
   /**
-    * Gets workspace details by ID
+   * Gets workspace details by ID
    * Requires user to be a member with any role
    */
   @Get(':id')
@@ -662,7 +663,7 @@ export class WorkspacesController {
   createAuditLog(
     @Param('id') workspaceId: string,
     @CurrentUser() user: RequestUser,
-    @Body() createLogDto: any,
+    @Body() createLogDto: CreateAuditLogDto,
   ) {
     return this.workspacesService.createAuditLog(
       workspaceId,
@@ -887,5 +888,4 @@ export class WorkspacesController {
   archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.archive(id, user.id);
   }
-
 }
