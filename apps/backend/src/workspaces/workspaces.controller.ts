@@ -888,36 +888,4 @@ export class WorkspacesController {
     return this.workspacesService.archive(id, user.id);
   }
 
-  /**
-   * DEBUG: Endpoint temporal para marcar workspaces "Carros" como eliminados
-   * DELETE /api/v1/workspaces/debug/fix-carros
-   */
-  @Delete('debug/fix-carros')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: '[DEBUG] Fix Carros workspaces',
-    description:
-      'TEMPORAL: Marca todos los workspaces "Carros" como eliminados. Solo para debugging.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Workspaces marcados como eliminados',
-    schema: {
-      example: {
-        message: 'Workspaces updated',
-        count: 3,
-        workspaces: [
-          {
-            id: 'clx1234567890',
-            name: 'Carros',
-            deletedAt: '2025-01-03T00:00:00.000Z',
-          },
-        ],
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async fixCarrosWorkspaces(@CurrentUser() user: RequestUser) {
-    return this.workspacesService.debugFixCarrosWorkspaces(user.id);
-  }
 }
