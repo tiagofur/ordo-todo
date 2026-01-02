@@ -39,7 +39,7 @@ export class TemplatesService {
   }
 
   async update(id: string, dto: UpdateTemplateDto) {
-    await this.findOne(id); // Ensure exists
+    await this.findOne(id);
 
     return this.prisma.taskTemplate.update({
       where: { id },
@@ -51,7 +51,7 @@ export class TemplatesService {
   }
 
   async remove(id: string) {
-    await this.findOne(id); // Ensure exists
+    await this.findOne(id);
 
     return this.prisma.taskTemplate.delete({
       where: { id },
