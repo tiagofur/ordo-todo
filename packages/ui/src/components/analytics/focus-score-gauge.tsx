@@ -1,4 +1,3 @@
-'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card.js';
 import { cn } from '../../utils/index.js';
@@ -96,7 +95,7 @@ export function FocusScoreGauge({
               stroke="currentColor"
               strokeWidth="12"
               fill="none"
-              className="text-muted/20"
+              className="text-slate-100 dark:text-slate-800"
             />
             {/* Progress circle */}
             <circle

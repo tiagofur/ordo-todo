@@ -1,17 +1,11 @@
 import {
-  CheckSquare,
-  Flag,
-  Calendar,
   MoreVertical,
   Edit,
   Trash2,
+  Flag,
+  Calendar,
 } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { motion } from "framer-motion";
 import { cn } from "../../utils/index.js";
-import { Badge } from "../ui/badge.js";
-import { TaskDetailPanel } from "../task/task-detail-panel.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,18 +13,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu.js";
+import { type ReactNode } from "react";
+
+export interface KanbanTaskData {
+  id?: string | number;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority: string;
+  dueDate?: Date | string | null;
+  tags?: Array<{ id: string | number; name: string; color: string }>;
+  project?: { id: string; name: string; color: string };
+}
 
 interface KanbanTaskCardProps {
-  task: {
-    id?: string | number;
-    title: string;
-    description?: string | null;
-    status: string;
-    priority: string;
-    dueDate?: Date | string | null;
-    tags?: any[];
-    project?: { id: string; name: string; color: string };
-  };
+  task: KanbanTaskData;
   index?: number;
   /** Callback when task card is clicked */
   onTaskClick?: (taskId: string) => void;
@@ -38,10 +35,12 @@ interface KanbanTaskCardProps {
   onEditClick?: (taskId: string) => void;
   /** Callback when delete is clicked */
   onDeleteClick?: (taskId: string) => void;
-  /** Callback when detail panel should open/close */
-  onDetailOpenChange?: (taskId: string, open: boolean) => void;
-  /** Whether detail panel is open for this task */
-  isDetailOpen?: boolean;
+  /** Optional detail panel/modal to render when requested */
+  children?: ReactNode;
+  /** Formatted due date string */
+  formattedDueDate?: string | null;
+  /** Whether the task is overdue */
+  isOverdue?: boolean;
   /** Labels for i18n */
   labels?: {
     priorityLow?: string;
@@ -50,182 +49,157 @@ interface KanbanTaskCardProps {
     priorityUrgent?: string;
     viewEdit?: string;
     delete?: string;
+    moreOptions?: string;
   };
+  /** Pre-calculated priority info */
+  priorityInfo?: {
+    label: string;
+    colorClass: string;
+    bgSolid: string;
+  };
+  className?: string;
+  /** Style object for container (e.g. for drag and drop) */
+  style?: React.CSSProperties;
 }
 
 export function KanbanTaskCard({
   task,
-  index = 0,
   onTaskClick,
   onEditClick,
   onDeleteClick,
-  onDetailOpenChange,
-  isDetailOpen = false,
+  children,
+  formattedDueDate,
+  isOverdue = false,
+  priorityInfo,
   labels = {},
+  className = '',
+  style,
 }: KanbanTaskCardProps) {
   const isCompleted = task.status === "COMPLETED";
 
-  const priorityConfig = {
-    LOW: {
-      label: labels.priorityLow ?? "Low",
-      color: "text-gray-500",
-      bg: "bg-gray-500/10",
-    },
-    MEDIUM: {
-      label: labels.priorityMedium ?? "Medium",
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-    },
-    HIGH: {
-      label: labels.priorityHigh ?? "High",
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-    },
-    URGENT: {
-      label: labels.priorityUrgent ?? "Urgent",
-      color: "text-red-500",
-      bg: "bg-red-500/10",
-    },
+  const priority = priorityInfo || {
+    label: labels.priorityMedium ?? "Medium",
+    colorClass: "text-blue-500",
+    bgSolid: "#eff6ff", // blue-50
   };
 
-  const priority =
-    priorityConfig[task.priority as keyof typeof priorityConfig] ||
-    priorityConfig.MEDIUM;
   const accentColor = task.project?.color || "#8b5cf6";
+  const moreOptionsLabel = labels.moreOptions || "More options";
 
-  const formatDueDate = (date: Date | string | null | undefined) => {
-    if (!date) return null;
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return format(dateObj, "d MMM", { locale: es });
+  const handleCardClick = () => {
+    if (onTaskClick && task.id) onTaskClick(String(task.id));
   };
 
-  const isOverdue =
-    !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEditClick && task.id) onEditClick(String(task.id));
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteClick && task.id) onDeleteClick(String(task.id));
+  };
 
   return (
-    <>
-      <motion.div
-        layoutId={`task-${task.id}`}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        whileHover={{ y: -2, scale: 1.01 }}
-        onClick={() => {
-          if (onTaskClick) onTaskClick(String(task.id));
-          if (onDetailOpenChange && task.id)
-            onDetailOpenChange(String(task.id), true);
-        }}
-        className={cn(
-          "group relative flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-4 shadow-sm transition-all cursor-pointer",
-          "hover:shadow-md hover:border-primary/20",
-          isCompleted && "opacity-60",
-        )}
-        style={{
-          borderLeftWidth: "3px",
-          borderLeftColor: accentColor,
-        }}
-      >
-        <div className="flex items-start justify-between gap-2">
-          <h4
-            className={cn(
-              "font-medium text-sm leading-tight line-clamp-2",
-              isCompleted && "line-through text-muted-foreground",
-            )}
-          >
-            {task.title}
-          </h4>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded-md -mr-1 -mt-1">
-                <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onEditClick) onEditClick(String(task.id));
-                  if (onDetailOpenChange && task.id)
-                    onDetailOpenChange(String(task.id), true);
-                }}
-              >
-                <Edit className="mr-2 h-3.5 w-3.5" />
-                {labels.viewEdit ?? "View/Edit"}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onDeleteClick) onDeleteClick(String(task.id));
-                }}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-3.5 w-3.5" />
-                {labels.delete ?? "Delete"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {task.tags && task.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {task.tags.slice(0, 3).map((tag: any) => (
-              <div
-                key={tag.id}
-                className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                style={{
-                  backgroundColor: tag.color + "15",
-                  color: tag.color,
-                }}
-              >
-                {tag.name}
-              </div>
-            ))}
-            {task.tags.length > 3 && (
-              <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                +{task.tags.length - 3}
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mt-1 pt-2 border-t border-border/30">
-          <div
-            className={cn(
-              "flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium",
-              priority.bg,
-              priority.color,
-            )}
-          >
-            <Flag className="h-3 w-3" />
-            {priority.label}
-          </div>
-
-          {task.dueDate && (
-            <div
-              className={cn(
-                "flex items-center gap-1 text-[10px]",
-                isOverdue
-                  ? "text-red-500 font-medium"
-                  : "text-muted-foreground",
-              )}
+    <div
+      onClick={handleCardClick}
+      className={cn(
+        "group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all cursor-pointer",
+        "hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-900",
+        isCompleted && "opacity-60 grayscale",
+        className
+      )}
+      style={{
+        ...style,
+        borderLeftWidth: "3px",
+        borderLeftColor: accentColor,
+      }}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h4
+          className={cn(
+            "font-medium text-sm leading-tight line-clamp-2 text-foreground",
+            isCompleted && "line-through text-muted-foreground",
+          )}
+        >
+          {task.title}
+        </h4>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="transition-opacity p-1 hover:bg-muted rounded-md -mr-1 -mt-1 text-muted-foreground"
+              aria-label={moreOptionsLabel}
             >
-              <Calendar className="h-3 w-3" />
-              {formatDueDate(task.dueDate)}
+              <MoreVertical className="h-3.5 w-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Edit className="mr-2 h-3.5 w-3.5" />
+              {labels.viewEdit ?? "View/Edit"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive focus:text-destructive focus:bg-destructive-foreground"
+            >
+              <Trash2 className="mr-2 h-3.5 w-3.5" />
+              {labels.delete ?? "Delete"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {task.tags && task.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {task.tags.slice(0, 3).map((tag) => (
+            <div
+              key={tag.id}
+              className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+              style={{
+                backgroundColor: "#f3f4f6", // Solid neutral background
+                color: tag.color,
+              }}
+            >
+              {tag.name}
+            </div>
+          ))}
+          {task.tags.length > 3 && (
+            <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+              +{task.tags.length - 3}
             </div>
           )}
         </div>
-      </motion.div>
+      )}
 
-      <TaskDetailPanel
-        taskId={task.id ? String(task.id) : null}
-        open={isDetailOpen}
-        onOpenChange={(open) => {
-          if (onDetailOpenChange && task.id) {
-            onDetailOpenChange(String(task.id), open);
-          }
-        }}
-      />
-    </>
+      <div className="flex items-center justify-between mt-1 pt-2 border-t border-border">
+        <div
+          className={cn(
+            "flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium",
+            priority.colorClass
+          )}
+          style={{ backgroundColor: priority.bgSolid }}
+        >
+          <Flag className="h-3 w-3" />
+          {priority.label}
+        </div>
+
+        {formattedDueDate && (
+          <div
+            className={cn(
+              "flex items-center gap-1 text-[10px]",
+              isOverdue
+                ? "text-destructive font-semibold"
+                : "text-muted-foreground",
+            )}
+          >
+            <Calendar className="h-3 w-3" />
+            {formattedDueDate}
+          </div>
+        )}
+      </div>
+      
+      {children}
+    </div>
   );
 }

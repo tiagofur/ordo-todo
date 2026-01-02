@@ -15,7 +15,7 @@ export interface ProductivityData {
         tasks: number;
     }[];
 }
-interface AIReportSection {
+export interface AIReportSection {
     id: string;
     title: string;
     icon: any;
@@ -26,7 +26,6 @@ interface AIWeeklyReportProps {
     data?: ProductivityData;
     onRefresh?: () => void;
     className?: string;
-    onGenerateReport?: (data: ProductivityData) => Promise<AIReportSection[]>;
     labels?: {
         title?: string;
         subtitle?: string;
@@ -42,7 +41,17 @@ interface AIWeeklyReportProps {
             average?: string;
         };
     };
+    isGenerating?: boolean;
+    hasGenerated?: boolean;
+    report?: AIReportSection[];
+    expandedSections?: string[];
+    onGenerate?: () => void;
+    onToggleSection?: (sectionId: string) => void;
 }
-export declare function AIWeeklyReport({ data, onRefresh, className, onGenerateReport, labels, }: AIWeeklyReportProps): import("react/jsx-runtime").JSX.Element;
+/**
+ * AIWeeklyReport - Platform-agnostic AI report component.
+ * Purely presentational - state must be managed by parent.
+ */
+export declare function AIWeeklyReport({ data, onRefresh, className, labels, isGenerating, hasGenerated, report, expandedSections, onGenerate, onToggleSection, }: AIWeeklyReportProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=ai-weekly-report.d.ts.map

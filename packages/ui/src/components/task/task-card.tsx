@@ -129,7 +129,7 @@ export function TaskCard({
         onClick={handleCardClick}
         className={cn(
           'group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 cursor-pointer shadow-sm',
-          'hover:shadow-xl hover:bg-accent/5',
+          'hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800',
           isCompleted && 'grayscale opacity-80',
           className
         )}

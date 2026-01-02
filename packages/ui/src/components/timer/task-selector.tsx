@@ -1,6 +1,4 @@
-'use client';
 
-import { useState } from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '../../utils/index.js';
 import {
@@ -28,6 +26,10 @@ interface TaskSelectorProps {
   onSelect: (taskId: string | null) => void;
   /** Whether the selector is disabled */
   disabled?: boolean;
+  /** Controlled open state */
+  open?: boolean;
+  /** Controlled open state setter */
+  setOpen?: (open: boolean) => void;
   /** Custom labels for i18n */
   labels?: {
     placeholder?: string;
@@ -52,6 +54,8 @@ interface TaskSelectorProps {
  *   tasks={pendingTasks}
  *   selectedTaskId={selectedTaskId}
  *   onSelect={setSelectedTaskId}
+ *   open={open}
+ *   setOpen={setOpen}
  *   labels={{ placeholder: t('placeholder') }}
  * />
  */
@@ -60,11 +64,11 @@ export function TaskSelector({
   tasks = [],
   onSelect,
   disabled = false,
+  open = false,
+  setOpen,
   labels = {},
   className = '',
 }: TaskSelectorProps) {
-  const [open, setOpen] = useState(false);
-
   const {
     placeholder = 'Select a task...',
     searchPlaceholder = 'Search tasks...',
@@ -77,15 +81,19 @@ export function TaskSelector({
   const pendingTasks = tasks.filter((t) => t.status !== 'COMPLETED');
   const selectedTask = selectedTaskId ? tasks.find((t) => t.id === selectedTaskId) : undefined;
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen?.(newOpen);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            'flex w-full items-center justify-between rounded-lg border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+            'flex w-full items-center justify-between rounded-lg border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-muted-foreground',
             className
           )}
         >
@@ -94,7 +102,7 @@ export function TaskSelector({
           ) : (
             <span className="text-muted-foreground">{placeholder}</span>
           )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
@@ -108,12 +116,12 @@ export function TaskSelector({
                 value="no-task"
                 onSelect={() => {
                   onSelect(null);
-                  setOpen(false);
+                  setOpen?.(false);
                 }}
                 className="text-muted-foreground italic"
               >
                 <Check
-                  className={cn('mr-2 h-4 w-4', !selectedTaskId ? 'opacity-100' : 'opacity-0')}
+                  className={cn('mr-2 h-4 w-4', !selectedTaskId ? 'visible' : 'invisible')}
                 />
                 {noTaskAssigned}
               </CommandItem>
@@ -125,13 +133,13 @@ export function TaskSelector({
                   keywords={[task.title]}
                   onSelect={() => {
                     onSelect(task.id);
-                    setOpen(false);
+                    setOpen?.(false);
                   }}
                 >
                   <Check
                     className={cn(
                       'mr-2 h-4 w-4',
-                      selectedTaskId === task.id ? 'opacity-100' : 'opacity-0'
+                      selectedTaskId === task.id ? 'visible' : 'invisible'
                     )}
                   />
                   <div className="flex flex-col overflow-hidden">

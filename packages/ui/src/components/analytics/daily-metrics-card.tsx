@@ -1,4 +1,4 @@
-'use client';
+
 
 import { CheckCircle2, Clock, Target, Zap } from 'lucide-react';
 import {

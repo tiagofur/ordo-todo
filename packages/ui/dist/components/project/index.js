@@ -14,4 +14,3 @@ export * from "./project-list.js";
 export * from "./project-settings-dialog.js";
 export * from "./project-settings.js";
 export * from "./project-timeline.js";
-export * from "./sortable-task.js";

@@ -1,7 +1,5 @@
-'use client';
 
-import { useState, type ReactNode } from 'react';
-import { format } from 'date-fns';
+import { type ReactNode } from 'react';
 import {
   Clock,
   Calendar,
@@ -15,7 +13,6 @@ import {
   CheckCircle2,
   XCircle,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card.js';
 import { Button } from '../ui/button.js';
 import { Badge } from '../ui/badge.js';
@@ -84,8 +81,10 @@ interface SessionHistoryProps {
   filters: SessionHistoryFilters;
   /** Called when filters change */
   onFiltersChange: (filters: SessionHistoryFilters) => void;
-  /** Date locale for formatting (e.g., es, enUS from date-fns) */
-  dateLocale?: Locale;
+  /** Function to format date/time string */
+  formatDate?: (date: string | Date) => string;
+  /** Function to format day string (e.g. Mon, Tue) */
+  formatDay?: (date: string | Date) => string;
   /** Custom labels for i18n */
   labels?: {
     error?: string;
@@ -112,9 +111,6 @@ interface SessionHistoryProps {
     chartTitle?: string;
   };
 }
-
-// Import Locale type from date-fns
-type Locale = Parameters<typeof format>[2] extends { locale?: infer L } ? L : never;
 
 function formatDuration(minutes: number): string {
   if (minutes < 60) {
@@ -191,7 +187,7 @@ function StatCard({
  *   isLoadingHistory={isLoading}
  *   filters={filters}
  *   onFiltersChange={setFilters}
- *   dateLocale={es}
+ *   formatDate={(d) => format(d, 'PPp')}
  *   labels={{ ... }}
  * />
  */
@@ -203,7 +199,8 @@ export function SessionHistory({
   hasError = false,
   filters,
   onFiltersChange,
-  dateLocale,
+  formatDate = (d) => String(d),
+  formatDay = (d) => String(d).substring(0, 3),
   labels = {},
 }: SessionHistoryProps) {
   const {
@@ -252,8 +249,6 @@ export function SessionHistory({
   if (hasError) {
     return <div className="text-center py-8 text-muted-foreground">{error}</div>;
   }
-
-  const formatOptions = dateLocale ? { locale: dateLocale } : undefined;
 
   return (
     <div className="space-y-6">
@@ -330,13 +325,13 @@ export function SessionHistory({
               type="date"
               value={filters.startDate ?? ''}
               onChange={(e) => handleFilterChange('startDate', e.target.value)}
-              className="px-3 py-2 border rounded-md text-sm bg-background"
+              className="px-3 py-2 border rounded-md text-sm bg-background dark:bg-slate-800 text-foreground"
             />
             <input
               type="date"
               value={filters.endDate ?? ''}
               onChange={(e) => handleFilterChange('endDate', e.target.value)}
-              className="px-3 py-2 border rounded-md text-sm bg-background"
+              className="px-3 py-2 border rounded-md text-sm bg-background dark:bg-slate-800 text-foreground"
             />
           </div>
         </CardContent>
@@ -365,58 +360,48 @@ export function SessionHistory({
           ) : historyData?.sessions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">{sessionsEmpty}</div>
           ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={filters.page}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-3"
-              >
-                {historyData?.sessions.map((session) => (
-                  <motion.div
-                    key={session.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={cn('p-2 rounded-full', SESSION_TYPE_COLORS[session.type])}>
-                        {getSessionTypeIcon(session.type)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant="outline"
-                            className={cn('text-xs', SESSION_TYPE_COLORS[session.type])}
-                          >
-                            {getTypeLabel(session.type)}
-                          </Badge>
-                          {session.wasCompleted ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
-                          ) : session.wasInterrupted ? (
-                            <XCircle className="h-4 w-4 text-destructive" />
-                          ) : null}
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {format(new Date(session.startedAt), 'PPp', formatOptions)}
-                        </p>
-                      </div>
+            <div className="space-y-3">
+              {historyData?.sessions.map((session, index) => (
+                <div
+                  key={session.id}
+                  className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors animate-in fade-in slide-in-from-bottom-2"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={cn('p-2 rounded-full', SESSION_TYPE_COLORS[session.type])}>
+                      {getSessionTypeIcon(session.type)}
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-lg">{formatDuration(session.duration)}</p>
-                      {session.pauseCount > 0 && (
-                        <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
-                          <Pause className="h-3 w-3" />
-                          {session.pauseCount} {session.pauseCount === 1 ? sessionPause : sessionPauses}
-                        </p>
-                      )}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className={cn('text-xs', SESSION_TYPE_COLORS[session.type])}
+                        >
+                          {getTypeLabel(session.type)}
+                        </Badge>
+                        {session.wasCompleted ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        ) : session.wasInterrupted ? (
+                          <XCircle className="h-4 w-4 text-destructive" />
+                        ) : null}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {formatDate(session.startedAt)}
+                      </p>
                     </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-lg">{formatDuration(session.duration)}</p>
+                    {session.pauseCount > 0 && (
+                      <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
+                        <Pause className="h-3 w-3" />
+                        {session.pauseCount} {session.pauseCount === 1 ? sessionPause : sessionPauses}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
 
           {/* Pagination */}
@@ -473,15 +458,13 @@ export function SessionHistory({
                 const height = maxMinutes > 0 ? (day.minutesWorked / maxMinutes) * 100 : 0;
                 return (
                   <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${height}%` }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
+                    <div
+                      style={{ height: `${height}%`, transition: 'height 0.5s ease-out' }}
                       className="w-full bg-primary/80 rounded-t-md min-h-1"
                       title={`${formatDuration(day.minutesWorked)} - ${day.pomodorosCompleted} pomodoros`}
                     />
                     <span className="text-xs text-muted-foreground">
-                      {format(new Date(day.date), 'EEE', formatOptions)}
+                      {formatDay(day.date)}
                     </span>
                   </div>
                 );

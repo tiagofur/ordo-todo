@@ -1,8 +1,6 @@
-'use client';
 
 import { Clock, Play } from 'lucide-react';
 import { cn } from '../../utils/index.js';
-import { motion } from 'framer-motion';
 import { TomatoIcon } from '../ui/custom-icons.js';
 
 export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CONTINUOUS';
@@ -20,8 +18,6 @@ interface TimerWidgetProps {
   isActive?: boolean;
   /** Click handler - typically navigates to timer page */
   onClick?: () => void;
-  /** Link component for navigation (optional) */
-  href?: string;
   /** Custom labels for i18n */
   labels?: {
     startTimer?: string;
@@ -75,7 +71,7 @@ export function TimerWidget({
 
   const getThemeClasses = () => {
     if (!isActive && !isRunning) {
-      return 'text-muted-foreground hover:bg-muted/50 hover:text-foreground';
+      return 'text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-foreground';
     }
 
     const colorKey = {
@@ -86,21 +82,24 @@ export function TimerWidget({
     }[mode] || 'blue';
 
     if (isActive) {
+      // Replaced shadow transparencies with standard active states or solid borders if necessary
+      // For now using solid backgrounds which is consistent with active states
       const activeClasses: Record<string, string> = {
-        red: 'bg-red-500 text-white shadow-lg shadow-red-500/20',
-        'green-light': 'bg-green-400 text-white shadow-lg shadow-green-400/20',
-        'green-dark': 'bg-green-800 text-white shadow-lg shadow-green-800/20',
-        blue: 'bg-blue-500 text-white shadow-lg shadow-blue-500/20',
+        red: 'bg-red-500 text-white',
+        'green-light': 'bg-green-400 text-white',
+        'green-dark': 'bg-green-800 text-white',
+        blue: 'bg-blue-500 text-white',
       };
       return activeClasses[colorKey];
     }
 
     // isRunning
+    // Replaced transparencies like /70 with solid colors
     const runningClasses: Record<string, string> = {
-      red: 'border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/70',
-      'green-light': 'border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900/70',
-      'green-dark': 'border border-green-700 bg-green-100 text-green-900 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800/70',
-      blue: 'border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900/70',
+      red: 'border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900',
+      'green-light': 'border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-900',
+      'green-dark': 'border border-green-700 bg-green-100 text-green-900 hover:bg-green-200 dark:border-green-600 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800',
+      blue: 'border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900',
     };
     return runningClasses[colorKey];
   };
@@ -125,12 +124,7 @@ export function TimerWidget({
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-    >
+    <div className="animate-in fade-in duration-200">
       <button
         onClick={onClick}
         className={cn(
@@ -141,6 +135,6 @@ export function TimerWidget({
       >
         {content}
       </button>
-    </motion.div>
+    </div>
   );
 }

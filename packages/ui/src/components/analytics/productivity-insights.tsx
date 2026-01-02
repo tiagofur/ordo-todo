@@ -1,4 +1,3 @@
-'use client';
 
 import {
   Card,
@@ -144,7 +143,7 @@ export function ProductivityInsights({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Main Recommendation */}
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <Lightbulb className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
             <p className="text-sm leading-relaxed">{schedule.recommendation}</p>

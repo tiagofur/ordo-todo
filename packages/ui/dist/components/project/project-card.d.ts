@@ -1,4 +1,4 @@
-interface ProjectDisplayData {
+export interface ProjectDisplayData {
     id?: string | number;
     name: string;
     description?: string | null;
@@ -14,22 +14,29 @@ interface ProjectCardProps {
     /** Explicit click handler, overrides default navigation logic */
     onProjectClick?: (project: ProjectDisplayData) => void;
     /** Callback for archiving project */
-    onArchive?: (projectId: string) => Promise<void> | void;
+    onArchive?: (projectId: string) => void;
     /** Callback for deleting project */
-    onDelete?: (projectId: string) => Promise<void> | void;
-    /** Custom labels */
+    onDelete?: (projectId: string) => void;
+    /** Progress percentage (0-100) */
+    progressPercent?: number;
+    /** Formatted tasks progress string (e.g. "5 / 10") */
+    formattedTasksProgress?: string;
+    /** Labels for i18n */
     labels?: {
         actions?: {
             archive?: string;
             unarchive?: string;
             delete?: string;
         };
-        progress?: string;
-        tasksProgress?: string;
+        progressLabel?: string;
         archived?: string;
-        confirmDelete?: string;
+        moreOptions?: string;
     };
+    className?: string;
 }
-export declare function ProjectCard({ project, index, onProjectClick, onArchive, onDelete, labels, }: ProjectCardProps): import("react/jsx-runtime").JSX.Element;
+/**
+ * ProjectCard - Platform-agnostic component for project summary
+ */
+export declare function ProjectCard({ project, onProjectClick, onArchive, onDelete, progressPercent, formattedTasksProgress, labels, className, }: ProjectCardProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=project-card.d.ts.map
