@@ -4,7 +4,9 @@ import * as CacheManager from 'cache-manager';
 
 @Injectable()
 export class CacheService {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache) { }
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
+  ) {}
 
   async get<T>(key: string): Promise<T | undefined> {
     return this.cacheManager.get<T>(key);
