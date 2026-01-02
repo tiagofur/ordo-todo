@@ -71,7 +71,7 @@ export class NewsletterController {
   @ApiResponse({ status: 200, description: 'Returns true/false.' })
   async getStatus(@CurrentUser() user: RequestUser) {
     if (!user.email) return false;
-    return false;
+    return this.newsletterService.checkStatus(user.email);
   }
 
   @Post('unsubscribe')
