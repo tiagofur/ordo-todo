@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { WorkspaceAuditLog as PrismaWorkspaceAuditLog } from '@prisma/client';
+import {
+  WorkspaceAuditLog as PrismaWorkspaceAuditLog,
+  Prisma,
+} from '@prisma/client';
 import {
   WorkspaceAuditLog,
   WorkspaceAuditLogRepository,
@@ -17,7 +20,7 @@ export class PrismaWorkspaceAuditLogRepository implements WorkspaceAuditLogRepos
       workspaceId: prismaLog.workspaceId,
       actorId: prismaLog.actorId ?? undefined,
       action: prismaLog.action as AuditAction,
-      payload: prismaLog.payload as Record<string, any> | undefined,
+      payload: prismaLog.payload as Record<string, unknown> | undefined,
       createdAt: prismaLog.createdAt,
     });
   }
@@ -29,7 +32,7 @@ export class PrismaWorkspaceAuditLogRepository implements WorkspaceAuditLogRepos
         workspaceId: log.props.workspaceId,
         actorId: log.props.actorId,
         action: log.props.action,
-        payload: log.props.payload,
+        payload: log.props.payload as Prisma.InputJsonValue | undefined,
       },
     });
 

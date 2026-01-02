@@ -4,9 +4,9 @@ import { NewsletterController } from './newsletter.controller';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [NewsletterController],
-    providers: [NewsletterService],
-    exports: [NewsletterService],
+  imports: [DatabaseModule],
+  controllers: [NewsletterController],
+  providers: [NewsletterService],
+  exports: [NewsletterService],
 })
-export class NewsletterModule { }
+export class NewsletterModule {}

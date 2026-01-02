@@ -34,3 +34,5 @@ __exportStar(require("./chat.types"), exports);
 __exportStar(require("./habit.types"), exports);
 __exportStar(require("./objective.types"), exports);
 __exportStar(require("./custom-field.types"), exports);
+__exportStar(require("./wellbeing.types"), exports);
+__exportStar(require("./workload.types"), exports);

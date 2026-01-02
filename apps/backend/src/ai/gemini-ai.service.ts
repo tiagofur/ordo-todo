@@ -569,9 +569,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       Math.min(
         100,
         100 -
-        weekendWorkPercentage * 0.5 -
-        lateNightWorkPercentage * 0.5 -
-        Math.max(0, (avgHoursPerDay - 8) * 10),
+          weekendWorkPercentage * 0.5 -
+          lateNightWorkPercentage * 0.5 -
+          Math.max(0, (avgHoursPerDay - 8) * 10),
       ),
     );
 
@@ -734,10 +734,10 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
   async generateProductivityReport(context: {
     userId: string;
     scope:
-    | 'TASK_COMPLETION'
-    | 'WEEKLY_SCHEDULED'
-    | 'MONTHLY_SCHEDULED'
-    | 'PROJECT_SUMMARY';
+      | 'TASK_COMPLETION'
+      | 'WEEKLY_SCHEDULED'
+      | 'MONTHLY_SCHEDULED'
+      | 'PROJECT_SUMMARY';
     metricsSnapshot: any;
     sessions?: any[];
     profile?: any;
@@ -797,12 +797,12 @@ ${projectName ? `- Project: ${projectName}` : ''}
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
 ${sessions
-          .slice(0, 10)
-          .map(
-            (s: any, i: number) =>
-              `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
-          )
-          .join('\n')}
+  .slice(0, 10)
+  .map(
+    (s: any, i: number) =>
+      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+  )
+  .join('\n')}
 `;
     }
 

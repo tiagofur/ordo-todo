@@ -444,7 +444,9 @@ describe('WorkspacesService', () => {
         },
       ];
 
-      mockWorkspaceRepository.findByUserId.mockResolvedValue(mockWorkspaces as any);
+      mockWorkspaceRepository.findByUserId.mockResolvedValue(
+        mockWorkspaces as any,
+      );
       mockUserRepository.findById.mockResolvedValue({
         id: userId,
         props: {
@@ -480,7 +482,9 @@ describe('WorkspacesService', () => {
         },
       ];
 
-      mockWorkspaceRepository.findByUserId.mockResolvedValue(mockWorkspaces as any);
+      mockWorkspaceRepository.findByUserId.mockResolvedValue(
+        mockWorkspaces as any,
+      );
       mockUserRepository.findById.mockResolvedValue({
         id: ownerId,
         props: {
@@ -836,8 +840,12 @@ describe('WorkspacesService', () => {
       const result = await service.remove(workspaceId, userId);
 
       expect(result).toEqual({ success: true });
-      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(workspaceId);
-      expect(mockWorkspaceRepository.softDelete).toHaveBeenCalledWith(workspaceId);
+      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(
+        workspaceId,
+      );
+      expect(mockWorkspaceRepository.softDelete).toHaveBeenCalledWith(
+        workspaceId,
+      );
     });
 
     it('should throw NotFoundException when deleting non-existent workspace', async () => {
@@ -1811,4 +1819,3 @@ describe('WorkspacesService', () => {
     });
   });
 });
-

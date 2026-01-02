@@ -167,4 +167,30 @@ export interface TimeBlock {
         color: string;
     }>;
 }
+/**
+ * Query parameters for GET /tasks endpoint
+ */
+export interface GetTasksParams {
+    projectId?: string;
+    tags?: string[];
+}
+/**
+ * Query parameters for GET /tasks/scheduled endpoint
+ */
+export interface GetScheduledTasksParams {
+    date?: string;
+}
+/**
+ * Query parameters for GET /tasks/available endpoint
+ */
+export interface GetAvailableTasksParams {
+    projectId?: string;
+}
+/**
+ * Query parameters for GET /tasks/time-blocks endpoint
+ */
+export interface GetTimeBlocksParams {
+    start?: string;
+    end?: string;
+}
 //# sourceMappingURL=task.types.d.ts.map

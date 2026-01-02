@@ -26,7 +26,7 @@ export class ChatService {
   constructor(
     private readonly chatRepository: ChatRepository,
     private readonly coachService: ProductivityCoachService,
-  ) { }
+  ) {}
 
   /**
    * Create a new conversation, optionally with an initial message
@@ -104,15 +104,15 @@ export class ChatService {
         content: m.content,
         metadata: m.metadata as
           | {
-            actions?: Array<{
-              type: string;
-              data?: any;
-              result?: any;
-            }>;
-            suggestions?: string[];
-            modelUsed?: string;
-            processingTimeMs?: number;
-          }
+              actions?: Array<{
+                type: string;
+                data?: any;
+                result?: any;
+              }>;
+              suggestions?: string[];
+              modelUsed?: string;
+              processingTimeMs?: number;
+            }
           | undefined,
         createdAt: m.createdAt,
       })),

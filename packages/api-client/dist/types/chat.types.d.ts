@@ -7,26 +7,39 @@ export interface CreateConversationDto {
 export interface SendMessageDto {
     message: string;
 }
+/**
+ * Chat action data structure
+ */
+export interface ChatAction {
+    type: string;
+    data?: Record<string, unknown>;
+    result?: Record<string, unknown>;
+}
 export interface ChatMessageResponse {
     id: string;
     role: 'USER' | 'ASSISTANT' | 'SYSTEM';
     content: string;
     metadata?: {
-        actions?: Array<{
-            type: string;
-            data?: any;
-            result?: any;
-        }>;
+        actions?: ChatAction[];
         suggestions?: string[];
         modelUsed?: string;
         processingTimeMs?: number;
     };
     createdAt: string | Date;
 }
+/**
+ * Conversation context structure
+ */
+export interface ConversationContext {
+    workspaceId?: string;
+    projectId?: string;
+    taskId?: string;
+    additionalInfo?: Record<string, unknown>;
+}
 export interface ConversationResponse {
     id: string;
     title: string | null;
-    context: any | null;
+    context: ConversationContext | null;
     messageCount: number;
     lastMessage?: string;
     createdAt: string | Date;
@@ -35,7 +48,7 @@ export interface ConversationResponse {
 export interface ConversationDetail {
     id: string;
     title: string | null;
-    context: any | null;
+    context: ConversationContext | null;
     messages: ChatMessageResponse[];
     isArchived: boolean;
     createdAt: string | Date;

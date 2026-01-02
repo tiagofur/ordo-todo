@@ -111,10 +111,11 @@ export function formatFileSize(bytes: number): string {
  * Check if file type is allowed
  */
 export function isAllowedFileType(mimeType: string): boolean {
-    return [
+    const allowedTypes: readonly string[] = [
         ...FILE_LIMITS.ALLOWED_IMAGE_TYPES,
         ...FILE_LIMITS.ALLOWED_DOCUMENT_TYPES,
-    ].includes(mimeType as any);
+    ];
+    return allowedTypes.includes(mimeType);
 }
 
 /**

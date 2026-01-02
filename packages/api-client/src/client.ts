@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from "axios";
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
 import type { TokenStorage } from "./utils/storage";
 import type {
   // Auth
@@ -47,6 +47,10 @@ import type {
   CreateTaskDto,
   UpdateTaskDto,
   CreateSubtaskDto,
+  GetTasksParams,
+  GetScheduledTasksParams,
+  GetAvailableTasksParams,
+  GetTimeBlocksParams,
   // Tag
   Tag,
   CreateTagDto,
@@ -115,6 +119,16 @@ import type {
   CreateCustomFieldDto,
   UpdateCustomFieldDto,
   SetMultipleCustomFieldValuesDto,
+  // Wellbeing
+  BurnoutAnalysis,
+  WorkPatterns,
+  RestRecommendation,
+  BurnoutIntervention,
+  WeeklyWellbeingSummary,
+  // Workload
+  WorkspaceWorkload,
+  MemberWorkload,
+  WorkloadSuggestion,
 } from "./types";
 
 /**
@@ -231,7 +245,7 @@ export class OrdoApiClient {
     this.axios.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const originalRequest = error.config as any;
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
         // Handle 401 Unauthorized errors
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -773,7 +787,7 @@ export class OrdoApiClient {
    * GET /tasks?projectId=xxx
    */
   async getTasks(projectId?: string, tags?: string[]): Promise<Task[]> {
-    const params: any = {};
+    const params: GetTasksParams = {};
     if (projectId) params.projectId = projectId;
     if (tags && tags.length > 0) params.tags = tags;
 
@@ -798,7 +812,7 @@ export class OrdoApiClient {
    * GET /tasks/scheduled?date=xxx
    */
   async getScheduledTasks(date?: Date | string): Promise<Task[]> {
-    const params: any = {};
+    const params: GetScheduledTasksParams = {};
     if (date) {
       params.date = typeof date === "string" ? date : date.toISOString();
     }
@@ -813,7 +827,7 @@ export class OrdoApiClient {
    * GET /tasks/available?projectId=xxx
    */
   async getAvailableTasks(projectId?: string): Promise<Task[]> {
-    const params: any = {};
+    const params: GetAvailableTasksParams = {};
     if (projectId) params.projectId = projectId;
     const response = await this.axios.get<Task[]>("/tasks/available", {
       params,
@@ -829,7 +843,7 @@ export class OrdoApiClient {
     start?: Date | string,
     end?: Date | string,
   ): Promise<TimeBlock[]> {
-    const params: any = {};
+    const params: GetTimeBlocksParams = {};
     if (start)
       params.start = start instanceof Date ? start.toISOString() : start;
     if (end) params.end = end instanceof Date ? end.toISOString() : end;
@@ -2099,8 +2113,8 @@ export class OrdoApiClient {
    * Get burnout risk analysis for current user
    * GET /ai/burnout/analysis
    */
-  async getBurnoutAnalysis(): Promise<any> {
-    const response = await this.axios.get("/ai/burnout/analysis");
+  async getBurnoutAnalysis(): Promise<BurnoutAnalysis> {
+    const response = await this.axios.get<BurnoutAnalysis>("/ai/burnout/analysis");
     return response.data;
   }
 
@@ -2108,8 +2122,8 @@ export class OrdoApiClient {
    * Get work patterns for current user
    * GET /ai/burnout/patterns
    */
-  async getWorkPatterns(): Promise<any> {
-    const response = await this.axios.get("/ai/burnout/patterns");
+  async getWorkPatterns(): Promise<WorkPatterns> {
+    const response = await this.axios.get<WorkPatterns>("/ai/burnout/patterns");
     return response.data;
   }
 
@@ -2117,8 +2131,8 @@ export class OrdoApiClient {
    * Get rest recommendations
    * GET /ai/burnout/recommendations
    */
-  async getRestRecommendations(): Promise<any[]> {
-    const response = await this.axios.get("/ai/burnout/recommendations");
+  async getRestRecommendations(): Promise<RestRecommendation[]> {
+    const response = await this.axios.get<RestRecommendation[]>("/ai/burnout/recommendations");
     return response.data;
   }
 
@@ -2126,8 +2140,8 @@ export class OrdoApiClient {
    * Check for burnout intervention needs
    * GET /ai/burnout/intervention
    */
-  async checkBurnoutIntervention(): Promise<any> {
-    const response = await this.axios.get("/ai/burnout/intervention");
+  async checkBurnoutIntervention(): Promise<BurnoutIntervention> {
+    const response = await this.axios.get<BurnoutIntervention>("/ai/burnout/intervention");
     return response.data;
   }
 
@@ -2135,8 +2149,8 @@ export class OrdoApiClient {
    * Get weekly wellbeing summary
    * GET /ai/burnout/weekly-summary
    */
-  async getWeeklyWellbeingSummary(): Promise<any> {
-    const response = await this.axios.get("/ai/burnout/weekly-summary");
+  async getWeeklyWellbeingSummary(): Promise<WeeklyWellbeingSummary> {
+    const response = await this.axios.get<WeeklyWellbeingSummary>("/ai/burnout/weekly-summary");
     return response.data;
   }
 
@@ -2146,8 +2160,8 @@ export class OrdoApiClient {
    * Get workspace workload summary
    * GET /workload/workspace/:workspaceId
    */
-  async getWorkspaceWorkload(workspaceId: string): Promise<any> {
-    const response = await this.axios.get(`/workload/workspace/${workspaceId}`);
+  async getWorkspaceWorkload(workspaceId: string): Promise<WorkspaceWorkload> {
+    const response = await this.axios.get<WorkspaceWorkload>(`/workload/workspace/${workspaceId}`);
     return response.data;
   }
 
@@ -2155,8 +2169,8 @@ export class OrdoApiClient {
    * Get member workload details
    * GET /workload/member/:userId
    */
-  async getMemberWorkload(userId: string, workspaceId?: string): Promise<any> {
-    const response = await this.axios.get(`/workload/member/${userId}`, {
+  async getMemberWorkload(userId: string, workspaceId?: string): Promise<MemberWorkload> {
+    const response = await this.axios.get<MemberWorkload>(`/workload/member/${userId}`, {
       params: { workspaceId },
     });
     return response.data;
@@ -2166,8 +2180,8 @@ export class OrdoApiClient {
    * Get current user's workload
    * GET /workload/me
    */
-  async getMyWorkload(workspaceId?: string): Promise<any> {
-    const response = await this.axios.get("/workload/me", {
+  async getMyWorkload(workspaceId?: string): Promise<MemberWorkload> {
+    const response = await this.axios.get<MemberWorkload>("/workload/me", {
       params: { workspaceId },
     });
     return response.data;
@@ -2177,8 +2191,8 @@ export class OrdoApiClient {
    * Get workload suggestions for redistribution
    * GET /workload/suggestions/:workspaceId
    */
-  async getWorkloadSuggestions(workspaceId: string): Promise<any[]> {
-    const response = await this.axios.get(
+  async getWorkloadSuggestions(workspaceId: string): Promise<WorkloadSuggestion[]> {
+    const response = await this.axios.get<WorkloadSuggestion[]>(
       `/workload/suggestions/${workspaceId}`,
     );
     return response.data;

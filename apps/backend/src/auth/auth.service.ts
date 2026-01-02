@@ -14,6 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuthDto } from './dto/oauth.dto';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import type { StringValue } from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -78,9 +79,8 @@ export class AuthService {
 
       const accessToken = this.jwtService.sign(payload);
       const refreshToken = this.jwtService.sign(payload, {
-        expiresIn: this.configService.get<string>(
-          'JWT_REFRESH_EXPIRATION',
-        )! as any,
+        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
+          '7d') as StringValue,
       });
 
       return {
@@ -140,9 +140,8 @@ export class AuthService {
 
       const accessToken = this.jwtService.sign(newPayload);
       const newRefreshToken = this.jwtService.sign(newPayload, {
-        expiresIn: this.configService.get<string>(
-          'JWT_REFRESH_EXPIRATION',
-        )! as any,
+        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
+          '7d') as StringValue,
       });
 
       return {
@@ -266,7 +265,7 @@ export class AuthService {
           name,
           email,
           username,
-          avatar,
+          image: avatar, // OAuth avatar maps to image field
           provider,
           providerId,
         });
@@ -302,9 +301,8 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>(
-        'JWT_REFRESH_EXPIRATION',
-      )! as any,
+      expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
+        '7d') as StringValue,
     });
 
     return {

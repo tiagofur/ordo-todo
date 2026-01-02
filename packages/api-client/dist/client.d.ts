@@ -1,6 +1,6 @@
 import { AxiosInstance } from "axios";
 import type { TokenStorage } from "./utils/storage";
-import type { RegisterDto, LoginDto, AuthResponse, RefreshTokenDto, User, UpdateProfileDto, UserResponse, UserProfileResponse, UserPreferences, UpdatePreferencesDto, UserIntegration, Workspace, WorkspaceWithMembers, WorkspaceMember, WorkspaceInvitation, WorkspaceSettings, WorkspaceAuditLog, WorkspaceAuditLogsResponse, CreateWorkspaceDto, UpdateWorkspaceDto, UpdateWorkspaceSettingsDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, Workflow, CreateWorkflowDto, UpdateWorkflowDto, Project, CreateProjectDto, UpdateProjectDto, Task, TaskDetails, TaskShareResponse, PublicTaskResponse, TodayTasksResponse, TimeBlock, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, Tag, CreateTagDto, UpdateTagDto, TimeSession, StartTimerDto, StopTimerDto, ActiveTimerResponse, GetSessionsParams, PaginatedSessionsResponse, GetTimerStatsParams, TimerStatsResponse, TaskTimeResponse, CreateTimerSessionDto, UpdateTimerSessionDto, DailyMetrics, GetDailyMetricsParams, Comment, CreateCommentDto, UpdateCommentDto, Attachment, CreateAttachmentDto, AIProfile, OptimalScheduleResponse, PredictDurationResponse, WeeklyReportResponse, ProductivityReport, Notification, UnreadCountResponse, CreateConversationDto, SendMessageDto, ConversationResponse, ConversationDetail, SendMessageResponse, AIInsightsResponse, Habit, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, HabitStats, TodayHabitsResponse, CompleteHabitResponse, Objective, KeyResult, KeyResultTask, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, ObjectiveDashboardSummary, CustomField, CustomFieldValue, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto } from "./types";
+import type { RegisterDto, LoginDto, AuthResponse, RefreshTokenDto, User, UpdateProfileDto, UserResponse, UserProfileResponse, UserPreferences, UpdatePreferencesDto, UserIntegration, Workspace, WorkspaceWithMembers, WorkspaceMember, WorkspaceInvitation, WorkspaceSettings, WorkspaceAuditLog, WorkspaceAuditLogsResponse, CreateWorkspaceDto, UpdateWorkspaceDto, UpdateWorkspaceSettingsDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, Workflow, CreateWorkflowDto, UpdateWorkflowDto, Project, CreateProjectDto, UpdateProjectDto, Task, TaskDetails, TaskShareResponse, PublicTaskResponse, TodayTasksResponse, TimeBlock, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, Tag, CreateTagDto, UpdateTagDto, TimeSession, StartTimerDto, StopTimerDto, ActiveTimerResponse, GetSessionsParams, PaginatedSessionsResponse, GetTimerStatsParams, TimerStatsResponse, TaskTimeResponse, CreateTimerSessionDto, UpdateTimerSessionDto, DailyMetrics, GetDailyMetricsParams, Comment, CreateCommentDto, UpdateCommentDto, Attachment, CreateAttachmentDto, AIProfile, OptimalScheduleResponse, PredictDurationResponse, WeeklyReportResponse, ProductivityReport, Notification, UnreadCountResponse, CreateConversationDto, SendMessageDto, ConversationResponse, ConversationDetail, SendMessageResponse, AIInsightsResponse, Habit, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, HabitStats, TodayHabitsResponse, CompleteHabitResponse, Objective, KeyResult, KeyResultTask, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, ObjectiveDashboardSummary, CustomField, CustomFieldValue, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, BurnoutAnalysis, WorkPatterns, RestRecommendation, BurnoutIntervention, WeeklyWellbeingSummary, WorkspaceWorkload, MemberWorkload, WorkloadSuggestion } from "./types";
 /**
  * Configuration options for the OrdoApiClient
  */
@@ -897,46 +897,46 @@ export declare class OrdoApiClient {
      * Get burnout risk analysis for current user
      * GET /ai/burnout/analysis
      */
-    getBurnoutAnalysis(): Promise<any>;
+    getBurnoutAnalysis(): Promise<BurnoutAnalysis>;
     /**
      * Get work patterns for current user
      * GET /ai/burnout/patterns
      */
-    getWorkPatterns(): Promise<any>;
+    getWorkPatterns(): Promise<WorkPatterns>;
     /**
      * Get rest recommendations
      * GET /ai/burnout/recommendations
      */
-    getRestRecommendations(): Promise<any[]>;
+    getRestRecommendations(): Promise<RestRecommendation[]>;
     /**
      * Check for burnout intervention needs
      * GET /ai/burnout/intervention
      */
-    checkBurnoutIntervention(): Promise<any>;
+    checkBurnoutIntervention(): Promise<BurnoutIntervention>;
     /**
      * Get weekly wellbeing summary
      * GET /ai/burnout/weekly-summary
      */
-    getWeeklyWellbeingSummary(): Promise<any>;
+    getWeeklyWellbeingSummary(): Promise<WeeklyWellbeingSummary>;
     /**
      * Get workspace workload summary
      * GET /workload/workspace/:workspaceId
      */
-    getWorkspaceWorkload(workspaceId: string): Promise<any>;
+    getWorkspaceWorkload(workspaceId: string): Promise<WorkspaceWorkload>;
     /**
      * Get member workload details
      * GET /workload/member/:userId
      */
-    getMemberWorkload(userId: string, workspaceId?: string): Promise<any>;
+    getMemberWorkload(userId: string, workspaceId?: string): Promise<MemberWorkload>;
     /**
      * Get current user's workload
      * GET /workload/me
      */
-    getMyWorkload(workspaceId?: string): Promise<any>;
+    getMyWorkload(workspaceId?: string): Promise<MemberWorkload>;
     /**
      * Get workload suggestions for redistribution
      * GET /workload/suggestions/:workspaceId
      */
-    getWorkloadSuggestions(workspaceId: string): Promise<any[]>;
+    getWorkloadSuggestions(workspaceId: string): Promise<WorkloadSuggestion[]>;
 }
 //# sourceMappingURL=client.d.ts.map

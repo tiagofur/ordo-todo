@@ -49,7 +49,7 @@ describe('WorkflowsService', () => {
           workspaceId: 'workspace-123',
           description: 'Test description',
           color: '#6B7280',
-        }
+        },
       };
 
       workflowRepository.save.mockResolvedValue(undefined);
@@ -91,7 +91,7 @@ describe('WorkflowsService', () => {
             name: 'Workflow 1',
             workspaceId,
             position: 0,
-          }
+          },
         },
         {
           props: {
@@ -99,7 +99,7 @@ describe('WorkflowsService', () => {
             name: 'Workflow 2',
             workspaceId,
             position: 0,
-          }
+          },
         },
       ];
 
@@ -109,7 +109,9 @@ describe('WorkflowsService', () => {
 
       expect(result).toHaveLength(2);
       expect(result[0].name).toBe('Workflow 1');
-      expect(workflowRepository.findByWorkspaceId).toHaveBeenCalledWith(workspaceId);
+      expect(workflowRepository.findByWorkspaceId).toHaveBeenCalledWith(
+        workspaceId,
+      );
     });
   });
 
@@ -134,7 +136,7 @@ describe('WorkflowsService', () => {
         id: workflowId,
         name: 'Updated Workflow',
         workspaceId: 'workspace-123',
-        description: 'Updated description'
+        description: 'Updated description',
       };
 
       workflowRepository.findById.mockResolvedValue(mockWorkflow);

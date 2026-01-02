@@ -4,9 +4,9 @@ import { ChangelogController } from './changelog.controller';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [ChangelogController],
-    providers: [ChangelogService],
-    exports: [ChangelogService],
+  imports: [DatabaseModule],
+  controllers: [ChangelogController],
+  providers: [ChangelogService],
+  exports: [ChangelogService],
 })
-export class ChangelogModule { }
+export class ChangelogModule {}

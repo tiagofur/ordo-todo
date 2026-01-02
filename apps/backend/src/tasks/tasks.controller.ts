@@ -58,7 +58,7 @@ export class TasksController {
     private readonly commentsService: CommentsService,
     @Inject(forwardRef(() => AttachmentsService))
     private readonly attachmentsService: AttachmentsService,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(CreateTaskGuard)
@@ -196,7 +196,9 @@ export class TasksController {
   async findOne(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     const task = await this.tasksService.findOne(id);
     if (task.ownerId !== user.id) {
-      throw new ForbiddenException('You do not have permission to access this task');
+      throw new ForbiddenException(
+        'You do not have permission to access this task',
+      );
     }
     return task;
   }
@@ -214,10 +216,15 @@ export class TasksController {
   )
   @ApiOperation({ summary: 'Get task with full details' })
   @ApiParam({ name: 'id', description: 'Task ID' })
-  async findOneWithDetails(@Param('id') id: string, @CurrentUser() user: RequestUser) {
+  async findOneWithDetails(
+    @Param('id') id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
     const task = await this.tasksService.findOneWithDetails(id);
     if (task.ownerId !== user.id) {
-      throw new ForbiddenException('You do not have permission to access this task');
+      throw new ForbiddenException(
+        'You do not have permission to access this task',
+      );
     }
     return task;
   }

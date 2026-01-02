@@ -229,11 +229,6 @@ export function ProjectCard({
           </div>
         </div>
       </div>
-
-      <div
-        className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
-        style={{ backgroundColor: project.color || '#ec4899' }}
-      />
     </motion.div>
   );
 }

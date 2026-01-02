@@ -5,7 +5,7 @@ export interface CreateAuditLogInput {
     workspaceId: string;
     actorId?: string;
     action: AuditAction;
-    payload?: Record<string, any>;
+    payload?: Record<string, unknown>;
 }
 
 export class CreateAuditLogUseCase {
