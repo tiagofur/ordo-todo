@@ -6,6 +6,7 @@ import { join } from 'path';
 import { WinstonModule } from 'nest-winston';
 import helmet from 'helmet';
 import compression from 'compression';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { loggerConfig } from './common/logger/logger.config';
@@ -86,6 +87,88 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix(configService.get<string>('API_PREFIX')!);
 
+  // Swagger API documentation
+  const config = new DocumentBuilder()
+    .setTitle('Ordo-Todo API')
+    .setDescription(
+      `# Ordo-Todo REST API
+
+## Overview
+Ordo-Todo is a comprehensive task management platform with AI-powered productivity features.
+
+## Authentication
+Most endpoints require a valid JWT token in the Authorization header:
+\`\`\`
+Authorization: Bearer <your-jwt-token>
+\`\`\`
+
+## Response Format
+All responses follow this structure:
+\`\`\`json
+{
+  "statusCode": 200,
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "path": "/api/v1/resource",
+  "message": "Success"
+}
+\`\`\`
+
+## Error Codes
+- **200** - Success
+- **201** - Created
+- **400** - Bad Request
+- **401** - Unauthorized
+- **403** - Forbidden
+- **404** - Not Found
+- **409** - Conflict
+- **500** - Internal Server Error
+
+## Rate Limiting
+API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('Auth', 'Authentication and user management')
+    .addTag('Users', 'User profile and preferences')
+    .addTag('Workspaces', 'Workspace management')
+    .addTag('Workflows', 'Workflow and project phases')
+    .addTag('Projects', 'Project management')
+    .addTag('Tasks', 'Task CRUD and management')
+    .addTag('Tags', 'Task tagging system')
+    .addTag('Timers', 'Pomodoro timer and time tracking')
+    .addTag('Analytics', 'Productivity analytics and reports')
+    .addTag('AI', 'AI-powered features (chat, parsing, suggestions)')
+    .addTag('Attachments', 'File uploads and management')
+    .addTag('Comments', 'Task comments and discussions')
+    .addTag('Notifications', 'User notifications')
+    .addTag('Integrations', 'Third-party integrations')
+    .addTag('Meetings', 'Meeting assistant and notes')
+    .addTag('Gamification', 'Achievements and points')
+    .addTag('Search', 'Semantic search')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      docExpansion: 'none',
+      filter: true,
+      showRequestHeaders: true,
+    },
+    customSiteTitle: 'Ordo-Todo API Docs',
+  });
+
   // Global exception filter
   app.useGlobalFilters(new GlobalExceptionFilter(httpAdapter));
 
@@ -104,10 +187,10 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3101);
   await app.listen(port);
 
+  const apiPrefix = configService.get<string>('API_PREFIX')!;
   console.log(`Application running on: http://localhost:${port}`);
-  console.log(
-    `API available at: http://localhost:${port}/${configService.get<string>('API_PREFIX')}`,
-  );
+  console.log(`API available at: http://localhost:${port}/${apiPrefix}`);
+  console.log(`API documentation at: http://localhost:${port}/api-docs`);
 }
 bootstrap();
 // Build: 2025-12-16 - rxjs dependency fix
