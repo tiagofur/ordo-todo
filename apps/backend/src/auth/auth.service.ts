@@ -4,11 +4,13 @@ import {
   Inject,
   ConflictException,
   forwardRef,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RegisterUser, UserLogin, type UserRepository } from '@ordo-todo/core';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
+import { TokenBlacklistService } from './token-blacklist.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -17,6 +19,8 @@ import { WorkspacesService } from '../workspaces/workspaces.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
@@ -25,6 +29,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => WorkspacesService))
     private readonly workspacesService: WorkspacesService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -317,5 +322,21 @@ export class AuthService {
         name: user.name || '',
       },
     };
+  }
+
+  /**
+   * Logout user and blacklist their access token
+   *
+   * @param accessToken - JWT access token to revoke
+   * @returns Promise that resolves when logout is complete
+   */
+  async logout(accessToken: string): Promise<void> {
+    try {
+      // Add token to blacklist to prevent reuse
+      await this.tokenBlacklistService.blacklist(accessToken);
+    } catch (error) {
+      this.logger.error('Failed to logout user', error);
+      throw new UnauthorizedException('Failed to logout');
+    }
   }
 }

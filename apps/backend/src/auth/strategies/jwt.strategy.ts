@@ -3,12 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
+import { TokenBlacklistService } from '../token-blacklist.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
     private authService: AuthService,
+    private tokenBlacklistService: TokenBlacklistService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,6 +20,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    // Get the token from the request to check if it's blacklisted
+    const token = this.request?.get('authorization')?.replace('Bearer ', '');
+
+    if (token && await this.tokenBlacklistService.isBlacklisted(token)) {
+      throw new UnauthorizedException('Token has been revoked');
+    }
+
     const user = await this.authService.validateUser(payload.email);
     if (!user) {
       throw new UnauthorizedException();

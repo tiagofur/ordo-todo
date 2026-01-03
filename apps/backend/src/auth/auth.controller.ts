@@ -15,12 +15,13 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Public } from '../common/decorators/public.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
@@ -101,20 +102,30 @@ export class AuthController {
   }
 
   /**
-   * Logout user (client-side token removal)
-   * With JWT stateless auth, logout is primarily client-side
-   * This endpoint exists for logging, analytics, or future token blacklisting
+   * Logout user and blacklist JWT token
+   *
+   * Adds the current access token to the blacklist to prevent reuse.
+   * Clients should also remove the token from local storage.
    */
-  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Logout user',
     description:
-      'Logout endpoint for logging and analytics. JWT tokens are stateless, so clients should remove tokens.',
+      'Blacklists the JWT access token and prevents further use. Clients should also remove tokens from local storage.',
   })
   @ApiResponse({ status: 200, description: 'Logout successful' })
-  async logout() {
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logout(
+    @CurrentUser() user: any,
+    @Req() req: Request,
+  ) {
+    const token = req.headers['authorization']?.replace('Bearer ', '');
+
+    if (token) {
+      await this.authService.logout(token);
+    }
+
     return { message: 'Logout successful' };
   }
 

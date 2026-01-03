@@ -9,6 +9,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GitHubStrategy } from './strategies/github.strategy';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
+import { TokenBlacklistService } from './token-blacklist.service';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { WorkspacesModule } from '../workspaces/workspaces.module';
 
@@ -36,6 +37,7 @@ import { WorkspacesModule } from '../workspaces/workspaces.module';
     GoogleStrategy,
     GitHubStrategy,
     BcryptCryptoProvider,
+    TokenBlacklistService,
   ],
   exports: [AuthService],
 })
