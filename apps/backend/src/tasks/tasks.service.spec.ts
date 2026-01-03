@@ -1,11 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { GamificationService } from '../gamification/gamification.service';
-import { CreateTaskUseCase, UpdateDailyMetricsUseCase } from '@ordo-todo/core';
+import {
+  CreateTaskUseCase,
+  UpdateDailyMetricsUseCase,
+  UpdateTaskUseCase,
+  CompleteTaskUseCase,
+  FindTodayTasksUseCase,
+  FindScheduledTasksUseCase,
+  FindAvailableTasksUseCase,
+} from '@ordo-todo/core';
 
 describe('TasksService', () => {
   let service: TasksService;
@@ -15,6 +23,8 @@ describe('TasksService', () => {
   const mockTaskRepository = {
     findByWorkspaceMemberships: jest.fn(),
     findById: jest.fn(),
+    findOne: jest.fn(),
+    isMember: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
     softDelete: jest.fn(),
@@ -556,6 +566,193 @@ describe('TasksService', () => {
       });
 
       expect(result).toEqual(mockSubtask.props);
+    });
+  });
+
+  describe('update', () => {
+    it('should successfully update a task', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+      const updateTaskDto = {
+        title: 'Updated Task Title',
+        status: 'IN_PROGRESS',
+      };
+
+      const existingTask = {
+        id: taskId,
+        title: 'Original Title',
+        ownerId: userId,
+        status: 'TODO',
+      };
+
+      const updatedTask = {
+        ...existingTask,
+        ...updateTaskDto,
+      };
+
+      mockTaskRepository.findOne.mockResolvedValue(existingTask as any);
+      mockTaskRepository.isMember.mockResolvedValue(true);
+      const executeSpy = jest.spyOn(UpdateTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(updatedTask as any);
+      mockActivitiesService.logTaskUpdated = jest
+        .fn()
+        .mockResolvedValue(undefined);
+
+      const result = await service.update(taskId, updateTaskDto as any, userId);
+
+      expect(mockTaskRepository.findOne).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.isMember).toHaveBeenCalledWith(userId, taskId);
+      expect(executeSpy).toHaveBeenCalledWith({
+        id: taskId,
+        ...updateTaskDto,
+      });
+      expect(result).toEqual(updatedTask);
+    });
+
+    it('should throw NotFoundException when task not found', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+      const updateTaskDto = { title: 'Updated Title' };
+
+      mockTaskRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.update(taskId, updateTaskDto as any, userId),
+      ).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update(taskId, updateTaskDto as any, userId),
+      ).rejects.toThrow('Task not found');
+    });
+  });
+
+  describe('complete', () => {
+    it('should successfully complete a task', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+
+      const existingTask = {
+        id: taskId,
+        title: 'Test Task',
+        status: 'TODO',
+        ownerId: userId,
+      };
+
+      const completedTask = {
+        ...existingTask,
+        status: 'DONE',
+        completedAt: new Date(),
+      };
+
+      mockTaskRepository.findOne.mockResolvedValue(existingTask as any);
+      mockTaskRepository.isMember.mockResolvedValue(true);
+      const executeSpy = jest.spyOn(CompleteTaskUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(completedTask as any);
+      mockActivitiesService.logTaskCompleted = jest
+        .fn()
+        .mockResolvedValue(undefined);
+      mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
+
+      const result = await service.complete(taskId, userId);
+
+      expect(mockTaskRepository.findOne).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.isMember).toHaveBeenCalledWith(userId, taskId);
+      expect(executeSpy).toHaveBeenCalledWith(taskId);
+      expect(mockActivitiesService.logTaskCompleted).toHaveBeenCalledWith(
+        taskId,
+        userId,
+      );
+      expect(result).toEqual(completedTask);
+    });
+
+    it('should throw NotFoundException when task not found', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+
+      mockTaskRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.complete(taskId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.complete(taskId, userId)).rejects.toThrow(
+        'Task not found',
+      );
+    });
+
+    it('should throw ForbiddenException when user is not a member', async () => {
+      const userId = 'user-123';
+      const taskId = 'task-123';
+
+      mockTaskRepository.findOne.mockResolvedValue({ id: taskId } as any);
+      mockTaskRepository.isMember.mockResolvedValue(false);
+
+      await expect(service.complete(taskId, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+      await expect(service.complete(taskId, userId)).rejects.toThrow(
+        'You do not have permission to complete this task',
+      );
+    });
+  });
+
+  describe('findToday', () => {
+    it('should return tasks scheduled for today', async () => {
+      const userId = 'user-123';
+      const mockTasks = [
+        { id: 'task-1', title: 'Task 1', dueDate: new Date() },
+        { id: 'task-2', title: 'Task 2', dueDate: new Date() },
+      ];
+
+      const executeSpy = jest.spyOn(FindTodayTasksUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTasks as any);
+
+      const result = await service.findToday(userId);
+
+      expect(executeSpy).toHaveBeenCalledWith({ userId });
+      expect(result).toEqual(mockTasks);
+    });
+  });
+
+  describe('findScheduledForDate', () => {
+    it('should return tasks scheduled for a specific date', async () => {
+      const userId = 'user-123';
+      const date = new Date('2026-01-03');
+      const mockTasks = [
+        { id: 'task-1', title: 'Task 1', dueDate: date },
+      ];
+
+      const executeSpy = jest.spyOn(
+        FindScheduledTasksUseCase.prototype,
+        'execute',
+      );
+      executeSpy.mockResolvedValue(mockTasks as any);
+
+      const result = await service.findScheduledForDate(userId, date);
+
+      expect(executeSpy).toHaveBeenCalledWith({ userId, date });
+      expect(result).toEqual(mockTasks);
+    });
+  });
+
+  describe('findAvailable', () => {
+    it('should return available tasks for user', async () => {
+      const userId = 'user-123';
+      const projectId = 'project-123';
+      const mockTasks = [
+        {
+          id: 'task-1',
+          title: 'Available Task',
+          status: 'TODO',
+          assigneeId: null,
+        },
+      ];
+
+      const executeSpy = jest.spyOn(FindAvailableTasksUseCase.prototype, 'execute');
+      executeSpy.mockResolvedValue(mockTasks as any);
+
+      const result = await service.findAvailable(userId, projectId);
+
+      expect(executeSpy).toHaveBeenCalledWith({ userId, projectId });
+      expect(result).toEqual(mockTasks);
     });
   });
 });
