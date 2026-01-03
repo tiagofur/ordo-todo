@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,9 +10,13 @@ import {
 } from '../ui/dialog.js';
 import { Button } from '../ui/button.js';
 
-interface ConfirmDeleteProps {
-  children: ReactNode;
-  onConfirm: () => void | Promise<void>;
+export interface ConfirmDeleteProps {
+  children?: ReactNode;
+  onConfirm: () => void;
+  onCancel?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  isLoading?: boolean;
   title?: string;
   description?: string;
   confirmText?: string;
@@ -34,6 +36,10 @@ const DEFAULT_LABELS = {
 export function ConfirmDelete({
   children,
   onConfirm,
+  onCancel,
+  open,
+  onOpenChange,
+  isLoading = false,
   title,
   description,
   confirmText,
@@ -41,32 +47,14 @@ export function ConfirmDelete({
   deletingText,
   disabled = false,
 }: ConfirmDeleteProps) {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleConfirm = async () => {
-    try {
-      setLoading(true);
-      await onConfirm();
-      setOpen(false);
-    } catch (error) {
-      console.error('Error deleting:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    if (!loading) {
-      setOpen(false);
-    }
-  };
-
+  
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild disabled={disabled}>
-        {children}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children && (
+        <DialogTrigger asChild disabled={disabled}>
+          {children}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-left">
@@ -80,8 +68,11 @@ export function ConfirmDelete({
           <Button
             type="button"
             variant="outline"
-            onClick={handleCancel}
-            disabled={loading}
+            onClick={() => {
+              if (onCancel) onCancel();
+              if (onOpenChange) onOpenChange(false);
+            }}
+            disabled={isLoading}
             className="w-full sm:w-auto"
           >
             {cancelText || DEFAULT_LABELS.cancel}
@@ -89,11 +80,11 @@ export function ConfirmDelete({
           <Button
             type="button"
             variant="destructive"
-            onClick={handleConfirm}
-            disabled={loading}
+            onClick={() => onConfirm()}
+            disabled={isLoading}
             className="w-full sm:w-auto"
           >
-            {loading
+            {isLoading
               ? deletingText || DEFAULT_LABELS.deleting
               : confirmText || DEFAULT_LABELS.confirm}
           </Button>

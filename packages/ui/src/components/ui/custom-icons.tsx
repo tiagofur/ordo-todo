@@ -1,6 +1,6 @@
-import React from "react";
+import type { CSSProperties } from "react";
 
-export const TomatoIcon = ({ className, style }: { className?: string, style?: React.CSSProperties }) => (
+export const TomatoIcon = ({ className, style }: { className?: string, style?: CSSProperties }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 24 24" 

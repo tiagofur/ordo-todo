@@ -30,7 +30,7 @@ interface BoardColumnProps {
  * BoardColumn - Platform-agnostic Kanban column layout
  */
 export function BoardColumn({
-  id,
+  id: _id,
   title,
   tasksCount = 0,
   headerColorClass,

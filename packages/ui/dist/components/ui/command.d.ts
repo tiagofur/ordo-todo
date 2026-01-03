@@ -17,9 +17,7 @@ declare const Command: React.ForwardRefExoticComponent<Omit<{
     disablePointerSelection?: boolean;
     vimBindings?: boolean;
 } & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
-interface CommandDialogProps extends DialogProps {
-}
-declare const CommandDialog: ({ children, ...props }: CommandDialogProps) => import("react/jsx-runtime").JSX.Element;
+declare const CommandDialog: ({ children, ...props }: DialogProps) => import("react/jsx-runtime").JSX.Element;
 declare const CommandInput: React.ForwardRefExoticComponent<Omit<Omit<Pick<Pick<React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, "key" | keyof React.InputHTMLAttributes<HTMLInputElement>> & {
     ref?: React.Ref<HTMLInputElement>;
 } & {

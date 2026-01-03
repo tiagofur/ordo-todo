@@ -75,7 +75,7 @@ const DEFAULT_LABELS = {
 };
 
 export function AttachmentList({
-  taskId,
+  taskId: _taskId,
   attachments = [],
   onDelete,
   resolveUrl,

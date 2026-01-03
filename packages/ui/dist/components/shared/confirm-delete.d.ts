@@ -1,7 +1,11 @@
 import { type ReactNode } from 'react';
-interface ConfirmDeleteProps {
-    children: ReactNode;
-    onConfirm: () => void | Promise<void>;
+export interface ConfirmDeleteProps {
+    children?: ReactNode;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    isLoading?: boolean;
     title?: string;
     description?: string;
     confirmText?: string;
@@ -9,6 +13,5 @@ interface ConfirmDeleteProps {
     deletingText?: string;
     disabled?: boolean;
 }
-export declare function ConfirmDelete({ children, onConfirm, title, description, confirmText, cancelText, deletingText, disabled, }: ConfirmDeleteProps): import("react/jsx-runtime").JSX.Element;
-export {};
+export declare function ConfirmDelete({ children, onConfirm, onCancel, open, onOpenChange, isLoading, title, description, confirmText, cancelText, deletingText, disabled, }: ConfirmDeleteProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=confirm-delete.d.ts.map

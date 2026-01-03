@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+/// <reference types="@testing-library/jest-dom" />
 /**
  * Unit Tests for WorkspaceMembersSettings Component
  *
@@ -343,7 +345,7 @@ describe('WorkspaceMembersSettings Component', () => {
 
     it('should show pending state during invite', async () => {
       const user = userEvent.setup();
-      const onInviteMember = vi.fn(() => new Promise((resolve) => setTimeout(resolve, 100)));
+      const onInviteMember = vi.fn((): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100)));
 
       render(
         <WorkspaceMembersSettings
@@ -431,7 +433,7 @@ describe('WorkspaceMembersSettings Component', () => {
       );
 
       if (deleteButtons.length > 0) {
-        await user.click(deleteButtons[0]);
+        await user.click(deleteButtons[0]!);
 
         expect(onDeleteInvitation).toHaveBeenCalledWith('invite-1');
       }
@@ -608,7 +610,7 @@ describe('WorkspaceMembersSettings Component', () => {
         {
           id: 'member-1',
           userId: 'user-1',
-          role: 'UNKNOWN_ROLE' as any,
+          role: 'UNKNOWN_ROLE' as unknown as WorkspaceMember['role'],
           joinedAt: '2024-01-01T00:00:00.000Z',
           user: { id: 'user-1', name: 'Unknown', email: 'unknown@example.com' },
         },

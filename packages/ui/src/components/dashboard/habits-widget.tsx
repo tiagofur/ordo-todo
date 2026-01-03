@@ -2,14 +2,13 @@
 
 import { Sparkles, Flame, CheckCircle2, ChevronRight } from 'lucide-react';
 import { cn } from '../../utils/index.js';
-import { Button } from '../ui/button.js';
 
 interface Habit {
   id: string;
   name: string;
   color?: string;
   isPaused?: boolean;
-  completions?: any[];
+  completions?: Record<string, unknown>[];
   currentStreak: number;
 }
 

@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+/// <reference types="@testing-library/jest-dom" />
 /**
  * Unit Tests for WorkspaceCard Component
  *
@@ -10,14 +12,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WorkspaceCard, type WorkspaceData } from '../workspace-card';
 
 // Mock framer-motion to avoid animation complexity in tests
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, onClick, className, style }: any) => (
+    div: ({ children, onClick, className, style }: { children?: React.ReactNode; onClick?: () => void; className?: string; style?: React.CSSProperties }) => (
       <div onClick={onClick} className={className} style={style}>
         {children}
       </div>
@@ -251,7 +253,7 @@ describe('WorkspaceCard Component', () => {
         },
       };
 
-      render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels as any} />);
+      render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels} />);
 
       expect(screen.getByText('My Personal')).toBeInTheDocument();
     });
@@ -264,7 +266,7 @@ describe('WorkspaceCard Component', () => {
         },
       };
 
-      render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels as any} />);
+      render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels} />);
 
       expect(screen.getByText('5 projects!')).toBeInTheDocument();
       expect(screen.getByText('25 tasks!')).toBeInTheDocument();
@@ -278,7 +280,7 @@ describe('WorkspaceCard Component', () => {
         },
       };
 
-      render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels as any} />);
+      render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels} />);
 
       // Need to open the menu to see these labels
       // This would require clicking the more button first
@@ -294,7 +296,7 @@ describe('WorkspaceCard Component', () => {
       };
 
       render(
-        <WorkspaceCard workspace={mockWorkspace} onDelete={handleDelete} labels={customLabels as any} />
+        <WorkspaceCard workspace={mockWorkspace} onDelete={handleDelete} labels={customLabels} />
       );
 
       // Open menu and click delete

@@ -1,18 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Badge, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
-import { useSyncStore, SyncStatus } from "@/stores/sync-store";
+import { SyncStatusIndicator as UISyncStatusIndicator, SyncStatusDot as UISyncStatusDot } from "@ordo-todo/ui";
+import { useSyncStore } from "@/stores/sync-store";
 import { useTranslations } from "next-intl";
-import {
-  Cloud,
-  CloudOff,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface SyncStatusIndicatorProps {
   className?: string;
@@ -39,7 +30,6 @@ export function SyncStatusIndicator({
     refreshPendingCount,
   } = useSyncStore();
 
-  // Ensure hydration completes before showing dynamic content
   useEffect(() => {
     setMounted(true);
     refreshPendingCount();
@@ -48,52 +38,6 @@ export function SyncStatusIndicator({
   if (!mounted) {
     return null;
   }
-
-  const iconSize = size === "sm" ? 16 : size === "lg" ? 24 : 20;
-
-  const getStatusIcon = () => {
-    if (!isOnline) {
-      return <CloudOff size={iconSize} className="text-muted-foreground" />;
-    }
-
-    if (isSyncing) {
-      return <Loader2 size={iconSize} className="text-blue-500 animate-spin" />;
-    }
-
-    switch (status) {
-      case "error":
-        return <AlertCircle size={iconSize} className="text-destructive" />;
-      case "idle":
-        if (pendingCount > 0) {
-          return <RefreshCw size={iconSize} className="text-yellow-500" />;
-        }
-        return <CheckCircle size={iconSize} className="text-green-500" />;
-      default:
-        return <Cloud size={iconSize} className="text-muted-foreground" />;
-    }
-  };
-
-  const getStatusText = (): string => {
-    if (!isOnline) {
-      return t("offline");
-    }
-
-    if (isSyncing) {
-      return t("syncing", { progress: syncProgress });
-    }
-
-    switch (status) {
-      case "error":
-        return t("error");
-      case "idle":
-        if (pendingCount > 0) {
-          return t("pending", { count: pendingCount });
-        }
-        return t("synced");
-      default:
-        return t("idle");
-    }
-  };
 
   const getLastSyncText = (): string => {
     if (!lastSyncTime) {
@@ -124,62 +68,36 @@ export function SyncStatusIndicator({
     await syncAll();
   };
 
+  // Map store status to UI status
+  let uiStatus: 'idle' | 'syncing' | 'error' | 'offline' = 'idle';
+  if (!isOnline) uiStatus = 'offline';
+  else if (isSyncing) uiStatus = 'syncing';
+  else if (status === 'error') uiStatus = 'error';
+  else uiStatus = 'idle';
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size={size === "sm" ? "sm" : "default"}
-          className={cn(
-            "relative flex items-center gap-2 px-2",
-            !isOnline && "opacity-70",
-            className
-          )}
-          onClick={handleSync}
-          disabled={!isOnline || isSyncing}
-        >
-          {getStatusIcon()}
-
-          {/* Pending count badge */}
-          {pendingCount > 0 && (
-            <Badge
-              variant="secondary"
-              className={cn(
-                "absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center text-xs p-0",
-                status === "error"
-                  ? "bg-destructive text-destructive-foreground"
-                  : "bg-yellow-500 text-white"
-              )}
-            >
-              {pendingCount > 99 ? "99+" : pendingCount}
-            </Badge>
-          )}
-
-          {showLabel && (
-            <span className="text-sm text-muted-foreground">
-              {getStatusText()}
-            </span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent side="bottom" className="w-64 p-3">
-        <div className="flex flex-col gap-1">
-          <p className="font-medium">{getStatusText()}</p>
-          <p className="text-xs text-muted-foreground">
-            {t("lastSync")}: {getLastSyncText()}
-          </p>
-          {pendingCount > 0 && isOnline && (
-            <p className="text-xs text-muted-foreground">{t("clickToSync")}</p>
-          )}
-        </div>
-      </PopoverContent>
-    </Popover>
+    <UISyncStatusIndicator
+      status={uiStatus}
+      isOnline={isOnline}
+      pendingChanges={pendingCount}
+      lastSyncFormatted={getLastSyncText()}
+      onForceSync={handleSync}
+      className={className}
+      showLabel={showLabel}
+      size={size}
+      labels={{
+        offline: t("offline"),
+        syncing: t("syncing", { progress: syncProgress }),
+        error: t("error"),
+        pending: t("pending", { count: pendingCount }),
+        synced: t("synced"),
+        unknown: t("idle"),
+        syncedDesc: (time) => `${t("lastSync")}: ${time}`,
+      }}
+    />
   );
 }
 
-/**
- * Minimal sync indicator for compact spaces (e.g., mobile header)
- */
 export function SyncStatusDot({ className }: { className?: string }) {
   const { isOnline, status, pendingCount, isSyncing } = useSyncStore();
   const [mounted, setMounted] = useState(false);
@@ -192,22 +110,18 @@ export function SyncStatusDot({ className }: { className?: string }) {
     return null;
   }
 
-  const getDotColor = () => {
-    if (!isOnline) return "bg-gray-400";
-    if (isSyncing) return "bg-blue-500 animate-pulse";
-    if (status === "error") return "bg-destructive";
-    if (pendingCount > 0) return "bg-yellow-500";
-    return "bg-green-500";
-  };
+  let uiStatus: 'idle' | 'syncing' | 'error' | 'offline' = 'idle';
+  if (!isOnline) uiStatus = 'offline';
+  else if (isSyncing) uiStatus = 'syncing';
+  else if (status === 'error') uiStatus = 'error';
+  else uiStatus = 'idle';
 
   return (
-    <div className={cn("relative", className)}>
-      <div className={cn("w-2 h-2 rounded-full", getDotColor())} />
-      {pendingCount > 0 && (
-        <span className="absolute -top-2 -right-2 text-[10px] font-bold text-yellow-600">
-          {pendingCount > 9 ? "9+" : pendingCount}
-        </span>
-      )}
-    </div>
+    <UISyncStatusDot
+      status={uiStatus}
+      isOnline={isOnline}
+      pendingChanges={pendingCount}
+      className={className}
+    />
   );
 }

@@ -64,7 +64,7 @@ describe('ObjectivesService', () => {
         workspaceId: 'workspace-123',
       } as any;
 
-      await expect(service.create(createDto as any)).rejects.toThrow(
+      await expect(service.create(createDto)).rejects.toThrow(
         BadRequestException,
       );
     });

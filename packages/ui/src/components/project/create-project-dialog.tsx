@@ -42,7 +42,7 @@ export interface ProjectTemplate {
   id: string;
   name: string;
   description: string;
-  icon: any; // Lucide icon
+  icon: React.ElementType; // Lucide icon
   color: string;
   tasks: ProjectTemplateTask[];
 }
@@ -119,7 +119,7 @@ export function CreateProjectDialog({
   templates = [],
   isPending = false,
   onSubmit,
-  onCreateWorkflow,
+  onCreateWorkflow: _onCreateWorkflow,
   labels = {},
 }: CreateProjectDialogProps) {
   const {
@@ -128,7 +128,7 @@ export function CreateProjectDialog({
     descriptionPlaceholder = 'Project description (optional)',
     nameRequired = 'Project name is required',
     workspaceRequired = 'Workspace is required',
-    createWorkspace = 'Please create a workspace first',
+    createWorkspace: _createWorkspace = 'Please create a workspace first',
     emptyTitle = 'No Workspaces Found',
     emptyDescription = 'You need a workspace to create projects.',
     emptyAction = 'Create Workspace',
@@ -163,7 +163,7 @@ export function CreateProjectDialog({
   const {
     register,
     handleSubmit,
-    reset,
+    reset: _reset,
     setValue,
     watch,
     formState: { errors },

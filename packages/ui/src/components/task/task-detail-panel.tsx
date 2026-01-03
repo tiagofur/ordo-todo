@@ -65,12 +65,12 @@ export interface TaskDetailData {
   estimatedTime?: number | null;
   createdAt?: string | Date;
   tags?: TaskTag[];
-  assignee?: any;
+  assignee?: Record<string, unknown>;
   publicToken?: string | null;
-  subTasks?: any[];
-  comments?: any[];
-  attachments?: any[];
-  activities?: any[];
+  subTasks?: Record<string, unknown>[];
+  comments?: Record<string, unknown>[];
+  attachments?: Record<string, unknown>[];
+  activities?: Record<string, unknown>[];
 }
 
 interface TaskDetailPanelProps {
@@ -85,17 +85,17 @@ interface TaskDetailPanelProps {
   /** Available Tags for assignment */
   availableTags?: TaskTag[];
   /** Actions */
-  onUpdate?: (taskId: string, data: any) => Promise<void> | void;
+  onUpdate?: (taskId: string, data: Record<string, unknown>) => Promise<void> | void;
   onDelete?: (taskId: string) => Promise<void> | void;
   onAssignTag?: (taskId: string, tagId: string) => Promise<void> | void;
   onRemoveTag?: (taskId: string, tagId: string) => Promise<void> | void;
   onShare?: (taskId: string) => Promise<void> | void;
   /** Render Props for Sub-components to avoid huge dependency tree */
-  renderSubtaskList?: (taskId: string, subtasks: any[]) => ReactNode;
+  renderSubtaskList?: (taskId: string, subtasks: Record<string, unknown>[]) => ReactNode;
   renderComments?: (taskId: string) => ReactNode;
   renderAttachments?: (taskId: string) => ReactNode;
   renderActivity?: (taskId: string) => ReactNode;
-  renderAssigneeSelector?: (taskId: string, currentAssignee: any) => ReactNode;
+  renderAssigneeSelector?: (taskId: string, currentAssignee: Record<string, unknown> | undefined) => ReactNode;
   renderCreateTagDialog?: (open: boolean, onOpenChange: (open: boolean) => void) => ReactNode;
   
   /** Labels */
@@ -227,7 +227,7 @@ export function TaskDetailPanel({
     }
   }, [task]);
 
-  const handleFieldChange = (field: string, value: any) => {
+  const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -744,7 +744,7 @@ function TabButton({
 }: {
   active: boolean;
   onClick: () => void;
-  icon: any;
+  icon: React.ElementType;
   label: string;
   count?: number;
 }) {

@@ -207,7 +207,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
                       key={task.id}
                       task={task}
                       formattedDueDate={formatDueDate(task.dueDate)}
-                      isOverdue={isOverdue(task)}
+                      isOverdue={!!isOverdue(task)}
                       priorityInfo={getPriorityInfo(task.priority)}
                       labels={labels}
                     />

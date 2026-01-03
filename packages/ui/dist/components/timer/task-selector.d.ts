@@ -12,6 +12,10 @@ interface TaskSelectorProps {
     onSelect: (taskId: string | null) => void;
     /** Whether the selector is disabled */
     disabled?: boolean;
+    /** Controlled open state */
+    open?: boolean;
+    /** Controlled open state setter */
+    setOpen?: (open: boolean) => void;
     /** Custom labels for i18n */
     labels?: {
         placeholder?: string;
@@ -35,9 +39,11 @@ interface TaskSelectorProps {
  *   tasks={pendingTasks}
  *   selectedTaskId={selectedTaskId}
  *   onSelect={setSelectedTaskId}
+ *   open={open}
+ *   setOpen={setOpen}
  *   labels={{ placeholder: t('placeholder') }}
  * />
  */
-export declare function TaskSelector({ selectedTaskId, tasks, onSelect, disabled, labels, className, }: TaskSelectorProps): import("react/jsx-runtime").JSX.Element;
+export declare function TaskSelector({ selectedTaskId, tasks, onSelect, disabled, open, setOpen, labels, className, }: TaskSelectorProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=task-selector.d.ts.map

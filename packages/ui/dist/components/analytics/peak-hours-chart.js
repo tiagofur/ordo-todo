@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '../ui/card.js';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, } from 'recharts';

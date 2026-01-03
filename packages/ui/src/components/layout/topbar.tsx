@@ -1,4 +1,3 @@
-'use client';
 
 import { type ReactNode } from 'react';
 import { Search, Sparkles, Menu } from 'lucide-react';
@@ -101,7 +100,7 @@ export function TopBar({
               {/* Clickable search trigger */}
               <button
                 onClick={onSearchClick}
-                className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 text-left text-muted-foreground hidden sm:flex items-center justify-between group"
+                className="h-10 w-full rounded-xl border border-border bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500 text-left text-muted-foreground hidden sm:flex items-center justify-between group"
               >
                 <span className="flex items-center gap-2">
                   <Search className="h-4 w-4" />
@@ -129,7 +128,7 @@ export function TopBar({
                 type="search"
                 placeholder={t.searchPlaceholder}
                 onChange={(e) => onSearchChange?.(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/50 focus:bg-background hidden sm:block"
+                className="h-10 w-full rounded-xl border border-border bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-background hidden sm:block"
               />
               <Button
                 variant="ghost"
@@ -147,7 +146,7 @@ export function TopBar({
       {/* Actions */}
       <div className="flex items-center gap-2">
         {/* Level & XP */}
-        <div className="hidden md:flex items-center gap-3 mr-2 px-3 py-1.5 rounded-lg bg-muted/30 border border-border/50">
+        <div className="hidden md:flex items-center gap-3 mr-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-border">
           <div className="flex flex-col items-end">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-primary">
@@ -172,7 +171,7 @@ export function TopBar({
         <Button
           variant="ghost"
           size="icon"
-          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20 h-10 w-10 rounded-xl"
+          className="text-purple-600 hover:text-purple-700 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900 h-10 w-10 rounded-xl"
           aria-label={t.aiCopilot}
           onClick={onAICopilotClick}
         >
@@ -186,7 +185,7 @@ export function TopBar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button 
-              className="flex h-10 items-center gap-2 rounded-xl px-3 transition-all duration-200 hover:bg-muted/50"
+              className="flex h-10 items-center gap-2 rounded-xl px-3 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label={`Menú de usuario: ${userName}`}
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground" aria-hidden="true">

@@ -8,6 +8,14 @@ import type {
   WorkflowSuggestion,
   ChatMessageDto,
 } from './dto/ai-chat.dto';
+import type {
+  AIContext,
+  ProductivityContext,
+  WellbeingIndicators as WellbeingIndicatorsType,
+  AIResponse as AIResponseType,
+  WeeklyReportContext,
+  WorkflowSuggestion as WorkflowSuggestionType,
+} from './types/ai-context.interface';
 import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
 
 export interface ProductivityReportData {
@@ -247,7 +255,7 @@ Responde SOLO con JSON válido:
   async chat(
     message: string,
     history: ChatMessageDto[] = [],
-    context?: { workspaceId?: string; projectId?: string; tasks?: any[] },
+    context?: AIContext,
   ): Promise<ChatResponse> {
     if (!this.ai) {
       return {
@@ -440,11 +448,9 @@ Ejemplos:
    * Uses PRO model for nuanced, sensitive analysis
    */
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
-  async analyzeWellbeing(metrics: {
-    dailyMetrics: any[];
-    sessions: any[];
-    profile: any;
-  }): Promise<WellbeingIndicators> {
+  async analyzeWellbeing(
+    metrics: WellbeingIndicatorsType,
+  ): Promise<WellbeingIndicatorsType> {
     // Calculate metrics locally first to reduce API calls
     const localMetrics = this.calculateWellbeingMetricsLocally(metrics);
 

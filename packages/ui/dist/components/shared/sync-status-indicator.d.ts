@@ -1,5 +1,5 @@
-type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline';
-interface SyncStatusIndicatorProps {
+export type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline';
+export interface SyncStatusIndicatorProps {
     status: SyncStatus;
     isOnline?: boolean;
     pendingChanges?: number;
@@ -28,7 +28,7 @@ export declare function SyncStatusIndicator({ status, isOnline, pendingChanges, 
 /**
  * Compact sync status for use in tight spaces (e.g., status bar)
  */
-interface SyncStatusDotProps {
+export interface SyncStatusDotProps {
     status: SyncStatus;
     isOnline?: boolean;
     pendingChanges?: number;
@@ -38,7 +38,7 @@ export declare function SyncStatusDot({ status, isOnline, pendingChanges, classN
 /**
  * Sync status banner for offline mode
  */
-interface OfflineBannerProps {
+export interface OfflineBannerProps {
     isOnline: boolean;
     pendingChanges?: number;
     labels?: {
@@ -47,5 +47,4 @@ interface OfflineBannerProps {
     };
 }
 export declare function OfflineBanner({ isOnline, pendingChanges, labels, }: OfflineBannerProps): import("react/jsx-runtime").JSX.Element | null;
-export {};
 //# sourceMappingURL=sync-status-indicator.d.ts.map

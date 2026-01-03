@@ -168,7 +168,6 @@ export function ProjectCard({
               className="h-1.5"
               style={
                 {
-                  // @ts-ignore - CSS variable for custom color
                   '--progress-foreground': accentColor,
                 } as React.CSSProperties
               }

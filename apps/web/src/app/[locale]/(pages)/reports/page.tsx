@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger, Button, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Button, Skeleton, Dialog, DialogContent, DialogHeader, DialogTitle, type OnboardingStep } from "@ordo-todo/ui";
+import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { AppLayout } from "@/components/shared/app-layout";
 import { ReportCard } from "@/components/ai/report-card";
 import { ReportDetail } from "@/components/ai/report-detail";
@@ -52,21 +53,8 @@ const reportsOnboardingSteps: OnboardingStep[] = [
 export default function ReportsPage() {
   const [selectedScope, setSelectedScope] = useState<string | undefined>(undefined);
   const [selectedReport, setSelectedReport] = useState<any | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const { data: reports, isLoading } = useReports({ scope: selectedScope, limit: 20 });
   const accentColor = "#8b5cf6"; // Purple
-
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem(REPORTS_ONBOARDING_KEY);
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem(REPORTS_ONBOARDING_KEY, "true");
-    setShowOnboarding(false);
-  };
 
   const handleReportClick = (report: any) => {
     setSelectedReport(report);
@@ -265,17 +253,13 @@ export default function ReportsPage() {
         </Dialog>
 
         {/* Onboarding */}
-        {showOnboarding && (
-          <FeatureOnboarding
-            steps={reportsOnboardingSteps}
-            storageKey={REPORTS_ONBOARDING_KEY}
-            onComplete={handleOnboardingComplete}
-            onSkip={handleOnboardingComplete}
-            skipText="Saltar"
-            nextText="Siguiente"
-            getStartedText="¡Explorar Reportes!"
-          />
-        )}
+        <FeatureOnboarding
+          steps={reportsOnboardingSteps}
+          storageKey={REPORTS_ONBOARDING_KEY}
+          skipText="Saltar"
+          nextText="Siguiente"
+          getStartedText="¡Explorar Reportes!"
+        />
       </div>
     </AppLayout>
   );

@@ -43,6 +43,9 @@ interface PomodoroTimerProps {
         switchTaskButtonTitle?: string;
         enterFocusMode?: string;
     };
+    /** Dialog state controlled by parent */
+    showSwitchDialog?: boolean;
+    setShowSwitchDialog?: (show: boolean) => void;
 }
 /**
  * PomodoroTimer - Platform-agnostic timer display with controls
@@ -69,6 +72,6 @@ interface PomodoroTimerProps {
  *   labels={{ ... }}
  * />
  */
-export declare function PomodoroTimer({ state, actions, TaskSelectorComponent, onFocusModeClick, labels, }: PomodoroTimerProps): import("react/jsx-runtime").JSX.Element | null;
+export declare function PomodoroTimer({ state, actions, TaskSelectorComponent, onFocusModeClick, labels, showSwitchDialog, setShowSwitchDialog, }: PomodoroTimerProps): import("react/jsx-runtime").JSX.Element | null;
 export {};
 //# sourceMappingURL=pomodoro-timer.d.ts.map

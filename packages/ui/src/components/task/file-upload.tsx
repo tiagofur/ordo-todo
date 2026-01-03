@@ -78,7 +78,7 @@ const DEFAULT_LABELS = {
 };
 
 export function FileUpload({
-  taskId,
+  taskId: _taskId,
   onUpload,
   onUploadComplete,
   maxFileSize = DEFAULT_MAX_SIZE,
@@ -168,7 +168,7 @@ export function FileUpload({
       // Scan complete
       setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
       onUploadComplete?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setUploadingFiles((prev) =>
@@ -195,7 +195,7 @@ export function FileUpload({
       filesToUpload.forEach(f => uploadFile(f));
       onFilesHandled?.();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [filesToUpload]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {

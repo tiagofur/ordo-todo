@@ -11,7 +11,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "check-types": "tsc --noEmit",
-    "copy-locales": "cp -r src/locales/*.json dist/locales/"
+    "copy-locales": "node scripts/copy-locales.js"
   },
   "keywords": [
     "ordo-todo",

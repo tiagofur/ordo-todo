@@ -55,7 +55,7 @@ const DEFAULT_LABELS = {
 };
 
 export function AssigneeSelector({
-  taskId,
+  taskId: _taskId,
   currentAssignee,
   members = [],
   isLoading = false,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -28,12 +28,10 @@ import {
 } from '../ui/alert-dialog';
 import {
   User,
-  Mail,
   Calendar,
   MapPin,
   Globe,
   Edit,
-  Check,
   X,
   AlertTriangle,
   Info,
@@ -64,6 +62,13 @@ interface UserProfileCardProps {
   showEditButton?: boolean;
   className?: string;
   variant?: 'default' | 'compact' | 'minimal';
+  usernameValidation?: {
+    isLoading: boolean;
+    isValid: boolean;
+    isAvailable?: boolean;
+    message?: string;
+  };
+  onValidateUsername?: (username: string) => void;
 }
 
 export function UserProfileCard({
@@ -73,6 +78,12 @@ export function UserProfileCard({
   showEditButton = true,
   className,
   variant = 'default',
+  usernameValidation = { 
+    isLoading: false, 
+    isValid: true, 
+    isAvailable: true 
+  },
+  onValidateUsername,
 }: UserProfileCardProps) {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -87,9 +98,6 @@ export function UserProfileCard({
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
-
-  // Mock API client for UsernameInput - replace with actual implementation
-  const mockApiClient = {} as any;
 
   const handleUsernameUpdate = async () => {
     if (!onUpdateUsername || username === user.username) return;
@@ -342,8 +350,14 @@ export function UserProfileCard({
                     <div className="space-y-4 py-4">
                       <UsernameInput
                         value={username}
-                        onChange={setUsername}
-                        apiClient={mockApiClient}
+                        onChange={(value) => {
+                          setUsername(value);
+                          onValidateUsername?.(value);
+                        }}
+                        isLoading={usernameValidation.isLoading}
+                        isValid={usernameValidation.isValid}
+                        isAvailable={usernameValidation.isAvailable}
+                        validationMessage={usernameValidation.message}
                         label="New Username"
                         helperText="This will be your new profile identifier"
                       />
@@ -369,7 +383,7 @@ export function UserProfileCard({
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
-                            disabled={isUpdating || username === user.username || username.length < 3}
+                            disabled={isUpdating || username === user.username || !usernameValidation.isValid || !usernameValidation.isAvailable}
                           >
                             {isUpdating ? (
                               <>
@@ -428,8 +442,14 @@ export function UserProfileCard({
                     <div className="space-y-4 py-4">
                       <UsernameInput
                         value={username}
-                        onChange={setUsername}
-                        apiClient={mockApiClient}
+                        onChange={(value) => {
+                          setUsername(value);
+                          onValidateUsername?.(value);
+                        }}
+                        isLoading={usernameValidation.isLoading}
+                        isValid={usernameValidation.isValid}
+                        isAvailable={usernameValidation.isAvailable}
+                        validationMessage={usernameValidation.message}
                         label="Username"
                         helperText="This will be your unique profile identifier"
                       />

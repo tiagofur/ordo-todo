@@ -49,9 +49,9 @@ describe('HabitsService', () => {
         .spyOn(service.prisma.client.habit, 'create')
         .mockRejectedValue(new BadRequestException('Habit title is required'));
 
-      await expect(
-        service.create(createDto as any, 'user-123'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.create(createDto, 'user-123')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

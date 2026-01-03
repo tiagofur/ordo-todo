@@ -29,7 +29,7 @@ interface ProjectSettingsProps {
     archived?: boolean;
     slug?: string;
   };
-  onUpdate: (projectId: string, data: any) => Promise<void> | void;
+  onUpdate: (projectId: string, data: Record<string, unknown>) => Promise<void> | void;
   onArchive: (projectId: string) => Promise<void> | void;
   onDelete: (projectId: string) => Promise<void> | void;
   isUpdating?: boolean;

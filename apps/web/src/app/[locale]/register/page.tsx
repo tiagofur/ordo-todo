@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
-import { motion } from "framer-motion";
 import { UsernameInput } from "@ordo-todo/ui";
-import { useUsernameValidation } from "@ordo-todo/hooks";
+import { useUsernameValidation, generateUsernameSuggestions } from "@ordo-todo/hooks";
 import { apiClient } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -38,17 +38,43 @@ export default function SignUpPage() {
     password: "",
     confirmPassword: "",
   });
+  
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Real API client for username validation
-  const { validationResult } = useUsernameValidation({
+  const { validationResult, validateUsername, resetValidation } = useUsernameValidation({
     apiClient: apiClient as any, // Hook uses fetch internally, type mismatch
+    minLength: 3,
+    maxLength: 20,
+    debounceMs: 500,
   });
+  
+  // Validate username when value changes
+  useEffect(() => {
+    if (formData.username && formData.username.length >= 3) {
+      validateUsername(formData.username);
+    } else {
+      resetValidation();
+      setSuggestions([]);
+    }
+  }, [formData.username, validateUsername, resetValidation]);
+
+  // Generate suggestions when username is taken
+  useEffect(() => {
+    if (validationResult.isAvailable === false) {
+      const newSuggestions = generateUsernameSuggestions(formData.username);
+      setSuggestions(newSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  }, [validationResult.isAvailable, formData.username]);
 
   // Password strength calculation
   const passwordStrength = useMemo(() => {
     const password = formData.password;
-    if (!password) return { score: 0, label: "", color: "" };
+    if (!password) return { score: 0, label: "", color: "", textColor: "", checks: {} };
 
+    // ... (rest of logic same as before)
     let score = 0;
     const checks = {
       length: password.length >= 8,
@@ -133,26 +159,20 @@ export default function SignUpPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-cyan-500/5 to-pink-500/5 p-4 py-12">
       {/* Decorative elements */}
-      <div className="absolute left-20 top-10 h-40 w-40 rotate-45 rounded-3xl bg-cyan-500/10 blur-3xl" />
-      <div className="absolute right-10 top-32 h-36 w-36 -rotate-12 rounded-full bg-pink-500/10 blur-3xl" />
-      <div className="absolute bottom-10 left-10 h-32 w-32 rotate-12 rounded-2xl bg-purple-500/10 blur-3xl" />
+      <div className="absolute left-20 top-10 h-40 w-40 rotate-45 rounded-3xl bg-cyan-500/10 blur-3xl animate-pulse" />
+      <div className="absolute right-10 top-32 h-36 w-36 -rotate-12 rounded-full bg-pink-500/10 blur-3xl animate-pulse delay-700" />
+      <div className="absolute bottom-10 left-10 h-32 w-32 rotate-12 rounded-2xl bg-purple-500/10 blur-3xl animate-pulse delay-1000" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
+      <div
+        className="relative z-10 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700"
       >
         {/* Logo and Header */}
         <div className="mb-8 text-center">
-          <motion.div
-            initial={{ scale: 0.8, rotate: -10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 0.5, type: "spring" }}
+          <div
             className="group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500 shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-110 hover:rotate-3"
           >
             <CheckSquare className="h-9 w-9 text-white" />
-          </motion.div>
+          </div>
           <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
             Crear Cuenta
           </h1>
@@ -162,11 +182,8 @@ export default function SignUpPage() {
         </div>
 
         {/* Main Form Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="overflow-hidden rounded-2xl border border-border/50 bg-card p-8 shadow-xl"
+        <div
+          className="overflow-hidden rounded-2xl border border-border/50 bg-card p-8 shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name Input */}
@@ -194,12 +211,27 @@ export default function SignUpPage() {
             <UsernameInput
               value={formData.username}
               onChange={(value) => setFormData({ ...formData, username: value })}
-              apiClient={apiClient as any}
               label="Nombre de Usuario"
               placeholder="usuario123"
               required={true}
               helperText="Este será tu identificador único en la plataforma"
               className="h-12"
+              // Validation props
+              isLoading={validationResult.isLoading}
+              isValid={validationResult.isValid}
+              isAvailable={validationResult.isAvailable}
+              validationMessage={validationResult.message}
+              // Suggestions props
+              suggestions={suggestions}
+              showSuggestions={true}
+              onSuggestionClick={(suggestion) => {
+                setFormData({ ...formData, username: suggestion });
+                setSuggestions([]);
+              }}
+              onRefreshSuggestions={() => {
+                const newSuggestions = generateUsernameSuggestions(formData.username);
+                setSuggestions(newSuggestions);
+              }}
             />
 
             {/* Email Input */}
@@ -252,11 +284,8 @@ export default function SignUpPage() {
 
               {/* Password Strength Indicator */}
               {formData.password && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-3 rounded-xl border border-border/50 bg-muted/30 p-4"
+                <div
+                  className="space-y-3 rounded-xl border border-border/50 bg-muted/30 p-4 animate-in fade-in slide-in-from-top-2 duration-300"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
@@ -311,7 +340,7 @@ export default function SignUpPage() {
                       </span>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
 
@@ -356,22 +385,18 @@ export default function SignUpPage() {
                 )}
               </div>
               {passwordsMismatch && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-xs font-medium text-red-600 dark:text-red-400"
+                <p
+                  className="text-xs font-medium text-red-600 dark:text-red-400 animate-in fade-in slide-in-from-top-1"
                 >
                   Las contraseñas no coinciden
-                </motion.p>
+                </p>
               )}
               {passwordsMatch && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1.5"
+                <p
+                  className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1"
                 >
                   <Check className="h-3.5 w-3.5" /> Las contraseñas coinciden
-                </motion.p>
+                </p>
               )}
             </div>
 
@@ -435,7 +460,7 @@ export default function SignUpPage() {
               </Link>
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-muted-foreground">
@@ -448,7 +473,7 @@ export default function SignUpPage() {
             Política de Privacidad
           </Link>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

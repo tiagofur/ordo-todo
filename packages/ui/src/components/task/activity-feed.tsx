@@ -10,7 +10,6 @@ import {
   User,
   Calendar,
   Flag,
-  FolderOpen,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
@@ -124,7 +123,7 @@ const DEFAULT_LABELS = {
 };
 
 export function ActivityFeed({
-  taskId,
+  taskId: _taskId,
   activities = [],
   maxItems = 20,
   locale = 'en',
@@ -157,7 +156,7 @@ export function ActivityFeed({
     let description = t.actions[activity.type] || activity.type;
 
     if (activity.metadata) {
-      const { oldValue, newValue, fieldName, itemName } = activity.metadata;
+      const { oldValue, newValue, fieldName: _fieldName, itemName } = activity.metadata;
 
       switch (activity.type) {
         case 'STATUS_CHANGED':

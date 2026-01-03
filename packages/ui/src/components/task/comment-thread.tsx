@@ -83,7 +83,7 @@ const DEFAULT_LABELS = {
 };
 
 export function CommentThread({
-  taskId,
+  taskId: _taskId,
   comments = [],
   currentUserId,
   users = [],

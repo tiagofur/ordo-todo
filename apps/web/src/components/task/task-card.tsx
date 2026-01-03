@@ -61,7 +61,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
         onToggleExpand={() => setShowDetail(true)}
         onEdit={() => setShowDetail(true)}
         formattedDueDate={formatDueDate(task.dueDate)}
-        isOverdue={isOverdue}
+        isOverdue={!!isOverdue}
         priorityInfo={priority}
         labels={{
           viewEdit: t('actions.viewEdit'),

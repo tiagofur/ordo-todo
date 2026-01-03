@@ -8,11 +8,11 @@
 
 | Paquete                        | Score  | Arquitectura | Type Safety | Testing | Documentation | Accessibility | Performance | Responsiveness | Dark Mode |
 | ------------------------------ | ------ | ------------ | ----------- | ------- | ------------- | ------------- | ----------- | -------------- | --------- |
-| **packages/core**              | 65/100 | 8/10         | 3/10        | 2/10    | 2/10          | N/A           | N/A         | N/A            |
-| **packages/ui**                | 42/100 | 5/10         | 8/10        | 0/10    | 3/10          | 4/10          | 6/10        | 5/10           |
-| **packages/hooks**             | 62/100 | 9/10         | 9/10        | 0/10    | 1/10          | 4/10          | N/A         | N/A            |
-| **packages/api-client**        | 72/100 | 9/10         | 7/10        | 0/10    | 10/10         | N/A           | N/A         | N/A            |
-| **packages/stores**            | 58/100 | 8/10         | 10/10       | 0/10    | 2/10          | N/A           | N/A         | N/A            |
+| **packages/core**              | 55/100 | 8/10         | 3/10 ⚠️     | 2/10 🔴 | 4/10          | N/A           | N/A         | N/A            | N/A       |
+| **packages/ui**                | 95/100 | 9/10         | 10/10 ✅    | 8/10 ✅ | 8/10          | 9/10          | 9/10        | 9/10           | 10/10     |
+| **packages/hooks**             | 90/100 | 9/10         | 10/10 ✅    | 8/10 ✅ | 7/10          | N/A           | 9/10        | N/A            | N/A       |
+| **packages/api-client**        | 35/100 | 8/10         | 3/10 ⚠️     | 0/10 🔴 | 6/10          | N/A           | N/A         | N/A            | N/A       |
+| **packages/stores**            | 92/100 | 9/10         | 10/10 ✅    | 10/10 ✅| 6/10          | N/A           | N/A         | N/A            | N/A       |
 | **packages/i18n**              | 72/100 | 8/10         | 8/10        | 0/10    | 3/10          | 5/10          | N/A         | N/A            |
 | **packages/db**                | 62/100 | 7/10         | 8/10        | 0/10    | 0/10          | 5/10          | N/A         | N/A            |
 | **packages/styles**            | 58/100 | 7/10         | N/A         | N/A     | N/A           | N/A           | N/A         | 9/10           |

@@ -1,8 +1,32 @@
 # Backend Improvements Roadmap
 
-Comprehensive guide for enhancing the Ordo-Todo backend to enterprise-grade quality.
+Comprehensive guide for enhancing Ordo-Todo backend to enterprise-grade quality.
 
-**Last Updated:** December 2024
+**Last Updated:** 2 de Enero de 2025
+
+---
+
+## 📚 Documentación Relacionada
+
+- **[AUDITORIA-2025-01-02.md](./AUDITORIA-2025-01-02.md)** - Auditoría completa de calidad (Enero 2025)
+- **[AUDITORIA-RESUMEN-EJECUTIVO.md](./AUDITORIA-RESUMEN-EJECUTIVO.md)** - Resumen ejecutivo con métricas
+- **[ROADMAP-MEJORAS-2025.md](./ROADMAP-MEJORAS-2025.md)** - Roadmap detallado por fases (32 tareas)
+
+---
+
+## 🎯 Estado Actual
+
+**Calificación General**: 7/10 ⚠️
+
+**Problemas Críticos Identificados**:
+
+1. 🔴 Testing Coverage muy baja (~16% vs 80% esperado)
+2. 🔴 Uso excesivo de `any` type (80 ocurrencias)
+3. 🔴 Bypass del patrón Repository (100+ llamadas directas a Prisma)
+4. 🟡 Validaciones manuales en controladores
+5. 🟡 Lógica de side-effect en guards
+
+---
 
 ---
 
@@ -19,6 +43,7 @@ This document outlines all planned improvements organized by phase. Each section
 **File:** `src/collaboration/collaboration.gateway.ts`
 
 **Current Code (Line 22-27):**
+
 ```typescript
 @WebSocketGateway({
   cors: {
@@ -29,6 +54,7 @@ This document outlines all planned improvements organized by phase. Each section
 ```
 
 **Required Change:**
+
 ```typescript
 import { ConfigService } from '@nestjs/config';
 
@@ -48,6 +74,7 @@ import { ConfigService } from '@nestjs/config';
 ```
 
 **Test:**
+
 ```bash
 # Should fail from unauthorized origin
 wscat -c "ws://localhost:3101" -H "Origin: http://malicious-site.com"
@@ -60,8 +87,8 @@ wscat -c "ws://localhost:3101" -H "Origin: http://malicious-site.com"
 **New File:** `src/common/guards/ws-throttle.guard.ts`
 
 ```typescript
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { WsException } from "@nestjs/websockets";
 
 @Injectable()
 export class WsThrottleGuard implements CanActivate {
@@ -72,19 +99,19 @@ export class WsThrottleGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const client = context.switchToWs().getClient();
     const userId = client.data?.userId || client.id;
-    
+
     const now = Date.now();
     const record = this.connections.get(userId);
-    
+
     if (!record || now > record.resetAt) {
       this.connections.set(userId, { count: 1, resetAt: now + this.ttl });
       return true;
     }
-    
+
     if (record.count >= this.limit) {
-      throw new WsException('Rate limit exceeded');
+      throw new WsException("Rate limit exceeded");
     }
-    
+
     record.count++;
     return true;
   }
@@ -92,6 +119,7 @@ export class WsThrottleGuard implements CanActivate {
 ```
 
 **Apply to Gateway:**
+
 ```typescript
 @UseGuards(WsThrottleGuard)
 @SubscribeMessage('task-update')
@@ -116,11 +144,11 @@ export class AuditInterceptor implements NestInterceptor {
     const { method, url, user, ip } = request;
 
     // Log only mutations
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       return next.handle().pipe(
         tap(() => {
           this.logAction(user?.id, method, url, ip);
-        })
+        }),
       );
     }
 
@@ -143,6 +171,7 @@ export class AuditInterceptor implements NestInterceptor {
 ```
 
 **Command:**
+
 ```bash
 cd apps/backend
 npm uninstall @google/generative-ai
@@ -156,8 +185,9 @@ npm install @google/genai
 **File:** `src/ai/gemini-ai.service.ts`
 
 **Before:**
+
 ```typescript
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 
 @Injectable()
 export class GeminiAIService {
@@ -166,30 +196,31 @@ export class GeminiAIService {
   private proModel: GenerativeModel;
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    const apiKey = this.configService.get<string>("GEMINI_API_KEY");
     this.genAI = new GoogleGenerativeAI(apiKey);
-    
+
     this.flashModel = this.genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
+      model: "gemini-2.0-flash-exp",
     });
-    
+
     this.proModel = this.genAI.getGenerativeModel({
-      model: 'gemini-1.5-pro',
+      model: "gemini-1.5-pro",
     });
   }
 }
 ```
 
 **After (using @google/genai):**
+
 ```typescript
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from "@google/genai";
 
 @Injectable()
 export class GeminiAIService {
   private genAI: GoogleGenAI;
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    const apiKey = this.configService.get<string>("GEMINI_API_KEY");
     this.genAI = new GoogleGenAI({ apiKey });
   }
 
@@ -207,7 +238,7 @@ export class GeminiAIService {
       model,
       contents: prompt,
     });
-    
+
     for await (const chunk of stream) {
       yield chunk.text;
     }
@@ -216,6 +247,7 @@ export class GeminiAIService {
 ```
 
 **Models to Use:**
+
 - `gemini-2.0-flash` - Default for most operations
 - `gemini-2.0-flash-thinking-exp` - Complex analysis (replaces Pro)
 
@@ -236,15 +268,15 @@ model ChatConversation {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   title     String?  // Auto-generated from first message
   context   Json?    // Workspace/project context snapshot
-  
+
   messages  ChatMessage[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([userId])
   @@index([createdAt])
 }
@@ -253,18 +285,19 @@ model ChatMessage {
   id             String   @id @default(cuid())
   conversationId String
   conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
+
   role      String   // 'user' | 'assistant' | 'system'
   content   String   @db.Text
   metadata  Json?    // Actions taken, suggestions, confidence
-  
+
   createdAt DateTime @default(now())
-  
+
   @@index([conversationId])
 }
 ```
 
 **Add User relation:**
+
 ```prisma
 model User {
   // ... existing fields
@@ -273,6 +306,7 @@ model User {
 ```
 
 **Run migration:**
+
 ```bash
 cd packages/db
 npx prisma migrate dev --name add_chat_conversations
@@ -305,37 +339,43 @@ src/chat/
 **File:** `src/chat/chat.controller.ts`
 
 ```typescript
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { ChatService } from './chat.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
+import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { ChatService } from "./chat.service";
 
-@Controller('chat')
+@Controller("chat")
 @UseGuards(JwtAuthGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   // List conversations
-  @Get('conversations')
+  @Get("conversations")
   getConversations(
     @CurrentUser() user: RequestUser,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query("limit") limit?: number,
+    @Query("offset") offset?: number,
   ) {
     return this.chatService.getConversations(user.id, { limit, offset });
   }
 
   // Get single conversation with messages
-  @Get('conversations/:id')
-  getConversation(
-    @Param('id') id: string,
-    @CurrentUser() user: RequestUser,
-  ) {
+  @Get("conversations/:id")
+  getConversation(@Param("id") id: string, @CurrentUser() user: RequestUser) {
     return this.chatService.getConversation(id, user.id);
   }
 
   // Create new conversation
-  @Post('conversations')
+  @Post("conversations")
   createConversation(
     @Body() dto: CreateConversationDto,
     @CurrentUser() user: RequestUser,
@@ -344,9 +384,9 @@ export class ChatController {
   }
 
   // Send message (returns AI response)
-  @Post('conversations/:id/messages')
+  @Post("conversations/:id/messages")
   sendMessage(
-    @Param('id') conversationId: string,
+    @Param("id") conversationId: string,
     @Body() dto: SendMessageDto,
     @CurrentUser() user: RequestUser,
   ) {
@@ -354,9 +394,9 @@ export class ChatController {
   }
 
   // Delete conversation
-  @Delete('conversations/:id')
+  @Delete("conversations/:id")
   deleteConversation(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @CurrentUser() user: RequestUser,
   ) {
     return this.chatService.deleteConversation(id, user.id);
@@ -371,9 +411,9 @@ export class ChatController {
 **File:** `src/ai/productivity-coach.service.ts`
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { GeminiAIService } from './gemini-ai.service';
-import { PrismaService } from '../database/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { GeminiAIService } from "./gemini-ai.service";
+import { PrismaService } from "../database/prisma.service";
 
 @Injectable()
 export class ProductivityCoachService {
@@ -410,9 +450,9 @@ export class ProductivityCoachService {
    */
   async chat(userId: string, message: string, conversationHistory: any[]) {
     const context = await this.buildContext(userId);
-    
+
     const systemPrompt = this.buildSystemPrompt(context);
-    
+
     return this.gemini.chat(message, conversationHistory, {
       systemPrompt,
       context,
@@ -425,9 +465,9 @@ export class ProductivityCoachService {
 CONTEXTO DEL USUARIO:
 - Tareas pendientes: ${context.pendingTasks.length}
 - Completadas hoy: ${context.todayCompleted.length}
-- Timer activo: ${context.activeTimer ? 'Sí, trabajando en ' + context.activeTimer.taskTitle : 'No'}
+- Timer activo: ${context.activeTimer ? "Sí, trabajando en " + context.activeTimer.taskTitle : "No"}
 - Horas trabajadas esta semana: ${context.timerStats.weeklyHours}
-- Horas pico: ${context.profile.peakHours?.join(', ') || 'No determinadas'}
+- Horas pico: ${context.profile.peakHours?.join(", ") || "No determinadas"}
 - Tasa de completado: ${Math.round(context.profile.completionRate * 100)}%
 
 TUS CAPACIDADES:
@@ -451,9 +491,9 @@ REGLAS:
     return this.prisma.task.findMany({
       where: {
         OR: [{ creatorId: userId }, { assigneeId: userId }],
-        status: { notIn: ['COMPLETED', 'CANCELLED'] },
+        status: { notIn: ["COMPLETED", "CANCELLED"] },
       },
-      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
+      orderBy: [{ priority: "desc" }, { dueDate: "asc" }],
       take: 10,
       select: {
         id: true,
@@ -483,12 +523,12 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { JwtService } from '@nestjs/jwt';
-import { Logger } from '@nestjs/common';
+} from "@nestjs/websockets";
+import { Server, Socket } from "socket.io";
+import { JwtService } from "@nestjs/jwt";
+import { Logger } from "@nestjs/common";
 
-@WebSocketGateway({ namespace: 'notifications' })
+@WebSocketGateway({ namespace: "notifications" })
 export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -539,22 +579,22 @@ export class NotificationsGateway
 
   // Called by NotificationsService when creating notification
   sendNotification(userId: string, notification: any) {
-    this.server.to(`user:${userId}`).emit('notification:new', notification);
+    this.server.to(`user:${userId}`).emit("notification:new", notification);
   }
 
   // Called by SmartNotificationsService for reminders
   sendReminder(userId: string, reminder: any) {
-    this.server.to(`user:${userId}`).emit('task:reminder', reminder);
+    this.server.to(`user:${userId}`).emit("task:reminder", reminder);
   }
 
   // Called by TimersService for timer alerts
   sendTimerAlert(userId: string, alert: any) {
-    this.server.to(`user:${userId}`).emit('timer:alert', alert);
+    this.server.to(`user:${userId}`).emit("timer:alert", alert);
   }
 
   // Called by ProductivityCoachService for proactive insights
   sendInsight(userId: string, insight: any) {
-    this.server.to(`user:${userId}`).emit('ai:insight', insight);
+    this.server.to(`user:${userId}`).emit("ai:insight", insight);
   }
 }
 ```
@@ -575,10 +615,10 @@ export class NotificationsService {
 
   async create(data: CreateNotificationData) {
     const notification = await this.prisma.notification.create({ data });
-    
+
     // Push real-time notification
     this.gateway.sendNotification(data.userId, notification);
-    
+
     return notification;
   }
 }
@@ -626,7 +666,7 @@ async getProactiveInsights(@CurrentUser() user: RequestUser) {
 **Create:** `test/chat.e2e-spec.ts`
 
 ```typescript
-describe('Chat (e2e)', () => {
+describe("Chat (e2e)", () => {
   let app: INestApplication;
   let authToken: string;
 
@@ -640,23 +680,23 @@ describe('Chat (e2e)', () => {
 
     // Get auth token
     const response = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: 'test@test.com', password: 'password' });
+      .post("/auth/login")
+      .send({ email: "test@test.com", password: "password" });
     authToken = response.body.accessToken;
   });
 
-  it('should create conversation', async () => {
+  it("should create conversation", async () => {
     const response = await request(app.getHttpServer())
-      .post('/chat/conversations')
-      .set('Authorization', `Bearer ${authToken}`)
-      .send({ message: 'Hello coach' })
+      .post("/chat/conversations")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({ message: "Hello coach" })
       .expect(201);
 
-    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty("id");
     expect(response.body.messages).toHaveLength(2); // User + Assistant
   });
 
-  it('should not access other user conversations', async () => {
+  it("should not access other user conversations", async () => {
     // Create conversation as user A
     // Try to access as user B
     // Expect 404

@@ -2,7 +2,6 @@
 
 import { Timer, Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
 import { cn } from '../../utils/index.js';
-import { Button } from '../ui/button.js';
 
 interface TimerWidgetProps {
   mode: string;

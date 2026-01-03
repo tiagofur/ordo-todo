@@ -1,4 +1,3 @@
-'use client';
 
 import { type ReactNode } from 'react';
 import { cn } from '../../utils/index.js';
@@ -77,7 +76,7 @@ export function AuthForm({
   const t = { ...DEFAULT_LABELS, ...labels };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-background relative">
+    <div className="flex justify-center items-center min-h-screen bg-background relative p-4">
       {/* Theme Toggle */}
       {renderThemeToggle && (
         <div className="absolute top-6 right-6">{renderThemeToggle()}</div>
@@ -86,7 +85,7 @@ export function AuthForm({
       <div
         className={cn(
           'flex flex-col justify-center items-center',
-          'bg-card text-card-foreground w-96 rounded-xl p-8 shadow-lg border border-border'
+          'bg-card text-card-foreground w-full max-w-sm rounded-xl p-8 shadow-lg border border-border'
         )}
       >
         {renderLogo?.()}
@@ -99,7 +98,7 @@ export function AuthForm({
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 w-80">
+        <div className="flex flex-col gap-3 w-full">
           {/* Login with Email/Password */}
           <Button
             onClick={onEmailLoginClick}
@@ -124,7 +123,7 @@ export function AuthForm({
             onClick={onGoogleSignIn}
             disabled={isLoading}
             variant="outline"
-            className="w-full py-6"
+            className="w-full py-6 dark:bg-card dark:hover:bg-accent/50"
             size="lg"
           >
             <GoogleLogo />

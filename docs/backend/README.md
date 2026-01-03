@@ -9,6 +9,9 @@ Complete API reference for the Ordo-Todo backend REST API.
 - **[SECURITY.md](./SECURITY.md)** - Security implementation details
 - **[IMPROVEMENTS.md](./IMPROVEMENTS.md)** - Planned enhancements roadmap
 - **[ai-features.md](./ai-features.md)** - AI capabilities and cost optimization
+- **[AUDITORIA-2025-01-02.md](./AUDITORIA-2025-01-02.md)** - Complete quality audit (January 2025) - Clean Code, SOLID, Testing, Type Safety
+- **[AUDITORIA-COMPLETA.md](./AUDITORIA-COMPLETA.md)** - Previous comprehensive audit (December 2025)
+- **[AUDITORIA-RESUMEN-FINAL.md](./AUDITORIA-RESUMEN-FINAL.md)** - Final audit summary and metrics
 
 ## Quick Start
 
@@ -26,28 +29,30 @@ curl -H "Authorization: Bearer <token>" /users/me
 
 ## Endpoints Overview
 
-| Module | Base Path | Description |
-|--------|-----------|-------------|
-| [Auth](#auth) | `/auth` | Register, login, logout |
-| [Users](#users) | `/users` | Profile, preferences |
-| [Workspaces](#workspaces) | `/workspaces` | Workspace CRUD, members, invitations |
-| [Projects](#projects) | `/projects` | Project CRUD |
-| [Tasks](#tasks) | `/tasks` | Task CRUD, subtasks, dependencies |
-| [Timer](#timer) | `/timers` | Pomodoro/continuous timer |
-| [Analytics](#analytics) | `/analytics` | Metrics, heatmap, team reports |
-| [AI](#ai) | `/ai` | Chat, reports, wellbeing |
-| [Tags](#tags) | `/tags` | Tag management |
-| [Comments](#comments) | `/comments` | Task comments |
-| [Notifications](#notifications) | `/notifications` | User notifications |
+| Module                          | Base Path        | Description                          |
+| ------------------------------- | ---------------- | ------------------------------------ |
+| [Auth](#auth)                   | `/auth`          | Register, login, logout              |
+| [Users](#users)                 | `/users`         | Profile, preferences                 |
+| [Workspaces](#workspaces)       | `/workspaces`    | Workspace CRUD, members, invitations |
+| [Projects](#projects)           | `/projects`      | Project CRUD                         |
+| [Tasks](#tasks)                 | `/tasks`         | Task CRUD, subtasks, dependencies    |
+| [Timer](#timer)                 | `/timers`        | Pomodoro/continuous timer            |
+| [Analytics](#analytics)         | `/analytics`     | Metrics, heatmap, team reports       |
+| [AI](#ai)                       | `/ai`            | Chat, reports, wellbeing             |
+| [Tags](#tags)                   | `/tags`          | Tag management                       |
+| [Comments](#comments)           | `/comments`      | Task comments                        |
+| [Notifications](#notifications) | `/notifications` | User notifications                   |
 
 ---
 
 ## Auth
 
 ### `POST /auth/register`
+
 Create a new user account.
 
 **Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -57,9 +62,11 @@ Create a new user account.
 ```
 
 ### `POST /auth/login`
+
 Login and get JWT token.
 
 **Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -68,6 +75,7 @@ Login and get JWT token.
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -76,6 +84,7 @@ Login and get JWT token.
 ```
 
 ### `POST /auth/logout`
+
 Invalidate current session.
 
 ---
@@ -83,18 +92,23 @@ Invalidate current session.
 ## Users
 
 ### `GET /users/me`
+
 Get current user info.
 
 ### `GET /users/me/profile`
+
 Get complete user profile with preferences.
 
 ### `PUT /users/me`
+
 Update user profile.
 
 ### `GET /users/me/preferences`
+
 Get user preferences (timer settings, AI, etc.)
 
 ### `PATCH /users/me/preferences`
+
 Update preferences.
 
 ---
@@ -102,18 +116,23 @@ Update preferences.
 ## Workspaces
 
 ### `GET /workspaces`
+
 List user's workspaces.
 
 ### `POST /workspaces`
+
 Create workspace.
 
 ### `GET /workspaces/:id`
+
 Get workspace details.
 
 ### `PUT /workspaces/:id`
+
 Update workspace.
 
 ### `DELETE /workspaces/:id`
+
 Delete workspace.
 
 ### Members & Invitations
@@ -128,21 +147,27 @@ Delete workspace.
 ## Projects
 
 ### `GET /projects?workspaceId=...`
+
 List projects in workspace.
 
 ### `POST /projects`
+
 Create project.
 
 ### `GET /projects/:id`
+
 Get project details.
 
 ### `PUT /projects/:id`
+
 Update project.
 
 ### `PATCH /projects/:id/complete`
+
 Mark project as completed.
 
 ### `DELETE /projects/:id`
+
 Delete project.
 
 ---
@@ -150,12 +175,15 @@ Delete project.
 ## Tasks
 
 ### `GET /tasks?projectId=...&tags=...&assignedToMe=true`
+
 List tasks with filters.
 
 ### `POST /tasks`
+
 Create task.
 
 **Body:**
+
 ```json
 {
   "title": "Task title",
@@ -168,29 +196,37 @@ Create task.
 ```
 
 ### `GET /tasks/:id`
+
 Get task.
 
 ### `GET /tasks/:id/details`
+
 Get task with subtasks, comments, attachments.
 
 ### `PUT /tasks/:id`
+
 Update task.
 
 ### `PATCH /tasks/:id/complete`
+
 Complete task.
 
 ### `DELETE /tasks/:id`
+
 Delete task.
 
 ### Subtasks
+
 - `POST /tasks/:id/subtasks` - Create subtask
 
 ### Dependencies
+
 - `GET /tasks/:id/dependencies` - List dependencies
 - `POST /tasks/:id/dependencies` - Add dependency
 - `DELETE /tasks/:id/dependencies/:blockingTaskId` - Remove
 
 ### Sharing
+
 - `POST /tasks/:id/share` - Generate public link
 - `GET /tasks/share/:token` - Access shared task (public)
 
@@ -199,9 +235,11 @@ Delete task.
 ## Timer
 
 ### `POST /timers/start`
+
 Start timer session.
 
 **Body:**
+
 ```json
 {
   "taskId": "...",
@@ -210,24 +248,31 @@ Start timer session.
 ```
 
 ### `POST /timers/stop`
+
 Stop current session.
 
 ### `POST /timers/pause`
+
 Pause timer.
 
 ### `POST /timers/resume`
+
 Resume timer.
 
 ### `POST /timers/switch-task`
+
 Switch to different task without stopping.
 
 ### `GET /timers/active`
+
 Get current active session.
 
 ### `GET /timers/history`
+
 Get session history with pagination.
 
 ### `GET /timers/stats`
+
 Get timer statistics.
 
 ---
@@ -235,24 +280,31 @@ Get timer statistics.
 ## Analytics
 
 ### `GET /analytics/daily?date=2024-12-06`
+
 Get daily metrics.
 
 ### `GET /analytics/weekly?weekStart=2024-12-02`
+
 Get weekly metrics.
 
 ### `GET /analytics/monthly?monthStart=2024-12-01`
+
 Get monthly metrics.
 
 ### `GET /analytics/dashboard-stats`
+
 Get dashboard summary with trends.
 
 ### `GET /analytics/heatmap`
+
 Get activity heatmap data.
 
 ### `GET /analytics/streak`
+
 Get productivity streak info.
 
 **Response:**
+
 ```json
 {
   "currentStreak": 5,
@@ -264,9 +316,11 @@ Get productivity streak info.
 ```
 
 ### `GET /analytics/team/:workspaceId`
+
 **Admin/Owner only** - Get team aggregate metrics.
 
 **Response:**
+
 ```json
 {
   "period": { "start": "...", "end": "..." },
@@ -285,9 +339,11 @@ Get productivity streak info.
 ## AI
 
 ### `POST /ai/chat`
+
 AI assistant with task creation capability.
 
 **Body:**
+
 ```json
 {
   "message": "Crea una tarea para mañana a las 3pm: revisar PR",
@@ -298,6 +354,7 @@ AI assistant with task creation capability.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "He creado la tarea 'Revisar PR' para mañana a las 15:00.",
@@ -313,9 +370,11 @@ AI assistant with task creation capability.
 ```
 
 ### `POST /ai/parse-task`
+
 Parse natural language to structured task.
 
 **Body:**
+
 ```json
 {
   "input": "Urgente: llamar al cliente mañana",
@@ -324,6 +383,7 @@ Parse natural language to structured task.
 ```
 
 **Response:**
+
 ```json
 {
   "title": "Llamar al cliente",
@@ -335,9 +395,11 @@ Parse natural language to structured task.
 ```
 
 ### `GET /ai/wellbeing`
+
 Get wellbeing indicators.
 
 **Response:**
+
 ```json
 {
   "overallScore": 75,
@@ -354,9 +416,11 @@ Get wellbeing indicators.
 ```
 
 ### `POST /ai/workflow-suggestion`
+
 Get AI-suggested workflow for project.
 
 **Body:**
+
 ```json
 {
   "projectName": "Landing Page Redesign",
@@ -375,6 +439,7 @@ Get AI-suggested workflow for project.
 - `DELETE /ai/reports/:id` - Delete report
 
 ### `GET /ai/model-stats`
+
 Get AI model usage statistics (for cost monitoring).
 
 ---
@@ -383,13 +448,13 @@ Get AI model usage statistics (for cost monitoring).
 
 The AI service uses intelligent model selection:
 
-| Task Type | Model | Cost Level |
-|-----------|-------|------------|
-| Chat, NL Parsing | Flash | Low |
-| Duration Prediction | Local → Flash | Minimal |
-| Weekly Reports | Flash | Low |
-| Monthly Reports | Pro | Medium |
-| Wellbeing Analysis | Pro | Medium |
+| Task Type           | Model         | Cost Level |
+| ------------------- | ------------- | ---------- |
+| Chat, NL Parsing    | Flash         | Low        |
+| Duration Prediction | Local → Flash | Minimal    |
+| Weekly Reports      | Flash         | Low        |
+| Monthly Reports     | Pro           | Medium     |
+| Wellbeing Analysis  | Pro           | Medium     |
 
 Local preprocessing is used when possible to reduce API calls.
 
@@ -408,6 +473,7 @@ All errors follow this format:
 ```
 
 Common status codes:
+
 - `400` - Bad Request (validation error)
 - `401` - Unauthorized (invalid/missing token)
 - `403` - Forbidden (insufficient permissions)

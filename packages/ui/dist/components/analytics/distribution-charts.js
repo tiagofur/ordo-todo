@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { cn } from '../../utils/index.js';
@@ -22,9 +21,9 @@ const DEFAULT_STATUS_COLORS = {
  */
 export function ProjectTimeChart({ data, title = 'Time by Project', noDataMessage = 'No data available', tooltipLabel = 'Time', className = '', }) {
     if (!data || data.length === 0) {
-        return (_jsxs("div", { className: cn('rounded-2xl border border-border/50 bg-card p-6 flex flex-col justify-center items-center h-[360px]', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-2", children: title }), _jsx("p", { className: "text-muted-foreground", children: noDataMessage })] }));
+        return (_jsxs("div", { className: cn('rounded-2xl border border-border bg-card p-6 flex flex-col justify-center items-center h-[360px]', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-2", children: title }), _jsx("p", { className: "text-muted-foreground", children: noDataMessage })] }));
     }
-    return (_jsxs("div", { className: cn('rounded-2xl border border-border/50 bg-card p-6', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-6", children: title }), _jsx("div", { className: "h-64", children: _jsx(ResponsiveContainer, { width: "100%", height: "100%", children: _jsxs(PieChart, { children: [_jsx(Pie, { data: data, dataKey: "value", nameKey: "name", cx: "50%", cy: "50%", outerRadius: 80, fill: "#8884d8", label: ({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`, children: data.map((_, index) => (_jsx(Cell, { fill: CHART_COLORS[index % CHART_COLORS.length] }, `cell-${index}`))) }), _jsx(Tooltip, { formatter: (value) => [`${value} min`, tooltipLabel], itemStyle: { color: 'var(--foreground)' }, contentStyle: {
+    return (_jsxs("div", { className: cn('rounded-2xl border border-border bg-card p-6', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-6", children: title }), _jsx("div", { className: "h-64", children: _jsx(ResponsiveContainer, { width: "100%", height: "100%", children: _jsxs(PieChart, { children: [_jsx(Pie, { data: data, dataKey: "value", nameKey: "name", cx: "50%", cy: "50%", outerRadius: 80, fill: "#8884d8", label: ({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`, children: data.map((_, index) => (_jsx(Cell, { fill: CHART_COLORS[index % CHART_COLORS.length] }, `cell-${index}`))) }), _jsx(Tooltip, { formatter: (value) => [`${value} min`, tooltipLabel], itemStyle: { color: 'var(--foreground)' }, contentStyle: {
                                     backgroundColor: 'var(--popover)',
                                     borderColor: 'var(--border)',
                                 } }), _jsx(Legend, {})] }) }) })] }));
@@ -46,9 +45,9 @@ export function TaskStatusChart({ data, title = 'Task Status', noDataMessage = '
         return statusColors[status] || '#8884d8';
     };
     if (!data || data.length === 0) {
-        return (_jsxs("div", { className: cn('rounded-2xl border border-border/50 bg-card p-6 flex flex-col justify-center items-center h-[360px]', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-2", children: title }), _jsx("p", { className: "text-muted-foreground", children: noDataMessage })] }));
+        return (_jsxs("div", { className: cn('rounded-2xl border border-border bg-card p-6 flex flex-col justify-center items-center h-[360px]', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-2", children: title }), _jsx("p", { className: "text-muted-foreground", children: noDataMessage })] }));
     }
-    return (_jsxs("div", { className: cn('rounded-2xl border border-border/50 bg-card p-6', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-6", children: title }), _jsx("div", { className: "h-64", children: _jsx(ResponsiveContainer, { width: "100%", height: "100%", children: _jsxs(PieChart, { children: [_jsx(Pie, { data: data, dataKey: "count", nameKey: "status", cx: "50%", cy: "50%", innerRadius: 60, outerRadius: 80, paddingAngle: 5, children: data.map((entry, index) => (_jsx(Cell, { fill: getStatusHex(entry.status) }, `cell-${index}`))) }), _jsx(Tooltip, { itemStyle: { color: 'var(--foreground)' }, contentStyle: {
+    return (_jsxs("div", { className: cn('rounded-2xl border border-border bg-card p-6', className), children: [_jsx("h3", { className: "text-lg font-semibold mb-6", children: title }), _jsx("div", { className: "h-64", children: _jsx(ResponsiveContainer, { width: "100%", height: "100%", children: _jsxs(PieChart, { children: [_jsx(Pie, { data: data, dataKey: "count", nameKey: "status", cx: "50%", cy: "50%", innerRadius: 60, outerRadius: 80, paddingAngle: 5, children: data.map((entry, index) => (_jsx(Cell, { fill: getStatusHex(entry.status) }, `cell-${index}`))) }), _jsx(Tooltip, { itemStyle: { color: 'var(--foreground)' }, contentStyle: {
                                     backgroundColor: 'var(--popover)',
                                     borderColor: 'var(--border)',
                                 } }), _jsx(Legend, {})] }) }) })] }));

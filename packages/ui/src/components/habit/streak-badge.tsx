@@ -1,6 +1,4 @@
-'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import { cn } from '../../utils/index.js';
 
@@ -57,71 +55,59 @@ export function StreakBadge({
 
   const tierStyles = {
     common: {
-      bg: 'bg-amber-500/10',
+      bg: 'bg-amber-100 dark:bg-amber-900', // Solid background for platform-agnostic
       text: 'text-amber-500',
-      glow: 'shadow-amber-500/20',
+      glow: 'shadow-none',
     },
     rare: {
-      bg: 'bg-orange-500/10',
+      bg: 'bg-orange-100 dark:bg-orange-900',
       text: 'text-orange-500',
-      glow: 'shadow-orange-500/30',
+      glow: 'shadow-md shadow-orange-500/30',
     },
     epic: {
-      bg: 'bg-red-500/10',
+      bg: 'bg-red-100 dark:bg-red-900',
       text: 'text-red-500',
-      glow: 'shadow-red-500/40',
+      glow: 'shadow-lg shadow-red-500/40',
     },
     legendary: {
-      bg: 'bg-gradient-to-r from-amber-500/20 via-red-500/20 to-purple-500/20',
+      bg: 'bg-gradient-to-r from-amber-100 via-red-100 to-purple-100 dark:from-amber-900 dark:via-red-900 dark:to-purple-900',
       text: 'text-transparent bg-gradient-to-r from-amber-500 via-red-500 to-purple-500 bg-clip-text',
-      glow: 'shadow-red-500/50',
+      glow: 'shadow-xl shadow-red-500/50',
     },
   };
 
   const style = tierStyles[tier];
 
   return (
-    <motion.div
-      initial={animate ? { scale: 0.8, opacity: 0 } : false}
-      animate={animate ? { scale: 1, opacity: 1 } : false}
-      whileHover={animate ? { scale: 1.05 } : undefined}
+    <div
       className={cn(
-        'inline-flex items-center rounded-full font-semibold',
+        'inline-flex items-center rounded-full font-semibold transition-transform hover:scale-105',
         sizeClasses[size],
         style.bg,
-        animate && tier !== 'common' && `shadow-lg ${style.glow}`,
+        animate ? 'animate-in fade-in zoom-in duration-300' : '',
+        animate && tier !== 'common' && style.glow,
         className
       )}
     >
-      {/* Animated flame icon */}
-      <motion.div
-        animate={
-          animate && tier !== 'common'
-            ? {
-                rotate: [-5, 5, -5],
-                scale: [1, 1.1, 1],
-              }
-            : {}
-        }
-        transition={{
-          duration: 0.5,
-          repeat: Infinity,
-          repeatType: 'reverse',
-        }}
+      {/* Flame icon */}
+      <div
+        className={cn(
+            animate && tier !== 'common' ? 'animate-pulse' : ''
+        )}
       >
         <Flame
           size={iconSizes[size]}
           className={cn(tier === 'legendary' ? 'text-red-500' : style.text)}
           fill={tier === 'legendary' ? 'url(#flameGradient)' : 'currentColor'}
         />
-      </motion.div>
+      </div>
 
       {/* Streak count */}
       <span className={cn('font-bold', style.text)}>{streak}</span>
 
       {/* Optional label */}
       {showLabel && size !== 'sm' && (
-        <span className={cn('opacity-70', style.text)}>
+        <span className={cn('text-muted-foreground', style.text)}>
           {streak === 1 ? t.day : t.days}
         </span>
       )}
@@ -144,51 +130,33 @@ export function StreakBadge({
           </defs>
         </svg>
       )}
-    </motion.div>
+    </div>
   );
 }
 
 // Animated streak counter for displaying streak increases
-interface StreakCounterProps {
+export interface StreakCounterProps {
   from: number;
   to: number;
+  // duration is ignored in stateless version but kept for API compatibility
   duration?: number;
+  // onComplete not used in stateless version
   onComplete?: () => void;
 }
 
 export function StreakCounter({
-  from,
   to,
-  duration = 1,
-  onComplete,
 }: StreakCounterProps) {
   return (
-    <motion.div
-      className="flex items-center gap-2"
-      initial={{ scale: 0.8 }}
-      animate={{ scale: 1 }}
-      onAnimationComplete={onComplete}
-    >
-      <motion.div
-        animate={{
-          rotate: [-10, 10, -10],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: 0.3,
-          repeat: 3,
-          repeatType: 'reverse',
-        }}
-      >
+    <div className="flex items-center gap-2 animate-in zoom-in duration-300">
+      <div className="animate-bounce">
         <Flame className="h-8 w-8 text-amber-500" fill="#f59e0b" />
-      </motion.div>
-      <motion.span
-        className="text-3xl font-bold text-amber-500"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+      </div>
+      <span
+        className="text-3xl font-bold text-amber-500 animate-in slide-in-from-bottom-2 fade-in duration-500"
       >
         {to}
-      </motion.span>
-    </motion.div>
+      </span>
+    </div>
   );
 }

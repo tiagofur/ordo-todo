@@ -1,7 +1,7 @@
 # 📦 Ordo-Todo Packages - Auditoría Completa
 
 > **Última actualización:** 2 Enero 2026
-> **Score Global:** 77/100 🟢 **EN BUEN CAMINO**
+> **Score **Global Health Score:** 57/100 🟠 (Previous: 42/100)
 > **Leer primero:** [RESUMEN-EJECUTIVO.md](./RESUMEN-EJECUTIVO.md) | [ROADMAP.md](./ROADMAP.md) | [VIOLACIONES-POR-PAQUETE/](./VIOLACIONES-POR-PAQUETE/)
 
 ## 📊 Puntuaciones por Paquete
@@ -18,7 +18,7 @@
 | packages/hooks             | 70/100 | 🟡 BUENO       | Media     |
 | packages/stores            | 82/100 | 🟢 EXCELENTE   | Baja      |
 | packages/styles            | 58/100 | 🔴 CRÍTICO     | CRÍTICA   |
-| packages/ui                | 64/100 | 🟠 REGULAR     | Alta      |
+| packages/ui                | 68/100 | 🟡 BUENO       | Alta      |
 
 
 

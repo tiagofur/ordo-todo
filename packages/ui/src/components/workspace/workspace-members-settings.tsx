@@ -23,15 +23,18 @@ import {
 } from "../ui/table.js";
 import { InviteMemberDialog, InviteFormValues } from "./invite-member-dialog.js";
 
+export type { InviteFormValues };
+
 export interface WorkspaceMember {
   id: string;
   userId: string;
   role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
   joinedAt: string;
   user?: {
+    id?: string;
     name?: string;
     email?: string;
-    image?: string;
+    image?: string | null;
   };
 }
 
@@ -160,7 +163,7 @@ export function WorkspaceMembersSettings({
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={member.user?.image} />
+                      <AvatarImage src={member.user?.image ?? undefined} />
                       <AvatarFallback>
                         {member.user?.name?.charAt(0) ||
                           member.user?.email?.charAt(0) ||

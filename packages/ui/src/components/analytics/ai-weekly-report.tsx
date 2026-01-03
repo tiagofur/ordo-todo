@@ -1,11 +1,7 @@
 import { cn } from '../../utils/index.js';
 import {
   Sparkles,
-  FileText,
   TrendingUp,
-  Trophy,
-  Target,
-  Lightbulb,
   RefreshCw,
   Download,
   Share2,
@@ -30,7 +26,7 @@ export interface ProductivityData {
 export interface AIReportSection {
   id: string;
   title: string;
-  icon: any; // Lucide icon
+  icon: React.ElementType; // Lucide icon
   content: string[];
   type: 'success' | 'info' | 'warning' | 'tip';
 }
@@ -119,7 +115,7 @@ const DEFAULT_LABELS = {
  */
 export function AIWeeklyReport({
   data = MOCK_DATA,
-  onRefresh,
+  onRefresh: _onRefresh,
   className,
   labels = {},
   isGenerating = false,

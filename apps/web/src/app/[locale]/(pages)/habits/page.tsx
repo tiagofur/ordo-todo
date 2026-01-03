@@ -13,7 +13,11 @@ import {
   Pause,
   MoreHorizontal,
   BarChart3,
+  Bell,
+  Zap,
 } from "lucide-react";
+import { type OnboardingStep } from "@ordo-todo/ui";
+import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
@@ -33,10 +37,6 @@ const HabitDetailPanel = dynamic(
   { ssr: false }
 );
 
-const HabitOnboarding = dynamic(
-  () => import("@/components/habit/habit-onboarding").then((mod) => mod.HabitOnboarding),
-  { ssr: false }
-);
 
 const accentColor = "#10B981"; // Emerald
 
@@ -48,21 +48,38 @@ export default function HabitsPage() {
   // State
   const [showCreateHabit, setShowCreateHabit] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const celebration = useHabitCelebration();
 
-  // Check if first time user
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem("habits-onboarding-seen");
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem("habits-onboarding-seen", "true");
-    setShowOnboarding(false);
-  };
+  const habitOnboardingSteps: OnboardingStep[] = [
+    {
+      id: 'welcome',
+      icon: Sparkles,
+      color: '#10B981',
+      title: t('onboarding.welcome.title'),
+      description: t('onboarding.welcome.description'),
+    },
+    {
+      id: 'streaks',
+      icon: Flame,
+      color: '#f59e0b',
+      title: t('onboarding.streaks.title'),
+      description: t('onboarding.streaks.description'),
+    },
+    {
+      id: 'reminders',
+      icon: Bell,
+      color: '#8b5cf6',
+      title: t('onboarding.reminders.title'),
+      description: t('onboarding.reminders.description'),
+    },
+    {
+      id: 'gamification',
+      icon: Zap,
+      color: '#06b6d4',
+      title: t('onboarding.gamification.title'),
+      description: t('onboarding.gamification.description'),
+    },
+  ];
 
   // Fetch habits from API
   const { data: todayData, isLoading, refetch } = useTodayHabits();
@@ -423,12 +440,13 @@ export default function HabitsPage() {
       />
 
       {/* Onboarding */}
-      {showOnboarding && (
-        <HabitOnboarding
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingComplete}
-        />
-      )}
+      <FeatureOnboarding
+        steps={habitOnboardingSteps}
+        storageKey="habits-onboarding-seen"
+        skipText={t("onboarding.skip")}
+        nextText={t("onboarding.next")}
+        getStartedText={t("onboarding.getStarted")}
+      />
 
       {/* Celebration Animation */}
       <HabitCelebration

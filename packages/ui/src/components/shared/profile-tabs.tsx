@@ -128,8 +128,8 @@ interface ProfileTabsProps {
   profile: Profile | null;
   sessionUser?: { email: string } | null;
   isLoading?: boolean;
-  onUpdateProfile: (data: any) => Promise<void>;
-  onUpdatePreferences: (data: any) => Promise<void>;
+  onUpdateProfile: (data: Record<string, unknown>) => Promise<void>;
+  onUpdatePreferences: (data: Record<string, unknown>) => Promise<void>;
   onUpdateUsername?: (newUsername: string) => Promise<void>;
   onExportData: () => Promise<void>;
   onDeleteAccount: () => Promise<void>;
@@ -207,7 +207,7 @@ export function ProfileTabs({
 
   // Username validation hook
   const { validationResult, validateUsername, resetValidation } = useUsernameValidation({
-    apiClient: {} as any, // API client not needed - uses fetch directly
+    apiClient: {} as unknown as Parameters<typeof useUsernameValidation>[0]['apiClient'], // API client not needed - uses fetch directly
     minLength: 3,
     maxLength: 20,
     debounceMs: 500,
@@ -221,7 +221,7 @@ export function ProfileTabs({
     } else if (!isEditingUsername) {
       resetValidation();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [username, isEditingUsername]);
 
   // Update form when profile loads
@@ -285,8 +285,8 @@ export function ProfileTabs({
       await onUpdateUsername(username);
       addSuccess?.("Username updated successfully!");
       setIsEditingUsername(false);
-    } catch (error: any) {
-      addError?.(error.message || "Failed to update username");
+    } catch (error: unknown) {
+      addError?.((error as Error).message || "Failed to update username");
     } finally {
       setIsUpdatingUsername(false);
     }
@@ -296,8 +296,8 @@ export function ProfileTabs({
     try {
       await onUpdateProfile(profileForm);
       addSuccess?.("Profile updated successfully!");
-    } catch (error: any) {
-      addError?.(error.message || "Failed to update profile");
+    } catch (error: unknown) {
+      addError?.((error as Error).message || "Failed to update profile");
     }
   }
 
@@ -305,8 +305,8 @@ export function ProfileTabs({
     try {
       await onUpdatePreferences(aiPreferences);
       addSuccess?.("AI preferences updated successfully!");
-    } catch (error: any) {
-      addError?.(error.message || "Failed to update AI preferences");
+    } catch (error: unknown) {
+      addError?.((error as Error).message || "Failed to update AI preferences");
     }
   }
 
@@ -314,8 +314,8 @@ export function ProfileTabs({
     try {
       await onUpdatePreferences(privacyPreferences);
       addSuccess?.("Privacy preferences updated successfully!");
-    } catch (error: any) {
-      addError?.(error.message || "Failed to update privacy preferences");
+    } catch (error: unknown) {
+      addError?.((error as Error).message || "Failed to update privacy preferences");
     }
   }
 
@@ -323,16 +323,16 @@ export function ProfileTabs({
     try {
       await onExportData();
       addSuccess?.("Data export started! The download will begin shortly.");
-    } catch (error: any) {
-      addError?.(error.message || "Failed to export data");
+    } catch (error: unknown) {
+      addError?.((error as Error).message || "Failed to export data");
     }
   }
 
   async function handleDeleteAccount() {
     try {
       await onDeleteAccount();
-    } catch (error: any) {
-      addError?.(error.message || "Failed to delete account");
+    } catch (error: unknown) {
+      addError?.((error as Error).message || "Failed to delete account");
     }
   }
 

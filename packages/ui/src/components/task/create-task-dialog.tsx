@@ -315,7 +315,7 @@ export function CreateTaskDialog({
                     <button
                       key={p.value}
                       type="button"
-                      onClick={() => setValue('priority', p.value as any)}
+                      onClick={() => setValue('priority', p.value as 'LOW' | 'MEDIUM' | 'HIGH')}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
                         isSelected
                           ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`

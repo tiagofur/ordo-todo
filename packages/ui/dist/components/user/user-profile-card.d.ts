@@ -17,7 +17,14 @@ interface UserProfileCardProps {
     showEditButton?: boolean;
     className?: string;
     variant?: 'default' | 'compact' | 'minimal';
+    usernameValidation?: {
+        isLoading: boolean;
+        isValid: boolean;
+        isAvailable?: boolean;
+        message?: string;
+    };
+    onValidateUsername?: (username: string) => void;
 }
-export declare function UserProfileCard({ user, onUpdateUsername, onUpdateProfile, showEditButton, className, variant, }: UserProfileCardProps): import("react/jsx-runtime").JSX.Element;
+export declare function UserProfileCard({ user, onUpdateUsername, onUpdateProfile, showEditButton, className, variant, usernameValidation, onValidateUsername, }: UserProfileCardProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=user-profile-card.d.ts.map
