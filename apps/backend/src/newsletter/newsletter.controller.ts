@@ -18,6 +18,7 @@ import {
 import { NewsletterService } from './newsletter.service';
 import { SubscribeDto } from './dto/subscribe.dto';
 import { UnsubscribeDto } from './dto/unsubscribe.dto';
+import { SubscribeMeDto } from './dto/subscribe-me.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -42,12 +43,19 @@ export class NewsletterController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Subscribe current user to newsletter' })
   @ApiResponse({ status: 201, description: 'Subscribed successfully.' })
-  async subscribeMe(@Body() body: any, @CurrentUser() user: RequestUser) {
-    if (!user.email) {
+  @ApiResponse({ status: 400, description: 'Email already subscribed.' })
+  async subscribeMe(
+    @Body() body: SubscribeMeDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    const email = body.email ?? user.email;
+
+    if (!email) {
       throw new BadRequestException('User email not found');
     }
+
     return this.newsletterService.subscribe({
-      email: user.email,
+      email,
       userId: user.id,
     });
   }
