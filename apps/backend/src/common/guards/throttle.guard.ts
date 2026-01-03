@@ -44,11 +44,6 @@ export class CustomThrottleGuard extends ThrottlerGuard {
    * @returns Promise resolving to boolean (true = allow, false = block)
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // For now, falling back to default implementation to resolve build errors
-    // Custom logic disabled until ThrottlerGuard API compatibility is fixed
-    return super.canActivate(context);
-
-    /*
     const request = context.switchToHttp().getRequest();
     const route = request.route?.path || request.url;
     const method = request.method;
@@ -69,7 +64,6 @@ export class CustomThrottleGuard extends ThrottlerGuard {
 
     // For other routes, use default NestJS behavior
     return super.canActivate(context);
-    */
   }
 
   /**
@@ -79,12 +73,45 @@ export class CustomThrottleGuard extends ThrottlerGuard {
    * @param method - HTTP method (GET, POST, etc.)
    * @returns Rate limit object or null (null = use default)
    */
-  /*
   private getRateLimitForRoute(
     route: string,
     method: string,
   ): { limit: number; ttl: number; message: string } | null {
-    // ... code ...
+    // Auth endpoints - stricter limits
+    if (route.includes('/auth/register')) {
+      return {
+        limit: 3,
+        ttl: 60000, // 1 minute
+        message: 'Too many registration attempts. Please try again later.',
+      };
+    }
+
+    if (route.includes('/auth/login')) {
+      return {
+        limit: 5,
+        ttl: 60000, // 1 minute
+        message: 'Too many login attempts. Please try again later.',
+      };
+    }
+
+    if (route.includes('/auth/refresh')) {
+      return {
+        limit: 10,
+        ttl: 60000, // 1 minute
+        message: 'Too many refresh token requests. Please try again later.',
+      };
+    }
+
+    // Timer endpoints - prevent abuse
+    if (route.includes('/timers/start') || route.includes('/timers/stop')) {
+      return {
+        limit: 5,
+        ttl: 10000, // 10 seconds
+        message: 'Too many timer actions. Please slow down.',
+      };
+    }
+
+    // For other routes, use default behavior
     return null;
   }
 
@@ -92,20 +119,24 @@ export class CustomThrottleGuard extends ThrottlerGuard {
     request: any,
     rateLimit: { limit: number; ttl: number; message: string },
   ): Promise<boolean> {
-      try {
-        return await super.canExecute(request);
-      } catch (error: any) {
-        if (
-          error instanceof HttpException &&
-          error.status === HttpStatus.TOO_MANY_REQUESTS
-        ) {
-          throw new HttpException(
-            rateLimit.message,
-            HttpStatus.TOO_MANY_REQUESTS,
-          );
-        }
-        throw error;
+    try {
+      // Use the parent class method with custom limits
+      const result = await super.handleRequest(request, {
+        limit: rateLimit.limit,
+        ttl: rateLimit.ttl,
+      });
+      return result;
+    } catch (error: any) {
+      if (
+        error instanceof HttpException &&
+        error.getStatus() === HttpStatus.TOO_MANY_REQUESTS
+      ) {
+        throw new HttpException(
+          rateLimit.message,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
+      throw error;
+    }
   }
-  */
 }
