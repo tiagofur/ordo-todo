@@ -28,6 +28,8 @@
     ├── rules.md                #    Main rules (architecture, quality, UI/UX)
     ├── backend.md              #    Backend-specific rules (NestJS)
     ├── frontend.md             #    Frontend-specific rules (Next.js)
+    ├── mobile.md               #    Mobile-specific rules (React Native)
+    ├── desktop.md              #    Desktop-specific rules (Electron)
     └── packages.md             #    Shared packages rules
 ```
 
@@ -36,7 +38,7 @@
 - 19 configuration files
 - ~10,000 lines of documentation
 - 8 elite specialist agents
-- 4 rule files (1 general + 3 specific)
+- 6 rule files (1 global + 5 specific)
 - 13 recommended MCP servers
 - Complete token optimization system
 
@@ -109,7 +111,7 @@
 
 ## 📋 Rule System
 
-### Main Rules ([rules.md](rules.md))
+### Main Rules ([rules/rules.md](rules/rules.md))
 
 **Core principles:**
 
@@ -121,14 +123,14 @@
 
 **Key rules:**
 
-- 🏗️ [Architecture Rules](rules.md#architecture-rules) - Monorepo structure, code placement
-- ✅ [Code Quality Rules](rules.md#code-quality-rules) - TypeScript, error handling, naming
-- 🧪 [Testing Rules](rules.md#testing-rules) - Coverage, test types, determinism
-- 🎨 [UI/UX Rules](rules.md#uiux-rules) - Transparencies, gradients, responsivity
-- 📦 [Shared Packages Rules](rules.md#shared-packages-rules) - When to use packages
-- ⚡ [Performance Rules](rules.md#performance-rules) - Web Vitals, optimization
-- 🔒 [Security Rules](rules.md#security-rules) - Validation, auth, environment
-- 📚 [Documentation Rules](rules.md#documentation-rules) - JSDoc, README, API docs
+- 🏗️ [Architecture Rules](rules/rules.md#architecture-rules) - Monorepo structure, code placement
+- ✅ [Code Quality Rules](rules/rules.md#code-quality-rules) - TypeScript, error handling, naming
+- 🧪 [Testing Rules](rules/rules.md#testing-rules) - Coverage, test types, determinism
+- 🎨 [UI/UX Rules](rules/rules.md#uiux-rules) - Transparencies, gradients, responsivity
+- 📦 [Shared Packages Rules](rules/packages.md) - When to use packages
+- ⚡ [Performance Rules](rules/rules.md#performance-rules) - Web Vitals, optimization
+- 🔒 [Security Rules](rules/rules.md#security-rules) - Validation, auth, environment
+- 📚 [Documentation Rules](rules/rules.md#documentation-rules) - JSDoc, README, API docs
 
 ### Backend Rules ([rules/backend.md])
 
@@ -372,9 +374,11 @@ Agents track and report:
 
 - [CLAUDE.md](../CLAUDE.md) - Main project documentation
 - [agents/README.md](agents/README.md) - Agent system guide
-- [rules.md](rules.md) - Main project rules
+- [rules/rules.md](rules/rules.md) - Main project rules
 - [rules/backend.md](rules/backend.md) - Backend rules
 - [rules/frontend.md](rules/frontend.md) - Frontend rules
+- [rules/mobile.md](rules/mobile.md) - Mobile rules
+- [rules/desktop.md](rules/desktop.md) - Desktop rules
 - [rules/packages.md](rules/packages.md) - Packages rules
 
 ---
