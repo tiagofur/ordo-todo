@@ -29,6 +29,65 @@ interface Subtask {
 
 type ModelComplexity = 'low' | 'medium' | 'high';
 
+// Type-safe interfaces for AI context and metrics
+interface TaskContext {
+  id: string;
+  title: string;
+  status?: string;
+  priority?: string;
+  dueDate?: Date;
+  completed?: boolean;
+}
+
+interface DailyMetrics {
+  date: Date;
+  minutesWorked: number;
+  tasksCompleted: number;
+  pomodorosCount?: number;
+  focusDuration?: number;
+}
+
+interface TimeSession {
+  id: string;
+  startedAt: Date;
+  duration: number;
+  pauseCount?: number;
+  wasCompleted: boolean;
+}
+
+interface AIProfile {
+  peakHours: Record<number, number>;
+  avgTaskDuration: number;
+  completionRate: number;
+}
+
+interface WellbeingMetrics {
+  dailyMetrics: DailyMetrics[];
+  sessions: TimeSession[];
+  profile: AIProfile;
+}
+
+interface ProductivityReportContext {
+  userId: string;
+  scope:
+    | 'TASK_COMPLETION'
+    | 'WEEKLY_SCHEDULED'
+    | 'MONTHLY_SCHEDULED'
+    | 'PROJECT_SUMMARY';
+  metricsSnapshot: {
+    totalTasks?: number;
+    completedTasks?: number;
+    totalMinutes?: number;
+    pomodorosCount?: number;
+    focusDuration?: number;
+    tasksCompletedCount?: number;
+    [key: string]: number | undefined;
+  };
+  sessions?: TimeSession[];
+  profile?: AIProfile;
+  projectName?: string;
+}
+
 // Model constants - using latest stable models
 const FLASH_MODEL = 'gemini-2.0-flash';
 const THINKING_MODEL = 'gemini-2.0-flash-thinking-exp'; // For complex reasoning
@@ -247,7 +306,7 @@ Responde SOLO con JSON válido:
   async chat(
     message: string,
     history: ChatMessageDto[] = [],
-    context?: { workspaceId?: string; projectId?: string; tasks?: any[] },
+    context?: { workspaceId?: string; projectId?: string; tasks?: TaskContext[] },
   ): Promise<ChatResponse> {
     if (!this.ai) {
       return {
@@ -440,11 +499,7 @@ Ejemplos:
    * Uses PRO model for nuanced, sensitive analysis
    */
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
-  async analyzeWellbeing(metrics: {
-    dailyMetrics: any[];
-    sessions: any[];
-    profile: any;
-  }): Promise<WellbeingIndicators> {
+  async analyzeWellbeing(metrics: WellbeingMetrics): Promise<WellbeingIndicators> {
     // Calculate metrics locally first to reduce API calls
     const localMetrics = this.calculateWellbeingMetricsLocally(metrics);
 
@@ -514,11 +569,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
   /**
    * Calculate wellbeing metrics locally without API
    */
-  private calculateWellbeingMetricsLocally(metrics: {
-    dailyMetrics: any[];
-    sessions: any[];
-    profile: any;
-  }): Omit<WellbeingIndicators, 'insights' | 'recommendations'> {
+  private calculateWellbeingMetricsLocally(
+    metrics: WellbeingMetrics,
+  ): Omit<WellbeingIndicators, 'insights' | 'recommendations'> {
     const { dailyMetrics, sessions } = metrics;
 
     // Calculate averages
@@ -731,18 +784,9 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
    * Uses FLASH for weekly, PRO for monthly
    */
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
-  async generateProductivityReport(context: {
-    userId: string;
-    scope:
-    | 'TASK_COMPLETION'
-    | 'WEEKLY_SCHEDULED'
-    | 'MONTHLY_SCHEDULED'
-    | 'PROJECT_SUMMARY';
-    metricsSnapshot: any;
-    sessions?: any[];
-    profile?: any;
-    projectName?: string;
-  }): Promise<ProductivityReportData> {
+  async generateProductivityReport(
+    context: ProductivityReportContext,
+  ): Promise<ProductivityReportData> {
     const complexity: ModelComplexity =
       context.scope === 'MONTHLY_SCHEDULED' ? 'high' : 'medium';
     const modelName = this.getModelName(complexity);
@@ -782,7 +826,7 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
   /**
    * Build the prompt for Gemini based on context
    */
-  private buildProductivityReportPrompt(context: any): string {
+  private buildProductivityReportPrompt(context: ProductivityReportContext): string {
     const { scope, metricsSnapshot, sessions, profile, projectName } = context;
 
     let prompt = `You are an AI productivity coach analyzing user work patterns. Generate a productivity report in JSON format.
@@ -799,7 +843,7 @@ ${projectName ? `- Project: ${projectName}` : ''}
 ${sessions
           .slice(0, 10)
           .map(
-            (s: any, i: number) =>
+            (s, i) =>
               `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
           )
           .join('\n')}
@@ -808,7 +852,7 @@ ${sessions
 
     if (profile) {
       const peakHours = Object.entries(profile.peakHours || {})
-        .sort(([, a]: any, [, b]: any) => b - a)
+        .sort(([, a], [, b]) => (b as number) - (a as number))
         .slice(0, 3)
         .map(([hour]) => hour);
 

@@ -93,10 +93,13 @@ describe('AIController', () => {
         projectId: 'proj-123',
         timezone: 'America/Mexico_City',
       };
-      const expectedResult = { title: 'Complete task', priority: 'MEDIUM' };
-      aiService.parseNaturalLanguageTask.mockResolvedValue(
-        expectedResult as any,
-      );
+      const expectedResult = {
+        title: 'Complete task',
+        priority: 'MEDIUM' as const,
+        confidence: 'HIGH' as const,
+        reasoning: 'Parsed from natural language',
+      };
+      aiService.parseNaturalLanguageTask.mockResolvedValue(expectedResult);
 
       const result = await controller.parseTask(parseDto);
 
@@ -113,8 +116,23 @@ describe('AIController', () => {
     it('should call getWellbeingIndicators with date range', async () => {
       const startDate = '2024-01-01';
       const endDate = '2024-01-31';
-      const expectedResult = { overallScore: 75, burnoutRisk: 'LOW' };
-      aiService.getWellbeingIndicators.mockResolvedValue(expectedResult as any);
+      const expectedResult = {
+        overallScore: 75,
+        burnoutRisk: 'LOW' as const,
+        workLifeBalance: 80,
+        focusQuality: 70,
+        consistencyScore: 75,
+        insights: ['Good work pattern'],
+        recommendations: ['Keep it up'],
+        metrics: {
+          avgHoursPerDay: 7.5,
+          avgSessionsPerDay: 4,
+          longestStreak: 5,
+          weekendWorkPercentage: 10,
+          lateNightWorkPercentage: 5,
+        },
+      };
+      aiService.getWellbeingIndicators.mockResolvedValue(expectedResult);
 
       const result = await controller.getWellbeing(
         mockUser,
@@ -131,8 +149,23 @@ describe('AIController', () => {
     });
 
     it('should handle missing date parameters', async () => {
-      const expectedResult = { overallScore: 80, burnoutRisk: 'LOW' };
-      aiService.getWellbeingIndicators.mockResolvedValue(expectedResult as any);
+      const expectedResult = {
+        overallScore: 80,
+        burnoutRisk: 'LOW' as const,
+        workLifeBalance: 85,
+        focusQuality: 75,
+        consistencyScore: 80,
+        insights: ['Excellent pattern'],
+        recommendations: ['Maintain current schedule'],
+        metrics: {
+          avgHoursPerDay: 7,
+          avgSessionsPerDay: 3,
+          longestStreak: 7,
+          weekendWorkPercentage: 5,
+          lateNightWorkPercentage: 0,
+        },
+      };
+      aiService.getWellbeingIndicators.mockResolvedValue(expectedResult);
 
       const result = await controller.getWellbeing(mockUser);
 
@@ -153,11 +186,23 @@ describe('AIController', () => {
         objectives: 'Launch by Q1',
       };
       const expectedResult = {
-        phases: [],
+        phases: [
+          {
+            name: 'Planning',
+            description: 'Plan the project',
+            suggestedTasks: [
+              {
+                title: 'Define requirements',
+                priority: 'HIGH' as const,
+                estimatedMinutes: 60,
+              },
+            ],
+          },
+        ],
         estimatedDuration: '2 weeks',
-        tips: [],
+        tips: ['Start small', 'Iterate often'],
       };
-      aiService.suggestWorkflow.mockResolvedValue(expectedResult as any);
+      aiService.suggestWorkflow.mockResolvedValue(expectedResult);
 
       const result = await controller.suggestWorkflow(dto);
 
@@ -179,11 +224,18 @@ describe('AIController', () => {
         maxSubtasks: 5,
       };
       const expectedResult = {
-        subtasks: [{ title: 'Step 1', order: 1 }],
+        subtasks: [
+          {
+            title: 'Step 1',
+            order: 1,
+            priority: 'HIGH' as const,
+            estimatedMinutes: 30,
+          },
+        ],
         reasoning: 'Decomposed',
         totalEstimatedMinutes: 60,
       };
-      aiService.decomposeTask.mockResolvedValue(expectedResult as any);
+      aiService.decomposeTask.mockResolvedValue(expectedResult);
 
       const result = await controller.decomposeTask(dto);
 
