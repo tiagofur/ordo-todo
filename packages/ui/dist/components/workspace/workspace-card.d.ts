@@ -14,7 +14,7 @@ interface WorkspaceCardProps {
     workspace: WorkspaceData;
     index?: number;
     onWorkspaceClick?: (workspace: WorkspaceData) => void;
-    onDelete?: (workspaceId: string) => Promise<void> | void;
+    onDelete?: (workspaceId: string) => void;
     onOpenSettings?: (workspaceId: string) => void;
     /** Render a settings dialog/modal - controlled externally */
     renderSettingsDialog?: () => ReactNode;
@@ -34,10 +34,14 @@ interface WorkspaceCardProps {
         actions?: {
             settings?: string;
             delete?: string;
+            moreOptions?: string;
         };
-        confirmDelete?: (name: string) => string;
     };
+    className?: string;
 }
-export declare function WorkspaceCard({ workspace, index, onWorkspaceClick, onDelete, onOpenSettings, renderSettingsDialog, labels, }: WorkspaceCardProps): import("react/jsx-runtime").JSX.Element;
+/**
+ * WorkspaceCard - Platform-agnostic workspace display card
+ */
+export declare function WorkspaceCard({ workspace, index, onWorkspaceClick, onDelete, onOpenSettings, renderSettingsDialog, labels, className, }: WorkspaceCardProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=workspace-card.d.ts.map

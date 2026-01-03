@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
-import { TomatoIcon, Tabs, TabsContent, TabsList, TabsTrigger, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { TomatoIcon, Tabs, TabsContent, TabsList, TabsTrigger, type OnboardingStep } from "@ordo-todo/ui";
+import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 import { SessionHistory } from "@/components/timer/session-history";
 import { Clock, Timer, Sparkles, Zap, BarChart3, Target } from "lucide-react";
 import { useTimer } from "@/components/providers/timer-provider";
 
 const TIMER_ONBOARDING_KEY = "timer-onboarding-seen";
+
 
 const timerOnboardingSteps: OnboardingStep[] = [
   {
@@ -50,19 +52,6 @@ const timerOnboardingSteps: OnboardingStep[] = [
 
 export default function TimerPage() {
   const { mode, config } = useTimer();
-  const [showOnboarding, setShowOnboarding] = useState(false);
-
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem(TIMER_ONBOARDING_KEY);
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem(TIMER_ONBOARDING_KEY, "true");
-    setShowOnboarding(false);
-  };
 
   const MODE_COLORS = {
     WORK: "#ef4444", // Red
@@ -121,17 +110,13 @@ export default function TimerPage() {
       </div>
 
       {/* Onboarding */}
-      {showOnboarding && (
         <FeatureOnboarding
           steps={timerOnboardingSteps}
           storageKey={TIMER_ONBOARDING_KEY}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingComplete}
           skipText="Saltar"
           nextText="Siguiente"
           getStartedText="¡A Enfocarse!"
         />
-      )}
     </AppLayout>
   );
 }

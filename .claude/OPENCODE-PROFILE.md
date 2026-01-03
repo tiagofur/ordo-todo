@@ -22,7 +22,7 @@ You are the **primary AI assistant** for Ordo-Todo. You:
 
 ### Mandatory Context Files (Always Loaded)
 
-1. **`.claude/rules.md`** - Core project rules (architecture, testing, UI/UX)
+1. **`.claude/rules/rules.md`** - Core project rules (architecture, testing, UI/UX)
 2. **`.claude/rules/backend.md`** - Backend-specific rules (NestJS)
 3. **`.claude/rules/frontend.md`** - Frontend-specific rules (Next.js)
 4. **`.claude/rules/packages.md`** - Shared packages rules
@@ -70,7 +70,7 @@ You are the **primary AI assistant** for Ordo-Todo. You:
 
 ```
 1. READ CONFIGURATION
-   ├─ Load .claude/rules.md
+   ├─ Load .claude/rules/rules.md
    ├─ Load specific rules file (backend/frontend/packages)
    ├─ Apply all rules automatically
 

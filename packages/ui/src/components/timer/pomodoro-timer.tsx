@@ -1,8 +1,6 @@
-'use client';
 
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Play, Pause, Square, SkipForward, RefreshCw, Maximize2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +55,9 @@ interface PomodoroTimerProps {
     switchTaskButtonTitle?: string;
     enterFocusMode?: string;
   };
+  /** Dialog state controlled by parent */
+  showSwitchDialog?: boolean;
+  setShowSwitchDialog?: (show: boolean) => void;
 }
 
 const MODE_COLORS = {
@@ -111,6 +112,8 @@ export function PomodoroTimer({
   TaskSelectorComponent,
   onFocusModeClick,
   labels = {},
+  showSwitchDialog = false,
+  setShowSwitchDialog,
 }: PomodoroTimerProps) {
   const {
     isLoaded,
@@ -125,8 +128,6 @@ export function PomodoroTimer({
   } = state;
 
   const { start, pause, resume, stop, skipToNext } = actions;
-
-  const [showSwitchDialog, setShowSwitchDialog] = useState(false);
 
   const {
     stopwatch = 'Stopwatch',
@@ -176,41 +177,30 @@ export function PomodoroTimer({
 
       {/* Mode & Settings Info */}
       <div className="text-center w-full max-w-sm">
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={mode}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="font-semibold text-lg mb-4"
-            style={{ color: accentColor }}
-          >
-            {getModeLabel()}
-          </motion.p>
-        </AnimatePresence>
+        <p
+          className="font-semibold text-lg mb-4 transition-colors duration-300 animate-in fade-in"
+          style={{ color: accentColor }}
+        >
+          {getModeLabel()}
+        </p>
 
         {TaskSelectorComponent}
 
         {/* Pause Metrics */}
         {isRunning && pauseCount > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mt-3 text-xs text-muted-foreground flex items-center justify-center gap-3"
+          <div
+            className="mt-3 text-xs text-muted-foreground flex items-center justify-center gap-3 animate-in fade-in slide-in-from-bottom-2"
           >
             <span>{pauseCountLabel(pauseCount)}</span>
-          </motion.div>
+          </div>
         )}
       </div>
 
       {/* Timer Display */}
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative"
+      <div
+        className="relative animate-in zoom-in fade-in duration-500"
       >
-        <svg className="h-80 w-80 -rotate-90 transform">
+        <svg className="h-80 w-80 -rotate-90 transform transition-rotate duration-500">
           <circle
             cx="160"
             cy="160"
@@ -220,19 +210,18 @@ export function PomodoroTimer({
             fill="none"
             className="text-muted/20"
           />
-          <motion.circle
+          <circle
             cx="160"
             cy="160"
             r="150"
             strokeWidth="10"
             fill="none"
             strokeDasharray={`${2 * Math.PI * 150}`}
-            initial={{ strokeDashoffset: 2 * Math.PI * 150, stroke: MODE_COLORS['WORK'] }}
-            animate={{
-              strokeDashoffset: `${2 * Math.PI * 150 * (1 - progress / 100)}`,
-              stroke: accentColor,
+            style={{ 
+                stroke: accentColor,
+                strokeDashoffset: `${2 * Math.PI * 150 * (1 - progress / 100)}`,
+                transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease'
             }}
-            transition={{ duration: 1 }}
             strokeLinecap="round"
           />
         </svg>
@@ -244,15 +233,13 @@ export function PomodoroTimer({
             <span className="text-sm text-muted-foreground animate-pulse">{paused}</span>
           )}
         </div>
-      </motion.div>
+      </div>
 
       {/* Controls */}
       <div className="flex items-center justify-center gap-4">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+        <button
           onClick={handlePlayPause}
-          className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300"
+          className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
           style={{
             backgroundColor: accentColor,
             boxShadow: `0 10px 20px -5px ${accentColor}50`,
@@ -263,39 +250,33 @@ export function PomodoroTimer({
           ) : (
             <Play className="h-8 w-8 ml-1" />
           )}
-        </motion.button>
+        </button>
 
         {(isRunning || isPaused) && (
           <>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={() => stop(false)}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground"
+              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background"
             >
               <Square className="h-6 w-6" />
-            </motion.button>
+            </button>
 
             {defaultMode === 'POMODORO' && (
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+              <button
                 onClick={skipToNext}
-                className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground"
+                className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background"
               >
                 <SkipForward className="h-6 w-6" />
-              </motion.button>
+              </button>
             )}
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowSwitchDialog(true)}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground"
+            <button
+              onClick={() => setShowSwitchDialog?.(true)}
+              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-muted/50 text-muted-foreground hover:border-muted-foreground transition-all duration-300 hover:scale-110 active:scale-95 bg-background"
               title={switchTaskButtonTitle}
             >
               <RefreshCw className="h-6 w-6" />
-            </motion.button>
+            </button>
           </>
         )}
       </div>

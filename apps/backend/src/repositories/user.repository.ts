@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
-import { User, UserRepository } from '@ordo-todo/core';
+import { User, UserRepository, CreateUserProps } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
@@ -141,14 +141,14 @@ export class PrismaUserRepository implements UserRepository {
     return this.toDomain(user as any);
   }
 
-  async create(props: any): Promise<User> {
+  async create(props: CreateUserProps): Promise<User> {
     const user = await this.prisma.user.create({
       data: {
         email: props.email,
         username: props.username,
         name: props.name,
-        image: props.avatar || props.image,
-        hashedPassword: props.password,
+        image: props.image,
+        hashedPassword: undefined,
       },
       select: this.userSelectFields,
     });

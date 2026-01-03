@@ -18,7 +18,7 @@ export interface WorkspaceAuditLogProps extends EntityProps {
     workspaceId: string;
     actorId?: string; // Usuario que realizó la acción (puede ser null para acciones del sistema)
     action: AuditAction;
-    payload?: Record<string, any>; // Detalles del cambio
+    payload?: Record<string, unknown>; // Detalles del cambio
     createdAt?: Date;
 }
 

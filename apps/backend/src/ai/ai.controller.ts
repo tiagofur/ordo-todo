@@ -797,35 +797,4 @@ export class AIController {
   deleteReport(@Param('id') id: string) {
     return this.aiService.deleteReport(id);
   }
-
-  // ============ MODEL STATS (DEBUG) ============
-
-  @Get('model-stats')
-  @ApiOperation({
-    summary: 'Get AI model statistics (debug)',
-    description:
-      'Retrieve statistics about the AI model performance, cache hit rates, request counts, and other debugging metrics. This endpoint is primarily for monitoring and debugging purposes.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Model statistics',
-    schema: {
-      example: {
-        totalRequests: 1250,
-        averageResponseTimeMs: 450,
-        cacheHitRate: 0.78,
-        errorRate: 0.02,
-        modelVersion: '1.2.0',
-        lastUpdated: '2025-01-01T00:00:00.000Z',
-        endpoints: {
-          chat: { requests: 800, avgTimeMs: 500 },
-          parseTask: { requests: 300, avgTimeMs: 300 },
-          predictDuration: { requests: 150, avgTimeMs: 200 },
-        },
-      },
-    },
-  })
-  getModelStats() {
-    return this.aiService.getModelStats();
-  }
 }

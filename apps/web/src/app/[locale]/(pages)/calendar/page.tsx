@@ -6,7 +6,8 @@ import { AppLayout } from "@/components/shared/app-layout";
 import { TaskCalendar } from "@/components/calendar/task-calendar";
 import { useTranslations } from "next-intl";
 import { Calendar, Sparkles, GripVertical, Clock, LayoutGrid, Rocket } from "lucide-react";
-import { FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { type OnboardingStep } from "@ordo-todo/ui";
+import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { motion } from "framer-motion";
 
 const CALENDAR_ONBOARDING_KEY = "calendar-onboarding-seen";
@@ -51,20 +52,7 @@ const calendarOnboardingSteps: OnboardingStep[] = [
 
 export default function CalendarPage() {
   const t = useTranslations("Calendar");
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const accentColor = "#0ea5e9"; // Sky blue
-
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem(CALENDAR_ONBOARDING_KEY);
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem(CALENDAR_ONBOARDING_KEY, "true");
-    setShowOnboarding(false);
-  };
 
   return (
     <AppLayout>
@@ -105,17 +93,13 @@ export default function CalendarPage() {
       </div>
 
       {/* Onboarding */}
-      {showOnboarding && (
         <FeatureOnboarding
           steps={calendarOnboardingSteps}
           storageKey={CALENDAR_ONBOARDING_KEY}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingComplete}
           skipText="Saltar"
           nextText="Siguiente"
           getStartedText="¡Empezar a Planificar!"
         />
-      )}
     </AppLayout>
   );
 }

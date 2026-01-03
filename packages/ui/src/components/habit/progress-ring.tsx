@@ -1,6 +1,4 @@
-'use client';
 
-import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
 import { type ReactNode } from 'react';
 
@@ -47,11 +45,11 @@ export function ProgressRing({
           fill="none"
           strokeWidth={strokeWidth}
           stroke={backgroundColor}
-          className="opacity-10 text-muted-foreground" // Use text-muted-foreground via class
+          className="text-muted/20"
         />
 
         {/* Progress circle */}
-        <motion.circle
+        <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -60,18 +58,9 @@ export function ProgressRing({
           stroke={color}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={
-            animate
-              ? { strokeDashoffset: circumference }
-              : { strokeDashoffset: offset }
-          }
-          animate={{ strokeDashoffset: offset }}
-          transition={{
-            duration: animate ? 1 : 0,
-            ease: 'easeOut',
-          }}
+          strokeDashoffset={offset}
           style={{
-            filter: `drop-shadow(0 0 6px ${color}40)`,
+            transition: animate ? 'stroke-dashoffset 1s ease-out' : 'none',
           }}
         />
       </svg>
@@ -81,14 +70,14 @@ export function ProgressRing({
         {children ? (
           children
         ) : showLabel ? (
-          <motion.div
-            initial={animate ? { scale: 0.8, opacity: 0 } : false}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: animate ? 0.5 : 0 }}
-            className="text-center"
+          <div
+            className={cn(
+                "text-center",
+                animate && "animate-in zoom-in fade-in duration-500 delay-500"
+            )}
           >
             <span className="text-2xl font-bold">{Math.round(progress)}%</span>
-          </motion.div>
+          </div>
         ) : null}
       </div>
     </div>
@@ -119,32 +108,23 @@ export function DailyProgress({
         color={isComplete ? '#10B981' : color}
         animate
       >
-        <div className="text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', damping: 15, delay: 0.3 }}
+        <div className="text-center animate-in zoom-in duration-500">
+          <div
             className="text-lg font-bold"
           >
             {completed}/{total}
-          </motion.div>
+          </div>
           <div className="text-xs text-muted-foreground">today</div>
         </div>
       </ProgressRing>
 
       {/* Completion celebration pulse */}
       {isComplete && (
-        <motion.div
-          initial={{ scale: 1, opacity: 0.5 }}
-          animate={{ scale: 1.5, opacity: 0 }}
-          transition={{
-            duration: 1,
-            repeat: Infinity,
-            repeatType: 'loop',
-          }}
-          className="absolute inset-0 rounded-full"
+        <div
+          className="absolute inset-0 rounded-full animate-ping"
           style={{
             border: `2px solid ${color}`,
+            opacity: 0.5
           }}
         />
       )}
@@ -174,12 +154,12 @@ export function MiniProgressBar({
       )}
       style={{ height }}
     >
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: `${Math.min(100, progress)}%` }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="h-full rounded-full"
-        style={{ backgroundColor: color }}
+      <div
+        className="h-full rounded-full transition-all duration-500 ease-out"
+        style={{ 
+            width: `${Math.min(100, progress)}%`,
+            backgroundColor: color 
+        }}
       />
     </div>
   );

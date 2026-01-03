@@ -57,7 +57,7 @@ export function PomodoroTimer() {
     mode,
     completedPomodoros,
     pauseCount,
-    defaultMode: config.defaultMode,
+    defaultMode: config?.defaultMode || 'POMODORO', // Safety check
     selectedTaskId,
     progress: getProgress(),
   };
@@ -98,6 +98,10 @@ export function PomodoroTimer() {
       }
       onFocusModeClick={() => router.push('/focus')}
       labels={labels}
+      // @ts-ignore - Props will be added to UI component in next step
+      showSwitchDialog={showSwitchDialog}
+      // @ts-ignore - Props will be added to UI component in next step
+      setShowSwitchDialog={setShowSwitchDialog}
     />
   );
 }

@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
-import React from 'react';
 
 // Cleanup after each test
 afterEach(() => {
@@ -19,7 +18,7 @@ vi.mock('lucide-react', async (importOriginal) => {
 // Mock @ordo-todo/core
 vi.mock('@ordo-todo/core', () => ({
   createWorkspaceSchema: {
-    parse: vi.fn((val: any) => val),
+    parse: vi.fn((val: unknown) => val),
     safeParse: vi.fn(() => ({ success: true, data: {} })),
   },
   generateSlug: vi.fn((name: string) => name.toLowerCase().replace(/\s+/g, '-')),
@@ -48,4 +47,4 @@ class MockImage {
   }
 }
 
-global.Image = MockImage as any;
+global.Image = MockImage as unknown as typeof Image;

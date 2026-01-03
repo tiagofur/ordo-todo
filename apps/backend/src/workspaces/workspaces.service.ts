@@ -54,7 +54,7 @@ export class WorkspacesService {
     @Inject('HashService')
     private readonly hashService: HashService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   /**
    * Creates a new workspace with the user as owner
@@ -150,11 +150,11 @@ export class WorkspacesService {
           ownerId: workspace.props.ownerId,
           owner: owner
             ? {
-              id: owner.id,
-              username: owner.props.username,
-              name: owner.props.name,
-              email: owner.props.email,
-            }
+                id: owner.id,
+                username: owner.props.username,
+                name: owner.props.name,
+                email: owner.props.email,
+              }
             : null,
           isArchived: workspace.props.isArchived,
           createdAt: workspace.props.createdAt,
@@ -538,8 +538,8 @@ export class WorkspacesService {
 
       let matchedInvitation:
         | Awaited<
-          ReturnType<typeof this.invitationRepository.findPendingInvitations>
-        >[number]
+            ReturnType<typeof this.invitationRepository.findPendingInvitations>
+          >[number]
         | null = null;
       for (const invitation of pendingInvitations) {
         const isValid = await this.hashService.compare(
@@ -656,11 +656,11 @@ export class WorkspacesService {
         joinedAt: member.props.joinedAt,
         user: user
           ? {
-            id: user.id,
-            name: user.props.name || user.props.username || 'Usuario',
-            email: user.props.email || '',
-            image: user.props.image,
-          }
+              id: user.id,
+              name: user.props.name || user.props.username || 'Usuario',
+              email: user.props.email || '',
+              image: user.props.image,
+            }
           : null,
       };
       result.push(memberData);
@@ -773,64 +773,5 @@ export class WorkspacesService {
     });
 
     return log.props;
-  }
-
-  /**
-   * DEBUG: Método temporal para marcar workspaces "Carros" como eliminados
-   */
-  async debugFixCarrosWorkspaces(userId: string) {
-    // Buscar todos los workspaces del usuario que contengan "carros" (case insensitive)
-    const workspaces = await this.prisma.workspace.findMany({
-      where: {
-        ownerId: userId,
-        name: {
-          contains: 'carros',
-          mode: 'insensitive',
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        isDeleted: true,
-        deletedAt: true,
-      },
-    });
-
-    const results: Array<{
-      id: string;
-      name: string;
-      status: 'marked_as_deleted' | 'already_deleted';
-    }> = [];
-
-    // Marcar cada workspace como eliminado si no lo está
-    for (const ws of workspaces) {
-      if (!ws.isDeleted) {
-        await this.prisma.workspace.update({
-          where: { id: ws.id },
-          data: {
-            isDeleted: true,
-            deletedAt: new Date(),
-          },
-        });
-        results.push({
-          id: ws.id,
-          name: ws.name,
-          status: 'marked_as_deleted',
-        });
-      } else {
-        results.push({
-          id: ws.id,
-          name: ws.name,
-          status: 'already_deleted',
-        });
-      }
-    }
-
-    return {
-      total: workspaces.length,
-      updated: results.filter((r) => r.status === 'marked_as_deleted').length,
-      workspaces: results,
-    };
   }
 }

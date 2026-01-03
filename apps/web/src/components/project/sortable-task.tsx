@@ -2,14 +2,20 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { KanbanTaskCard } from "./kanban-task-card.js";
+import { KanbanTaskCard } from "@ordo-todo/ui";
 
 interface SortableTaskProps {
   task: any;
-  index: number;
   onTaskClick?: (taskId: string) => void;
   onEditClick?: (taskId: string) => void;
   onDeleteClick?: (taskId: string) => void;
+  formattedDueDate?: string | null;
+  isOverdue?: boolean;
+  priorityInfo?: {
+    label: string;
+    colorClass: string;
+    bgSolid: string;
+  };
   labels?: {
     priorityLow?: string;
     priorityMedium?: string;
@@ -17,10 +23,20 @@ interface SortableTaskProps {
     priorityUrgent?: string;
     viewEdit?: string;
     delete?: string;
+    moreOptions?: string;
   };
 }
 
-export function SortableTask({ task, index, onTaskClick, onEditClick, onDeleteClick, labels }: SortableTaskProps) {
+export function SortableTask({ 
+  task, 
+  onTaskClick, 
+  onEditClick, 
+  onDeleteClick, 
+  formattedDueDate,
+  isOverdue,
+  priorityInfo,
+  labels 
+}: SortableTaskProps) {
   const {
     attributes,
     listeners,
@@ -40,16 +56,19 @@ export function SortableTask({ task, index, onTaskClick, onEditClick, onDeleteCl
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : 0,
   };
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <KanbanTaskCard
         task={task}
-        index={index}
         onTaskClick={onTaskClick}
         onEditClick={onEditClick}
         onDeleteClick={onDeleteClick}
+        formattedDueDate={formattedDueDate}
+        isOverdue={isOverdue}
+        priorityInfo={priorityInfo}
         labels={labels}
       />
     </div>

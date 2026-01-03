@@ -12,6 +12,7 @@ import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { WorkspacesModule } from '../workspaces/workspaces.module';
+import type { StringValue } from 'ms';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { WorkspacesModule } from '../workspaces/workspaces.module';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET')!,
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION')! as any,
+          expiresIn: (configService.get<string>('JWT_EXPIRATION') ??
+            '1d') as StringValue,
         },
       }),
       inject: [ConfigService],

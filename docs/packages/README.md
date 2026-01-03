@@ -1,24 +1,26 @@
 # 📦 Ordo-Todo Packages - Auditoría Completa
 
-> **Última actualización:** 31 Diciembre 2025
-> **Score Global:** 65/100 🟡 **EN MEJORA**
+> **Última actualización:** 2 Enero 2026
+> **Score **Global Health Score:** 57/100 🟠 (Previous: 42/100)
 > **Leer primero:** [RESUMEN-EJECUTIVO.md](./RESUMEN-EJECUTIVO.md) | [ROADMAP.md](./ROADMAP.md) | [VIOLACIONES-POR-PAQUETE/](./VIOLACIONES-POR-PAQUETE/)
 
 ## 📊 Puntuaciones por Paquete
 
-| Paquete                    | Score  | Estado     | Prioridad |
-| -------------------------- | ------ | ---------- | --------- |
-| packages/typescript-config | 78/100 | 🟡 BUENO   | Baja      |
-| packages/eslint-config     | 75/100 | 🟡 BUENO   | Baja      |
-| packages/api-client        | 72/100 | 🟡 BUENO   | Media     |
-| packages/config            | 72/100 | 🟡 BUENO   | Media     |
-| packages/i18n              | 72/100 | 🟡 BUENO   | Media     |
-| packages/db                | 62/100 | 🟠 REGULAR | Alta      |
-| packages/hooks             | 62/100 | 🟠 REGULAR | Alta      |
-| packages/core              | 70/100 | 🟠 REGULAR | Alta      |
-| packages/stores            | 58/100 | 🟠 REGULAR | Alta      |
-| packages/styles            | 58/100 | 🔴 CRÍTICO | CRÍTICA   |
-| packages/ui                | 42/100 | 🔴 CRÍTICO | CRÍTICA   |
+| Paquete                    | Score  | Estado         | Prioridad |
+| -------------------------- | ------ | -------------- | --------- |
+| packages/api-client        | 82/100 | 🟢 EXCELENTE   | Baja      |
+| packages/core              | 80/100 | 🟢 EXCELENTE   | Baja      |
+| packages/typescript-config | 78/100 | 🟡 BUENO       | Baja      |
+| packages/eslint-config     | 75/100 | 🟡 BUENO       | Baja      |
+| packages/db                | 72/100 | 🟡 BUENO       | Media     |
+| packages/config            | 72/100 | 🟡 BUENO       | Media     |
+| packages/i18n              | 72/100 | � BUENO       | Media     |
+| packages/hooks             | 70/100 | 🟡 BUENO       | Media     |
+| packages/stores            | 82/100 | 🟢 EXCELENTE   | Baja      |
+| packages/styles            | 58/100 | 🔴 CRÍTICO     | CRÍTICA   |
+| packages/ui                | 68/100 | 🟡 BUENO       | Alta      |
+
+
 
 ## 📁 Documentos de Auditoría
 

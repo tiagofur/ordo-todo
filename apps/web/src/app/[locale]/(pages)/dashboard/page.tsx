@@ -36,7 +36,8 @@ import { AIInsightsWidget } from "@/components/dashboard/ai-insights-widget";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useRouter } from "next/navigation";
-import { FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
+import { type OnboardingStep } from "@ordo-todo/ui";
 
 const DASHBOARD_ONBOARDING_KEY = "dashboard-onboarding-seen";
 
@@ -98,21 +99,6 @@ export default function DashboardPage() {
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
 
-  // Onboarding State
-  const [showOnboarding, setShowOnboarding] = useState(false);
-
-  // Check if first time user
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem(DASHBOARD_ONBOARDING_KEY);
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem(DASHBOARD_ONBOARDING_KEY, "true");
-    setShowOnboarding(false);
-  };
 
   // Get today's date range
   const today = new Date();
@@ -635,17 +621,13 @@ export default function DashboardPage() {
       />
 
       {/* Onboarding */}
-      {showOnboarding && (
         <FeatureOnboarding
           steps={dashboardOnboardingSteps}
           storageKey={DASHBOARD_ONBOARDING_KEY}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingComplete}
           skipText="Saltar"
           nextText="Siguiente"
           getStartedText="¡Empezar!"
         />
-      )}
     </AppLayout>
   );
 }

@@ -13,8 +13,8 @@ import { Button } from '../ui/button.js';
 import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface GenerateReportDialogProps {
-  onGenerate?: () => Promise<any>;
-  onSuccess?: (report: any) => void;
+  onGenerate?: () => Promise<unknown>;
+  onSuccess?: (report: unknown) => void;
   trigger?: ReactNode;
   isPending?: boolean;
   isSuccess?: boolean;

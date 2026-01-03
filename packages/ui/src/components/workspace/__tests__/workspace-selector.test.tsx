@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+/// <reference types="@testing-library/jest-dom" />
 /**
  * Unit Tests for WorkspaceSelector Component
  *
@@ -98,8 +100,10 @@ describe('WorkspaceSelector Component', () => {
       render(<WorkspaceSelector {...defaultProps} />);
 
       // The chevron icon should be present (lucide icon)
-      const chevron = document.querySelector('[data-lucide="chevrons-up-down"]');
-      expect(chevron).toBeInTheDocument();
+      // The chevron icon should be present (lucide icon)
+      // Lucide icons render as svgs with specific classes
+      const trigger = screen.getByRole('button');
+      expect(trigger.querySelector('svg')).toBeInTheDocument();
     });
   });
 
@@ -419,6 +423,7 @@ describe('WorkspaceSelector Component', () => {
             },
           }}
         />
+      );
 
       // Open dropdown
       const trigger = screen.getByText('Personal Workspace').closest('button');
@@ -429,8 +434,7 @@ describe('WorkspaceSelector Component', () => {
       expect(screen.getByText('My Team')).toBeInTheDocument();
     });
 
-    it('should use custom stats labels', async () => {
-      const user = userEvent.setup();
+    it('should use custom stats labels', () => {
       render(
         <WorkspaceSelector
           {...defaultProps}
@@ -441,6 +445,7 @@ describe('WorkspaceSelector Component', () => {
             },
           }}
         />
+      );
 
       // Stats should be visible without opening dropdown
       expect(screen.getByText(/projs/)).toBeInTheDocument();

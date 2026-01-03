@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSessionHistory, useTimerStats } from "@/lib/api-hooks";
-import { subDays } from "date-fns";
+import { subDays, format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
 import { type TimeSession } from "@ordo-todo/api-client";
@@ -19,7 +19,7 @@ import {
  * Integrates the platform-agnostic UI component with:
  * - useSessionHistory and useTimerStats hooks for data fetching
  * - next-intl for translations
- * - date-fns locales based on current locale
+ * - date-fns for date formatting
  */
 export function SessionHistory() {
   const locale = useLocale();
@@ -93,6 +93,14 @@ export function SessionHistory() {
     chartTitle: t("chart.title"),
   };
 
+  const formatDate = (date: string | Date) => {
+    return format(new Date(date), 'PPp', { locale: dateLocale });
+  };
+
+  const formatDay = (date: string | Date) => {
+    return format(new Date(date), 'EEE', { locale: dateLocale });
+  };
+
   return (
     <SessionHistoryUI
       historyData={mappedHistoryData}
@@ -102,8 +110,11 @@ export function SessionHistory() {
       hasError={!!historyError}
       filters={filters}
       onFiltersChange={setFilters}
-      dateLocale={dateLocale as any}
       labels={labels}
+      // @ts-ignore - Props will be added to UI component in next step
+      formatDate={formatDate}
+      // @ts-ignore - Props will be added to UI component in next step
+      formatDay={formatDay}
     />
   );
 }

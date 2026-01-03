@@ -1,6 +1,4 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { motion, AnimatePresence } from 'framer-motion';
 import { Cloud, CloudOff, RefreshCw, AlertCircle, CheckCircle, WifiOff, } from 'lucide-react';
 import { cn } from '../../utils/index.js';
 import { Button } from '../ui/button.js';
@@ -32,7 +30,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
             return {
                 icon: WifiOff,
                 color: 'text-yellow-500',
-                bgColor: 'bg-yellow-500/10',
+                bgColor: 'bg-yellow-50 dark:bg-yellow-950',
                 label: t.offline,
                 description: t.offlineDesc,
             };
@@ -42,7 +40,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
                 return {
                     icon: RefreshCw,
                     color: 'text-blue-500',
-                    bgColor: 'bg-blue-500/10',
+                    bgColor: 'bg-blue-50 dark:bg-blue-950',
                     label: t.syncing,
                     description: t.syncingDesc,
                     animate: true,
@@ -51,7 +49,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
                 return {
                     icon: AlertCircle,
                     color: 'text-red-500',
-                    bgColor: 'bg-red-500/10',
+                    bgColor: 'bg-red-50 dark:bg-red-950',
                     label: t.error,
                     description: t.errorDesc,
                 };
@@ -60,7 +58,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
                     return {
                         icon: Cloud,
                         color: 'text-orange-500',
-                        bgColor: 'bg-orange-500/10',
+                        bgColor: 'bg-orange-50 dark:bg-orange-950',
                         label: t.pending,
                         description: t.pendingDesc(pendingChanges),
                     };
@@ -68,7 +66,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
                 return {
                     icon: CheckCircle,
                     color: 'text-green-500',
-                    bgColor: 'bg-green-500/10',
+                    bgColor: 'bg-green-50 dark:bg-green-950',
                     label: t.synced,
                     description: t.syncedDesc(lastSyncFormatted),
                 };
@@ -76,7 +74,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
                 return {
                     icon: CloudOff,
                     color: 'text-gray-500',
-                    bgColor: 'bg-gray-500/10',
+                    bgColor: 'bg-gray-100 dark:bg-gray-800',
                     label: t.offline,
                     description: t.offlineDesc,
                 };
@@ -84,7 +82,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
                 return {
                     icon: Cloud,
                     color: 'text-gray-400',
-                    bgColor: 'bg-gray-400/10',
+                    bgColor: 'bg-gray-100 dark:bg-gray-800',
                     label: t.unknown,
                     description: '',
                 };
@@ -97,10 +95,7 @@ export function SyncStatusIndicator({ status, isOnline = true, pendingChanges = 
             onForceSync?.();
         }
     };
-    const tooltipText = `${statusInfo.label}${statusInfo.description ? ` - ${statusInfo.description}` : ''}${failedChanges > 0 ? ` (${t.failedChanges(failedChanges)})` : ''}`;
-    return (_jsx(TooltipProvider, { children: _jsxs(Tooltip, { children: [_jsx(TooltipTrigger, { asChild: true, children: _jsxs(Button, { variant: "ghost", size: "sm", className: cn('flex items-center gap-2 px-2', statusInfo.bgColor, className), onClick: handleClick, disabled: status === 'syncing' || !isOnline, children: [_jsx(motion.div, { animate: statusInfo.animate ? { rotate: 360 } : {}, transition: statusInfo.animate
-                                    ? { duration: 1, repeat: Infinity, ease: 'linear' }
-                                    : {}, children: _jsx(Icon, { className: cn(iconSize, statusInfo.color) }) }), showLabel && (_jsx("span", { className: cn('text-sm', statusInfo.color), children: statusInfo.label })), _jsx(AnimatePresence, { children: pendingChanges > 0 && status !== 'syncing' && (_jsx(motion.span, { initial: { scale: 0 }, animate: { scale: 1 }, exit: { scale: 0 }, className: "flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white", children: pendingChanges > 99 ? '99+' : pendingChanges })) })] }) }), _jsx(TooltipContent, { side: "bottom", className: "max-w-xs", children: _jsxs("div", { className: "space-y-1", children: [_jsx("p", { className: "font-medium", children: statusInfo.label }), _jsx("p", { className: "text-xs text-muted-foreground", children: statusInfo.description }), failedChanges > 0 && (_jsx("p", { className: "text-xs text-destructive", children: t.failedChanges(failedChanges) }))] }) })] }) }));
+    return (_jsx(TooltipProvider, { children: _jsxs(Tooltip, { children: [_jsx(TooltipTrigger, { asChild: true, children: _jsxs(Button, { variant: "ghost", size: "sm", className: cn('flex items-center gap-2 px-2', statusInfo.bgColor, className), onClick: handleClick, disabled: status === 'syncing' || !isOnline, children: [_jsx("div", { className: cn(statusInfo.animate ? "animate-spin" : ""), children: _jsx(Icon, { className: cn(iconSize, statusInfo.color) }) }), showLabel && (_jsx("span", { className: cn('text-sm', statusInfo.color), children: statusInfo.label })), pendingChanges > 0 && status !== 'syncing' && (_jsx("span", { className: "flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white animate-in zoom-in duration-300", children: pendingChanges > 99 ? '99+' : pendingChanges }))] }) }), _jsx(TooltipContent, { side: "bottom", className: "max-w-xs", children: _jsxs("div", { className: "space-y-1", children: [_jsx("p", { className: "font-medium", children: statusInfo.label }), _jsx("p", { className: "text-xs text-muted-foreground", children: statusInfo.description }), failedChanges > 0 && (_jsx("p", { className: "text-xs text-destructive", children: t.failedChanges(failedChanges) }))] }) })] }) }));
 }
 export function SyncStatusDot({ status, isOnline = true, pendingChanges = 0, className, }) {
     const getColor = () => {
@@ -127,5 +122,5 @@ export function OfflineBanner({ isOnline, pendingChanges = 0, labels = {}, }) {
     };
     if (isOnline)
         return null;
-    return (_jsx(motion.div, { initial: { height: 0, opacity: 0 }, animate: { height: 'auto', opacity: 1 }, exit: { height: 0, opacity: 0 }, className: "bg-yellow-500/10 border-b border-yellow-500/20", children: _jsxs("div", { className: "flex items-center justify-center gap-2 py-2 px-4", children: [_jsx(WifiOff, { className: "h-4 w-4 text-yellow-600" }), _jsxs("span", { className: "text-sm text-yellow-600", children: [t.message, pendingChanges > 0 && (_jsxs("span", { className: "ml-1 font-medium", children: ["(", pendingChanges, " ", t.pending, ")"] }))] })] }) }));
+    return (_jsx("div", { className: "bg-yellow-50 dark:bg-yellow-950/30 border-b border-yellow-200 dark:border-yellow-900 animate-in slide-in-from-top-2 duration-300", children: _jsxs("div", { className: "flex items-center justify-center gap-2 py-2 px-4", children: [_jsx(WifiOff, { className: "h-4 w-4 text-yellow-600 dark:text-yellow-500" }), _jsxs("span", { className: "text-sm text-yellow-600 dark:text-yellow-500", children: [t.message, pendingChanges > 0 && (_jsxs("span", { className: "ml-1 font-medium", children: ["(", pendingChanges, " ", t.pending, ")"] }))] })] }) }));
 }

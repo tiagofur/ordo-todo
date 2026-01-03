@@ -1,77 +1,40 @@
 # 📦 Análisis: packages/db
 
-**Score:** 62/100
-**Estado:** 🟠 REGULAR - Requiere mejoras ALTA prioridad
+**Score:** 72/100 (**actualizado 2 Ene 2026: +10 por índices**)
+**Estado:** 🟡 BUENO - Requiere mejoras media prioridad
 
 ---
 
 ## 📊 Resumen
 
-| Severidad | Cantidad                     |
-| --------- | ---------------------------- |
-| CRÍTICAS  | 6 (foreign keys sin índices) |
-| ALTAS     | 6                            |
-| MEDIAS    | 8                            |
-| BAJAS     | 4                            |
+| Severidad | Cantidad                             |
+| --------- | ------------------------------------ |
+| CRÍTICAS  | ✅ 0 (índices agregados 2 Ene 2026)  |
+| ALTAS     | 6                                    |
+| MEDIAS    | 8                                    |
+| BAJAS     | 4                                    |
 
 ---
 
-## 🚨 Violaciones CRÍTICAS
+## ✅ Violaciones CRÍTICAS - RESUELTAS
 
-### 1. Foreign Keys Sin Índices - Performance CRÍTICA
+### 1. Foreign Keys Sin Índices - ✅ COMPLETADO (2 Ene 2026)
 
-**Archivos y líneas:**
+**Índices agregados en migración `20260102180000_add_missing_indexes_for_foreign_keys`:**
 
-1. prisma/schema.prisma:496 - WorkspaceInvitation.invitedById
-2. prisma/schema.prisma:522 - WorkspaceAuditLog.actorId
-3. prisma/schema.prisma:1218 - Habit.workspaceId
-4. prisma/schema.prisma:1351 - Objective.workspaceId
-5. prisma/schema.prisma:1483 - BlogComment.userId
-6. prisma/schema.prisma:1487 - BlogComment.postId
+1. ✅ `WorkspaceInvitation.invitedById` - `@@index([invitedById])`
+2. ✅ `WorkspaceAuditLog.actorId` - `@@index([actorId])`
+3. ✅ `Habit.workspaceId` - Ya existía
+4. ✅ `Objective.workspaceId` - Ya existía
+5. ✅ `BlogComment.userId` - `@@index([userId])`
+6. ✅ `BlogComment.postId` - `@@index([postId])`
 
-**Impacto:** Consultas lentas en producción
-
-**Solución:**
-
-```prisma
-model WorkspaceInvitation {
-  invitedById String?
-  // ...
-  @@index([invitedById]) // AGREGAR ESTE
-}
-
-model WorkspaceAuditLog {
-  actorId String?
-  // ...
-  @@index([actorId]) // AGREGAR ESTE
-}
-
-model Habit {
-  workspaceId String?
-  // ...
-  @@index([workspaceId]) // AGREGAR ESTE
-}
-
-model Objective {
-  workspaceId String?
-  // ...
-  @@index([workspaceId]) // AGREGAR ESTE
-}
-
-model BlogComment {
-  userId String
-  postId String
-  // ...
-  @@index([userId])    // AGREGAR ESTE
-  @@index([postId])    // AGREGAR ESTE
-}
-```
-
-**Tiempo estimado:** 1 día (crear migración y validar)
+**Impacto:** ✅ Performance mejorada en consultas de producción
 
 ---
 
 ### 2. Zero Schema Documentation
+
 
 **Estado:** 0% de modelos con `///` comments
 

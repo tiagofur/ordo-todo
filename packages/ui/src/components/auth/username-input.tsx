@@ -1,10 +1,9 @@
-"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { useState } from 'react';
+import { Input } from '../ui/input.js';
+import { Label } from '../ui/label.js';
+import { Button } from '../ui/button.js';
+import { Badge } from '../ui/badge.js';
 import {
   CheckCircle,
   XCircle,
@@ -13,24 +12,32 @@ import {
   RefreshCw,
   Lightbulb
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { useUsernameValidation, generateUsernameSuggestions } from '@ordo-todo/hooks';
-import type { ApiClient } from '@ordo-todo/hooks';
+import { cn } from '../../utils/index.js';
 
-interface UsernameInputProps {
+export interface UsernameInputProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
-  apiClient: ApiClient;
-  showSuggestions?: boolean;
   className?: string;
   label?: string;
   id?: string;
   error?: string;
   helperText?: string;
+  
+  // Validation state props (lifted up)
+  isLoading?: boolean;
+  isValid?: boolean;
+  isAvailable?: boolean | null;
+  validationMessage?: string;
+  
+  // Suggestions props (lifted up)
+  suggestions?: string[];
+  showSuggestions?: boolean;
+  onSuggestionClick?: (suggestion: string) => void;
+  onRefreshSuggestions?: () => void;
 }
 
 export function UsernameInput({
@@ -40,68 +47,32 @@ export function UsernameInput({
   placeholder = "Enter your username",
   disabled = false,
   required = false,
-  apiClient,
-  showSuggestions = true,
   className,
   label = "Username",
   id = "username",
   error: externalError,
   helperText,
+  
+  isLoading = false,
+  isValid = false,
+  isAvailable = null,
+  validationMessage,
+  
+  suggestions = [],
+  showSuggestions = true,
+  onSuggestionClick,
+  onRefreshSuggestions,
 }: UsernameInputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestionsList, setShowSuggestionsList] = useState(false);
-
-  const { validationResult, validateUsername, resetValidation } = useUsernameValidation({
-    apiClient,
-    minLength: 3,
-    maxLength: 20,
-    debounceMs: 500,
-  });
-
-  // Validate username when value changes
-  // Note: validateUsername and resetValidation are intentionally excluded from deps
-  // They are stable callbacks that shouldn't trigger re-validation
-  useEffect(() => {
-    if (value && value.length >= 3) {
-      validateUsername(value);
-    } else if (value && value.length < 3) {
-      setSuggestions([]);
-      setShowSuggestionsList(false);
-    } else {
-      resetValidation();
-      setSuggestions([]);
-      setShowSuggestionsList(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  // Generate suggestions when username is taken
-  useEffect(() => {
-    if (validationResult.isAvailable === false && showSuggestions) {
-      const newSuggestions = generateUsernameSuggestions(value);
-      setSuggestions(newSuggestions);
-      setShowSuggestionsList(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestionsList(false);
-    }
-  }, [validationResult.isAvailable, value, showSuggestions]);
 
   const handleUsernameChange = (newValue: string) => {
-    // Force lowercase and valid characters only
+    // Force lowercase and valid characters only - UI cleanup only
     const sanitizedValue = newValue.toLowerCase().replace(/[^a-z0-9_-]/g, '');
     onChange(sanitizedValue);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    onChange(suggestion);
-    setShowSuggestionsList(false);
-    onBlur?.(suggestion);
-  };
-
   const getValidationIcon = () => {
-    if (validationResult.isLoading) {
+    if (isLoading) {
       return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
     }
 
@@ -113,18 +84,22 @@ export function UsernameInput({
       return <XCircle className="h-4 w-4 text-destructive" />;
     }
 
-    if (validationResult.isValid && validationResult.isAvailable === true) {
+    if (isValid && isAvailable === true) {
       return <CheckCircle className="h-4 w-4 text-green-500" />;
     }
 
-    if (validationResult.isAvailable === false) {
+    if (isAvailable === false) {
       return <XCircle className="h-4 w-4 text-destructive" />;
     }
 
-    return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+    if (value.length >= 3 && !isValid) {
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+    }
+
+    return null;
   };
 
-  const getValidationMessage = () => {
+  const getMessage = () => {
     if (externalError) {
       return externalError;
     }
@@ -137,19 +112,19 @@ export function UsernameInput({
       return "Username must be at least 3 characters";
     }
 
-    if (validationResult.message && value.length >= 3) {
-      return validationResult.message;
+    if (validationMessage && value.length >= 3) {
+      return validationMessage;
     }
 
     return helperText;
   };
 
   const getValidationColor = () => {
-    if (externalError || validationResult.isAvailable === false) {
+    if (externalError || isAvailable === false) {
       return "text-destructive";
     }
 
-    if (validationResult.isValid && validationResult.isAvailable === true) {
+    if (isValid && isAvailable === true) {
       return "text-green-600 dark:text-green-400";
     }
 
@@ -182,14 +157,14 @@ export function UsernameInput({
           className={cn(
             "pr-10",
             externalError && "border-destructive focus:border-destructive",
-            validationResult.isAvailable === false && "border-destructive focus:border-destructive",
-            validationResult.isValid && validationResult.isAvailable === true && "border-green-500 focus:border-green-500"
+            isAvailable === false && "border-destructive focus:border-destructive",
+            isValid && isAvailable === true && "border-green-500 focus:border-green-500"
           )}
           autoComplete="username"
           spellCheck={false}
         />
 
-        {validationResult.isLoading && (
+        {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           </div>
@@ -197,30 +172,28 @@ export function UsernameInput({
       </div>
 
       {/* Validation message */}
-      {getValidationMessage() && (
-        <p className={cn("text-xs flex items-center gap-1", getValidationColor())}>
-          {getValidationMessage()}
-        </p>
-      )}
+      <p className={cn("text-xs flex items-center gap-1", getValidationColor())}>
+        {getMessage()}
+      </p>
 
       {/* Username suggestions */}
-      {showSuggestionsList && suggestions.length > 0 && (
+      {showSuggestions && suggestions.length > 0 && isAvailable === false && (
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Lightbulb className="h-3 w-3" />
             <span>Suggested alternatives:</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto p-0 text-xs"
-              onClick={() => {
-                const newSuggestions = generateUsernameSuggestions(value);
-                setSuggestions(newSuggestions);
-              }}
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Refresh
-            </Button>
+            {onRefreshSuggestions && (
+                <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 text-xs hover:bg-transparent hover:text-primary"
+                onClick={onRefreshSuggestions}
+                type="button"
+                >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Refresh
+                </Button>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -228,8 +201,8 @@ export function UsernameInput({
               <Badge
                 key={index}
                 variant="secondary"
-                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                onClick={() => handleSuggestionClick(suggestion)}
+                className="cursor-pointer hover:bg-primary hover:text-white transition-colors"
+                onClick={() => onSuggestionClick?.(suggestion)}
               >
                 {suggestion}
               </Badge>

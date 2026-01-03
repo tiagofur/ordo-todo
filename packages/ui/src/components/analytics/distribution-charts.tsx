@@ -1,4 +1,3 @@
-'use client';
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { cn } from '../../utils/index.js';
@@ -42,7 +41,7 @@ export function ProjectTimeChart({
     return (
       <div
         className={cn(
-          'rounded-2xl border border-border/50 bg-card p-6 flex flex-col justify-center items-center h-[360px]',
+          'rounded-2xl border border-border bg-card p-6 flex flex-col justify-center items-center h-[360px]',
           className
         )}
       >
@@ -53,7 +52,7 @@ export function ProjectTimeChart({
   }
 
   return (
-    <div className={cn('rounded-2xl border border-border/50 bg-card p-6', className)}>
+    <div className={cn('rounded-2xl border border-border bg-card p-6', className)}>
       <h3 className="text-lg font-semibold mb-6">{title}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -124,7 +123,7 @@ export function TaskStatusChart({
     return (
       <div
         className={cn(
-          'rounded-2xl border border-border/50 bg-card p-6 flex flex-col justify-center items-center h-[360px]',
+          'rounded-2xl border border-border bg-card p-6 flex flex-col justify-center items-center h-[360px]',
           className
         )}
       >
@@ -135,7 +134,7 @@ export function TaskStatusChart({
   }
 
   return (
-    <div className={cn('rounded-2xl border border-border/50 bg-card p-6', className)}>
+    <div className={cn('rounded-2xl border border-border bg-card p-6', className)}>
       <h3 className="text-lg font-semibold mb-6">{title}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">

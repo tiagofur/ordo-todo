@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import {
   MoreVertical,
   Trash2,
@@ -35,7 +33,7 @@ interface WorkspaceCardProps {
   workspace: WorkspaceData;
   index?: number;
   onWorkspaceClick?: (workspace: WorkspaceData) => void;
-  onDelete?: (workspaceId: string) => Promise<void> | void;
+  onDelete?: (workspaceId: string) => void;
   onOpenSettings?: (workspaceId: string) => void;
   /** Render a settings dialog/modal - controlled externally */
   renderSettingsDialog?: () => ReactNode;
@@ -55,15 +53,35 @@ interface WorkspaceCardProps {
     actions?: {
       settings?: string;
       delete?: string;
+      moreOptions?: string;
     };
     confirmDelete?: (name: string) => string;
   };
+  className?: string;
 }
 
 const typeConfig = {
-  PERSONAL: { label: 'PERSONAL', hexColor: '#06b6d4', icon: Briefcase },
-  WORK: { label: 'WORK', hexColor: '#a855f7', icon: FolderKanban },
-  TEAM: { label: 'TEAM', hexColor: '#ec4899', icon: CheckSquare },
+  PERSONAL: {
+    label: 'PERSONAL',
+    hexColor: '#06b6d4',
+    bgSolid: '#daedf4', // 15% Cyan on white
+    bgSolidDark: '#083344', // 20% Cyan on black/dark
+    icon: Briefcase,
+  },
+  WORK: {
+    label: 'WORK',
+    hexColor: '#a855f7',
+    bgSolid: '#f3e8ff', // 15% Purple on white
+    bgSolidDark: '#3b0764', // 20% Purple on black/dark
+    icon: FolderKanban,
+  },
+  TEAM: {
+    label: 'TEAM',
+    hexColor: '#ec4899',
+    bgSolid: '#fce7f3', // 15% Pink on white
+    bgSolidDark: '#500724', // 20% Pink on black/dark
+    icon: CheckSquare,
+  },
 };
 
 const DEFAULT_LABELS = {
@@ -82,10 +100,13 @@ const DEFAULT_LABELS = {
   actions: {
     settings: 'Settings',
     delete: 'Delete',
+    moreOptions: 'More options',
   },
-  confirmDelete: (name: string) => `Are you sure you want to delete "${name}"?`,
 };
 
+/**
+ * WorkspaceCard - Platform-agnostic workspace display card
+ */
 export function WorkspaceCard({
   workspace,
   index = 0,
@@ -94,6 +115,7 @@ export function WorkspaceCard({
   onOpenSettings,
   renderSettingsDialog,
   labels = {},
+  className = '',
 }: WorkspaceCardProps) {
   const t = {
     ...DEFAULT_LABELS,
@@ -108,18 +130,9 @@ export function WorkspaceCard({
     onWorkspaceClick?.(workspace);
   };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const confirmMsg = t.confirmDelete
-      ? t.confirmDelete(workspace.name)
-      : `Delete ${workspace.name}?`;
-    if (window.confirm(confirmMsg)) {
-      try {
-        await onDelete?.(workspace.id);
-      } catch (error) {
-        console.error(error);
-      }
-    }
+    onDelete?.(workspace.id);
   };
 
   const handleSettings = (e: React.MouseEvent) => {
@@ -139,8 +152,9 @@ export function WorkspaceCard({
         whileHover={{ y: -5, scale: 1.02 }}
         onClick={handleCardClick}
         className={cn(
-          'group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer',
-          'hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20'
+          'group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 cursor-pointer shadow-sm',
+          'hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-900', // Solid colors
+          className
         )}
         style={{
           borderLeftWidth: '4px',
@@ -154,7 +168,7 @@ export function WorkspaceCard({
               <div
                 className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                 style={{
-                  backgroundColor: `${typeInfo.hexColor}15`,
+                  backgroundColor: typeInfo.bgSolid,
                   color: typeInfo.hexColor,
                 }}
               >
@@ -166,21 +180,18 @@ export function WorkspaceCard({
                   {workspace.name}
                 </h3>
                 <div className="flex items-center justify-between">
+                  {/* Badge with solid background */}
                   <span
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200"
                     style={{
-                      backgroundColor: `${typeInfo.hexColor}20`,
+                      backgroundColor: typeInfo.bgSolid,
                       color: typeInfo.hexColor,
                     }}
                   >
                     {t.types[workspace.type]}
                   </span>
                   <div
-                    className="text-xs font-medium px-2 py-1 rounded-full"
-                    style={{
-                      backgroundColor: `${workspace.color}15`,
-                      color: workspace.color,
-                    }}
+                    className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground"
                   >
                     {t.status.active}
                   </div>
@@ -193,9 +204,10 @@ export function WorkspaceCard({
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <button
                   className={cn(
-                    'opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+                    'transition-opacity duration-200',
                     'rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground'
                   )}
+                  aria-label={t.actions.moreOptions}
                 >
                   <MoreVertical className="h-4 w-4" />
                 </button>
@@ -208,7 +220,7 @@ export function WorkspaceCard({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleDelete}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
+                  className="text-destructive focus:text-destructive focus:bg-destructive-foreground dark:focus:bg-destructive/10"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   {t.actions.delete}
@@ -224,7 +236,7 @@ export function WorkspaceCard({
           )}
 
           {/* Stats Section */}
-          <div className="mt-auto pt-4 border-t border-dashed border-border/50">
+          <div className="mt-auto pt-4 border-t border-dashed border-border">
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <FolderKanban className="h-4 w-4" />
@@ -237,12 +249,6 @@ export function WorkspaceCard({
             </div>
           </div>
         </div>
-
-        {/* Decorative gradient overlay */}
-        <div
-          className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
-          style={{ backgroundColor: workspace.color }}
-        />
       </motion.div>
 
       {renderSettingsDialog?.()}

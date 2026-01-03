@@ -106,7 +106,7 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
             <Label>{t.frequency}</Label>
             <Select
               value={pattern}
-              onValueChange={(val) => setPattern(val as any)}
+              onValueChange={(val) => setPattern(val as RecurrenceValue['pattern'])}
             >
               <SelectTrigger>
                 <SelectValue />

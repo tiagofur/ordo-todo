@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 export type SessionType = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CONTINUOUS';
 export interface TimerSession {
     id: string;
@@ -49,8 +48,10 @@ interface SessionHistoryProps {
     filters: SessionHistoryFilters;
     /** Called when filters change */
     onFiltersChange: (filters: SessionHistoryFilters) => void;
-    /** Date locale for formatting (e.g., es, enUS from date-fns) */
-    dateLocale?: Locale;
+    /** Function to format date/time string */
+    formatDate?: (date: string | Date) => string;
+    /** Function to format day string (e.g. Mon, Tue) */
+    formatDay?: (date: string | Date) => string;
     /** Custom labels for i18n */
     labels?: {
         error?: string;
@@ -77,9 +78,6 @@ interface SessionHistoryProps {
         chartTitle?: string;
     };
 }
-type Locale = Parameters<typeof format>[2] extends {
-    locale?: infer L;
-} ? L : never;
 /**
  * SessionHistory - Platform-agnostic timer session history display
  *
@@ -95,10 +93,10 @@ type Locale = Parameters<typeof format>[2] extends {
  *   isLoadingHistory={isLoading}
  *   filters={filters}
  *   onFiltersChange={setFilters}
- *   dateLocale={es}
+ *   formatDate={(d) => format(d, 'PPp')}
  *   labels={{ ... }}
  * />
  */
-export declare function SessionHistory({ historyData, statsData, isLoadingHistory, isLoadingStats, hasError, filters, onFiltersChange, dateLocale, labels, }: SessionHistoryProps): import("react/jsx-runtime").JSX.Element;
+export declare function SessionHistory({ historyData, statsData, isLoadingHistory, isLoadingStats, hasError, filters, onFiltersChange, formatDate, formatDay, labels, }: SessionHistoryProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=session-history.d.ts.map

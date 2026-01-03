@@ -29,6 +29,7 @@
     }
   },
   "scripts": {
+    "lint": "eslint . --max-warnings 0",
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",

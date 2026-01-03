@@ -129,7 +129,6 @@ describe('TasksController', () => {
         BadRequestException,
       );
     });
-
   });
 
   describe('findAll', () => {
@@ -145,7 +144,12 @@ describe('TasksController', () => {
       const result = await controller.findAll(user as any);
 
       expect(result).toEqual(mockTasks);
-      expect(tasksService.findAll).toHaveBeenCalledWith(user.id, undefined, undefined, false);
+      expect(tasksService.findAll).toHaveBeenCalledWith(
+        user.id,
+        undefined,
+        undefined,
+        false,
+      );
     });
 
     it('should filter tasks by project ID', async () => {
@@ -158,7 +162,12 @@ describe('TasksController', () => {
       const result = await controller.findAll(user as any, projectId);
 
       expect(result).toEqual(mockTasks);
-      expect(tasksService.findAll).toHaveBeenCalledWith(user.id, projectId, undefined, false);
+      expect(tasksService.findAll).toHaveBeenCalledWith(
+        user.id,
+        projectId,
+        undefined,
+        false,
+      );
     });
 
     it('should filter tasks by tags', async () => {
@@ -241,11 +250,9 @@ describe('TasksController', () => {
       (tasksService.findOneWithDetails as jest.Mock).mockResolvedValue(
         mockTask,
       );
-      (mockTagsService.getTaskTags as jest.Mock).mockResolvedValue([]);
-      (mockCommentsService.getTaskComments as jest.Mock).mockResolvedValue([]);
-      (
-        mockAttachmentsService.getTaskAttachments as jest.Mock
-      ).mockResolvedValue([]);
+      mockTagsService.getTaskTags.mockResolvedValue([]);
+      mockCommentsService.getTaskComments.mockResolvedValue([]);
+      mockAttachmentsService.getTaskAttachments.mockResolvedValue([]);
 
       const result = await controller.findOneWithDetails(taskId, user as any);
 

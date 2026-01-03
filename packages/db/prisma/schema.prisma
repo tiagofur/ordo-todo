@@ -504,6 +504,7 @@ model WorkspaceInvitation {
 
   @@index([workspaceId])
   @@index([email])
+  @@index([invitedById])
 }
 
 enum InviteStatus {
@@ -528,6 +529,7 @@ model WorkspaceAuditLog {
   createdAt DateTime @default(now())
 
   @@index([workspaceId, createdAt])
+  @@index([actorId])
 }
 
 enum WorkspaceType {
@@ -1488,4 +1490,7 @@ model BlogComment {
   postId String
 
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([postId])
 }

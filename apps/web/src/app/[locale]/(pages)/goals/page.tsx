@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useObjectives } from "@/lib/api-hooks";
 import { Plus, Target, Sparkles, KeyRound, Link2, TrendingUp, Rocket } from "lucide-react";
-import { Skeleton, FeatureOnboarding, type OnboardingStep } from "@ordo-todo/ui";
+import { Skeleton, type OnboardingStep } from "@ordo-todo/ui";
+import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { motion } from "framer-motion";
 import { CreateObjectiveDialog } from "@/components/goals/create-objective-dialog";
 import { useRouter } from "next/navigation";
@@ -54,20 +55,7 @@ export default function GoalsPage() {
   const t = useTranslations("Goals");
   const { data: objectives, isLoading } = useObjectives();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem(GOALS_ONBOARDING_KEY);
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem(GOALS_ONBOARDING_KEY, "true");
-    setShowOnboarding(false);
-  };
 
   const accentColor = "#ec4899"; // Pink (matches sidebar)
 
@@ -177,17 +165,13 @@ export default function GoalsPage() {
         <CreateObjectiveDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
 
         {/* Onboarding */}
-        {showOnboarding && (
-          <FeatureOnboarding
-            steps={goalsOnboardingSteps}
-            storageKey={GOALS_ONBOARDING_KEY}
-            onComplete={handleOnboardingComplete}
-            onSkip={handleOnboardingComplete}
-            skipText="Saltar"
-            nextText="Siguiente"
-            getStartedText="¡Crear mi primer Objetivo!"
-          />
-        )}
+        <FeatureOnboarding
+          steps={goalsOnboardingSteps}
+          storageKey={GOALS_ONBOARDING_KEY}
+          skipText="Saltar"
+          nextText="Siguiente"
+          getStartedText="¡Crear mi primer Objetivo!"
+        />
       </div>
     </AppLayout>
   );

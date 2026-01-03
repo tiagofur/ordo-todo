@@ -1,4 +1,4 @@
-'use client';
+
 
 import {
   Card,
@@ -121,8 +121,8 @@ export function WeeklyChart({
 
   const chartData = formatChartData();
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { day: string; tasksCompleted: number; minutesWorked: number } }[] }) => {
+    if (active && payload && payload.length && payload[0]) {
       const data = payload[0].payload;
       return (
         <div className="bg-background border border-border rounded-lg shadow-lg p-3">

@@ -4,9 +4,9 @@ import { RoadmapController } from './roadmap.controller';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-    imports: [DatabaseModule],
-    controllers: [RoadmapController],
-    providers: [RoadmapService],
-    exports: [RoadmapService],
+  imports: [DatabaseModule],
+  controllers: [RoadmapController],
+  providers: [RoadmapService],
+  exports: [RoadmapService],
 })
-export class RoadmapModule { }
+export class RoadmapModule {}

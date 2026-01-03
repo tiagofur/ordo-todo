@@ -18,4 +18,6 @@ export * from './chat.types';
 export * from './habit.types';
 export * from './objective.types';
 export * from './custom-field.types';
+export * from './wellbeing.types';
+export * from './workload.types';
 //# sourceMappingURL=index.d.ts.map

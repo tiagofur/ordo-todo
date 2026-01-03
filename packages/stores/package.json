@@ -16,7 +16,9 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "ordo-todo",
@@ -29,7 +31,10 @@
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
-    "zustand": "^5.0.5",
-    "typescript": "^5.9.3"
+    "@vitest/coverage-v8": "^3.0.7",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.7",
+    "zustand": "^5.0.5"
   }
 }

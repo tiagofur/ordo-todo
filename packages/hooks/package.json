@@ -24,7 +24,9 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "ordo-todo",
@@ -44,9 +46,15 @@
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
     "@tanstack/react-query": "^5.90.11",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.1.8",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^3.0.7",
+    "jsdom": "^26.0.0",
     "react": "^19.1.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.7"
   }
 }

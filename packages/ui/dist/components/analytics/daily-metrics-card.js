@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { CheckCircle2, Clock, Target, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from '../ui/card.js';

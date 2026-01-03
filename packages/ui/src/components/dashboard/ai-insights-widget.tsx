@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import {
   Sparkles,
   X,
@@ -34,10 +31,10 @@ export interface Insight {
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   actionLabel?: string;
   actionUrl?: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
-const INSIGHT_ICONS: Record<string, any> = {
+const INSIGHT_ICONS: Record<string, React.ElementType> = {
   PRODUCTIVITY_PEAK: Clock,
   UPCOMING_DEADLINES: AlertTriangle,
   SUGGESTED_BREAKS: Coffee,
@@ -89,7 +86,7 @@ export function AIInsightsWidget({
     title = 'AI Insights',
     emptyTitle = 'No insights available',
     emptyDescription = 'Keep working and AI will provide suggestions',
-    viewAll = 'View all insights',
+    viewAll: _viewAll = 'View all insights',
   } = labels;
 
   if (isLoading) {

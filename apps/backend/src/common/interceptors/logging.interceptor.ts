@@ -51,7 +51,9 @@ export class LoggingInterceptor implements NestInterceptor {
     // Extract client IP
     const ip = request.ip || request.socket.remoteAddress;
     const forwardedFor = request.headers['x-forwarded-for'];
-    const forwardedString = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
+    const forwardedString = Array.isArray(forwardedFor)
+      ? forwardedFor[0]
+      : forwardedFor;
     const clientIp = forwardedString ? forwardedString.split(',')[0] : ip;
 
     const startTime = Date.now();

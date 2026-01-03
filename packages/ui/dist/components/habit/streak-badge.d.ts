@@ -10,12 +10,12 @@ interface StreakBadgeProps {
     };
 }
 export declare function StreakBadge({ streak, size, showLabel, animate, className, labels, }: StreakBadgeProps): import("react/jsx-runtime").JSX.Element | null;
-interface StreakCounterProps {
+export interface StreakCounterProps {
     from: number;
     to: number;
     duration?: number;
     onComplete?: () => void;
 }
-export declare function StreakCounter({ from, to, duration, onComplete, }: StreakCounterProps): import("react/jsx-runtime").JSX.Element;
+export declare function StreakCounter({ to, }: StreakCounterProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=streak-badge.d.ts.map

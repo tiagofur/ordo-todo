@@ -144,9 +144,7 @@ export class MetricsService {
     this.httpRequestDuration
       .labels(method, route, statusCode.toString())
       .observe(duration / 1000);
-    this.httpRequestTotal
-      .labels(method, route, statusCode.toString())
-      .inc();
+    this.httpRequestTotal.labels(method, route, statusCode.toString()).inc();
   }
 
   /**
@@ -156,11 +154,7 @@ export class MetricsService {
    * @param route - Request route path
    * @param errorType - Type of error (validation, not_found, server_error, etc.)
    */
-  recordHttpError(
-    method: string,
-    route: string,
-    errorType: string,
-  ): void {
+  recordHttpError(method: string, route: string, errorType: string): void {
     this.httpErrorsTotal.labels(method, route, errorType).inc();
   }
 
@@ -187,13 +181,8 @@ export class MetricsService {
    * @param workspaceId - Workspace ID
    * @param projectId - Optional project ID
    */
-  recordTaskCompleted(
-    workspaceId: string,
-    projectId?: string,
-  ): void {
-    this.tasksCompletedTotal
-      .labels(workspaceId, projectId || 'none')
-      .inc();
+  recordTaskCompleted(workspaceId: string, projectId?: string): void {
+    this.tasksCompletedTotal.labels(workspaceId, projectId || 'none').inc();
   }
 
   /**
@@ -202,13 +191,8 @@ export class MetricsService {
    * @param workspaceId - Workspace ID
    * @param projectId - Optional project ID
    */
-  recordSubtaskCompleted(
-    workspaceId: string,
-    projectId?: string,
-  ): void {
-    this.subtasksCompletedTotal
-      .labels(workspaceId, projectId || 'none')
-      .inc();
+  recordSubtaskCompleted(workspaceId: string, projectId?: string): void {
+    this.subtasksCompletedTotal.labels(workspaceId, projectId || 'none').inc();
   }
 
   /**
@@ -217,13 +201,8 @@ export class MetricsService {
    @param workspaceId - Workspace ID
    * @param projectId - Optional project ID
    */
-  recordPomodoroCompleted(
-    workspaceId: string,
-    projectId?: string,
-  ): void {
-    this.pomodorosCompletedTotal
-      .labels(workspaceId, projectId || 'none')
-      .inc();
+  recordPomodoroCompleted(workspaceId: string, projectId?: string): void {
+    this.pomodorosCompletedTotal.labels(workspaceId, projectId || 'none').inc();
   }
 
   /**
@@ -283,6 +262,3 @@ export class MetricsService {
     this.dbQueryDuration.labels(queryType, table).observe(duration / 1000);
   }
 }
-
-
-

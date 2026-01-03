@@ -1,26 +1,25 @@
-'use client';
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
 import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Briefcase, Calendar, } from 'lucide-react';
 import { cn } from '../../utils/index.js';
 const colorClasses = {
-    cyan: 'group-hover:bg-cyan-500/10 group-hover:text-cyan-500',
-    purple: 'group-hover:bg-purple-500/10 group-hover:text-purple-500',
-    pink: 'group-hover:bg-pink-500/10 group-hover:text-pink-500',
-    orange: 'group-hover:bg-orange-500/10 group-hover:text-orange-500',
-    green: 'group-hover:bg-green-500/10 group-hover:text-green-500',
-    blue: 'group-hover:bg-blue-500/10 group-hover:text-blue-500',
-    yellow: 'group-hover:bg-yellow-500/10 group-hover:text-yellow-500',
-    red: 'group-hover:bg-red-500/10 group-hover:text-red-500',
+    cyan: 'group-hover:bg-cyan-50 dark:group-hover:bg-cyan-950 group-hover:text-cyan-600 dark:group-hover:text-cyan-400',
+    purple: 'group-hover:bg-purple-50 dark:group-hover:bg-purple-950 group-hover:text-purple-600 dark:group-hover:text-purple-400',
+    pink: 'group-hover:bg-pink-50 dark:group-hover:bg-pink-950 group-hover:text-pink-600 dark:group-hover:text-pink-400',
+    orange: 'group-hover:bg-orange-50 dark:group-hover:bg-orange-950 group-hover:text-orange-600 dark:group-hover:text-orange-400',
+    green: 'group-hover:bg-green-50 dark:group-hover:bg-green-950 group-hover:text-green-600 dark:group-hover:text-green-400',
+    blue: 'group-hover:bg-blue-50 dark:group-hover:bg-blue-950 group-hover:text-blue-600 dark:group-hover:text-blue-400',
+    yellow: 'group-hover:bg-yellow-50 dark:group-hover:bg-yellow-950 group-hover:text-yellow-600 dark:group-hover:text-yellow-400',
+    red: 'group-hover:bg-red-50 dark:group-hover:bg-red-950 group-hover:text-red-600 dark:group-hover:text-red-400',
 };
 const activeColorClasses = {
-    cyan: 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20',
-    purple: 'bg-purple-500 text-white shadow-lg shadow-purple-500/20',
-    pink: 'bg-pink-500 text-white shadow-lg shadow-pink-500/20',
-    orange: 'bg-orange-500 text-white shadow-lg shadow-orange-500/20',
-    green: 'bg-green-500 text-white shadow-lg shadow-green-500/20',
-    blue: 'bg-blue-500 text-white shadow-lg shadow-blue-500/20',
-    yellow: 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/20',
-    red: 'bg-red-500 text-white shadow-lg shadow-red-500/20',
+    cyan: 'bg-cyan-500 text-white shadow-md',
+    purple: 'bg-purple-500 text-white shadow-md',
+    pink: 'bg-pink-500 text-white shadow-md',
+    orange: 'bg-orange-500 text-white shadow-md',
+    green: 'bg-green-500 text-white shadow-md',
+    blue: 'bg-blue-500 text-white shadow-md',
+    yellow: 'bg-yellow-500 text-white shadow-md',
+    red: 'bg-red-500 text-white shadow-md',
 };
 const DEFAULT_LABELS = {
     appName: 'Ordo',

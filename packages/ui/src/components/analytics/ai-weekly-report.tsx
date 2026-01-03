@@ -1,14 +1,7 @@
-'use client';
-
-import { useState } from 'react';
 import { cn } from '../../utils/index.js';
 import {
   Sparkles,
-  FileText,
   TrendingUp,
-  Trophy,
-  Target,
-  Lightbulb,
   RefreshCw,
   Download,
   Share2,
@@ -30,10 +23,10 @@ export interface ProductivityData {
   weeklyData: { day: string; pomodoros: number; tasks: number }[];
 }
 
-interface AIReportSection {
+export interface AIReportSection {
   id: string;
   title: string;
-  icon: any; // Lucide icon
+  icon: React.ElementType; // Lucide icon
   content: string[];
   type: 'success' | 'info' | 'warning' | 'tip';
 }
@@ -42,7 +35,6 @@ interface AIWeeklyReportProps {
   data?: ProductivityData;
   onRefresh?: () => void;
   className?: string;
-  onGenerateReport?: (data: ProductivityData) => Promise<AIReportSection[]>;
   labels?: {
     title?: string;
     subtitle?: string;
@@ -58,6 +50,14 @@ interface AIWeeklyReportProps {
         average?: string;
     };
   };
+  // State props (lifted up)
+  isGenerating?: boolean;
+  hasGenerated?: boolean;
+  report?: AIReportSection[];
+  expandedSections?: string[];
+  // Callback props
+  onGenerate?: () => void;
+  onToggleSection?: (sectionId: string) => void;
 }
 
 const MOCK_DATA: ProductivityData = {
@@ -80,10 +80,10 @@ const MOCK_DATA: ProductivityData = {
 };
 
 const sectionColors = {
-  success: 'border-l-emerald-500 bg-emerald-500/5',
-  info: 'border-l-blue-500 bg-blue-500/5',
-  warning: 'border-l-amber-500 bg-amber-500/5',
-  tip: 'border-l-purple-500 bg-purple-500/5',
+  success: 'border-l-emerald-500 bg-emerald-50 dark:bg-emerald-950',
+  info: 'border-l-blue-500 bg-blue-50 dark:bg-blue-950',
+  warning: 'border-l-amber-500 bg-amber-50 dark:bg-amber-950',
+  tip: 'border-l-purple-500 bg-purple-50 dark:bg-purple-950',
 };
 
 const iconColors = {
@@ -109,12 +109,21 @@ const DEFAULT_LABELS = {
   },
 };
 
+/**
+ * AIWeeklyReport - Platform-agnostic AI report component.
+ * Purely presentational - state must be managed by parent.
+ */
 export function AIWeeklyReport({
   data = MOCK_DATA,
-  onRefresh,
+  onRefresh: _onRefresh,
   className,
-  onGenerateReport,
   labels = {},
+  isGenerating = false,
+  hasGenerated = false,
+  report = [],
+  expandedSections = [],
+  onGenerate,
+  onToggleSection,
 }: AIWeeklyReportProps) {
   const t = {
     ...DEFAULT_LABELS,
@@ -122,63 +131,13 @@ export function AIWeeklyReport({
     stats: { ...DEFAULT_LABELS.stats, ...labels.stats },
   };
 
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [report, setReport] = useState<AIReportSection[]>([]);
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [hasGenerated, setHasGenerated] = useState(false);
-
-  const defaultGenerateReport = async (data: ProductivityData): Promise<AIReportSection[]> => {
-      // Default English generation fallback if onGenerateReport is not provided
-      // In a real app, logic should be passed via onGenerateReport to handle localized strings
-      const completionRate = Math.round((data.completedTasks / (data.totalTasks || 1)) * 100);
-      const sections: AIReportSection[] = [];
-
-      sections.push({
-        id: 'summary',
-        title: 'Weekly Summary',
-        icon: FileText,
-        type: 'info',
-        content: [
-          `You completed ${data.totalPomodoros} pomodoros and ${data.completedTasks} tasks.`,
-          `Completion rate: ${completionRate}%.`,
-          `Daily average: ${data.avgPomodorosPerDay.toFixed(1)} pomodoros.`,
-        ],
-      });
-
-      // Simple implementation for fallback
-      return sections;
-  };
-
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-
-    // Simulate delay
-    if (!onGenerateReport) await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const generator = onGenerateReport || defaultGenerateReport;
-    const sections = await generator(data);
-    
-    setReport(sections);
-    setExpandedSections(sections.map((s) => s.id));
-    setHasGenerated(true);
-    setIsGenerating(false);
-  };
-
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections((prev) =>
-      prev.includes(sectionId)
-        ? prev.filter((id) => id !== sectionId)
-        : [...prev, sectionId]
-    );
-  };
-
   return (
     <Card className={cn('p-6', className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-            <Sparkles className="h-6 w-6 text-purple-500" />
+          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300">
+            <Sparkles className="h-6 w-6" />
           </div>
           <div>
             <h2 className="text-xl font-bold">{t.title}</h2>
@@ -190,7 +149,7 @@ export function AIWeeklyReport({
 
         {hasGenerated && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleGenerate}>
+            <Button variant="outline" size="sm" onClick={onGenerate}>
               <RefreshCw
                 className={cn('h-4 w-4 mr-2', isGenerating && 'animate-spin')}
               />
@@ -211,7 +170,7 @@ export function AIWeeklyReport({
         <div className="flex flex-col items-center justify-center py-12">
           {isGenerating ? (
             <>
-              <div className="p-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 mb-4 animate-spin">
+              <div className="p-4 rounded-full bg-purple-50 dark:bg-purple-900/30 mb-4 animate-spin border border-purple-200 dark:border-purple-800">
                 <Zap className="h-8 w-8 text-purple-500" />
               </div>
               <p className="text-lg font-medium mb-2">{t.analyzing}</p>
@@ -227,15 +186,15 @@ export function AIWeeklyReport({
             </>
           ) : (
             <>
-              <div className="p-4 rounded-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 mb-4">
-                <TrendingUp className="h-8 w-8 text-purple-500/60" />
+              <div className="p-4 rounded-full bg-purple-50 dark:bg-purple-900/30 mb-4 border border-purple-200 dark:border-purple-800">
+                <TrendingUp className="h-8 w-8 text-purple-500" />
               </div>
               <p className="text-muted-foreground mb-4 text-center max-w-md">
                 {t.emptyState}
               </p>
               <Button
-                onClick={handleGenerate}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                onClick={onGenerate}
+                className="bg-purple-600 hover:bg-purple-700 text-white border-0"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
                 {t.generate}
@@ -247,19 +206,19 @@ export function AIWeeklyReport({
         <div className="space-y-4">
           {/* Quick Stats */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="text-center p-3 rounded-lg bg-muted/50">
+            <div className="text-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-border">
               <p className="text-2xl font-bold text-purple-500">
                 {data.totalPomodoros}
               </p>
               <p className="text-xs text-muted-foreground">{t.stats.pomodoros}</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-muted/50">
+            <div className="text-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-border">
               <p className="text-2xl font-bold text-emerald-500">
                 {data.completedTasks}
               </p>
               <p className="text-xs text-muted-foreground">{t.stats.tasks}</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-muted/50">
+            <div className="text-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-border">
               <p className="text-2xl font-bold text-amber-500">
                 {data.streak}
               </p>
@@ -267,7 +226,7 @@ export function AIWeeklyReport({
                 {t.stats.streak}
               </p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-muted/50">
+            <div className="text-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-border">
               <p className="text-2xl font-bold text-blue-500">
                 {data.avgPomodorosPerDay.toFixed(1)}
               </p>
@@ -288,13 +247,13 @@ export function AIWeeklyReport({
             >
               <button
                 className="w-full flex items-center justify-between p-4 text-left"
-                onClick={() => toggleSection(section.id)}
+                onClick={() => onToggleSection?.(section.id)}
               >
                 <div className="flex items-center gap-3">
                   <span className={iconColors[section.type]}>
                     <section.icon className="h-5 w-5" />
                   </span>
-                  <h3 className="font-semibold">{section.title}</h3>
+                  <h3 className="font-semibold text-foreground">{section.title}</h3>
                 </div>
                 {expandedSections.includes(section.id) ? (
                   <ChevronDown className="h-5 w-5 text-muted-foreground" />
@@ -306,7 +265,7 @@ export function AIWeeklyReport({
               {expandedSections.includes(section.id) && (
                 <ul className="px-4 pb-4 space-y-2">
                   {section.content.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
+                    <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
                       <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-current opacity-50 shrink-0" />
                       <span>{item}</span>
                     </li>

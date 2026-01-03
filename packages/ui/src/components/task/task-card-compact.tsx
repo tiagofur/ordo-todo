@@ -95,7 +95,7 @@ export function TaskCardCompact({
   index = 0,
   viewMode = 'list',
   showProject = false,
-  showGradient = false,
+  showGradient: _showGradient = false,
   onTaskClick,
   onStatusChange,
   onDelete,
@@ -109,7 +109,7 @@ export function TaskCardCompact({
     statusInProgress = 'In Progress',
     statusCompleted = 'Completed',
     statusOnHold = 'On Hold',
-    statusLabel = 'Status',
+    statusLabel: _statusLabel = 'Status',
     changeStatus = 'Change Status',
     priorityUrgent = 'Urgent',
     priorityHigh = 'High',
@@ -504,14 +504,6 @@ export function TaskCardCompact({
           borderTopColor: isCompleted ? '#22c55e' : accentColor,
         }}
       >
-        {/* Gradient blur effect */}
-        {showGradient && !isCompleted && (
-          <div
-            className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
-            style={{ backgroundColor: accentColor }}
-          />
-        )}
-
         {/* Header: Menu only */}
         <div className="relative z-10 flex items-center justify-end mb-3">
           {renderActionsMenu()}

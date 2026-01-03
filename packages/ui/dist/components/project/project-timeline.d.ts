@@ -1,20 +1,24 @@
-interface Task {
+interface TimelineTask {
     id: string;
     title: string;
     description?: string;
-    status: string;
-    priority: string;
-    dueDate?: string | Date;
+    isCompleted: boolean;
+    priorityLabel: string;
+    priorityColorClass: string;
+    formattedDate: string;
 }
 interface ProjectTimelineProps {
-    tasks?: Task[];
+    tasks?: TimelineTask[];
     isLoading?: boolean;
-    dateLocale?: any;
     labels?: {
         emptyTitle?: string;
         emptyDescription?: string;
     };
+    className?: string;
 }
-export declare function ProjectTimeline({ tasks, isLoading, dateLocale, labels, }: ProjectTimelineProps): import("react/jsx-runtime").JSX.Element;
+/**
+ * ProjectTimeline - Platform-agnostic component for displaying tasks chronologically
+ */
+export declare function ProjectTimeline({ tasks, isLoading, labels, className, }: ProjectTimelineProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=project-timeline.d.ts.map

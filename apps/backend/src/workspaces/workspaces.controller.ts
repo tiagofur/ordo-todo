@@ -34,13 +34,14 @@ import { AddMemberDto } from './dto/add-member.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto';
+import { CreateAuditLogDto } from './dto/create-audit-log.dto';
 
 @ApiTags('Workspaces')
 @ApiBearerAuth()
 @Controller('workspaces')
 @UseGuards(JwtAuthGuard)
 export class WorkspacesController {
-  constructor(private readonly workspacesService: WorkspacesService) { }
+  constructor(private readonly workspacesService: WorkspacesService) {}
 
   /**
    * Creates a new workspace
@@ -170,7 +171,7 @@ export class WorkspacesController {
   }
 
   /**
-    * Gets workspace details by ID
+   * Gets workspace details by ID
    * Requires user to be a member with any role
    */
   @Get(':id')
@@ -662,7 +663,7 @@ export class WorkspacesController {
   createAuditLog(
     @Param('id') workspaceId: string,
     @CurrentUser() user: RequestUser,
-    @Body() createLogDto: any,
+    @Body() createLogDto: CreateAuditLogDto,
   ) {
     return this.workspacesService.createAuditLog(
       workspaceId,
@@ -886,38 +887,5 @@ export class WorkspacesController {
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.archive(id, user.id);
-  }
-
-  /**
-   * DEBUG: Endpoint temporal para marcar workspaces "Carros" como eliminados
-   * DELETE /api/v1/workspaces/debug/fix-carros
-   */
-  @Delete('debug/fix-carros')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: '[DEBUG] Fix Carros workspaces',
-    description:
-      'TEMPORAL: Marca todos los workspaces "Carros" como eliminados. Solo para debugging.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Workspaces marcados como eliminados',
-    schema: {
-      example: {
-        message: 'Workspaces updated',
-        count: 3,
-        workspaces: [
-          {
-            id: 'clx1234567890',
-            name: 'Carros',
-            deletedAt: '2025-01-03T00:00:00.000Z',
-          },
-        ],
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async fixCarrosWorkspaces(@CurrentUser() user: RequestUser) {
-    return this.workspacesService.debugFixCarrosWorkspaces(user.id);
   }
 }

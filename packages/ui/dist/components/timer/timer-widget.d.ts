@@ -12,8 +12,6 @@ interface TimerWidgetProps {
     isActive?: boolean;
     /** Click handler - typically navigates to timer page */
     onClick?: () => void;
-    /** Link component for navigation (optional) */
-    href?: string;
     /** Custom labels for i18n */
     labels?: {
         startTimer?: string;

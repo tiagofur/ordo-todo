@@ -1,5 +1,17 @@
 import { User, UserProps } from "../model/user.entity";
 
+/**
+ * Properties required to create a new user (including OAuth users)
+ */
+export interface CreateUserProps {
+  name: string;
+  email: string;
+  username: string;
+  image?: string | null;
+  provider?: string;
+  providerId?: string;
+}
+
 export default interface UserRepository {
   save(user: User): Promise<void>;
   updateProps(user: User, props: Partial<UserProps>): Promise<void>;
@@ -12,5 +24,5 @@ export default interface UserRepository {
     provider: string,
     providerId: string,
   ): Promise<User>;
-  create(props: any): Promise<User>;
+  create(props: CreateUserProps): Promise<User>;
 }

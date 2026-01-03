@@ -19,8 +19,9 @@ interface CreateTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId?: string;
+  defaultStatus?: string;
 }
-export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDialogProps) {
+export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus }: CreateTaskDialogProps) {
   const t = useTranslations('CreateTaskDialog');
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -56,6 +57,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
       priority: "MEDIUM",
       projectId: projectId || "",
       recurrence: undefined,
+      status: (defaultStatus || "TODO") as any,
     },
   });
 
