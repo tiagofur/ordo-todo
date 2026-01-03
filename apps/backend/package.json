@@ -1,6 +1,6 @@
 {
   "name": "@ordo-todo/backend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "NestJS REST API backend for Ordo-Todo",
   "author": "",
   "private": true,
