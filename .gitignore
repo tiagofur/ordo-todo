@@ -50,3 +50,4 @@ apps/backend/uploads/*
 
 *storybook.log
 storybook-static
+# CI Test
