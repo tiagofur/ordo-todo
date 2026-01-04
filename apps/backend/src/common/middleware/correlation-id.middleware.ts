@@ -14,28 +14,32 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class CorrelationIdMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
-    // Get or generate correlation ID from request headers
-    const correlationId =
-      (req.headers['x-correlation-id'] as string) ||
-      (req.headers['x-request-id'] as string) ||
-      uuidv4();
-
-    // Add correlation ID to request (for use in services/controllers)
-    (req as any).correlationId = correlationId;
-
-    // Add correlation ID to request headers (for propagation)
-    req.headers['x-correlation-id'] = correlationId;
-
-    // Add correlation ID to response headers
-    res.setHeader('x-correlation-id', correlationId);
-
-    // Add request ID for request/response matching
-    const requestId = (req.headers['x-request-id'] as string) || uuidv4();
-    req.headers['x-request-id'] = requestId;
-    res.setHeader('x-request-id', requestId);
-
-    next();
+    correlationIdMiddleware(req, res, next);
   }
+}
+
+export function correlationIdMiddleware(req: Request, res: Response, next: NextFunction): void {
+  // Get or generate correlation ID from request headers
+  const correlationId =
+    (req.headers['x-correlation-id'] as string) ||
+    (req.headers['x-request-id'] as string) ||
+    uuidv4();
+
+  // Add correlation ID to request (for use in services/controllers)
+  (req as any).correlationId = correlationId;
+
+  // Add correlation ID to request headers (for propagation)
+  req.headers['x-correlation-id'] = correlationId;
+
+  // Add correlation ID to response headers
+  res.setHeader('x-correlation-id', correlationId);
+
+  // Add request ID for request/response matching
+  const requestId = (req.headers['x-request-id'] as string) || uuidv4();
+  req.headers['x-request-id'] = requestId;
+  res.setHeader('x-request-id', requestId);
+
+  next();
 }
 
 // Extend Express Request type to include correlationId

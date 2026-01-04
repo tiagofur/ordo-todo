@@ -11,7 +11,7 @@ import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { loggerConfig } from './common/logger/logger.config';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
+import { CorrelationIdMiddleware, correlationIdMiddleware } from './common/middleware/correlation-id.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -61,7 +61,7 @@ async function bootstrap() {
   );
 
   // Apply correlation ID middleware (must be before all other middleware)
-  app.use(new CorrelationIdMiddleware().use);
+  app.use(correlationIdMiddleware);
 
   // Apply logging interceptor globally
   app.useGlobalInterceptors(new LoggingInterceptor());
