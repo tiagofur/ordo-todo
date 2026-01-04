@@ -50,12 +50,12 @@ export function ConfirmDelete({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {children && (
+      {children ? (
         <DialogTrigger asChild disabled={disabled}>
           {/* @ts-expect-error - React 18/19 type compatibility: bigint in ReactNode */}
           {children}
         </DialogTrigger>
-      )}
+      ) : null}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-left">
