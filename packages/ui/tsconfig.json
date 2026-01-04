@@ -7,9 +7,11 @@
     "declarationMap": true,
     "jsx": "react-jsx",
     "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": []
+    "types": [],
+    "strict": false
   },
   "include": [
     "src/**/*",
