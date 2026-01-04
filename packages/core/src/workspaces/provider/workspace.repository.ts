@@ -80,22 +80,25 @@ export interface WorkspaceRepository {
   findById(id: string): Promise<Workspace | null>;
 
   /**
-   * Finds a workspace by its unique slug.
+   * Finds a workspace by its unique slug and owner.
    *
    * Used for shareable workspace URLs (e.g., /workspace/my-project).
+   * Requires ownerId to prevent accessing workspaces with duplicate slugs
+   * owned by different users.
    *
    * @param slug - The unique URL-friendly slug of the workspace
+   * @param ownerId - The unique identifier of the workspace owner
    * @returns Promise that resolves to the workspace if found, null otherwise
    *
    * @example
    * ```typescript
-   * const workspace = await repository.findBySlug('my-project');
+   * const workspace = await repository.findBySlug('my-project', 'user-123');
    * if (workspace) {
    *   console.log(workspace.name);
    * }
    * ```
    */
-  findBySlug(slug: string): Promise<Workspace | null>;
+  findBySlug(slug: string, ownerId: string): Promise<Workspace | null>;
 
   /**
    * Finds all workspaces owned by a specific user.

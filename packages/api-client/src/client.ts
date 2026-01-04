@@ -577,6 +577,60 @@ export class OrdoApiClient {
     }
   }
 
+  /**
+   * Get Google OAuth authorization URL
+   * GET /auth/google
+   */
+  async googleOAuth(): Promise<{ authUrl: string }> {
+    const response = await this.axios.get<{ authUrl: string }>("/auth/google");
+    return response.data;
+  }
+
+  /**
+   * Handle Google OAuth callback
+   * GET /auth/google/callback?code=xxx
+   */
+  async googleOAuthCallback(code: string): Promise<AuthResponse> {
+    const response = await this.axios.get<AuthResponse>("/auth/google/callback", {
+      params: { code },
+    });
+
+    // Store tokens if storage is available
+    if (this.tokenStorage) {
+      await this.tokenStorage.setToken(response.data.accessToken);
+      await this.tokenStorage.setRefreshToken(response.data.refreshToken);
+    }
+
+    return response.data;
+  }
+
+  /**
+   * Get GitHub OAuth authorization URL
+   * GET /auth/github
+   */
+  async githubOAuth(): Promise<{ authUrl: string }> {
+    const response = await this.axios.get<{ authUrl: string }>("/auth/github");
+    return response.data;
+  }
+
+  /**
+   * Handle GitHub OAuth callback
+   * GET /auth/github/callback?code=xxx
+   */
+  async githubOAuthCallback(code: string): Promise<AuthResponse> {
+    const response = await this.axios.get<AuthResponse>("/auth/github/callback", {
+      params: { code },
+    });
+
+    // Store tokens if storage is available
+    if (this.tokenStorage) {
+      await this.tokenStorage.setToken(response.data.accessToken);
+      await this.tokenStorage.setRefreshToken(response.data.refreshToken);
+    }
+
+    return response.data;
+  }
+
   // ============ USER ENDPOINTS (8) ============
 
   /**
@@ -1111,6 +1165,43 @@ export class OrdoApiClient {
     return response.data;
   }
 
+  /**
+   * Get task dependencies
+   * GET /tasks/:id/dependencies
+   */
+  async getTaskDependencies(taskId: string): Promise<Task[]> {
+    const response = await this.axios.get<Task[]>(
+      `/tasks/${taskId}/dependencies`,
+    );
+    return response.data;
+  }
+
+  /**
+   * Add a dependency to a task
+   * POST /tasks/:id/dependencies
+   */
+  async addTaskDependency(
+    taskId: string,
+    blockingTaskId: string,
+  ): Promise<Task> {
+    const response = await this.axios.post<Task>(
+      `/tasks/${taskId}/dependencies`,
+      { blockingTaskId },
+    );
+    return response.data;
+  }
+
+  /**
+   * Remove a dependency from a task
+   * DELETE /tasks/:id/dependencies/:blockingTaskId
+   */
+  async removeTaskDependency(
+    taskId: string,
+    blockingTaskId: string,
+  ): Promise<void> {
+    await this.axios.delete(`/tasks/${taskId}/dependencies/${blockingTaskId}`);
+  }
+
   // ============ TAG ENDPOINTS (6) ============
 
   /**
@@ -1430,6 +1521,28 @@ export class OrdoApiClient {
    */
   async createAttachment(data: CreateAttachmentDto): Promise<Attachment> {
     const response = await this.axios.post<Attachment>("/attachments", data);
+    return response.data;
+  }
+
+  /**
+   * Upload a file as an attachment
+   * POST /attachments/upload
+   */
+  async uploadAttachment(
+    file: File,
+    taskId?: string,
+  ): Promise<Attachment> {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (taskId) {
+      formData.append("taskId", taskId);
+    }
+
+    const response = await this.axios.post<Attachment>("/attachments/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   }
 

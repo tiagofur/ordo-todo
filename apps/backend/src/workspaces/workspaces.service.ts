@@ -257,8 +257,8 @@ export class WorkspacesService {
     };
   }
 
-  async findBySlug(slug: string) {
-    const workspace = await this.workspaceRepository.findBySlug(slug);
+  async findBySlug(slug: string, userId: string) {
+    const workspace = await this.workspaceRepository.findBySlug(slug, userId);
     if (!workspace || workspace.props.isDeleted) {
       throw new NotFoundException('Workspace not found');
     }

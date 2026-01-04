@@ -602,14 +602,39 @@ export class PrismaTaskRepository implements TaskRepository {
   async groupByStatus(
     userId: string,
   ): Promise<Array<{ status: string; count: number }>> {
-    const grouped = await this.prisma.task.groupBy({
+    // FIX: Include both owned AND assigned tasks
+    // Get tasks owned by user
+    const ownedTasks = await this.prisma.task.groupBy({
       by: ['status'],
       where: {
-        assigneeId: userId,
+        ownerId: userId,
+        isDeleted: false,
       },
       _count: { id: true },
     });
 
-    return grouped.map((t) => ({ status: t.status, count: t._count.id }));
+    // Get tasks assigned to user
+    const assignedTasks = await this.prisma.task.groupBy({
+      by: ['status'],
+      where: {
+        assigneeId: userId,
+        isDeleted: false,
+      },
+      _count: { id: true },
+    });
+
+    // Combine results: sum counts for each status
+    const combined = new Map<string, number>();
+
+    [...ownedTasks, ...assignedTasks].forEach(({ status, _count }) => {
+      const current = combined.get(status) || 0;
+      combined.set(status, current + _count.id);
+    });
+
+    // Convert map back to array
+    return Array.from(combined.entries()).map(([status, count]) => ({
+      status,
+      count,
+    }));
   }
 }

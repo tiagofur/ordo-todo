@@ -243,8 +243,8 @@ export class WorkspacesController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Workspace not found' })
-  findBySlug(@Param('slug') slug: string) {
-    return this.workspacesService.findBySlug(slug);
+  findBySlug(@Param('slug') slug: string, @CurrentUser() user: RequestUser) {
+    return this.workspacesService.findBySlug(slug, user.id);
   }
 
   // ============ MEMBER MANAGEMENT ============
