@@ -453,14 +453,14 @@ export function getColors(isDark: boolean) {
  * Get project color by index (wraps around)
  */
 export function getProjectColor(index: number): string {
-    return projectColors[index % projectColors.length];
+    return projectColors[index % projectColors.length] as string;
 }
 
 /**
  * Get tag color by index (wraps around)
  */
 export function getTagColor(index: number): string {
-    return tagColors[index % tagColors.length];
+    return tagColors[index % tagColors.length] as string;
 }
 
 /**
