@@ -82,7 +82,9 @@ export class RedisService implements OnModuleInit {
       this.client = Redis.createClient(redisOptions);
 
       // Dedicated client for pub/sub (prevents blocking)
+      // @ts-expect-error - Redis module type incompatibilities between packages
       this.subscriber = Redis.createClient(redisOptions);
+      // @ts-expect-error - Redis module type incompatibilities between packages
       this.publisher = Redis.createClient(redisOptions);
 
       // Connect all clients
