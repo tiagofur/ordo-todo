@@ -1,13 +1,15 @@
 import { InviteFormValues } from "./invite-member-dialog.js";
+export type { InviteFormValues };
 export interface WorkspaceMember {
     id: string;
     userId: string;
     role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
     joinedAt: string;
     user?: {
+        id?: string;
         name?: string;
         email?: string;
-        image?: string;
+        image?: string | null;
     };
 }
 export interface WorkspaceInvitation {
@@ -64,6 +66,8 @@ export interface WorkspaceMembersSettingsProps {
     labels?: WorkspaceMembersSettingsLabels;
     baseUrl?: string;
     onInviteCopied?: () => void;
+    inviteDialogOpen?: boolean;
+    onInviteDialogOpenChange?: (open: boolean) => void;
 }
-export declare function WorkspaceMembersSettings({ members, invitations, isLoading, onInviteMember, onRemoveMember, onDeleteInvitation, isInvitePending, labels, baseUrl, onInviteCopied, }: WorkspaceMembersSettingsProps): import("react/jsx-runtime").JSX.Element;
+export declare function WorkspaceMembersSettings({ members, invitations, isLoading, onInviteMember, onRemoveMember, onDeleteInvitation, isInvitePending, labels, baseUrl, onInviteCopied, inviteDialogOpen, onInviteDialogOpenChange, }: WorkspaceMembersSettingsProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=workspace-members-settings.d.ts.map

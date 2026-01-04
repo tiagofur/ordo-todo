@@ -36,6 +36,7 @@ interface WorkspaceCardProps {
             delete?: string;
             moreOptions?: string;
         };
+        confirmDelete?: (name: string) => string;
     };
     className?: string;
 }

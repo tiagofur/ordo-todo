@@ -3,7 +3,7 @@ interface Habit {
     name: string;
     color?: string;
     isPaused?: boolean;
-    completions?: any[];
+    completions?: Record<string, unknown>[];
     currentStreak: number;
 }
 interface HabitsSummary {

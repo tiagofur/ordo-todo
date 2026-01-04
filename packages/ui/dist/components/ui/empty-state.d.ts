@@ -7,6 +7,6 @@ interface EmptyStateProps {
     onAction?: () => void;
     className?: string;
 }
-export declare function EmptyState({ icon: Icon, title, description, actionLabel, onAction, className, }: EmptyStateProps): import("react/jsx-runtime").JSX.Element;
+export declare function EmptyState({ icon: Icon, title, description, actionLabel, onAction, className, }: EmptyStateProps): React.ReactElement;
 export {};
 //# sourceMappingURL=empty-state.d.ts.map

@@ -15,6 +15,6 @@ declare const buttonVariants: (props?: ({
  */
 declare function Button({ className, variant, size, asChild, ...props }: React.ComponentProps<"button"> & VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
-}): import("react/jsx-runtime").JSX.Element;
+}): React.ReactElement;
 export { Button, buttonVariants };
 //# sourceMappingURL=button.d.ts.map

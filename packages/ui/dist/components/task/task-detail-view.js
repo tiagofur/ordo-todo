@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, } from '../ui/sheet.js';
 import { Checkbox } from '../ui/checkbox.js';

@@ -1,0 +1,12 @@
+
+> @ordo-todo/backend@1.0.0 lint
+> eslint "{src,apps,libs,test}/**/*.ts" --fix
+
+sh: 1: eslint: not found
+npm error Lifecycle script `lint` failed with error:
+npm error code 127
+npm error path /root/dev/ordo-todo/apps/backend
+npm error workspace @ordo-todo/backend@1.0.0
+npm error location /root/dev/ordo-todo/apps/backend
+npm error command failed
+npm error command sh -c eslint "{src,apps,libs,test}/**/*.ts" --fix

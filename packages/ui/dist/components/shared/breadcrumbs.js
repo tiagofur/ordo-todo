@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from '../../utils/index.js';

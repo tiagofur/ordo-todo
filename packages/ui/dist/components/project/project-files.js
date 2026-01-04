@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { format } from 'date-fns';
 import { FileIcon, Download } from 'lucide-react';

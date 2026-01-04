@@ -36,6 +36,6 @@ interface ActivityFeedProps {
         };
     };
 }
-export declare function ActivityFeed({ taskId, activities, maxItems, locale, labels, }: ActivityFeedProps): import("react/jsx-runtime").JSX.Element;
+export declare function ActivityFeed({ taskId: _taskId, activities, maxItems, locale, labels, }: ActivityFeedProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=activity-feed.d.ts.map

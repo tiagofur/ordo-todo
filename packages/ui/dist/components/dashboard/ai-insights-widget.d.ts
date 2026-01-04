@@ -4,7 +4,7 @@ export interface Insight {
     priority: 'LOW' | 'MEDIUM' | 'HIGH';
     actionLabel?: string;
     actionUrl?: string;
-    data?: any;
+    data?: Record<string, unknown>;
 }
 interface AIInsightsWidgetProps {
     insights: Insight[];

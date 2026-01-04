@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { CheckCircle2, Circle, Edit, Trash2, Upload, MessageSquare, User, Calendar, Flag, } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -54,7 +53,7 @@ const DEFAULT_LABELS = {
         mentioned: (users) => `mentioned ${users}`,
     },
 };
-export function ActivityFeed({ taskId, activities = [], maxItems = 20, locale = 'en', labels = {}, }) {
+export function ActivityFeed({ taskId: _taskId, activities = [], maxItems = 20, locale = 'en', labels = {}, }) {
     // Merge labels shallowly for top-level, deep merge needed for actions/details
     const t = {
         ...DEFAULT_LABELS,
@@ -78,7 +77,7 @@ export function ActivityFeed({ taskId, activities = [], maxItems = 20, locale = 
     const getActivityDescription = (activity) => {
         let description = t.actions[activity.type] || activity.type;
         if (activity.metadata) {
-            const { oldValue, newValue, fieldName, itemName } = activity.metadata;
+            const { oldValue, newValue, fieldName: _fieldName, itemName } = activity.metadata;
             switch (activity.type) {
                 case 'STATUS_CHANGED':
                 case 'PRIORITY_CHANGED':

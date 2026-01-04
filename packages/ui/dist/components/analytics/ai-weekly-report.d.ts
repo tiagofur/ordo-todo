@@ -18,7 +18,7 @@ export interface ProductivityData {
 export interface AIReportSection {
     id: string;
     title: string;
-    icon: any;
+    icon: React.ElementType;
     content: string[];
     type: 'success' | 'info' | 'warning' | 'tip';
 }
@@ -52,6 +52,6 @@ interface AIWeeklyReportProps {
  * AIWeeklyReport - Platform-agnostic AI report component.
  * Purely presentational - state must be managed by parent.
  */
-export declare function AIWeeklyReport({ data, onRefresh, className, labels, isGenerating, hasGenerated, report, expandedSections, onGenerate, onToggleSection, }: AIWeeklyReportProps): import("react/jsx-runtime").JSX.Element;
+export declare function AIWeeklyReport({ data, onRefresh: _onRefresh, className, labels, isGenerating, hasGenerated, report, expandedSections, onGenerate, onToggleSection, }: AIWeeklyReportProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=ai-weekly-report.d.ts.map

@@ -185,6 +185,30 @@ export declare class OrdoApiClient {
      */
     logout(): Promise<void>;
     /**
+     * Get Google OAuth authorization URL
+     * GET /auth/google
+     */
+    googleOAuth(): Promise<{
+        authUrl: string;
+    }>;
+    /**
+     * Handle Google OAuth callback
+     * GET /auth/google/callback?code=xxx
+     */
+    googleOAuthCallback(code: string): Promise<AuthResponse>;
+    /**
+     * Get GitHub OAuth authorization URL
+     * GET /auth/github
+     */
+    githubOAuth(): Promise<{
+        authUrl: string;
+    }>;
+    /**
+     * Handle GitHub OAuth callback
+     * GET /auth/github/callback?code=xxx
+     */
+    githubOAuthCallback(code: string): Promise<AuthResponse>;
+    /**
      * Get current authenticated user
      * GET /users/me
      */
@@ -430,6 +454,21 @@ export declare class OrdoApiClient {
      */
     unassignTask(taskId: string, userId: string): Promise<Task>;
     /**
+     * Get task dependencies
+     * GET /tasks/:id/dependencies
+     */
+    getTaskDependencies(taskId: string): Promise<Task[]>;
+    /**
+     * Add a dependency to a task
+     * POST /tasks/:id/dependencies
+     */
+    addTaskDependency(taskId: string, blockingTaskId: string): Promise<Task>;
+    /**
+     * Remove a dependency from a task
+     * DELETE /tasks/:id/dependencies/:blockingTaskId
+     */
+    removeTaskDependency(taskId: string, blockingTaskId: string): Promise<void>;
+    /**
      * Create a new tag
      * POST /tags
      */
@@ -597,6 +636,11 @@ export declare class OrdoApiClient {
      * POST /attachments
      */
     createAttachment(data: CreateAttachmentDto): Promise<Attachment>;
+    /**
+     * Upload a file as an attachment
+     * POST /attachments/upload
+     */
+    uploadAttachment(file: File, taskId?: string): Promise<Attachment>;
     /**
      * Delete an attachment
      * DELETE /attachments/:id

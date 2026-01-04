@@ -52,7 +52,7 @@ const DEFAULT_LABELS = {
  * AIWeeklyReport - Platform-agnostic AI report component.
  * Purely presentational - state must be managed by parent.
  */
-export function AIWeeklyReport({ data = MOCK_DATA, onRefresh, className, labels = {}, isGenerating = false, hasGenerated = false, report = [], expandedSections = [], onGenerate, onToggleSection, }) {
+export function AIWeeklyReport({ data = MOCK_DATA, onRefresh: _onRefresh, className, labels = {}, isGenerating = false, hasGenerated = false, report = [], expandedSections = [], onGenerate, onToggleSection, }) {
     const t = {
         ...DEFAULT_LABELS,
         ...labels,

@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Sparkles, X, ChevronRight, Lightbulb, Clock, Target, TrendingUp, Coffee, AlertTriangle, PartyPopper, Zap, Heart, RefreshCw, } from 'lucide-react';
 import { Button } from '../ui/button.js';
@@ -25,7 +24,7 @@ const INSIGHT_COLORS = {
     ACHIEVEMENT_CELEBRATION: 'text-emerald-500 bg-emerald-500/10',
 };
 export function AIInsightsWidget({ insights, isLoading = false, isRefreshing = false, onRefresh, onDismiss, onAction, className, labels = {}, }) {
-    const { title = 'AI Insights', emptyTitle = 'No insights available', emptyDescription = 'Keep working and AI will provide suggestions', viewAll = 'View all insights', } = labels;
+    const { title = 'AI Insights', emptyTitle = 'No insights available', emptyDescription = 'Keep working and AI will provide suggestions', viewAll: _viewAll = 'View all insights', } = labels;
     if (isLoading) {
         return (_jsxs(Card, { className: cn('relative overflow-hidden', className), children: [_jsx(CardHeader, { className: "pb-2", children: _jsxs(CardTitle, { className: "flex items-center gap-2 text-base", children: [_jsx(Sparkles, { className: "h-4 w-4 text-primary" }), title] }) }), _jsx(CardContent, { children: _jsx("div", { className: "space-y-3", children: [1, 2].map((i) => (_jsxs("div", { className: "flex gap-3 animate-pulse", children: [_jsx("div", { className: "h-10 w-10 rounded-lg bg-muted" }), _jsxs("div", { className: "flex-1 space-y-2", children: [_jsx("div", { className: "h-4 bg-muted rounded w-3/4" }), _jsx("div", { className: "h-3 bg-muted rounded w-1/2" })] })] }, i))) }) })] }));
     }

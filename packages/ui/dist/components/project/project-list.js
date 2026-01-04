@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
 import { Loader2, CheckCircle2, Calendar, ListTodo } from 'lucide-react';
 import { format } from 'date-fns';

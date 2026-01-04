@@ -1,7 +1,7 @@
-import React from "react";
+import type { CSSProperties } from "react";
 export declare const TomatoIcon: ({ className, style }: {
     className?: string;
-    style?: React.CSSProperties;
+    style?: CSSProperties;
 }) => import("react/jsx-runtime").JSX.Element;
 export declare const GoogleIcon: ({ className }: {
     className?: string;

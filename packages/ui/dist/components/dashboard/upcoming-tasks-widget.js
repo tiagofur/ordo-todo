@@ -1,4 +1,3 @@
-'use client';
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Calendar, AlertCircle } from 'lucide-react';
 import { cn } from '../../utils/index.js';

@@ -49,7 +49,7 @@ export function WeeklyChart({ metrics = [], isLoading = false, weekStart, labels
     };
     const chartData = formatChartData();
     const CustomTooltip = ({ active, payload }) => {
-        if (active && payload && payload.length) {
+        if (active && payload && payload.length && payload[0]) {
             const data = payload[0].payload;
             return (_jsxs("div", { className: "bg-background border border-border rounded-lg shadow-lg p-3", children: [_jsx("p", { className: "font-semibold text-sm mb-2", children: data.day }), _jsxs("div", { className: "space-y-1", children: [_jsxs("p", { className: "text-sm", children: [_jsxs("span", { className: "text-blue-500", children: [tooltipTasks, ": "] }), _jsx("span", { className: "font-medium", children: data.tasksCompleted })] }), _jsxs("p", { className: "text-sm", children: [_jsxs("span", { className: "text-green-500", children: [tooltipTime, ": "] }), _jsxs("span", { className: "font-medium", children: [Math.floor(data.minutesWorked / 60), "h ", data.minutesWorked % 60, "m"] })] })] })] }));
         }

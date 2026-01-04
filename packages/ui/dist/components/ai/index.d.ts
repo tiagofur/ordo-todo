@@ -1,8 +1,8 @@
 /**
  * AI Components
  *
- * Components for AI-powered features like report generation and assistants.
+ * Platform-agnostic components for AI features.
+ * Container components have been moved to apps/web.
  */
-export * from './generate-report-dialog.js';
 export * from './report-card.js';
 //# sourceMappingURL=index.d.ts.map
