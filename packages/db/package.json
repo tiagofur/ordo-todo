@@ -38,8 +38,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3",
-    "vitest": "^3.0.0",
-    "@vitest/coverage-v8": "^3.0.0"
+    "vitest": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.16"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",

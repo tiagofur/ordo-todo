@@ -36,6 +36,6 @@
     "jsdom": "^27.4.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16",
-    "zustand": "^5.0.5"
+    "zustand": "^5.0.9"
   }
 }
