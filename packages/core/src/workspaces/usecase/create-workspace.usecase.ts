@@ -28,7 +28,7 @@ export class CreateWorkspaceUseCase {
     let finalSlug = slug;
     let counter = 1;
 
-    while (await this.workspaceRepository.findBySlug(finalSlug)) {
+    while (await this.workspaceRepository.findBySlug(finalSlug, props.ownerId)) {
       if (username) {
         finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
       } else {

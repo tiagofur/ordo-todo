@@ -47,7 +47,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Build shared packages
 RUN npm install -g tsup typescript
-RUN npx turbo run build --filter=@ordo-todo/core --filter=@ordo-todo/config --filter=@ordo-todo/ui --filter=@ordo-todo/styles
+RUN npx turbo run build --filter=@ordo-todo/config --filter=@ordo-todo/ui
 
 # Build Next.js app
 WORKDIR /app/apps/webpage
