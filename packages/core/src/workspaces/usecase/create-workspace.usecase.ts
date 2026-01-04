@@ -28,13 +28,16 @@ export class CreateWorkspaceUseCase {
     let finalSlug = slug;
     let counter = 1;
 
-    while (await this.workspaceRepository.findBySlug(finalSlug, props.ownerId)) {
-      if (username) {
-        finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
-      } else {
-        finalSlug = `${workspaceNameSlug}-${counter}`;
+    // Check for slug uniqueness within the owner's context
+    if (props.ownerId) {
+      while (await this.workspaceRepository.findBySlug(finalSlug, props.ownerId)) {
+        if (username) {
+          finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
+        } else {
+          finalSlug = `${workspaceNameSlug}-${counter}`;
+        }
+        counter++;
       }
-      counter++;
     }
 
     const workspace = Workspace.create({
