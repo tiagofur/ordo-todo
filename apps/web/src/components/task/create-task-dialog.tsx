@@ -1,38 +1,125 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { Label, EmptyState, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Avatar, AvatarFallback, AvatarImage, Popover, PopoverContent, PopoverTrigger } from "@ordo-todo/ui";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { createTaskSchema } from "@ordo-todo/core";
-import { useCreateTask, useAllProjects, useWorkspaceMembers } from "@/lib/api-hooks";
-import { notify } from "@/lib/notify";
-import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock, User, Check, UserPlus } from "lucide-react";
-import { CreateProjectDialog } from "@/components/project/create-project-dialog";
-import { useTranslations } from "next-intl";
-import { RecurrenceSelector } from "./recurrence-selector";
-import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
-import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { createTaskSchema } from '@ordo-todo/core';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog.js';
+import { Label } from '../ui/label.js';
+import { Input } from '../ui/input.js';
+import { Textarea } from '../ui/textarea.js';
+import { Button } from '../ui/button.js';
+import { EmptyState } from '../ui/empty-state.js';
+import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
+import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector.js';
+
+interface ProjectOption {
+  id: string;
+  name: string;
+}
+
+interface CreateTaskFormData {
+  title: string;
+  description?: string;
+  projectId: string;
+  priority: string;
+  dueDate?: string;
+  estimatedMinutes?: number;
+  recurrence?: RecurrenceValue;
+}
 
 interface CreateTaskDialogProps {
+  /** Whether dialog is open */
   open: boolean;
+  /** Called when open state changes */
   onOpenChange: (open: boolean) => void;
+  /** Pre-selected project ID */
   projectId?: string;
-  defaultStatus?: string;
+  /** Available projects */
+  projects?: ProjectOption[];
+  /** Whether projects are loading */
+  isLoadingProjects?: boolean;
+  /** Called to request creating a new project (empty state action) */
+  onRequestCreateProject?: () => void;
+  /** Called when form is submitted */
+  onSubmit: (data: CreateTaskFormData) => Promise<void> | void;
+  /** Called to generate AI description */
+  onGenerateAIDescription?: (title: string) => Promise<string>;
+  /** Whether submission is pending */
+  isPending?: boolean;
+  /** Custom labels */
+  labels?: {
+    title?: string;
+    description?: string;
+    aiMagic?: string;
+    aiGenerating?: string;
+    formTitle?: string;
+    formTitlePlaceholder?: string;
+    formProject?: string;
+    formSelectProject?: string;
+    formDescription?: string;
+    formDescriptionPlaceholder?: string;
+    formPriority?: string;
+    formEstimatedMinutes?: string;
+    formDueDate?: string;
+    priorities?: { low: string; medium: string; high: string };
+    buttons?: { cancel: string; create: string; creating: string };
+    emptyState?: { title: string; description: string; action: string };
+    validation?: { titleRequired: string; projectRequired: string };
+  };
 }
-export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus }: CreateTaskDialogProps) {
-  const t = useTranslations('CreateTaskDialog');
-  const [showCreateProject, setShowCreateProject] = useState(false);
+
+const DEFAULT_LABELS = {
+  title: 'Create Task',
+  description: 'Add a new task to your project.',
+  aiMagic: 'AI Magic',
+  aiGenerating: 'Generating...',
+  formTitle: 'Title',
+  formTitlePlaceholder: 'What needs to be done?',
+  formProject: 'Project',
+  formSelectProject: 'Select a project',
+  formDescription: 'Description',
+  formDescriptionPlaceholder: 'Add details...',
+  formPriority: 'Priority',
+  formEstimatedMinutes: 'Est. Minutes',
+  formDueDate: 'Due Date',
+  priorities: { low: 'Low', medium: 'Medium', high: 'High' },
+  buttons: { cancel: 'Cancel', create: 'Create Task', creating: 'Creating...' },
+  emptyState: {
+    title: 'No Projects Found',
+    description: 'You need a project to create tasks.',
+    action: 'Create Project',
+  },
+  validation: { titleRequired: 'Title is required', projectRequired: 'Project is required' },
+};
+
+export function CreateTaskDialog({
+  open,
+  onOpenChange,
+  projectId,
+  projects = [],
+  isLoadingProjects = false,
+  onRequestCreateProject,
+  onSubmit,
+  onGenerateAIDescription,
+  isPending = false,
+  labels = {},
+}: CreateTaskDialogProps) {
+  const t = { ...DEFAULT_LABELS, ...labels };
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
-  const [assigneePopoverOpen, setAssigneePopoverOpen] = useState(false);
 
-  const { data: projects, isLoading: isLoadingProjects } = useAllProjects();
-
+  // Schema extension for form validation
   const formSchema = createTaskSchema.extend({
-    title: z.string().min(1, t('validation.titleRequired')),
-    projectId: z.string().min(1, t('validation.projectRequired')),
+    title: z.string().min(1, t.validation.titleRequired),
+    projectId: z.string().min(1, t.validation.projectRequired),
     recurrence: z.object({
       pattern: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM']),
       interval: z.number().optional(),
@@ -54,187 +141,143 @@ export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus 
   } = useForm<CreateTaskForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      priority: "MEDIUM",
-      projectId: projectId || "",
+      priority: 'MEDIUM',
+      projectId: projectId || '',
       recurrence: undefined,
-      status: (defaultStatus || "TODO") as any,
     },
   });
 
-  // Get selected project ID for custom fields (after watch is available)
-  const selectedProjectId = projectId || watch("projectId");
+  const currentPriority = watch('priority');
 
-  // Get workspace ID from selected project
-  const selectedProject = useMemo(() => {
-    if (!projects || !selectedProjectId) return null;
-    return projects.find((p: any) => p.id === selectedProjectId);
-  }, [projects, selectedProjectId]);
+  const handleFormSubmit = async (data: CreateTaskForm) => {
+    // Adapter for form data to output data
+    const outputData: CreateTaskFormData = {
+      title: data.title,
+      description: data.description || undefined,
+      projectId: data.projectId,
+      priority: data.priority,
+      estimatedMinutes: data.estimatedMinutes || undefined,
+      dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+      recurrence: data.recurrence as RecurrenceValue | undefined,
+    };
 
-  const effectiveWorkspaceId = selectedProject?.workspaceId || "";
-
-  // Get workspace members using the project's workspace
-  const { data: members = [] } = useWorkspaceMembers(effectiveWorkspaceId);
-
-  // Always show assignee selector if there are members (even if just 1)
-  // This allows users to see who can be assigned and explicitly set assignee
-  const showAssigneeSelector = members.length > 0;
-
-  // Get selected assignee from members
-  const selectedAssignee = members.find((m: any) => m.user?.id === selectedAssigneeId);
-
-  const getInitials = (name?: string) => {
-    if (!name) return "?";
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  };
-
-  // Custom fields form state
-  const customFieldsForm = useCustomFieldForm(selectedProjectId || "");
-
-  const currentPriority = watch("priority");
-
-  const createTaskMutation = useCreateTask();
-
-  const onSubmit = async (data: CreateTaskForm) => {
-    const { estimatedMinutes, ...taskData } = data;
     try {
-      // Clean up null values to undefined for CreateTaskDto compatibility
-      const cleanedData = {
-        title: taskData.title,
-        description: taskData.description || undefined,
-        priority: taskData.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
-        projectId: taskData.projectId,
-        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
-        estimatedTime: estimatedMinutes ?? undefined,
-        // Include assigneeId if selected (otherwise backend auto-assigns to creator)
-        assigneeId: selectedAssigneeId || undefined,
-      };
-      const createdTask = await createTaskMutation.mutateAsync(cleanedData);
-
-      // Save custom field values if any
-      if (customFieldsForm.getValuesForSubmit().length > 0 && createdTask?.id) {
-        await customFieldsForm.saveValues(createdTask.id);
-      }
-
-      notify.success(t('toast.success'));
+      await onSubmit(outputData);
       reset();
-      setSelectedAssigneeId(null);
       onOpenChange(false);
-    } catch (error: any) {
-      notify.error(error?.message || t('toast.error'));
+    } catch (error) {
+       console.error(error);
     }
   };
 
   const handleAIMagic = async () => {
-    const title = watch("title");
-    if (!title) {
-      notify.error(t('toast.aiTitleRequired'));
-      return;
-    }
+    const title = watch('title');
+    if (!title || !onGenerateAIDescription) return;
 
     setIsGenerating(true);
-    // Simulate AI delay
-    setTimeout(() => {
-      (setValue as any)("description", t('ai.generatedDescription', { title }));
+    try {
+      const description = await onGenerateAIDescription(title);
+      setValue('description', description);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setIsGenerating(false);
-      notify.success(t('toast.aiSuccess'));
-    }, 1500);
+    }
   };
 
   const priorities = [
-    { value: "LOW", label: t('priorities.low'), bg: "bg-blue-500", border: "border-blue-500" },
-    { value: "MEDIUM", label: t('priorities.medium'), bg: "bg-yellow-500", border: "border-yellow-500" },
-    { value: "HIGH", label: t('priorities.high'), bg: "bg-red-500", border: "border-red-500" },
+    { value: 'LOW', label: t.priorities.low, bg: 'bg-blue-500', border: 'border-blue-500' },
+    { value: 'MEDIUM', label: t.priorities.medium, bg: 'bg-yellow-500', border: 'border-yellow-500' },
+    { value: 'HIGH', label: t.priorities.high, bg: 'bg-red-500', border: 'border-red-500' },
   ];
 
-  const showEmptyState = !projectId && !isLoadingProjects && projects?.length === 0;
+  const showEmptyState = !projectId && !isLoadingProjects && projects.length === 0;
 
   if (showEmptyState) {
     return (
-      <>
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-            <div className="p-6">
-              <EmptyState
-                icon={Briefcase}
-                title={t('emptyState.title')}
-                description={t('emptyState.description')}
-                actionLabel={t('emptyState.action')}
-                onAction={() => setShowCreateProject(true)}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
-        <CreateProjectDialog 
-          open={showCreateProject} 
-          onOpenChange={(open) => {
-            setShowCreateProject(open);
-            if (!open) onOpenChange(false); 
-          }} 
-        />
-      </>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
+          <div className="p-6">
+            <EmptyState
+              icon={Briefcase}
+              title={t.emptyState.title}
+              description={t.emptyState.description}
+              actionLabel={t.emptyState.action}
+              onAction={() => {
+                 onOpenChange(false);
+                 onRequestCreateProject?.();
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 pb-0">
+      <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 space-y-6">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-semibold text-foreground">
-                {t('title')}
+                {t.title}
               </DialogTitle>
-              <button
-                type="button"
-                onClick={handleAIMagic}
-                disabled={isGenerating}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors duration-200 disabled:opacity-50"
-              >
-                <Sparkles className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : "animate-pulse"}`} />
-                {isGenerating ? t('ai.generating') : t('ai.magic')}
-              </button>
+              {onGenerateAIDescription && (
+                <button
+                  type="button"
+                  onClick={handleAIMagic}
+                  disabled={isGenerating}
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors duration-200 disabled:opacity-50"
+                >
+                  <Sparkles
+                    className={`w-3.5 h-3.5 ${
+                      isGenerating ? 'animate-spin' : 'animate-pulse'
+                    }`}
+                  />
+                  {isGenerating ? t.aiGenerating : t.aiMagic}
+                </button>
+              )}
             </div>
             <DialogDescription className="text-muted-foreground">
-              {t('description')}
+              {t.description}
             </DialogDescription>
           </DialogHeader>
-        </div>
 
-        <div className="flex-1 overflow-y-auto px-6">
           <form
-            id="task-form"
             onSubmit={(e) => {
               e.preventDefault();
-              handleSubmit(onSubmit)(e);
+              handleSubmit(handleFormSubmit)(e);
             }}
-            className="space-y-6 py-4"
+            className="space-y-6"
           >
             {/* Title */}
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-medium text-foreground">{t('form.title')}</Label>
-              <input
+              <Label htmlFor="title" className="text-sm font-medium text-foreground">
+                {t.formTitle}
+              </Label>
+              <Input
                 id="title"
-                {...register("title")}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder={t('form.titlePlaceholder')}
+                {...register('title')}
+                placeholder={t.formTitlePlaceholder}
                 autoFocus
               />
-              {errors.title && (
-                <p className="text-sm text-red-500">{errors.title.message}</p>
-              )}
+              {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
             </div>
 
             {/* Project Selection (if not provided) */}
             {!projectId && (
               <div className="space-y-2">
-                <Label htmlFor="projectId" className="text-sm font-medium text-foreground">{t('form.project')}</Label>
+                <Label htmlFor="projectId" className="text-sm font-medium text-foreground">
+                  {t.formProject}
+                </Label>
                 <select
                   id="projectId"
-                  {...register("projectId")}
+                  {...register('projectId')}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">{t('form.selectProject')}</option>
-                  {projects?.map((project: any) => (
+                  <option value="">{t.formSelectProject}</option>
+                  {projects.map((project) => (
                     <option key={project.id} value={project.id}>
                       {project.name}
                     </option>
@@ -247,137 +290,24 @@ export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus 
             )}
 
             {/* Hidden project ID if provided */}
-            {projectId && <input type="hidden" {...register("projectId")} />}
-
-            {/* Assignee Selector - only show if workspace has multiple members */}
-            {showAssigneeSelector && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  {t('form.assignee') || 'Asignar a'}
-                </Label>
-                <Popover open={assigneePopoverOpen} onOpenChange={setAssigneePopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className={cn(
-                        "flex h-10 w-full items-center gap-3 rounded-md border border-input bg-background px-3 py-2 text-sm",
-                        "hover:bg-muted/50 transition-colors text-left"
-                      )}
-                    >
-                      {selectedAssignee ? (
-                        <>
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={selectedAssignee.user?.image} />
-                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                              {getInitials(selectedAssignee.user?.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="flex-1 truncate">
-                            {selectedAssignee.user?.name || selectedAssignee.user?.email}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">
-                            {t('form.selectAssignee') || 'Seleccionar miembro (opcional)'}
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-2" align="start">
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground px-2 py-1">
-                        {t('form.workspaceMembers') || 'Miembros del workspace'}
-                      </p>
-
-                      {/* Option to not assign / auto-assign to me */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedAssigneeId(null);
-                          setAssigneePopoverOpen(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left",
-                          !selectedAssigneeId ? "bg-primary/10 text-primary" : "hover:bg-muted/80"
-                        )}
-                      >
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
-                          <User className="h-3 w-3" />
-                        </div>
-                        <span className="text-sm">
-                          {t('form.assignToMe') || 'Asignarme a mí (por defecto)'}
-                        </span>
-                        {!selectedAssigneeId && <Check className="h-4 w-4 ml-auto" />}
-                      </button>
-
-                      <div className="border-t border-border/50 my-1" />
-
-                      {/* Members list */}
-                      {members.map((member: any) => (
-                        <button
-                          type="button"
-                          key={member.id}
-                          onClick={() => {
-                            setSelectedAssigneeId(member.user?.id);
-                            setAssigneePopoverOpen(false);
-                          }}
-                          className={cn(
-                            "w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left",
-                            selectedAssigneeId === member.user?.id
-                              ? "bg-primary/10 text-primary"
-                              : "hover:bg-muted/80"
-                          )}
-                        >
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={member.user?.image} />
-                            <AvatarFallback
-                              className={cn(
-                                "text-xs",
-                                selectedAssigneeId === member.user?.id
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted"
-                              )}
-                            >
-                              {getInitials(member.user?.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {member.user?.name || member.user?.email}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {member.role}
-                            </p>
-                          </div>
-                          {selectedAssigneeId === member.user?.id && (
-                            <Check className="h-4 w-4 shrink-0" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
+            {projectId && <input type="hidden" {...register('projectId')} />}
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-foreground">{t('form.description')}</Label>
-              <textarea
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">
+                {t.formDescription}
+              </Label>
+              <Textarea
                 id="description"
-                {...register("description")}
-                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder={t('form.descriptionPlaceholder')}
+                {...register('description')}
+                className="min-h-[100px] resize-none"
+                placeholder={t.formDescriptionPlaceholder}
               />
             </div>
 
             {/* Priority */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-foreground">{t('form.priority')}</Label>
+              <Label className="text-sm font-medium text-foreground">{t.formPriority}</Label>
               <div className="flex gap-2">
                 {priorities.map((p) => {
                   const isSelected = currentPriority === p.value;
@@ -385,11 +315,11 @@ export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus 
                     <button
                       key={p.value}
                       type="button"
-                      onClick={() => (setValue as any)("priority", p.value)}
+                      onClick={() => setValue('priority', p.value as 'LOW' | 'MEDIUM' | 'HIGH')}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
                         isSelected
                           ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`
-                          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                          : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {isSelected && <Flag className="w-3 h-3 fill-current" />}
@@ -403,15 +333,17 @@ export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus 
             <div className="grid grid-cols-2 gap-4">
               {/* Estimated Minutes */}
               <div className="space-y-2">
-                <Label htmlFor="estimatedMinutes" className="text-sm font-medium text-foreground">{t('form.estimatedMinutes')}</Label>
+                <Label htmlFor="estimatedMinutes" className="text-sm font-medium text-foreground">
+                  {t.formEstimatedMinutes}
+                </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="number"
                     id="estimatedMinutes"
-                    {...register("estimatedMinutes", { valueAsNumber: true })}
-                    min="1"
+                    {...register('estimatedMinutes', { valueAsNumber: true })}
+                    min={1}
                     placeholder="30"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pr-10"
                   />
                   <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -419,21 +351,22 @@ export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus 
 
               {/* Due Date */}
               <div className="space-y-2">
-                <Label htmlFor="dueDate" className="text-sm font-medium text-foreground">{t('form.dueDate')}</Label>
+                <Label htmlFor="dueDate" className="text-sm font-medium text-foreground">
+                  {t.formDueDate}
+                </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="date"
                     id="dueDate"
-                    {...register("dueDate")}
+                    {...register('dueDate')}
                     autoComplete="off"
+                    className="pr-10"
                     onKeyDown={(e) => {
-                      // Prevent Enter key from interfering
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
                       }
                     }}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -442,39 +375,26 @@ export function CreateTaskDialog({ open, onOpenChange, projectId, defaultStatus 
 
             {/* Recurrence */}
             <RecurrenceSelector
-              value={watch("recurrence")}
-              onChange={(val) => (setValue as any)("recurrence", val)}
+              value={watch('recurrence')}
+              onChange={(val) => setValue('recurrence', val)}
             />
 
-            {/* Custom Fields */}
-            {selectedProjectId && (
-              <CustomFieldInputs
-                projectId={selectedProjectId}
-                values={customFieldsForm.values}
-                onChange={customFieldsForm.handleChange}
-              />
-            )}
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+              >
+                {t.buttons.cancel}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isPending}
+              >
+                {isPending ? t.buttons.creating : t.buttons.create}
+              </Button>
+            </DialogFooter>
           </form>
-        </div>
-
-        <div className="p-6 pt-4 border-t bg-background">
-          <DialogFooter>
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {t('buttons.cancel')}
-            </button>
-            <button
-              type="submit"
-              form="task-form"
-              disabled={createTaskMutation.isPending}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              {createTaskMutation.isPending ? t('buttons.creating') : t('buttons.create')}
-            </button>
-          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

@@ -53,6 +53,14 @@ export class MockUserRepository implements UserRepository {
     return withPassword === false ? user.withoutPassword() : user;
   }
 
+  async findByUsername(username: string): Promise<User | null> {
+    const user = this.users.find(
+      (u) => u.username?.toLowerCase() === username.toLowerCase()
+    );
+
+    return user || null;
+  }
+
   // Test helper methods
   getSaveCalls(): User[] {
     return [...this.saveCalls];

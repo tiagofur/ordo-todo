@@ -10,6 +10,7 @@ const axios_1 = __importDefault(require("axios"));
  *
  * Provides methods for all 52 REST API endpoints.
  * Supports automatic JWT token management via TokenStorage.
+ * Supports automatic retry with exponential backoff for failed requests.
  *
  * @example
  * ```typescript
@@ -32,6 +33,28 @@ const axios_1 = __importDefault(require("axios"));
  *   projectId: 'project-id',
  * });
  * ```
+ *
+ * @example
+ * ```typescript
+ * // With retry configuration
+ * const client = new OrdoApiClient({
+ *   baseURL: 'http://localhost:3001/api/v1',
+ *   tokenStorage: new LocalStorageTokenStorage(),
+ *   retry: {
+ *     retries: 3,                    // Retry up to 3 times
+ *     retryDelay: 1000,              // Start with 1 second delay
+ *     retryDelayMultiplier: 2,       // Double delay each retry (1s, 2s, 4s)
+ *     maxRetryDelay: 30000,          // Cap at 30 seconds
+ *     retryDelayJitter: 0.1,         // Add 10% randomness to prevent thundering herd
+ *     retryOn4xx: false,             // Don't retry on 4xx errors (except 408, 429)
+ *     // Custom retry condition (optional)
+ *     retryCondition: (error) => {
+ *       const status = error.response?.status;
+ *       return status === 503 || status === 429; // Only retry on 503 and 429
+ *     },
+ *   },
+ * });
+ * ```
  */
 class OrdoApiClient {
     axios;
@@ -40,10 +63,12 @@ class OrdoApiClient {
     refreshPromise = null;
     onTokenRefresh;
     onAuthError;
+    retryConfig;
     constructor(config) {
         this.tokenStorage = config.tokenStorage;
         this.onTokenRefresh = config.onTokenRefresh;
         this.onAuthError = config.onAuthError;
+        this.retryConfig = config.retry;
         this.axios = axios_1.default.create({
             baseURL: config.baseURL,
             timeout: config.timeout || 30000,
@@ -72,10 +97,10 @@ class OrdoApiClient {
             }
             return config;
         }, (error) => Promise.reject(error));
-        // Response interceptor - handle errors and token refresh
+        // Response interceptor - handle errors, token refresh, and retry logic
         this.axios.interceptors.response.use((response) => response, async (error) => {
             const originalRequest = error.config;
-            // Handle 401 Unauthorized errors
+            // Handle 401 Unauthorized errors (token refresh logic)
             if (error.response?.status === 401 && !originalRequest._retry) {
                 originalRequest._retry = true;
                 try {
@@ -92,6 +117,16 @@ class OrdoApiClient {
                         await this.onAuthError();
                     }
                     return Promise.reject(refreshError);
+                }
+            }
+            // Handle retry logic for other errors
+            if (this.retryConfig && error.response?.status !== 401) {
+                try {
+                    return await this.retryRequest(error, originalRequest._retryAttempt ?? 0);
+                }
+                catch (retryError) {
+                    // Retry failed, reject with original error
+                    return Promise.reject(error);
                 }
             }
             return Promise.reject(error);
@@ -132,6 +167,80 @@ class OrdoApiClient {
             }
         })();
         return this.refreshPromise;
+    }
+    /**
+     * Check if an error should be retried based on retry configuration
+     */
+    shouldRetry(error, attempt) {
+        if (!this.retryConfig)
+            return false;
+        const maxRetries = this.retryConfig.retries ?? 3;
+        if (attempt >= maxRetries)
+            return false;
+        // Use custom retry condition if provided
+        if (this.retryConfig.retryCondition) {
+            return this.retryConfig.retryCondition(error);
+        }
+        // Default retry conditions
+        const statusCode = error.response?.status;
+        // Retry on network errors (no status code)
+        if (!statusCode)
+            return true;
+        // Retry on 5xx server errors
+        if (statusCode >= 500)
+            return true;
+        // Retry on 408 Request Timeout
+        if (statusCode === 408)
+            return true;
+        // Retry on 429 Too Many Requests
+        if (statusCode === 429)
+            return true;
+        // Retry on 4xx if configured
+        if (this.retryConfig.retryOn4xx && statusCode >= 400 && statusCode < 500) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Calculate retry delay with exponential backoff and jitter
+     */
+    calculateRetryDelay(attempt) {
+        if (!this.retryConfig)
+            return 0;
+        const baseDelay = this.retryConfig.retryDelay ?? 1000;
+        const multiplier = this.retryConfig.retryDelayMultiplier ?? 2;
+        const maxDelay = this.retryConfig.maxRetryDelay ?? 30000;
+        const jitter = this.retryConfig.retryDelayJitter ?? 0.1;
+        // Exponential backoff: delay * (multiplier ^ attempt)
+        const exponentialDelay = baseDelay * Math.pow(multiplier, attempt);
+        // Cap at max delay
+        const cappedDelay = Math.min(exponentialDelay, maxDelay);
+        // Add jitter: random value between -jitter*delay and +jitter*delay
+        const jitterAmount = cappedDelay * jitter;
+        const randomJitter = (Math.random() * 2 - 1) * jitterAmount;
+        return Math.max(0, Math.floor(cappedDelay + randomJitter));
+    }
+    /**
+     * Retry a failed request with exponential backoff
+     */
+    async retryRequest(error, attempt) {
+        const originalRequest = error.config;
+        // Initialize retry attempt counter
+        if (originalRequest._retryAttempt === undefined) {
+            originalRequest._retryAttempt = 0;
+        }
+        // Check if we should retry
+        if (!this.shouldRetry(error, originalRequest._retryAttempt)) {
+            return Promise.reject(error);
+        }
+        // Calculate delay
+        const delay = this.calculateRetryDelay(originalRequest._retryAttempt);
+        // Wait before retrying
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        // Increment retry attempt
+        originalRequest._retryAttempt++;
+        // Retry the request
+        return this.axios(originalRequest);
     }
     // ============ AUTH ENDPOINTS (3) ============
     /**

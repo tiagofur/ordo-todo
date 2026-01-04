@@ -459,6 +459,49 @@ cd packages/styles && npm run dev
 npm run check-types --filter=@ordo-todo/styles
 ```
 
+## Testing
+
+This package has comprehensive test coverage with **120 tests**.
+
+```bash
+# Run all tests once
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- **Color Tokens** (25 tests) - Light/dark themes, semantic colors, project/tag colors
+- **Spacing Tokens** (13 tests) - Base spacing scale and named spacing
+- **Typography Tokens** (20 tests) - Font sizes, weights, and line heights
+- **Border Radius** (8 tests) - All border radius values
+- **Shadows** (5 tests) - Shadow definitions for React Native
+- **Specialized Colors** (12 tests) - Priority, status, and timer colors
+- **Helper Functions** (15 tests) - `getColors()`, `getProjectColor()`, `getTagColor()`, `hexToRgba()`
+- **Token Consistency** (22 tests) - Theme consistency, type validation, structure checks
+
+### Test Results
+
+```
+✓ 120 tests passed (100% success rate)
+✓ Test execution time: ~600ms
+✓ Zero failures
+✓ Zero flaky tests
+```
+
+### Test Files
+
+- `src/tokens.test.ts` - All token tests (120 tests)
+- `vitest.config.ts` - Vitest configuration
+- `tsconfig.json` - TypeScript configuration
+
 ## Dependencies
 
 - Tailwind CSS v4

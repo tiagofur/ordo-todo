@@ -1,4 +1,3 @@
-'use client';
 
 import { Sparkles, Flame, CheckCircle2, ChevronRight } from 'lucide-react';
 import { cn } from '../../utils/index.js';

@@ -1,4 +1,3 @@
-'use client';
 
 import { Calendar, AlertCircle } from 'lucide-react';
 import { cn } from '../../utils/index.js';

@@ -1,4 +1,3 @@
-'use client';
 
 import { format } from 'date-fns';
 import { FileIcon, Download } from 'lucide-react';
@@ -56,7 +55,7 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-function FilesSkeleton() {
+function FilesSkeleton(): React.ReactElement {
   return (
     <div className="space-y-4">
       <Skeleton className="h-10 w-full" />

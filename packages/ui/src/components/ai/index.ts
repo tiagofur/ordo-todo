@@ -1,9 +1,13 @@
 /**
  * AI Components
  *
- * Components for AI-powered features like report generation and assistants.
+ * Platform-agnostic components for AI features.
+ * Container components have been moved to apps/web.
  */
 
-export * from './generate-report-dialog.js';
+// Platform-agnostic presentational component
 export * from './report-card.js';
+
+// NOTE: The following components have been moved to apps/web/src/components/ai/:
+// - generate-report-dialog (uses useState)
 

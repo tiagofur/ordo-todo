@@ -1,4 +1,3 @@
-'use client';
 
 import { Keyboard } from 'lucide-react';
 import {

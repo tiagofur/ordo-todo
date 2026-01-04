@@ -20,6 +20,7 @@ describe("RegisterUser UseCase", () => {
     it("should register user successfully", async () => {
       const userData = {
         name: "João Silva",
+        username: "joaosilva",
         email: "joao@example.com",
         password: "password123",
       };
@@ -38,6 +39,7 @@ describe("RegisterUser UseCase", () => {
     it("should check if user already exists", async () => {
       const userData = {
         name: "Ana Costa",
+        username: "anacosta",
         email: "ana@example.com",
         password: "password123",
       };
@@ -52,6 +54,7 @@ describe("RegisterUser UseCase", () => {
     it("should throw error when user already exists", async () => {
       const existingUser = new User({
         name: "Existing User",
+        username: "existing",
         email: "existing@example.com",
         password: validHashPassword,
       });
@@ -59,6 +62,7 @@ describe("RegisterUser UseCase", () => {
 
       const userData = {
         name: "New User",
+        username: "newuser",
         email: "existing@example.com",
         password: "password123",
       };
@@ -71,6 +75,7 @@ describe("RegisterUser UseCase", () => {
     it("should throw error when password is empty", async () => {
       const userData = {
         name: "Test User",
+        username: "testuser",
         email: "test@example.com",
         password: "",
       };
@@ -83,6 +88,7 @@ describe("RegisterUser UseCase", () => {
     it("should throw error when password is undefined", async () => {
       const userData = {
         name: "Test User",
+        username: "testuser",
         email: "test@example.com",
         password: undefined as any,
       };
@@ -95,6 +101,7 @@ describe("RegisterUser UseCase", () => {
     it("should throw error when name is too short", async () => {
       const userData = {
         name: "AB",
+        username: "abuser",
         email: "test@example.com",
         password: "password123",
       };
@@ -107,6 +114,7 @@ describe("RegisterUser UseCase", () => {
     it("should throw error when name is undefined", async () => {
       const userData = {
         name: undefined as any,
+        username: "testuser",
         email: "test@example.com",
         password: "password123",
       };
@@ -119,6 +127,7 @@ describe("RegisterUser UseCase", () => {
     it("should encrypt password before saving", async () => {
       const userData = {
         name: "Secure User",
+        username: "secureuser",
         email: "secure@example.com",
         password: "mypassword",
       };
@@ -133,6 +142,7 @@ describe("RegisterUser UseCase", () => {
     it("should not save user when user already exists", async () => {
       const existingUser = new User({
         name: "Existing User",
+        username: "existing",
         email: "existing@example.com",
         password: validHashPassword,
       });
@@ -140,6 +150,7 @@ describe("RegisterUser UseCase", () => {
 
       const userData = {
         name: "New User",
+        username: "newuser",
         email: "existing@example.com",
         password: "password123",
       };
@@ -157,6 +168,7 @@ describe("RegisterUser UseCase", () => {
     it("should not save user when validation fails", async () => {
       const userData = {
         name: "AB",
+        username: "abuser",
         email: "test@example.com",
         password: "password123",
       };
@@ -174,6 +186,7 @@ describe("RegisterUser UseCase", () => {
     it("should not encrypt password when validation fails", async () => {
       const userData = {
         name: "AB",
+        username: "abuser",
         email: "test@example.com",
         password: "password123",
       };
@@ -191,6 +204,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle different valid inputs", async () => {
       const userData = {
         name: "Maria José Santos",
+        username: "mariajose",
         email: "maria.jose@example.com.br",
         password: "strongPassword456",
       };
@@ -206,6 +220,7 @@ describe("RegisterUser UseCase", () => {
     it("should generate unique user ID", async () => {
       const userData = {
         name: "ID Test User",
+        username: "idtestuser",
         email: "idtest@example.com",
         password: "password123",
       };
@@ -225,6 +240,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle names with special characters", async () => {
       const userData = {
         name: "José María O'Connor-Silva",
+        username: "joseconnor",
         email: "jose@example.com",
         password: "password123",
       };
@@ -239,6 +255,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle international email domains", async () => {
       const userData = {
         name: "International User",
+        username: "intluser",
         email: "user@müller.de",
         password: "password123",
       };
@@ -254,6 +271,7 @@ describe("RegisterUser UseCase", () => {
       const longPassword = "a".repeat(100);
       const userData = {
         name: "Long Password User",
+        username: "longpassuser",
         email: "longpass@example.com",
         password: longPassword,
       };
@@ -268,6 +286,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle minimum valid name length", async () => {
       const userData = {
         name: "Ana S",
+        username: "anas",
         email: "ana@example.com",
         password: "password123",
       };
@@ -282,6 +301,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle case-sensitive emails", async () => {
       const userData = {
         name: "Case Test User",
+        username: "casetest",
         email: "CaseTest@EXAMPLE.COM",
         password: "password123",
       };
@@ -295,6 +315,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle empty name after trimming", async () => {
       const userData = {
         name: "  ",
+        username: "whitespace",
         email: "whitespace@example.com",
         password: "password123",
       };
@@ -307,6 +328,7 @@ describe("RegisterUser UseCase", () => {
     it("should not interfere with existing users when registration fails", async () => {
       const existingUser = new User({
         name: "Existing User",
+        username: "existing",
         email: "existing@example.com",
         password: validHashPassword,
       });
@@ -314,6 +336,7 @@ describe("RegisterUser UseCase", () => {
 
       const userData = {
         name: "Short",
+        username: "short",
         email: "short@example.com",
         password: "password123",
       };
@@ -332,6 +355,7 @@ describe("RegisterUser UseCase", () => {
     it("should handle special password characters", async () => {
       const userData = {
         name: "Special Password User",
+        username: "specialpass",
         email: "special@example.com",
         password: "p@ssw0rd!@#$%^&*()",
       };

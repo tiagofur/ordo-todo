@@ -1,4 +1,3 @@
-'use client';
 
 import { FileText, Calendar, TrendingUp, CheckCircle2, AlertCircle } from 'lucide-react';
 import {

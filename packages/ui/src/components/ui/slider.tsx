@@ -6,7 +6,7 @@ import { cn } from "../../utils/index.js";
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({ className, ...props }, ref) => (
+>(({ className, ...props }, ref): React.ReactElement => (
   <SliderPrimitive.Root
     ref={ref}
     className={cn(

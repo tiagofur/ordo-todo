@@ -17,7 +17,7 @@ export function EmptyState({
   actionLabel,
   onAction,
   className = "",
-}: EmptyStateProps) {
+}: EmptyStateProps): React.ReactElement {
   return (
     <div
       className={`flex flex-col items-center justify-center p-8 text-center rounded-lg border border-dashed bg-muted/50 ${className}`}

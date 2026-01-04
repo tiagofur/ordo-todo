@@ -26,17 +26,17 @@ import {
 } from "lucide-react";
 import { useUsernameValidation } from "@ordo-todo/hooks";
 import * as Tabs from "@radix-ui/react-tabs";
-import { cn } from "../../utils/index.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card.js";
-import { Label } from "../ui/label.js";
-import { Input } from "../ui/input.js";
-import { Switch } from "../ui/switch.js";
-import { Button } from "../ui/button.js";
-import { Slider } from "../ui/slider.js";
-import { Badge } from "../ui/badge.js";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar.js";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select.js";
-import { Textarea } from "../ui/textarea.js";
+import { cn } from "@ordo-todo/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ordo-todo/ui";
+import { Label } from "@ordo-todo/ui";
+import { Input } from "@ordo-todo/ui";
+import { Switch } from "@ordo-todo/ui";
+import { Button } from "@ordo-todo/ui";
+import { Slider } from "@ordo-todo/ui";
+import { Badge } from "@ordo-todo/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@ordo-todo/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
+import { Textarea } from "@ordo-todo/ui";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,7 +47,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog.js";
+} from "@ordo-todo/ui";
 
 const TIMEZONES = [
   { value: "America/Mexico_City", label: "Mexico City (GMT-6)" },

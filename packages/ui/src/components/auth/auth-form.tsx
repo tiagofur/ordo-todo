@@ -40,7 +40,7 @@ const DEFAULT_LABELS = {
 };
 
 // Google logo SVG component (brand colors are intentional)
-function GoogleLogo() {
+function GoogleLogo(): React.ReactElement {
   return (
     <svg className="w-5 h-5" viewBox="0 0 24 24">
       <path

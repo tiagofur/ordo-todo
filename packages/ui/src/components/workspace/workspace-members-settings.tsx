@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { Plus, Mail, Trash2, MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
 
@@ -92,6 +89,9 @@ export interface WorkspaceMembersSettingsProps {
   labels?: WorkspaceMembersSettingsLabels;
   baseUrl?: string;
   onInviteCopied?: () => void;
+  // Dialog state (lifted up for platform-agnostic design)
+  inviteDialogOpen?: boolean;
+  onInviteDialogOpenChange?: (open: boolean) => void;
 }
 
 const defaultRoleLabels: Record<string, string> = {
@@ -122,9 +122,9 @@ export function WorkspaceMembersSettings({
   labels = {},
   baseUrl = "",
   onInviteCopied,
+  inviteDialogOpen = false,
+  onInviteDialogOpenChange,
 }: WorkspaceMembersSettingsProps) {
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
-
   if (isLoading) {
     return <div className="p-8 text-center">{labels.loading ?? "Loading..."}</div>;
   }
@@ -140,7 +140,7 @@ export function WorkspaceMembersSettings({
             {labels.membersDescription ?? "Manage who has access to this workspace."}
           </p>
         </div>
-        <Button onClick={() => setIsInviteDialogOpen(true)}>
+        <Button onClick={() => onInviteDialogOpenChange?.(true)}>
           <Plus className="mr-2 h-4 w-4" />
           {labels.inviteMember ?? "Invite Member"}
         </Button>
@@ -286,8 +286,8 @@ export function WorkspaceMembersSettings({
       )}
 
       <InviteMemberDialog
-        open={isInviteDialogOpen}
-        onOpenChange={setIsInviteDialogOpen}
+        open={inviteDialogOpen ?? false}
+        onOpenChange={(open) => onInviteDialogOpenChange?.(open)}
         onSubmit={onInviteMember}
         isPending={isInvitePending}
         labels={labels.inviteDialog}

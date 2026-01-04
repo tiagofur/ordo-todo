@@ -1,6 +1,47 @@
-import { AxiosInstance } from "axios";
+import { AxiosInstance, AxiosError } from "axios";
 import type { TokenStorage } from "./utils/storage";
 import type { RegisterDto, LoginDto, AuthResponse, RefreshTokenDto, User, UpdateProfileDto, UserResponse, UserProfileResponse, UserPreferences, UpdatePreferencesDto, UserIntegration, Workspace, WorkspaceWithMembers, WorkspaceMember, WorkspaceInvitation, WorkspaceSettings, WorkspaceAuditLog, WorkspaceAuditLogsResponse, CreateWorkspaceDto, UpdateWorkspaceDto, UpdateWorkspaceSettingsDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, Workflow, CreateWorkflowDto, UpdateWorkflowDto, Project, CreateProjectDto, UpdateProjectDto, Task, TaskDetails, TaskShareResponse, PublicTaskResponse, TodayTasksResponse, TimeBlock, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, Tag, CreateTagDto, UpdateTagDto, TimeSession, StartTimerDto, StopTimerDto, ActiveTimerResponse, GetSessionsParams, PaginatedSessionsResponse, GetTimerStatsParams, TimerStatsResponse, TaskTimeResponse, CreateTimerSessionDto, UpdateTimerSessionDto, DailyMetrics, GetDailyMetricsParams, Comment, CreateCommentDto, UpdateCommentDto, Attachment, CreateAttachmentDto, AIProfile, OptimalScheduleResponse, PredictDurationResponse, WeeklyReportResponse, ProductivityReport, Notification, UnreadCountResponse, CreateConversationDto, SendMessageDto, ConversationResponse, ConversationDetail, SendMessageResponse, AIInsightsResponse, Habit, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, HabitStats, TodayHabitsResponse, CompleteHabitResponse, Objective, KeyResult, KeyResultTask, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, ObjectiveDashboardSummary, CustomField, CustomFieldValue, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, BurnoutAnalysis, WorkPatterns, RestRecommendation, BurnoutIntervention, WeeklyWellbeingSummary, WorkspaceWorkload, MemberWorkload, WorkloadSuggestion } from "./types";
+/**
+ * Retry configuration for failed requests
+ */
+export interface RetryConfig {
+    /**
+     * Number of times to retry a failed request
+     * Default: 3
+     */
+    retries?: number;
+    /**
+     * Whether to retry on 4xx errors (client errors)
+     * Default: false (only retry on 5xx and network errors)
+     */
+    retryOn4xx?: boolean;
+    /**
+     * HTTP status codes that should trigger a retry
+     * Default: [408, 429, 500, 502, 503, 504]
+     */
+    retryCondition?: (error: AxiosError) => boolean;
+    /**
+     * Initial delay before first retry in milliseconds
+     * Default: 1000 (1 second)
+     */
+    retryDelay?: number;
+    /**
+     * Multiplier for exponential backoff
+     * Default: 2 (delay doubles each retry: 1s, 2s, 4s, 8s...)
+     */
+    retryDelayMultiplier?: number;
+    /**
+     * Maximum delay between retries in milliseconds
+     * Default: 30000 (30 seconds)
+     */
+    maxRetryDelay?: number;
+    /**
+     * Jitter to add randomness to retry delays (0-1)
+     * Default: 0.1 (10% randomness)
+     * Helps prevent "thundering herd" problem
+     */
+    retryDelayJitter?: number;
+}
 /**
  * Configuration options for the OrdoApiClient
  */
@@ -29,12 +70,18 @@ export interface ClientConfig {
      * Called when token refresh fails or no refresh token is available.
      */
     onAuthError?: () => void | Promise<void>;
+    /**
+     * Optional retry configuration for failed requests.
+     * Implements exponential backoff with jitter to prevent thundering herd.
+     */
+    retry?: RetryConfig;
 }
 /**
  * Main API client for Ordo-Todo applications.
  *
  * Provides methods for all 52 REST API endpoints.
  * Supports automatic JWT token management via TokenStorage.
+ * Supports automatic retry with exponential backoff for failed requests.
  *
  * @example
  * ```typescript
@@ -57,6 +104,28 @@ export interface ClientConfig {
  *   projectId: 'project-id',
  * });
  * ```
+ *
+ * @example
+ * ```typescript
+ * // With retry configuration
+ * const client = new OrdoApiClient({
+ *   baseURL: 'http://localhost:3001/api/v1',
+ *   tokenStorage: new LocalStorageTokenStorage(),
+ *   retry: {
+ *     retries: 3,                    // Retry up to 3 times
+ *     retryDelay: 1000,              // Start with 1 second delay
+ *     retryDelayMultiplier: 2,       // Double delay each retry (1s, 2s, 4s)
+ *     maxRetryDelay: 30000,          // Cap at 30 seconds
+ *     retryDelayJitter: 0.1,         // Add 10% randomness to prevent thundering herd
+ *     retryOn4xx: false,             // Don't retry on 4xx errors (except 408, 429)
+ *     // Custom retry condition (optional)
+ *     retryCondition: (error) => {
+ *       const status = error.response?.status;
+ *       return status === 503 || status === 429; // Only retry on 503 and 429
+ *     },
+ *   },
+ * });
+ * ```
  */
 export declare class OrdoApiClient {
     protected axios: AxiosInstance;
@@ -65,6 +134,7 @@ export declare class OrdoApiClient {
     private refreshPromise;
     private onTokenRefresh?;
     private onAuthError?;
+    private retryConfig?;
     constructor(config: ClientConfig);
     /**
      * Setup request and response interceptors for automatic token management
@@ -74,6 +144,18 @@ export declare class OrdoApiClient {
      * Handle token refresh logic with deduplication
      */
     private handleTokenRefresh;
+    /**
+     * Check if an error should be retried based on retry configuration
+     */
+    private shouldRetry;
+    /**
+     * Calculate retry delay with exponential backoff and jitter
+     */
+    private calculateRetryDelay;
+    /**
+     * Retry a failed request with exponential backoff
+     */
+    private retryRequest;
     /**
      * Register a new user account
      * POST /auth/register

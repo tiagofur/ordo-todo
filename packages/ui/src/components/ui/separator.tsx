@@ -10,7 +10,7 @@ const Separator = React.forwardRef<
   (
     { className, orientation = "horizontal", decorative = true, ...props },
     ref,
-  ) => (
+  ): React.ReactElement => (
     <SeparatorPrimitive.Root
       ref={ref}
       decorative={decorative}

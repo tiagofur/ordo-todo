@@ -1,5 +1,3 @@
-'use client';
-
 import { type ReactNode } from 'react';
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from '../../utils/index.js';

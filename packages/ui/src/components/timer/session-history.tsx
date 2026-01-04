@@ -128,7 +128,7 @@ const SESSION_TYPE_COLORS: Record<SessionType, string> = {
   CONTINUOUS: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
 };
 
-function getSessionTypeIcon(type: SessionType) {
+function getSessionTypeIcon(type: SessionType): React.ReactElement {
   switch (type) {
     case 'WORK':
       return <Target className="h-4 w-4" />;

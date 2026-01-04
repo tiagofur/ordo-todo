@@ -1,4 +1,3 @@
-'use client';
 
 import { Flame, TrendingUp } from 'lucide-react';
 import { cn } from '../../utils/index.js';

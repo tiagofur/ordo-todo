@@ -11,7 +11,7 @@ export interface SwitchProps extends Omit<
 }
 
 const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
-  ({ className, checked = false, onCheckedChange, ...props }, ref) => {
+  ({ className, checked = false, onCheckedChange, ...props }, ref): React.ReactElement => {
     return (
       <button
         type="button"

@@ -1,4 +1,3 @@
-'use client';
 
 import { Timer, Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
 import { cn } from '../../utils/index.js';

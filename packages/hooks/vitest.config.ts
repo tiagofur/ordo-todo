@@ -8,6 +8,13 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
+        // Fix double-free error by limiting threads and pool options
+        pool: 'threads',
+        poolOptions: {
+            threads: {
+                singleThread: true,
+            },
+        },
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
@@ -17,6 +24,7 @@ export default defineConfig({
                 '**/*.config.*',
                 '**/types/**',
                 '**/*.d.ts',
+                '**/__tests__/**',
             ],
         },
     },

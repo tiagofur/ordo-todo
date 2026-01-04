@@ -1,5 +1,3 @@
-'use client';
-
 import { type ElementType } from 'react';
 import { cn } from '../../utils/index.js';
 

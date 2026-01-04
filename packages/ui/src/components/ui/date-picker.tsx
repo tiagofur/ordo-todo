@@ -1,6 +1,3 @@
-"use client";
-
-import * as React from "react";
 import { Calendar } from "./calendar.js";
 import {
   Popover,
@@ -17,13 +14,14 @@ interface DatePickerProps {
   setDate: (date: Date | undefined) => void;
   placeholder?: string;
   className?: string;
+  // Popover state (lifted up for platform-agnostic design)
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function DatePicker({ date, setDate, placeholder = "Pick a date", className }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
-
+export function DatePicker({ date, setDate, placeholder = "Pick a date", className, open = false, onOpenChange }: DatePickerProps) {
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -43,7 +41,7 @@ export function DatePicker({ date, setDate, placeholder = "Pick a date", classNa
           selected={date}
           onSelect={(selectedDate) => {
             setDate(selectedDate);
-            setOpen(false);
+            onOpenChange?.(false);
           }}
           initialFocus
         />
