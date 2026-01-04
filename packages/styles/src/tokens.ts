@@ -453,14 +453,14 @@ export function getColors(isDark: boolean) {
  * Get project color by index (wraps around)
  */
 export function getProjectColor(index: number): string {
-    return projectColors[index % projectColors.length];
+    return projectColors[index % projectColors.length] as string;
 }
 
 /**
  * Get tag color by index (wraps around)
  */
 export function getTagColor(index: number): string {
-    return tagColors[index % tagColors.length];
+    return tagColors[index % tagColors.length] as string;
 }
 
 /**
@@ -470,9 +470,9 @@ export function hexToRgba(hex: string, alpha: number = 1): string {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!result) return hex;
 
-    const r = parseInt(result[1], 16);
-    const g = parseInt(result[2], 16);
-    const b = parseInt(result[3], 16);
+    const r = parseInt(result[1] || '0', 16);
+    const g = parseInt(result[2] || '0', 16);
+    const b = parseInt(result[3] || '0', 16);
 
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
