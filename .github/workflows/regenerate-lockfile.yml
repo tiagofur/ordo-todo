@@ -1,0 +1,58 @@
+name: Regenerate Lockfile
+
+on:
+  workflow_dispatch: # Allow manual trigger
+  push:
+    paths:
+      - 'package.json'
+      - 'apps/**/package.json'
+      - 'packages/**/package.json'
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate-lockfile:
+    name: Regenerate package-lock.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
+      - name: Regenerate lockfile
+        run: |
+          echo "Removing old node_modules and lockfile..."
+          rm -rf node_modules package-lock.json
+          rm -rf apps/*/node_modules packages/*/node_modules webpage/*/node_modules
+
+          echo "Installing dependencies with --legacy-peer-deps..."
+          npm install --legacy-peer-deps
+
+          echo "Checking if lockfile was updated..."
+          if git diff --quiet package-lock.json; then
+            echo "No changes to package-lock.json"
+          else
+            echo "package-lock.json was updated"
+            echo "Committing changes..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore: regenerate package-lock.json [skip ci]"
+            git push
+          fi
+        env:
+          PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
