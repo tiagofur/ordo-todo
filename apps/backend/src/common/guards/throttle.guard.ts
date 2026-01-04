@@ -120,12 +120,16 @@ export class CustomThrottleGuard extends ThrottlerGuard {
     rateLimit: { limit: number; ttl: number; message: string },
   ): Promise<boolean> {
     try {
-      // Use the parent class method with custom limits
-      const result = await super.handleRequest(request, {
-        limit: rateLimit.limit,
-        ttl: rateLimit.ttl,
-      });
-      return result;
+      // Get the key and info from request
+      const key = this.getKey(request);
+      const info = this.getTracker(request);
+
+      // Check if limit exceeded
+      const result = await this.storageService.increment(key);
+      if (result.totalHits > rateLimit.limit) {
+        throw new HttpException(rateLimit.message, HttpStatus.TOO_MANY_REQUESTS);
+      }
+      return true;
     } catch (error: any) {
       if (
         error instanceof HttpException &&

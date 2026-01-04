@@ -96,7 +96,10 @@ export class ProductivityCoachService {
 
     try {
       const response = await this.geminiAI.chat(message, history as any, {
-        tasks: context.pendingTasks,
+        tasks: context.pendingTasks.map(task => ({
+          ...task,
+          dueDate: task.dueDate || undefined,
+        })),
       });
 
       const processingTime = Date.now() - startTime;
