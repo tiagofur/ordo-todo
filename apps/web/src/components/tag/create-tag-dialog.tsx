@@ -9,10 +9,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Button } from '../ui/button.js';
+  Label,
+  Input,
+  Button,
+} from '@ordo-todo/ui';
 
 export interface TagFormData {
   name: string;

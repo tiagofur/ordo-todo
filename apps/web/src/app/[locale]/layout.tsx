@@ -1,5 +1,4 @@
 import "../globals.css";
-import { Montserrat } from "next/font/google";
 import type { Viewport } from "next";
 import { Providers } from "@/components/providers";
 import { PWAProvider } from "@/components/providers/pwa-provider";
@@ -7,10 +6,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { WebVitalsReporter } from "@/components/analytics/web-vitals";
 import { defaultMetadata } from "@/lib/seo";
-
-const font = Montserrat({
-  subsets: ["latin"],
-});
 
 // Export comprehensive SEO metadata
 export const metadata = {
@@ -57,7 +52,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="icon" href="/icons/icon-192.png" />
       </head>
-      <body className={`${font.className} antialiased`} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <PWAProvider>
             <Providers>

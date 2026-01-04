@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '../ui/button.js';
-import { Input } from '../ui/input.js';
-import { Label } from '../ui/label.js';
+import { Button, Input, Label } from '@ordo-todo/ui';
 
 interface TaskFormProps {
   /** Project ID to create task in */

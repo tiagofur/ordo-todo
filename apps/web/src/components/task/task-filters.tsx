@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
+} from '@ordo-todo/ui';
 
 export interface TagOption {
   id: string;

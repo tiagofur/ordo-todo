@@ -12,7 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class TokenBlacklistService {
   private readonly logger = new Logger(TokenBlacklistService.name);
-  private readonly blacklist = new Set<string>();
+  private readonly blacklistedTokens = new Set<string>();
 
   constructor(private readonly jwtService: JwtService) {}
 
@@ -22,7 +22,7 @@ export class TokenBlacklistService {
    * @param token - JWT access token to blacklist
    * @returns Promise that resolves when token is added
    */
-  async blacklist(token: string): Promise<void> {
+  async addToBlacklist(token: string): Promise<void> {
     try {
       // Decode token to get expiration time
       const decoded = this.jwtService.decode(token);
@@ -41,13 +41,15 @@ export class TokenBlacklistService {
 
         // Only store if token hasn't already expired
         if (expiresAt > now) {
-          this.blacklist.add(jti);
-          this.logger.debug(`Token ${jti} blacklisted until ${expiresAt.toISOString()}`);
+          this.blacklistedTokens.add(jti);
+          this.logger.debug(
+            `Token ${jti} blacklisted until ${expiresAt.toISOString()}`,
+          );
 
           // Schedule automatic cleanup after expiration
           const ttl = expiresAt.getTime() - now.getTime();
           setTimeout(() => {
-            this.blacklist.delete(jti);
+            this.blacklistedTokens.delete(jti);
             this.logger.debug(`Token ${jti} removed from blacklist (expired)`);
           }, ttl);
         } else {
@@ -74,13 +76,13 @@ export class TokenBlacklistService {
       }
 
       const jti = decoded.jti || token;
-      const isBlacklisted = this.blacklist.has(jti);
+      const isTokenBlacklisted = this.blacklistedTokens.has(jti);
 
-      if (isBlacklisted) {
+      if (isTokenBlacklisted) {
         this.logger.debug(`Token ${jti} is blacklisted`);
       }
 
-      return isBlacklisted;
+      return isTokenBlacklisted;
     } catch (error) {
       this.logger.error('Failed to check token blacklist status', error);
       return false;
@@ -94,8 +96,8 @@ export class TokenBlacklistService {
    * @returns Promise that resolves when cleanup is complete
    */
   async cleanup(): Promise<void> {
-    const beforeSize = this.blacklist.size;
-    this.blacklist.clear();
+    const beforeSize = this.blacklistedTokens.size;
+    this.blacklistedTokens.clear();
     this.logger.debug(`Blacklist cleared (${beforeSize} tokens removed)`);
   }
 
@@ -105,6 +107,6 @@ export class TokenBlacklistService {
    * @returns Number of tokens currently blacklisted
    */
   getBlacklistSize(): number {
-    return this.blacklist.size;
+    return this.blacklistedTokens.size;
   }
 }

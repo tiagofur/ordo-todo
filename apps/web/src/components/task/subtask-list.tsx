@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight, Pencil } from 'lucide-react';
-import { cn } from '../../utils/index.js';
-import { Button } from '../ui/button.js';
-import { Input } from '../ui/input.js';
-import { Checkbox } from '../ui/checkbox.js';
+import { cn, Button, Input, Checkbox } from '@ordo-todo/ui';
 
 export interface Subtask {
   id: string | number;

@@ -130,7 +130,10 @@ export class CustomThrottleGuard extends ThrottlerGuard {
       );
 
       if (result.totalHits > rateLimit.limit) {
-        throw new HttpException(rateLimit.message, HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException(
+          rateLimit.message,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
       return true;
     } catch (error: any) {

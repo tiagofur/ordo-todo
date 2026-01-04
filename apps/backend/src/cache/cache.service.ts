@@ -36,7 +36,9 @@ export class CacheService {
     deletes: 0,
   };
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: CacheManager.Cache,
+  ) {}
 
   async get<T>(key: string): Promise<T | undefined> {
     const value = await this.cacheManager.get<T>(key);
@@ -217,7 +219,7 @@ export class CacheService {
     defaultTTL: number = 300,
   ): Promise<void> {
     const promises = Object.entries(data).map(([key, value]) =>
-      this.set(key, value, defaultTTL)
+      this.set(key, value, defaultTTL),
     );
 
     await Promise.all(promises);

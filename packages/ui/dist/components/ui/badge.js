@@ -17,8 +17,6 @@ const badgeVariants = cva("inline-flex items-center justify-center rounded-full 
 });
 function Badge({ className, variant, asChild = false, ...props }) {
     const Comp = asChild ? Slot : "span";
-    return (
-    // @ts-expect-error - React 18/19 type compatibility: bigint in ReactNode
-    _jsx(Comp, { "data-slot": "badge", className: cn(badgeVariants({ variant }), className), ...props }));
+    return (_jsx(Comp, { "data-slot": "badge", className: cn(badgeVariants({ variant }), className), ...props }));
 }
 export { Badge, badgeVariants };

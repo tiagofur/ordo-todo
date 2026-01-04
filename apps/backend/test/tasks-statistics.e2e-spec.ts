@@ -106,7 +106,7 @@ describe('Tasks Statistics (e2e)', () => {
       expect(Array.isArray(response.body)).toBe(true);
 
       const statusMap = new Map(
-        response.body.map((item: any) => [item.status, item.count])
+        response.body.map((item: any) => [item.status, item.count]),
       );
 
       // Verify counts
@@ -155,7 +155,7 @@ describe('Tasks Statistics (e2e)', () => {
       expect(Array.isArray(response.body)).toBe(true);
 
       const statusMap = new Map(
-        response.body.map((item: any) => [item.status, item.count])
+        response.body.map((item: any) => [item.status, item.count]),
       );
 
       // Should count assigned tasks
@@ -213,7 +213,7 @@ describe('Tasks Statistics (e2e)', () => {
       expect(Array.isArray(response.body)).toBe(true);
 
       const statusMap = new Map(
-        response.body.map((item: any) => [item.status, item.count])
+        response.body.map((item: any) => [item.status, item.count]),
       );
 
       // CRITICAL: Should COMBINE owned and assigned tasks
@@ -245,7 +245,7 @@ describe('Tasks Statistics (e2e)', () => {
       expect(Array.isArray(response.body)).toBe(true);
 
       const statusMap = new Map(
-        response.body.map((item: any) => [item.status, item.count])
+        response.body.map((item: any) => [item.status, item.count]),
       );
       expect(statusMap.get('TODO')).toBeUndefined(); // Should not count deleted task
     });

@@ -16,9 +16,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
-import { Input } from '../ui/input.js';
-import { cn } from '../../utils/index.js';
+  Input,
+  cn,
+} from '@ordo-todo/ui';
 
 export interface WorkspaceSelectorItem {
   id: string;

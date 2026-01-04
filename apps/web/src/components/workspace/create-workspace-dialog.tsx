@@ -11,11 +11,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Textarea } from '../ui/textarea.js';
-import { Button } from '../ui/button.js';
+  Label,
+  Input,
+  Textarea,
+  Button,
+} from '@ordo-todo/ui';
 import { Building2, Home, Users } from 'lucide-react';
 import { createWorkspaceSchema, generateSlug } from '@ordo-todo/core';
 

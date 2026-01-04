@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { AlertCircle, User, Users } from 'lucide-react';
-import { Skeleton } from '../ui/skeleton.js';
-import { Button } from '../ui/button.js';
-import { cn } from '../../utils/index.js';
+import { Skeleton, Button, cn } from '@ordo-todo/ui';
 
 export interface TaskListItem {
   id: string | number;

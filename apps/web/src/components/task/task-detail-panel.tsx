@@ -19,34 +19,32 @@ import {
   Tag as TagIcon,
   Plus
 } from 'lucide-react';
-import { cn } from '../../utils/index.js';
 import {
+  cn,
   Sheet,
   SheetContent,
   SheetTitle,
-} from '../ui/sheet.js';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../ui/dialog.js';
-import { Button } from '../ui/button.js';
-import { Input } from '../ui/input.js';
-import { Label } from '../ui/label.js';
-import { Textarea } from '../ui/textarea.js';
-import {
+  Button,
+  Input,
+  Label,
+  Textarea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select.js';
-import { Badge } from '../ui/badge.js';
-import { Separator } from '../ui/separator.js';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover.js';
-import { Skeleton } from '../ui/skeleton.js';
+  Badge,
+  Separator,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Skeleton,
+} from '@ordo-todo/ui';
 
 // Types
 export interface TaskTag {

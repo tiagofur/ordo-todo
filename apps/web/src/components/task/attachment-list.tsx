@@ -12,11 +12,9 @@ import {
   Eye,
   X,
 } from 'lucide-react';
-import { cn } from '../../utils/index.js';
-import { Button } from '../ui/button.js';
+import { cn, Button, Dialog, DialogContent, DialogTitle } from '@ordo-todo/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
-import { Dialog, DialogContent, DialogTitle } from '../ui/dialog.js';
 
 interface Attachment {
   id: string | number;

@@ -23,11 +23,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-} from '../ui/dropdown-menu.js';
+  cn,
+  Badge,
+} from '@ordo-todo/ui';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { cn } from '../../utils/index.js';
-import { Badge } from '../ui/badge.js';
 
 type ViewMode = 'list' | 'grid';
 

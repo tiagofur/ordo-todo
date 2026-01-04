@@ -73,12 +73,13 @@ export class RedisService implements OnModuleInit {
             }
             return Math.min(retries * 100, 3000);
           },
-          keepAlive: 30000,
+          keepAlive: true,
         },
         database: 0,
       };
 
       // Main client for operations
+      // @ts-expect-error - Redis module type incompatibilities between packages
       this.client = Redis.createClient(redisOptions);
 
       // Dedicated client for pub/sub (prevents blocking)
@@ -114,7 +115,6 @@ export class RedisService implements OnModuleInit {
       // Ping to verify connection
       const pong = await this.client.ping();
       this.logger.log(`Redis ping response: ${pong}`);
-
     } catch (error) {
       this.logger.error('Failed to connect to Redis:', error);
       this.isConnected = false;
@@ -188,33 +188,34 @@ export class RedisService implements OnModuleInit {
     if (!this.isConnected) return;
 
     try {
-      let cursor = 0;
+      let cursor: string = '0';
       let deletedCount = 0;
 
       do {
         // Scan for keys matching pattern
-        const result = await this.client.scan(
-          cursor,
-          {
-            MATCH: pattern,
-            COUNT: 100,
-          }
-        );
+        const result = await this.client.scan(cursor, {
+          MATCH: pattern,
+          COUNT: 100,
+        });
 
-        cursor = result.cursor;
+        cursor = String(result.cursor);
 
         if (result.keys.length > 0) {
           // Delete found keys
           await this.client.del(result.keys);
           deletedCount += result.keys.length;
         }
-      } while (cursor !== 0);
+      } while (cursor !== '0');
 
       this.metrics.deletes += deletedCount;
-      this.logger.log(`Deleted ${deletedCount} keys matching pattern: ${pattern}`);
-
+      this.logger.log(
+        `Deleted ${deletedCount} keys matching pattern: ${pattern}`,
+      );
     } catch (error) {
-      this.logger.error(`Redis DEL_PATTERN error for pattern ${pattern}:`, error);
+      this.logger.error(
+        `Redis DEL_PATTERN error for pattern ${pattern}:`,
+        error,
+      );
       this.metrics.errors++;
     }
   }
@@ -240,7 +241,10 @@ export class RedisService implements OnModuleInit {
    * @param channel - Channel to subscribe to
    * @param callback - Callback function when message received
    */
-  async subscribe(channel: string, callback: (message: any) => void): Promise<void> {
+  async subscribe(
+    channel: string,
+    callback: (message: any) => void,
+  ): Promise<void> {
     if (!this.isConnected) return;
 
     try {
@@ -258,7 +262,6 @@ export class RedisService implements OnModuleInit {
       });
 
       this.logger.log(`Subscribed to Redis channel: ${channel}`);
-
     } catch (error) {
       this.logger.error(`Redis SUBSCRIBE error:`, error);
     }

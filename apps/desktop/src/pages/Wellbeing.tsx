@@ -32,31 +32,33 @@ import { PageTransition, SlideIn, StaggerList, StaggerItem } from "@/components/
 interface BurnoutAnalysis {
   riskScore: number;
   riskLevel: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
-  warnings: {
+  warnings?: {
     type: string;
     severity: "MILD" | "MODERATE" | "SEVERE";
     message: string;
     recommendation: string;
   }[];
   aiInsights?: string;
-  patterns: any;
+  patterns?: any;
 }
 
 interface WorkPattern {
-  averageHoursPerDay: number;
-  nightWorkPercentage: number;
-  weekendWorkPercentage: number;
-  longSessionsCount: number;
-  averageBreakMinutes: number;
-  consistencyScore: number;
+  averageHoursPerDay?: number;
+  nightWorkPercentage?: number;
+  weekendWorkPercentage?: number;
+  longSessionsCount?: number;
+  averageBreakMinutes?: number;
+  consistencyScore?: number;
+  [key: string]: unknown;
 }
 
 interface WeeklySummary {
-  overallScore: number;
-  trend: "IMPROVING" | "STABLE" | "DECLINING";
-  highlights: string[];
-  concerns: string[];
-  recommendations: string[];
+  overallScore?: number;
+  trend?: "IMPROVING" | "STABLE" | "DECLINING";
+  highlights?: string[];
+  concerns?: string[];
+  recommendations?: string[];
+  [key: string]: unknown;
 }
 
 export function Wellbeing() {
@@ -79,9 +81,9 @@ export function Wellbeing() {
         apiClient.getRestRecommendations(),
       ]);
 
-      if (burnoutRes.status === "fulfilled") setBurnout(burnoutRes.value);
-      if (patternsRes.status === "fulfilled") setPatterns(patternsRes.value);
-      if (weeklyRes.status === "fulfilled") setWeekly(weeklyRes.value);
+      if (burnoutRes.status === "fulfilled") setBurnout(burnoutRes.value as unknown as BurnoutAnalysis);
+      if (patternsRes.status === "fulfilled") setPatterns(patternsRes.value as unknown as WorkPattern);
+      if (weeklyRes.status === "fulfilled") setWeekly(weeklyRes.value as unknown as WeeklySummary);
       if (recsRes.status === "fulfilled") setRecommendations(Array.isArray(recsRes.value) ? recsRes.value : []);
     } catch (error) {
       console.error("Failed to fetch wellbeing data:", error);
@@ -183,12 +185,12 @@ export function Wellbeing() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-6">
                     <div className="p-4 rounded-2xl bg-background/80 backdrop-blur">
-                      {getBatteryIcon(weekly.overallScore)}
+                      {getBatteryIcon(weekly.overallScore ?? 0)}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Nivel de Energía</p>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-bold">{weekly.overallScore}</span>
+                        <span className="text-5xl font-bold">{weekly.overallScore ?? 0}</span>
                         <span className="text-2xl text-muted-foreground">/100</span>
                       </div>
                     </div>
@@ -197,7 +199,7 @@ export function Wellbeing() {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Tendencia</p>
                       <div className="flex items-center gap-2 mt-1">
-                        {getTrendIcon(weekly.trend)}
+                        {getTrendIcon(weekly.trend ?? "STABLE")}
                         <span className="font-medium">
                           {weekly.trend === "IMPROVING" && "Mejorando"}
                           {weekly.trend === "STABLE" && "Estable"}
@@ -336,7 +338,7 @@ export function Wellbeing() {
                     <Clock className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{patterns.averageHoursPerDay.toFixed(1)}h</p>
+                    <p className="text-2xl font-bold">{(patterns.averageHoursPerDay ?? 0).toFixed(1)}h</p>
                     <p className="text-xs text-muted-foreground">Horas/día promedio</p>
                   </div>
                 </div>
@@ -395,7 +397,7 @@ export function Wellbeing() {
                     Resumen Semanal
                   </span>
                   <div className="flex items-center gap-2">
-                    {getTrendIcon(weekly.trend)}
+                    {getTrendIcon(weekly.trend ?? "STABLE")}
                     <span className="text-sm text-muted-foreground">
                       {weekly.trend === "IMPROVING" && "Mejorando"}
                       {weekly.trend === "STABLE" && "Estable"}
@@ -407,14 +409,14 @@ export function Wellbeing() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Highlights */}
-                  {weekly.highlights?.length > 0 && (
+                  {(weekly.highlights?.length ?? 0) > 0 && (
                     <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20">
                       <h4 className="font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4" />
                         Lo positivo
                       </h4>
                       <ul className="space-y-1">
-                        {weekly.highlights.map((h, idx) => (
+                        {weekly.highlights?.map((h, idx) => (
                           <li key={idx} className="text-sm text-muted-foreground">• {h}</li>
                         ))}
                       </ul>
@@ -422,14 +424,14 @@ export function Wellbeing() {
                   )}
 
                   {/* Concerns */}
-                  {weekly.concerns?.length > 0 && (
+                  {(weekly.concerns?.length ?? 0) > 0 && (
                     <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
                       <h4 className="font-medium text-orange-600 dark:text-orange-400 mb-2 flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4" />
                         Áreas de mejora
                       </h4>
                       <ul className="space-y-1">
-                        {weekly.concerns.map((c, idx) => (
+                        {weekly.concerns?.map((c, idx) => (
                           <li key={idx} className="text-sm text-muted-foreground">• {c}</li>
                         ))}
                       </ul>

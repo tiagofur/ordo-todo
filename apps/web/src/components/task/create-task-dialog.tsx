@@ -12,12 +12,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Textarea } from '../ui/textarea.js';
-import { Button } from '../ui/button.js';
-import { EmptyState } from '../ui/empty-state.js';
+  Label,
+  Input,
+  Textarea,
+  Button,
+  EmptyState,
+} from '@ordo-todo/ui';
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
 import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector.js';
 

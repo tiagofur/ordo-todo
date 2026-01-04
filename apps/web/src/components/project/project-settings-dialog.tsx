@@ -11,11 +11,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Textarea } from '../ui/textarea.js';
-import { Button } from '../ui/button.js';
+  Label,
+  Input,
+  Textarea,
+  Button,
+} from '@ordo-todo/ui';
 import { Palette, Check } from 'lucide-react';
 import { PROJECT_COLORS, updateProjectSchema } from '@ordo-todo/core';
 

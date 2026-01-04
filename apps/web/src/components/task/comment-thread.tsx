@@ -2,18 +2,20 @@
 
 import { useState } from 'react';
 import { Send, Edit2, Trash2, MoreVertical } from 'lucide-react';
-import { Button } from '../ui/button.js';
-import { Textarea } from '../ui/textarea.js';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.js';
 import {
+  Button,
+  Textarea,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
+  MentionTextarea,
+} from '@ordo-todo/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
-import { MentionTextarea } from '../ui/mention-textarea.js';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 

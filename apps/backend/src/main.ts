@@ -11,7 +11,10 @@ import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { loggerConfig } from './common/logger/logger.config';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { CorrelationIdMiddleware, correlationIdMiddleware } from './common/middleware/correlation-id.middleware';
+import {
+  CorrelationIdMiddleware,
+  correlationIdMiddleware,
+} from './common/middleware/correlation-id.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -27,7 +30,7 @@ async function bootstrap() {
           defaultSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for styled-components
           scriptSrc: ["'self'"],
-          imgSrc: ["'self'", "data:", "https:"],
+          imgSrc: ["'self'", 'data:', 'https:'],
           connectSrc: ["'self'"],
           fontSrc: ["'self'"],
           objectSrc: ["'none'"],

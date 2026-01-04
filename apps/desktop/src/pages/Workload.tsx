@@ -63,12 +63,13 @@ interface WorkloadSuggestion {
 }
 
 interface TeamWorkloadData {
-  workspaceId: string;
-  workspaceName: string;
-  members: MemberWorkload[];
-  averageWorkload: number;
+  workspaceId?: string;
+  workspaceName?: string;
+  members?: MemberWorkload[];
+  averageWorkload?: number;
   balanceScore?: number;
-  redistributionSuggestions: WorkloadSuggestion[];
+  redistributionSuggestions?: WorkloadSuggestion[];
+  [key: string]: unknown;
 }
 
 export function Workload() {
@@ -85,7 +86,7 @@ export function Workload() {
     setIsRefreshing(true);
     try {
       const data = await apiClient.getWorkspaceWorkload(workspaceId);
-      setWorkloadData(data);
+      setWorkloadData(data as unknown as TeamWorkloadData);
     } catch (error) {
       console.error("Failed to fetch workload:", error);
     } finally {
@@ -219,7 +220,7 @@ export function Workload() {
                       <Users className="h-5 w-5 text-blue-500" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">{workloadData.members.length}</p>
+                      <p className="text-2xl font-bold">{workloadData.members?.length ?? 0}</p>
                       <p className="text-xs text-muted-foreground">Miembros activos</p>
                     </div>
                   </div>
@@ -232,7 +233,7 @@ export function Workload() {
                       <BarChart3 className="h-5 w-5 text-purple-500" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">{workloadData.averageWorkload}%</p>
+                      <p className="text-2xl font-bold">{workloadData.averageWorkload ?? 0}%</p>
                       <p className="text-xs text-muted-foreground">Carga promedio</p>
                     </div>
                   </div>
@@ -266,7 +267,7 @@ export function Workload() {
                     </div>
                     <div>
                       <p className="text-2xl font-bold">
-                        {workloadData.members.filter(m => m.workloadLevel === "OVERLOADED" || m.workloadLevel === "HIGH").length}
+                        {(workloadData.members ?? []).filter(m => m.workloadLevel === "OVERLOADED" || m.workloadLevel === "HIGH").length}
                       </p>
                       <p className="text-xs text-muted-foreground">Necesitan ayuda</p>
                     </div>
@@ -332,7 +333,7 @@ export function Workload() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {workloadData.members.map((member, idx) => (
+                    {(workloadData.members ?? []).map((member, idx) => (
                       <div
                         key={member.userId}
                         className={cn(

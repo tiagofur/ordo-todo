@@ -8,8 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog.js';
-import { Button } from '../ui/button.js';
+  Button,
+} from '@ordo-todo/ui';
 import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface GenerateReportDialogProps {

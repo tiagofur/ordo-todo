@@ -716,9 +716,7 @@ describe('TasksService', () => {
     it('should return tasks scheduled for a specific date', async () => {
       const userId = 'user-123';
       const date = new Date('2026-01-03');
-      const mockTasks = [
-        { id: 'task-1', title: 'Task 1', dueDate: date },
-      ];
+      const mockTasks = [{ id: 'task-1', title: 'Task 1', dueDate: date }];
 
       const executeSpy = jest.spyOn(
         FindScheduledTasksUseCase.prototype,
@@ -746,7 +744,10 @@ describe('TasksService', () => {
         },
       ];
 
-      const executeSpy = jest.spyOn(FindAvailableTasksUseCase.prototype, 'execute');
+      const executeSpy = jest.spyOn(
+        FindAvailableTasksUseCase.prototype,
+        'execute',
+      );
       executeSpy.mockResolvedValue(mockTasks as any);
 
       const result = await service.findAvailable(userId, projectId);

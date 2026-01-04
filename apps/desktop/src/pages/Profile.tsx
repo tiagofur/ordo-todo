@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { Settings as SettingsIcon, Sun, Laptop } from "lucide-react";
-import { Label, Separator, Switch, Slider, Button, ProfileTabs } from "@ordo-todo/ui";
+import { Label, Separator, Switch, Slider, Button } from "@ordo-todo/ui";
+import { ProfileTabs } from "@/components/shared/profile-tabs";
 import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { useElectron } from "@/hooks/use-electron";
@@ -364,13 +365,13 @@ export function Profile() {
             profile={profile as any}
             sessionUser={{ email: profile?.email || "" }}
             isLoading={isLoading}
-            onUpdateProfile={async (data) => {
+            onUpdateProfile={async (data: Record<string, unknown>) => {
               await updateProfile.mutateAsync(data);
             }}
-            onUpdateUsername={async (newUsername) => {
+            onUpdateUsername={async (newUsername: string) => {
               await updateProfile.mutateAsync({ username: newUsername });
             }}
-            onUpdatePreferences={async (data) => {
+            onUpdatePreferences={async (data: Record<string, unknown>) => {
               await updatePreferences.mutateAsync(data);
             }}
             onExportData={async () => {

@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { User, Check, X, UserPlus } from 'lucide-react';
-import { cn } from '../../utils/index.js';
 import {
+  cn,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '../ui/popover.js';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.js';
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@ordo-todo/ui';
 
 interface Assignee {
   id: string;

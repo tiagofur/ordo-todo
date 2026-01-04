@@ -122,7 +122,9 @@ function handlePrismaError(error: Prisma.PrismaClientKnownRequestError): never {
 
     case 'P2018':
       // Required connected records not found
-      throw new BadRequestException('Required connected records were not found');
+      throw new BadRequestException(
+        'Required connected records were not found',
+      );
 
     case 'P2023':
       // Inconsistent column data

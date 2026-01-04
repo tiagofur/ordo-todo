@@ -7,10 +7,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select.js';
-import { Label } from '../ui/label.js';
-import { Checkbox } from '../ui/checkbox.js';
-import { DatePicker } from '../ui/date-picker.js';
+  Label,
+  Checkbox,
+  DatePicker,
+} from '@ordo-todo/ui';
 
 export interface RecurrenceValue {
   pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';

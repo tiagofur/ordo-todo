@@ -52,7 +52,6 @@ export function ConfirmDelete({
     <Dialog open={open} onOpenChange={onOpenChange}>
       {children ? (
         <DialogTrigger asChild disabled={disabled}>
-          {/* @ts-expect-error - React 18/19 type compatibility: bigint in ReactNode */}
           {children}
         </DialogTrigger>
       ) : null}

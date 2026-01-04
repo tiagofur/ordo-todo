@@ -331,7 +331,7 @@ export class AuthService {
   async logout(accessToken: string): Promise<void> {
     try {
       // Add token to blacklist to prevent reuse
-      await this.tokenBlacklistService.blacklist(accessToken);
+      await this.tokenBlacklistService.addToBlacklist(accessToken);
     } catch (error) {
       this.logger.error('Failed to logout user', error);
       throw new UnauthorizedException('Failed to logout');

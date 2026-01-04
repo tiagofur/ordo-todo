@@ -35,7 +35,9 @@ describe('PrismaWorkspaceRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<PrismaWorkspaceRepository>(PrismaWorkspaceRepository);
+    repository = module.get<PrismaWorkspaceRepository>(
+      PrismaWorkspaceRepository,
+    );
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
@@ -318,7 +320,9 @@ describe('PrismaWorkspaceRepository', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.workspace.update.mockResolvedValue(mockUpdatedWorkspace);
+      mockPrismaService.workspace.update.mockResolvedValue(
+        mockUpdatedWorkspace,
+      );
 
       const result = await repository.update(workspace);
 

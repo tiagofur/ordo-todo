@@ -11,13 +11,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Textarea } from '../ui/textarea.js';
-import { Button } from '../ui/button.js';
-import { EmptyState } from '../ui/empty-state.js';
-import { ScrollArea } from '../ui/scroll-area.js';
+  Label,
+  Input,
+  Textarea,
+  Button,
+  EmptyState,
+  ScrollArea,
+} from '@ordo-todo/ui';
 import { Briefcase, Check, Palette, LayoutTemplate } from 'lucide-react';
 import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/core';
 

@@ -18,7 +18,11 @@ export class CorrelationIdMiddleware implements NestMiddleware {
   }
 }
 
-export function correlationIdMiddleware(req: Request, res: Response, next: NextFunction): void {
+export function correlationIdMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   // Get or generate correlation ID from request headers
   const correlationId =
     (req.headers['x-correlation-id'] as string) ||
