@@ -194,6 +194,35 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
   console.log(`Application running on: http://localhost:${port}`);
   console.log(`API available at: http://localhost:${port}/${apiPrefix}`);
   console.log(`API documentation at: http://localhost:${port}/api-docs`);
+
+  // Graceful shutdown
+  const gracefulShutdownTimeout = 10000; // 10 seconds
+
+  app.enableShutdownHooks();
+
+  process.on('SIGTERM', async () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    setTimeout(() => {
+      console.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, gracefulShutdownTimeout);
+
+    await app.close();
+    console.log('HTTP server closed');
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('SIGINT signal received: closing HTTP server');
+    setTimeout(() => {
+      console.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, gracefulShutdownTimeout);
+
+    await app.close();
+    console.log('HTTP server closed');
+    process.exit(0);
+  });
 }
 bootstrap();
 // Build: 2025-12-16 - rxjs dependency fix

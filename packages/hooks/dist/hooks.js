@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createHooks = createHooks;
 const react_query_1 = require("@tanstack/react-query");
 const query_keys_1 = require("./query-keys");
+const use_notes_1 = require("./notes/use-notes");
 /**
  * Creates all React Query hooks bound to a specific API client.
  *
@@ -1292,6 +1293,8 @@ function createHooks(config) {
             },
         });
     }
+    // ============ NOTES HOOKS ============
+    const { useNotes, useNote, useCreateNote, useUpdateNote, useDeleteNote } = (0, use_notes_1.createNotesHooks)(apiClient);
     // Return all hooks
     return {
         // Auth
@@ -1437,6 +1440,12 @@ function createHooks(config) {
         useDeleteCustomField,
         useTaskCustomValues,
         useSetTaskCustomValues,
+        // Notes
+        useNotes,
+        useNote,
+        useCreateNote,
+        useUpdateNote,
+        useDeleteNote,
         // Utilities
         invalidateAllTasks,
     };

@@ -8,6 +8,8 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
+        // Exclude dist folder to prevent running compiled JS tests
+        exclude: ['**/node_modules/**', '**/dist/**'],
         // Fix double-free error by limiting threads and pool options
         pool: 'threads',
         poolOptions: {
@@ -20,6 +22,7 @@ export default defineConfig({
             reporter: ['text', 'json', 'html'],
             exclude: [
                 'node_modules/',
+                'dist/',
                 'vitest.setup.ts',
                 '**/*.config.*',
                 '**/types/**',

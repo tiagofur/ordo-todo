@@ -105,4 +105,9 @@ export const queryKeys = {
   // ============ Custom Fields ============
   customFields: (projectId: string) => ['custom-fields', projectId] as const,
   taskCustomValues: (taskId: string) => ['task-custom-values', taskId] as const,
+
+  // ============ Notes ============
+  notes: (workspaceId: string) => ['notes', workspaceId] as const,
+  note: (id: string) => ['notes', 'detail', id] as const,
 } as const;
+

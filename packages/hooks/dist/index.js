@@ -1,4 +1,7 @@
+"use client";
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateUsernameSuggestions = exports.useUsernameValidation = exports.useTimer = exports.queryKeys = exports.createHooks = void 0;
 /**
  * Shared React Query Hooks for Ordo-Todo
  *
@@ -52,8 +55,6 @@
  * }
  * ```
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateUsernameSuggestions = exports.useUsernameValidation = exports.useTimer = exports.queryKeys = exports.createHooks = void 0;
 var hooks_1 = require("./hooks");
 Object.defineProperty(exports, "createHooks", { enumerable: true, get: function () { return hooks_1.createHooks; } });
 var query_keys_1 = require("./query-keys");

@@ -79,4 +79,7 @@ exports.queryKeys = {
     // ============ Custom Fields ============
     customFields: (projectId) => ['custom-fields', projectId],
     taskCustomValues: (taskId) => ['task-custom-values', taskId],
+    // ============ Notes ============
+    notes: (workspaceId) => ['notes', workspaceId],
+    note: (id) => ['notes', 'detail', id],
 };

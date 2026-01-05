@@ -23,7 +23,117 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Ordo-Todo Backend API built with [NestJS](https://github.com/nestjs/nest) framework, PostgreSQL, and Redis.
+
+**Key Features:**
+- RESTful API with comprehensive CRUD operations
+- JWT authentication with refresh tokens
+- Redis-backed token blacklist for distributed sessions
+- Role-based access control (RBAC) with workspace membership
+- Real-time notifications via WebSocket (planned)
+- Comprehensive Swagger/OpenAPI documentation
+
+**Technology Stack:**
+- **Framework**: NestJS 11
+- **Database**: PostgreSQL with Prisma ORM
+- **Cache**: Redis (ioredis) for token blacklist and caching
+- **Authentication**: JWT with access + refresh tokens
+- **Validation**: class-validator + class-transformer
+- **Testing**: Jest + Supertest
+
+## Redis Setup
+
+This backend uses Redis for:
+1. **Token Blacklist**: Distributed logout across multiple instances
+2. **Caching**: Optional caching for frequently accessed data
+
+### Local Development with Docker
+
+```bash
+# Start Redis container
+docker run --name ordo-redis \
+  -p 6379:6379 \
+  -d redis:7-alpine
+
+# Verify Redis is running
+docker ps | grep ordo-redis
+
+# Stop Redis when done
+docker stop ordo-redis
+docker rm ordo-redis
+```
+
+### Local Development without Docker
+
+```bash
+# Install Redis (macOS)
+brew install redis
+brew services start redis
+
+# Install Redis (Ubuntu)
+sudo apt-get install redis-server
+sudo systemctl start redis
+
+# Install Redis (Windows)
+# Download from https://github.com/microsoftarchive/redis/releases
+```
+
+### Cloud Redis Services
+
+**Recommended options for production:**
+- **AWS ElastiCache** (https://aws.amazon.com/elasticache/)
+- **Redis Cloud** (https://redis.com/redis-enterprise-cloud/)
+- **Upstash** (https://upstash.com/) - Free tier available
+
+### Environment Variables
+
+```bash
+# Required for token blacklist
+REDIS_HOST=localhost
+REDIS_PORT=6379
+# Optional (if Redis requires authentication)
+REDIS_PASSWORD=your_password
+# Optional (for TLS connections)
+REDIS_TLS=true
+```
+
+## Database Migrations
+
+This project uses Prisma Migrate for database schema management.
+
+### Recent Migrations (January 2025)
+
+#### 1. Fix onDelete Behaviors (20260105_fix_on_delete_behaviors)
+**Purpose**: Fix 7 critical data integrity issues
+**Risk**: Low (only affects future DELETE operations)
+**Documentation**: [scripts/migrations/20260105_fix_on_delete_behaviors.md](../../../scripts/migrations/20260105_fix_on_delete_behaviors.md)
+
+#### 2. Add Missing Indexes (20260105_add_missing_indexes)
+**Purpose**: Add 6 performance indexes
+**Risk**: Minimal (indexes only, no data changes)
+**Documentation**: [scripts/migrations/20260105_add_missing_indexes.md](../../../scripts/migrations/20260105_add_missing_indexes.md)
+
+### Applying Migrations
+
+**Development**:
+```bash
+cd packages/db
+npx prisma migrate dev
+```
+
+**Production**:
+```bash
+# 1. Backup database first
+./scripts/migrations/backup-db.sh production
+
+# 2. Apply migration
+./scripts/migrations/migrate-production.sh 20260105_fix_on_delete_behaviors
+
+# 3. Verify application works
+curl -f https://api.ordotodo.com/health
+```
+
+**See**: [Migrations Guide](../../../scripts/migrations/README.md)
 
 ## Project setup
 
@@ -103,9 +213,83 @@ npm run test:e2e:teardown
 
 The E2E tests run automatically in GitHub Actions using the `postgres` service defined in `.github/workflows/ci.yml`. No additional setup is required.
 
-## Deployment
+## Environment Variables
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Create a `.env` file in the `apps/backend` directory:
+
+```bash
+# Database
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ordo_todo"
+
+# JWT Authentication
+JWT_SECRET="your-super-secret-jwt-key-at-least-32-characters-long"
+JWT_EXPIRATION="1h"
+JWT_REFRESH_EXPIRATION="7d"
+
+# Redis (Required for production)
+REDIS_URL="redis://localhost:6379"
+REDIS_ENABLED="true"
+
+# Node Environment
+NODE_ENV="development"
+
+# API Configuration
+PORT=3001
+API_PREFIX=""
+```
+
+### Redis Setup (Production)
+
+Redis is **required for production deployments** to enable:
+- **Distributed token blacklist** - Logout works across all server instances
+- **Distributed caching** - Cache invalidation across multiple instances
+- **Pub/Sub coordination** - Real-time cache updates
+
+#### Option 1: Docker (Recommended)
+
+```bash
+# Start Redis
+docker run --name ordo-redis \
+  -p 6379:6379 \
+  -d redis:7-alpine
+
+# Verify connection
+docker exec -it ordo-redis redis-cli ping
+# Should return: PONG
+```
+
+#### Option 2: Redis Cloud
+
+Use managed Redis services:
+- [AWS ElastiCache](https://aws.amazon.com/elasticache/)
+- [Azure Cache for Redis](https://azure.microsoft.com/services/cache/)
+- [Redis Cloud](https://redis.com/redis-enterprise-cloud/)
+
+#### Option 3: Local Development
+
+Without Redis, the backend will use in-memory caching (not production-ready).
+
+### Redis Health Check
+
+Monitor Redis connection status:
+
+```bash
+# Check Redis health endpoint
+curl http://localhost:3001/health
+
+# Response includes Redis status
+{
+  "status": "ok",
+  "info": {
+    "redis": {
+      "status": "connected",
+      "latency": 5
+    }
+  }
+}
+```
+
+## Deployment
 
 If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 

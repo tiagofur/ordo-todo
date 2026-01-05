@@ -403,6 +403,7 @@ focusScore = (workTime / totalTime) - (pauseCount * 0.02)
 8. **Shared Configs**: Extend from `@ordo-todo/eslint-config` and `@ordo-todo/typescript-config`
 9. **Auto-tracking**: TimeSessions → DailyMetrics automático, transparente para el usuario
 10. **Shared Components**: ALL UI components MUST live in `packages/ui` (see Component Guidelines below)
+11. **Project Organization**: Keep root clean. Follow [PROJECT_ORGANIZATION.md](./docs/PROJECT_ORGANIZATION.md) for file placement.
 
 ## Component Generation Guidelines (MANDATORY)
 

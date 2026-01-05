@@ -30,11 +30,14 @@ import { FocusModule } from './focus/focus.module';
 import { MeetingsModule } from './meetings/meetings.module';
 import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { BlogPostModule } from './blog/blog-post.module';
 import { ChangelogModule } from './changelog/changelog.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { ContactModule } from './contact/contact.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
+import { NotesModule } from './notes/notes.module';
+
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
 import { WinstonModule } from 'nest-winston';
@@ -57,12 +60,15 @@ import { ScheduleModule } from '@nestjs/schedule';
     DatabaseModule,
     RepositoriesModule,
     HealthModule, // Health check endpoints (no prefix)
+    MetricsModule, // Prometheus metrics endpoint (no prefix)
     AuthModule,
     UsersModule,
     WorkspacesModule,
     WorkflowsModule,
     ProjectsModule,
     TasksModule,
+    NotesModule,
+
     TagsModule,
     TimersModule,
     AnalyticsModule,

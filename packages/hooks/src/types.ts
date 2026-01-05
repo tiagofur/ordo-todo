@@ -172,7 +172,15 @@ export type ApiClient = OrdoApiClient | {
   linkTaskToKeyResult: OrdoApiClient['linkTaskToKeyResult'];
   unlinkTaskFromKeyResult: OrdoApiClient['unlinkTaskFromKeyResult'];
 
+  // Notes
+  getNotes: OrdoApiClient['getNotes'];
+  getNote: OrdoApiClient['getNote'];
+  createNote: OrdoApiClient['createNote'];
+  updateNote: OrdoApiClient['updateNote'];
+  deleteNote: OrdoApiClient['deleteNote'];
+
   // Custom Fields
+
   getProjectCustomFields: OrdoApiClient['getProjectCustomFields'];
   createCustomField: OrdoApiClient['createCustomField'];
   updateCustomField: OrdoApiClient['updateCustomField'];

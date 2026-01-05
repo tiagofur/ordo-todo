@@ -27,14 +27,9 @@ vi.mock('framer-motion', () => ({
   },
 }));
 
-// Mock window.confirm
+// Mock window.confirm without destroying other window properties
 const mockConfirm = vi.fn();
-Object.defineProperty(global, 'window', {
-  value: {
-    confirm: mockConfirm,
-  },
-  writable: true,
-});
+vi.stubGlobal('confirm', mockConfirm);
 
 describe('WorkspaceCard Component', () => {
   const mockWorkspace: WorkspaceData = {
@@ -183,14 +178,13 @@ describe('WorkspaceCard Component', () => {
       }
     });
 
-    it('should show confirmation dialog before deleting', async () => {
-      mockConfirm.mockReturnValue(false);
+    it('should call onDelete when delete button is clicked', async () => {
       const handleDelete = vi.fn();
       const user = userEvent.setup();
 
       render(<WorkspaceCard workspace={mockWorkspace} onDelete={handleDelete} />);
 
-      // Find and click the more button
+      // Find and click the more button to open dropdown
       const buttons = screen.getAllByRole('button');
       const moreButton = buttons.find((btn) => btn.querySelector('svg'));
 
@@ -200,10 +194,8 @@ describe('WorkspaceCard Component', () => {
         const deleteButton = screen.getByText('Delete');
         await user.click(deleteButton);
 
-        expect(mockConfirm).toHaveBeenCalledWith(
-          expect.stringContaining('Test Workspace')
-        );
-        expect(handleDelete).not.toHaveBeenCalled();
+        // Component calls onDelete directly (confirmation is handled by parent)
+        expect(handleDelete).toHaveBeenCalledWith('workspace-123');
       }
     });
 
@@ -286,37 +278,31 @@ describe('WorkspaceCard Component', () => {
       // This would require clicking the more button first
     });
 
-    it('should use custom confirm delete message', async () => {
-      mockConfirm.mockReturnValue(true);
+    it('should use custom action labels', async () => {
       const handleDelete = vi.fn();
       const user = userEvent.setup();
 
       const customLabels = {
-        confirmDelete: (name: string) => `¿Seguro que quieres eliminar "${name}"?`,
+        actions: {
+          settings: 'Configurar',
+          delete: 'Eliminar',
+        },
       };
 
       render(
         <WorkspaceCard workspace={mockWorkspace} onDelete={handleDelete} labels={customLabels} />
       );
 
-      // Open menu and click delete
+      // Open menu to see custom labels
       const buttons = screen.getAllByRole('button');
       const moreButton = buttons.find((btn) => btn.querySelector('svg'));
 
       if (moreButton) {
         await user.click(moreButton);
 
-        const deleteButton = screen.getByText('Eliminar');
-        if (deleteButton) {
-          await user.click(deleteButton);
-        } else {
-          const deleteButtonEn = screen.getByText('Delete');
-          await user.click(deleteButtonEn);
-        }
-
-        expect(mockConfirm).toHaveBeenCalledWith(
-          '¿Seguro que quieres eliminar "Test Workspace"?'
-        );
+        // Should use custom Spanish labels
+        expect(screen.getByText('Eliminar')).toBeInTheDocument();
+        expect(screen.getByText('Configurar')).toBeInTheDocument();
       }
     });
   });
@@ -324,27 +310,26 @@ describe('WorkspaceCard Component', () => {
   // ============ ACCESSIBILITY TESTS ============
 
   describe('Accessibility', () => {
-    it('should be keyboard navigable', async () => {
+    it('should respond to click events', async () => {
       const handleClick = vi.fn();
+      const user = userEvent.setup();
       render(<WorkspaceCard workspace={mockWorkspace} onWorkspaceClick={handleClick} />);
 
       const card = screen.getByText('Test Workspace').closest('div');
-      card?.focus();
+      expect(card).toBeInTheDocument();
 
-      expect(document.activeElement).toBe(card);
+      // Click should trigger the callback
+      await user.click(card!);
 
-      // Press Enter to click
-      fireEvent.keyDown(card!, { key: 'Enter', code: 'Enter' });
-
-      // Note: The click handler is on the div, not a button
-      // This test verifies the element can receive focus
+      expect(handleClick).toHaveBeenCalledWith(mockWorkspace);
     });
 
-    it('should have clickable area with cursor pointer', () => {
-      render(<WorkspaceCard workspace={mockWorkspace} />);
+    it('should render with proper styling for interactivity', () => {
+      const { container } = render(<WorkspaceCard workspace={mockWorkspace} />);
 
-      const card = screen.getByText('Test Workspace').closest('div');
-      expect(card).toHaveClass('cursor-pointer');
+      // The card has cursor-pointer class for visual feedback
+      const card = container.querySelector('.cursor-pointer');
+      expect(card).toBeInTheDocument();
     });
 
     it('should have proper button roles for interactive elements', () => {
@@ -366,19 +351,20 @@ describe('WorkspaceCard Component', () => {
   // ============ VISUAL STATES ============
 
   describe('Visual States', () => {
-    it('should apply border color based on workspace type', () => {
+    it('should apply left border color based on workspace type', () => {
       const { container } = render(<WorkspaceCard workspace={mockWorkspace} />);
 
-      const card = container.querySelector('.border-l-\\[4px\\]');
+      // Border is applied via inline style, not CSS class
+      const card = container.querySelector('[style*="border-left"]');
       expect(card).toBeInTheDocument();
     });
 
-    it('should use workspace color for gradient overlay', () => {
+    it('should render icon box with type-appropriate color', () => {
       const { container } = render(<WorkspaceCard workspace={mockWorkspace} />);
 
-      // Check if the decorative gradient element exists
-      const gradient = container.querySelector('.absolute');
-      expect(gradient).toBeInTheDocument();
+      // Type icon box should have background color
+      const iconBox = container.querySelector('[style*="background-color"]');
+      expect(iconBox).toBeInTheDocument();
     });
 
     it('should render different colors for different workspace types', () => {

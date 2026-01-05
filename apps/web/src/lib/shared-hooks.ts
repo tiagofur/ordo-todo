@@ -167,7 +167,15 @@ export function useUnreadNotificationsCount() { return getHooks().useUnreadNotif
 export function useMarkNotificationAsRead() { return getHooks().useMarkNotificationAsRead(); }
 export function useMarkAllNotificationsAsRead() { return getHooks().useMarkAllNotificationsAsRead(); }
 
+// Notes
+export function useNotes(workspaceId: string) { return getHooks().useNotes(workspaceId); }
+export function useNote(id: string) { return getHooks().useNote(id); }
+export function useCreateNote() { return getHooks().useCreateNote(); }
+export function useUpdateNote() { return getHooks().useUpdateNote(); }
+export function useDeleteNote() { return getHooks().useDeleteNote(); }
+
 // Utilities
+
 export function invalidateAllTasks(queryClient: QueryClient) { return getHooks().invalidateAllTasks(queryClient); }
 
 // Export the lazy getter for dynamic access

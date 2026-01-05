@@ -123,6 +123,44 @@ export class WorkflowsController {
   }
 
   /**
+   * Get a single workflow by ID
+   */
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get workflow by ID',
+    description:
+      'Retrieves a single workflow with all its details and project count.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Workflow ID',
+    example: 'clx1234567890',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Workflow retrieved successfully',
+    schema: {
+      example: {
+        id: 'clx1234567890',
+        name: 'Development Cycle',
+        description: 'Sprint-based development workflow',
+        workspaceId: 'workspace123',
+        icon: '🚀',
+        color: '#3B82F6',
+        order: 1,
+        projectCount: 5,
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  findOne(@Param('id') id: string) {
+    return this.workflowsService.findOne(id);
+  }
+
+  /**
    * Update workflow details
    * Requires OWNER or ADMIN role
    */

@@ -213,6 +213,34 @@ export class AIService {
     return profile.props;
   }
 
+  async updateProfile(userId: string, updateData: Record<string, any>) {
+    const profile = await this.aiProfileRepository.findByUserId(userId);
+
+    if (!profile) {
+      // Create new profile if it doesn't exist
+      const newProfile = await this.aiProfileRepository.findOrCreate(userId);
+      // Update with provided data
+      const updated = newProfile.clone(updateData);
+      const saved = await this.aiProfileRepository.save(updated);
+      return saved.props;
+    }
+
+    // Update existing profile
+    const updated = profile.clone(updateData);
+    const saved = await this.aiProfileRepository.save(updated);
+    return saved.props;
+  }
+
+  async deleteProfile(userId: string) {
+    const profile = await this.aiProfileRepository.findByUserId(userId);
+
+    if (profile) {
+      await this.aiProfileRepository.delete(String(profile.id));
+    }
+
+    return { success: true };
+  }
+
   async getOptimalSchedule(userId: string, topN?: number) {
     const useCase = new GetOptimalScheduleUseCase(this.aiProfileRepository);
     return await useCase.execute({ userId, topN });

@@ -220,16 +220,18 @@ describe('TasksController', () => {
       );
     });
 
-    it('should throw ForbiddenException if user does not own task', async () => {
+    it('should allow any workspace member to view task', async () => {
       const taskId = 'task-123';
       const user = { id: 'user-2', email: 'other@example.com' };
       const mockTask = { id: taskId, title: 'Test Task', ownerId: 'user-1' };
 
       (tasksService.findOne as jest.Mock).mockResolvedValue(mockTask);
 
-      await expect(controller.findOne(taskId, user as any)).rejects.toThrow(
-        ForbiddenException,
-      );
+      const result = await controller.findOne(taskId, user as any);
+
+      expect(result).toEqual(mockTask);
+      expect(tasksService.findOne).toHaveBeenCalledWith(taskId);
+      // Note: TaskGuard verifies workspace membership, so any member can view
     });
   });
 

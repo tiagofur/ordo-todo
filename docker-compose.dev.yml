@@ -1,0 +1,167 @@
+version: '3.9'
+
+###############################################################################
+# Docker Compose for Development
+#
+# Complete development environment for Ordo-Todo with:
+# - Backend (NestJS)
+# - Web (Next.js)
+# - PostgreSQL Database
+# - Redis Cache
+# - pgAdmin (Database management UI)
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml up -d
+#
+# After starting:
+#   - Backend API: http://localhost:3101
+#   - Web App: http://localhost:3000
+#   - API Docs: http://localhost:3101/api-docs
+#   - pgAdmin: http://localhost:5050 (admin@pgadmin.com / admin)
+#   - Metrics: http://localhost:3101/metrics
+#   - Health: http://localhost:3101/health
+###############################################################################
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ordo-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ordo
+      POSTGRES_PASSWORD: ordo_dev_2024
+      POSTGRES_DB: ordo_todo
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/db/prisma:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ordo']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ordo-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ordo-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redis_dev_2024
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ordo-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: ordo-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3101
+      API_PREFIX: api/v1
+      DATABASE_URL: postgresql://ordo:ordo_dev_2024@postgres:5432/ordo_todo
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redis_dev_2024
+      REDIS_DB: 0
+      JWT_SECRET: development-secret-key-min-32-chars-long
+      REFRESH_TOKEN_SECRET: development-refresh-secret-key-min-32-chars
+      JWT_EXPIRES_IN: 7d
+      REFRESH_TOKEN_EXPIRES_IN: 30d
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3101
+      LOG_LEVEL: debug
+    ports:
+      - '3101:3101'
+      - '9229:9229' # Node.js debugger
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3101/health/live']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ordo-network
+
+  # Web Application
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      target: development
+    container_name: ordo-web-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3101/api/v1
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ordo-network
+
+  # pgAdmin - Database Management UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ordo-pgadmin-dev
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - ordo-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  ordo-network:
+    driver: bridge

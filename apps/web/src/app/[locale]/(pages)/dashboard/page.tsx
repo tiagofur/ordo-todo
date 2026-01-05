@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
-import { useTimerStats, useDailyMetrics, useCreateTask, useCreateProject } from "@/lib/api-hooks";
+import { useTimerStats, useDailyMetrics, useCreateTask, useCreateProject, useProductivityStreak } from "@/lib/api-hooks";
 import { useTasks } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
@@ -237,9 +237,10 @@ export default function DashboardPage() {
       ? `${Math.round(stats.completionRate * 100)}%`
       : "--";
 
-  // Calculate streak (simplified - would need backend support for accurate tracking)
-  const currentStreak = completedToday > 0 ? 1 : 0; // Placeholder
-  const longestStreak = 1; // Placeholder
+  // Get real productivity streak from backend
+  const { data: streakData } = useProductivityStreak();
+  const currentStreak = streakData?.currentStreak ?? 0;
+  const longestStreak = streakData?.longestStreak ?? 0;
 
   const statCards = [
     {

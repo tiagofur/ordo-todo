@@ -178,7 +178,10 @@ export class TasksController {
 
   /**
    * Get a single task by ID
-   * Requires any role in workspace
+   * Requires any role in workspace (TaskGuard verifies workspace membership)
+   *
+   * SECURITY: TaskGuard already verifies user is a member of the task's workspace.
+   * Any workspace member (OWNER, ADMIN, MEMBER, VIEWER) can view the task.
    */
   @Get(':id')
   @UseGuards(TaskGuard)
@@ -194,13 +197,8 @@ export class TasksController {
   @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
   @ApiResponseDecorator({ status: 404, description: 'Task not found' })
   async findOne(@Param('id') id: string, @CurrentUser() user: RequestUser) {
-    const task = await this.tasksService.findOne(id);
-    if (task.ownerId !== user.id) {
-      throw new ForbiddenException(
-        'You do not have permission to access this task',
-      );
-    }
-    return task;
+    // TaskGuard verifies workspace membership, no additional check needed
+    return this.tasksService.findOne(id);
   }
 
   /**
@@ -220,13 +218,8 @@ export class TasksController {
     @Param('id') id: string,
     @CurrentUser() user: RequestUser,
   ) {
-    const task = await this.tasksService.findOneWithDetails(id);
-    if (task.ownerId !== user.id) {
-      throw new ForbiddenException(
-        'You do not have permission to access this task',
-      );
-    }
-    return task;
+    // TaskGuard verifies workspace membership, no additional check needed
+    return this.tasksService.findOneWithDetails(id);
   }
 
   @Get()

@@ -89,7 +89,7 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
     error
   } = useAIInsights({ enabled: isAuthenticated });
 
-  const insights: Insight[] = (data?.insights || []).map((i: any) => ({
+  const insights: Insight[] = ((data as any)?.insights || []).map((i: any) => ({
     ...i,
     type: BACKEND_TYPE_MAP[i.type] || i.type
   }));

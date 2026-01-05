@@ -97,7 +97,12 @@ import type {
   Objective,
   ObjectiveDashboardSummary,
   KeyResult,
+  // Notes
+  Note,
+  CreateNoteDto,
+  UpdateNoteDto,
 } from "@ordo-todo/api-client";
+
 import { useSyncStore } from "@/stores/sync-store";
 import { PendingActionType } from "@/lib/offline-storage";
 import { logger } from "@/lib/logger";
@@ -802,19 +807,51 @@ export const apiClient = {
     axiosInstance
       .put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data)
       .then((res) => res.data),
-  deleteKeyResult: (objectiveId: string, keyResultId: string): Promise<void> =>
+
+  deleteKeyResult: (
+    objectiveId: string,
+    keyResultId: string,
+  ): Promise<void> =>
     axiosInstance
       .delete(`/objectives/${objectiveId}/key-results/${keyResultId}`)
       .then((res) => res.data),
 
-  linkTaskToKeyResult: (keyResultId: string, data: LinkTaskDto): Promise<void> =>
+  linkTaskToKeyResult: (
+    objectiveId: string,
+    keyResultId: string,
+    data: LinkTaskDto,
+  ): Promise<KeyResult> =>
     axiosInstance
-      .post(`/objectives/key-results/${keyResultId}/tasks`, data)
+      .post(
+        `/objectives/${objectiveId}/key-results/${keyResultId}/tasks`,
+        data,
+      )
       .then((res) => res.data),
-  unlinkTaskFromKeyResult: (keyResultId: string, taskId: string): Promise<void> =>
+
+  unlinkTaskFromKeyResult: (
+    objectiveId: string,
+    keyResultId: string,
+    taskId: string,
+  ): Promise<KeyResult> =>
     axiosInstance
-      .delete(`/objectives/key-results/${keyResultId}/tasks/${taskId}`)
+      .delete(
+        `/objectives/${objectiveId}/key-results/${keyResultId}/tasks/${taskId}`,
+      )
       .then((res) => res.data),
+
+  // Notes
+  getNotes: (workspaceId: string): Promise<Note[]> =>
+    axiosInstance
+      .get("/notes", { params: { workspaceId } })
+      .then((res) => res.data),
+  getNote: (id: string): Promise<Note> =>
+    axiosInstance.get(`/notes/${id}`).then((res) => res.data),
+  createNote: (data: CreateNoteDto): Promise<Note> =>
+    axiosInstance.post("/notes", data).then((res) => res.data),
+  updateNote: (id: string, data: UpdateNoteDto): Promise<Note> =>
+    axiosInstance.patch(`/notes/${id}`, data).then((res) => res.data),
+  deleteNote: (id: string): Promise<void> =>
+    axiosInstance.delete(`/notes/${id}`).then((res) => res.data),
 
   // Custom Fields
   getProjectCustomFields: (projectId: string): Promise<CustomField[]> =>
@@ -937,4 +974,8 @@ export const apiClient = {
     axiosInstance.get("/ai/burnout/intervention").then((res) => res.data),
   getWeeklyWellbeingSummary: () =>
     axiosInstance.get("/ai/burnout/weekly-summary").then((res) => res.data),
+
+  // Analytics - Productivity Streak
+  getProductivityStreak: () =>
+    axiosInstance.get("/analytics/streak").then((res) => res.data),
 };

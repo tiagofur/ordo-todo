@@ -105,5 +105,7 @@ export declare const queryKeys: {
     readonly objective: (id: string) => readonly ["objectives", string];
     readonly customFields: (projectId: string) => readonly ["custom-fields", string];
     readonly taskCustomValues: (taskId: string) => readonly ["task-custom-values", string];
+    readonly notes: (workspaceId: string) => readonly ["notes", string];
+    readonly note: (id: string) => readonly ["notes", "detail", string];
 };
 //# sourceMappingURL=query-keys.d.ts.map

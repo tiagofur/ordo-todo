@@ -946,6 +946,14 @@ class OrdoApiClient {
         const response = await this.axios.get("/analytics/task-status-distribution");
         return response.data;
     }
+    /**
+     * Get productivity streak information
+     * GET /analytics/streak
+     */
+    async getProductivityStreak() {
+        const response = await this.axios.get("/analytics/streak");
+        return response.data;
+    }
     // ============ COMMENT ENDPOINTS (4) ============
     /**
      * Create a new comment on a task
@@ -1666,6 +1674,48 @@ class OrdoApiClient {
     async getWorkloadSuggestions(workspaceId) {
         const response = await this.axios.get(`/workload/suggestions/${workspaceId}`);
         return response.data;
+    }
+    // ============ NOTES ENDPOINTS ============
+    /**
+     * Create a new note
+     * POST /notes
+     */
+    async createNote(data) {
+        const response = await this.axios.post("/notes", data);
+        return response.data;
+    }
+    /**
+     * Get all notes for a workspace
+     * GET /notes?workspaceId=...
+     */
+    async getNotes(workspaceId) {
+        const response = await this.axios.get("/notes", {
+            params: { workspaceId },
+        });
+        return response.data;
+    }
+    /**
+     * Get a specific note
+     * GET /notes/:id
+     */
+    async getNote(id) {
+        const response = await this.axios.get(`/notes/${id}`);
+        return response.data;
+    }
+    /**
+     * Update a note
+     * PATCH /notes/:id
+     */
+    async updateNote(id, data) {
+        const response = await this.axios.patch(`/notes/${id}`, data);
+        return response.data;
+    }
+    /**
+     * Delete a note
+     * DELETE /notes/:id
+     */
+    async deleteNote(id) {
+        await this.axios.delete(`/notes/${id}`);
     }
 }
 exports.OrdoApiClient = OrdoApiClient;

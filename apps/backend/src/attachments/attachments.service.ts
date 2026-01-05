@@ -37,6 +37,84 @@ export class AttachmentsService {
     return attachment;
   }
 
+  async findOne(id: string) {
+    const attachment = await this.prisma.attachment.findUnique({
+      where: { id },
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        task: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    if (!attachment) {
+      throw new NotFoundException('Attachment not found');
+    }
+
+    return attachment;
+  }
+
+  async update(
+    id: string,
+    updateAttachmentDto: CreateAttachmentDto,
+    userId: string,
+  ) {
+    // Verify ownership
+    const attachment = await this.prisma.attachment.findUnique({
+      where: { id },
+      select: {
+        uploadedById: true,
+        task: {
+          select: {
+            ownerId: true,
+          },
+        },
+      },
+    });
+
+    if (!attachment) {
+      throw new NotFoundException('Attachment not found');
+    }
+
+    if (
+      attachment.uploadedById !== userId &&
+      attachment.task.ownerId !== userId
+    ) {
+      throw new ForbiddenException(
+        'You can only update your own attachments or attachments on your tasks',
+      );
+    }
+
+    const updated = await this.prisma.attachment.update({
+      where: { id },
+      data: {
+        filename: updateAttachmentDto.filename,
+        url: updateAttachmentDto.url,
+        mimeType: updateAttachmentDto.mimeType,
+        filesize: updateAttachmentDto.filesize,
+      },
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return updated;
+  }
+
   async remove(id: string, userId: string) {
     const attachment = await this.prisma.attachment.findUnique({
       where: { id },

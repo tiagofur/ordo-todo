@@ -5,16 +5,16 @@ export interface DailyMetrics {
     id: string;
     userId: string;
     date: Date;
-    tasksCompleted: number;
     tasksCreated: number;
-    focusTime: number;
-    breakTime: number;
+    tasksCompleted: number;
+    subtasksCompleted: number;
+    minutesWorked: number;
     pomodorosCompleted: number;
-    productivityScore: number;
+    shortBreaksCompleted: number;
+    longBreaksCompleted: number;
+    breakMinutes: number;
     focusScore?: number;
-    streakDays: number;
     createdAt: Date;
-    updatedAt: Date;
 }
 export interface GetDailyMetricsParams {
     startDate?: Date | string;
@@ -26,5 +26,15 @@ export interface ProductivityStats {
     totalFocusTime: number;
     averageProductivity: number;
     currentStreak: number;
+}
+/**
+ * Productivity streak data from backend analytics
+ */
+export interface ProductivityStreak {
+    currentStreak: number;
+    longestStreak: number;
+    productiveDaysLast90: number;
+    avgDailyTasks: number;
+    streakStatus: 'excellent' | 'good' | 'building';
 }
 //# sourceMappingURL=analytics.types.d.ts.map

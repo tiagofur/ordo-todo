@@ -18,8 +18,16 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
   const completeHabit = useCompleteHabit();
   const uncompleteHabit = useUncompleteHabit();
 
-  const habits = (todayData?.habits ?? []).slice(0, 4); // Show only first 4
-  const summary = todayData?.summary ?? { total: 0, completed: 0, remaining: 0, percentage: 0 };
+  // API returns Habit[] directly now
+  const habitsData = Array.isArray(todayData) ? todayData : [];
+  const habits = habitsData.slice(0, 4);
+  // Summary is not available in array response, mocking for UI stability
+  const summary = { 
+    total: habitsData.length, 
+    completed: habitsData.filter((h: any) => h.completions?.length > 0).length,
+    remaining: habitsData.filter((h: any) => !h.completions?.length).length,
+    percentage: habitsData.length > 0 ? Math.round((habitsData.filter((h: any) => h.completions?.length > 0).length / habitsData.length) * 100) : 0
+  };
 
   const handleComplete = async (e: React.MouseEvent, habitId: string, isCompleted: boolean) => {
     e.preventDefault();
@@ -172,12 +180,12 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
             })}
 
             {/* Show more link if there are more habits */}
-            {(todayData?.habits?.length || 0) > 4 && (
+            {habitsData.length > 4 && (
               <Link
                 href="/habits"
                 className="block text-center py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                +{(todayData?.habits?.length || 0) - 4} más
+                +{(habitsData.length) - 4} más
               </Link>
             )}
           </div>

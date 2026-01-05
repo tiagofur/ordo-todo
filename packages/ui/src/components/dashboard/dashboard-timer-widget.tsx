@@ -90,11 +90,12 @@ export function DashboardTimerWidget({
       style={{ borderColor: modeColor, transition: 'border-color 0.5s' }}
       onClick={onClick}
     >
-      {/* Progress background */}
+      {/* Progress background - solid color with dynamic width (no gradients per UI/UX rules) */}
       <div
-        className="absolute inset-0 opacity-10 transition-all duration-1000 ease-linear"
+        className="absolute inset-y-0 left-0 opacity-10 transition-all duration-1000 ease-linear"
         style={{
-          background: `linear-gradient(90deg, ${modeColor} ${progress}%, transparent ${progress}%)`,
+          width: `${progress}%`,
+          backgroundColor: modeColor,
         }}
       />
 

@@ -24,7 +24,7 @@
     "typescript"
   ],
   "dependencies": {
-    "axios": "^1.9.0"
+    "axios": "^1.13.2"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",

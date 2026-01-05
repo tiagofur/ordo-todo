@@ -39,12 +39,35 @@ class MockImage {
   src = '';
   onload: (() => void) | null = null;
   onerror: (() => void) | null = null;
+  private listeners: Record<string, Array<() => void>> = {};
+
   constructor() {
     // Simulate immediate load
     setTimeout(() => {
       if (this.onload) this.onload();
+      this.dispatchEvent('load');
     }, 0);
+  }
+
+  addEventListener(event: string, callback: () => void) {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event]!.push(callback);
+  }
+
+  removeEventListener(event: string, callback: () => void) {
+    if (this.listeners[event]) {
+      this.listeners[event] = this.listeners[event]!.filter((cb) => cb !== callback);
+    }
+  }
+
+  dispatchEvent(event: string) {
+    if (this.listeners[event]) {
+      this.listeners[event]!.forEach((cb) => cb());
+    }
   }
 }
 
 global.Image = MockImage as unknown as typeof Image;
+

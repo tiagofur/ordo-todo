@@ -46,10 +46,17 @@ import type {
   // Custom Fields
   CreateCustomFieldDto,
   UpdateCustomFieldDto,
+
   SetMultipleCustomFieldValuesDto,
+  // Notes
+  Note,
+  CreateNoteDto,
+  UpdateNoteDto,
 } from '@ordo-todo/api-client';
+
 import { queryKeys } from './query-keys';
 import type { ApiClient, CreateHooksConfig } from './types';
+import { createNotesHooks } from './notes/use-notes';
 
 /**
  * Creates all React Query hooks bound to a specific API client.
@@ -1608,7 +1615,18 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
+  // ============ NOTES HOOKS ============
+
+  const {
+    useNotes,
+    useNote,
+    useCreateNote,
+    useUpdateNote,
+    useDeleteNote
+  } = createNotesHooks(apiClient);
+
   // Return all hooks
+
   return {
     // Auth
     useRegister,
@@ -1770,7 +1788,15 @@ export function createHooks(config: CreateHooksConfig) {
     useTaskCustomValues,
     useSetTaskCustomValues,
 
+    // Notes
+    useNotes,
+    useNote,
+    useCreateNote,
+    useUpdateNote,
+    useDeleteNote,
+
     // Utilities
+
     invalidateAllTasks,
   };
 }

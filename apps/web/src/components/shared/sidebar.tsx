@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import {
   Home,
   CheckSquare,
@@ -17,10 +18,12 @@ import {
   Users,
   LayoutGrid,
   Trash2,
+  StickyNote,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
+import { useCreateWorkspace } from "@/lib/api-hooks";
 import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
@@ -34,11 +37,29 @@ const CreateWorkspaceDialog = dynamic(
 export function Sidebar() {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
+  const params = useParams();
+  const workspaceSlug = params?.slug as string;
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+  const createWorkspace = useCreateWorkspace();
+
+  const handleCreateWorkspace = async (data: any) => {
+    try {
+      await createWorkspace.mutateAsync(data);
+      setShowCreateWorkspace(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const navItems: NavItem[] = [
     { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
     { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+    ...(workspaceSlug ? [{
+      name: t("notes"),
+      href: `/workspaces/${workspaceSlug}/notes`,
+      icon: StickyNote,
+      color: "yellow" as const
+    }] : []),
     { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
     { name: t("goals"), href: "/goals", icon: Target, color: "pink" },
     { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
@@ -122,6 +143,8 @@ export function Sidebar() {
       <CreateWorkspaceDialog
         open={showCreateWorkspace}
         onOpenChange={setShowCreateWorkspace}
+        onSubmit={handleCreateWorkspace}
+        isPending={createWorkspace.isPending}
       />
     </>
   );

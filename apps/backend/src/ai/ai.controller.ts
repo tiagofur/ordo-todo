@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Delete,
+  Patch,
   Body,
   Query,
   Param,
@@ -430,6 +431,51 @@ export class AIController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getProfile(@CurrentUser() user: RequestUser) {
     return this.aiService.getProfile(user.id);
+  }
+
+  @Patch('profile')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update AI profile',
+    description:
+      'Update the AI-powered productivity profile with new work patterns, preferences, and settings. Allows partial updates to specific profile fields.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'AI profile updated successfully',
+    schema: {
+      example: {
+        userId: 'clx1234567890',
+        workPatterns: {
+          peakHours: ['09:00-12:00', '14:00-16:00'],
+          averageTaskDuration: 45,
+          preferredTaskTypes: ['development', 'writing'],
+        },
+        productivityScore: 82,
+        lastUpdated: '2025-01-05T12:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  updateProfile(
+    @CurrentUser() user: RequestUser,
+    @Body() updateData: Record<string, any>,
+  ) {
+    return this.aiService.updateProfile(user.id, updateData);
+  }
+
+  @Delete('profile')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete AI profile',
+    description:
+      'Permanently delete the AI-powered productivity profile. This will reset all personalized AI insights and recommendations. The profile will be rebuilt from scratch based on future activity.',
+  })
+  @ApiResponse({ status: 204, description: 'AI profile deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  deleteProfile(@CurrentUser() user: RequestUser) {
+    return this.aiService.deleteProfile(user.id);
   }
 
   @Get('optimal-schedule')

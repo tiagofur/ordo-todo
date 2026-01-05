@@ -24,6 +24,7 @@ import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useCreateWorkspace } from "@/lib/api-hooks";
 
 interface MobileSidebarProps {
   open: boolean;
@@ -34,6 +35,16 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+  const createWorkspace = useCreateWorkspace();
+
+  const handleCreateWorkspace = async (data: any) => {
+    try {
+      await createWorkspace.mutateAsync(data);
+      setShowCreateWorkspace(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const navItems: NavItem[] = [
     { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
@@ -79,6 +90,8 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
       <CreateWorkspaceDialog
         open={showCreateWorkspace}
         onOpenChange={setShowCreateWorkspace}
+        onSubmit={handleCreateWorkspace}
+        isPending={createWorkspace.isPending}
       />
     </>
   );

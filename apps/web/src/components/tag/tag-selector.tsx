@@ -3,7 +3,14 @@
 import { useState } from 'react';
 import { Check, Plus } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
-import { TagBadge, type TagType } from './tag-badge.js';
+import { TagBadge } from './tag-badge';
+import type { Tag } from '@ordo-todo/api-client';
+
+type TagType = {
+  id?: string | number;
+  name: string;
+  color: string;
+};
 
 interface TagSelectorProps {
   /** Currently selected tags */

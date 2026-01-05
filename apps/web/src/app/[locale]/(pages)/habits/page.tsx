@@ -87,14 +87,16 @@ export default function HabitsPage() {
   const completeHabit = useCompleteHabit();
   const uncompleteHabit = useUncompleteHabit();
 
-  // Fix: Handle different possible return types from useTodayHabits
-  const habits: Habit[] = Array.isArray(todayData) 
-    ? todayData 
-    : (todayData?.habits ?? []);
+  // API returns Habit[] directly
+  const habitsData = Array.isArray(todayData) ? todayData : [];
+  const habits: Habit[] = habitsData;
     
-  const summary = !Array.isArray(todayData) && todayData?.summary 
-    ? todayData.summary 
-    : { total: 0, completed: 0, remaining: 0, percentage: 0 };
+  const summary = { 
+    total: habitsData.length, 
+    completed: habitsData.filter(h => h.completions && h.completions.length > 0).length,
+    remaining: habitsData.filter(h => !h.completions || h.completions.length === 0).length,
+    percentage: habitsData.length > 0 ? Math.round((habitsData.filter(h => h.completions && h.completions.length > 0).length / habitsData.length) * 100) : 0
+  };
 
   const handleComplete = async (habitId: string, isCompleted: boolean) => {
     try {

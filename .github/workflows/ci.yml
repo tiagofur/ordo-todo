@@ -79,12 +79,10 @@ jobs:
                     echo "Failed to install dependencies after $MAX_RETRIES attempts."
                     exit 1
                   fi
-              env:
 
             - name: Generate Prisma client
               run: npx prisma generate --schema=prisma/schema.prisma
               working-directory: packages/db
-              env:
 
             - name: Build packages
               run: npm run build
@@ -191,7 +189,6 @@ jobs:
                     exit 1
                   fi
               working-directory: .
-              env:
 
             - name: Generate Prisma client
               run: npx prisma generate --schema=prisma/schema.prisma
@@ -284,7 +281,6 @@ jobs:
                     exit 1
                   fi
               working-directory: .
-              env:
 
             - name: Lint
               run: npm run lint
@@ -368,7 +364,6 @@ jobs:
                     exit 1
                   fi
               working-directory: .
-              env:
 
             - name: Lint
               run: npm run lint
@@ -447,7 +442,6 @@ jobs:
                     exit 1
                   fi
               working-directory: .
-              env:
 
             - name: Lint
               run: npm run lint

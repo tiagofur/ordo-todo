@@ -22,6 +22,8 @@ describe('AIController', () => {
       suggestWorkflow: jest.fn(),
       decomposeTask: jest.fn(),
       getProfile: jest.fn(),
+      updateProfile: jest.fn(),
+      deleteProfile: jest.fn(),
       getOptimalSchedule: jest.fn(),
       predictTaskDuration: jest.fn(),
       generateWeeklyReport: jest.fn(),
@@ -277,6 +279,78 @@ describe('AIController', () => {
 
       expect(aiService.getModelStats).toHaveBeenCalled();
       expect(result).toEqual(expectedStats);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('should update AI profile with provided data', async () => {
+      const updateData = {
+        preferredWorkingHours: ['09:00-12:00', '14:00-17:00'],
+        averageTaskDuration: 45,
+        preferredTaskTypes: ['development', 'writing'],
+      };
+
+      const updatedProfile = {
+        userId: mockUser.id,
+        ...updateData,
+        productivityScore: 85,
+        lastUpdated: new Date('2025-01-05T12:00:00.000Z'),
+      };
+
+      aiService.updateProfile.mockResolvedValue(updatedProfile as any);
+
+      const result = await controller.updateProfile(mockUser, updateData);
+
+      expect(aiService.updateProfile).toHaveBeenCalledWith(
+        mockUser.id,
+        updateData,
+      );
+      expect(result).toEqual(updatedProfile);
+    });
+
+    it('should handle partial updates', async () => {
+      const updateData = {
+        averageTaskDuration: 60,
+      };
+
+      const updatedProfile = {
+        userId: mockUser.id,
+        averageTaskDuration: 60,
+        productivityScore: 75,
+        lastUpdated: new Date('2025-01-05T12:00:00.000Z'),
+      };
+
+      aiService.updateProfile.mockResolvedValue(updatedProfile as any);
+
+      const result = await controller.updateProfile(mockUser, updateData);
+
+      expect(aiService.updateProfile).toHaveBeenCalledWith(
+        mockUser.id,
+        updateData,
+      );
+      expect(result).toEqual(updatedProfile);
+    });
+  });
+
+  describe('deleteProfile', () => {
+    it('should delete AI profile successfully', async () => {
+      aiService.deleteProfile.mockResolvedValue({ success: true } as any);
+
+      const result = await controller.deleteProfile(mockUser);
+
+      expect(aiService.deleteProfile).toHaveBeenCalledWith(mockUser.id);
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should handle deletion errors gracefully', async () => {
+      const { BadRequestException } = require('@nestjs/common');
+      aiService.deleteProfile.mockRejectedValue(
+        new BadRequestException('Profile does not exist'),
+      );
+
+      await expect(controller.deleteProfile(mockUser)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

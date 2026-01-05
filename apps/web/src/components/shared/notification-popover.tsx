@@ -40,7 +40,7 @@ export function NotificationPopover() {
       <PopoverTrigger asChild>
         <button className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 hover:bg-muted/50 hover:scale-105">
           <Bell className="h-5 w-5 text-muted-foreground" />
-          {unreadCount > 0 && (
+          {(unreadCount as number) > 0 && (
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
           )}
         </button>
@@ -48,7 +48,7 @@ export function NotificationPopover() {
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between p-4 border-b">
           <h4 className="font-semibold text-sm">{t('title')}</h4>
-          {unreadCount > 0 && (
+          {(unreadCount as number) > 0 && (
             <Button 
               variant="ghost" 
               size="sm" 

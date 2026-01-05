@@ -5,6 +5,7 @@ import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -31,7 +32,7 @@ describe('AuthService', () => {
   };
 
   const mockWorkspacesService = {
-    createPersonalWorkspace: jest.fn(),
+    create: jest.fn(),
   };
 
   const mockTokenBlacklistService = {
@@ -63,7 +64,7 @@ describe('AuthService', () => {
           useValue: mockConfigService,
         },
         {
-          provide: 'WorkspacesService',
+          provide: WorkspacesService,
           useValue: mockWorkspacesService,
         },
         {

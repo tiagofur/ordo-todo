@@ -226,12 +226,20 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
         onOpenChange={setIsCreateTaskOpen}
         projectId={projectId}
         onSubmit={async (data) => {
-          await createTask({
+          const newTask = await createTask({
             ...data,
             priority: data.priority as TaskPriority,
-            status: (data as any).status || addTaskStatus as any,
             projectId: projectId,
           });
+
+          // Update status if it's not the default
+          const targetStatus = (data as any).status || addTaskStatus;
+          if (targetStatus && targetStatus !== 'TODO') {
+             await updateTaskMutation.mutateAsync({ 
+                taskId: newTask.id, 
+                data: { status: targetStatus } as UpdateTaskDto
+             });
+          }
           setIsCreateTaskOpen(false);
         }}
       />

@@ -5,7 +5,7 @@
  * that can be used across web, mobile, and desktop applications.
  */
 import { useQueryClient } from '@tanstack/react-query';
-import type { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, InviteMemberDto, AcceptInvitationDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto } from '@ordo-todo/api-client';
+import type { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, InviteMemberDto, AcceptInvitationDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto } from '@ordo-todo/api-client';
 import type { CreateHooksConfig } from './types';
 /**
  * Creates all React Query hooks bound to a specific API client.
@@ -323,6 +323,14 @@ export declare function createHooks(config: CreateHooksConfig): {
         taskId: string;
         data: SetMultipleCustomFieldValuesDto;
     }, unknown>;
+    useNotes: (workspaceId: string) => import("@tanstack/react-query").UseQueryResult<Note[], Error>;
+    useNote: (id: string) => import("@tanstack/react-query").UseQueryResult<Note, Error>;
+    useCreateNote: () => import("@tanstack/react-query").UseMutationResult<Note, Error, CreateNoteDto, unknown>;
+    useUpdateNote: () => import("@tanstack/react-query").UseMutationResult<Note, Error, {
+        id: string;
+        data: UpdateNoteDto;
+    }, unknown>;
+    useDeleteNote: () => import("@tanstack/react-query").UseMutationResult<void, Error, string, unknown>;
     invalidateAllTasks: (queryClient: ReturnType<typeof useQueryClient>) => void;
 };
 /**

@@ -2,19 +2,87 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { WorkspacesService } from '../workspaces/workspaces.service';
+import { TokenBlacklistService } from './token-blacklist.service';
+import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
+  let authService: jest.Mocked<AuthService>;
 
   beforeEach(async () => {
+    // Create a mock user repository
+    const mockUserRepository = {
+      findByEmail: jest.fn(),
+      findByUsername: jest.fn(),
+      findByProvider: jest.fn(),
+      create: jest.fn(),
+      linkOAuthAccount: jest.fn(),
+      update: jest.fn(),
+    };
+
+    // Create a mock crypto provider
+    const mockCryptoProvider = {
+      hash: jest.fn(),
+      compare: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService],
+      providers: [
+        {
+          provide: AuthService,
+          useFactory: () => ({
+            register: jest.fn(),
+            login: jest.fn(),
+            logout: jest.fn(),
+            refresh: jest.fn(),
+            checkUsernameAvailability: jest.fn(),
+            validateUser: jest.fn(),
+            oauthLogin: jest.fn(),
+          }),
+        },
+        {
+          provide: 'UserRepository',
+          useValue: mockUserRepository,
+        },
+        {
+          provide: BcryptCryptoProvider,
+          useValue: mockCryptoProvider,
+        },
+        {
+          provide: JwtService,
+          useValue: {
+            sign: jest.fn(),
+            verify: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
+        {
+          provide: WorkspacesService,
+          useValue: {
+            create: jest.fn(),
+          },
+        },
+        {
+          provide: TokenBlacklistService,
+          useValue: {
+            blacklist: jest.fn(),
+            isBlacklisted: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
+    authService = module.get(AuthService);
   });
 
   describe('POST /auth/register', () => {
@@ -26,7 +94,7 @@ describe('AuthController', () => {
         name: 'New User',
       };
 
-      jest.spyOn(authService, 'register').mockResolvedValue({
+      (authService.register as jest.Mock).mockResolvedValue({
         accessToken: 'mock-access-token',
         refreshToken: 'mock-refresh-token',
         user: {
@@ -35,7 +103,7 @@ describe('AuthController', () => {
           username: 'newuser',
           name: 'New User',
         },
-      } as any);
+      });
 
       const result = await controller.register(registerDto);
 
@@ -60,9 +128,9 @@ describe('AuthController', () => {
         name: 'New User',
       };
 
-      jest
-        .spyOn(authService, 'register')
-        .mockRejectedValue(new BadRequestException('Email already exists'));
+      (authService.register as jest.Mock).mockRejectedValue(
+        new BadRequestException('Email already exists'),
+      );
 
       await expect(controller.register(registerDto)).rejects.toThrow(
         BadRequestException,
@@ -77,9 +145,9 @@ describe('AuthController', () => {
         name: 'New User',
       };
 
-      jest
-        .spyOn(authService, 'register')
-        .mockRejectedValue(new BadRequestException('Username already exists'));
+      (authService.register as jest.Mock).mockRejectedValue(
+        new BadRequestException('Username already exists'),
+      );
 
       await expect(controller.register(registerDto)).rejects.toThrow(
         BadRequestException,
@@ -94,7 +162,7 @@ describe('AuthController', () => {
         password: 'password123',
       };
 
-      jest.spyOn(authService, 'login').mockResolvedValue({
+      (authService.login as jest.Mock).mockResolvedValue({
         accessToken: 'mock-access-token',
         refreshToken: 'mock-refresh-token',
         user: {
@@ -103,7 +171,7 @@ describe('AuthController', () => {
           username: 'testuser',
           name: 'Test User',
         },
-      } as any);
+      });
 
       const result = await controller.login(loginDto);
 
@@ -126,9 +194,9 @@ describe('AuthController', () => {
         password: 'wrongpassword',
       };
 
-      jest
-        .spyOn(authService, 'login')
-        .mockRejectedValue(new UnauthorizedException('Invalid credentials'));
+      (authService.login as jest.Mock).mockRejectedValue(
+        new UnauthorizedException('Invalid credentials'),
+      );
 
       await expect(controller.login(loginDto)).rejects.toThrow(
         UnauthorizedException,
@@ -138,11 +206,32 @@ describe('AuthController', () => {
 
   describe('POST /auth/logout', () => {
     it('should return success message on logout', async () => {
-      const result = await controller.logout();
+      (authService.logout as jest.Mock).mockResolvedValue(undefined);
+
+      const mockRequest = {
+        headers: {
+          authorization: 'Bearer test-token',
+        },
+      };
+
+      const result = await controller.logout({ id: 'user-123' } as any, mockRequest as any);
 
       expect(result).toEqual({
         message: 'Logout successful',
       });
+    });
+
+    it('should handle logout without token', async () => {
+      const mockRequest = {
+        headers: {},
+      };
+
+      const result = await controller.logout({ id: 'user-123' } as any, mockRequest as any);
+
+      expect(result).toEqual({
+        message: 'Logout successful',
+      });
+      expect(authService.logout).not.toHaveBeenCalled();
     });
   });
 
@@ -152,14 +241,14 @@ describe('AuthController', () => {
         refreshToken: 'valid-refresh-token',
       };
 
-      jest.spyOn(authService, 'refresh').mockResolvedValue({
+      (authService.refresh as jest.Mock).mockResolvedValue({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
-      } as any);
+      });
 
       const result = await controller.refresh(refreshTokenDto);
 
-      expect(authService.refresh).toHaveBeenCalledWith(refreshTokenDto);
+      expect(authService.refresh).toHaveBeenCalledWith('valid-refresh-token');
       expect(result).toEqual({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
@@ -171,11 +260,9 @@ describe('AuthController', () => {
         refreshToken: 'invalid-token',
       };
 
-      jest
-        .spyOn(authService, 'refresh')
-        .mockRejectedValue(
-          new UnauthorizedException('Invalid or expired refresh token'),
-        );
+      (authService.refresh as jest.Mock).mockRejectedValue(
+        new UnauthorizedException('Invalid or expired refresh token'),
+      );
 
       await expect(controller.refresh(refreshTokenDto)).rejects.toThrow(
         UnauthorizedException,
@@ -184,43 +271,38 @@ describe('AuthController', () => {
   });
 
   describe('POST /auth/check-username', () => {
-    it('should return true when username is available', async () => {
+    it('should return availability object when username is available', async () => {
       const body = { username: 'newuser' };
 
-      jest.spyOn(authService, 'checkUsernameAvailability').mockResolvedValue(true);
+      (authService.checkUsernameAvailability as jest.Mock).mockResolvedValue({
+        available: true,
+        message: 'Username is available',
+      });
 
       const result = await controller.checkUsername(body);
 
       expect(authService.checkUsernameAvailability).toHaveBeenCalledWith('newuser');
-      expect(result).toBe(true);
+      expect(result).toEqual({
+        available: true,
+        message: 'Username is available',
+      });
     });
 
-    it('should return false when username is taken', async () => {
+    it('should return availability object when username is taken', async () => {
       const body = { username: 'existinguser' };
 
-      jest.spyOn(authService, 'checkUsernameAvailability').mockResolvedValue(false);
+      (authService.checkUsernameAvailability as jest.Mock).mockResolvedValue({
+        available: false,
+        message: 'Username is already taken',
+      });
 
       const result = await controller.checkUsername(body);
 
       expect(authService.checkUsernameAvailability).toHaveBeenCalledWith('existinguser');
-      expect(result).toBe(false);
-    });
-  });
-
-    it('should return false when username is taken', async () => {
-      const body = { username: 'existinguser' };
-
-      jest
-        .spyOn(authService, 'checkUsernameAvailability')
-        .mockResolvedValue(false);
-
-      const result = await controller.checkUsername(body);
-
-      expect(authService.checkUsernameAvailability).toHaveBeenCalledWith(
-        'existinguser',
-      );
-      expect(result).toBe(false);
+      expect(result).toEqual({
+        available: false,
+        message: 'Username is already taken',
+      });
     });
   });
 });
-

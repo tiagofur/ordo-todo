@@ -1,0 +1,143 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - generic [ref=e10]:
+      - text: Rendering
+      - generic [ref=e11]:
+        - generic [ref=e12]: .
+        - generic [ref=e13]: .
+        - generic [ref=e14]: .
+  - alert [ref=e15]
+  - generic [ref=e20]:
+    - generic [ref=e21]:
+      - img [ref=e23]
+      - heading "Crear Cuenta" [level=1] [ref=e26]
+      - paragraph [ref=e27]: Comienza a organizar tus tareas hoy mismo
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - text: Nombre Completo
+          - generic [ref=e31]:
+            - img [ref=e33]
+            - textbox "Nombre Completo" [ref=e36]:
+              - /placeholder: Tu nombre completo
+              - text: Notes User
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - text: Nombre de Usuario
+              - generic [ref=e40]: "*"
+            - img [ref=e41]
+          - textbox "Nombre de Usuario *" [ref=e46]:
+            - /placeholder: usuario123
+            - text: notesuser_1767646242736
+          - paragraph [ref=e47]: Username must be less than 20 characters
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - img [ref=e50]
+              - generic [ref=e54]: "Suggested alternatives:"
+              - button "Refresh" [ref=e55]:
+                - img
+                - text: Refresh
+            - generic [ref=e56]:
+              - generic [ref=e57] [cursor=pointer]: notesuser1user2025
+              - generic [ref=e58] [cursor=pointer]: notesuser1456
+              - generic [ref=e59] [cursor=pointer]: notesuser1app2024
+              - generic [ref=e60] [cursor=pointer]: notesuser1___456
+              - generic [ref=e61] [cursor=pointer]: notesuser1-789
+        - generic [ref=e62]:
+          - text: Correo Electrónico
+          - generic [ref=e63]:
+            - img [ref=e65]
+            - textbox "Correo Electrónico" [ref=e68]:
+              - /placeholder: tu@email.com
+              - text: notes_1767646242736@example.com
+        - generic [ref=e69]:
+          - text: Contraseña
+          - generic [ref=e70]:
+            - img [ref=e72]
+            - textbox "Contraseña" [ref=e75]:
+              - /placeholder: Mínimo 6 caracteres
+              - text: Password@123
+            - button [ref=e76]:
+              - img [ref=e77]
+          - generic [ref=e80]:
+            - generic [ref=e84]: Excelente
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - img [ref=e87]
+                - generic [ref=e89]: 8+ caracteres
+              - generic [ref=e90]:
+                - img [ref=e91]
+                - generic [ref=e93]: Mayúsculas
+              - generic [ref=e94]:
+                - img [ref=e95]
+                - generic [ref=e97]: Números
+              - generic [ref=e98]:
+                - img [ref=e99]
+                - generic [ref=e101]: Símbolos
+        - generic [ref=e102]:
+          - text: Confirmar Contraseña
+          - generic [ref=e103]:
+            - img [ref=e105]
+            - textbox "Confirmar Contraseña" [ref=e108]:
+              - /placeholder: Repite tu contraseña
+              - text: Password@123
+            - button [ref=e109]:
+              - img [ref=e110]
+            - img [ref=e113]
+          - paragraph [ref=e115]:
+            - img [ref=e116]
+            - text: Las contraseñas coinciden
+        - button "Crear Cuenta" [active] [ref=e118]:
+          - generic [ref=e119]:
+            - text: Crear Cuenta
+            - img [ref=e120]
+      - generic [ref=e125]: O regístrate con
+      - generic [ref=e127]:
+        - button "Google" [ref=e128]:
+          - img [ref=e129]
+          - text: Google
+        - button "GitHub" [ref=e135]:
+          - img [ref=e136]
+          - text: GitHub
+      - paragraph [ref=e140]:
+        - text: ¿Ya tienes una cuenta?
+        - link "Inicia sesión" [ref=e141] [cursor=pointer]:
+          - /url: /login
+          - text: Inicia sesión
+          - img [ref=e142]
+    - paragraph [ref=e145]:
+      - text: Al crear una cuenta, aceptas nuestros
+      - link "Términos de Servicio" [ref=e146] [cursor=pointer]:
+        - /url: /terms
+      - text: "y"
+      - link "Política de Privacidad" [ref=e147] [cursor=pointer]:
+        - /url: /privacy
+  - region "Notifications alt+T"
+  - generic [ref=e150]:
+    - generic [ref=e151]:
+      - generic [ref=e153]:
+        - img [ref=e154]
+        - text: Personal
+      - button [ref=e157]:
+        - img
+      - generic [ref=e158]:
+        - img [ref=e160]
+        - generic [ref=e165]:
+          - paragraph [ref=e166]: Paso 1 de 6
+          - heading "¡Nuevas Funciones de IA!" [level=2] [ref=e167]
+    - paragraph [ref=e169]: Hemos añadido potentes herramientas de inteligencia artificial para impulsar tu productividad personal. Te mostramos lo nuevo.
+    - button "Siguiente" [ref=e179]:
+      - text: Siguiente
+      - img
+  - button "DevTools" [ref=e181]:
+    - img
+    - generic [ref=e182]: DevTools
+    - img
+  - generic [ref=e184]:
+    - img
+    - text: Development Mode
+```

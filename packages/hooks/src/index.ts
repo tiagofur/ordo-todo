@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Shared React Query Hooks for Ordo-Todo
  *

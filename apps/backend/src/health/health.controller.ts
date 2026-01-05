@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator';
-import { PrismaService } from '../database/prisma.service';
+import { HealthService } from './health.service';
 
 /**
  * HealthController provides health check endpoints for container orchestration.
@@ -10,72 +10,50 @@ import { PrismaService } from '../database/prisma.service';
 @ApiTags('Health')
 @Controller()
 export class HealthController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly healthService: HealthService) {}
 
   @Public()
   @Get('health')
   @ApiOperation({
-    summary: 'Health check endpoint',
+    summary: 'Comprehensive health check endpoint',
     description:
-      'Comprehensive health check that verifies server status and database connectivity. Returns detailed health metrics including uptime and connection status. Used by load balancers and monitoring systems to determine overall service health.',
+      'Detailed health check that verifies all critical dependencies (database, Redis, memory). Returns overall status, response times, and detailed metrics. Used by monitoring systems, load balancers, and orchestration platforms to determine service health.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Service is healthy and all dependencies are connected',
+    description: 'All health checks completed',
     schema: {
       example: {
         status: 'healthy',
         timestamp: '2024-01-15T10:30:00.000Z',
         uptime: 3600,
-        database: 'connected',
+        checks: {
+          database: {
+            status: 'up',
+            message: 'Database connected',
+            responseTime: 15,
+          },
+          redis: {
+            status: 'up',
+            message: 'Redis connected',
+            responseTime: 5,
+          },
+          memory: {
+            status: 'up',
+            message: 'Memory usage normal',
+            details: {
+              heapUsed: '128MB',
+              heapTotal: '256MB',
+              rss: '180MB',
+              usagePercent: '50.00%',
+            },
+          },
+        },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Service is running but database is disconnected',
-    schema: {
-      example: {
-        status: 'unhealthy',
-        timestamp: '2024-01-15T10:30:00.000Z',
-        uptime: 3600,
-        database: 'disconnected',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Service is running but database has errors',
-    schema: {
-      example: {
-        status: 'unhealthy',
-        timestamp: '2024-01-15T10:30:00.000Z',
-        uptime: 3600,
-        database: 'error',
-      },
-    },
-  })
-  async getHealth(): Promise<{
-    status: string;
-    timestamp: string;
-    uptime: number;
-    database: string;
-  }> {
-    let databaseStatus = 'disconnected';
-
-    try {
-      await this.prisma.$queryRaw`SELECT 1`;
-      databaseStatus = 'connected';
-    } catch {
-      databaseStatus = 'error';
-    }
-
-    return {
-      status: databaseStatus === 'connected' ? 'healthy' : 'unhealthy',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      database: databaseStatus,
-    };
+  async getHealth() {
+    return this.healthService.getHealthCheck();
   }
 
   @Public()
@@ -94,8 +72,9 @@ export class HealthController {
       },
     },
   })
-  getLiveness(): { status: string } {
-    return { status: 'alive' };
+  @HttpCode(HttpStatus.OK)
+  getLiveness() {
+    return this.healthService.isAlive();
   }
 
   @Public()
@@ -126,12 +105,15 @@ export class HealthController {
       },
     },
   })
-  async getReadiness(): Promise<{ status: string; ready: boolean }> {
-    try {
-      await this.prisma.$queryRaw`SELECT 1`;
-      return { status: 'ready', ready: true };
-    } catch {
-      return { status: 'not ready', ready: false };
-    }
+  async getReadiness() {
+    const result = await this.healthService.isReady();
+    return result.ready
+      ? result
+      : new (class extends Error {
+          constructor() {
+            super('Service not ready');
+            this.name = 'ServiceNotReadyError';
+          }
+        })();
   }
 }

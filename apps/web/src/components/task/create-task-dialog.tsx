@@ -19,7 +19,8 @@ import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
-import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector.js';
+import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector';
+
 
 interface ProjectOption {
   id: string;
@@ -139,7 +140,7 @@ export function CreateTaskDialog({
     watch,
     formState: { errors },
   } = useForm<CreateTaskForm>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       priority: 'MEDIUM',
       projectId: projectId || '',

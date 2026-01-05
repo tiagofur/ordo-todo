@@ -1,3 +1,5 @@
+"use client";
+
 import { AppLayout } from "@/components/shared/app-layout";
 import ForceAuthentication from "@/components/auth/force-authentication.component";
 import { WorkspaceAutoSelector } from "@/components/workspace/workspace-auto-selector";

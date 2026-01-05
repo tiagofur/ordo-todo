@@ -10,6 +10,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,6 +27,15 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { WorkspaceContext } from '../common/decorators/workspace-context.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
+import {
+  CacheResult,
+  CacheInvalidate,
+  CacheTTL,
+} from '../common/decorators/cache';
+import {
+  CacheInterceptor,
+  CacheInvalidateInterceptor,
+} from '../common/decorators/cache';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { WorkspacesService } from './workspaces.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
@@ -48,6 +58,8 @@ export class WorkspacesController {
    * The authenticated user becomes the workspace owner
    */
   @Post()
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new workspace',
@@ -95,6 +107,8 @@ export class WorkspacesController {
    * Includes owned workspaces and workspaces where user is a member
    */
   @Get()
+  @UseInterceptors(CacheInterceptor)
+  @CacheResult('workspaces', CacheTTL.MEDIUM)
   @ApiOperation({
     summary: 'Get all workspaces for current user',
     description:
@@ -175,6 +189,8 @@ export class WorkspacesController {
    * Requires user to be a member with any role
    */
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
+  @CacheResult('workspace', CacheTTL.LONG)
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(
@@ -730,6 +746,8 @@ export class WorkspacesController {
    * Requires OWNER or ADMIN role
    */
   @Put(':id')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
@@ -774,6 +792,8 @@ export class WorkspacesController {
    * Only the OWNER can delete the workspace
    */
   @Delete(':id')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(MemberRole.OWNER)

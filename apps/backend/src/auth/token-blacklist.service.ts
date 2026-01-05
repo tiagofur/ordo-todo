@@ -1,26 +1,45 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '../cache/redis.service';
 
 /**
  * Token Blacklist Service
  *
  * Manages revoked JWT tokens to prevent reuse after logout.
- * Uses in-memory Set for token tracking (can be migrated to Redis for production).
+ * Uses Redis for production-scale token management across multiple instances.
  *
- * @note For production with multiple instances, migrate to Redis
+ * Features:
+ * - Redis-backed storage for distributed systems
+ * - Automatic expiration based on JWT token expiry
+ * - Production-ready with connection pooling and health checks
+ *
+ * @example
+ * ```typescript
+ * // Blacklist a token on logout
+ * await tokenBlacklistService.blacklist(accessToken);
+ *
+ * // Check if token is blacklisted during authentication
+ * const isRevoked = await tokenBlacklistService.isBlacklisted(accessToken);
+ * ```
  */
 @Injectable()
 export class TokenBlacklistService {
   private readonly logger = new Logger(TokenBlacklistService.name);
-  private readonly revokedTokens = new Set<string>();
+  private readonly TOKEN_PREFIX = 'blacklist:token:';
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
+  ) {}
 
   /**
    * Add a token to the blacklist
    *
+   * Stores the token in Redis with automatic expiration based on JWT expiry time.
+   * This ensures blacklisted tokens are revoked across all server instances.
+   *
    * @param token - JWT access token to blacklist
-   * @returns Promise that resolves when token is added
+   * @returns Promise that resolves when token is added to Redis
    */
   async blacklist(token: string): Promise<void> {
     try {
@@ -41,17 +60,16 @@ export class TokenBlacklistService {
 
         // Only store if token hasn't already expired
         if (expiresAt > now) {
-          this.revokedTokens.add(jti);
-          this.logger.debug(
-            `Token ${jti} blacklisted until ${expiresAt.toISOString()}`,
-          );
+          // Calculate TTL in seconds
+          const ttl = Math.floor((expiresAt.getTime() - now.getTime()) / 1000);
 
-          // Schedule automatic cleanup after expiration
-          const ttl = expiresAt.getTime() - now.getTime();
-          setTimeout(() => {
-            this.revokedTokens.delete(jti);
-            this.logger.debug(`Token ${jti} removed from blacklist (expired)`);
-          }, ttl);
+          // Store in Redis with automatic expiration
+          const redisKey = `${this.TOKEN_PREFIX}${jti}`;
+          await this.redisService.set(redisKey, true, ttl);
+
+          this.logger.debug(
+            `Token ${jti} blacklisted until ${expiresAt.toISOString()} (TTL: ${ttl}s)`,
+          );
         } else {
           this.logger.debug('Token already expired, not adding to blacklist');
         }
@@ -63,6 +81,9 @@ export class TokenBlacklistService {
 
   /**
    * Check if a token is blacklisted
+   *
+   * Queries Redis to determine if the token has been revoked.
+   * Works across multiple server instances due to Redis distributed storage.
    *
    * @param token - JWT access token to check
    * @returns Promise that resolves to true if token is blacklisted
@@ -76,7 +97,10 @@ export class TokenBlacklistService {
       }
 
       const jti = decoded.jti || token;
-      const isBlacklisted = this.revokedTokens.has(jti);
+      const redisKey = `${this.TOKEN_PREFIX}${jti}`;
+
+      // Check if token exists in Redis blacklist
+      const isBlacklisted = await this.redisService.exists(redisKey);
 
       if (isBlacklisted) {
         this.logger.debug(`Token ${jti} is blacklisted`);
@@ -91,22 +115,61 @@ export class TokenBlacklistService {
 
   /**
    * Remove expired tokens from blacklist (manual cleanup)
-   * Note: This is usually not needed as tokens auto-expire via setTimeout
+   * Note: Redis automatically handles expiration, but this can be used for manual cleanup
    *
    * @returns Promise that resolves when cleanup is complete
    */
   async cleanup(): Promise<void> {
-    const beforeSize = this.revokedTokens.size;
-    this.revokedTokens.clear();
-    this.logger.debug(`Blacklist cleared (${beforeSize} tokens removed)`);
+    try {
+      // Delete all keys with the blacklist prefix
+      await this.redisService.delPattern(`${this.TOKEN_PREFIX}*`);
+      this.logger.debug('Blacklist cleared');
+    } catch (error) {
+      this.logger.error('Failed to cleanup token blacklist', error);
+    }
   }
 
   /**
-   * Get the current size of the blacklist
+   * Get approximate size of the blacklist
+   * Note: This is an estimate as Redis keys auto-expire
    *
-   * @returns Number of tokens currently blacklisted
+   * @returns Promise with number of tokens currently blacklisted
    */
-  getBlacklistSize(): number {
-    return this.revokedTokens.size;
+  async getBlacklistSize(): Promise<number> {
+    try {
+      // In production, you might want to use Redis SCAN to count keys
+      // For now, we'll return -1 to indicate "unknown" in Redis mode
+      // or you could implement a counter
+      this.logger.debug(
+        'Blacklist size tracking not implemented in Redis mode',
+      );
+      return -1;
+    } catch (error) {
+      this.logger.error('Failed to get blacklist size', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get health status of token blacklist service
+   *
+   * @returns Object with Redis connection status
+   */
+  async getHealthStatus(): Promise<{ redis: boolean; message: string }> {
+    try {
+      const healthCheck = await this.redisService.healthCheck();
+      return {
+        redis: healthCheck.status === 'connected',
+        message:
+          healthCheck.status === 'connected'
+            ? `Redis connected (latency: ${healthCheck.latency}ms)`
+            : 'Redis disconnected',
+      };
+    } catch (error) {
+      return {
+        redis: false,
+        message: 'Failed to check Redis health',
+      };
+    }
   }
 }

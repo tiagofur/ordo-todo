@@ -32,6 +32,14 @@ export class WorkflowsService {
     return workflows.map((w) => w.props);
   }
 
+  async findOne(id: string) {
+    const workflow = await this.workflowRepository.findById(id);
+    if (!workflow) {
+      return null;
+    }
+    return workflow.props;
+  }
+
   async update(id: string, updateWorkflowDto: UpdateWorkflowDto) {
     const updateWorkflowUseCase = new UpdateWorkflowUseCase(
       this.workflowRepository,

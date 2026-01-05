@@ -188,6 +188,7 @@ Complete guide to master Ordo-Todo:
 | [ARCHITECTURE.md](./docs/design/ARCHITECTURE.md) | DDD + Clean Architecture |
 | [ROADMAP.md](./docs/ROADMAP.md) | Development roadmap |
 | [COMPONENT_GUIDELINES.md](./docs/COMPONENT_GUIDELINES.md) | UI component patterns |
+| [PROJECT_ORGANIZATION.md](./docs/PROJECT_ORGANIZATION.md) | File organization rules |
 | [CLAUDE.md](./CLAUDE.md) | AI assistant context |
 
 ### API Reference

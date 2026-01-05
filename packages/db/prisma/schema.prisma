@@ -43,14 +43,16 @@ model User {
   ownedTasks      Task[]            @relation("CreatedTasks")
   assignedTasks   Task[]            @relation("AssignedTasks")
   ownedProjects   Project[]
-  comments        Comment[]
-  attachments     Attachment[]
-  activities      Activity[]
+  notes           Note[]
+
+  comments        Comment[]         @relation("UserComments")
+  attachments     Attachment[]      @relation("UploadedAttachments")
+  activities      Activity[]        @relation("UserActivities")
   notifications   Notification[]
 
   // Workspace Management
-  sentInvitations WorkspaceInvitation[]
-  auditLogs       WorkspaceAuditLog[]
+  sentInvitations WorkspaceInvitation[] @relation("SentInvitations")
+  auditLogs       WorkspaceAuditLog[]    @relation("AuditLogs")
 
   // AI Data
   aiProfile           AIProfile?
@@ -256,6 +258,8 @@ model Notification {
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
+  // PERFORMANCE: Query notifications by resource
+  @@index([resourceId, resourceType])
 }
 
 enum NotificationType {
@@ -444,6 +448,8 @@ model Workspace {
   audits        WorkspaceAuditLog[]
   taskTemplates TaskTemplate[]
   objectives    Objective[]
+  notes         Note[]
+
 
   // NUEVO: Estados de ciclo de vida
   isArchived Boolean   @default(false)
@@ -493,8 +499,9 @@ model WorkspaceInvitation {
   role      MemberRole   @default(MEMBER)
   status    InviteStatus @default(PENDING)
 
+  // SECURITY: onDelete: SetNull - When inviter is deleted, remove inviter reference but keep invitation
   invitedById String?
-  invitedBy   User?   @relation(fields: [invitedById], references: [id])
+  invitedBy   User?   @relation("SentInvitations", fields: [invitedById], references: [id], onDelete: SetNull)
 
   expiresAt  DateTime
   acceptedAt DateTime?
@@ -520,8 +527,9 @@ model WorkspaceAuditLog {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
+  // SECURITY: onDelete: SetNull - When actor is deleted, remove actor reference but keep audit log
   actorId String? // Usuario que realizó la acción
-  actor   User?   @relation(fields: [actorId], references: [id])
+  actor   User?   @relation("AuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
 
   action  String // ej. "MEMBER_INVITED", "PROJECT_DELETED"
   payload Json? // Detalles del cambio
@@ -655,6 +663,10 @@ model Project {
   @@index([workflowId])
   @@index([ownerId])
   @@index([deletedAt])
+  // PERFORMANCE: Filter by status and completion state
+  @@index([completed])
+  @@index([archived])
+  @@index([status])
 }
 
 enum ProjectStatus {
@@ -749,11 +761,12 @@ model Task {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
-  owner   User   @relation("CreatedTasks", fields: [ownerId], references: [id])
+  // SECURITY: onDelete: Cascade - When user is deleted, all owned tasks are deleted
+  owner   User   @relation("CreatedTasks", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
 
-  // Assignee (optional)
-  assignee   User?   @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  // SECURITY: onDelete: SetNull - When assignee is deleted, unassign tasks instead of deleting them
+  assignee   User?   @relation("AssignedTasks", fields: [assigneeId], references: [id], onDelete: SetNull)
   assigneeId String?
 
   // Hierarchy
@@ -905,6 +918,7 @@ model Tag {
   workspaceId String?
 
   @@unique([name, workspaceId])
+  @@index([workspaceId]) // PERFORMANCE: Filter tags by workspace
 }
 
 model TaskTag {
@@ -928,7 +942,8 @@ model Attachment {
   mimeType String
   url      String // S3/R2 URL
 
-  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+  // SECURITY: onDelete: SetNull - When uploader is deleted, remove uploader reference but keep file
+  uploadedBy   User?   @relation("UploadedAttachments", fields: [uploadedById], references: [id], onDelete: SetNull)
   uploadedById String?
 
   uploadedAt DateTime @default(now())
@@ -943,7 +958,8 @@ model Comment {
   task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId String
 
-  author   User   @relation(fields: [authorId], references: [id])
+  // SECURITY: onDelete: Cascade - When user is deleted, all their comments are deleted
+  author   User   @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
 
   content String @db.Text
@@ -961,7 +977,8 @@ model Activity {
   task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId String
 
-  user   User   @relation(fields: [userId], references: [id])
+  // SECURITY: onDelete: Cascade - When user is deleted, all their activity logs are deleted
+  user   User   @relation("UserActivities", fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   type     ActivityType
@@ -1421,6 +1438,7 @@ model KeyResultTask {
   weight Float @default(1)
 
   @@id([keyResultId, taskId])
+  @@index([taskId]) // PERFORMANCE: Find all key results for a task
 }
 
 enum OKRPeriod {
@@ -1494,3 +1512,32 @@ model BlogComment {
   @@index([userId])
   @@index([postId])
 }
+
+// ============ NOTES ============
+
+model Note {
+  id      String @id @default(cuid())
+  content String @db.Text
+
+  // Position & Style
+  x      Int    @default(100)
+  y      Int    @default(100)
+  width  Int    @default(300)
+  height Int    @default(300)
+  color  String @default("#feff9c")
+
+  // Workspace
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+
+  // Author
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([authorId])
+}
+

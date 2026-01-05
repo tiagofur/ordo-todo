@@ -9,16 +9,41 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private pool: Pool;
 
   constructor() {
-    // Create PostgreSQL connection pool
+    // Create PostgreSQL connection pool with optimized settings
+    // Connection pooling configuration for high-traffic production workloads
     this.pool = new Pool({
       connectionString: process.env.DATABASE_URL,
+
+      // Connection pool settings
+      max: process.env.DB_POOL_MAX ? parseInt(process.env.DB_POOL_MAX) : 20, // Maximum pool size
+      min: process.env.DB_POOL_MIN ? parseInt(process.env.DB_POOL_MIN) : 5, // Minimum pool size
+      idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+
+      // Connection timeout settings
+      connectionTimeoutMillis: 10000, // 10 seconds to establish connection
+      idle_in_transaction_session_timeout: 60000, // 60 seconds for idle transactions
+
+      // Query settings
+      statement_timeout: 30000, // 30 seconds max query execution time
+
+      // Logging (disable in production for performance)
+      log:
+        process.env.NODE_ENV === 'development'
+          ? (['error', 'slow'] as any)
+          : (['error'] as any),
     });
 
     // Create Prisma adapter
     const adapter = new PrismaPg(this.pool);
 
-    // Initialize Prisma Client with adapter
-    this.prisma = new PrismaClient({ adapter });
+    // Initialize Prisma Client with adapter and performance optimizations
+    this.prisma = new PrismaClient({
+      adapter,
+      log:
+        process.env.NODE_ENV === 'development'
+          ? ['query', 'error', 'warn']
+          : ['error'],
+    });
   }
 
   async onModuleInit() {
@@ -149,6 +174,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   get notification() {
     return this.prisma.notification;
+  }
+
+  get note() {
+    return this.prisma.note;
   }
 
   get achievement() {

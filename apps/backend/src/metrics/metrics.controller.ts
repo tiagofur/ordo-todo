@@ -1,10 +1,6 @@
 import { Controller, Get, Inject } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Public } from '../common/decorators/public.decorator';
 import { MetricsService } from '../common/services/metrics.service';
 
 /**
@@ -17,8 +13,7 @@ import { MetricsService } from '../common/services/metrics.service';
  * @see {@link https://docs.nestjs.com/monitoring/configuration | NestJS Monitoring Configuration}
  */
 @ApiTags('Metrics')
-@ApiBearerAuth()
-@Controller('metrics')
+@Controller()
 export class MetricsController {
   constructor(
     @Inject(MetricsService)
@@ -44,21 +39,26 @@ export class MetricsController {
    *
    * @since 1.0.0
    */
-  @Get()
+  @Public()
+  @Get('metrics')
   @ApiOperation({
     summary: 'Get application metrics',
     description:
-      'Returns all application metrics in Prometheus format. Includes HTTP, business, database, and system KPIs. Can be scraped by Prometheus or other monitoring tools.',
+      'Returns all application metrics in Prometheus format. Includes HTTP, business, database, and system KPIs. Can be scraped by Prometheus or other monitoring tools. This endpoint is public and should be protected by network policies.',
   })
   @ApiResponse({
     status: 200,
     description: 'Metrics retrieved successfully',
-    schema: {
-      example:
-        '# HELP http_requests_total{method="GET",route="/api/v1/tasks",status_code="200"} 1523\n' +
-        '# HELP http_request_duration_seconds_bucket{method="GET",route="/api/v1/tasks",status_code="200",le="0.05"} 52\n' +
-        '# HELP tasks_created_total{workspace_id="ws-123",priority="HIGH"} 45\n' +
-        '# HELP tasks_completed_total{workspace_id="ws-123"} 67\n',
+    content: {
+      'text/plain': {
+        example:
+          '# HELP http_requests_total Total number of HTTP requests\n' +
+          '# TYPE http_requests_total counter\n' +
+          'http_requests_total{method="GET",route="/api/v1/tasks",status_code="200"} 1523\n' +
+          '# HELP http_request_duration_seconds Duration of HTTP requests in seconds\n' +
+          '# TYPE http_request_duration_seconds histogram\n' +
+          'http_request_duration_seconds_bucket{method="GET",route="/api/v1/tasks",status_code="200",le="0.05"} 52\n',
+      },
     },
   })
   @ApiResponse({

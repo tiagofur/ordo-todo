@@ -140,6 +140,7 @@ export const queryKeys = {
   heatmapData: ["analytics", "heatmap"] as const,
   projectDistribution: ["analytics", "project-distribution"] as const,
   taskStatusDistribution: ["analytics", "task-status-distribution"] as const,
+  productivityStreak: ["analytics", "streak"] as const,
 
   // AI
   aiProfile: ["ai", "profile"] as const,
@@ -1310,6 +1311,13 @@ export function useTaskStatusDistribution() {
   });
 }
 
+export function useProductivityStreak() {
+  return useQuery({
+    queryKey: queryKeys.productivityStreak,
+    queryFn: () => apiClient.getProductivityStreak(),
+  });
+}
+
 // ============ AI HOOKS ============
 
 export function useAIProfile() {
@@ -1988,12 +1996,14 @@ export function useLinkTaskToKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
+      objectiveId,
       keyResultId,
       data,
     }: {
+      objectiveId: string;
       keyResultId: string;
       data: LinkTaskDto;
-    }) => apiClient.linkTaskToKeyResult(keyResultId, data),
+    }) => apiClient.linkTaskToKeyResult(objectiveId, keyResultId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
       // Also invalidate the task details to show the newly linked key result
@@ -2011,12 +2021,14 @@ export function useUnlinkTaskFromKeyResult() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
+      objectiveId,
       keyResultId,
       taskId,
     }: {
+      objectiveId: string;
       keyResultId: string;
       taskId: string;
-    }) => apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
+    }) => apiClient.unlinkTaskFromKeyResult(objectiveId, keyResultId, taskId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.all });
     },

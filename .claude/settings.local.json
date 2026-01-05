@@ -92,7 +92,10 @@
       "Bash(npm cache clean:*)",
       "Bash(gh workflow run:*)",
       "Bash(git pull:*)",
-      "Bash(git revert:*)"
+      "Bash(git revert:*)",
+      "Bash(npm run test:cov:*)",
+      "Bash(yamllint:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

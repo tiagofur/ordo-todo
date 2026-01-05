@@ -504,7 +504,7 @@ export default function ProjectDetailPage() {
       />
 
       <ProjectSettingsDialog
-        projectId={project.id}
+        project={project}
         open={showSettings}
         onOpenChange={setShowSettings}
       />

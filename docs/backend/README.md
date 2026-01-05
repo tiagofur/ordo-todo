@@ -4,14 +4,28 @@ Complete API reference for the Ordo-Todo backend REST API.
 
 ## Documentation
 
+### Core Documentation
 - **[README.md](./README.md)** - API endpoints reference (this file)
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and module structure
 - **[SECURITY.md](./SECURITY.md)** - Security implementation details
 - **[IMPROVEMENTS.md](./IMPROVEMENTS.md)** - Planned enhancements roadmap
 - **[ai-features.md](./ai-features.md)** - AI capabilities and cost optimization
+
+### Sprints & Implementations
+- **[SPRINT-4-5-COMPLETE.md](./SPRINT-4-5-COMPLETE.md)** - ✅ COMPLETED: Performance, Caching, Deployment Ready (Ene 2025)
+
+### Audits & Quality
 - **[AUDITORIA-2025-01-02.md](./AUDITORIA-2025-01-02.md)** - Complete quality audit (January 2025) - Clean Code, SOLID, Testing, Type Safety
 - **[AUDITORIA-COMPLETA.md](./AUDITORIA-COMPLETA.md)** - Previous comprehensive audit (December 2025)
 - **[AUDITORIA-RESUMEN-FINAL.md](./AUDITORIA-RESUMEN-FINAL.md)** - Final audit summary and metrics
+
+### Deployment & Operations
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment procedures and configuration
+- **[PERFORMANCE.md](./PERFORMANCE.md)** - Performance optimization guide
+- **[DATABASE_INDEXES.md](./DATABASE_INDEXES.md)** - Database indexing strategy
+- **[MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)** - Database migration guide
+- **[REDIS_SETUP.md](./REDIS_SETUP.md)** - Redis caching setup and configuration
+- **[ROADMAP-MEJORAS-2025.md](./ROADMAP-MEJORAS-2025.md)** - 2025 improvements roadmap
 
 ## Quick Start
 
@@ -26,6 +40,64 @@ curl -X POST /auth/login -d '{"email":"user@example.com","password":"..."}'
 # Use token in requests
 curl -H "Authorization: Bearer <token>" /users/me
 ```
+
+## System Status
+
+### Production Readiness: ✅ READY
+
+The backend is production-ready with the following features implemented:
+
+#### Performance & Scalability (Sprint 4)
+- ✅ **Redis Caching**: Intelligent caching with automatic invalidation
+- ✅ **Connection Pooling**: Optimized PostgreSQL pool (max 20, min 5 connections)
+- ✅ **Graceful Degradation**: Cache failures fall back to database
+
+#### Observability (Sprint 5)
+- ✅ **Health Checks**: `/health`, `/health/live`, `/health/ready`
+- ✅ **Prometheus Metrics**: `/metrics` (HTTP, DB, Redis, Business metrics)
+- ✅ **System Monitoring**: Memory, CPU, event loop lag tracking
+
+#### Deployment
+- ✅ **Graceful Shutdown**: 10-second graceful shutdown timeout
+- ✅ **Migration Scripts**: Automated DB migrations with backups
+- ✅ **Docker Compose**: Complete development environment
+- ✅ **CI/CD**: GitHub Actions workflows validated
+- ✅ **Documentation**: Complete runbooks and troubleshooting guides
+
+### Monitoring Endpoints
+
+| Endpoint | Purpose | Frequency |
+|----------|---------|-----------|
+| `GET /health` | Full health check (DB, Redis, memory) | Every 30s |
+| `GET /health/live` | Liveness probe (Kubernetes) | Every 10s |
+| `GET /health/ready` | Readiness probe (Kubernetes) | Every 10s |
+| `GET /metrics` | Prometheus metrics | Every 15s |
+
+**Health Check Response**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-01-05T10:30:00.000Z",
+  "uptime": 3600,
+  "checks": {
+    "database": { "status": "up", "responseTime": 15 },
+    "redis": { "status": "up", "responseTime": 5 },
+    "memory": { "status": "up", "usagePercent": "50.00" }
+  }
+}
+```
+
+### Architecture Highlights
+
+- **Framework**: NestJS 11+ with TypeScript
+- **Database**: PostgreSQL 16 with Prisma ORM
+- **Cache**: Redis 7 with ioredis client
+- **Testing**: Jest + Supertest (32.82% coverage)
+- **API Documentation**: Swagger/OpenAPI at `/api-docs`
+- **Container**: Docker multi-stage builds
+- **CI/CD**: GitHub Actions (lint, test, build, deploy)
+
+---
 
 ## Endpoints Overview
 

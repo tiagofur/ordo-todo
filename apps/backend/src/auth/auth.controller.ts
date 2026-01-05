@@ -207,20 +207,28 @@ export class AuthController {
 
   /**
    * Google OAuth callback
-   * Handles OAuth callback from Google
+   *
+   * SECURITY: Uses URL fragment (#) instead of query params to prevent token exposure.
+   * Tokens in URL fragments are NOT sent to the server and NOT logged.
+   *
+   * @see {@link https://tools.ietf.org/html/rfc6749#section-3.3.2 | OAuth 2.0 Fragment Practice}
+   * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-implicit-16#section-4.2.2 | Implicit Grant with Fragment}
    */
   @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({
     summary: 'Google OAuth callback',
-    description: 'Handles OAuth callback from Google and returns JWT tokens',
+    description:
+      'Handles OAuth callback from Google and returns JWT tokens via URL fragment (more secure)',
   })
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
+    // SECURITY: Use URL fragment (#) instead of query params (?)
+    // Fragments are NOT sent to server, NOT logged, and NOT stored in history
     return res.redirect(
-      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?` +
+      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback#` +
         `access_token=${accessToken}&` +
         `refresh_token=${refreshToken}&` +
         `user_id=${user.id}`,
@@ -242,20 +250,28 @@ export class AuthController {
 
   /**
    * GitHub OAuth callback
-   * Handles OAuth callback from GitHub
+   *
+   * SECURITY: Uses URL fragment (#) instead of query params to prevent token exposure.
+   * Tokens in URL fragments are NOT sent to the server and NOT logged.
+   *
+   * @see {@link https://tools.ietf.org/html/rfc6749#section-3.3.2 | OAuth 2.0 Fragment Practice}
+   * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-implicit-16#section-4.2.2 | Implicit Grant with Fragment}
    */
   @Public()
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
   @ApiOperation({
     summary: 'GitHub OAuth callback',
-    description: 'Handles OAuth callback from GitHub and returns JWT tokens',
+    description:
+      'Handles OAuth callback from GitHub and returns JWT tokens via URL fragment (more secure)',
   })
   async githubAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
+    // SECURITY: Use URL fragment (#) instead of query params (?)
+    // Fragments are NOT sent to server, NOT logged, and NOT stored in history
     return res.redirect(
-      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?` +
+      `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback#` +
         `access_token=${accessToken}&` +
         `refresh_token=${refreshToken}&` +
         `user_id=${user.id}`,

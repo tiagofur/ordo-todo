@@ -21,4 +21,6 @@ export * from './objective.types';
 export * from './custom-field.types';
 export * from './wellbeing.types';
 export * from './workload.types';
+export * from './note.types';
+
 

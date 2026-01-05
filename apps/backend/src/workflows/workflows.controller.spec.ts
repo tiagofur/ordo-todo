@@ -11,6 +11,7 @@ describe('WorkflowsController', () => {
     const mockWorkflowsService = {
       create: jest.fn(),
       findAll: jest.fn(),
+      findOne: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),
     };
@@ -108,6 +109,40 @@ describe('WorkflowsController', () => {
 
       expect(workflowsService.findAll).toHaveBeenCalledWith(undefined);
       expect(result).toEqual(mockWorkflows);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a single workflow by ID', async () => {
+      const mockWorkflow = {
+        id: 'wf-123',
+        name: 'Development Cycle',
+        description: 'Sprint-based development workflow',
+        workspaceId: 'workspace123',
+        icon: '🚀',
+        color: '#3B82F6',
+        order: 1,
+        projectCount: 5,
+        createdAt: new Date('2025-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+      };
+
+      workflowsService.findOne.mockResolvedValue(mockWorkflow as any);
+
+      const result = await controller.findOne('wf-123');
+
+      expect(workflowsService.findOne).toHaveBeenCalledWith('wf-123');
+      expect(result).toEqual(mockWorkflow);
+    });
+
+    it('should throw NotFoundException if workflow not found', async () => {
+      workflowsService.findOne.mockRejectedValue(
+        new NotFoundException('Workflow not found'),
+      );
+
+      await expect(controller.findOne('non-existent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

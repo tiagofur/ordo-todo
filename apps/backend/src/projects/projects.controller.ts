@@ -9,6 +9,7 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
   HttpCode,
   HttpStatus,
   Logger,
@@ -28,6 +29,15 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ProjectGuard } from '../common/guards/project.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import {
+  CacheResult,
+  CacheInvalidate,
+  CacheTTL,
+} from '../common/decorators/cache';
+import {
+  CacheInterceptor,
+  CacheInvalidateInterceptor,
+} from '../common/decorators/cache';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { ProjectsService } from './projects.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
@@ -47,6 +57,8 @@ export class ProjectsController {
   ) {}
 
   @Post()
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('projects')
   @UseGuards(ProjectGuard) // ProjectGuard handles logic for creation if workspaceId is in body
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @HttpCode(HttpStatus.CREATED)
@@ -74,6 +86,8 @@ export class ProjectsController {
   }
 
   @Get()
+  @UseInterceptors(CacheInterceptor)
+  @CacheResult('projects', CacheTTL.MEDIUM)
   // We need to ensure user can only list projects for workspaces they are in.
   // ProjectGuard with query logic handles this.
   @UseGuards(ProjectGuard)
@@ -108,6 +122,8 @@ export class ProjectsController {
   }
 
   @Get('all')
+  @UseInterceptors(CacheInterceptor)
+  @CacheResult('projects:all', CacheTTL.SHORT)
   @ApiOperation({
     summary: 'Get all projects for current user',
     description:
@@ -152,6 +168,8 @@ export class ProjectsController {
   }
 
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
+  @CacheResult('project', CacheTTL.LONG)
   @UseGuards(ProjectGuard)
   @Roles(
     MemberRole.OWNER,
@@ -233,6 +251,8 @@ export class ProjectsController {
   }
 
   @Put(':id')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('projects')
   @UseGuards(ProjectGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   @ApiOperation({
@@ -262,6 +282,8 @@ export class ProjectsController {
   }
 
   @Patch(':id/archive')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('projects')
   @UseGuards(ProjectGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @ApiOperation({
@@ -320,6 +342,8 @@ export class ProjectsController {
   }
 
   @Delete(':id')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('projects')
   @UseGuards(ProjectGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)

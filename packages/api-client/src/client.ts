@@ -71,6 +71,7 @@ import type {
   // Analytics
   DailyMetrics,
   GetDailyMetricsParams,
+  ProductivityStreak,
   // Comment
   Comment,
   CreateCommentDto,
@@ -129,7 +130,12 @@ import type {
   WorkspaceWorkload,
   MemberWorkload,
   WorkloadSuggestion,
+  // Notes
+  Note,
+  CreateNoteDto as ClientCreateNoteDto, // Alias if needed, but names match
+  UpdateNoteDto as ClientUpdateNoteDto,
 } from "./types";
+
 
 /**
  * Retry configuration for failed requests
@@ -1468,6 +1474,15 @@ export class OrdoApiClient {
     return response.data;
   }
 
+  /**
+   * Get productivity streak information
+   * GET /analytics/streak
+   */
+  async getProductivityStreak(): Promise<ProductivityStreak> {
+    const response = await this.axios.get<ProductivityStreak>("/analytics/streak");
+    return response.data;
+  }
+
   // ============ COMMENT ENDPOINTS (4) ============
 
   /**
@@ -2498,4 +2513,53 @@ export class OrdoApiClient {
     );
     return response.data;
   }
+
+  // ============ NOTES ENDPOINTS ============
+
+  /**
+   * Create a new note
+   * POST /notes
+   */
+  async createNote(data: ClientCreateNoteDto): Promise<Note> {
+    const response = await this.axios.post<Note>("/notes", data);
+    return response.data;
+  }
+
+  /**
+   * Get all notes for a workspace
+   * GET /notes?workspaceId=...
+   */
+  async getNotes(workspaceId: string): Promise<Note[]> {
+    const response = await this.axios.get<Note[]>("/notes", {
+      params: { workspaceId },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get a specific note
+   * GET /notes/:id
+   */
+  async getNote(id: string): Promise<Note> {
+    const response = await this.axios.get<Note>(`/notes/${id}`);
+    return response.data;
+  }
+
+  /**
+   * Update a note
+   * PATCH /notes/:id
+   */
+  async updateNote(id: string, data: ClientUpdateNoteDto): Promise<Note> {
+    const response = await this.axios.patch<Note>(`/notes/${id}`, data);
+    return response.data;
+  }
+
+  /**
+   * Delete a note
+   * DELETE /notes/:id
+   */
+  async deleteNote(id: string): Promise<void> {
+    await this.axios.delete(`/notes/${id}`);
+  }
 }
+

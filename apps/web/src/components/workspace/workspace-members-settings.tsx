@@ -55,12 +55,14 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
       const ownerMember = {
         id: `owner-${workspaceOwner.id}`,
         userId: workspaceOwner.id,
+        workspaceId: workspaceId,
         role: "OWNER" as const,
-        joinedAt: ownerCreatedAt || new Date().toISOString(),
+        joinedAt: new Date(ownerCreatedAt || new Date()),
         user: {
+          id: workspaceOwner.id,
           name: workspaceOwner.name,
           email: workspaceOwner.email,
-          image: workspaceOwner.image,
+          image: 'image' in workspaceOwner ? (workspaceOwner as any).image ?? null : null,
         },
       };
       return [ownerMember, ...membersList];

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { ProfileTabs } from "@ordo-todo/ui";
+import { ProfileTabs } from "@/components/shared/profile-tabs";
 import useSession from "@/data/hooks/use-session.hook";
 import { useFullProfile, useUpdateProfile, useUpdatePreferences, useExportData, useDeleteAccount, queryKeys } from "@/lib/api-hooks";
 import useMessages from "@/data/hooks/use-messages.hook";

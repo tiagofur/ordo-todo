@@ -36,3 +36,4 @@ __exportStar(require("./objective.types"), exports);
 __exportStar(require("./custom-field.types"), exports);
 __exportStar(require("./wellbeing.types"), exports);
 __exportStar(require("./workload.types"), exports);
+__exportStar(require("./note.types"), exports);

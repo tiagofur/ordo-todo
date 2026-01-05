@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectsService } from './projects.service';
+import { ProjectsController } from './projects.controller';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('ProjectsController', () => {

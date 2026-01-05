@@ -67,7 +67,9 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
     const fetchSuggestions = async () => {
       try {
         const response = await apiClient.searchSuggestions(debouncedQuery);
-        setSuggestions(response.suggestions || []);
+        // Ensure we handle both array and object formats
+        const suggestionsData = Array.isArray(response) ? response : (response.suggestions || []);
+        setSuggestions(suggestionsData);
       } catch (error) {
         console.error('Failed to fetch suggestions', error);
       }
@@ -92,8 +94,14 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
     try {
       const response = await apiClient.semanticSearch(searchQuery);
 
-      setResults(response.results || []);
-      setInterpretation(response.interpretation || null);
+      // Response is any[] based on type error
+      // Check if it's the expected object structure or arrray
+      const responseAny = response as any;
+      const searchResults = Array.isArray(response) ? response : (responseAny.results || []);
+      const searchInterpretation = !Array.isArray(response) ? responseAny.interpretation : null;
+
+      setResults(searchResults);
+      setInterpretation(searchInterpretation);
       setSelectedIndex(0);
     } catch (error) {
       console.error('Search failed', error);

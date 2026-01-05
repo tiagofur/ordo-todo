@@ -61,6 +61,33 @@ export class TagsService {
     return result;
   }
 
+  async findOne(id: string) {
+    // Get tag with task count from Prisma directly
+    const tag = await this.prisma.tag.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { tasks: true },
+        },
+      },
+    });
+
+    if (!tag) {
+      this.logger.warn(`Tag ${id} not found`);
+      return null;
+    }
+
+    this.logger.debug(`Found tag ${id}`);
+    return {
+      id: tag.id,
+      name: tag.name,
+      color: tag.color,
+      workspaceId: tag.workspaceId,
+      createdAt: tag.createdAt,
+      taskCount: tag._count.tasks,
+    };
+  }
+
   async assignToTask(tagId: string, taskId: string) {
     const assignTagToTaskUseCase = new AssignTagToTaskUseCase(
       this.tagRepository,

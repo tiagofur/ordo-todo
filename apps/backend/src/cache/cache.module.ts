@@ -5,7 +5,20 @@ import {
 } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheService } from './cache.service';
+import { RedisModule } from './redis.module';
 
+/**
+ * Cache Module - Unified Caching Solution
+ *
+ * Provides both in-memory caching (via NestJS CacheManager) and
+ * Redis-backed distributed caching for production deployments.
+ *
+ * Features:
+ * - In-memory cache for development
+ * - Redis for production (automatic failover)
+ * - Global availability across all modules
+ * - Cache interceptor for automatic response caching
+ */
 @Global()
 @Module({
   imports: [
@@ -14,6 +27,7 @@ import { CacheService } from './cache.service';
       max: 1000,
       isGlobal: true,
     }),
+    RedisModule, // Redis for distributed caching and token blacklist
   ],
   providers: [
     CacheService,
@@ -22,6 +36,6 @@ import { CacheService } from './cache.service';
       useClass: CacheInterceptor,
     },
   ],
-  exports: [CacheService],
+  exports: [CacheService, RedisModule],
 })
 export class CacheModule {}
