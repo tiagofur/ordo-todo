@@ -9,3 +9,4 @@ export * from "./timer";
 export * from "./analytics";
 export * from "./ai";
 export * from "./habits";
+export * from "./notes";

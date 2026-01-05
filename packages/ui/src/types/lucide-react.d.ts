@@ -141,8 +141,6 @@ declare module 'lucide-react' {
   export const RotateCcw: LucideIcon;
   export const PlayCircle: LucideIcon;
   export const PauseCircle: LucideIcon;
-}
-
   // Icon suffixed versions
   export const ChevronDownIcon: LucideIcon;
   export const ChevronLeftIcon: LucideIcon;
@@ -153,3 +151,4 @@ declare module 'lucide-react' {
   export const XIcon: LucideIcon;
   export const CheckIcon: LucideIcon;
   export const FileIcon: LucideIcon;
+}

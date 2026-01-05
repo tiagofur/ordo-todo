@@ -33,12 +33,13 @@ function Badge({
 }: React.ComponentProps<"span"> &
   VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "span"
-
+  
+  // Cast to any to avoid ref type issues with Slot vs span
   return (
     <Comp
       data-slot="badge"
       className={cn(badgeVariants({ variant }), className)}
-      {...props}
+      {...(props as any)}
     />
   )
 }

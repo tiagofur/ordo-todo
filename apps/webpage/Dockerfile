@@ -23,7 +23,7 @@ COPY packages/i18n/package.json ./packages/i18n/
 COPY packages/stores/package.json ./packages/stores/
 
 # Install dependencies
-RUN npm ci --legacy-peer-deps --ignore-scripts
+RUN npm ci --legacy-peer-deps
 
 # =============================================================================
 # Stage 2: Builder

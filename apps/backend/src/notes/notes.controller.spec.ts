@@ -117,23 +117,35 @@ describe('NotesController', () => {
         },
       ];
 
-      notesService.findAll.mockResolvedValue(mockNotes as any);
+      notesService.findAll.mockResolvedValue({
+        data: mockNotes,
+        meta: { total: 2, page: 0, limit: 20, totalPages: 1 },
+      } as any);
 
-      const result = await controller.findAll(workspaceId, mockRequestUser);
+      const result = await controller.findAll(workspaceId, {} as any, mockRequestUser);
 
-      expect(notesService.findAll).toHaveBeenCalledWith(workspaceId, mockRequestUser.id);
-      expect(result).toEqual(mockNotes);
+      expect(notesService.findAll).toHaveBeenCalledWith(workspaceId, mockRequestUser.id, expect.any(Object));
+      expect(result).toEqual({
+        data: mockNotes,
+        meta: { total: 2, page: 0, limit: 20, totalPages: 1 },
+      });
     });
 
     it('should return empty array if no notes', async () => {
       const workspaceId = 'ws-123';
 
-      notesService.findAll.mockResolvedValue([] as any);
+      notesService.findAll.mockResolvedValue({
+        data: [],
+        meta: { total: 0, page: 0, limit: 20, totalPages: 0 },
+      } as any);
 
-      const result = await controller.findAll(workspaceId, mockRequestUser);
+      const result = await controller.findAll(workspaceId, {} as any, mockRequestUser);
 
-      expect(notesService.findAll).toHaveBeenCalledWith(workspaceId, mockRequestUser.id);
-      expect(result).toEqual([]);
+      expect(notesService.findAll).toHaveBeenCalledWith(workspaceId, mockRequestUser.id, expect.any(Object));
+      expect(result).toEqual({
+        data: [],
+        meta: { total: 0, page: 0, limit: 20, totalPages: 0 },
+      });
     });
 
     it('should throw ForbiddenException if user is not member', async () => {
@@ -144,7 +156,7 @@ describe('NotesController', () => {
       );
 
       await expect(
-        controller.findAll(workspaceId, mockRequestUser),
+        controller.findAll(workspaceId, {} as any, mockRequestUser),
       ).rejects.toThrow(ForbiddenException);
     });
   });

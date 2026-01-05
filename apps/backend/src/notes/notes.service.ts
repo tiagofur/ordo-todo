@@ -1,138 +1,109 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
+import type { NoteRepository } from '@ordo-todo/core';
+import {
+  CreateNoteUseCase,
+  FindNoteUseCase,
+  FindAllNotesUseCase,
+  UpdateNoteUseCase,
+  DeleteNoteUseCase,
+} from '@ordo-todo/core';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { QueryNoteDto } from './dto/query-note.dto';
-import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class NotesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject('NoteRepository')
+    private readonly noteRepository: NoteRepository,
+  ) {}
 
   async create(createNoteDto: CreateNoteDto, authorId: string) {
-    return this.prisma.note.create({
-      data: {
-        ...createNoteDto,
-        authorId,
-      },
+    const createNoteUseCase = new CreateNoteUseCase(this.noteRepository);
+    const note = await createNoteUseCase.execute({
+      ...createNoteDto,
+      authorId,
     });
+    return note.props;
   }
 
   async findAll(workspaceId: string, userId: string, query: QueryNoteDto) {
-    // Verify user is a member of the workspace
-    const member = await this.prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: workspaceId,
-          userId: userId,
-        },
-      },
+    const findAllNotesUseCase = new FindAllNotesUseCase(this.noteRepository);
+    const result = await findAllNotesUseCase.execute({
+      workspaceId,
+      userId,
+      limit: query.limit,
+      page: query.page,
+      search: query.search,
+      authorId: query.authorId,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
     });
 
-    if (!member) {
-      throw new ForbiddenException(
-        'You are not a member of this workspace',
-      );
-    }
-
-    const { limit = 20, page = 0, search, authorId, sortBy, sortOrder } = query;
-
-    const where: any = { workspaceId };
-
-    // Search filter
-    if (search) {
-      where.content = {
-        contains: search,
-        mode: 'insensitive', // Case-insensitive search
-      };
-    }
-
-    // Author filter
-    if (authorId) {
-      where.authorId = authorId;
-    }
-
-    const [data, total] = await Promise.all([
-      this.prisma.note.findMany({
-        where,
-        orderBy: { [sortBy as string]: sortOrder },
-        take: limit,
-        skip: page * limit,
-      }),
-      this.prisma.note.count({ where }),
-    ]);
-
     return {
-      data,
+      data: result.data.map((note) => note.props),
       meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
       },
     };
   }
 
   async findOne(id: string, userId: string) {
-    const note = await this.prisma.note.findUnique({
-      where: { id },
+    const findNoteUseCase = new FindNoteUseCase(this.noteRepository);
+    const note = await findNoteUseCase.execute({
+      id,
+      userId,
     });
-
-    if (!note) {
-      throw new NotFoundException(`Note with ID ${id} not found`);
-    }
-
-    // Check if user is the author
-    if (note.authorId !== userId) {
-      // If not author, verify user is a workspace member
-      const member = await this.prisma.workspaceMember.findUnique({
-        where: {
-          workspaceId_userId: {
-            workspaceId: note.workspaceId,
-            userId: userId,
-          },
-        },
-      });
-
-      if (!member) {
-        throw new ForbiddenException(
-          'You do not have permission to access this note',
-        );
-      }
-    }
-
-    return note;
+    return note.props;
   }
 
   async update(id: string, updateNoteDto: UpdateNoteDto, userId: string) {
-    // First verify ownership using findOne
-    const note = await this.findOne(id, userId);
+    const updateNoteUseCase = new UpdateNoteUseCase(this.noteRepository);
 
-    // Only the author can update
-    if (note.authorId !== userId) {
-      throw new ForbiddenException(
-        'Only the note author can update it',
-      );
+    try {
+      const note = await updateNoteUseCase.execute({
+        id,
+        userId,
+        ...updateNoteDto,
+      });
+      return note.props;
+    } catch (error) {
+      if (error.message === 'Note not found') {
+        throw new NotFoundException(`Note with ID ${id} not found`);
+      }
+      if (error.message === 'Only the note author can update it') {
+        throw new ForbiddenException('Only the note author can update it');
+      }
+      throw error;
     }
-
-    return await this.prisma.note.update({
-      where: { id },
-      data: updateNoteDto,
-    });
   }
 
   async remove(id: string, userId: string) {
-    // First verify ownership using findOne
-    const note = await this.findOne(id, userId);
+    const deleteNoteUseCase = new DeleteNoteUseCase(this.noteRepository);
 
-    // Only the author can delete
-    if (note.authorId !== userId) {
-      throw new ForbiddenException(
-        'Only the note author can delete it',
-      );
+    try {
+      const note = await deleteNoteUseCase.execute({
+        id,
+        userId,
+      });
+      return {
+        id: note.id,
+        content: note.props.content,
+        workspaceId: note.props.workspaceId,
+        authorId: note.props.authorId,
+        deletedAt: new Date(),
+      };
+    } catch (error) {
+      if (error.message === 'Note not found') {
+        throw new NotFoundException(`Note with ID ${id} not found`);
+      }
+      if (error.message === 'Only the note author can delete it') {
+        throw new ForbiddenException('Only the note author can delete it');
+      }
+      throw error;
     }
-
-    return await this.prisma.note.delete({
-      where: { id },
-    });
   }
 }

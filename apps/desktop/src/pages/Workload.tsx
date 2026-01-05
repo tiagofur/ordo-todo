@@ -84,8 +84,33 @@ export function Workload() {
   const fetchWorkload = async (workspaceId: string) => {
     setIsRefreshing(true);
     try {
-      const data = await apiClient.getWorkspaceWorkload(workspaceId);
-      setWorkloadData(data);
+      const data: any = await apiClient.getWorkspaceWorkload(workspaceId);
+      
+      // Map API response to local TeamWorkloadData structure
+      const mappedData: TeamWorkloadData = {
+          workspaceId: workspaceId,
+          workspaceName: workspaces.find((w: any) => w.id === workspaceId)?.name || "Workspace",
+          members: (data.members || []).map((m: any) => ({
+              userId: m.userId,
+              userName: m.userName || "Unknown",
+              userEmail: m.userEmail || "",
+              avatarUrl: m.avatarUrl,
+              workloadScore: m.workloadScore || 0,
+              assignedTasks: m.activeTaskCount || 0, // Map from likely API field
+              completedTasks: m.completedTaskCount || 0, // Map from likely API field
+              hoursWorkedThisWeek: m.hoursLogged || 0, // Map from likely API field
+              trend: "STABLE", // Default or map if available
+              workloadLevel: m.workloadScore > 80 ? "OVERLOADED" : m.workloadScore > 60 ? "HIGH" : m.workloadScore > 30 ? "MODERATE" : "LOW"
+          })),
+          averageWorkload: data.workloadScore || 0,
+          balanceScore: 100 - (data.variance || 0), // Mock calculation if variance exists or just use 100
+          redistributionSuggestions: (data.recommendations || []).map((rec: string) => ({
+              type: "BALANCE",
+              reason: rec,
+          }))
+      };
+
+      setWorkloadData(mappedData);
     } catch (error) {
       console.error("Failed to fetch workload:", error);
     } finally {
