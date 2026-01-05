@@ -14,8 +14,7 @@
     "strict": true
   },
   "include": [
-    "src/**/*",
-    "src/types/lucide-react.d.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
