@@ -62,17 +62,20 @@ export default function ProjectSettingsScreen({
 
     setIsSaving(true);
     try {
-      await updateProject.mutateAsync(projectId, {
-        name: settings.name,
-        description: settings.description,
-        color: settings.color,
-        defaultPriority: settings.defaultPriority,
-        allowComments: settings.allowComments,
-        allowAttachments: settings.allowAttachments,
-        allowGuests: settings.allowGuests,
-        notifyOnTaskComplete: settings.notifyOnTaskComplete,
-        notifyOnDueDateReminder: settings.notifyOnDueDateReminder,
-        isPublic: settings.isPublic,
+      await updateProject.mutateAsync({
+        projectId,
+        data: {
+          name: settings.name,
+          description: settings.description,
+          color: settings.color,
+          priority: settings.defaultPriority as any,
+          // allowComments: settings.allowComments,
+          // allowAttachments: settings.allowAttachments,
+          // allowGuests: settings.allowGuests,
+          // notifyOnTaskComplete: settings.notifyOnTaskComplete,
+          // notifyOnDueDateReminder: settings.notifyOnDueDateReminder,
+          // isPublic: settings.isPublic,
+        }
       });
       Alert.alert("Éxito", "Configuración guardada");
     } catch (error) {
@@ -257,7 +260,7 @@ export default function ProjectSettingsScreen({
                 onPress={() =>
                   setSettings((prev) => ({
                     ...prev,
-                    defaultPriority: priority.value,
+                    defaultPriority: priority.value as any,
                   }))
                 }
               >
@@ -322,7 +325,7 @@ export default function ProjectSettingsScreen({
                       allowAttachments: value,
                     }))
                   }
-                  trackColor={colors.primary}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                 />
               </View>
             </View>
@@ -358,7 +361,7 @@ export default function ProjectSettingsScreen({
                       notifyOnTaskComplete: value,
                     }))
                   }
-                  trackColor={colors.primary}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                 />
               </View>
             </View>
@@ -376,7 +379,7 @@ export default function ProjectSettingsScreen({
                       notifyOnDueDateReminder: value,
                     }))
                   }
-                  trackColor={colors.primary}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                 />
               </View>
             </View>

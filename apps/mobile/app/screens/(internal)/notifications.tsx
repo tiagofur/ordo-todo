@@ -125,7 +125,7 @@ export default function NotificationsScreen() {
           onPress={handleMarkAllAsRead}
           disabled={markAllAsRead.isPending}
         >
-          <Feather name="check-check" size={16} color={colors.primary} />
+          <Feather name={"check-check" as any} size={16} color={colors.primary} />
           <Text style={[styles.markAllText, { color: colors.primary }]}>
             {t("Notifications.markAllRead")}
           </Text>

@@ -68,7 +68,7 @@ export default function WorkloadScreen() {
   const fetchWorkload = async (workspaceId: string) => {
     try {
       const data = await apiClient.getWorkspaceWorkload(workspaceId);
-      setWorkloadData(data);
+      setWorkloadData(data as any);
     } catch (error) {
       console.error('Failed to fetch workload:', error);
     } finally {

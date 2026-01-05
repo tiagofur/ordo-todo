@@ -76,10 +76,10 @@ export default function WellbeingScreen() {
         apiClient.getRestRecommendations(),
       ]);
 
-      if (burnoutRes.status === 'fulfilled') setBurnout(burnoutRes.value);
-      if (patternsRes.status === 'fulfilled') setPatterns(patternsRes.value);
-      if (weeklyRes.status === 'fulfilled') setWeekly(weeklyRes.value);
-      if (recsRes.status === 'fulfilled') setRecommendations(Array.isArray(recsRes.value) ? recsRes.value : []);
+      if (burnoutRes.status === 'fulfilled') setBurnout((burnoutRes as any).value);
+      if (patternsRes.status === 'fulfilled') setPatterns((patternsRes as any).value);
+      if (weeklyRes.status === 'fulfilled') setWeekly((weeklyRes as any).value);
+      if (recsRes.status === 'fulfilled') setRecommendations(Array.isArray((recsRes as any).value) ? (recsRes as any).value : []);
     } catch (error) {
       console.error('Failed to fetch wellbeing data:', error);
     } finally {

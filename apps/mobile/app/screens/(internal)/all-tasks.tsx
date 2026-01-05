@@ -44,7 +44,7 @@ export default function AllTasksScreen() {
   const [sortBy, setSortBy] = useState<SortType>("DUE_DATE");
 
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const { data: tasks = [], isLoading } = useTasks(selectedWorkspaceId);
+  const { data: tasks = [], isLoading } = useTasks(selectedWorkspaceId || "");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const FILTERS: FilterBadge[] = [
@@ -118,7 +118,7 @@ export default function AllTasksScreen() {
       COMPLETED: "check-circle",
       CANCELLED: "x-circle",
     };
-    return iconMap[status] || "circle";
+    return (iconMap[status] || "circle") as any;
   };
 
   const formatDate = (date: Date | string | null) => {
@@ -343,16 +343,16 @@ export default function AllTasksScreen() {
 
                     {/* Meta */}
                     <View style={styles.taskMeta}>
-                      {task.projectName && (
+                      {(task as any).projectName && (
                         <Text
                           style={[styles.projectTag, { color: colors.primary }]}
                         >
-                          {task.projectName}
+                          {(task as any).projectName}
                         </Text>
                       )}
-                      {task.tags && task.tags.length > 0 && (
+                      {(task as any).tags && (task as any).tags.length > 0 && (
                         <View style={styles.tagsContainer}>
-                          {task.tags.slice(0, 2).map((tag) => (
+                          {(task as any).tags.slice(0, 2).map((tag: any) => (
                             <View
                               key={tag}
                               style={[
@@ -370,14 +370,14 @@ export default function AllTasksScreen() {
                               </Text>
                             </View>
                           ))}
-                          {task.tags.length > 2 && (
+                          {(task as any).tags.length > 2 && (
                             <Text
                               style={[
                                 styles.tagsMore,
                                 { color: colors.textMuted },
                               ]}
                             >
-                              +{task.tags.length - 2}
+                              +{(task as any).tags.length - 2}
                             </Text>
                           )}
                         </View>

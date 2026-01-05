@@ -61,8 +61,8 @@ export default function ReportsView({
     if (!weeklyMetrics || !Array.isArray(weeklyMetrics) || weeklyMetrics.length === 0) return [];
     return weeklyMetrics.map((m: any) => ({
       day: format(new Date(m.date), "EEE", { locale: es }),
-      pomodoros: Math.floor((m.minutesWorked || 0) / 25),
-      tasks: m.tasksCompleted || 0,
+      pomodoros: Math.floor((m.focusDuration || m.minutesWorked || 0) / 25),
+      tasks: m.tasksCompletedCount || m.tasksCompleted || 0,
     }));
   }, [weeklyMetrics]);
 
@@ -95,7 +95,7 @@ export default function ReportsView({
   };
 
   const getLabels = () => {
-    return currentData.map((d) => (activePeriod === "week" ? d.day : d.week));
+    return currentData.map((d) => (activePeriod === "week" ? (d as any).day : (d as any).week));
   };
 
   const handleGenerate = async () => {

@@ -116,10 +116,10 @@ export function AIWeeklyReport({
 
   const productivityData = useMemo((): ProductivityData => {
     const weekData =
-      weeklyMetrics?.map((m) => ({
+      weeklyMetrics?.map((m: any) => ({
         day: format(new Date(m.date), "EEE", { locale: es }),
-        pomodoros: Math.floor((m.minutesWorked || 0) / 25),
-        tasks: m.tasksCompleted || 0,
+        pomodoros: Math.floor((m.focusDuration || m.minutesWorked || 0) / 25),
+        tasks: m.tasksCompletedCount || m.tasksCompleted || 0,
       })) || [];
 
     const totalPomodoros = weekData.reduce((sum: number, d) => sum + d.pomodoros, 0);
@@ -129,7 +129,7 @@ export function AIWeeklyReport({
       totalPomodoros,
       totalTasks: completedTasks,
       completedTasks,
-      streak: dashboardStats?.streak || 0,
+      streak: (dashboardStats as any)?.streak || 0,
       avgPomodorosPerDay: totalPomodoros > 0 ? totalPomodoros / 7 : 0,
       peakHour: 10,
       weeklyData: weekData,
@@ -145,7 +145,7 @@ export function AIWeeklyReport({
         const aiSections = await onGenerateReport(productivityData);
         setSections(aiSections);
       } else {
-        await generateReport.mutateAsync();
+        await generateReport.mutateAsync(undefined);
         const mockSections: AIReportSection[] = [
           {
             id: "summary",
@@ -308,7 +308,7 @@ export function AIWeeklyReport({
                         data: productivityData.weeklyData.map(
                           (d) => d.pomodoros,
                         ),
-                        color: colors.primary,
+                        color: (opacity = 1) => colors.primary,
                       },
                     ],
                   }}

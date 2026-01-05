@@ -26,7 +26,7 @@ export default function WorkspaceInvitationsScreen() {
     data: invitations = [],
     isLoading,
     refetch,
-  } = useWorkspaceInvitations();
+  } = useWorkspaceInvitations("");
   const acceptInvitation = useAcceptInvitation();
 
   const pendingInvitations = invitations.filter(
