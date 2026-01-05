@@ -14,7 +14,7 @@ export class TokenBlacklistService {
   private readonly logger = new Logger(TokenBlacklistService.name);
   private readonly revokedTokens = new Set<string>();
 
-  constructor(private readonly jwtService: JwtService) { }
+  constructor(private readonly jwtService: JwtService) {}
 
   /**
    * Add a token to the blacklist
@@ -42,7 +42,9 @@ export class TokenBlacklistService {
         // Only store if token hasn't already expired
         if (expiresAt > now) {
           this.revokedTokens.add(jti);
-          this.logger.debug(`Token ${jti} blacklisted until ${expiresAt.toISOString()}`);
+          this.logger.debug(
+            `Token ${jti} blacklisted until ${expiresAt.toISOString()}`,
+          );
 
           // Schedule automatic cleanup after expiration
           const ttl = expiresAt.getTime() - now.getTime();

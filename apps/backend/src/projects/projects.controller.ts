@@ -222,7 +222,10 @@ export class ProjectsController {
     @Param('projectSlug') projectSlug: string,
     @CurrentUser() user: RequestUser,
   ) {
-    const workspace = await this.workspacesService.findBySlug(workspaceSlug, user.id);
+    const workspace = await this.workspacesService.findBySlug(
+      workspaceSlug,
+      user.id,
+    );
     if (!workspace) {
       throw new NotFoundException('Workspace not found');
     }

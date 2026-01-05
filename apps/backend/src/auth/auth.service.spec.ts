@@ -75,7 +75,9 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
-    tokenBlacklistService = module.get<TokenBlacklistService>(TokenBlacklistService);
+    tokenBlacklistService = module.get<TokenBlacklistService>(
+      TokenBlacklistService,
+    );
   });
 
   afterEach(() => {
@@ -101,14 +103,22 @@ describe('AuthService', () => {
         name: registerDto.name,
       };
       mockUserRepository.create.mockResolvedValue(mockCreatedUser as any);
-      mockWorkspacesService.createPersonalWorkspace.mockResolvedValue({ id: 'ws-1' } as any);
+      mockWorkspacesService.createPersonalWorkspace.mockResolvedValue({
+        id: 'ws-1',
+      } as any);
 
       const result = await service.register(registerDto as any);
 
-      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(registerDto.email);
-      expect(mockCryptoProvider.hash).toHaveBeenCalledWith(registerDto.password);
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+        registerDto.email,
+      );
+      expect(mockCryptoProvider.hash).toHaveBeenCalledWith(
+        registerDto.password,
+      );
       expect(mockUserRepository.create).toHaveBeenCalled();
-      expect(mockWorkspacesService.createPersonalWorkspace).toHaveBeenCalledWith(mockCreatedUser.id);
+      expect(
+        mockWorkspacesService.createPersonalWorkspace,
+      ).toHaveBeenCalledWith(mockCreatedUser.id);
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
       expect(result.user).toEqual({
@@ -152,11 +162,15 @@ describe('AuthService', () => {
 
       mockUserRepository.findByEmail.mockResolvedValue(mockUser as any);
       mockCryptoProvider.compare.mockResolvedValue(true);
-      mockWorkspacesService.createPersonalWorkspace.mockResolvedValue({ id: 'ws-1' } as any);
+      mockWorkspacesService.createPersonalWorkspace.mockResolvedValue({
+        id: 'ws-1',
+      } as any);
 
       const result = await service.login(loginDto as any);
 
-      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(loginDto.email);
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+        loginDto.email,
+      );
       expect(mockCryptoProvider.compare).toHaveBeenCalledWith(
         loginDto.password,
         mockUser.password,
@@ -219,9 +233,7 @@ describe('AuthService', () => {
       await expect(service.logout(token)).rejects.toThrow(
         UnauthorizedException,
       );
-      await expect(service.logout(token)).rejects.toThrow(
-        'Failed to logout',
-      );
+      await expect(service.logout(token)).rejects.toThrow('Failed to logout');
     });
   });
 

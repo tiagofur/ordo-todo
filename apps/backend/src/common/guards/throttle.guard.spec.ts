@@ -59,7 +59,10 @@ describe('CustomThrottleGuard', () => {
 
       const result = await guard.canActivate(context);
 
-      expect(reflector.get).toHaveBeenCalledWith('throttle-skip', expect.any(Function));
+      expect(reflector.get).toHaveBeenCalledWith(
+        'throttle-skip',
+        expect.any(Function),
+      );
       expect(result).toBe(true);
     });
 
@@ -169,7 +172,10 @@ describe('CustomThrottleGuard', () => {
     });
 
     it('should return moderate limit for /auth/login', () => {
-      const rateLimit = (guard as any).getRateLimitForRoute('/auth/login', 'POST');
+      const rateLimit = (guard as any).getRateLimitForRoute(
+        '/auth/login',
+        'POST',
+      );
 
       expect(rateLimit).toEqual({
         limit: 5,
@@ -192,7 +198,10 @@ describe('CustomThrottleGuard', () => {
     });
 
     it('should return strict limit for /timers/start', () => {
-      const rateLimit = (guard as any).getRateLimitForRoute('/timers/start', 'POST');
+      const rateLimit = (guard as any).getRateLimitForRoute(
+        '/timers/start',
+        'POST',
+      );
 
       expect(rateLimit).toEqual({
         limit: 5,
@@ -202,7 +211,10 @@ describe('CustomThrottleGuard', () => {
     });
 
     it('should return strict limit for /timers/stop', () => {
-      const rateLimit = (guard as any).getRateLimitForRoute('/timers/stop', 'POST');
+      const rateLimit = (guard as any).getRateLimitForRoute(
+        '/timers/stop',
+        'POST',
+      );
 
       expect(rateLimit).toEqual({
         limit: 5,
@@ -450,10 +462,7 @@ describe('CustomThrottleGuard', () => {
       reflector.get.mockReturnValue(false);
 
       // Should match /auth/login even with extra path segments
-      const context = createMockExecutionContext(
-        '/api/v1/auth/login',
-        'POST',
-      );
+      const context = createMockExecutionContext('/api/v1/auth/login', 'POST');
 
       storageService.getRecord.mockResolvedValue(null);
       jest.spyOn(guard as any, 'handleRequest').mockResolvedValue(true);

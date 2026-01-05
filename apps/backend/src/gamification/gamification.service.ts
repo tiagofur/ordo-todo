@@ -123,7 +123,7 @@ export class GamificationService implements OnModuleInit {
   }
 
   private async checkAchievements(userId: string, type: 'TASK' | 'POMODORO') {
-    if (type === 'TASK') {
+    if ((type as string) === 'TASK') {
       const completedTasks = await this.prisma.task.count({
         where: {
           ownerId: userId,
@@ -137,11 +137,11 @@ export class GamificationService implements OnModuleInit {
       if (completedTasks >= 10) {
         await this.unlockAchievement(userId, 'TASK_10');
       }
-    } else if (type === 'POMODORO') {
+    } else if ((type as string) === 'POMODORO') {
       const completedPomodoros = await this.prisma.timeSession.count({
         where: {
           userId,
-          type: 'WORK',
+          type: 'WORK' as const,
           wasCompleted: true,
         },
       });

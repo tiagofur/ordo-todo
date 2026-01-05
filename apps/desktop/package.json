@@ -26,7 +26,7 @@
     "prebuild": "npm run generate-icons && echo 'Building Ordo-Todo Desktop...'",
     "clean": "rimraf dist dist-electron",
     "clean:all": "npm run clean && rimraf node_modules",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint .",
     "check-types": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
