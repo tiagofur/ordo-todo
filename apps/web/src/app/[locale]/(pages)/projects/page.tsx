@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import { FolderKanban, Plus } from "lucide-react";
-import { useProjects } from "@/lib/api-hooks";
+import { useProjects, useCreateProject } from "@/lib/api-hooks";
 import { ProjectCard } from "@/components/project/project-card";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { motion } from "framer-motion";
@@ -25,6 +25,7 @@ export default function ProjectsPage() {
   const accentColor = "#ec4899"; // Pink
 
   const { data: projects, isLoading } = useProjects(selectedWorkspaceId as string);
+  const { mutateAsync: createProject } = useCreateProject();
 
   return (
     <AppLayout>
@@ -139,6 +140,16 @@ export default function ProjectsPage() {
           open={showCreateProject}
           onOpenChange={setShowCreateProject}
           workspaceId={selectedWorkspaceId || undefined}
+          onSubmit={async (data) => {
+            await createProject({
+              name: data.name,
+              description: data.description,
+              color: data.color,
+              workspaceId: data.workspaceId,
+              workflowId: data.workflowId || 'NEW', // Default to NEW if undefined, assuming backend handles it
+            });
+            setShowCreateProject(false);
+          }}
         />
       </div>
     </AppLayout>

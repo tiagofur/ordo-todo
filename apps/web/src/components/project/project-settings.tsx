@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Label } from '../ui/label.js';
+import { Label } from '@/components/ui';
 import { Palette, Check, Archive, Trash2, AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../ui/alert-dialog.js';
+} from '@/components/ui';
 
 import { PROJECT_COLORS, updateProjectSchema } from '@ordo-todo/core';
 

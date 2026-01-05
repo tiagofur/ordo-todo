@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/shared/app-layout";
 import { Plus, Tag as TagIcon, Trash2, MoreVertical, Edit, CheckSquare } from "lucide-react";
-import { useTags, useDeleteTag, useTasks } from "@/lib/api-hooks";
+import { useTags, useDeleteTag, useTasks, useCreateTag, useUpdateTag } from "@/lib/api-hooks";
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { notify } from "@/lib/notify";
 import { motion } from "framer-motion";
@@ -14,7 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@ordo-todo/ui";
+} from "@/components/ui";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 
@@ -28,6 +28,9 @@ export default function TagsPage() {
   const { data: tags, isLoading } = useTags(selectedWorkspaceId || "");
   const { data: allTasks } = useTasks();
   const deleteTag = useDeleteTag();
+  const { mutateAsync: createTag } = useCreateTag();
+  const { mutateAsync: updateTag } = useUpdateTag();
+  
   const accentColor = "#22c55e"; // Green
 
   // Calculate task count for each tag
@@ -207,6 +210,21 @@ export default function TagsPage() {
         }}
         workspaceId={selectedWorkspaceId || undefined}
         tagToEdit={editingTag}
+        onSubmit={async (data, isEdit) => {
+          try {
+            if (isEdit) {
+              await updateTag({ tagId: editingTag.id, data });
+              notify.success(t('tagUpdated'));
+            } else {
+              await createTag(data as any);
+              notify.success(t('tagCreated'));
+            }
+            setShowCreateTag(false);
+            setEditingTag(null);
+          } catch (error: any) {
+            notify.error(error.message || t('saveError'));
+          }
+        }}
       />
     </AppLayout>
   );

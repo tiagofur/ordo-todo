@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { HabitCelebration, useHabitCelebration } from "@/components/habit/habit-celebration";
 import { StreakBadge } from "@/components/habit/streak-badge";
 import dynamic from "next/dynamic";
+import { Habit, CompleteHabitResponse } from "@ordo-todo/api-client";
 
 const CreateHabitDialog = dynamic(
   () => import("@/components/habit/create-habit-dialog").then((mod) => mod.CreateHabitDialog),
@@ -86,8 +87,14 @@ export default function HabitsPage() {
   const completeHabit = useCompleteHabit();
   const uncompleteHabit = useUncompleteHabit();
 
-  const habits = todayData?.habits ?? [];
-  const summary = todayData?.summary ?? { total: 0, completed: 0, remaining: 0, percentage: 0 };
+  // Fix: Handle different possible return types from useTodayHabits
+  const habits: Habit[] = Array.isArray(todayData) 
+    ? todayData 
+    : (todayData?.habits ?? []);
+    
+  const summary = !Array.isArray(todayData) && todayData?.summary 
+    ? todayData.summary 
+    : { total: 0, completed: 0, remaining: 0, percentage: 0 };
 
   const handleComplete = async (habitId: string, isCompleted: boolean) => {
     try {
@@ -95,10 +102,7 @@ export default function HabitsPage() {
         await uncompleteHabit.mutateAsync(habitId);
         toast.success(t("toast.uncompleted"));
       } else {
-        const result = await completeHabit.mutateAsync({ habitId }) as { 
-          habit: { currentStreak: number; longestStreak: number }; 
-          xpAwarded: number 
-        };
+        const result = await completeHabit.mutateAsync({ habitId }) as unknown as CompleteHabitResponse;
         
         // Show celebration for milestone streaks
         const streak = result.habit.currentStreak;
@@ -129,21 +133,21 @@ export default function HabitsPage() {
     },
     {
       title: t("stats.currentStreak"),
-      value: habits.length > 0 ? Math.max(...habits.map((h: any) => h.currentStreak || 0)).toString() : "0",
+      value: habits.length > 0 ? Math.max(...habits.map((h: Habit) => h.currentStreak || 0)).toString() : "0",
       subtitle: "días",
       icon: Flame,
       color: "#f59e0b",
     },
     {
       title: t("stats.longestStreak"),
-      value: habits.length > 0 ? Math.max(...habits.map((h: any) => h.longestStreak || 0)).toString() : "0",
+      value: habits.length > 0 ? Math.max(...habits.map((h: Habit) => h.longestStreak || 0)).toString() : "0",
       subtitle: "días",
       icon: TrendingUp,
       color: "#8b5cf6",
     },
     {
       title: t("stats.thisWeek"),
-      value: habits.reduce((acc: number, h: any) => acc + (h.completions?.length || 0), 0).toString(),
+      value: habits.reduce((acc: number, h: Habit) => acc + (h.completions?.length || 0), 0).toString(),
       subtitle: "completados",
       icon: Calendar,
       color: "#06b6d4",
@@ -305,7 +309,7 @@ export default function HabitsPage() {
           ) : (
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
-                {habits.map((habit: any, index: number) => {
+                {habits.map((habit: Habit, index: number) => {
                   const isCompleted = habit.completions && habit.completions.length > 0;
                   const isPaused = habit.isPaused;
                   
@@ -332,7 +336,7 @@ export default function HabitsPage() {
                         whileTap={{ scale: 0.9 }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleComplete(habit.id, isCompleted);
+                          handleComplete(habit.id, !!isCompleted);
                         }}
                         disabled={isPaused || completeHabit.isPending || uncompleteHabit.isPending}
                         className={cn(

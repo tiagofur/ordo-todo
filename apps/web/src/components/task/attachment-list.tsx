@@ -12,11 +12,11 @@ import {
   Eye,
   X,
 } from 'lucide-react';
-import { cn } from '../../utils/index.js';
-import { Button } from '../ui/button.js';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
-import { Dialog, DialogContent, DialogTitle } from '../ui/dialog.js';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui';
 
 interface Attachment {
   id: string | number;
@@ -283,7 +283,7 @@ export function AttachmentList({
 
       <Dialog
         open={!!previewAttachment}
-        onOpenChange={(open) => !open && setPreviewAttachment(null)}
+        onOpenChange={(open: boolean) => !open && setPreviewAttachment(null)}
       >
         <DialogContent className="!max-w-none w-screen h-screen p-0 overflow-hidden bg-background/95 backdrop-blur-sm border-none shadow-none">
           <DialogTitle className="sr-only">

@@ -19,83 +19,67 @@ import {
   Tag as TagIcon,
   Plus
 } from 'lucide-react';
-import { cn } from '../../utils/index.js';
+import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
   SheetTitle,
-} from '../ui/sheet.js';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../ui/dialog.js';
-import { Button } from '../ui/button.js';
-import { Input } from '../ui/input.js';
-import { Label } from '../ui/label.js';
-import { Textarea } from '../ui/textarea.js';
-import {
+  Button,
+  Input,
+  Label,
+  Textarea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select.js';
-import { Badge } from '../ui/badge.js';
-import { Separator } from '../ui/separator.js';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover.js';
-import { Skeleton } from '../ui/skeleton.js';
+  Badge,
+  Separator,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Skeleton
+} from '@/components/ui';
 
-// Types
-export interface TaskTag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-export interface TaskDetailData {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: string;
-  priority: string;
-  dueDate?: string | Date | null;
-  estimatedTime?: number | null;
-  createdAt?: string | Date;
-  tags?: TaskTag[];
-  assignee?: Record<string, unknown>;
-  publicToken?: string | null;
-  subTasks?: Record<string, unknown>[];
-  comments?: Record<string, unknown>[];
-  attachments?: Record<string, unknown>[];
-  activities?: Record<string, unknown>[];
-}
+import type {
+  TaskDetails,
+  UpdateTaskDto,
+  Task as TaskType,
+  Tag,
+  Comment,
+  Attachment,
+  TaskStatus,
+  TaskPriority
+} from "@ordo-todo/api-client";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Task Data and State */
-  task?: TaskDetailData;
+  task?: TaskDetails;
   isLoading?: boolean;
   /** Current User Info */
   currentUserId?: string;
   /** Available Tags for assignment */
-  availableTags?: TaskTag[];
+  availableTags?: Tag[];
   /** Actions */
-  onUpdate?: (taskId: string, data: Record<string, unknown>) => Promise<void> | void;
+  onUpdate?: (taskId: string, data: UpdateTaskDto) => Promise<void> | void;
   onDelete?: (taskId: string) => Promise<void> | void;
   onAssignTag?: (taskId: string, tagId: string) => Promise<void> | void;
   onRemoveTag?: (taskId: string, tagId: string) => Promise<void> | void;
   onShare?: (taskId: string) => Promise<void> | void;
   /** Render Props for Sub-components to avoid huge dependency tree */
-  renderSubtaskList?: (taskId: string, subtasks: Record<string, unknown>[]) => ReactNode;
+  renderSubtaskList?: (taskId: string, subtasks: TaskType[]) => ReactNode;
   renderComments?: (taskId: string) => ReactNode;
   renderAttachments?: (taskId: string) => ReactNode;
   renderActivity?: (taskId: string) => ReactNode;
-  renderAssigneeSelector?: (taskId: string, currentAssignee: Record<string, unknown> | undefined) => ReactNode;
+  renderAssigneeSelector?: (taskId: string, currentAssignee: any) => ReactNode; // User type might be complex to import?
   renderCreateTagDialog?: (open: boolean, onOpenChange: (open: boolean) => void) => ReactNode;
   
   /** Labels */
@@ -238,8 +222,8 @@ export function TaskDetailPanel({
        await onUpdate(taskId, {
          title: formData.title,
          description: formData.description,
-         status: formData.status,
-         priority: formData.priority,
+         status: formData.status as TaskStatus,
+         priority: formData.priority as TaskPriority,
          dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
          estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
        });
@@ -320,9 +304,9 @@ export function TaskDetailPanel({
                   {/* Mobile: Status & Priority inline with close */}
                   <Select
                     value={formData.status}
-                    onValueChange={(val) => {
+                    onValueChange={(val: string) => {
                        handleFieldChange('status', val);
-                       if(onUpdate && taskId) onUpdate(taskId, { status: val });
+                       if(onUpdate && taskId) onUpdate(taskId, { status: val as TaskStatus });
                     }}
                   >
                     <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
@@ -342,9 +326,9 @@ export function TaskDetailPanel({
 
                   <Select
                     value={formData.priority}
-                    onValueChange={(val) => {
+                    onValueChange={(val: string) => {
                       handleFieldChange('priority', val);
-                      if(onUpdate && taskId) onUpdate(taskId, { priority: val });
+                      if(onUpdate && taskId) onUpdate(taskId, { priority: val as TaskPriority });
                     }}
                   >
                     <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
@@ -391,9 +375,9 @@ export function TaskDetailPanel({
                   <div className="hidden sm:flex items-center gap-2">
                     <Select
                       value={formData.status}
-                      onValueChange={(val) => {
+                      onValueChange={(val: string) => {
                          handleFieldChange('status', val);
-                         if(onUpdate && taskId) onUpdate(taskId, { status: val });
+                         if(onUpdate && taskId) onUpdate(taskId, { status: val as TaskStatus });
                       }}
                     >
                       <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
@@ -413,9 +397,9 @@ export function TaskDetailPanel({
 
                     <Select
                       value={formData.priority}
-                      onValueChange={(val) => {
+                      onValueChange={(val: string) => {
                         handleFieldChange('priority', val);
-                        if(onUpdate && taskId) onUpdate(taskId, { priority: val });
+                        if(onUpdate && taskId) onUpdate(taskId, { priority: val as TaskPriority });
                       }}
                     >
                       <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
@@ -438,7 +422,7 @@ export function TaskDetailPanel({
                   {isEditing ? (
                     <Input
                       value={formData.title}
-                      onChange={(e) => handleFieldChange("title", e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange("title", e.target.value)}
                       className="text-xl sm:text-2xl font-bold h-auto py-1.5 sm:py-2 px-2 sm:px-3 -ml-2 sm:-ml-3 bg-transparent border-transparent hover:bg-accent/50 focus:bg-background focus:border-input transition-colors"
                       placeholder={t.titlePlaceholder}
                       autoFocus
@@ -598,7 +582,7 @@ export function TaskDetailPanel({
                                <Input
                                   type="date"
                                   value={formData.dueDate}
-                                  onChange={(e) => {
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                      handleFieldChange("dueDate", e.target.value);
                                      if (!isEditing && taskId && onUpdate) {
                                        onUpdate(taskId, { dueDate: e.target.value ? new Date(e.target.value) : undefined });
@@ -618,7 +602,7 @@ export function TaskDetailPanel({
                                <Input
                                   type="number"
                                   value={formData.estimatedTime}
-                                  onChange={(e) => {
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                      handleFieldChange("estimatedTime", e.target.value);
                                      if (!isEditing && taskId && onUpdate && e.target.value) {
                                        onUpdate(taskId, { estimatedTime: parseFloat(e.target.value) });

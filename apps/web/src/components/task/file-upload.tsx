@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Upload, File, X, Image as ImageIcon, FileText, Film, Music } from 'lucide-react';
-import { cn } from '../../utils/index.js';
-import { Button } from '../ui/button.js';
-import { Progress } from '../ui/progress.js';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui';
+import { Progress } from '@/components/ui';
 
 interface FileUploadProps {
   taskId: string;

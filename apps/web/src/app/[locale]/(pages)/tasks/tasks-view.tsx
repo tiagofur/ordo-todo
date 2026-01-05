@@ -11,6 +11,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useTasks, useTags, useProjects } from "@/lib/shared-hooks";
+import { useCreateTask } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { QuickFilters, useQuickFilters, FilterPreset } from "@/components/tasks/quick-filters";
@@ -19,6 +20,7 @@ import { motion } from "framer-motion";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { TaskPriority } from "@ordo-todo/api-client";
 
 type ViewMode = "list" | "grid";
 
@@ -40,6 +42,7 @@ export function TasksView() {
   
   const { data: tags } = useTags(selectedWorkspaceId || "");
   const { data: projects } = useProjects(selectedWorkspaceId || "");
+  const { mutateAsync: createTask } = useCreateTask();
 
   // Backward compatibility and multiple tags support
   const urlTagId = searchParams.get("tag");
@@ -273,6 +276,13 @@ export function TasksView() {
       <CreateTaskDialog
         open={showCreateTask}
         onOpenChange={setShowCreateTask}
+        onSubmit={async (data) => {
+            await createTask({
+            ...data,
+            priority: data.priority as TaskPriority,
+            });
+            setShowCreateTask(false);
+        }}
       />
     </div>
   );

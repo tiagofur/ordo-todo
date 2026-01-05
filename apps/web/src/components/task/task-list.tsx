@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { AlertCircle, User, Users } from 'lucide-react';
-import { Skeleton } from '../ui/skeleton.js';
-import { Button } from '../ui/button.js';
-import { cn } from '../../utils/index.js';
+import { Skeleton } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 export interface TaskListItem {
   id: string | number;

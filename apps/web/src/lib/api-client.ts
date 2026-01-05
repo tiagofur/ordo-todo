@@ -6,6 +6,7 @@ import type {
   UpdateProfileDto,
   CreateWorkspaceDto,
   UpdateWorkspaceDto,
+  UpdateWorkspaceSettingsDto,
   AddMemberDto,
   CreateWorkflowDto,
   UpdateWorkflowDto,

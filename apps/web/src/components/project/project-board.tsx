@@ -1,6 +1,6 @@
 "use client";
 
-import { useTasks, useUpdateTask } from "@/lib/api-hooks";
+import { useTasks, useUpdateTask, useCreateTask } from "@/lib/api-hooks";
 import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
@@ -10,6 +10,7 @@ import {
   KanbanTaskCard 
 } from "@ordo-todo/ui";
 import type { UpdateTaskDto, Task } from "@ordo-todo/api-client";
+import { TaskPriority } from "@ordo-todo/api-client";
 import {
   DndContext,
   DragOverlay,
@@ -37,6 +38,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const tCard = useTranslations("TaskCard");
   const { data: serverTasks, isLoading } = useTasks(projectId);
   const updateTaskMutation = useUpdateTask();
+  const { mutateAsync: createTask } = useCreateTask();
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [addTaskStatus, setAddTaskStatus] = useState<string>("TODO");
 
@@ -223,7 +225,15 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
         open={isCreateTaskOpen}
         onOpenChange={setIsCreateTaskOpen}
         projectId={projectId}
-        defaultStatus={addTaskStatus}
+        onSubmit={async (data) => {
+          await createTask({
+            ...data,
+            priority: data.priority as TaskPriority,
+            status: (data as any).status || addTaskStatus as any,
+            projectId: projectId,
+          });
+          setIsCreateTaskOpen(false);
+        }}
       />
     </>
   );

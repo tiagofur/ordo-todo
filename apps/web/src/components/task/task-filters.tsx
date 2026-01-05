@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
+} from '@/components/ui';
 
 export interface TagOption {
   id: string;

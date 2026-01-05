@@ -7,10 +7,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select.js';
-import { Label } from '../ui/label.js';
-import { Checkbox } from '../ui/checkbox.js';
-import { DatePicker } from '../ui/date-picker.js';
+} from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Checkbox } from '@/components/ui';
+import { DatePicker } from '@/components/ui';
 
 export interface RecurrenceValue {
   pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';

@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { User, Check, X, UserPlus } from 'lucide-react';
-import { cn } from '../../utils/index.js';
+import { cn } from '@/lib/utils';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '../ui/popover.js';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar.js';
+} from '@/components/ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui';
 
 interface Assignee {
   id: string;

@@ -17,7 +17,7 @@ import {
   LayoutGrid,
   List
 } from "lucide-react";
-import { useProjects, useWorkspaceAuditLogs, useDeleteWorkspace } from "@/lib/api-hooks";
+import { useProjects, useWorkspaceAuditLogs, useDeleteWorkspace, useCreateProject } from "@/lib/api-hooks";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
 import { WorkspaceSettingsDialog } from "@/components/workspace/workspace-settings-dialog";
@@ -50,6 +50,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
 
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace.id);
   const { data: auditLogData, isLoading: isLoadingActivity } = useWorkspaceAuditLogs(workspace.id, { limit: 5 });
+  const { mutateAsync: createProject } = useCreateProject();
 
   const deleteWorkspace = useDeleteWorkspace();
 
@@ -297,6 +298,16 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
         open={showCreateProject}
         onOpenChange={setShowCreateProject}
         workspaceId={workspace.id}
+        onSubmit={async (data) => {
+          await createProject({
+            name: data.name,
+            description: data.description,
+            color: data.color,
+            workspaceId: data.workspaceId,
+            workflowId: data.workflowId || 'NEW',
+          });
+          setShowCreateProject(false);
+        }}
       />
 
       <WorkspaceSettingsDialog
@@ -419,3 +430,4 @@ const formatAction = (action: string) => {
     .map(word => word.charAt(0) + word.slice(1).toLowerCase())
     .join(' ');
 };
+

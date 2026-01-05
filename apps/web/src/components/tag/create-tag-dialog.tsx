@@ -9,10 +9,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Button } from '../ui/button.js';
+} from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Button } from '@/components/ui';
 
 export interface TagFormData {
   name: string;

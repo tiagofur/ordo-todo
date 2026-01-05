@@ -7,25 +7,26 @@ import { useWorkspaces, useDeletedWorkspaces } from "@/lib/api-hooks";
 import { apiClient } from "@/lib/api-client";
 import axios from "axios";
 
-interface Workspace {
+// Interfaz local laxa para debug, permitiendo propiedades extra que no están en el tipo oficial
+interface DebugWorkspace {
   id: string;
   name: string;
   slug: string;
-  isDeleted: boolean;
-  deletedAt?: string;
+  isDeleted?: boolean;
+  deletedAt?: string | Date;
+  [key: string]: any;
 }
 
 export default function DebugWorkspacesPage() {
   const [message, setMessage] = useState("");
   const [isFixing, setIsFixing] = useState(false);
-  const [allRealWorkspaces, setAllRealWorkspaces] = useState<any[]>([]);
-
+  
   // Usar los hooks existentes que ya tienen auth configurada
   const { data: activeWorkspaces = [], isLoading: loadingActive, refetch: refetchActive } = useWorkspaces();
   const { data: deletedWorkspaces = [], isLoading: loadingDeleted, refetch: refetchDeleted } = useDeletedWorkspaces();
 
-  // Combinar activos + eliminados para ver TODOS
-  const allWorkspaces = [...activeWorkspaces, ...deletedWorkspaces];
+  // Combinar activos + eliminados para ver TODOS y castear a DebugWorkspace
+  const allWorkspaces: DebugWorkspace[] = [...activeWorkspaces, ...deletedWorkspaces] as unknown as DebugWorkspace[];
 
   const fixCarros = async () => {
     if (!confirm("¿Marcar todos los workspaces 'Carros' como eliminados?")) return;
@@ -94,7 +95,7 @@ export default function DebugWorkspacesPage() {
             {allWorkspaces.length === 0 ? (
               <p className="text-gray-500">No hay workspaces</p>
             ) : (
-              allWorkspaces.map((ws: Workspace) => (
+              allWorkspaces.map((ws) => (
                 <div
                   key={ws.id}
                   className={`p-4 rounded-lg border-2 ${
@@ -145,7 +146,7 @@ export default function DebugWorkspacesPage() {
             {deletedWorkspaces.length === 0 ? (
               <p className="text-gray-500">La papelera está vacía</p>
             ) : (
-              deletedWorkspaces.map((ws: Workspace) => (
+              (deletedWorkspaces as unknown as DebugWorkspace[]).map((ws) => (
                 <div
                   key={ws.id}
                   className="p-4 rounded-lg border-2 bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800"
@@ -200,7 +201,11 @@ export default function DebugWorkspacesPage() {
                     </p>
                     {ws.deletedAt && (
                       <p className="text-xs text-gray-500 mt-1">
-                        deletedAt: {ws.deletedAt}
+                        deletedAt: {
+                          ws.deletedAt instanceof Date 
+                            ? ws.deletedAt.toISOString() 
+                            : String(ws.deletedAt)
+                        }
                       </p>
                     )}
                   </div>

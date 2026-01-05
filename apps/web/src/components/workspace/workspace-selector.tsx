@@ -16,9 +16,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
-import { Input } from '../ui/input.js';
-import { cn } from '../../utils/index.js';
+} from '@/components/ui';
+import { Input } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 export interface WorkspaceSelectorItem {
   id: string;

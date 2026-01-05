@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Check, Plus } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover.js';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { TagBadge, type TagType } from './tag-badge.js';
 
 interface TagSelectorProps {

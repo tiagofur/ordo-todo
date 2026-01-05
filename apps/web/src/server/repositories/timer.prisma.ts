@@ -1,4 +1,5 @@
-Prisma,
+import {
+  Prisma,
   PrismaClient,
   TimeSession as PrismaTimeSession,
   SessionType as PrismaSessionType,

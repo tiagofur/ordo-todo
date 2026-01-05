@@ -23,11 +23,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-} from '../ui/dropdown-menu.js';
+} from '@/components/ui';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { cn } from '../../utils/index.js';
-import { Badge } from '../ui/badge.js';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui';
 
 type ViewMode = 'list' | 'grid';
 

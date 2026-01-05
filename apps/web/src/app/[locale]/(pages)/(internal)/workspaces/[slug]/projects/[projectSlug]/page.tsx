@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
 import { useParams, useRouter } from "next/navigation";
 import { useProjectBySlug } from "@/hooks/use-projects";
-import { useTasks, useArchiveProject, useDeleteProject } from "@/lib/api-hooks";
+import { useTasks, useArchiveProject, useDeleteProject, useCreateTask } from "@/lib/api-hooks";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import {
   ArrowLeft,
@@ -24,6 +24,7 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
+import { TaskPriority } from "@ordo-todo/api-client";
 
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { TaskCard } from "@/components/task/task-card";
@@ -56,6 +57,8 @@ export default function ProjectDetailPage() {
 
   const archiveProject = useArchiveProject();
   const deleteProject = useDeleteProject();
+
+  const { mutateAsync: createTask } = useCreateTask();
 
   const handleArchive = () => {
     if (!project) return;
@@ -487,7 +490,15 @@ export default function ProjectDetailPage() {
       <CreateTaskDialog
         open={isCreateTaskOpen}
         onOpenChange={setIsCreateTaskOpen}
-        projectId={project.id}
+        projectId={project?.id ?? ""}
+        onSubmit={async (data: any) => {
+            await createTask({
+            ...data,
+            priority: data.priority as TaskPriority,
+            projectId: project?.id ?? "",
+            });
+            setIsCreateTaskOpen(false);
+        }}
       />
 
       <ProjectSettingsDialog

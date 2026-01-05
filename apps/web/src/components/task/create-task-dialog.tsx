@@ -12,12 +12,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Textarea } from '../ui/textarea.js';
-import { Button } from '../ui/button.js';
-import { EmptyState } from '../ui/empty-state.js';
+} from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Textarea } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
 import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector.js';
 

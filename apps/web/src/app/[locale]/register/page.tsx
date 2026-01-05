@@ -25,6 +25,15 @@ import { useUsernameValidation, generateUsernameSuggestions } from "@ordo-todo/h
 import { apiClient } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
+// Define interface for password checks
+interface PasswordChecks {
+  length: boolean;
+  lowercase: boolean;
+  uppercase: boolean;
+  number: boolean;
+  special: boolean;
+}
+
 export default function SignUpPage() {
   const router = useRouter();
   const { register } = useAuth();
@@ -72,11 +81,16 @@ export default function SignUpPage() {
   // Password strength calculation
   const passwordStrength = useMemo(() => {
     const password = formData.password;
-    if (!password) return { score: 0, label: "", color: "", textColor: "", checks: {} };
+    if (!password) return { 
+      score: 0, 
+      label: "", 
+      color: "", 
+      textColor: "", 
+      checks: { length: false, lowercase: false, uppercase: false, number: false, special: false } as PasswordChecks 
+    };
 
-    // ... (rest of logic same as before)
     let score = 0;
-    const checks = {
+    const checks: PasswordChecks = {
       length: password.length >= 8,
       lowercase: /[a-z]/.test(password),
       uppercase: /[A-Z]/.test(password),

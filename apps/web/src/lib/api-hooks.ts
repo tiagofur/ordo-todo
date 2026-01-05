@@ -29,6 +29,8 @@ import type {
   CreateProjectDto,
   UpdateProjectDto,
   // Task
+  Task,
+  TaskDetails,
   CreateTaskDto,
   UpdateTaskDto,
   CreateSubtaskDto,
@@ -827,17 +829,40 @@ export function useUpdateTask() {
       );
 
       if (previousTask) {
-        queryClient.setQueryData(queryKeys.task(taskId), (old: any) => ({
-          ...old,
-          ...data,
-        }));
+        queryClient.setQueryData<Task>(queryKeys.task(taskId), (old) => {
+          if (!old) return old;
+          const optimisticUpdate = { ...data };
+          if (optimisticUpdate.dueDate && typeof optimisticUpdate.dueDate === 'string') {
+            optimisticUpdate.dueDate = new Date(optimisticUpdate.dueDate);
+          }
+          if (optimisticUpdate.startDate && typeof optimisticUpdate.startDate === 'string') {
+            optimisticUpdate.startDate = new Date(optimisticUpdate.startDate);
+          }
+          return {
+            ...old,
+            ...optimisticUpdate,
+          } as Task;
+        });
       }
 
       if (previousTaskDetails) {
-        queryClient.setQueryData(queryKeys.taskDetails(taskId), (old: any) => ({
-          ...old,
-          ...data,
-        }));
+        queryClient.setQueryData<TaskDetails>(
+          queryKeys.taskDetails(taskId),
+          (old) => {
+            if (!old) return old;
+            const optimisticUpdate = { ...data };
+            if (optimisticUpdate.dueDate && typeof optimisticUpdate.dueDate === 'string') {
+              optimisticUpdate.dueDate = new Date(optimisticUpdate.dueDate);
+            }
+            if (optimisticUpdate.startDate && typeof optimisticUpdate.startDate === 'string') {
+              optimisticUpdate.startDate = new Date(optimisticUpdate.startDate);
+            }
+            return {
+              ...old,
+              ...optimisticUpdate,
+            } as TaskDetails;
+          },
+        );
       }
 
       return { previousTask, previousTaskDetails };
@@ -882,17 +907,26 @@ export function useCompleteTask() {
       );
 
       if (previousTask) {
-        queryClient.setQueryData(queryKeys.task(taskId), (old: any) => ({
-          ...old,
-          status: "COMPLETED",
-        }));
+        queryClient.setQueryData<Task>(queryKeys.task(taskId), (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            status: "COMPLETED",
+          };
+        });
       }
 
       if (previousTaskDetails) {
-        queryClient.setQueryData(queryKeys.taskDetails(taskId), (old: any) => ({
-          ...old,
-          status: "COMPLETED",
-        }));
+        queryClient.setQueryData<TaskDetails>(
+          queryKeys.taskDetails(taskId),
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              status: "COMPLETED",
+            };
+          },
+        );
       }
 
       return { previousTask, previousTaskDetails };
@@ -1031,7 +1065,7 @@ export function useCreateTag() {
     mutationFn: (data: CreateTagDto) => apiClient.createTag(data),
     onSuccess: (tag) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tags(tag.workspaceId),
+        queryKey: queryKeys.tags(tag.workspaceId!),
       });
     },
   });
@@ -1045,7 +1079,7 @@ export function useUpdateTag() {
       apiClient.updateTag(tagId, data),
     onSuccess: (tag) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.tags(tag.workspaceId),
+        queryKey: queryKeys.tags(tag.workspaceId!),
       });
     },
   });

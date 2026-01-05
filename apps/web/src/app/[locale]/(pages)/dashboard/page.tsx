@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
-import { useTimerStats, useDailyMetrics } from "@/lib/api-hooks";
+import { useTimerStats, useDailyMetrics, useCreateTask, useCreateProject } from "@/lib/api-hooks";
 import { useTasks } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
@@ -38,6 +38,7 @@ import { CreateProjectDialog } from "@/components/project/create-project-dialog"
 import { useRouter } from "next/navigation";
 import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { type OnboardingStep } from "@ordo-todo/ui";
+import { TaskPriority } from "@ordo-todo/api-client";
 
 const DASHBOARD_ONBOARDING_KEY = "dashboard-onboarding-seen";
 
@@ -98,6 +99,9 @@ export default function DashboardPage() {
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+  
+  const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: createProject } = useCreateProject();
 
 
   // Get today's date range
@@ -614,10 +618,26 @@ export default function DashboardPage() {
       <CreateTaskDialog
         open={showCreateTaskDialog}
         onOpenChange={setShowCreateTaskDialog}
+        onSubmit={async (data) => {
+            await createTask({
+            ...data,
+            priority: data.priority as TaskPriority,
+            });
+            setShowCreateTaskDialog(false);
+        }}
       />
       <CreateProjectDialog
         open={showCreateProjectDialog}
         onOpenChange={setShowCreateProjectDialog}
+        onSubmit={async (data) => {
+             // Since createProject mutation expects CreateProjectDto, we pass data directly
+             // Assuming CreateProjectDialog passes correct shape
+             await createProject({
+              ...data,
+              workflowId: data.workflowId || "default-workflow-id" // Provide fallback if needed or handle inside dialog
+             });
+             setShowCreateProjectDialog(false);
+        }}
       />
 
       {/* Onboarding */}

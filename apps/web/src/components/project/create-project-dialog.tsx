@@ -11,13 +11,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog.js';
-import { Label } from '../ui/label.js';
-import { Input } from '../ui/input.js';
-import { Textarea } from '../ui/textarea.js';
-import { Button } from '../ui/button.js';
-import { EmptyState } from '../ui/empty-state.js';
-import { ScrollArea } from '../ui/scroll-area.js';
+} from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Textarea } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
+import { ScrollArea } from '@/components/ui';
 import { Briefcase, Check, Palette, LayoutTemplate } from 'lucide-react';
 import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/core';
 

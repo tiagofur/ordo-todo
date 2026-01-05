@@ -1,6 +1,6 @@
 "use client";
 
-import { useTasks, useUpdateTask } from "@/lib/api-hooks";
+import { useTasks, useUpdateTask, useCreateTask } from "@/lib/api-hooks";
 import { Button, EmptyState } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
 import {
@@ -18,6 +18,7 @@ import { useState } from "react";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import type { Task } from "@ordo-todo/api-client";
+import { TaskPriority } from "@ordo-todo/api-client";
 
 interface ProjectListProps {
   projectId: string;
@@ -27,6 +28,7 @@ export function ProjectList({ projectId }: ProjectListProps) {
   const t = useTranslations("ProjectList");
   const { data: tasks, isLoading } = useTasks(projectId);
   const updateTaskMutation = useUpdateTask();
+  const { mutateAsync: createTask } = useCreateTask();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
@@ -67,6 +69,14 @@ export function ProjectList({ projectId }: ProjectListProps) {
           open={isCreateTaskOpen}
           onOpenChange={setIsCreateTaskOpen}
           projectId={projectId}
+          onSubmit={async (data) => {
+            await createTask({
+              ...data,
+              priority: data.priority as TaskPriority,
+              projectId: projectId,
+            });
+            setIsCreateTaskOpen(false);
+          }}
         />
       </>
     );

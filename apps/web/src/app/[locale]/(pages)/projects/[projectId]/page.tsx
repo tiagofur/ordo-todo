@@ -26,6 +26,7 @@ import {
   useArchiveProject,
   useCompleteProject,
   useDeleteProject,
+  useCreateTask,
 } from "@/lib/api-hooks";
 import { AppLayout } from "@/components/shared/app-layout";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -40,6 +41,7 @@ import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { TaskPriority } from "@ordo-todo/api-client";
 
 type ViewMode = "list" | "grid";
 
@@ -53,6 +55,7 @@ export default function ProjectDetailPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
+  const { mutateAsync: createTask } = useCreateTask();
 
   const { data: tasks, isLoading: isLoadingTasks } = useTasks(projectId);
   const projectTasks = tasks || [];
@@ -82,13 +85,13 @@ export default function ProjectDetailPage() {
   };
 
   const handleComplete = () => {
-    const isCompleting = !project.completed;
+    const isCompleted = project.status === "COMPLETED";
 
-    if (confirm(isCompleting ? t("confirmComplete") : t("confirmUncomplete"))) {
+    if (confirm(!isCompleted ? t("confirmComplete") : t("confirmUncomplete"))) {
       completeProject.mutate(projectId, {
         onSuccess: () => {
           notify.success(
-            isCompleting ? t("toast.completed") : t("toast.uncompleted")
+            !isCompleted ? t("toast.completed") : t("toast.uncompleted")
           );
         },
         onError: () => {
@@ -151,7 +154,7 @@ export default function ProjectDetailPage() {
   );
 
   const displayColor =
-    project.archived || project.completed ? "#6b7280" : project.color;
+    project.archived || project.status === "COMPLETED" ? "#6b7280" : project.color;
 
   // Calculate progress
   const totalTasks = projectTasks.length;
@@ -200,7 +203,7 @@ export default function ProjectDetailPage() {
                       {t("badges.archived")}
                     </span>
                   )}
-                  {project.completed && (
+                  {project.status === "COMPLETED" && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 px-3 py-1 text-sm">
                       <CheckCircle2 className="h-4 w-4" />
                       {t("badges.completed")}
@@ -236,7 +239,7 @@ export default function ProjectDetailPage() {
 
             {/* Actions */}
             <div className="flex items-center gap-2 shrink-0">
-              {!project.archived && !project.completed && (
+              {!project.archived && project.status !== "COMPLETED" && (
                 <Button
                   onClick={() => setShowCreateTask(true)}
                   size="sm"
@@ -264,7 +267,7 @@ export default function ProjectDetailPage() {
                     {t("menu.delete")}
                   </Button>
                 </>
-              ) : project.completed ? (
+              ) : project.status === "COMPLETED" ? (
                 <>
                   <Button variant="outline" size="sm" onClick={handleComplete}>
                     <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -475,11 +478,11 @@ export default function ProjectDetailPage() {
                 <p className="text-muted-foreground mb-6 max-w-md">
                   {project.archived
                     ? t("emptyState.archivedDescription")
-                    : project.completed
+                    : project.status === "COMPLETED"
                       ? t("emptyState.completedDescription")
                       : t("emptyState.description")}
                 </p>
-                {!project.archived && !project.completed && (
+                {!project.archived && project.status !== "COMPLETED" && (
                   <button
                     onClick={() => setShowCreateTask(true)}
                     className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105"
@@ -605,7 +608,15 @@ export default function ProjectDetailPage() {
         open={showCreateTask}
         onOpenChange={setShowCreateTask}
         projectId={projectId}
-      />
+        onSubmit={async (data) => {
+            await createTask({
+            ...data,
+            priority: data.priority as TaskPriority,
+            projectId: projectId,
+            });
+            setShowCreateTask(false);
+        }}
+        />
 
       <ProjectSettingsDialog
         projectId={projectId}

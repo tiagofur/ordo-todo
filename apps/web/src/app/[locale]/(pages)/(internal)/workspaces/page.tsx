@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Briefcase } from "lucide-react";
-import { useWorkspaces } from "@/lib/api-hooks";
+import { useWorkspaces, useCreateWorkspace } from "@/lib/api-hooks";
 import { WorkspaceCard } from "@/components/workspace/workspace-card";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 import { motion } from "framer-motion";
@@ -12,6 +12,7 @@ export default function WorkspacesPage() {
   const t = useTranslations('Workspaces');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { data: workspaces, isLoading } = useWorkspaces();
+  const { mutateAsync: createWorkspace } = useCreateWorkspace();
   const accentColor = "#f97316"; // Orange
 
   return (
@@ -110,6 +111,10 @@ export default function WorkspacesPage() {
       <CreateWorkspaceDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
+        onSubmit={async (data) => {
+            await createWorkspace(data);
+            setShowCreateDialog(false);
+        }}
       />
     </div>
   );

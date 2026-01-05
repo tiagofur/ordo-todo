@@ -71,13 +71,13 @@ export default function ProfilePage() {
         profile={profile ?? null}
         sessionUser={sessionUser}
         isLoading={isLoading}
-        onUpdateProfile={async (data) => {
+        onUpdateProfile={async (data: any) => {
           await updateProfile.mutateAsync(data);
         }}
-        onUpdatePreferences={async (data) => {
+        onUpdatePreferences={async (data: any) => {
           await updatePreferences.mutateAsync(data);
         }}
-        onUpdateUsername={async (newUsername) => {
+        onUpdateUsername={async (newUsername: string) => {
           await updateProfile.mutateAsync({ username: newUsername });
         }}
         onExportData={async () => {

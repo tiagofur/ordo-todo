@@ -11,7 +11,8 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import { useTasks, useTags, useProjects } from "@/lib/api-hooks";
+import { useTasks, useTags, useProjects, useCreateTask } from "@/lib/api-hooks";
+import { TaskPriority } from "@ordo-todo/api-client";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { QuickFilters, useQuickFilters, FilterPreset } from "@/components/tasks/quick-filters";
 import { ExportDataButton } from "@/components/data/export-data";
@@ -62,7 +63,8 @@ function TasksPageContent() {
   const tagId = searchParams.get("tag");
   const { data: tasks, isLoading } = useTasks();
   const { data: tags } = useTags(selectedWorkspaceId || "");
-  const { data: projects } = useProjects(selectedWorkspaceId || "");
+  const { data: projects, isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
+  const { mutateAsync: createTask } = useCreateTask();
   const { filters, setFilters, applyFilters, hasActiveFilters } = useQuickFilters();
 
   // Filter tasks by tag if tagId is present
@@ -288,8 +290,16 @@ function TasksPageContent() {
       <CreateTaskDialog
         open={showCreateTask}
         onOpenChange={setShowCreateTask}
+        projects={projects?.map((p: any) => ({ id: p.id, name: p.name }))}
+        isLoadingProjects={isLoadingProjects}
+        onSubmit={async (data) => {
+          await createTask({
+            ...data,
+            priority: data.priority as TaskPriority,
+          });
+          setShowCreateTask(false);
+        }}
       />
     </AppLayout>
   );
 }
-

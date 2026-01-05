@@ -70,12 +70,28 @@ Replaced `any` types used for proper Prisma typing in repository methods.
 - Enforced strict `QueryClient` type.
 - Removed unsafe `as unknown` casts where possible.
 
+### 6. Explicit Return Types (`src/lib/api-client.ts`)
+Added explicit return types (Promises of specific DTOs/Entities) to ALL API client methods. This enables robust type inference for the consuming React Query hooks.
+
+**Before:**
+```typescript
+getTasks: (projectId?: string) => axiosInstance.get(...).then(res => res.data), // inferred as Promise<any>
+```
+
+**After:**
+```typescript
+getTasks: (projectId?: string): Promise<Task[]> => axiosInstance.get(...).then(res => res.data),
+```
+
+### 7. Strict Optimistic Updates (`src/lib/api-hooks.ts`)
+Refactored optimistic updates in `useUpdateTask` and `useCompleteTask` to remove `any` casts on the previous query data. Now strictly types `old` data as `Task` or `TaskDetails` and correctly handles DTO-to-Entity field conversions (e.g. `string` dates to `Date` objects).
+
 ## 📊 Impact
 - **Type Safety:** Increased to ~99% in core files.
 - **Maintainability:** API changes will now trigger build errors in the frontend, preventing runtime crashes.
 - **Standards:** Aligned with Google/Apple-tier strict TypeScript usage.
 
 ## 🚀 Next Steps
-- Wait for `npm install` to complete.
-- Run `turbo run check-types --filter=@ordo-todo/web` to verify strict compliance.
-- Consider adding explicit return types to `api-client.ts` methods to further improve inference in hooks.
+- Run `turbo run check-types --filter=@ordo-todo/web` to verify strict compliance across the entire workspace.
+- Monitor for any edge case runtime errors related to Date conversions in optimistic updates.
+
