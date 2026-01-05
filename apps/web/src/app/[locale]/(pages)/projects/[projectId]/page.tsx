@@ -27,6 +27,7 @@ import {
   useCompleteProject,
   useDeleteProject,
   useCreateTask,
+  useUpdateProject,
 } from "@/lib/api-hooks";
 import { AppLayout } from "@/components/shared/app-layout";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -55,6 +56,7 @@ export default function ProjectDetailPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
+  const updateProject = useUpdateProject();
   const { mutateAsync: createTask } = useCreateTask();
 
   const { data: tasks, isLoading: isLoadingTasks } = useTasks(projectId);
@@ -65,6 +67,7 @@ export default function ProjectDetailPage() {
   const deleteProject = useDeleteProject();
 
   const handleArchive = () => {
+    if (!project) return;
     const action = project.archived
       ? t("actions.unarchive")
       : t("actions.archive");
@@ -85,6 +88,7 @@ export default function ProjectDetailPage() {
   };
 
   const handleComplete = () => {
+    if (!project) return;
     const isCompleted = project.status === "COMPLETED";
 
     if (confirm(!isCompleted ? t("confirmComplete") : t("confirmUncomplete"))) {
@@ -102,6 +106,7 @@ export default function ProjectDetailPage() {
   };
 
   const handleDelete = () => {
+    if (!project) return;
     if (confirm(t("confirmDelete"))) {
       deleteProject.mutate(projectId, {
         onSuccess: () => {
@@ -619,9 +624,16 @@ export default function ProjectDetailPage() {
         />
 
       <ProjectSettingsDialog
-        projectId={projectId}
+        project={project}
         open={showSettings}
         onOpenChange={setShowSettings}
+        onSubmit={async (data) => {
+          await updateProject.mutateAsync({
+            projectId: projectId,
+            data,
+          });
+          setShowSettings(false);
+        }}
       />
     </AppLayout>
   );
