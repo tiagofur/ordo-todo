@@ -93,7 +93,8 @@ export function useBackgroundTimer() {
           sound: "default",
         },
         trigger: {
-          date: targetTime,
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(targetTime),
         },
       });
 

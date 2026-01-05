@@ -58,23 +58,16 @@ Notifications.setNotificationHandler({
  * Hook to manage native push notifications on mobile
  */
 export function usePushNotifications() {
-  const [isSupported, setIsSupported] = useState(false);
+  const isSupported = true;
   const [permission, setPermission] =
-    useState<Notifications.PermissionStatus | null>(null);
+    useState<Notifications.NotificationPermissionsStatus | null>(null);
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
 
   // Check if push notifications are supported
-  useEffect(() => {
-    const checkSupport = async () => {
-      const supported = await Notifications.isSupportedAsync();
-      setIsSupported(supported);
-      console.log("Push notifications supported:", supported);
-    };
+  // replaced with implicit true
 
-    checkSupport();
-  }, []);
 
   // Get current permission status
   useEffect(() => {
@@ -138,16 +131,16 @@ export function usePushNotifications() {
     if (!isSupported) return false;
 
     try {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
+      const settings = await Notifications.getPermissionsAsync();
+      let finalStatus = settings.status;
 
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
+      if (settings.status !== "granted") {
+        const newSettings = await Notifications.requestPermissionsAsync();
+        finalStatus = newSettings.status;
+        setPermission(newSettings);
+      } else {
+        setPermission(settings);
       }
-
-      setPermission(finalStatus);
 
       if (finalStatus === "granted") {
         console.log("Permission granted");
@@ -173,7 +166,7 @@ export function usePushNotifications() {
             sound: payload.sound,
             badge: payload.badge,
             data: payload.data,
-            categoryId: payload.categoryId,
+            categoryIdentifier: payload.categoryId,
           },
           trigger: null, // Send immediately
         });

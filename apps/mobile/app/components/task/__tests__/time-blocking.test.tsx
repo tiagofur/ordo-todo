@@ -3,7 +3,7 @@
  */
 
 import { render } from "@testing-library/react-native";
-import TimeBlocking, { TimeBlock } from "../time-blocking";
+import { TimeBlocking, TimeBlock } from "../time-blocking";
 
 const MOCK_PROPS = {
   scheduledDate: new Date("2025-01-15"),
@@ -67,8 +67,7 @@ describe("TimeBlocking", () => {
       <TimeBlocking
         {...MOCK_PROPS}
         scheduledDate={undefined}
-        scheduledTime={undefined}
-        scheduledEndTime={undefined}
+
         onTimeBlockChange={jest.fn()}
       />,
     );

@@ -4,7 +4,7 @@ import Toast, { BaseToast, ErrorToast, BaseToastProps } from "react-native-toast
 
 const toastConfig = {
   success: (props: BaseToastProps) => (
-    // @ts-expect-error - react-native-toast-message types are incompatible with React 19
+
     <BaseToast
       {...props}
       style={{ borderLeftColor: "#22c55e" }}
@@ -25,7 +25,7 @@ const toastConfig = {
     />
   ),
   error: (props: BaseToastProps) => (
-    // @ts-expect-error - react-native-toast-message types are incompatible with React 19
+
     <ErrorToast
       {...props}
       style={{ borderLeftColor: "#ef4444" }}
@@ -45,7 +45,7 @@ const toastConfig = {
     />
   ),
   info: (props: BaseToastProps) => (
-    // @ts-expect-error - react-native-toast-message types are incompatible with React 19
+
     <BaseToast
       {...props}
       style={{ borderLeftColor: "#3b82f6" }}
@@ -71,6 +71,6 @@ const toastConfig = {
 };
 
 export default function ToastContainer() {
-  // @ts-expect-error - react-native-toast-message types are incompatible with React 19
+
   return <Toast topOffset={70} config={toastConfig} />;
 }

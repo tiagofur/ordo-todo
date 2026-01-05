@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
@@ -87,7 +88,7 @@ export function TimeBlocking({
         hour: "2-digit",
         minute: "2-digit",
       });
-      onTimeChangeBlockChange({
+      onTimeBlockChange({
         date: scheduledDate || new Date(),
         startTime: scheduledTime,
         endTime: time,
@@ -326,6 +327,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    flex: 1,
+  },
+  headerText: {
     flex: 1,
   },
   headerTitle: {

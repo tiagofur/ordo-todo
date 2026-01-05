@@ -118,7 +118,7 @@ describe('apiClient', () => {
             const data = { 'field-1': 'value' };
             mockPatch.mockResolvedValue({ data: { success: true } });
 
-            await apiClient.setTaskCustomValues('task-1', data);
+            await apiClient.setTaskCustomValues('task-1', data as any);
 
             expect(mockPatch).toHaveBeenCalledWith('/tasks/task-1/custom-values', data);
         });

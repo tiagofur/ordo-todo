@@ -39,7 +39,7 @@ describe('useProjects Hook', () => {
 
     // Mock the API client response
     const { apiClient } = await import('../../../lib/api-client');
-    vi.mocked(apiClient.getProjects).mockResolvedValue(mockProjects);
+    vi.mocked(apiClient.getProjects).mockResolvedValue(mockProjects as any);
 
     const { result } = renderHook(() => useProjects('workspace-123'), { wrapper });
 

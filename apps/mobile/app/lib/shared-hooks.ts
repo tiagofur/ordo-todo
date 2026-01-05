@@ -22,7 +22,7 @@
  * ```
  */
 
-import { createHooks, queryKeys, type ApiClient } from '@ordo-todo/hooks';
+import { createHooks, queryKeys, type ApiClient, type Hooks } from '@ordo-todo/hooks';
 import { apiClient } from './api-client';
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -32,11 +32,11 @@ export { queryKeys };
 // Lazy-initialized hooks to avoid "No QueryClient set" errors
 let _hooks: ReturnType<typeof createHooks> | null = null;
 
-function getHooks() {
+function getHooks(): Hooks {
     if (!_hooks) {
         _hooks = createHooks({ apiClient: apiClient as unknown as ApiClient });
     }
-    return _hooks;
+    return _hooks as Hooks;
 }
 
 // ============ AUTH HOOKS ============

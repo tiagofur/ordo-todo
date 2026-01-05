@@ -44,12 +44,12 @@ export function PushNotificationsProvider({
   // Subscribe to push notifications when token is available
   useEffect(() => {
     const subscribeToBackend = async () => {
-      if (!expoPushToken || permission !== "granted") return;
+      if (!expoPushToken || !permission?.granted) return;
 
       try {
         // Call backend to register push token
-        if (apiClient.registerPushToken) {
-          await apiClient.registerPushToken({
+        if ((apiClient as any).registerPushToken) {
+          await (apiClient as any).registerPushToken({
             token: expoPushToken,
             platform: "expo",
           });
