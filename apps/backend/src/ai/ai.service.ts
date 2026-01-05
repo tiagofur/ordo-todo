@@ -32,7 +32,7 @@ export class AIService {
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   // ============ AI CHAT ============
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 30000 })
@@ -61,7 +61,10 @@ export class AIService {
 
     const response = await this.geminiService.chat(message, history, {
       ...context,
-      tasks,
+      tasks: tasks.map((t) => ({
+        ...t,
+        dueDate: t.dueDate || undefined,
+      })),
     });
 
     // Execute actions if any
@@ -161,8 +164,12 @@ export class AIService {
 
     return this.geminiService.analyzeWellbeing({
       dailyMetrics,
-      sessions,
-      profile: profile?.props,
+      sessions: sessions.map((s) => ({ ...s, duration: s.duration || 0 })),
+      profile: profile?.props || {
+        peakHours: {},
+        avgTaskDuration: 0,
+        completionRate: 0,
+      },
     });
   }
 
@@ -326,7 +333,7 @@ export class AIService {
       avgFocusScore:
         dailyMetrics.length > 0
           ? dailyMetrics.reduce((sum, d) => sum + (d.focusScore || 0), 0) /
-            dailyMetrics.length
+          dailyMetrics.length
           : 0,
       daysWorked: dailyMetrics.filter((d) => d.minutesWorked > 0).length,
     };
@@ -335,8 +342,12 @@ export class AIService {
       userId,
       scope: 'MONTHLY_SCHEDULED',
       metricsSnapshot,
-      sessions: sessions.slice(0, 20),
-      profile: profile?.props,
+      sessions: sessions.slice(0, 20).map((s) => ({ ...s, duration: s.duration || 0 })),
+      profile: profile?.props || {
+        peakHours: {},
+        avgTaskDuration: 0,
+        completionRate: 0,
+      },
     });
 
     // Save report to database
@@ -406,16 +417,19 @@ export class AIService {
       avgTaskDuration:
         project.tasks.length > 0
           ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) /
-            project.tasks.filter((t) => t.status === 'COMPLETED').length
+          project.tasks.filter((t) => t.status === 'COMPLETED').length
           : 0,
       estimateAccuracy: this.calculateEstimateAccuracy(project.tasks),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { projectName: _p, ...numericMetrics } = metricsSnapshot;
+
     const report = await this.geminiService.generateProductivityReport({
       userId,
       scope: 'PROJECT_SUMMARY',
-      metricsSnapshot,
-      sessions: sessions.slice(0, 20),
+      metricsSnapshot: numericMetrics,
+      sessions: sessions.slice(0, 20).map((s) => ({ ...s, duration: s.duration || 0 })),
       projectName: project.name,
     });
 

@@ -22,7 +22,7 @@
 'use client';
 
 import { createHooks, queryKeys, type ApiClient } from '@ordo-todo/hooks';
-import { UseQueryResult } from '@tanstack/react-query';
+import { UseQueryResult, QueryClient } from '@tanstack/react-query';
 import { apiClient } from './api-client';
 import type { GetSessionsParams, PaginatedSessionsResponse, GetDailyMetricsParams } from '@ordo-todo/api-client';
 
@@ -168,7 +168,7 @@ export function useMarkNotificationAsRead() { return getHooks().useMarkNotificat
 export function useMarkAllNotificationsAsRead() { return getHooks().useMarkAllNotificationsAsRead(); }
 
 // Utilities
-export function invalidateAllTasks(queryClient: any) { return getHooks().invalidateAllTasks(queryClient); }
+export function invalidateAllTasks(queryClient: QueryClient) { return getHooks().invalidateAllTasks(queryClient); }
 
 // Export the lazy getter for dynamic access
 export { getHooks as hooks };

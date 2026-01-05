@@ -1,28 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { TaskCard as UITaskCard } from "@ordo-todo/ui";
+import { TaskCard as UITaskCard, type TaskCardTask } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { TaskDetailPanel } from "./task-detail-panel";
 import { useTranslations } from "next-intl";
 
 interface TaskCardProps {
-  task: {
-    id?: string | number;
-    title: string;
-    description?: string | null;
-    status: string;
-    priority: string;
-    dueDate?: Date | string | null;
-    tags?: any[];
-    project?: { id: string; name: string; color: string };
-    subTasks?: Array<{
-      id: string | number;
-      title: string;
-      status: string;
-    }>;
-  };
+  task: TaskCardTask;
   index?: number;
 }
 
@@ -55,7 +41,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
   return (
     <>
       <UITaskCard
-        task={task as any}
+        task={task}
         index={index}
         isExpanded={showDetail}
         onToggleExpand={() => setShowDetail(true)}

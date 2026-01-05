@@ -1,4 +1,4 @@
-import {
+Prisma,
   PrismaClient,
   TimeSession as PrismaTimeSession,
   SessionType as PrismaSessionType,
@@ -14,7 +14,7 @@ import {
 } from "@ordo-todo/core";
 
 export class PrismaTimerRepository implements TimerRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) { }
 
   private toDomain(prismaSession: PrismaTimeSession): TimeSession {
     return new TimeSession({
@@ -69,7 +69,7 @@ export class PrismaTimerRepository implements TimerRepository {
     };
 
     const created = await this.prisma.timeSession.create({
-      data: data as any,
+      data: data as Prisma.TimeSessionCreateInput, // Explicit cast is safer than 'any' if shapes differ slightly (e.g. undefined vs null) but ideally we avoid it.
     });
 
     return this.toDomain(created);
@@ -148,7 +148,7 @@ export class PrismaTimerRepository implements TimerRepository {
     filters: SessionFilters,
     pagination: PaginationParams,
   ): Promise<PaginatedSessions> {
-    const where: any = { userId };
+    const where: Prisma.TimeSessionWhereInput = { userId };
 
     if (filters.taskId) {
       where.taskId = filters.taskId;
@@ -197,7 +197,7 @@ export class PrismaTimerRepository implements TimerRepository {
     startDate?: Date,
     endDate?: Date,
   ): Promise<SessionStats> {
-    const where: any = {
+    const where: Prisma.TimeSessionWhereInput = {
       userId,
       endedAt: { not: null },
     };
@@ -326,9 +326,9 @@ export class PrismaTimerRepository implements TimerRepository {
       duration: s.duration,
       task: s.task
         ? {
-            id: s.task.id,
-            project: s.task.project ? { name: s.task.project.name } : null,
-          }
+          id: s.task.id,
+          project: s.task.project ? { name: s.task.project.name } : null,
+        }
         : null,
     }));
   }

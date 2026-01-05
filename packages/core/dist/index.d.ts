@@ -1927,24 +1927,204 @@ declare class User extends Entity<UserProps> {
 }
 
 /**
- * Properties required to create a new user (including OAuth users)
+ * Properties required to create a new user (including OAuth users).
+ *
+ * Used for both email/password registration and OAuth provider authentication.
  */
 interface CreateUserProps {
+    /** The user's full name or display name */
     name: string;
+    /** The user's email address (must be unique) */
     email: string;
+    /** The user's unique username (must be unique) */
     username: string;
+    /** Optional profile image URL */
     image?: string | null;
+    /** OAuth provider name (e.g., 'google', 'github') */
     provider?: string;
+    /** Unique user ID from the OAuth provider */
     providerId?: string;
 }
+/**
+ * Repository interface for User entity.
+ *
+ * Provides data access methods for user persistence, authentication,
+ * and OAuth account management.
+ *
+ * @example
+ * ```typescript
+ * class PrismaUserRepository implements UserRepository {
+ *   async save(user: User): Promise<void> {
+ *     await prisma.user.create({ data: user.toJSON() });
+ *   }
+ *   // ... other methods
+ * }
+ * ```
+ */
 interface UserRepository {
+    /**
+     * Saves a new user to the database.
+     *
+     * @param user - The user entity to save
+     * @returns Promise that resolves when the user is saved
+     * @throws {Error} If the user already exists or database operation fails
+     *
+     * @example
+     * ```typescript
+     * const user = new User({
+     *   email: 'user@example.com',
+     *   username: 'johndoe',
+     *   name: 'John Doe'
+     * });
+     * await repository.save(user);
+     * ```
+     */
     save(user: User): Promise<void>;
+    /**
+     * Updates specific properties of an existing user.
+     *
+     * Allows partial updates without replacing the entire user entity.
+     *
+     * @param user - The user entity to update
+     * @param props - Partial properties to update (email, name, username, etc.)
+     * @returns Promise that resolves when the user is updated
+     * @throws {Error} If the user doesn't exist or validation fails
+     *
+     * @example
+     * ```typescript
+     * await repository.updateProps(user, {
+     *   name: 'John Smith',
+     *   jobTitle: 'Senior Developer'
+     * });
+     * ```
+     */
     updateProps(user: User, props: Partial<UserProps>): Promise<void>;
+    /**
+     * Finds a user by their email address.
+     *
+     * Used primarily for authentication (login) purposes.
+     *
+     * @param email - The email address to search for
+     * @param withPassword - Whether to include the password hash in the result
+     * @returns Promise that resolves to the user if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * // For authentication (include password)
+     * const user = await repository.findByEmail('user@example.com', true);
+     * if (user && (await bcrypt.compare(password, user.password))) {
+     *   // Authentication successful
+     * }
+     *
+     * // For general queries (exclude password)
+     * const user = await repository.findByEmail('user@example.com');
+     * ```
+     */
     findByEmail(email: string, withPassword?: boolean): Promise<User | null>;
+    /**
+     * Finds a user by their username.
+     *
+     * Used for profile lookup and @mention functionality.
+     *
+     * @param username - The username to search for
+     * @returns Promise that resolves to the user if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const user = await repository.findByUsername('johndoe');
+     * if (user) {
+     *   console.log(user.name);
+     * }
+     * ```
+     */
     findByUsername(username: string): Promise<User | null>;
+    /**
+     * Finds a user by their unique ID.
+     *
+     * @param id - The unique identifier of the user
+     * @returns Promise that resolves to the user if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const user = await repository.findById('user-123');
+     * if (user) {
+     *   console.log(user.email);
+     * }
+     * ```
+     */
     findById(id: string): Promise<User | null>;
+    /**
+     * Finds a user by their OAuth provider information.
+     *
+     * Used for OAuth authentication flows to check if a user has
+     * previously linked their account with a specific provider.
+     *
+     * @param provider - The OAuth provider name (e.g., 'google', 'github')
+     * @param providerId - The unique user ID from the OAuth provider
+     * @returns Promise that resolves to the user if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * // Google OAuth login
+     * const user = await repository.findByProvider('google', 'google-user-id-123');
+     * if (user) {
+     *   // User exists, log them in
+     * } else {
+     *   // Create new user account
+     * }
+     * ```
+     */
     findByProvider(provider: string, providerId: string): Promise<User | null>;
+    /**
+     * Links an OAuth account to an existing user.
+     *
+     * Allows users to sign in with multiple providers (e.g., Google + GitHub).
+     *
+     * @param userId - The unique identifier of the user
+     * @param provider - The OAuth provider name (e.g., 'google', 'github')
+     * @param providerId - The unique user ID from the OAuth provider
+     * @returns Promise that resolves to the updated user
+     *
+     * @example
+     * ```typescript
+     * // User already has Google account, now adding GitHub
+     * const updated = await repository.linkOAuthAccount(
+     *   'user-123',
+     *   'github',
+     *   'github-user-id-456'
+     * );
+     * ```
+     */
     linkOAuthAccount(userId: string, provider: string, providerId: string): Promise<User>;
+    /**
+     * Creates a new user account.
+     *
+     * Used for both email/password registration and OAuth authentication.
+     *
+     * @param props - The user properties (email, username, name, OAuth info)
+     * @returns Promise that resolves to the created user entity
+     * @throws {Error} If email/username already exists or validation fails
+     *
+     * @example
+     * ```typescript
+     * // Email/password registration
+     * const user = await repository.create({
+     *   email: 'user@example.com',
+     *   username: 'johndoe',
+     *   name: 'John Doe'
+     * });
+     *
+     * // OAuth registration
+     * const user = await repository.create({
+     *   email: 'user@gmail.com',
+     *   username: 'johndoe',
+     *   name: 'John Doe',
+     *   provider: 'google',
+     *   providerId: 'google-123',
+     *   image: 'https://google.com/photo.jpg'
+     * });
+     * ```
+     */
     create(props: CreateUserProps): Promise<User>;
 }
 
@@ -2060,27 +2240,294 @@ declare class Task extends Entity<TaskProps> {
     restore(): Task;
 }
 
+/**
+ * Repository interface for Task entity.
+ *
+ * Provides data access methods for task persistence and retrieval,
+ * including filtering, searching, and soft delete functionality.
+ *
+ * @example
+ * ```typescript
+ * class PrismaTaskRepository implements TaskRepository {
+ *   async save(task: Task): Promise<void> {
+ *     await prisma.task.create({ data: task.toJSON() });
+ *   }
+ *   // ... other methods
+ * }
+ * ```
+ */
 interface TaskRepository {
+    /**
+     * Saves a new task to the database.
+     *
+     * @param task - The task entity to save
+     * @returns Promise that resolves when the task is saved
+     * @throws {Error} If the task already exists or database operation fails
+     *
+     * @example
+     * ```typescript
+     * const task = new Task({ title: 'My Task', ownerId: 'user-123' });
+     * await repository.save(task);
+     * ```
+     */
     save(task: Task): Promise<void>;
+    /**
+     * Finds a task by its unique ID.
+     *
+     * @param id - The unique identifier of the task
+     * @returns Promise that resolves to the task if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const task = await repository.findById('task-123');
+     * if (task) {
+     *   console.log(task.title);
+     * }
+     * ```
+     */
     findById(id: string): Promise<Task | null>;
+    /**
+     * Finds all tasks owned by a specific user.
+     *
+     * @param ownerId - The unique identifier of the task owner
+     * @param filters - Optional filters for narrowing results
+     * @param filters.projectId - Filter tasks by project ID
+     * @param filters.tags - Filter tasks by tag names
+     * @returns Promise that resolves to an array of tasks
+     *
+     * @example
+     * ```typescript
+     * // Get all tasks for a user
+     * const tasks = await repository.findByOwnerId('user-123');
+     *
+     * // Get tasks for a specific project
+     * const projectTasks = await repository.findByOwnerId('user-123', {
+     *   projectId: 'project-456'
+     * });
+     *
+     * // Get tasks with specific tags
+     * const taggedTasks = await repository.findByOwnerId('user-123', {
+     *   tags: ['urgent', 'bug']
+     * });
+     * ```
+     */
     findByOwnerId(ownerId: string, filters?: {
         projectId?: string;
         tags?: string[];
     }): Promise<Task[]>;
+    /**
+     * Finds all tasks from workspaces where the user is a member.
+     *
+     * This includes tasks from:
+     * - Personal workspace
+     * - Workspaces where user is a member
+     * - Projects within those workspaces
+     *
+     * @param userId - The unique identifier of the user
+     * @param filters - Optional filters for narrowing results
+     * @param filters.projectId - Filter tasks by project ID
+     * @param filters.tags - Filter tasks by tag names
+     * @returns Promise that resolves to an array of tasks
+     *
+     * @example
+     * ```typescript
+     * const tasks = await repository.findByWorkspaceMemberships('user-123');
+     * ```
+     */
     findByWorkspaceMemberships(userId: string, filters?: {
         projectId?: string;
         tags?: string[];
     }): Promise<Task[]>;
+    /**
+     * Updates an existing task in the database.
+     *
+     * @param task - The task entity with updated properties
+     * @returns Promise that resolves when the task is updated
+     * @throws {Error} If the task doesn't exist or database operation fails
+     *
+     * @example
+     * ```typescript
+     * const updated = task.clone({ status: TaskStatus.DONE });
+     * await repository.update(updated);
+     * ```
+     */
     update(task: Task): Promise<void>;
-    delete(id: string): Promise<void>;
+    /**
+     * Soft deletes a task by marking it as deleted.
+     *
+     * The task remains in the database but is marked as deleted
+     * and won't appear in normal queries.
+     *
+     * @param id - The unique identifier of the task to delete
+     * @returns Promise that resolves when the task is soft deleted
+     *
+     * @example
+     * ```typescript
+     * await repository.softDelete('task-123');
+     * ```
+     */
     softDelete(id: string): Promise<void>;
-    restore(id: string): Promise<void>;
+    /**
+     * Permanently deletes a task (hard delete).
+     *
+     * WARNING: This operation cannot be undone. Use softDelete
+     * unless you absolutely need to permanently remove the task.
+     *
+     * @param id - The unique identifier of the task to delete
+     * @returns Promise that resolves when the task is permanently deleted
+     *
+     * @example
+     * ```typescript
+     * await repository.permanentDelete('task-123');
+     * ```
+     */
     permanentDelete(id: string): Promise<void>;
+    /**
+     * Alias for softDelete. Maintains compatibility with code using 'delete' terminology.
+     *
+     * @param id - The unique identifier of the task to delete
+     * @returns Promise that resolves when the task is deleted
+     * @see softDelete
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Restores a previously soft-deleted task.
+     *
+     * @param id - The unique identifier of the task to restore
+     * @returns Promise that resolves when the task is restored
+     *
+     * @example
+     * ```typescript
+     * await repository.restore('task-123');
+     * ```
+     */
+    restore(id: string): Promise<void>;
+    /**
+     * Finds all soft-deleted tasks for a specific project.
+     *
+     * Useful for implementing a "trash" or "recycle bin" feature.
+     *
+     * @param projectId - The unique identifier of the project
+     * @returns Promise that resolves to an array of deleted tasks
+     *
+     * @example
+     * ```typescript
+     * const deletedTasks = await repository.findDeleted('project-456');
+     * ```
+     */
     findDeleted(projectId: string): Promise<Task[]>;
+    /**
+     * Finds tasks scheduled for today (due today, overdue, or in progress).
+     *
+     * Used for the "Today" view in the application.
+     *
+     * @param userId - The unique identifier of the user
+     * @param today - The start of today (midnight)
+     * @param tomorrow - The start of tomorrow (midnight)
+     * @returns Promise that resolves to an array of today's tasks
+     *
+     * @example
+     * ```typescript
+     * const today = new Date();
+     * today.setHours(0, 0, 0, 0);
+     * const tomorrow = new Date(today);
+     * tomorrow.setDate(tomorrow.getDate() + 1);
+     *
+     * const todaysTasks = await repository.findTodayTasks('user-123', today, tomorrow);
+     * ```
+     */
     findTodayTasks(userId: string, today: Date, tomorrow: Date): Promise<Task[]>;
+    /**
+     * Finds tasks scheduled for a specific date range.
+     *
+     * Includes tasks with due dates or scheduled dates within the range.
+     *
+     * @param userId - The unique identifier of the user
+     * @param startOfDay - The start of the date range
+     * @param endOfDay - The end of the date range
+     * @returns Promise that resolves to an array of scheduled tasks
+     *
+     * @example
+     * ```typescript
+     * const startOfWeek = new Date();
+     * startOfWeek.setHours(0, 0, 0, 0);
+     * const endOfWeek = new Date(startOfWeek);
+     * endOfWeek.setDate(endOfWeek.getDate() + 7);
+     *
+     * const weeklyTasks = await repository.findScheduledTasks(
+     *   'user-123',
+     *   startOfWeek,
+     *   endOfWeek
+     * );
+     * ```
+     */
     findScheduledTasks(userId: string, startOfDay: Date, endOfDay: Date): Promise<Task[]>;
+    /**
+     * Finds available tasks that can be worked on.
+     *
+     * Available tasks are:
+     * - Not completed
+     * - Not blocked by dependencies
+     * - Not scheduled for the future
+     * - In the specified project (if provided)
+     *
+     * @param userId - The unique identifier of the user
+     * @param today - The current date/time
+     * @param projectId - Optional project ID to filter by
+     * @returns Promise that resolves to an array of available tasks
+     *
+     * @example
+     * ```typescript
+     * const available = await repository.findAvailableTasks(
+     *   'user-123',
+     *   new Date(),
+     *   'project-456'
+     * );
+     * ```
+     */
     findAvailableTasks(userId: string, today: Date, projectId?: string): Promise<Task[]>;
+    /**
+     * Finds tasks with time blocks scheduled in a date range.
+     *
+     * Used for the calendar view and time blocking features.
+     *
+     * @param userId - The unique identifier of the user
+     * @param startDate - The start of the date range
+     * @param endDate - The end of the date range
+     * @returns Promise that resolves to an array of time-blocked tasks
+     *
+     * @example
+     * ```typescript
+     * const startOfWeek = new Date();
+     * const endOfWeek = new Date();
+     * endOfWeek.setDate(endOfWeek.getDate() + 7);
+     *
+     * const timeBlockedTasks = await repository.findTimeBlockedTasks(
+     *   'user-123',
+     *   startOfWeek,
+     *   endOfWeek
+     * );
+     * ```
+     */
     findTimeBlockedTasks(userId: string, startDate: Date, endDate: Date): Promise<Task[]>;
+    /**
+     * Groups tasks by status and returns counts for each status.
+     *
+     * Useful for dashboard widgets and statistics.
+     *
+     * @param userId - The unique identifier of the user
+     * @returns Promise that resolves to an array of status/count pairs
+     *
+     * @example
+     * ```typescript
+     * const statusCounts = await repository.groupByStatus('user-123');
+     * // Returns: [
+     * //   { status: 'TODO', count: 5 },
+     * //   { status: 'IN_PROGRESS', count: 2 },
+     * //   { status: 'DONE', count: 10 }
+     * // ]
+     * ```
+     */
     groupByStatus(userId: string): Promise<Array<{
         status: string;
         count: number;
@@ -2216,64 +2663,545 @@ declare class WorkspaceAuditLog extends Entity<WorkspaceAuditLogProps> {
     static create(props: Omit<WorkspaceAuditLogProps, "id" | "createdAt">): WorkspaceAuditLog;
 }
 
+/**
+ * Workspace member with associated user information.
+ *
+ * Used for member listings to include user profile data.
+ */
 interface MemberWithUser {
+    /** The unique identifier of the user */
     userId: string;
+    /** The member's role in the workspace */
     role: MemberRole;
+    /** User profile information */
     user: {
+        /** The user's unique identifier */
         id: string;
+        /** The user's display name */
         name: string | null;
+        /** The user's email address */
         email: string | null;
+        /** The user's profile image URL */
         image: string | null;
     };
 }
+/**
+ * Repository interface for Workspace entity.
+ *
+ * Provides data access methods for workspace persistence,
+ * member management, and soft delete functionality.
+ *
+ * @example
+ * ```typescript
+ * class PrismaWorkspaceRepository implements WorkspaceRepository {
+ *   async create(workspace: Workspace): Promise<Workspace> {
+ *     const created = await prisma.workspace.create({
+ *       data: workspace.toJSON()
+ *     });
+ *     return Workspace.fromPrisma(created);
+ *   }
+ *   // ... other methods
+ * }
+ * ```
+ */
 interface WorkspaceRepository {
+    /**
+     * Creates a new workspace.
+     *
+     * @param workspace - The workspace entity to create
+     * @returns Promise that resolves to the created workspace
+     * @throws {Error} If validation fails or database operation fails
+     *
+     * @example
+     * ```typescript
+     * const workspace = new Workspace({
+     *   name: 'My Workspace',
+     *   type: WorkspaceType.PERSONAL,
+     *   ownerId: 'user-123'
+     * });
+     * const created = await repository.create(workspace);
+     * ```
+     */
     create(workspace: Workspace): Promise<Workspace>;
+    /**
+     * Finds a workspace by its unique ID.
+     *
+     * @param id - The unique identifier of the workspace
+     * @returns Promise that resolves to the workspace if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const workspace = await repository.findById('workspace-123');
+     * if (workspace) {
+     *   console.log(workspace.name);
+     * }
+     * ```
+     */
     findById(id: string): Promise<Workspace | null>;
-    findBySlug(slug: string): Promise<Workspace | null>;
+    /**
+     * Finds a workspace by its unique slug and owner.
+     *
+     * Used for shareable workspace URLs (e.g., /workspace/my-project).
+     * Requires ownerId to prevent accessing workspaces with duplicate slugs
+     * owned by different users.
+     *
+     * @param slug - The unique URL-friendly slug of the workspace
+     * @param ownerId - The unique identifier of the workspace owner
+     * @returns Promise that resolves to the workspace if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const workspace = await repository.findBySlug('my-project', 'user-123');
+     * if (workspace) {
+     *   console.log(workspace.name);
+     * }
+     * ```
+     */
+    findBySlug(slug: string, ownerId: string): Promise<Workspace | null>;
+    /**
+     * Finds all workspaces owned by a specific user.
+     *
+     * @param ownerId - The unique identifier of the workspace owner
+     * @returns Promise that resolves to an array of workspaces
+     *
+     * @example
+     * ```typescript
+     * const ownedWorkspaces = await repository.findByOwnerId('user-123');
+     * ```
+     */
     findByOwnerId(ownerId: string): Promise<Workspace[]>;
+    /**
+     * Finds all workspaces where the user is a member (including owner).
+     *
+     * Includes:
+     * - Personal workspaces owned by the user
+     * - Team workspaces where the user is a member
+     *
+     * @param userId - The unique identifier of the user
+     * @returns Promise that resolves to an array of workspaces
+     *
+     * @example
+     * ```typescript
+     * const allWorkspaces = await repository.findByUserId('user-123');
+     * ```
+     */
     findByUserId(userId: string): Promise<Workspace[]>;
+    /**
+     * Finds all soft-deleted workspaces for a user.
+     *
+     * Useful for implementing a "trash" or "recycle bin" feature.
+     *
+     * @param userId - The unique identifier of the user
+     * @returns Promise that resolves to an array of deleted workspaces
+     *
+     * @example
+     * ```typescript
+     * const deletedWorkspaces = await repository.findDeleted('user-123');
+     * ```
+     */
     findDeleted(userId: string): Promise<Workspace[]>;
+    /**
+     * Updates an existing workspace.
+     *
+     * @param workspace - The workspace entity with updated properties
+     * @returns Promise that resolves to the updated workspace
+     * @throws {Error} If the workspace doesn't exist or validation fails
+     *
+     * @example
+     * ```typescript
+     * const updated = workspace.clone({ name: 'Updated Name' });
+     * await repository.update(updated);
+     * ```
+     */
     update(workspace: Workspace): Promise<Workspace>;
+    /**
+     * Alias for softDelete. Maintains compatibility with code using 'delete' terminology.
+     *
+     * @param id - The unique identifier of the workspace to delete
+     * @returns Promise that resolves when the workspace is deleted
+     * @see softDelete
+     */
     delete(id: string): Promise<void>;
+    /**
+     * Soft deletes a workspace by marking it as deleted.
+     *
+     * The workspace remains in the database but is marked as deleted
+     * and won't appear in normal queries.
+     *
+     * @param id - The unique identifier of the workspace to delete
+     * @returns Promise that resolves when the workspace is soft deleted
+     *
+     * @example
+     * ```typescript
+     * await repository.softDelete('workspace-123');
+     * ```
+     */
     softDelete(id: string): Promise<void>;
+    /**
+     * Restores a previously soft-deleted workspace.
+     *
+     * @param id - The unique identifier of the workspace to restore
+     * @returns Promise that resolves when the workspace is restored
+     *
+     * @example
+     * ```typescript
+     * await repository.restore('workspace-123');
+     * ```
+     */
     restore(id: string): Promise<void>;
+    /**
+     * Permanently deletes a workspace (hard delete).
+     *
+     * WARNING: This operation cannot be undone. Use softDelete
+     * unless you absolutely need to permanently remove the workspace.
+     *
+     * @param id - The unique identifier of the workspace to delete
+     * @returns Promise that resolves when the workspace is permanently deleted
+     *
+     * @example
+     * ```typescript
+     * await repository.permanentDelete('workspace-123');
+     * ```
+     */
     permanentDelete(id: string): Promise<void>;
+    /**
+     * Adds a member to a workspace.
+     *
+     * @param member - The workspace member entity (userId, workspaceId, role)
+     * @returns Promise that resolves to the created member
+     * @throws {Error} If the user is already a member or validation fails
+     *
+     * @example
+     * ```typescript
+     * const member = new WorkspaceMember({
+     *   workspaceId: 'workspace-123',
+     *   userId: 'user-456',
+     *   role: MemberRole.MEMBER
+     * });
+     * await repository.addMember(member);
+     * ```
+     */
     addMember(member: WorkspaceMember): Promise<WorkspaceMember>;
+    /**
+     * Removes a member from a workspace.
+     *
+     * @param workspaceId - The unique identifier of the workspace
+     * @param userId - The unique identifier of the user to remove
+     * @returns Promise that resolves when the member is removed
+     *
+     * @example
+     * ```typescript
+     * await repository.removeMember('workspace-123', 'user-456');
+     * ```
+     */
     removeMember(workspaceId: string, userId: string): Promise<void>;
+    /**
+     * Finds a specific member in a workspace.
+     *
+     * @param workspaceId - The unique identifier of the workspace
+     * @param userId - The unique identifier of the user
+     * @returns Promise that resolves to the member if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const member = await repository.findMember('workspace-123', 'user-456');
+     * if (member) {
+     *   console.log(member.role);
+     * }
+     * ```
+     */
     findMember(workspaceId: string, userId: string): Promise<WorkspaceMember | null>;
+    /**
+     * Lists all members of a workspace.
+     *
+     * @param workspaceId - The unique identifier of the workspace
+     * @returns Promise that resolves to an array of workspace members
+     *
+     * @example
+     * ```typescript
+     * const members = await repository.listMembers('workspace-123');
+     * members.forEach(member => {
+     *   console.log(`${member.userId}: ${member.role}`);
+     * });
+     * ```
+     */
     listMembers(workspaceId: string): Promise<WorkspaceMember[]>;
+    /**
+     * Lists all members of a workspace with user profile information.
+     *
+     * Includes user details (name, email, image) for display purposes.
+     *
+     * @param workspaceId - The unique identifier of the workspace
+     * @returns Promise that resolves to an array of members with user info
+     *
+     * @example
+     * ```typescript
+     * const members = await repository.listMembersWithUser('workspace-123');
+     * members.forEach(member => {
+     *   console.log(`${member.user.name}: ${member.role}`);
+     * });
+     * ```
+     */
     listMembersWithUser(workspaceId: string): Promise<MemberWithUser[]>;
 }
 
+/**
+ * Repository interface for WorkspaceSettings entity persistence operations.
+ *
+ * This interface defines the contract for workspace settings data access, providing methods
+ * for managing workspace-level preferences and configurations. Settings control workspace-wide
+ * behaviors such as default task views, notification preferences, and collaboration features.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaWorkspaceSettingsRepository implements WorkspaceSettingsRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async findByWorkspaceId(workspaceId: string): Promise<WorkspaceSettings | null> {
+ *     const data = await this.prisma.workspaceSettings.findUnique({
+ *       where: { workspaceId }
+ *     });
+ *     return data ? new WorkspaceSettings(data) : null;
+ *   }
+ *
+ *   async upsert(settings: WorkspaceSettings): Promise<WorkspaceSettings> {
+ *     const data = await this.prisma.workspaceSettings.upsert({
+ *       where: { workspaceId: settings.workspaceId },
+ *       update: {
+ *         defaultTaskView: settings.defaultTaskView,
+ *         enableNotifications: settings.enableNotifications,
+ *         allowGuestAccess: settings.allowGuestAccess
+ *       },
+ *       create: {
+ *         id: settings.id,
+ *         workspaceId: settings.workspaceId,
+ *         defaultTaskView: settings.defaultTaskView,
+ *         enableNotifications: settings.enableNotifications,
+ *         allowGuestAccess: settings.allowGuestAccess,
+ *         createdAt: settings.createdAt,
+ *         updatedAt: settings.updatedAt
+ *       }
+ *     });
+ *     return new WorkspaceSettings(data);
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/workspace-settings.entity.ts | WorkspaceSettings entity}
+ */
 interface WorkspaceSettingsRepository {
     /**
-     * Obtiene la configuración de un workspace
+     * Retrieves settings for a specific workspace.
+     *
+     * Used for loading workspace configuration when a user opens a workspace or when
+     * workspace-wide preferences need to be accessed. Returns null if settings haven't
+     * been customized (default settings should be used).
+     *
+     * @param workspaceId - The workspace ID to find settings for
+     * @returns Promise resolving to the workspace settings if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const settings = await repository.findByWorkspaceId('workspace-123');
+     * if (settings) {
+     *   console.log(`Default task view: ${settings.defaultTaskView}`);
+     *   console.log(`Notifications: ${settings.enableNotifications ? 'enabled' : 'disabled'}`);
+     *   console.log(`Guest access: ${settings.allowGuestAccess ? 'allowed' : 'not allowed'}`);
+     * } else {
+     *   console.log('Using default workspace settings');
+     * }
+     * ```
      */
     findByWorkspaceId(workspaceId: string): Promise<WorkspaceSettings | null>;
     /**
-     * Crea o actualiza la configuración de un workspace
+     * Creates or updates workspace settings.
+     *
+     * Used when saving workspace configuration changes. If settings don't exist for the
+     * workspace, they are created. If they exist, they are updated (upsert operation).
+     * This is the preferred method for persisting settings as it handles both cases.
+     *
+     * @param settings - The workspace settings entity to save (must be valid)
+     * @returns Promise resolving to the saved or updated settings
+     * @throws {Error} If settings validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const settings = new WorkspaceSettings({
+     *   workspaceId: 'workspace-123',
+     *   defaultTaskView: 'BOARD',
+     *   enableNotifications: true,
+     *   allowGuestAccess: false,
+     *   defaultRole: 'MEMBER',
+     *   taskRetentionDays: 90
+     * });
+     *
+     * const saved = await repository.upsert(settings);
+     * console.log('Workspace settings saved');
+     * console.log(`Default view: ${saved.defaultTaskView}`);
+     * ```
      */
     upsert(settings: WorkspaceSettings): Promise<WorkspaceSettings>;
     /**
-     * Elimina la configuración de un workspace
+     * Deletes settings for a workspace.
+     *
+     * Used when resetting workspace settings to defaults or when deleting a workspace.
+     * After deletion, the workspace will revert to using default settings.
+     *
+     * @param workspaceId - The workspace ID to delete settings for
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the settings don't exist
+     *
+     * @example
+     * ```typescript
+     * // Reset workspace settings to defaults
+     * await repository.delete('workspace-123');
+     * console.log('Workspace settings reset to defaults');
+     *
+     * // On next access, default settings will be used
+     * const settings = await repository.findByWorkspaceId('workspace-123');
+     * if (!settings) {
+     *   console.log('Using default workspace settings');
+     * }
+     * ```
      */
     delete(workspaceId: string): Promise<void>;
 }
 
+/**
+ * Repository interface for WorkspaceAuditLog entity persistence operations.
+ *
+ * This interface defines the contract for workspace audit trail data access, providing
+ * methods for recording and querying workspace activity logs. Audit logs track important
+ * events such as membership changes, permission updates, invitations, and settings modifications.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaWorkspaceAuditLogRepository implements WorkspaceAuditLogRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(log: WorkspaceAuditLog): Promise<WorkspaceAuditLog> {
+ *     const data = await this.prisma.workspaceAuditLog.create({
+ *       data: {
+ *         id: log.id,
+ *         workspaceId: log.workspaceId,
+ *         action: log.action,
+ *         actorId: log.actorId,
+ *         targetId: log.targetId,
+ *         targetType: log.targetType,
+ *         metadata: log.metadata,
+ *         createdAt: log.createdAt
+ *       }
+ *     });
+ *     return new WorkspaceAuditLog(data);
+ *   }
+ *
+ *   async findByWorkspaceId(
+ *     workspaceId: string,
+ *     limit = 50,
+ *     offset = 0
+ *   ): Promise<WorkspaceAuditLog[]> {
+ *     const logs = await this.prisma.workspaceAuditLog.findMany({
+ *       where: { workspaceId },
+ *       orderBy: { createdAt: 'desc' },
+ *       take: limit,
+ *       skip: offset
+ *     });
+ *     return logs.map(l => new WorkspaceAuditLog(l));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/workspace-audit-log.entity.ts | WorkspaceAuditLog entity}
+ */
 interface WorkspaceAuditLogRepository {
     /**
-     * Crea un nuevo registro de auditoría
+     * Creates a new audit log entry.
+     *
+     * Used for recording important workspace events and actions, such as member additions,
+     * role changes, permission updates, invitation acceptance/rejection, and settings changes.
+     * Each log entry captures who did what, when, and to what target.
+     *
+     * @param log - The audit log entry to create (must be valid)
+     * @returns Promise resolving to the created audit log entry
+     * @throws {Error} If log validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const log = new WorkspaceAuditLog({
+     *   workspaceId: 'workspace-123',
+     *   action: 'MEMBER_ADDED',
+     *   actorId: 'user-456',
+     *   targetId: 'user-789',
+     *   targetType: 'USER',
+     *   metadata: {
+     *     role: 'MEMBER',
+     *     invitedBy: 'user-456'
+     *   }
+     * });
+     *
+     * const created = await repository.create(log);
+     * console.log(`Audit log created: ${created.action} by ${created.actorId}`);
+     * ```
      */
     create(log: WorkspaceAuditLog): Promise<WorkspaceAuditLog>;
     /**
-     * Obtiene los logs de auditoría de un workspace
-     * @param workspaceId ID del workspace
-     * @param limit Número máximo de registros a retornar
-     * @param offset Offset para paginación
+     * Retrieves audit logs for a specific workspace.
+     *
+     * Used for displaying workspace activity history, such as in an "Activity Log" or
+     * "Audit Trail" view. Returns logs ordered by most recent first. Supports pagination
+     * for handling large numbers of log entries.
+     *
+     * @param workspaceId - The workspace ID to fetch audit logs for
+     * @param limit - Maximum number of log entries to return (default: 50)
+     * @param offset - Number of entries to skip for pagination (default: 0)
+     * @returns Promise resolving to an array of audit log entries (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // Get the 50 most recent log entries
+     * const recentLogs = await repository.findByWorkspaceId('workspace-123');
+     * console.log(`Found ${recentLogs.length} recent activity logs`);
+     *
+     * // Get paginated logs
+     * const page1 = await repository.findByWorkspaceId('workspace-123', 20, 0);
+     * const page2 = await repository.findByWorkspaceId('workspace-123', 20, 20);
+     *
+     * // Display activity timeline
+     * recentLogs.forEach(log => {
+     *   const timestamp = log.createdAt.toLocaleString();
+     *   console.log(`[${timestamp}] ${log.action} on ${log.targetType} ${log.targetId}`);
+     * });
+     * ```
      */
     findByWorkspaceId(workspaceId: string, limit?: number, offset?: number): Promise<WorkspaceAuditLog[]>;
     /**
-     * Cuenta el total de logs de un workspace
+     * Counts the total number of audit log entries for a workspace.
+     *
+     * Used for displaying activity statistics, calculating pagination,
+     * or showing metrics like "X activities this month".
+     *
+     * @param workspaceId - The workspace ID to count audit logs for
+     * @returns Promise resolving to the total count of audit log entries
+     *
+     * @example
+     * ```typescript
+     * const totalCount = await repository.countByWorkspaceId('workspace-123');
+     * console.log(`Total activity log entries: ${totalCount}`);
+     *
+     * // Calculate pagination
+     * const pageSize = 20;
+     * const totalPages = Math.ceil(totalCount / pageSize);
+     * console.log(`Total pages: ${totalPages}`);
+     *
+     * // Show activity summary
+     * console.log(`Workspace has ${totalCount} recorded activities`);
+     * ```
      */
     countByWorkspaceId(workspaceId: string): Promise<number>;
 }
@@ -2349,22 +3277,257 @@ declare class WorkspaceInvitation extends Entity<WorkspaceInvitationProps> {
     isExpired(): boolean;
 }
 
+/**
+ * Repository interface for WorkspaceInvitation entity persistence operations.
+ *
+ * This interface defines the contract for workspace invitation data access, providing methods
+ * for creating, finding, and managing workspace member invitations. Invitations are used to
+ * invite users to join a workspace via email, with secure token-based acceptance.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaWorkspaceInvitationRepository implements WorkspaceInvitationRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(invitation: WorkspaceInvitation): Promise<WorkspaceInvitation> {
+ *     const data = await this.prisma.workspaceInvitation.create({
+ *       data: {
+ *         id: invitation.id,
+ *         workspaceId: invitation.workspaceId,
+ *         email: invitation.email,
+ *         tokenHash: invitation.tokenHash,
+ *         role: invitation.role,
+ *         invitedBy: invitation.invitedBy,
+ *         expiresAt: invitation.expiresAt,
+ *         createdAt: invitation.createdAt
+ *       }
+ *     });
+ *     return new WorkspaceInvitation(data);
+ *   }
+ *
+ *   async findPendingInvitations(): Promise<WorkspaceInvitation[]> {
+ *     const invitations = await this.prisma.workspaceInvitation.findMany({
+ *       where: { status: 'PENDING' }
+ *     });
+ *     return invitations.map(i => new WorkspaceInvitation(i));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/workspace-invitation.entity.ts | WorkspaceInvitation entity}
+ */
 interface WorkspaceInvitationRepository {
+    /**
+     * Creates a new workspace invitation.
+     *
+     * Used when a workspace owner or admin invites a new member via email.
+     * Generates a secure token that will be sent to the invitee's email for verification.
+     *
+     * @param invitation - The invitation entity to create (must be valid)
+     * @returns Promise resolving to the created invitation with database-generated fields
+     * @throws {Error} If invitation validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const invitation = new WorkspaceInvitation({
+     *   workspaceId: 'workspace-123',
+     *   email: 'newmember@example.com',
+     *   tokenHash: 'hashed_token_here',
+     *   role: 'MEMBER',
+     *   invitedBy: 'user-456',
+     *   expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+     * });
+     *
+     * const created = await repository.create(invitation);
+     * console.log(`Invitation created for ${created.email}`);
+     * // Send email with invitation link containing token
+     * ```
+     */
     create(invitation: WorkspaceInvitation): Promise<WorkspaceInvitation>;
+    /**
+     * Finds an invitation by its unique ID.
+     *
+     * Used for retrieving invitation details when the ID is known, such as when
+     * an admin views invitation details or when checking invitation status.
+     *
+     * @param id - The unique identifier of the invitation
+     * @returns Promise resolving to the invitation if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const invitation = await repository.findById('inv-abc-123');
+     * if (invitation) {
+     *   console.log(`Invitation for ${invitation.email}`);
+     *   console.log(`Status: ${invitation.status}`);
+     *   console.log(`Role: ${invitation.role}`);
+     * } else {
+     *   console.log('Invitation not found');
+     * }
+     * ```
+     */
     findById(id: string): Promise<WorkspaceInvitation | null>;
     /**
-     * @deprecated Use findPendingInvitations() instead and compare hashes manually
-     * This method is kept for backward compatibility but won't work with hashed tokens
+     * Finds an invitation by token hash.
+     *
+     * @deprecated Use findPendingInvitations() instead and compare hashes manually.
+     * This method is kept for backward compatibility but won't work with hashed tokens.
+     *
+     * Previously used for validating invitation tokens when a user clicks an invitation link.
+     * Due to bcrypt hashing, direct lookup is not possible. Use findPendingInvitations()
+     * and compare the token hashes manually.
+     *
+     * @param tokenHash - The hashed token to search for
+     * @returns Promise resolving to the invitation if found, null otherwise
+     * @deprecated Use findPendingInvitations() and verify tokens manually
      */
     findByToken(tokenHash: string): Promise<WorkspaceInvitation | null>;
     /**
-     * Find all pending invitations (for hash comparison)
-     * Used when searching by token with bcrypt hashes
+     * Finds all pending invitations for hash comparison.
+     *
+     * Used when validating invitation tokens. Since tokens are hashed using bcrypt for security,
+     * we need to fetch all pending invitations and manually compare the token hash using
+     * bcrypt.compare(). This is intentional for security reasons.
+     *
+     * @returns Promise resolving to an array of pending invitations (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // When a user clicks an invitation link with a token
+     * const token = request.query.token as string;
+     * const pendingInvitations = await repository.findPendingInvitations();
+     *
+     * // Find matching invitation by comparing hashes
+     * let matchingInvitation: WorkspaceInvitation | null = null;
+     * for (const invitation of pendingInvitations) {
+     *   const isValid = await bcrypt.compare(token, invitation.tokenHash);
+     *   if (isValid) {
+     *     matchingInvitation = invitation;
+     *     break;
+     *   }
+     * }
+     *
+     * if (matchingInvitation) {
+     *   console.log(`Valid invitation found for ${matchingInvitation.email}`);
+     *   // Proceed with invitation acceptance
+     * } else {
+     *   console.log('Invalid or expired invitation token');
+     * }
+     * ```
      */
     findPendingInvitations(): Promise<WorkspaceInvitation[]>;
+    /**
+     * Finds all invitations for a specific workspace.
+     *
+     * Used for displaying the invitation list in workspace settings, showing all
+     * pending, accepted, and expired invitations for that workspace.
+     *
+     * @param workspaceId - The workspace ID to find invitations for
+     * @returns Promise resolving to an array of invitations (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const invitations = await repository.findByWorkspaceId('workspace-123');
+     * console.log(`Found ${invitations.length} invitations`);
+     *
+     * // Group by status
+     * const pending = invitations.filter(i => i.status === 'PENDING');
+     * const accepted = invitations.filter(i => i.status === 'ACCEPTED');
+     * const expired = invitations.filter(i => i.status === 'EXPIRED');
+     *
+     * console.log(`Pending: ${pending.length}, Accepted: ${accepted.length}, Expired: ${expired.length}`);
+     * ```
+     */
     findByWorkspaceId(workspaceId: string): Promise<WorkspaceInvitation[]>;
+    /**
+     * Finds all invitations for a specific email address.
+     *
+     * Used for displaying invitations sent to a particular email, such as when a user
+     * checks their pending invitations or when preventing duplicate invitations.
+     *
+     * @param email - The email address to find invitations for
+     * @returns Promise resolving to an array of invitations (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const invitations = await repository.findByEmail('user@example.com');
+     * console.log(`Found ${invitations.length} invitations for this email`);
+     *
+     * // Show pending invitations
+     * const pending = invitations.filter(i => i.status === 'PENDING' && !i.isExpired());
+     * pending.forEach(invitation => {
+     *   console.log(`${invitation.workspaceId} - ${invitation.role}`);
+     * });
+     *
+     * // Check for duplicate before sending new invitation
+     * const existingPending = invitations.find(i =>
+     *   i.status === 'PENDING' &&
+     *   i.workspaceId === newWorkspaceId &&
+     *   !i.isExpired()
+     * );
+     * if (existingPending) {
+     *   console.log('User already has a pending invitation for this workspace');
+     * }
+     * ```
+     */
     findByEmail(email: string): Promise<WorkspaceInvitation[]>;
+    /**
+     * Updates an existing invitation.
+     *
+     * Used when modifying invitation details, such as changing status (PENDING → ACCEPTED),
+     * updating role, or extending expiration date.
+     *
+     * @param invitation - The invitation entity with updated fields
+     * @returns Promise resolving to the updated invitation
+     * @throws {NotFoundException} If the invitation doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('inv-123');
+     * if (existing) {
+     *   const accepted = existing.clone({
+     *     status: 'ACCEPTED',
+     *     acceptedAt: new Date(),
+     *     acceptedBy: 'user-789'
+     *   });
+     *   await repository.update(accepted);
+     *   console.log('Invitation accepted');
+     *
+     *   // Add user to workspace members
+     *   await addWorkspaceMember(existing.workspaceId, acceptedBy, existing.role);
+     * }
+     * ```
+     */
     update(invitation: WorkspaceInvitation): Promise<WorkspaceInvitation>;
+    /**
+     * Deletes an invitation.
+     *
+     * Used when revoking an invitation, cleaning up expired invitations, or when
+     * a user declines an invitation (mark as declined or delete).
+     *
+     * @param id - The unique identifier of the invitation to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the invitation doesn't exist
+     *
+     * @example
+     * ```typescript
+     * // Revoke a pending invitation
+     * await repository.delete('inv-abc-123');
+     * console.log('Invitation revoked');
+     *
+     * // Cleanup expired invitations
+     * const invitations = await repository.findByWorkspaceId('workspace-123');
+     * for (const invitation of invitations) {
+     *   if (invitation.isExpired()) {
+     *     await repository.delete(invitation.id);
+     *     console.log(`Deleted expired invitation for ${invitation.email}`);
+     *   }
+     * }
+     * ```
+     */
     delete(id: string): Promise<void>;
 }
 
@@ -2465,17 +3628,279 @@ declare class Project extends Entity<ProjectProps> {
     restore(): Project;
 }
 
+/**
+ * Repository interface for Project entity persistence operations.
+ *
+ * This interface defines the contract for Project data access, providing CRUD operations
+ * plus specialized methods for soft-deletion, slug-based lookup, and recovery of deleted projects.
+ * Implementations should handle database-specific details while maintaining this clean interface.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaProjectRepository implements ProjectRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(project: Project): Promise<Project> {
+ *     const data = await this.prisma.project.create({
+ *       data: {
+ *         id: project.id,
+ *         name: project.name,
+ *         slug: project.slug,
+ *         description: project.description,
+ *         color: project.color,
+ *         icon: project.icon,
+ *         workflowId: project.workflowId,
+ *         status: project.status,
+ *         startDate: project.startDate,
+ *         endDate: project.endDate,
+ *         workspaceId: project.workspaceId,
+ *         ownerId: project.ownerId,
+ *         createdAt: project.createdAt,
+ *         updatedAt: project.updatedAt,
+ *       }
+ *     });
+ *     return new Project(data);
+ *   }
+ *
+ *   async findById(id: string): Promise<Project | null> {
+ *     const data = await this.prisma.project.findUnique({ where: { id } });
+ *     return data ? new Project(data) : null;
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/project.entity.ts | Project entity}
+ */
 interface ProjectRepository {
+    /**
+     * Creates a new project in the repository.
+     *
+     * Used when creating a new project through the UI or API.
+     * The project should have all required fields populated before calling this method.
+     *
+     * @param project - The project entity to create (must be valid)
+     * @returns Promise resolving to the created project with any database-generated fields populated
+     * @throws {Error} If project validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const project = new Project({
+     *   name: 'Website Redesign',
+     *   slug: 'website-redesign',
+     *   workspaceId: 'workspace-123',
+     *   ownerId: 'user-456',
+     *   status: 'ACTIVE'
+     * });
+     *
+     * const created = await repository.create(project);
+     * console.log(`Project created with ID: ${created.id}`);
+     * ```
+     */
     create(project: Project): Promise<Project>;
+    /**
+     * Finds a project by its unique ID.
+     *
+     * Used for fetching project details when the ID is known, such as from a URL parameter
+     * or after creating/updating a project.
+     *
+     * @param id - The unique identifier of the project
+     * @returns Promise resolving to the project if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const project = await repository.findById('proj-123');
+     * if (project) {
+     *   console.log(`Found project: ${project.name}`);
+     * } else {
+     *   console.log('Project not found');
+     * }
+     * ```
+     */
     findById(id: string): Promise<Project | null>;
+    /**
+     * Finds a project by its slug within a specific workspace.
+     *
+     * Used for human-readable project URLs, such as `/workflows/:workflowSlug/projects/:projectSlug`.
+     * Slug lookups are scoped to a workspace to allow duplicate slugs across different workspaces.
+     *
+     * @param slug - The URL-friendly slug identifier
+     * @param workspaceId - The workspace ID to scope the search to
+     * @returns Promise resolving to the project if found, null otherwise
+     * @throws {Error} If workspaceId is not provided
+     *
+     * @example
+     * ```typescript
+     * const project = await repository.findBySlug('website-redesign', 'workspace-123');
+     * // Returns the project with that slug in the specified workspace
+     * ```
+     */
     findBySlug(slug: string, workspaceId: string): Promise<Project | null>;
+    /**
+     * Finds all projects that belong to a specific workspace.
+     *
+     * Used for displaying the project list within a workflow or workspace view.
+     * Returns projects in the order specified by the workspace (typically by position/createdAt).
+     *
+     * @param workspaceId - The workspace ID to filter projects by
+     * @returns Promise resolving to an array of projects in the workspace (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const projects = await repository.findByWorkspaceId('workflow-123');
+     * console.log(`Found ${projects.length} projects in workflow`);
+     *
+     * // Render project list
+     * projects.forEach(project => {
+     *   console.log(`- ${project.name} (${project.status})`);
+     * });
+     * ```
+     */
     findByWorkspaceId(workspaceId: string): Promise<Project[]>;
+    /**
+     * Finds all projects owned by a specific user across all workspaces.
+     *
+     * Used for dashboard widgets showing "My Projects" or for user profile pages.
+     * Includes projects from all workspaces where the user is the owner.
+     *
+     * @param userId - The user ID to filter projects by
+     * @returns Promise resolving to an array of projects owned by the user (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const projects = await repository.findAllByUserId('user-456');
+     * console.log(`User owns ${projects.length} projects`);
+     *
+     * // Group by workspace
+     * const byWorkspace = projects.reduce((acc, project) => {
+     *   (acc[project.workflowId] ||= []).push(project);
+     *   return acc;
+     * }, {} as Record<string, Project[]>);
+     * ```
+     */
     findAllByUserId(userId: string): Promise<Project[]>;
+    /**
+     * Updates an existing project in the repository.
+     *
+     * Used when modifying project details such as name, description, status, or dates.
+     * The project entity should already exist and be valid before calling this method.
+     *
+     * @param project - The project entity with updated fields
+     * @returns Promise resolving to the updated project
+     * @throws {NotFoundException} If the project doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('proj-123');
+     * if (existing) {
+     *   const updated = existing.clone({
+     *     status: 'COMPLETED',
+     *     endDate: new Date()
+     *   });
+     *   await repository.update(updated);
+     * }
+     * ```
+     */
     update(project: Project): Promise<Project>;
+    /**
+     * Permanently deletes a project from the repository.
+     *
+     * WARNING: This operation is irreversible. All associated tasks, comments, and attachments
+     * will be deleted. Consider using softDelete() instead for safer deletion with recovery.
+     *
+     * @param id - The unique identifier of the project to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the project doesn't exist
+     *
+     * @example
+     * ```typescript
+     * // ⚠️ Use with caution - permanent deletion
+     * await repository.delete('proj-123');
+     * console.log('Project permanently deleted');
+     * ```
+     */
     delete(id: string): Promise<void>;
+    /**
+     * Soft deletes a project by marking it as deleted without removing it from the database.
+     *
+     * This is the preferred deletion method as it allows for recovery and maintains data integrity.
+     * The project won't appear in normal queries but can be restored if needed.
+     *
+     * @param id - The unique identifier of the project to soft delete
+     * @returns Promise resolving when the soft deletion is complete
+     * @throws {NotFoundException} If the project doesn't exist
+     *
+     * @example
+     * ```typescript
+     * // Soft delete (recommended)
+     * await repository.softDelete('proj-123');
+     * console.log('Project moved to trash');
+     *
+     * // Later restore if needed
+     * await repository.restore('proj-123');
+     * ```
+     */
     softDelete(id: string): Promise<void>;
+    /**
+     * Restores a previously soft-deleted project.
+     *
+     * Used when a user wants to recover a project from the trash/bin.
+     * The project will appear in normal queries again after restoration.
+     *
+     * @param id - The unique identifier of the project to restore
+     * @returns Promise resolving when the restoration is complete
+     * @throws {NotFoundException} If the project doesn't exist or wasn't deleted
+     *
+     * @example
+     * ```typescript
+     * await repository.restore('proj-123');
+     * console.log('Project restored from trash');
+     * ```
+     */
     restore(id: string): Promise<void>;
+    /**
+     * Permanently deletes a soft-deleted project from the repository.
+     *
+     * This operation is irreversible and should only be used after a project has been soft deleted
+     * and the user confirms they want to permanently remove it (e.g., "Empty Trash" action).
+     *
+     * @param id - The unique identifier of the project to permanently delete
+     * @returns Promise resolving when the permanent deletion is complete
+     * @throws {NotFoundException} If the project doesn't exist
+     *
+     * @example
+     * ```typescript
+     * // Empty trash - permanently delete all soft-deleted projects
+     * const deletedProjects = await repository.findDeleted('workspace-123');
+     * for (const project of deletedProjects) {
+     *   await repository.permanentDelete(project.id);
+     * }
+     * ```
+     */
     permanentDelete(id: string): Promise<void>;
+    /**
+     * Finds all soft-deleted projects in a workspace.
+     *
+     * Used for displaying the trash/bin view where users can see and restore deleted projects.
+     * Only returns projects that have been soft deleted, not permanently deleted ones.
+     *
+     * @param workspaceId - The workspace ID to filter deleted projects by
+     * @returns Promise resolving to an array of soft-deleted projects (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const deletedProjects = await repository.findDeleted('workspace-123');
+     * console.log(`Found ${deletedProjects.length} deleted projects`);
+     *
+     * // Show trash UI with restore options
+     * deletedProjects.forEach(project => {
+     *   console.log(`${project.name} - deleted on ${project.deletedAt}`);
+     * });
+     * ```
+     */
     findDeleted(workspaceId: string): Promise<Project[]>;
 }
 
@@ -2543,11 +3968,153 @@ declare class Workflow extends Entity<WorkflowProps> {
     update(props: Partial<Omit<WorkflowProps, "id" | "workspaceId" | "createdAt">>): Workflow;
 }
 
+/**
+ * Repository interface for Workflow entity persistence operations.
+ *
+ * This interface defines the contract for Workflow data access, providing CRUD operations
+ * for workflows within workspaces. Workflows are organizational units that group projects
+ * together (e.g., "Personal", "Work", "Side Projects").
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaWorkflowRepository implements WorkflowRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async save(workflow: Workflow): Promise<void> {
+ *     await this.prisma.workflow.create({
+ *       data: {
+ *         id: workflow.id,
+ *         name: workflow.name,
+ *         slug: workflow.slug,
+ *         workspaceId: workflow.workspaceId,
+ *         createdAt: workflow.createdAt,
+ *         updatedAt: workflow.updatedAt
+ *       }
+ *     });
+ *   }
+ *
+ *   async findByWorkspaceId(workspaceId: string): Promise<Workflow[]> {
+ *     const workflows = await this.prisma.workflow.findMany({
+ *       where: { workspaceId },
+ *       orderBy: { createdAt: 'asc' }
+ *     });
+ *     return workflows.map(w => new Workflow(w));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/workflow.entity.ts | Workflow entity}
+ */
 interface WorkflowRepository {
+    /**
+     * Saves a new workflow to the repository.
+     *
+     * Used when creating a new workflow through the UI or API.
+     * The workflow should have all required fields populated before calling this method.
+     *
+     * @param workflow - The workflow entity to save (must be valid)
+     * @returns Promise resolving when the save is complete
+     * @throws {Error} If workflow validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const workflow = new Workflow({
+     *   name: 'Work Projects',
+     *   slug: 'work-projects',
+     *   workspaceId: 'workspace-123'
+     * });
+     *
+     * await repository.save(workflow);
+     * console.log('Workflow created successfully');
+     * ```
+     */
     save(workflow: Workflow): Promise<void>;
+    /**
+     * Finds a workflow by its unique ID.
+     *
+     * Used for fetching workflow details when the ID is known, such as from a URL parameter
+     * or after creating/updating a workflow.
+     *
+     * @param id - The unique identifier of the workflow
+     * @returns Promise resolving to the workflow if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const workflow = await repository.findById('workflow-abc-123');
+     * if (workflow) {
+     *   console.log(`Found workflow: ${workflow.name}`);
+     * } else {
+     *   console.log('Workflow not found');
+     * }
+     * ```
+     */
     findById(id: string): Promise<Workflow | null>;
+    /**
+     * Finds all workflows that belong to a specific workspace.
+     *
+     * Used for displaying the workflow list in a workspace, such as in the sidebar
+     * or workflow selector. Returns workflows in creation order.
+     *
+     * @param workspaceId - The workspace ID to filter workflows by
+     * @returns Promise resolving to an array of workflows in the workspace (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const workflows = await repository.findByWorkspaceId('workspace-123');
+     * console.log(`Found ${workflows.length} workflows in workspace`);
+     *
+     * // Render workflow navigation
+     * workflows.forEach(workflow => {
+     *   console.log(`📁 ${workflow.name}`);
+     *   // Each workflow contains multiple projects
+     * });
+     * ```
+     */
     findByWorkspaceId(workspaceId: string): Promise<Workflow[]>;
+    /**
+     * Updates an existing workflow in the repository.
+     *
+     * Used when modifying workflow details such as name or slug.
+     * The workflow entity should already exist and be valid before calling this method.
+     *
+     * @param workflow - The workflow entity with updated fields
+     * @returns Promise resolving when the update is complete
+     * @throws {NotFoundException} If the workflow doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('workflow-123');
+     * if (existing) {
+     *   const updated = existing.clone({
+     *     name: 'Client Projects (Updated)',
+     *     slug: 'client-projects-updated'
+     *   });
+     *   await repository.update(updated);
+     *   console.log('Workflow updated successfully');
+     * }
+     * ```
+     */
     update(workflow: Workflow): Promise<void>;
+    /**
+     * Deletes a workflow from the repository.
+     *
+     * WARNING: This will also delete all projects within the workflow.
+     * Consider moving projects to another workflow or soft-deletion if you want to keep them.
+     *
+     * @param id - The unique identifier of the workflow to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the workflow doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('workflow-123');
+     * console.log('Workflow deleted (and all its projects)');
+     * ```
+     */
     delete(id: string): Promise<void>;
 }
 
@@ -2590,14 +4157,220 @@ declare class DeleteWorkflowUseCase implements UseCase<string, void> {
     execute(id: string): Promise<void>;
 }
 
+/**
+ * Repository interface for Tag entity persistence operations.
+ *
+ * This interface defines the contract for Tag data access, providing CRUD operations
+ * plus specialized methods for managing tag-task relationships. Tags are used for
+ * categorizing and organizing tasks within workspaces.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaTagRepository implements TagRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(tag: Tag): Promise<Tag> {
+ *     const data = await this.prisma.tag.create({
+ *       data: {
+ *         id: tag.id,
+ *         name: tag.name,
+ *         color: tag.color,
+ *         icon: tag.icon,
+ *         workspaceId: tag.workspaceId,
+ *         createdAt: tag.createdAt,
+ *         updatedAt: tag.updatedAt,
+ *       }
+ *     });
+ *     return new Tag(data);
+ *   }
+ *
+ *   async findByWorkspaceId(workspaceId: string): Promise<Tag[]> {
+ *     const tags = await this.prisma.tag.findMany({
+ *       where: { workspaceId },
+ *       orderBy: { name: 'asc' }
+ *     });
+ *     return tags.map(tag => new Tag(tag));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/tag.entity.ts | Tag entity}
+ */
 interface TagRepository {
+    /**
+     * Creates a new tag in the repository.
+     *
+     * Used when creating a new tag through the UI or API.
+     * The tag should have all required fields populated before calling this method.
+     *
+     * @param tag - The tag entity to create (must be valid)
+     * @returns Promise resolving to the created tag with any database-generated fields populated
+     * @throws {Error} If tag validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const tag = new Tag({
+     *   name: 'urgent',
+     *   color: '#ef4444',
+     *   icon: 'alert-circle',
+     *   workspaceId: 'workspace-123'
+     * });
+     *
+     * const created = await repository.create(tag);
+     * console.log(`Tag created with ID: ${created.id}`);
+     * ```
+     */
     create(tag: Tag): Promise<Tag>;
+    /**
+     * Updates an existing tag in the repository.
+     *
+     * Used when modifying tag details such as name, color, or icon.
+     * The tag entity should already exist and be valid before calling this method.
+     *
+     * @param tag - The tag entity with updated fields
+     * @returns Promise resolving to the updated tag
+     * @throws {NotFoundException} If the tag doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('tag-123');
+     * if (existing) {
+     *   const updated = existing.clone({
+     *     name: 'critical',
+     *     color: '#dc2626'
+     *   });
+     *   await repository.update(updated);
+     * }
+     * ```
+     */
     update(tag: Tag): Promise<Tag>;
+    /**
+     * Finds a tag by its unique ID.
+     *
+     * Used for fetching tag details when the ID is known, such as from a URL parameter
+     * or after creating/updating a tag.
+     *
+     * @param id - The unique identifier of the tag
+     * @returns Promise resolving to the tag if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const tag = await repository.findById('tag-123');
+     * if (tag) {
+     *   console.log(`Found tag: ${tag.name}`);
+     * } else {
+     *   console.log('Tag not found');
+     * }
+     * ```
+     */
     findById(id: string): Promise<Tag | null>;
+    /**
+     * Finds all tags that belong to a specific workspace.
+     *
+     * Used for displaying the tag list in a workspace, such as in tag selectors or filters.
+     * Returns tags ordered alphabetically by name for easy browsing.
+     *
+     * @param workspaceId - The workspace ID to filter tags by
+     * @returns Promise resolving to an array of tags in the workspace (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const tags = await repository.findByWorkspaceId('workspace-123');
+     * console.log(`Found ${tags.length} tags in workspace`);
+     *
+     * // Render tag selector
+     * tags.forEach(tag => {
+     *   console.log(`${tag.icon} ${tag.name}`);
+     * });
+     * ```
+     */
     findByWorkspaceId(workspaceId: string): Promise<Tag[]>;
+    /**
+     * Deletes a tag from the repository.
+     *
+     * WARNING: This will also remove the tag from all tasks that have it assigned.
+     * The tag itself is permanently deleted and cannot be recovered.
+     *
+     * @param id - The unique identifier of the tag to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the tag doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('tag-123');
+     * console.log('Tag deleted (also removed from all tasks)');
+     * ```
+     */
     delete(id: string): Promise<void>;
+    /**
+     * Assigns a tag to a task.
+     *
+     * Used when a user adds a tag to a task through the UI. This creates a many-to-many
+     * relationship between the tag and the task. A task can have multiple tags, and a tag
+     * can be assigned to multiple tasks.
+     *
+     * @param tagId - The unique identifier of the tag to assign
+     * @param taskId - The unique identifier of the task to assign the tag to
+     * @returns Promise resolving when the assignment is complete
+     * @throws {NotFoundException} If the tag or task doesn't exist
+     * @throws {Error} If the relationship already exists
+     *
+     * @example
+     * ```typescript
+     * // User clicks "Add Tag" on a task
+     * await repository.assignToTask('tag-urgent', 'task-456');
+     * console.log('Tag assigned to task');
+     *
+     * // Verify assignment
+     * const taskTags = await repository.findByTaskId('task-456');
+     * console.log(`Task now has ${taskTags.length} tags`);
+     * ```
+     */
     assignToTask(tagId: string, taskId: string): Promise<void>;
+    /**
+     * Removes a tag from a task.
+     *
+     * Used when a user removes a tag from a task through the UI. This deletes the
+     * many-to-many relationship between the tag and the task, but does not delete
+     * the tag itself.
+     *
+     * @param tagId - The unique identifier of the tag to remove
+     * @param taskId - The unique identifier of the task to remove the tag from
+     * @returns Promise resolving when the removal is complete
+     * @throws {NotFoundException} If the relationship doesn't exist
+     *
+     * @example
+     * ```typescript
+     * // User clicks "Remove Tag" on a task
+     * await repository.removeFromTask('tag-urgent', 'task-456');
+     * console.log('Tag removed from task');
+     * ```
+     */
     removeFromTask(tagId: string, taskId: string): Promise<void>;
+    /**
+     * Finds all tags assigned to a specific task.
+     *
+     * Used for displaying the tags on a task card or in the task detail view.
+     * Returns only the tags that are actually assigned to the task, not all available tags.
+     *
+     * @param taskId - The unique identifier of the task to find tags for
+     * @returns Promise resolving to an array of tags assigned to the task (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const tags = await repository.findByTaskId('task-456');
+     * console.log(`Task has ${tags.length} tags assigned`);
+     *
+     * // Display tags on task card
+     * tags.forEach(tag => {
+     *   console.log(`<Badge color={tag.color}>{tag.name}</Badge>`);
+     * });
+     * ```
+     */
     findByTaskId(taskId: string): Promise<Tag[]>;
 }
 
@@ -2657,76 +4430,519 @@ declare class TimeSession extends Entity<TimeSessionProps> {
     split(endedAt?: Date, wasCompleted?: boolean, splitReason?: string): TimeSession;
 }
 
+/**
+ * Filter criteria for querying time sessions.
+ *
+ * Used to find sessions matching specific conditions, such as those for a particular task,
+ * of a certain type (work, break), or within a date range.
+ *
+ * @example
+ * ```typescript
+ * // Find all completed work sessions for a task in January
+ * const filters: SessionFilters = {
+ *   taskId: 'task-123',
+ *   type: 'WORK',
+ *   startDate: new Date('2025-01-01'),
+ *   endDate: new Date('2025-01-31'),
+ *   completedOnly: true
+ * };
+ *
+ * const sessions = await repository.findWithFilters('user-456', filters, { page: 1, limit: 20 });
+ * ```
+ */
 interface SessionFilters {
+    /** Filter sessions associated with a specific task */
     taskId?: string;
+    /** Filter sessions by type (WORK, SHORT_BREAK, LONG_BREAK, CONTINUOUS) */
     type?: SessionType;
+    /** Filter sessions starting on or after this date */
     startDate?: Date;
+    /** Filter sessions starting on or before this date */
     endDate?: Date;
+    /** If true, only return completed sessions (with a finished timestamp) */
     completedOnly?: boolean;
 }
+/**
+ * Pagination parameters for querying sessions.
+ *
+ * Used to control pagination of session queries, allowing efficient retrieval
+ * of large datasets in chunks.
+ *
+ * @example
+ * ```typescript
+ * const pagination: PaginationParams = {
+ *   page: 1,
+ *   limit: 20
+ * };
+ *
+ * const result = await repository.findWithFilters('user-123', {}, pagination);
+ * console.log(`Showing ${result.sessions.length} of ${result.total} sessions`);
+ * ```
+ */
 interface PaginationParams {
+    /** Page number (1-indexed) */
     page: number;
+    /** Number of items per page */
     limit: number;
 }
+/**
+ * Paginated result of time sessions query.
+ *
+ * Contains the session data for the current page along with pagination metadata.
+ *
+ * @example
+ * ```typescript
+ * const result: PaginatedSessions = {
+ *   sessions: [session1, session2, session3],
+ *   total: 45,
+ *   page: 1,
+ *   limit: 20,
+ *   totalPages: 3
+ * };
+ *
+ * console.log(`Page ${result.page} of ${result.totalPages}`);
+ * result.sessions.forEach(session => {
+ *   console.log(`${session.type}: ${session.duration} minutes`);
+ * });
+ * ```
+ */
 interface PaginatedSessions {
+    /** Array of sessions for the current page */
     sessions: TimeSession[];
+    /** Total number of sessions matching the filter */
     total: number;
+    /** Current page number */
     page: number;
+    /** Number of items per page */
     limit: number;
+    /** Total number of pages */
     totalPages: number;
 }
+/**
+ * Statistics summary for time sessions.
+ *
+ * Provides aggregated metrics about a user's time tracking, including total work time,
+ * break time, pomodoros completed, pauses taken, and breakdowns by session type.
+ * Useful for analytics dashboards and productivity reports.
+ *
+ * @example
+ * ```typescript
+ * const stats: SessionStats = {
+ *   totalSessions: 150,
+ *   totalWorkSessions: 100,
+ *   totalBreakSessions: 50,
+ *   totalMinutesWorked: 2500,
+ *   totalBreakMinutes: 200,
+ *   pomodorosCompleted: 85,
+ *   totalPauses: 25,
+ *   totalPauseSeconds: 750,
+ *   completedSessions: 140,
+ *   byType: {
+ *     WORK: { count: 100, totalMinutes: 2500 },
+ *     SHORT_BREAK: { count: 35, totalMinutes: 105 },
+ *     LONG_BREAK: { count: 15, totalMinutes: 95 },
+ *     CONTINUOUS: { count: 0, totalMinutes: 0 }
+ *   }
+ * };
+ *
+ * console.log(`Productivity: ${stats.pomodorosCompleted} pomodoros`);
+ * console.log(`Focus score: ${(stats.totalMinutesWorked / (stats.totalMinutesWorked + stats.totalBreakMinutes) * 100).toFixed(1)}%`);
+ * ```
+ */
 interface SessionStats {
+    /** Total number of sessions (work + break) */
     totalSessions: number;
+    /** Total number of work sessions */
     totalWorkSessions: number;
+    /** Total number of break sessions (short + long) */
     totalBreakSessions: number;
+    /** Total minutes spent in work sessions */
     totalMinutesWorked: number;
+    /** Total minutes spent in breaks */
     totalBreakMinutes: number;
+    /** Number of completed pomodoro cycles (work + break) */
     pomodorosCompleted: number;
+    /** Total number of times user paused a session */
     totalPauses: number;
+    /** Total seconds spent in paused state */
     totalPauseSeconds: number;
+    /** Number of sessions that were completed (not abandoned) */
     completedSessions: number;
+    /** Breakdown of sessions by type */
     byType: {
+        /** Work session statistics */
         WORK: {
             count: number;
             totalMinutes: number;
         };
+        /** Short break session statistics */
         SHORT_BREAK: {
             count: number;
             totalMinutes: number;
         };
+        /** Long break session statistics */
         LONG_BREAK: {
             count: number;
             totalMinutes: number;
         };
+        /** Continuous timer session statistics */
         CONTINUOUS: {
             count: number;
             totalMinutes: number;
         };
     };
 }
+/**
+ * Repository interface for TimeSession entity persistence operations.
+ *
+ * This interface defines the contract for time tracking data access, providing CRUD operations
+ * plus specialized methods for finding active sessions, querying by date ranges, calculating
+ * statistics, and retrieving sessions with related task and project data.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaTimerRepository implements TimerRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(session: TimeSession): Promise<TimeSession> {
+ *     const data = await this.prisma.timeSession.create({
+ *       data: {
+ *         id: session.id,
+ *         type: session.type,
+ *         startedAt: session.startedAt,
+ *         userId: session.userId,
+ *         taskId: session.taskId,
+ *         // ... other fields
+ *       }
+ *     });
+ *     return new TimeSession(data);
+ *   }
+ *
+ *   async findActiveSession(userId: string): Promise<TimeSession | null> {
+ *     const data = await this.prisma.timeSession.findFirst({
+ *       where: { userId, finishedAt: null }
+ *     });
+ *     return data ? new TimeSession(data) : null;
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/time-session.entity.ts | TimeSession entity}
+ */
 interface TimerRepository {
+    /**
+     * Creates a new time tracking session in the repository.
+     *
+     * Used when starting a new work session or break session through the timer UI.
+     * The session should have all required fields populated before calling this method.
+     *
+     * @param session - The time session entity to create (must be valid)
+     * @returns Promise resolving to the created session with any database-generated fields populated
+     * @throws {Error} If session validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const session = new TimeSession({
+     *   type: 'WORK',
+     *   userId: 'user-123',
+     *   taskId: 'task-456',
+     *   startedAt: new Date(),
+     *   duration: 25 * 60 // 25 minutes in seconds
+     * });
+     *
+     * const created = await repository.create(session);
+     * console.log(`Session started with ID: ${created.id}`);
+     * ```
+     */
     create(session: TimeSession): Promise<TimeSession>;
+    /**
+     * Updates an existing time session in the repository.
+     *
+     * Used when finishing a session, pausing/resuming, or updating session metadata.
+     * The session entity should already exist and be valid before calling this method.
+     *
+     * @param session - The time session entity with updated fields
+     * @returns Promise resolving to the updated session
+     * @throws {NotFoundException} If the session doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('session-123');
+     * if (existing) {
+     *   const completed = existing.clone({
+     *     finishedAt: new Date(),
+     *     actualDuration: 1500 // 25 minutes in seconds
+     *   });
+     *   await repository.update(completed);
+     * }
+     * ```
+     */
     update(session: TimeSession): Promise<TimeSession>;
+    /**
+     * Finds a time session by its unique ID.
+     *
+     * Used for fetching session details when the ID is known, such as from a URL parameter
+     * or after creating/updating a session.
+     *
+     * @param id - The unique identifier of the time session
+     * @returns Promise resolving to the session if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const session = await repository.findById('session-123');
+     * if (session) {
+     *   console.log(`Found ${session.type} session: ${session.duration} minutes`);
+     * } else {
+     *   console.log('Session not found');
+     * }
+     * ```
+     */
     findById(id: string): Promise<TimeSession | null>;
+    /**
+     * Finds the currently active session for a user (unfinished session).
+     *
+     * Used to determine if a user has a timer running. Returns the most recent session
+     * that doesn't have a finishedAt timestamp. Should be called when opening the timer
+     * UI to check if there's an active session to resume or display.
+     *
+     * @param userId - The user ID to find the active session for
+     * @returns Promise resolving to the active session if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const activeSession = await repository.findActiveSession('user-123');
+     * if (activeSession) {
+     *   console.log(`Active ${activeSession.type} session found`);
+     *   // Resume session in timer UI
+     *   timerUI.resumeSession(activeSession);
+     * } else {
+     *   console.log('No active session');
+     *   // Show "Start Timer" button
+     * }
+     * ```
+     */
     findActiveSession(userId: string): Promise<TimeSession | null>;
+    /**
+     * Finds all time sessions associated with a specific task.
+     *
+     * Used for displaying the time history for a task, showing all work sessions
+     * and breaks that were tracked for that task.
+     *
+     * @param taskId - The task ID to find sessions for
+     * @returns Promise resolving to an array of sessions for the task (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const sessions = await repository.findByTaskId('task-456');
+     * console.log(`Task has ${sessions.length} time sessions`);
+     *
+     * // Calculate total time spent on task
+     * const totalSeconds = sessions
+     *   .filter(s => s.finishedAt)
+     *   .reduce((sum, s) => sum + (s.actualDuration || 0), 0);
+     * console.log(`Total time: ${Math.floor(totalSeconds / 60)} minutes`);
+     * ```
+     */
     findByTaskId(taskId: string): Promise<TimeSession[]>;
+    /**
+     * Finds all time sessions for a user.
+     *
+     * Used for displaying the user's complete time tracking history, typically in a
+     * time log or activity view. Returns all sessions ordered by start date descending.
+     *
+     * @param userId - The user ID to find sessions for
+     * @returns Promise resolving to an array of all sessions for the user (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const sessions = await repository.findByUserId('user-123');
+     * console.log(`User has ${sessions.length} total sessions`);
+     *
+     * // Group by date
+     * const byDate = sessions.reduce((acc, session) => {
+     *   const date = session.startedAt.toISOString().split('T')[0];
+     *   (acc[date] ||= []).push(session);
+     *   return acc;
+     * }, {} as Record<string, TimeSession[]>);
+     * ```
+     */
     findByUserId(userId: string): Promise<TimeSession[]>;
+    /**
+     * Finds time sessions for a user within a specific date range.
+     *
+     * Used for analytics, reports, and time tracking views that focus on a specific
+     * period (e.g., "This Week", "Last Month", "Custom Range").
+     *
+     * @param userId - The user ID to find sessions for
+     * @param startDate - Start of the date range (inclusive)
+     * @param endDate - End of the date range (inclusive)
+     * @returns Promise resolving to an array of sessions within the date range (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // Get sessions for the current week
+     * const now = new Date();
+     * const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+     * const endOfWeek = new Date(now.setDate(now.getDate() + 6));
+     *
+     * const sessions = await repository.findByUserIdAndDateRange(
+     *   'user-123',
+     *   startOfWeek,
+     *   endOfWeek
+     * );
+     *
+     * console.log(`Found ${sessions.length} sessions this week`);
+     * ```
+     */
     findByUserIdAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<TimeSession[]>;
+    /**
+     * Finds time sessions with advanced filtering and pagination.
+     *
+     * Used for time session history views with filters, allowing users to search and
+     * browse their time tracking data efficiently. Supports filtering by task, type,
+     * date range, and completion status.
+     *
+     * @param userId - The user ID to find sessions for
+     * @param filters - Filter criteria to apply (task, type, date range, completion status)
+     * @param pagination - Pagination parameters (page, limit)
+     * @returns Promise resolving to paginated sessions with metadata
+     *
+     * @example
+     * ```typescript
+     * // Find all completed work sessions from January, paginated
+     * const result = await repository.findWithFilters(
+     *   'user-123',
+     *   {
+     *     type: 'WORK',
+     *     startDate: new Date('2025-01-01'),
+     *     endDate: new Date('2025-01-31'),
+     *     completedOnly: true
+     *   },
+     *   { page: 1, limit: 20 }
+     * );
+     *
+     * console.log(`Page ${result.page} of ${result.totalPages}`);
+     * console.log(`Showing ${result.sessions.length} of ${result.total} sessions`);
+     * ```
+     */
     findWithFilters(userId: string, filters: SessionFilters, pagination: PaginationParams): Promise<PaginatedSessions>;
+    /**
+     * Calculates comprehensive time tracking statistics for a user.
+     *
+     * Used for analytics dashboards, productivity reports, and insights. Provides
+     * aggregated metrics about work time, break time, pomodoros completed, pauses,
+     * and breakdowns by session type. Can be scoped to a specific date range.
+     *
+     * @param userId - The user ID to calculate statistics for
+     * @param startDate - Optional start date for the statistics period (defaults to all time)
+     * @param endDate - Optional end date for the statistics period (defaults to all time)
+     * @returns Promise resolving to session statistics with detailed metrics
+     *
+     * @example
+     * ```typescript
+     * // Get statistics for the current month
+     * const now = new Date();
+     * const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+     * const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+     *
+     * const stats = await repository.getStats('user-123', startOfMonth, endOfMonth);
+     *
+     * console.log(`Total work time: ${stats.totalMinutesWorked} minutes`);
+     * console.log(`Pomodoros completed: ${stats.pomodorosCompleted}`);
+     * console.log(`Sessions paused: ${stats.totalPauses} times`);
+     * console.log(`Work sessions: ${stats.byType.WORK.count}`);
+     * console.log(`Short breaks: ${stats.byType.SHORT_BREAK.count}`);
+     * ```
+     */
     getStats(userId: string, startDate?: Date, endDate?: Date): Promise<SessionStats>;
+    /**
+     * Calculates time tracking statistics for a specific task.
+     *
+     * Used for displaying task-level time metrics, such as in task cards or the
+     * task detail view. Shows how many sessions were tracked for the task, total
+     * time spent, completion rate, and last activity.
+     *
+     * @param userId - The user ID (for authorization and scoping)
+     * @param taskId - The task ID to calculate statistics for
+     * @returns Promise resolving to task time statistics
+     *
+     * @example
+     * ```typescript
+     * const stats = await repository.getTaskTimeStats('user-123', 'task-456');
+     *
+     * console.log(`Sessions: ${stats.totalSessions}`);
+     * console.log(`Time spent: ${stats.totalMinutes} minutes`);
+     * console.log(`Completed: ${stats.completedSessions}/${stats.totalSessions}`);
+     *
+     * if (stats.lastSessionAt) {
+     *   console.log(`Last activity: ${stats.lastSessionAt.toLocaleString()}`);
+     * }
+     * ```
+     */
     getTaskTimeStats(userId: string, taskId: string): Promise<{
+        /** Total number of sessions tracked for this task */
         totalSessions: number;
+        /** Total minutes spent on this task (sum of all completed sessions) */
         totalMinutes: number;
+        /** Number of sessions that were completed (not abandoned) */
         completedSessions: number;
+        /** Timestamp of the last session for this task */
         lastSessionAt?: Date;
     }>;
+    /**
+     * Finds time sessions with associated task and project data.
+     *
+     * Used for analytics views that need to display session context, such as
+     * "Which projects did I work on this week?" or "How did I spend my time today?".
+     * Returns sessions with nested task and project information for rich display.
+     *
+     * @param userId - The user ID to find sessions for
+     * @param startDate - Start of the date range (inclusive)
+     * @param endDate - End of the date range (inclusive)
+     * @returns Promise resolving to sessions with task and project data
+     *
+     * @example
+     * ```typescript
+     * // Get this week's sessions with project context
+     * const sessions = await repository.findByUserIdWithTaskAndProject(
+     *   'user-123',
+     *   startOfWeek,
+     *   endOfWeek
+     * );
+     *
+     * // Group by project
+     * const byProject = sessions.reduce((acc, session) => {
+     *   const projectName = session.task?.project?.name || 'No Project';
+     *   (acc[projectName] ||= []).push(session);
+     *   return acc;
+     * }, {} as Record<string, typeof sessions>);
+     *
+     * Object.entries(byProject).forEach(([project, projectSessions]) => {
+     *   const totalMinutes = projectSessions.reduce((sum, s) =>
+     *     sum + (s.duration || 0), 0
+     *   );
+     *   console.log(`${project}: ${Math.floor(totalMinutes / 60)} hours`);
+     * });
+     * ```
+     */
     findByUserIdWithTaskAndProject(userId: string, startDate: Date, endDate: Date): Promise<Array<{
+        /** Unique identifier of the session */
         id: string;
+        /** When the session started */
         startedAt: Date;
+        /** Planned duration in seconds (null for continuous timer) */
         duration: number | null;
+        /** Associated task with project information */
         task: {
+            /** Task ID */
             id: string;
+            /** Project information (null if task has no project) */
             project: {
+                /** Project name */
                 name: string;
             } | null;
         } | null;
@@ -2797,10 +5013,188 @@ declare class DailyMetrics extends Entity<DailyMetricsProps> {
     addBreakMinutes(minutes: number): DailyMetrics;
 }
 
+/**
+ * Repository interface for DailyMetrics entity persistence operations.
+ *
+ * This interface defines the contract for analytics data access, providing methods
+ * for saving daily productivity metrics and retrieving them by date ranges. Metrics
+ * include tasks completed, time worked, pomodoros completed, and focus scores.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaAnalyticsRepository implements AnalyticsRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async save(metrics: DailyMetrics): Promise<void> {
+ *     await this.prisma.dailyMetrics.upsert({
+ *       where: {
+ *         userId_date: {
+ *           userId: metrics.userId,
+ *           date: metrics.date
+ *         }
+ *       },
+ *       update: {
+ *         tasksCompleted: metrics.tasksCompleted,
+ *         minutesWorked: metrics.minutesWorked,
+ *         pomodorosCompleted: metrics.pomodorosCompleted,
+ *         focusScore: metrics.focusScore
+ *       },
+ *       create: {
+ *         id: metrics.id,
+ *         userId: metrics.userId,
+ *         date: metrics.date,
+ *         tasksCompleted: metrics.tasksCompleted,
+ *         minutesWorked: metrics.minutesWorked,
+ *         pomodorosCompleted: metrics.pomodorosCompleted,
+ *         focusScore: metrics.focusScore,
+ *         createdAt: metrics.createdAt
+ *       }
+ *     });
+ *   }
+ *
+ *   async findByDate(userId: string, date: Date): Promise<DailyMetrics | null> {
+ *     const data = await this.prisma.dailyMetrics.findUnique({
+ *       where: {
+ *         userId_date: {
+ *           userId,
+ *           date: this.normalizeDate(date)
+ *         }
+ *       }
+ *     });
+ *     return data ? new DailyMetrics(data) : null;
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/daily-metrics.entity.ts | DailyMetrics entity}
+ */
 interface AnalyticsRepository {
+    /**
+     * Saves or updates daily metrics for a user.
+     *
+     * Used to persist daily productivity metrics after a time session is completed
+     * or when recalculating metrics for a specific date. If metrics already exist
+     * for the user+date combination, they are updated (upsert operation).
+     *
+     * @param metrics - The daily metrics entity to save (must be valid)
+     * @returns Promise resolving when the save is complete
+     * @throws {Error} If metrics validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * // After completing a pomodoro session
+     * const metrics = new DailyMetrics({
+     *   userId: 'user-123',
+     *   date: new Date(),
+     *   tasksCompleted: 5,
+     *   minutesWorked: 125,
+     *   pomodorosCompleted: 4,
+     *   focusScore: 0.85
+     * });
+     *
+     * await repository.save(metrics);
+     * console.log('Daily metrics saved');
+     * ```
+     */
     save(metrics: DailyMetrics): Promise<void>;
+    /**
+     * Finds daily metrics for a specific user and date.
+     *
+     * Used for retrieving metrics for a single day, such as displaying today's
+     * productivity summary in the dashboard. Returns null if no metrics exist
+     * for that date (e.g., user hasn't tracked any time yet).
+     *
+     * @param userId - The user ID to find metrics for
+     * @param date - The date to find metrics for (time component is ignored)
+     * @returns Promise resolving to the daily metrics if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const metrics = await repository.findByDate('user-123', new Date());
+     * if (metrics) {
+     *   console.log(`Today's productivity:`);
+     *   console.log(`Tasks completed: ${metrics.tasksCompleted}`);
+     *   console.log(`Time worked: ${metrics.minutesWorked} minutes`);
+     *   console.log(`Pomodoros: ${metrics.pomodorosCompleted}`);
+     *   console.log(`Focus score: ${(metrics.focusScore * 100).toFixed(0)}%`);
+     * } else {
+     *   console.log('No activity recorded today');
+     * }
+     * ```
+     */
     findByDate(userId: string, date: Date): Promise<DailyMetrics | null>;
+    /**
+     * Retrieves daily metrics for a user within a date range.
+     *
+     * Used for displaying analytics charts and reports over a period, such as
+     * "Last 7 Days", "This Month", or custom date ranges. Returns metrics
+     * ordered by date ascending (oldest first).
+     *
+     * @param userId - The user ID to find metrics for
+     * @param startDate - Start of the date range (inclusive)
+     * @param endDate - End of the date range (inclusive)
+     * @returns Promise resolving to an array of daily metrics (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // Get metrics for the current week
+     * const now = new Date();
+     * const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+     * const endOfWeek = new Date(now.setDate(now.getDate() + 6));
+     *
+     * const metrics = await repository.getRange('user-123', startOfWeek, endOfWeek);
+     * console.log(`Found ${metrics.length} days with metrics`);
+     *
+     * // Calculate weekly averages
+     * const avgTasks = metrics.reduce((sum, m) => sum + m.tasksCompleted, 0) / metrics.length;
+     * const avgFocus = metrics.reduce((sum, m) => sum + m.focusScore, 0) / metrics.length;
+     * console.log(`Average tasks/day: ${avgTasks.toFixed(1)}`);
+     * console.log(`Average focus: ${(avgFocus * 100).toFixed(0)}%`);
+     *
+     * // Render weekly chart
+     * metrics.forEach(m => {
+     *   console.log(`${m.date.toISOString().split('T')[0]}: ${m.tasksCompleted} tasks, ${(m.focusScore * 100).toFixed(0)}% focus`);
+     * });
+     * ```
+     */
     getRange(userId: string, startDate: Date, endDate: Date): Promise<DailyMetrics[]>;
+    /**
+     * Retrieves the most recent daily metrics for a user.
+     *
+     * Used for dashboard widgets showing "Recent Activity" or "Last 7 Days".
+     * Returns metrics ordered by date descending (newest first), limited to
+     * the specified number of records.
+     *
+     * @param userId - The user ID to find metrics for
+     * @param limit - Maximum number of recent records to return (e.g., 7 for last week)
+     * @returns Promise resolving to an array of recent daily metrics (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // Get last 7 days of metrics for dashboard
+     * const recentMetrics = await repository.getRangeDescending('user-123', 7);
+     * console.log(`Showing ${recentMetrics.length} recent days`);
+     *
+     * // Render activity heatmap or mini chart
+     * recentMetrics.forEach(metrics => {
+     *   const dayName = metrics.date.toLocaleDateString('en-US', { weekday: 'short' });
+     *   const focusPercent = Math.round(metrics.focusScore * 100);
+     *   console.log(`${dayName}: ${metrics.tasksCompleted} tasks (${focusPercent}% focus)`);
+     * });
+     *
+     * // Calculate streak (consecutive days with activity)
+     * let streak = 0;
+     * for (const m of recentMetrics) {
+     *   if (m.minutesWorked > 0) streak++;
+     *     else break;
+     *   }
+     *   console.log(`Current streak: ${streak} days`);
+     * }
+     * ```
+     */
     getRangeDescending(userId: string, limit: number): Promise<DailyMetrics[]>;
 }
 
@@ -2950,65 +5344,415 @@ declare class ProductivityReport extends Entity<ProductivityReportProps> {
     getTopRecommendations(limit?: number): string[];
 }
 
+/**
+ * Repository interface for AIProfile entity persistence operations.
+ *
+ * This interface defines the contract for AI user profile data access, providing methods
+ * for managing individual productivity patterns, preferences, and behaviors. AI profiles
+ * are used to personalize AI-generated recommendations, task suggestions, and productivity insights.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaAIProfileRepository implements AIProfileRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async findByUserId(userId: string): Promise<AIProfile | null> {
+ *     const data = await this.prisma.aIProfile.findUnique({
+ *       where: { userId }
+ *     });
+ *     return data ? new AIProfile(data) : null;
+ *   }
+ *
+ *   async findOrCreate(userId: string): Promise<AIProfile> {
+ *     let profile = await this.findByUserId(userId);
+ *     if (!profile) {
+ *       profile = new AIProfile({
+ *         userId,
+ *         workHours: { start: '09:00', end: '17:00' },
+ *         preferredBreakDuration: 5,
+ *         timezone: 'UTC'
+ *       });
+ *       profile = await this.save(profile);
+ *     }
+ *     return profile;
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/ai-profile.entity.ts | AIProfile entity}
+ */
 interface AIProfileRepository {
     /**
-     * Find AI profile by user ID
+     * Finds AI profile by user ID.
+     *
+     * Used for retrieving a user's AI profile to personalize recommendations and insights.
+     * Returns null if the user doesn't have a profile yet (first-time user).
+     *
+     * @param userId - The user ID to find the AI profile for
+     * @returns Promise resolving to the AI profile if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const profile = await repository.findByUserId('user-123');
+     * if (profile) {
+     *   console.log(`User's productive hours: ${profile.workHours.start} - ${profile.workHours.end}`);
+     *   console.log(`Preferred break duration: ${profile.preferredBreakDuration} minutes`);
+     * } else {
+     *   console.log('No AI profile found for user');
+     * }
+     * ```
      */
     findByUserId(userId: string): Promise<AIProfile | null>;
     /**
-     * Find or create AI profile for a user
-     * If profile doesn't exist, creates a new one with default values
+     * Finds or creates AI profile for a user.
+     *
+     * Used when you need to ensure a user has an AI profile, creating one with default
+     * values if it doesn't exist. This is the preferred method for accessing AI profiles
+     * as it guarantees a profile is always returned.
+     *
+     * @param userId - The user ID to find or create the AI profile for
+     * @returns Promise resolving to the existing or newly created AI profile
+     *
+     * @example
+     * ```typescript
+     * const profile = await repository.findOrCreate('user-123');
+     *
+     * // Profile is guaranteed to exist
+     * console.log(`User's timezone: ${profile.timezone}`);
+     * console.log(`Peak productivity hours: ${profile.peakProductivityHours.join(', ')}`);
+     *
+     * // Use profile to personalize AI recommendations
+     * const suggestions = generateSuggestions(profile);
+     * ```
      */
     findOrCreate(userId: string): Promise<AIProfile>;
     /**
-     * Save (create or update) an AI profile
+     * Saves (creates or updates) an AI profile.
+     *
+     * Used for persisting AI profile data, whether it's a new profile or updates to an
+     * existing one. Handles both creation and update operations seamlessly.
+     *
+     * @param profile - The AI profile entity to save (must be valid)
+     * @returns Promise resolving to the saved profile with any database-generated fields populated
+     * @throws {Error} If profile validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const profile = new AIProfile({
+     *   userId: 'user-123',
+     *   workHours: { start: '08:00', end: '16:00' },
+     *   preferredBreakDuration: 10,
+     *   timezone: 'America/New_York',
+     *   taskPrioritization: 'deadline',
+       focusPreferences: {
+     *     deepWork: true,
+     *     notificationsMuted: true
+     *   }
+     * });
+     *
+     * const saved = await repository.save(profile);
+     * console.log(`AI profile saved with ID: ${saved.id}`);
+     * ```
      */
     save(profile: AIProfile): Promise<AIProfile>;
     /**
-     * Update an existing AI profile
+     * Updates an existing AI profile.
+     *
+     * Used when modifying specific fields of an AI profile, such as updating work hours,
+     * preferences, or productivity patterns. The profile must already exist.
+     *
+     * @param profile - The AI profile entity with updated fields
+     * @returns Promise resolving to the updated profile
+     * @throws {NotFoundException} If the profile doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findByUserId('user-123');
+     * if (existing) {
+     *   const updated = existing.clone({
+     *     workHours: { start: '07:00', end: '15:00' },
+     *     preferredBreakDuration: 15
+     *   });
+     *   await repository.update(updated);
+     *   console.log('AI profile updated');
+     * }
+     * ```
      */
     update(profile: AIProfile): Promise<AIProfile>;
     /**
-     * Delete an AI profile by ID
+     * Deletes an AI profile by ID.
+     *
+     * WARNING: This will permanently delete the user's AI profile and all personalized
+     * preferences. Consider archiving instead if you want to keep the data.
+     *
+     * @param id - The unique identifier of the AI profile to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the profile doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('profile-abc-123');
+     * console.log('AI profile permanently deleted');
+     * ```
      */
     delete(id: string): Promise<void>;
 }
 
+/**
+ * Repository interface for ProductivityReport entity persistence operations.
+ *
+ * This interface defines the contract for AI-generated productivity report data access,
+ * providing methods for saving, retrieving, and querying reports by user, task, project,
+ * or scope. Reports contain insights, recommendations, and productivity analysis.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaProductivityReportRepository implements ProductivityReportRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async save(report: ProductivityReport): Promise<ProductivityReport> {
+ *     const data = await this.prisma.productivityReport.create({
+ *       data: {
+ *         id: report.id,
+ *         userId: report.userId,
+ *         scope: report.scope,
+ *         taskId: report.taskId,
+ *         projectId: report.projectId,
+ *         insights: report.insights,
+ *         recommendations: report.recommendations,
+ *         metrics: report.metrics,
+ *         generatedAt: report.generatedAt
+ *       }
+ *     });
+ *     return new ProductivityReport(data);
+ *   }
+ *
+ *   async findLatestByScope(userId: string, scope: ReportScope): Promise<ProductivityReport | null> {
+ *     const data = await this.prisma.productivityReport.findFirst({
+ *       where: { userId, scope },
+ *       orderBy: { generatedAt: 'desc' }
+ *     });
+ *     return data ? new ProductivityReport(data) : null;
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/productivity-report.entity.ts | ProductivityReport entity}
+ */
 interface ProductivityReportRepository {
     /**
-     * Save a new productivity report
+     * Saves a new productivity report.
+     *
+     * Used when AI generates a new productivity report for a user, task, or project.
+     * Creates a new report record with insights, recommendations, and metrics.
+     *
+     * @param report - The productivity report entity to save (must be valid)
+     * @returns Promise resolving to the saved report with any database-generated fields populated
+     * @throws {Error} If report validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const report = new ProductivityReport({
+     *   userId: 'user-123',
+     *   scope: 'TASK',
+     *   taskId: 'task-456',
+     *   insights: [
+     *     'Strong focus maintained throughout the task',
+     *     'Completed 25% faster than average'
+     *   ],
+     *   recommendations: [
+     *     'Consider scheduling similar tasks in the morning',
+     *     'Take regular breaks to maintain productivity'
+     *   ],
+     *   metrics: {
+     *     focusScore: 0.92,
+     *     timeSpent: 120,
+     *     completionRate: 1.0
+     *   },
+     *   generatedAt: new Date()
+     * });
+     *
+     * const saved = await repository.save(report);
+     * console.log(`Productivity report saved with ID: ${saved.id}`);
+     * ```
      */
     save(report: ProductivityReport): Promise<ProductivityReport>;
     /**
-     * Find report by ID
+     * Finds a productivity report by its unique ID.
+     *
+     * Used for retrieving a specific report when the ID is known, such as from a URL parameter
+     * or after creating a report.
+     *
+     * @param id - The unique identifier of the productivity report
+     * @returns Promise resolving to the report if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const report = await repository.findById('report-abc-123');
+     * if (report) {
+     *   console.log(`Report for ${report.scope}: ${report.taskId || report.projectId || 'overall'}`);
+     *   console.log(`Generated at: ${report.generatedAt}`);
+     *   report.insights.forEach(insight => console.log(`- ${insight}`));
+     * } else {
+     *   console.log('Report not found');
+     * }
+     * ```
      */
     findById(id: string): Promise<ProductivityReport | null>;
     /**
-     * Find all reports for a user
+     * Finds all productivity reports for a user.
+     *
+     * Used for displaying a user's report history, such as in a reports list view.
+     * Supports optional filtering by scope and pagination.
+     *
+     * @param userId - The user ID to find reports for
+     * @param options - Optional filtering and pagination parameters
+     * @returns Promise resolving to an array of productivity reports (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // Get all task-level reports, paginated
+     * const reports = await repository.findByUserId('user-123', {
+     *   scope: 'TASK',
+     *   limit: 20,
+     *   offset: 0
+     * });
+     *
+     * console.log(`Found ${reports.length} task reports`);
+     * reports.forEach(report => {
+     *   console.log(`${report.taskId}: ${report.insights.length} insights`);
+     * });
+     * ```
      */
     findByUserId(userId: string, options?: {
+        /** Filter reports by scope (TASK, PROJECT, WORKSPACE, DAILY, WEEKLY) */
         scope?: ReportScope;
+        /** Maximum number of reports to return */
         limit?: number;
+        /** Number of reports to skip (for pagination) */
         offset?: number;
     }): Promise<ProductivityReport[]>;
     /**
-     * Find reports for a specific task
+     * Finds all productivity reports for a specific task.
+     *
+     * Used for displaying AI analysis and insights for a particular task.
+     * Returns reports ordered by generation date (newest first).
+     *
+     * @param taskId - The task ID to find reports for
+     * @returns Promise resolving to an array of task reports (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const reports = await repository.findByTaskId('task-456');
+     * console.log(`Task has ${reports.length} AI reports`);
+     *
+     * // Display latest insights
+     * if (reports.length > 0) {
+     *   const latest = reports[0];
+     *   console.log('Latest Insights:');
+     *   latest.insights.forEach(insight => console.log(`• ${insight}`));
+     *   console.log('\nRecommendations:');
+     *   latest.recommendations.forEach(rec => console.log(`• ${rec}`));
+     * }
+     * ```
      */
     findByTaskId(taskId: string): Promise<ProductivityReport[]>;
     /**
-     * Find reports for a specific project
+     * Finds all productivity reports for a specific project.
+     *
+     * Used for displaying AI analysis and insights for a particular project.
+     * Returns reports ordered by generation date (newest first).
+     *
+     * @param projectId - The project ID to find reports for
+     * @returns Promise resolving to an array of project reports (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const reports = await repository.findByProjectId('proj-789');
+     * console.log(`Project has ${reports.length} AI reports`);
+     *
+     * // Aggregate insights across all reports
+     * const allInsights = reports.flatMap(r => r.insights);
+     * console.log(`Total insights: ${allInsights.length}`);
+     * ```
      */
     findByProjectId(projectId: string): Promise<ProductivityReport[]>;
     /**
-     * Find latest report by scope
+     * Finds the latest productivity report for a specific scope.
+     *
+     * Used for displaying the most recent AI analysis for a given scope level
+     * (e.g., latest daily report, latest task report).
+     *
+     * @param userId - The user ID to find the report for
+     * @param scope - The report scope to filter by (DAILY, WEEKLY, TASK, PROJECT, etc.)
+     * @returns Promise resolving to the latest report if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * // Get the latest daily report
+     * const dailyReport = await repository.findLatestByScope('user-123', 'DAILY');
+     * if (dailyReport) {
+     *   console.log(`Latest daily report from ${dailyReport.generatedAt}`);
+     *   console.log(`Focus score: ${(dailyReport.metrics.focusScore * 100).toFixed(0)}%`);
+     *   dailyReport.recommendations.forEach(rec => console.log(`• ${rec}`));
+     * }
+     *
+     * // Get the latest task report
+     * const taskReport = await repository.findLatestByScope('user-123', 'TASK');
+     * if (taskReport) {
+     *   console.log(`Latest task analysis for ${taskReport.taskId}`);
+     * }
+     * ```
      */
     findLatestByScope(userId: string, scope: ReportScope): Promise<ProductivityReport | null>;
     /**
-     * Delete a report
+     * Deletes a productivity report.
+     *
+     * Used when removing old or unwanted reports. Typically used for cleanup
+     * or when a user deletes a task/project (cascade delete).
+     *
+     * @param id - The unique identifier of the report to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the report doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('report-abc-123');
+     * console.log('Productivity report deleted');
+     * ```
      */
     delete(id: string): Promise<void>;
     /**
-     * Count reports for a user
+     * Counts the total number of productivity reports for a user.
+     *
+     * Used for displaying report counts, pagination calculations, or analytics.
+     * Can be filtered by scope to count specific report types.
+     *
+     * @param userId - The user ID to count reports for
+     * @param scope - Optional scope filter to count only specific report types
+     * @returns Promise resolving to the total count of reports
+     *
+     * @example
+     * ```typescript
+     * // Count all reports
+     * const totalReports = await repository.countByUserId('user-123');
+     * console.log(`User has ${totalReports} total reports`);
+     *
+     * // Count only daily reports
+     * const dailyReports = await repository.countByUserId('user-123', 'DAILY');
+     * console.log(`User has ${dailyReports} daily reports`);
+     *
+     * // Calculate pages for pagination (20 per page)
+     * const totalPages = Math.ceil(totalReports / 20);
+     * console.log(`Total pages: ${totalPages}`);
+     * ```
      */
     countByUserId(userId: string, scope?: ReportScope): Promise<number>;
 }
@@ -3235,24 +5979,334 @@ declare class Habit extends Entity<HabitProps> {
     update(props: Partial<Omit<HabitProps, "id" | "userId" | "createdAt" | "currentStreak" | "longestStreak" | "totalCompletions">>): Habit;
 }
 
+/**
+ * Repository interface for Habit entity persistence operations.
+ *
+ * This interface defines the contract for Habit data access, providing CRUD operations
+ * plus specialized methods for managing habit completions, retrieving today's habits,
+ * and calculating habit statistics (streaks, completion rates, etc.).
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaHabitRepository implements IHabitRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(habit: Habit): Promise<Habit> {
+ *     const data = await this.prisma.habit.create({
+ *       data: {
+ *         id: habit.id,
+ *         name: habit.name,
+ *         frequency: habit.frequency,
+ *         targetDays: habit.targetDays,
+ *         userId: habit.userId,
+ *         createdAt: habit.createdAt,
+ *         // ... other fields
+ *       }
+ *     });
+ *     return new Habit(data);
+ *   }
+ *
+ *   async findTodayHabits(userId: string): Promise<Habit[]> {
+ *     const today = new Date().getDay();
+ *     const habits = await this.prisma.habit.findMany({
+ *       where: {
+ *         userId,
+ *         targetDays: { has: today },
+ *         status: 'ACTIVE'
+ *       }
+ *     });
+ *     return habits.map(h => new Habit(h));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/habit.entity.ts | Habit entity}
+ */
 interface IHabitRepository {
+    /**
+     * Finds a habit by its unique ID.
+     *
+     * Used for fetching habit details when the ID is known, such as from a URL parameter
+     * or after creating/updating a habit.
+     *
+     * @param id - The unique identifier of the habit
+     * @returns Promise resolving to the habit if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const habit = await repository.findById('habit-123');
+     * if (habit) {
+     *   console.log(`Found habit: ${habit.name}`);
+     * } else {
+     *   console.log('Habit not found');
+     * }
+     * ```
+     */
     findById(id: string): Promise<Habit | null>;
+    /**
+     * Finds all habits for a specific user.
+     *
+     * Used for displaying the user's complete habit list, including active and inactive habits.
+     * Returns habits ordered by creation date or custom order.
+     *
+     * @param userId - The user ID to find habits for
+     * @returns Promise resolving to an array of habits for the user (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const habits = await repository.findByUserId('user-123');
+     * console.log(`User has ${habits.length} habits`);
+     *
+     * habits.forEach(habit => {
+     *   console.log(`${habit.name}: ${habit.status}`);
+     * });
+     * ```
+     */
     findByUserId(userId: string): Promise<Habit[]>;
+    /**
+     * Finds all active habits for a specific user.
+     *
+     * Used for displaying the user's active habit list in the habits view.
+     * Filters out archived, paused, or deleted habits.
+     *
+     * @param userId - The user ID to find active habits for
+     * @returns Promise resolving to an array of active habits (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const activeHabits = await repository.findActiveByUserId('user-123');
+     * console.log(`User has ${activeHabits.length} active habits`);
+     *
+     * // Render habits checklist for today
+     * activeHabits.forEach(habit => {
+     *   console.log(`☐ ${habit.name}`);
+     * });
+     * ```
+     */
     findActiveByUserId(userId: string): Promise<Habit[]>;
+    /**
+     * Finds habits that are scheduled for today.
+     *
+     * Used for displaying the daily habit checklist. Returns habits that are active
+     * and have today's day in their targetDays array (e.g., Monday, Wednesday, Friday).
+     *
+     * @param userId - The user ID to find today's habits for
+     * @returns Promise resolving to an array of habits scheduled for today (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const todayHabits = await repository.findTodayHabits('user-123');
+     * console.log(`${todayHabits.length} habits to complete today`);
+     *
+     * // Check which habits are already completed
+     * for (const habit of todayHabits) {
+     *   const completion = await repository.getCompletionForDate(habit.id, new Date());
+     *   const status = completion ? '✓' : '☐';
+     *   console.log(`${status} ${habit.name}`);
+     * }
+     * ```
+     */
     findTodayHabits(userId: string): Promise<Habit[]>;
+    /**
+     * Creates a new habit in the repository.
+     *
+     * Used when creating a new habit through the UI or API.
+     * The habit should have all required fields populated before calling this method.
+     *
+     * @param habit - The habit entity to create (must be valid)
+     * @returns Promise resolving to the created habit with any database-generated fields populated
+     * @throws {Error} If habit validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const habit = new Habit({
+     *   name: 'Morning Exercise',
+     *   description: '30 minutes of cardio',
+     *   frequency: 'WEEKLY',
+     *   targetDays: [1, 3, 5], // Monday, Wednesday, Friday
+     *   userId: 'user-123'
+     * });
+     *
+     * const created = await repository.create(habit);
+     * console.log(`Habit created with ID: ${created.id}`);
+     * ```
+     */
     create(habit: Habit): Promise<Habit>;
+    /**
+     * Updates an existing habit in the repository.
+     *
+     * Used when modifying habit details such as name, description, frequency, or status.
+     * The habit entity should already exist and be valid before calling this method.
+     *
+     * @param id - The unique identifier of the habit to update
+     * @param data - Partial data with fields to update
+     * @returns Promise resolving to the updated habit
+     * @throws {NotFoundException} If the habit doesn't exist
+     * @throws {Error} If validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const updated = await repository.update('habit-123', {
+     *   name: 'Morning Exercise (Extended)',
+     *   targetDays: [1, 2, 3, 4, 5] // Weekdays
+     * });
+     * console.log(`Habit updated: ${updated.name}`);
+     * ```
+     */
     update(id: string, data: Partial<HabitProps>): Promise<Habit>;
+    /**
+     * Deletes a habit from the repository.
+     *
+     * WARNING: This will permanently delete the habit and all its completion records.
+     * Consider soft-deletion or archiving instead if you want to keep the history.
+     *
+     * @param id - The unique identifier of the habit to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {NotFoundException} If the habit doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('habit-123');
+     * console.log('Habit permanently deleted');
+     * ```
+     */
     delete(id: string): Promise<void>;
+    /**
+     * Records a habit completion for a specific date.
+     *
+     * Used when a user marks a habit as completed for the day.
+     * Creates a completion record linked to the habit.
+     *
+     * @param habitId - The unique identifier of the habit
+     * @param data - Completion data (date, notes, etc.)
+     * @returns Promise resolving to the updated habit with the new completion
+     * @throws {NotFoundException} If the habit doesn't exist
+     * @throws {Error} If a completion already exists for this date
+     *
+     * @example
+     * ```typescript
+     * await repository.createCompletion('habit-123', {
+     *   date: new Date(),
+     *   completedAt: new Date(),
+     *   notes: 'Felt great today!'
+     * });
+     * console.log('Habit marked as completed');
+     * ```
+     */
     createCompletion(habitId: string, data: HabitCompletionProps): Promise<Habit>;
+    /**
+     * Removes a habit completion record for a specific date.
+     *
+     * Used when a user unchecks a habit completion (e.g., marked by mistake).
+     * Deletes the completion record but keeps the habit itself.
+     *
+     * @param habitId - The unique identifier of the habit
+     * @param date - The date of the completion to remove
+     * @returns Promise resolving when the removal is complete
+     * @throws {NotFoundException} If the completion doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.deleteCompletion('habit-123', new Date());
+     * console.log('Habit completion removed');
+     * ```
+     */
     deleteCompletion(habitId: string, date: Date): Promise<void>;
+    /**
+     * Retrieves all completions for a habit within a date range.
+     *
+     * Used for displaying habit completion history in charts, calendars, or streak views.
+     * Returns completions ordered by date descending.
+     *
+     * @param habitId - The unique identifier of the habit
+     * @param startDate - Start of the date range (inclusive)
+     * @param endDate - End of the date range (inclusive)
+     * @returns Promise resolving to an array of completions (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * // Get completions for the current month
+     * const now = new Date();
+     * const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+     * const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+     *
+     * const completions = await repository.getCompletions('habit-123', startOfMonth, endOfMonth);
+     * console.log(`Habit completed ${completions.length} times this month`);
+     *
+     * // Render completion calendar
+     * completions.forEach(completion => {
+     *   console.log(`${completion.date.toISOString().split('T')[0]}: ✓`);
+     * });
+     * ```
+     */
     getCompletions(habitId: string, startDate: Date, endDate: Date): Promise<HabitCompletionProps[]>;
+    /**
+     * Retrieves the completion record for a habit on a specific date.
+     *
+     * Used for checking if a habit was completed on a given day, such as when
+     * rendering the habit checklist for today.
+     *
+     * @param habitId - The unique identifier of the habit
+     * @param date - The date to check for completion
+     * @returns Promise resolving to the completion if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const completion = await repository.getCompletionForDate('habit-123', new Date());
+     * if (completion) {
+     *   console.log('Habit completed today!');
+     *   console.log(`Completed at: ${completion.completedAt}`);
+     *   console.log(`Notes: ${completion.notes}`);
+     * } else {
+     *   console.log('Habit not completed yet today');
+     * }
+     * ```
+     */
     getCompletionForDate(habitId: string, date: Date): Promise<HabitCompletionProps | null>;
+    /**
+     * Calculates comprehensive statistics for a habit.
+     *
+     * Used for displaying habit metrics and insights, such as current streak,
+     * longest streak, completion rate, and recent activity. Useful for motivation
+     * and progress tracking.
+     *
+     * @param habitId - The unique identifier of the habit
+     * @returns Promise resolving to habit statistics
+     *
+     * @example
+     * ```typescript
+     * const stats = await repository.getStats('habit-123');
+     *
+     * console.log(`Current streak: ${stats.currentStreak} days`);
+     * console.log(`Longest streak: ${stats.longestStreak} days`);
+     * console.log(`Total completions: ${stats.totalCompletions}`);
+     * console.log(`Completion rate: ${(stats.completionRate * 100).toFixed(1)}%`);
+     * console.log(`This week: ${stats.thisWeekCompletions} completions`);
+     * console.log(`This month: ${stats.thisMonthCompletions} completions`);
+     *
+     * // Display streak badge
+     * if (stats.currentStreak >= 30) {
+     *   console.log('🔥 Amazing streak! Keep it up!');
+     * } else if (stats.currentStreak >= 7) {
+     *   console.log('⭐ Great consistency!');
+     * }
+     * ```
+     */
     getStats(habitId: string): Promise<{
+        /** Current consecutive completion streak (in days) */
         currentStreak: number;
+        /** Longest consecutive completion streak achieved (in days) */
         longestStreak: number;
+        /** Total number of completions since habit creation */
         totalCompletions: number;
+        /** Completion rate as a percentage (0-1), calculated over the habit's lifetime */
         completionRate: number;
+        /** Number of completions in the current week (Sunday to Saturday) */
         thisWeekCompletions: number;
+        /** Number of completions in the current month */
         thisMonthCompletions: number;
     }>;
 }

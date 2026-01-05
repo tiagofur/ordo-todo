@@ -44,7 +44,7 @@ export class RedisService implements OnModuleInit {
     errors: 0,
   };
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   async onModuleInit() {
     await this.connect();
@@ -73,13 +73,12 @@ export class RedisService implements OnModuleInit {
             }
             return Math.min(retries * 100, 3000);
           },
-          keepAlive: 30000,
         },
         database: 0,
       };
 
       // Main client for operations
-      this.client = Redis.createClient(redisOptions);
+      this.client = Redis.createClient(redisOptions) as unknown as Redis.RedisClientType;
 
       // Dedicated client for pub/sub (prevents blocking)
       // @ts-expect-error - Redis module type incompatibilities between packages
@@ -188,7 +187,7 @@ export class RedisService implements OnModuleInit {
     if (!this.isConnected) return;
 
     try {
-      let cursor = 0;
+      let cursor = '0';
       let deletedCount = 0;
 
       do {
@@ -201,14 +200,14 @@ export class RedisService implements OnModuleInit {
           }
         );
 
-        cursor = result.cursor;
+        cursor = result.cursor.toString();
 
         if (result.keys.length > 0) {
           // Delete found keys
           await this.client.del(result.keys);
           deletedCount += result.keys.length;
         }
-      } while (cursor !== 0);
+      } while (cursor !== '0');
 
       this.metrics.deletes += deletedCount;
       this.logger.log(`Deleted ${deletedCount} keys matching pattern: ${pattern}`);

@@ -36,6 +36,66 @@ import type {
   CreateKeyResultDto,
   UpdateKeyResultDto,
   LinkTaskDto,
+  // Habits
+  CreateHabitDto,
+  UpdateHabitDto,
+  CompleteHabitDto,
+  // Preferences
+  UpdatePreferencesDto,
+  // Custom Fields
+  // Entity Types
+  User,
+  UserProfileResponse,
+  UserPreferences,
+  UserIntegration,
+  Workspace,
+  WorkspaceMember,
+  WorkspaceInvitation,
+  WorkspaceSettings,
+  WorkspaceAuditLogsResponse,
+  Workflow,
+  Project,
+  Task,
+  TaskDetails,
+  TaskShareResponse,
+  PublicTaskResponse,
+  TodayTasksResponse,
+  TimeBlock,
+  Tag,
+  Habit,
+  HabitStats,
+  CustomField,
+  CustomFieldValue,
+  CreateCustomFieldDto,
+  UpdateCustomFieldDto,
+  SetMultipleCustomFieldValuesDto,
+  // Timer & Analytics
+  TimeSession,
+  ActiveTimerResponse,
+  PaginatedSessionsResponse,
+  TimerStatsResponse,
+  TaskTimeResponse,
+  DailyMetrics,
+  ProductivityStats,
+  // Other Entities
+  Comment,
+  Attachment,
+  Notification,
+  UnreadCountResponse,
+  ConversationResponse,
+  ConversationDetail,
+  SendMessageResponse,
+  AIInsightsResponse,
+  // AI
+  AIProfile,
+  OptimalScheduleResponse,
+  PredictDurationResponse,
+  ProductivityReport,
+  WeeklyReportResponse,
+  // Objectives
+  Objective,
+  ObjectiveDashboardSummary,
+  KeyResult,
 } from "@ordo-todo/api-client";
 import { useSyncStore } from "@/stores/sync-store";
 import { PendingActionType } from "@/lib/offline-storage";
@@ -327,95 +387,92 @@ axiosInstance.interceptors.response.use(
 
 export const apiClient = {
   // Auth
-  register: (data: RegisterDto) =>
+  // Auth
+  register: (data: RegisterDto): Promise<AuthResponse> =>
     axiosInstance.post("/auth/register", data).then((res) => res.data),
-  login: (data: LoginDto) =>
+  login: (data: LoginDto): Promise<AuthResponse> =>
     axiosInstance.post("/auth/login", data).then((res) => res.data),
-  logout: () => {
+  logout: (): Promise<void> => {
     removeRefreshToken();
     return axiosInstance.post("/auth/logout").then((res) => res.data);
   },
-  refreshToken: (data: RefreshTokenDto) =>
+  refreshToken: (data: RefreshTokenDto): Promise<AuthResponse> =>
     axiosInstance.post("/auth/refresh", data).then((res) => res.data),
-  checkUsernameAvailability: (username: string) =>
+  checkUsernameAvailability: (username: string): Promise<{ available: boolean }> =>
     axiosInstance
       .post("/auth/check-username", { username })
       .then((res) => res.data),
 
   // User
-  getCurrentUser: () => axiosInstance.get("/users/me").then((res) => res.data),
-  getFullProfile: () =>
+  getCurrentUser: (): Promise<User> => axiosInstance.get("/users/me").then((res) => res.data),
+  getFullProfile: (): Promise<UserProfileResponse> =>
     axiosInstance.get("/users/me/profile").then((res) => res.data),
-  updateProfile: (data: UpdateProfileDto) =>
+  updateProfile: (data: UpdateProfileDto): Promise<User> =>
     axiosInstance.put("/users/me", data).then((res) => res.data),
-  getPreferences: () =>
+  getPreferences: (): Promise<UserPreferences> =>
     axiosInstance.get("/users/me/preferences").then((res) => res.data),
-  updatePreferences: (data: any) =>
+  updatePreferences: (data: UpdatePreferencesDto): Promise<UserPreferences> =>
     axiosInstance.patch("/users/me/preferences", data).then((res) => res.data),
-  getIntegrations: () =>
+  getIntegrations: (): Promise<UserIntegration[]> =>
     axiosInstance.get("/users/me/integrations").then((res) => res.data),
-  exportData: () =>
+  exportData: (): Promise<Blob> =>
     axiosInstance
-      .post("/users/me/export", null, { responseType: "blob" })
+      .post<Blob>("/users/me/export", null, { responseType: "blob" })
       .then((res) => res.data),
-  deleteAccount: () =>
+  deleteAccount: (): Promise<void> =>
     axiosInstance.delete("/users/me").then((res) => res.data),
 
   // Workspace
-  getWorkspaces: () => axiosInstance.get("/workspaces").then((res) => res.data),
-  getWorkspace: (id: string) =>
+  // Workspace
+  getWorkspaces: (): Promise<Workspace[]> => axiosInstance.get("/workspaces").then((res) => res.data),
+  getWorkspace: (id: string): Promise<Workspace> =>
     axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
-  getWorkspaceBySlug: (slug: string) =>
+  getWorkspaceBySlug: (slug: string): Promise<Workspace> =>
     axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
-  getWorkspaceByUsernameAndSlug: (username: string, slug: string) =>
+  getWorkspaceByUsernameAndSlug: (username: string, slug: string): Promise<Workspace> =>
     axiosInstance
       .get(`/workspaces/${username}/${slug}`)
       .then((res) => res.data),
-  createWorkspace: (data: CreateWorkspaceDto) =>
+  createWorkspace: (data: CreateWorkspaceDto): Promise<Workspace> =>
     axiosInstance.post("/workspaces", data).then((res) => res.data),
-  updateWorkspace: (id: string, data: UpdateWorkspaceDto) =>
+  updateWorkspace: (id: string, data: UpdateWorkspaceDto): Promise<Workspace> =>
     axiosInstance.put(`/workspaces/${id}`, data).then((res) => res.data),
-  deleteWorkspace: (id: string) =>
+  deleteWorkspace: (id: string): Promise<void> =>
     axiosInstance.delete(`/workspaces/${id}`).then((res) => res.data),
-  getDeletedWorkspaces: () =>
+  getDeletedWorkspaces: (): Promise<Workspace[]> =>
     axiosInstance.get("/workspaces/deleted").then((res) => res.data),
-  restoreWorkspace: (id: string) =>
+  restoreWorkspace: (id: string): Promise<Workspace> =>
     axiosInstance.post(`/workspaces/${id}/restore`).then((res) => res.data),
-  permanentDeleteWorkspace: (id: string) =>
+  permanentDeleteWorkspace: (id: string): Promise<void> =>
     axiosInstance.delete(`/workspaces/${id}/permanent`).then((res) => res.data),
-  addWorkspaceMember: (id: string, data: AddMemberDto) =>
+  addWorkspaceMember: (id: string, data: AddMemberDto): Promise<WorkspaceMember> =>
     axiosInstance
       .post(`/workspaces/${id}/members`, data)
       .then((res) => res.data),
-  removeWorkspaceMember: (id: string, userId: string) =>
+  removeWorkspaceMember: (id: string, userId: string): Promise<void> =>
     axiosInstance
       .delete(`/workspaces/${id}/members/${userId}`)
       .then((res) => res.data),
-  getWorkspaceMembers: (id: string) =>
+  getWorkspaceMembers: (id: string): Promise<WorkspaceMember[]> =>
     axiosInstance.get(`/workspaces/${id}/members`).then((res) => res.data),
-  getWorkspaceInvitations: (id: string) =>
+  getWorkspaceInvitations: (id: string): Promise<WorkspaceInvitation[]> =>
     axiosInstance.get(`/workspaces/${id}/invitations`).then((res) => res.data),
-  inviteWorkspaceMember: (id: string, data: InviteMemberDto) =>
+  inviteWorkspaceMember: (id: string, data: InviteMemberDto): Promise<WorkspaceInvitation> =>
     axiosInstance
       .post(`/workspaces/${id}/invite`, data)
       .then((res) => res.data),
-  acceptWorkspaceInvitation: (data: AcceptInvitationDto) =>
+  acceptWorkspaceInvitation: (data: AcceptInvitationDto): Promise<Workspace> =>
     axiosInstance
       .post("/workspaces/invitations/accept", data)
       .then((res) => res.data),
 
   // Workspace Settings
-  getWorkspaceSettings: (id: string) =>
+  getWorkspaceSettings: (id: string): Promise<WorkspaceSettings> =>
     axiosInstance.get(`/workspaces/${id}/settings`).then((res) => res.data),
   updateWorkspaceSettings: (
     id: string,
-    data: {
-      defaultView?: "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
-      defaultDueTime?: number;
-      timezone?: string;
-      locale?: string;
-    },
-  ) =>
+    data: UpdateWorkspaceSettingsDto,
+  ): Promise<WorkspaceSettings> =>
     axiosInstance
       .put(`/workspaces/${id}/settings`, data)
       .then((res) => res.data),
@@ -424,133 +481,133 @@ export const apiClient = {
   getWorkspaceAuditLogs: (
     id: string,
     params?: { limit?: number; offset?: number },
-  ) =>
+  ): Promise<WorkspaceAuditLogsResponse> =>
     axiosInstance
       .get(`/workspaces/${id}/audit-logs`, { params })
       .then((res) => res.data),
 
   // Workflow
-  getWorkflows: (workspaceId: string) =>
+  getWorkflows: (workspaceId: string): Promise<Workflow[]> =>
     axiosInstance
       .get("/workflows", { params: { workspaceId } })
       .then((res) => res.data),
-  createWorkflow: (data: CreateWorkflowDto) =>
+  createWorkflow: (data: CreateWorkflowDto): Promise<Workflow> =>
     axiosInstance.post("/workflows", data).then((res) => res.data),
-  updateWorkflow: (id: string, data: UpdateWorkflowDto) =>
+  updateWorkflow: (id: string, data: UpdateWorkflowDto): Promise<Workflow> =>
     axiosInstance.put(`/workflows/${id}`, data).then((res) => res.data),
-  deleteWorkflow: (id: string) =>
+  deleteWorkflow: (id: string): Promise<void> =>
     axiosInstance.delete(`/workflows/${id}`).then((res) => res.data),
 
   // Project
-  getProjects: (workspaceId: string) =>
+  getProjects: (workspaceId: string): Promise<Project[]> =>
     axiosInstance
       .get("/projects", { params: { workspaceId } })
       .then((res) => res.data),
-  getAllProjects: () =>
+  getAllProjects: (): Promise<Project[]> =>
     axiosInstance.get("/projects/all").then((res) => res.data),
-  getProject: (id: string) =>
+  getProject: (id: string): Promise<Project> =>
     axiosInstance.get(`/projects/${id}`).then((res) => res.data),
-  getProjectBySlug: (workspaceSlug: string, projectSlug: string) =>
+  getProjectBySlug: (workspaceSlug: string, projectSlug: string): Promise<Project> =>
     axiosInstance
       .get(`/projects/by-slug/${workspaceSlug}/${projectSlug}`)
       .then((res) => res.data),
-  createProject: (data: CreateProjectDto) =>
+  createProject: (data: CreateProjectDto): Promise<Project> =>
     axiosInstance.post("/projects", data).then((res) => res.data),
-  updateProject: (id: string, data: UpdateProjectDto) =>
+  updateProject: (id: string, data: UpdateProjectDto): Promise<Project> =>
     axiosInstance.put(`/projects/${id}`, data).then((res) => res.data),
-  archiveProject: (id: string) =>
+  archiveProject: (id: string): Promise<Project> =>
     axiosInstance.patch(`/projects/${id}/archive`).then((res) => res.data),
-  completeProject: (id: string) =>
+  completeProject: (id: string): Promise<Project> =>
     axiosInstance.patch(`/projects/${id}/complete`).then((res) => res.data),
-  deleteProject: (id: string) =>
+  deleteProject: (id: string): Promise<void> =>
     axiosInstance.delete(`/projects/${id}`).then((res) => res.data),
-  getDeletedProjects: (workspaceId: string) =>
+  getDeletedProjects: (workspaceId: string): Promise<Project[]> =>
     axiosInstance
       .get("/projects/deleted", { params: { workspaceId } })
       .then((res) => res.data),
-  restoreProject: (id: string) =>
+  restoreProject: (id: string): Promise<Project> =>
     axiosInstance.post(`/projects/${id}/restore`).then((res) => res.data),
-  permanentDeleteProject: (id: string) =>
+  permanentDeleteProject: (id: string): Promise<void> =>
     axiosInstance.delete(`/projects/${id}/permanent`).then((res) => res.data),
 
   // Task
-  getTasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) =>
+  getTasks: (projectId?: string, tags?: string[], assignedToMe?: boolean): Promise<Task[]> =>
     axiosInstance
       .get("/tasks", { params: { projectId, tags, assignedToMe } })
       .then((res) => res.data),
-  getAvailableTasks: (projectId?: string) =>
+  getAvailableTasks: (projectId?: string): Promise<Task[]> =>
     axiosInstance
       .get("/tasks/available", { params: { projectId } })
       .then((res) => res.data),
-  getTask: (id: string) =>
+  getTask: (id: string): Promise<Task> =>
     axiosInstance.get(`/tasks/${id}`).then((res) => res.data),
-  getTaskDetails: (id: string) =>
+  getTaskDetails: (id: string): Promise<TaskDetails> =>
     axiosInstance.get(`/tasks/${id}/details`).then((res) => res.data),
-  createTask: (data: CreateTaskDto) =>
+  createTask: (data: CreateTaskDto): Promise<Task> =>
     axiosInstance.post("/tasks", data).then((res) => res.data),
-  updateTask: (id: string, data: UpdateTaskDto) =>
+  updateTask: (id: string, data: UpdateTaskDto): Promise<Task> =>
     axiosInstance.put(`/tasks/${id}`, data).then((res) => res.data),
-  completeTask: (id: string) =>
+  completeTask: (id: string): Promise<Task> =>
     axiosInstance.patch(`/tasks/${id}/complete`).then((res) => res.data),
-  deleteTask: (id: string) =>
+  deleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
-  getDeletedTasks: (projectId: string) =>
+  getDeletedTasks: (projectId: string): Promise<Task[]> =>
     axiosInstance
       .get("/tasks/deleted", { params: { projectId } })
       .then((res) => res.data),
-  restoreTask: (id: string) =>
+  restoreTask: (id: string): Promise<Task> =>
     axiosInstance.post(`/tasks/${id}/restore`).then((res) => res.data),
-  permanentDeleteTask: (id: string) =>
+  permanentDeleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}/permanent`).then((res) => res.data),
-  createSubtask: (parentTaskId: string, data: CreateSubtaskDto) =>
+  createSubtask: (parentTaskId: string, data: CreateSubtaskDto): Promise<Task> =>
     axiosInstance
       .post(`/tasks/${parentTaskId}/subtasks`, data)
       .then((res) => res.data),
 
   // Task Sharing
-  generatePublicToken: (taskId: string) =>
+  generatePublicToken: (taskId: string): Promise<TaskShareResponse> =>
     axiosInstance.post(`/tasks/${taskId}/share`).then((res) => res.data),
-  getTaskByPublicToken: (token: string) =>
+  getTaskByPublicToken: (token: string): Promise<PublicTaskResponse> =>
     axiosInstance.get(`/tasks/share/${token}`).then((res) => res.data),
 
   // Tag
-  getTags: (workspaceId: string) =>
+  getTags: (workspaceId: string): Promise<Tag[]> =>
     axiosInstance
       .get("/tags", { params: { workspaceId } })
       .then((res) => res.data),
-  getTaskTags: (taskId: string) =>
+  getTaskTags: (taskId: string): Promise<Tag[]> =>
     axiosInstance.get(`/tasks/${taskId}/tags`).then((res) => res.data),
-  createTag: (data: CreateTagDto) =>
+  createTag: (data: CreateTagDto): Promise<Tag> =>
     axiosInstance.post("/tags", data).then((res) => res.data),
-  updateTag: (id: string, data: UpdateTagDto) =>
+  updateTag: (id: string, data: UpdateTagDto): Promise<Tag> =>
     axiosInstance.put(`/tags/${id}`, data).then((res) => res.data),
-  assignTagToTask: (tagId: string, taskId: string) =>
+  assignTagToTask: (tagId: string, taskId: string): Promise<void> =>
     axiosInstance
       .post(`/tags/${tagId}/tasks/${taskId}`)
       .then((res) => res.data),
-  removeTagFromTask: (tagId: string, taskId: string) =>
+  removeTagFromTask: (tagId: string, taskId: string): Promise<void> =>
     axiosInstance
       .delete(`/tags/${tagId}/tasks/${taskId}`)
       .then((res) => res.data),
-  deleteTag: (id: string) =>
+  deleteTag: (id: string): Promise<void> =>
     axiosInstance.delete(`/tags/${id}`).then((res) => res.data),
 
   // Timer
-  getActiveTimer: () =>
+  getActiveTimer: (): Promise<ActiveTimerResponse | null> =>
     axiosInstance.get("/timers/active").then((res) => res.data),
-  startTimer: (data: StartTimerDto) =>
+  startTimer: (data: StartTimerDto): Promise<TimeSession> =>
     axiosInstance.post("/timers/start", data).then((res) => res.data),
-  stopTimer: (data: StopTimerDto) =>
+  stopTimer: (data: StopTimerDto): Promise<TimeSession> =>
     axiosInstance.post("/timers/stop", data).then((res) => res.data),
-  pauseTimer: (data?: { pauseStartedAt?: Date }) =>
+  pauseTimer: (data?: { pauseStartedAt?: Date }): Promise<TimeSession> =>
     axiosInstance.post("/timers/pause", data).then((res) => res.data),
-  resumeTimer: (data: { pauseStartedAt: Date }) =>
+  resumeTimer: (data: { pauseStartedAt: Date }): Promise<TimeSession> =>
     axiosInstance.post("/timers/resume", data).then((res) => res.data),
   switchTask: (data: {
     newTaskId: string;
     type?: string;
     splitReason?: string;
-  }) => axiosInstance.post("/timers/switch-task", data).then((res) => res.data),
+  }): Promise<TimeSession> => axiosInstance.post("/timers/switch-task", data).then((res) => res.data),
   getSessionHistory: (params?: {
     taskId?: string;
     type?: string;
@@ -559,40 +616,40 @@ export const apiClient = {
     page?: number;
     limit?: number;
     completedOnly?: boolean;
-  }) =>
+  }): Promise<PaginatedSessionsResponse> =>
     axiosInstance.get("/timers/history", { params }).then((res) => res.data),
-  getTimerStats: (params?: { startDate?: string; endDate?: string }) =>
+  getTimerStats: (params?: { startDate?: string; endDate?: string }): Promise<TimerStatsResponse> =>
     axiosInstance.get("/timers/stats", { params }).then((res) => res.data),
-  getTaskTimeSessions: (taskId: string) =>
+  getTaskTimeSessions: (taskId: string): Promise<TaskTimeResponse> =>
     axiosInstance.get(`/timers/task/${taskId}`).then((res) => res.data),
 
   // Analytics
-  getDailyMetrics: (params?: GetDailyMetricsParams) =>
+  getDailyMetrics: (params?: GetDailyMetricsParams): Promise<DailyMetrics[]> =>
     axiosInstance.get("/analytics/daily", { params }).then((res) => res.data),
-  getWeeklyMetrics: (params?: { weekStart?: string }) =>
+  getWeeklyMetrics: (params?: { weekStart?: string }): Promise<any> =>
     axiosInstance.get("/analytics/weekly", { params }).then((res) => res.data),
-  getMonthlyMetrics: (params?: { monthStart?: string }) =>
+  getMonthlyMetrics: (params?: { monthStart?: string }): Promise<any> =>
     axiosInstance.get("/analytics/monthly", { params }).then((res) => res.data),
-  getDateRangeMetrics: (startDate: string, endDate: string) =>
+  getDateRangeMetrics: (startDate: string, endDate: string): Promise<any> =>
     axiosInstance
       .get("/analytics/range", { params: { startDate, endDate } })
       .then((res) => res.data),
-  getDashboardStats: () =>
+  getDashboardStats: (): Promise<any> =>
     axiosInstance.get("/analytics/dashboard-stats").then((res) => res.data),
-  getHeatmapData: () =>
+  getHeatmapData: (): Promise<any> =>
     axiosInstance.get("/analytics/heatmap").then((res) => res.data),
-  getProjectDistribution: () =>
+  getProjectDistribution: (): Promise<any> =>
     axiosInstance
       .get("/analytics/project-distribution")
       .then((res) => res.data),
-  getTaskStatusDistribution: () =>
+  getTaskStatusDistribution: (): Promise<any> =>
     axiosInstance
       .get("/analytics/task-status-distribution")
       .then((res) => res.data),
 
   // AI
-  getAIProfile: () => axiosInstance.get("/ai/profile").then((res) => res.data),
-  getOptimalSchedule: (params?: { topN?: number }) =>
+  getAIProfile: (): Promise<AIProfile> => axiosInstance.get("/ai/profile").then((res) => res.data),
+  getOptimalSchedule: (params?: { topN?: number }): Promise<OptimalScheduleResponse> =>
     axiosInstance
       .get("/ai/optimal-schedule", { params })
       .then((res) => res.data),
@@ -601,53 +658,53 @@ export const apiClient = {
     description?: string;
     category?: string;
     priority?: string;
-  }) =>
+  }): Promise<PredictDurationResponse> =>
     axiosInstance
       .get("/ai/predict-duration", { params })
       .then((res) => res.data),
 
   // AI Reports
-  generateWeeklyReport: (weekStart?: string) =>
+  generateWeeklyReport: (weekStart?: string): Promise<WeeklyReportResponse> =>
     axiosInstance
       .post("/ai/reports/weekly", null, { params: { weekStart } })
       .then((res) => res.data),
-  getReports: (params?: { scope?: string; limit?: number; offset?: number }) =>
+  getReports: (params?: { scope?: string; limit?: number; offset?: number }): Promise<ProductivityReport[]> =>
     axiosInstance.get("/ai/reports", { params }).then((res) => res.data),
-  getReport: (id: string) =>
+  getReport: (id: string): Promise<ProductivityReport> =>
     axiosInstance.get(`/ai/reports/${id}`).then((res) => res.data),
-  deleteReport: (id: string) =>
+  deleteReport: (id: string): Promise<void> =>
     axiosInstance.delete(`/ai/reports/${id}`).then((res) => res.data),
 
   // Comment
-  getTaskComments: (taskId: string) =>
+  getTaskComments: (taskId: string): Promise<Comment[]> =>
     axiosInstance.get(`/tasks/${taskId}/comments`).then((res) => res.data),
-  createComment: (data: CreateCommentDto) =>
+  createComment: (data: CreateCommentDto): Promise<Comment> =>
     axiosInstance.post("/comments", data).then((res) => res.data),
-  updateComment: (id: string, data: UpdateCommentDto) =>
+  updateComment: (id: string, data: UpdateCommentDto): Promise<Comment> =>
     axiosInstance.put(`/comments/${id}`, data).then((res) => res.data),
-  deleteComment: (id: string) =>
+  deleteComment: (id: string): Promise<void> =>
     axiosInstance.delete(`/comments/${id}`).then((res) => res.data),
 
   // Attachment
-  getTaskAttachments: (taskId: string) =>
+  getTaskAttachments: (taskId: string): Promise<Attachment[]> =>
     axiosInstance.get(`/tasks/${taskId}/attachments`).then((res) => res.data),
-  getProjectAttachments: (projectId: string) =>
+  getProjectAttachments: (projectId: string): Promise<Attachment[]> =>
     axiosInstance
       .get(`/attachments/project/${projectId}`)
       .then((res) => res.data),
-  createAttachment: (data: CreateAttachmentDto) =>
+  createAttachment: (data: CreateAttachmentDto): Promise<Attachment> =>
     axiosInstance.post("/attachments", data).then((res) => res.data),
-  deleteAttachment: (id: string) =>
+  deleteAttachment: (id: string): Promise<void> =>
     axiosInstance.delete(`/attachments/${id}`).then((res) => res.data),
 
   // Notifications
-  getNotifications: () =>
+  getNotifications: (): Promise<Notification[]> =>
     axiosInstance.get("/notifications").then((res) => res.data),
-  getUnreadNotificationsCount: () =>
+  getUnreadNotificationsCount: (): Promise<UnreadCountResponse> =>
     axiosInstance.get("/notifications/unread-count").then((res) => res.data),
-  markNotificationAsRead: (id: string) =>
+  markNotificationAsRead: (id: string): Promise<Notification> =>
     axiosInstance.patch(`/notifications/${id}/read`).then((res) => res.data),
-  markAllNotificationsAsRead: () =>
+  markAllNotificationsAsRead: (): Promise<void> =>
     axiosInstance.post("/notifications/mark-all-read").then((res) => res.data),
 
   // Chat
@@ -655,34 +712,34 @@ export const apiClient = {
     limit?: number;
     offset?: number;
     includeArchived?: boolean;
-  }) =>
+  }): Promise<ConversationResponse[]> =>
     axiosInstance
       .get("/chat/conversations", { params })
       .then((res) => res.data),
-  getConversation: (id: string) =>
+  getConversation: (id: string): Promise<ConversationDetail> =>
     axiosInstance.get(`/chat/conversations/${id}`).then((res) => res.data),
-  createConversation: (data: CreateConversationDto) =>
+  createConversation: (data: CreateConversationDto): Promise<ConversationResponse> =>
     axiosInstance.post("/chat/conversations", data).then((res) => res.data),
-  sendMessage: (conversationId: string, data: SendMessageDto) =>
+  sendMessage: (conversationId: string, data: SendMessageDto): Promise<SendMessageResponse> =>
     axiosInstance
       .post(`/chat/conversations/${conversationId}/messages`, data)
       .then((res) => res.data),
-  updateConversation: (id: string, title: string) =>
+  updateConversation: (id: string, title: string): Promise<ConversationResponse> =>
     axiosInstance
       .patch(`/chat/conversations/${id}`, { title })
       .then((res) => res.data),
-  archiveConversation: (id: string) =>
+  archiveConversation: (id: string): Promise<ConversationResponse> =>
     axiosInstance
       .patch(`/chat/conversations/${id}/archive`)
       .then((res) => res.data),
-  deleteConversation: (id: string) =>
+  deleteConversation: (id: string): Promise<void> =>
     axiosInstance.delete(`/chat/conversations/${id}`).then((res) => res.data),
-  getAIInsights: () =>
+  getAIInsights: (): Promise<AIInsightsResponse> =>
     axiosInstance.get("/chat/insights").then((res) => res.data),
 
   // Time Blocking
-  getTimeBlocks: (start?: Date | string, end?: Date | string) => {
-    const params: any = {};
+  getTimeBlocks: (start?: Date | string, end?: Date | string): Promise<TimeBlock[]> => {
+    const params: Record<string, string> = {};
     if (start)
       params.start = start instanceof Date ? start.toISOString() : start;
     if (end) params.end = end instanceof Date ? end.toISOString() : end;
@@ -692,47 +749,47 @@ export const apiClient = {
   },
 
   // Habits
-  getHabits: (includeArchived?: boolean) =>
+  getHabits: (includeArchived?: boolean): Promise<Habit[]> =>
     axiosInstance
       .get("/habits", { params: { includeArchived } })
       .then((res) => res.data),
-  getTodayHabits: () =>
+  getTodayHabits: (): Promise<Habit[]> =>
     axiosInstance.get("/habits/today").then((res) => res.data),
-  getHabit: (id: string) =>
+  getHabit: (id: string): Promise<Habit> =>
     axiosInstance.get(`/habits/${id}`).then((res) => res.data),
-  getHabitStats: (id: string) =>
+  getHabitStats: (id: string): Promise<HabitStats> =>
     axiosInstance.get(`/habits/${id}/stats`).then((res) => res.data),
-  createHabit: (data: any) =>
+  createHabit: (data: CreateHabitDto): Promise<Habit> =>
     axiosInstance.post("/habits", data).then((res) => res.data),
-  updateHabit: (id: string, data: any) =>
+  updateHabit: (id: string, data: UpdateHabitDto): Promise<Habit> =>
     axiosInstance.put(`/habits/${id}`, data).then((res) => res.data),
-  deleteHabit: (id: string) =>
+  deleteHabit: (id: string): Promise<void> =>
     axiosInstance.delete(`/habits/${id}`).then((res) => res.data),
-  completeHabit: (id: string, data?: any) =>
+  completeHabit: (id: string, data?: CompleteHabitDto): Promise<Habit> =>
     axiosInstance.post(`/habits/${id}/complete`, data).then((res) => res.data),
-  uncompleteHabit: (id: string) =>
+  uncompleteHabit: (id: string): Promise<void> =>
     axiosInstance.delete(`/habits/${id}/complete`).then((res) => res.data),
-  pauseHabit: (id: string) =>
+  pauseHabit: (id: string): Promise<Habit> =>
     axiosInstance.patch(`/habits/${id}/pause`).then((res) => res.data),
-  resumeHabit: (id: string) =>
+  resumeHabit: (id: string): Promise<Habit> =>
     axiosInstance.patch(`/habits/${id}/resume`).then((res) => res.data),
 
   // Objectives (OKRs)
-  getObjectives: () => axiosInstance.get("/objectives").then((res) => res.data),
-  getCurrentPeriodObjectives: () =>
+  getObjectives: (): Promise<Objective[]> => axiosInstance.get("/objectives").then((res) => res.data),
+  getCurrentPeriodObjectives: (): Promise<Objective[]> =>
     axiosInstance.get("/objectives/current-period").then((res) => res.data),
-  getObjectivesDashboardSummary: () =>
+  getObjectivesDashboardSummary: (): Promise<ObjectiveDashboardSummary> =>
     axiosInstance.get("/objectives/dashboard-summary").then((res) => res.data),
-  getObjective: (id: string) =>
+  getObjective: (id: string): Promise<Objective> =>
     axiosInstance.get(`/objectives/${id}`).then((res) => res.data),
-  createObjective: (data: CreateObjectiveDto) =>
+  createObjective: (data: CreateObjectiveDto): Promise<Objective> =>
     axiosInstance.post("/objectives", data).then((res) => res.data),
-  updateObjective: (id: string, data: UpdateObjectiveDto) =>
+  updateObjective: (id: string, data: UpdateObjectiveDto): Promise<Objective> =>
     axiosInstance.put(`/objectives/${id}`, data).then((res) => res.data),
-  deleteObjective: (id: string) =>
+  deleteObjective: (id: string): Promise<void> =>
     axiosInstance.delete(`/objectives/${id}`).then((res) => res.data),
 
-  addKeyResult: (objectiveId: string, data: CreateKeyResultDto) =>
+  addKeyResult: (objectiveId: string, data: CreateKeyResultDto): Promise<KeyResult> =>
     axiosInstance
       .post(`/objectives/${objectiveId}/key-results`, data)
       .then((res) => res.data),
@@ -740,42 +797,42 @@ export const apiClient = {
     objectiveId: string,
     keyResultId: string,
     data: UpdateKeyResultDto,
-  ) =>
+  ): Promise<KeyResult> =>
     axiosInstance
       .put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data)
       .then((res) => res.data),
-  deleteKeyResult: (objectiveId: string, keyResultId: string) =>
+  deleteKeyResult: (objectiveId: string, keyResultId: string): Promise<void> =>
     axiosInstance
       .delete(`/objectives/${objectiveId}/key-results/${keyResultId}`)
       .then((res) => res.data),
 
-  linkTaskToKeyResult: (keyResultId: string, data: LinkTaskDto) =>
+  linkTaskToKeyResult: (keyResultId: string, data: LinkTaskDto): Promise<void> =>
     axiosInstance
       .post(`/objectives/key-results/${keyResultId}/tasks`, data)
       .then((res) => res.data),
-  unlinkTaskFromKeyResult: (keyResultId: string, taskId: string) =>
+  unlinkTaskFromKeyResult: (keyResultId: string, taskId: string): Promise<void> =>
     axiosInstance
       .delete(`/objectives/key-results/${keyResultId}/tasks/${taskId}`)
       .then((res) => res.data),
 
   // Custom Fields
-  getProjectCustomFields: (projectId: string) =>
+  getProjectCustomFields: (projectId: string): Promise<CustomField[]> =>
     axiosInstance
       .get(`/projects/${projectId}/custom-fields`)
       .then((res) => res.data),
-  createCustomField: (projectId: string, data: any) =>
+  createCustomField: (projectId: string, data: CreateCustomFieldDto): Promise<CustomField> =>
     axiosInstance
       .post(`/projects/${projectId}/custom-fields`, data)
       .then((res) => res.data),
-  updateCustomField: (fieldId: string, data: any) =>
+  updateCustomField: (fieldId: string, data: UpdateCustomFieldDto): Promise<CustomField> =>
     axiosInstance
       .patch(`/custom-fields/${fieldId}`, data)
       .then((res) => res.data),
-  deleteCustomField: (fieldId: string) =>
+  deleteCustomField: (fieldId: string): Promise<void> =>
     axiosInstance.delete(`/custom-fields/${fieldId}`).then((res) => res.data),
-  getTaskCustomValues: (taskId: string) =>
+  getTaskCustomValues: (taskId: string): Promise<Record<string, any>> =>
     axiosInstance.get(`/tasks/${taskId}/custom-values`).then((res) => res.data),
-  setTaskCustomValues: (taskId: string, data: any) =>
+  setTaskCustomValues: (taskId: string, data: SetMultipleCustomFieldValuesDto): Promise<void> =>
     axiosInstance
       .patch(`/tasks/${taskId}/custom-values`, data)
       .then((res) => res.data),
@@ -784,7 +841,7 @@ export const apiClient = {
   semanticSearch: (
     query: string,
     options?: { types?: string; projectId?: string; limit?: number },
-  ) =>
+  ): Promise<any[]> =>
     axiosInstance
       .get("/search", { params: { q: query, ...options } })
       .then((res) => res.data),

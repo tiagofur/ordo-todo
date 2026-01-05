@@ -10,7 +10,7 @@
 
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { apiClient } from "./api-client";
 import type {
   // Auth
@@ -774,7 +774,7 @@ export function useTimeBlocks(start?: Date | string, end?: Date | string) {
 }
 
 // Helper to invalidate all task queries
-export const invalidateAllTasks = (queryClient: any) => {
+export const invalidateAllTasks = (queryClient: QueryClient) => {
   // Invalidate all queries that start with 'tasks'
   queryClient.invalidateQueries({ queryKey: ["tasks"] });
 };

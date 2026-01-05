@@ -35,7 +35,6 @@ function Badge({
   const Comp = asChild ? Slot : "span"
 
   return (
-    // @ts-expect-error - React 18/19 type compatibility: bigint in ReactNode
     <Comp
       data-slot="badge"
       className={cn(badgeVariants({ variant }), className)}

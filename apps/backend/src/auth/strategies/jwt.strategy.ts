@@ -16,12 +16,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET')!,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: any) {
+  async validate(req: any, payload: any) {
     // Get the token from the request to check if it's blacklisted
-    const token = this.request?.get('authorization')?.replace('Bearer ', '');
+    const token = req.get('authorization')?.replace('Bearer ', '');
 
     if (token && await this.tokenBlacklistService.isBlacklisted(token)) {
       throw new UnauthorizedException('Token has been revoked');

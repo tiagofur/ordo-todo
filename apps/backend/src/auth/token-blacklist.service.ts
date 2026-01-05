@@ -12,9 +12,9 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class TokenBlacklistService {
   private readonly logger = new Logger(TokenBlacklistService.name);
-  private readonly blacklist = new Set<string>();
+  private readonly revokedTokens = new Set<string>();
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   /**
    * Add a token to the blacklist
@@ -41,13 +41,13 @@ export class TokenBlacklistService {
 
         // Only store if token hasn't already expired
         if (expiresAt > now) {
-          this.blacklist.add(jti);
+          this.revokedTokens.add(jti);
           this.logger.debug(`Token ${jti} blacklisted until ${expiresAt.toISOString()}`);
 
           // Schedule automatic cleanup after expiration
           const ttl = expiresAt.getTime() - now.getTime();
           setTimeout(() => {
-            this.blacklist.delete(jti);
+            this.revokedTokens.delete(jti);
             this.logger.debug(`Token ${jti} removed from blacklist (expired)`);
           }, ttl);
         } else {
@@ -74,7 +74,7 @@ export class TokenBlacklistService {
       }
 
       const jti = decoded.jti || token;
-      const isBlacklisted = this.blacklist.has(jti);
+      const isBlacklisted = this.revokedTokens.has(jti);
 
       if (isBlacklisted) {
         this.logger.debug(`Token ${jti} is blacklisted`);
@@ -94,8 +94,8 @@ export class TokenBlacklistService {
    * @returns Promise that resolves when cleanup is complete
    */
   async cleanup(): Promise<void> {
-    const beforeSize = this.blacklist.size;
-    this.blacklist.clear();
+    const beforeSize = this.revokedTokens.size;
+    this.revokedTokens.clear();
     this.logger.debug(`Blacklist cleared (${beforeSize} tokens removed)`);
   }
 
@@ -105,6 +105,6 @@ export class TokenBlacklistService {
    * @returns Number of tokens currently blacklisted
    */
   getBlacklistSize(): number {
-    return this.blacklist.size;
+    return this.revokedTokens.size;
   }
 }
