@@ -33,10 +33,7 @@ export class RedisModule {
   /**
    * Dynamic module for custom configuration
    */
-  static register(options: {
-    enabled?: boolean;
-    url?: string;
-  }) {
+  static register(options: { enabled?: boolean; url?: string }) {
     return {
       module: RedisModule,
       providers: [

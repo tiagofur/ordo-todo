@@ -158,7 +158,9 @@ describe('UsersService', () => {
       await expect(service.getFullProfile(email)).rejects.toThrow(
         NotFoundException,
       );
-      await expect(service.getFullProfile(email)).rejects.toThrow('User not found');
+      await expect(service.getFullProfile(email)).rejects.toThrow(
+        'User not found',
+      );
     });
 
     it('should handle user without subscription', async () => {
@@ -227,7 +229,10 @@ describe('UsersService', () => {
       };
       mockPrismaService.user.update.mockResolvedValue(updatedUser as any);
 
-      const result = await service.updateProfile(email, updateProfileDto as any);
+      const result = await service.updateProfile(
+        email,
+        updateProfileDto as any,
+      );
 
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { email },
@@ -261,7 +266,10 @@ describe('UsersService', () => {
       };
       mockPrismaService.user.update.mockResolvedValue(updatedUser as any);
 
-      const result = await service.updateProfile(email, updateProfileDto as any);
+      const result = await service.updateProfile(
+        email,
+        updateProfileDto as any,
+      );
 
       expect(result.success).toBe(true);
       expect(result.user.username).toBe('newusername');
@@ -525,7 +533,9 @@ describe('UsersService', () => {
       await expect(service.deleteAccount(email)).rejects.toThrow(
         NotFoundException,
       );
-      await expect(service.deleteAccount(email)).rejects.toThrow('User not found');
+      await expect(service.deleteAccount(email)).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
@@ -591,8 +601,8 @@ describe('UsersService', () => {
       const result = await service.exportData(email);
 
       // Verify the include configuration has limits
-      const includeConfig = mockPrismaService.user.findUnique.mock.calls[0][0]
-        .include;
+      const includeConfig =
+        mockPrismaService.user.findUnique.mock.calls[0][0].include;
       expect(includeConfig.ownedTasks).toEqual({ take: 1000 });
       expect(includeConfig.activities).toEqual({ take: 1000 });
     });

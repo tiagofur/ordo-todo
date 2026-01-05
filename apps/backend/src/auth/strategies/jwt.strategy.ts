@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // Get the token from the request to check if it's blacklisted
     const token = req.get('authorization')?.replace('Bearer ', '');
 
-    if (token && await this.tokenBlacklistService.isBlacklisted(token)) {
+    if (token && (await this.tokenBlacklistService.isBlacklisted(token))) {
       throw new UnauthorizedException('Token has been revoked');
     }
 

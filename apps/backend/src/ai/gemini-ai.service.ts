@@ -306,7 +306,11 @@ Responde SOLO con JSON válido:
   async chat(
     message: string,
     history: ChatMessageDto[] = [],
-    context?: { workspaceId?: string; projectId?: string; tasks?: TaskContext[] },
+    context?: {
+      workspaceId?: string;
+      projectId?: string;
+      tasks?: TaskContext[];
+    },
   ): Promise<ChatResponse> {
     if (!this.ai) {
       return {
@@ -499,7 +503,9 @@ Ejemplos:
    * Uses PRO model for nuanced, sensitive analysis
    */
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
-  async analyzeWellbeing(metrics: WellbeingMetrics): Promise<WellbeingIndicators> {
+  async analyzeWellbeing(
+    metrics: WellbeingMetrics,
+  ): Promise<WellbeingIndicators> {
     // Calculate metrics locally first to reduce API calls
     const localMetrics = this.calculateWellbeingMetricsLocally(metrics);
 
@@ -622,9 +628,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       Math.min(
         100,
         100 -
-        weekendWorkPercentage * 0.5 -
-        lateNightWorkPercentage * 0.5 -
-        Math.max(0, (avgHoursPerDay - 8) * 10),
+          weekendWorkPercentage * 0.5 -
+          lateNightWorkPercentage * 0.5 -
+          Math.max(0, (avgHoursPerDay - 8) * 10),
       ),
     );
 
@@ -826,7 +832,9 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
   /**
    * Build the prompt for Gemini based on context
    */
-  private buildProductivityReportPrompt(context: ProductivityReportContext): string {
+  private buildProductivityReportPrompt(
+    context: ProductivityReportContext,
+  ): string {
     const { scope, metricsSnapshot, sessions, profile, projectName } = context;
 
     let prompt = `You are an AI productivity coach analyzing user work patterns. Generate a productivity report in JSON format.
@@ -841,18 +849,18 @@ ${projectName ? `- Project: ${projectName}` : ''}
     if (sessions && sessions.length > 0) {
       prompt += `\nRecent Work Sessions (${sessions.length} total):
 ${sessions
-          .slice(0, 10)
-          .map(
-            (s, i) =>
-              `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
-          )
-          .join('\n')}
+  .slice(0, 10)
+  .map(
+    (s, i) =>
+      `  ${i + 1}. Duration: ${s.duration}min, Pauses: ${s.pauseCount || 0}, Completed: ${s.wasCompleted ? 'Yes' : 'No'}`,
+  )
+  .join('\n')}
 `;
     }
 
     if (profile) {
       const peakHours = Object.entries(profile.peakHours || {})
-        .sort(([, a], [, b]) => (b as number) - (a as number))
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 3)
         .map(([hour]) => hour);
 

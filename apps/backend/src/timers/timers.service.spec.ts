@@ -483,7 +483,11 @@ describe('TimersService', () => {
 
       const result = await service.resume(resumeTimerDto as any, userId);
 
-      expect(executeSpy).toHaveBeenCalledWith(userId, pauseStartedAt, expect.any(Date));
+      expect(executeSpy).toHaveBeenCalledWith(
+        userId,
+        pauseStartedAt,
+        expect.any(Date),
+      );
       expect(result).toEqual(mockSession.props);
     });
   });
@@ -555,11 +559,15 @@ describe('TimersService', () => {
         },
       };
 
-      mockTimerRepository.findActiveSession.mockResolvedValue(mockSession as any);
+      mockTimerRepository.findActiveSession.mockResolvedValue(
+        mockSession as any,
+      );
 
       const result = await service.getActive(userId);
 
-      expect(mockTimerRepository.findActiveSession).toHaveBeenCalledWith(userId);
+      expect(mockTimerRepository.findActiveSession).toHaveBeenCalledWith(
+        userId,
+      );
       expect(result).toHaveProperty('elapsedSeconds');
       expect(result.elapsedSeconds).toBeGreaterThan(0);
       expect(result.isPaused).toBe(false);
@@ -584,7 +592,9 @@ describe('TimersService', () => {
         },
       };
 
-      mockTimerRepository.findActiveSession.mockResolvedValue(mockSession as any);
+      mockTimerRepository.findActiveSession.mockResolvedValue(
+        mockSession as any,
+      );
 
       const result = await service.getActive(userId);
 
@@ -647,7 +657,10 @@ describe('TimersService', () => {
         totalPages: 1,
       });
 
-      const result = await service.getSessionHistory(getSessionsDto as any, userId);
+      const result = await service.getSessionHistory(
+        getSessionsDto as any,
+        userId,
+      );
 
       expect(mockTimerRepository.findWithFilters).toHaveBeenCalledWith(
         userId,

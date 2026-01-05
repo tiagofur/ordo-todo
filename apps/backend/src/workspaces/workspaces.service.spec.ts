@@ -1876,7 +1876,9 @@ describe('WorkspacesService', () => {
 
       const result = await service.getDeleted(userId);
 
-      expect(mockWorkspaceRepository.findByOwnerId).toHaveBeenCalledWith(userId);
+      expect(mockWorkspaceRepository.findByOwnerId).toHaveBeenCalledWith(
+        userId,
+      );
       expect(result).toHaveLength(2);
       expect(result[0].isDeleted).toBe(true);
     });
@@ -1998,9 +2000,9 @@ describe('WorkspacesService', () => {
         isDeleted: true,
       });
 
-      await expect(service.permanentDelete(workspaceId, userId)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(
+        service.permanentDelete(workspaceId, userId),
+      ).rejects.toThrow(ForbiddenException);
       await expect(
         service.permanentDelete(workspaceId, userId),
       ).rejects.toThrow(

@@ -120,10 +120,8 @@ describe("useBackgroundTimer", () => {
 
   it("should cleanup timer and notification on unmount", () => {
     const { unmount } = renderHook(() => useBackgroundTimer());
-    const {
-      scheduleNotificationAsync,
-      cancelScheduledNotificationAsync,
-    } = require("expo-notifications");
+    const expoNotifications = jest.requireActual("expo-notifications");
+    const { cancelScheduledNotificationAsync } = expoNotifications;
 
     unmount();
 

@@ -44,7 +44,7 @@ export class RedisService implements OnModuleInit {
     errors: 0,
   };
 
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit() {
     await this.connect();
@@ -78,7 +78,9 @@ export class RedisService implements OnModuleInit {
       };
 
       // Main client for operations
-      this.client = Redis.createClient(redisOptions) as unknown as Redis.RedisClientType;
+      this.client = Redis.createClient(
+        redisOptions,
+      ) as unknown as Redis.RedisClientType;
 
       // Dedicated client for pub/sub (prevents blocking)
       // @ts-expect-error - Redis module type incompatibilities between packages
@@ -113,7 +115,6 @@ export class RedisService implements OnModuleInit {
       // Ping to verify connection
       const pong = await this.client.ping();
       this.logger.log(`Redis ping response: ${pong}`);
-
     } catch (error) {
       this.logger.error('Failed to connect to Redis:', error);
       this.isConnected = false;
@@ -192,13 +193,10 @@ export class RedisService implements OnModuleInit {
 
       do {
         // Scan for keys matching pattern
-        const result = await this.client.scan(
-          cursor,
-          {
-            MATCH: pattern,
-            COUNT: 100,
-          }
-        );
+        const result = await this.client.scan(cursor, {
+          MATCH: pattern,
+          COUNT: 100,
+        });
 
         cursor = result.cursor.toString();
 
@@ -210,10 +208,14 @@ export class RedisService implements OnModuleInit {
       } while (cursor !== '0');
 
       this.metrics.deletes += deletedCount;
-      this.logger.log(`Deleted ${deletedCount} keys matching pattern: ${pattern}`);
-
+      this.logger.log(
+        `Deleted ${deletedCount} keys matching pattern: ${pattern}`,
+      );
     } catch (error) {
-      this.logger.error(`Redis DEL_PATTERN error for pattern ${pattern}:`, error);
+      this.logger.error(
+        `Redis DEL_PATTERN error for pattern ${pattern}:`,
+        error,
+      );
       this.metrics.errors++;
     }
   }
@@ -239,7 +241,10 @@ export class RedisService implements OnModuleInit {
    * @param channel - Channel to subscribe to
    * @param callback - Callback function when message received
    */
-  async subscribe(channel: string, callback: (message: any) => void): Promise<void> {
+  async subscribe(
+    channel: string,
+    callback: (message: any) => void,
+  ): Promise<void> {
     if (!this.isConnected) return;
 
     try {
@@ -257,7 +262,6 @@ export class RedisService implements OnModuleInit {
       });
 
       this.logger.log(`Subscribed to Redis channel: ${channel}`);
-
     } catch (error) {
       this.logger.error(`Redis SUBSCRIBE error:`, error);
     }

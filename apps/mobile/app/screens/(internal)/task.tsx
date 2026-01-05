@@ -58,6 +58,7 @@ export default function TaskScreen() {
   // Workspace and Project fetching logic
   const { data: workspaces } = useWorkspaces();
   const { selectedWorkspaceId } = useWorkspaceStore();
+  const { data: projects } = useProjects(selectedWorkspaceId || "");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -127,7 +128,6 @@ export default function TaskScreen() {
 
     // Determine projectId: Use existing task's project, or first available project, or error
     const targetProjectId = existingTask?.projectId;
-    const { data: projects } = useProjects(selectedWorkspaceId || "");
 
     if (!targetProjectId && !isEditing) {
       Alert.alert(
