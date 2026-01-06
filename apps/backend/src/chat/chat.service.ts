@@ -3,13 +3,14 @@ import {
   Logger,
   NotFoundException,
   ForbiddenException,
+  Inject,
 } from '@nestjs/common';
-import { ChatRepository } from './chat.repository';
+import { ChatConversation, ChatMessage } from '@ordo-todo/core';
+import type { IChatRepository } from '@ordo-todo/core';
 import {
   ProductivityCoachService,
   CoachResponse,
 } from './productivity-coach.service';
-import { ChatRole } from '@prisma/client';
 import {
   CreateConversationDto,
   SendMessageDto,
@@ -24,9 +25,10 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
 
   constructor(
-    private readonly chatRepository: ChatRepository,
+    @Inject('ChatRepository')
+    private readonly chatRepository: IChatRepository,
     private readonly coachService: ProductivityCoachService,
-  ) {}
+  ) { }
 
   /**
    * Create a new conversation, optionally with an initial message
@@ -36,7 +38,7 @@ export class ChatService {
     dto: CreateConversationDto,
   ): Promise<ConversationDetailDto | SendMessageResponseDto> {
     // Create the conversation
-    const conversation = await this.chatRepository.createConversation({
+    const conversationEntity = ChatConversation.create({
       userId,
       title: dto.title,
       context:
@@ -45,21 +47,23 @@ export class ChatService {
           : null,
     });
 
+    const conversation = await this.chatRepository.createConversation(conversationEntity);
+
     // If there's an initial message, process it
     if (dto.initialMessage) {
-      return this.sendMessage(conversation.id, userId, {
+      return this.sendMessage(conversation.id as string, userId, {
         message: dto.initialMessage,
       });
     }
 
     return {
-      id: conversation.id,
-      title: conversation.title,
-      context: conversation.context,
+      id: conversation.id as string,
+      title: conversation.title ?? null,
+      context: conversation.props.context ?? null,
       messages: [],
       isArchived: conversation.isArchived,
-      createdAt: conversation.createdAt,
-      updatedAt: conversation.updatedAt,
+      createdAt: conversation.props.createdAt!,
+      updatedAt: conversation.props.updatedAt!,
     };
   }
 
@@ -75,7 +79,22 @@ export class ChatService {
     limit: number;
     offset: number;
   }> {
-    return this.chatRepository.getConversations(userId, options);
+    const { conversations, total } = await this.chatRepository.findConversationsByUserId(userId, options);
+
+    return {
+      conversations: conversations.map(conv => ({
+        id: conv.id as string,
+        title: conv.title ?? null,
+        context: conv.props.context ?? null,
+        messageCount: conv.props.messages?.length || 0,
+        lastMessage: conv.props.messages?.[0]?.content,
+        createdAt: conv.props.createdAt!,
+        updatedAt: conv.props.updatedAt!,
+      })),
+      total,
+      limit: options?.limit || 20,
+      offset: options?.offset || 0,
+    };
   }
 
   /**
@@ -85,7 +104,7 @@ export class ChatService {
     conversationId: string,
     userId: string,
   ): Promise<ConversationDetailDto> {
-    const conversation = await this.chatRepository.getConversation(
+    const conversation = await this.chatRepository.findConversationById(
       conversationId,
       userId,
     );
@@ -95,30 +114,30 @@ export class ChatService {
     }
 
     return {
-      id: conversation.id,
-      title: conversation.title,
-      context: conversation.context,
-      messages: conversation.messages.map((m) => ({
-        id: m.id,
+      id: conversation.id as string,
+      title: conversation.title ?? null,
+      context: conversation.props.context ?? null,
+      messages: (conversation.props.messages || []).map((m) => ({
+        id: m.id as string,
         role: m.role as 'USER' | 'ASSISTANT' | 'SYSTEM',
         content: m.content,
         metadata: m.metadata as
           | {
-              actions?: Array<{
-                type: string;
-                data?: any;
-                result?: any;
-              }>;
-              suggestions?: string[];
-              modelUsed?: string;
-              processingTimeMs?: number;
-            }
+            actions?: Array<{
+              type: string;
+              data?: any;
+              result?: any;
+            }>;
+            suggestions?: string[];
+            modelUsed?: string;
+            processingTimeMs?: number;
+          }
           | undefined,
         createdAt: m.createdAt,
       })),
       isArchived: conversation.isArchived,
-      createdAt: conversation.createdAt,
-      updatedAt: conversation.updatedAt,
+      createdAt: conversation.props.createdAt!,
+      updatedAt: conversation.props.updatedAt!,
     };
   }
 
@@ -141,30 +160,31 @@ export class ChatService {
       );
     }
 
-    // Get conversation history for context
+    // Get conversation history for context (recent 20)
     const history = await this.chatRepository.getMessageHistory(
       conversationId,
       20,
     );
 
-    // Reverse to get chronological order
-    const chronologicalHistory = history.reverse();
+    // Repositories usually return recent first, reverse to get chronological order for AI
+    const chronologicalHistory = [...history].reverse();
 
     const startTime = Date.now();
 
     // Save user message
-    const userMessage = await this.chatRepository.addMessage({
+    const userMessageEntity = ChatMessage.create({
       conversationId,
-      role: ChatRole.USER,
+      role: 'USER',
       content: dto.message,
     });
+    const userMessage = await this.chatRepository.addMessage(userMessageEntity);
 
     // Get AI response from coach
     const aiResponse: CoachResponse = await this.coachService.chat(
       userId,
       dto.message,
       chronologicalHistory.map((m) => ({
-        role: m.role,
+        role: m.role as any,
         content: m.content,
       })),
     );
@@ -172,9 +192,9 @@ export class ChatService {
     const processingTime = Date.now() - startTime;
 
     // Save AI response
-    const assistantMessage = await this.chatRepository.addMessage({
+    const assistantMessageEntity = ChatMessage.create({
       conversationId,
-      role: ChatRole.ASSISTANT,
+      role: 'ASSISTANT',
       content: aiResponse.message,
       metadata: {
         actions: aiResponse.actions,
@@ -182,18 +202,19 @@ export class ChatService {
         processingTimeMs: processingTime,
       },
     });
+    const assistantMessage = await this.chatRepository.addMessage(assistantMessageEntity);
 
     // Auto-generate title from first message if not set
-    const conversation = await this.chatRepository.getConversation(
+    const conversation = await this.chatRepository.findConversationById(
       conversationId,
       userId,
     );
-    if (!conversation?.title && chronologicalHistory.length === 0) {
+    if (!conversation?.title && history.length === 0) {
       const title = this.generateTitle(dto.message);
-      await this.chatRepository.updateConversationTitle(
+      await this.chatRepository.updateConversation(
         conversationId,
         userId,
-        title,
+        { title },
       );
     }
 
@@ -204,13 +225,13 @@ export class ChatService {
     return {
       conversationId,
       message: {
-        id: userMessage.id,
+        id: userMessage.id as string,
         role: 'USER',
         content: userMessage.content,
         createdAt: userMessage.createdAt,
       },
       aiResponse: {
-        id: assistantMessage.id,
+        id: assistantMessage.id as string,
         role: 'ASSISTANT',
         content: assistantMessage.content,
         metadata:
@@ -238,10 +259,10 @@ export class ChatService {
       );
     }
 
-    await this.chatRepository.updateConversationTitle(
+    await this.chatRepository.updateConversation(
       conversationId,
       userId,
-      title,
+      { title },
     );
   }
 
@@ -262,7 +283,10 @@ export class ChatService {
       );
     }
 
-    await this.chatRepository.archiveConversation(conversationId, userId);
+    await this.chatRepository.updateConversation(conversationId, userId, {
+      isArchived: true,
+      archivedAt: new Date(),
+    });
   }
 
   /**

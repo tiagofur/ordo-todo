@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
-import { ChatRepository } from './chat.repository';
 import { ProductivityCoachService } from './productivity-coach.service';
 import { AIModule } from '../ai/ai.module';
+import { RepositoriesModule } from '../repositories/repositories.module';
 
 @Module({
-  imports: [AIModule],
+  imports: [AIModule, RepositoriesModule],
   controllers: [ChatController],
-  providers: [ChatService, ChatRepository, ProductivityCoachService],
+  providers: [ChatService, ProductivityCoachService],
   exports: [ChatService, ProductivityCoachService],
 })
-export class ChatModule {}
+export class ChatModule { }

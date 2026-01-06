@@ -19,3 +19,4 @@ export * from "./contact";
 export * from "./roadmap";
 export * from "./blog";
 export * from "./gamification";
+export * from "./chat";
