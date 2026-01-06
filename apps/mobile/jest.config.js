@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  preset: "react-native",
+  preset: "jest-expo",
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
   },
@@ -10,7 +10,6 @@ module.exports = {
   ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
-    "^react-native$": "<rootDir>/node_modules/react-native",
   },
   setupFilesAfterEnv: ["@testing-library/jest-native/extend-expect"],
   setupFiles: ["<rootDir>/jest.setup.js"],
