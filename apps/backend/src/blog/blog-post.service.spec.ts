@@ -1,35 +1,63 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BlogPostService } from './blog-post.service';
 import { PrismaService } from '../database/prisma.service';
+import { GeminiAIService } from '../ai/gemini-ai.service';
 import { NotFoundException } from '@nestjs/common';
-
-const mockPrismaService = {
-  blogPost: {
-    create: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  },
-  blogComment: {
-    create: jest.fn(),
-    findUnique: jest.fn(),
-    delete: jest.fn(),
-  },
-};
+import { BlogPost, BlogComment } from '@ordo-todo/core';
+import type { IBlogRepository } from '@ordo-todo/core';
 
 describe('BlogPostService', () => {
   let service: BlogPostService;
-  let prisma: typeof mockPrismaService;
+  let blogRepository: jest.Mocked<IBlogRepository>;
+  let prisma: any;
+
+  const mockPost = new BlogPost({
+    id: 'post-1',
+    slug: 'test-post',
+    title: 'Test Post',
+    content: 'Content',
+    published: false,
+    tags: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  const mockPrisma = {
+    client: {
+      user: {
+        findUnique: jest.fn(),
+      },
+      blogComment: {
+        findUnique: jest.fn(),
+      }
+    },
+  };
+
+  const mockGeminiService = {
+    generateBlogPost: jest.fn(),
+  };
 
   beforeEach(async () => {
+    blogRepository = {
+      findPostById: jest.fn(),
+      findPostBySlug: jest.fn(),
+      findAllPosts: jest.fn(),
+      createPost: jest.fn(),
+      updatePost: jest.fn(),
+      deletePost: jest.fn(),
+      getCategories: jest.fn(),
+      findCommentsByPostId: jest.fn(),
+      findCommentById: jest.fn(),
+      createComment: jest.fn(),
+      deleteComment: jest.fn(),
+    } as any;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BlogPostService,
-        {
-          provide: PrismaService,
-          useValue: mockPrismaService,
-        },
+        { provide: 'BlogRepository', useValue: blogRepository },
+        { provide: GeminiAIService, useValue: mockGeminiService },
+        { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
 
@@ -54,35 +82,59 @@ describe('BlogPostService', () => {
         published: true,
       };
 
-      const expectedResult = { id: '1', ...dto, publishedAt: expect.any(Date) };
-      prisma.blogPost.create.mockResolvedValue(expectedResult);
+      blogRepository.createPost.mockResolvedValue(mockPost.publish());
 
       const result = await service.create(dto);
-      expect(result).toEqual(expectedResult);
-      expect(prisma.blogPost.create).toHaveBeenCalledWith({
-        data: {
-          ...dto,
-          publishedAt: expect.any(Date),
-        },
-      });
+
+      expect(blogRepository.createPost).toHaveBeenCalled();
+      expect(result.published).toBe(true);
     });
   });
 
   describe('findOne', () => {
-    it('should return a blog post if found', async () => {
-      const post = { id: '1', slug: 'test-post', title: 'Test' };
-      prisma.blogPost.findUnique.mockResolvedValue(post);
+    it('should return a blog post with comments', async () => {
+      blogRepository.findPostBySlug.mockResolvedValue(mockPost);
+      blogRepository.findCommentsByPostId.mockResolvedValue([]);
 
       const result = await service.findOne('test-post');
-      expect(result).toEqual(post);
+
+      expect(result.slug).toBe('test-post');
+      expect(result.comments).toEqual([]);
     });
 
     it('should throw NotFoundException if not found', async () => {
-      prisma.blogPost.findUnique.mockResolvedValue(null);
+      blogRepository.findPostBySlug.mockResolvedValue(null);
 
       await expect(service.findOne('non-existent')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('addComment', () => {
+    it('should add a comment and return with user info', async () => {
+      const slug = 'test-post';
+      const userId = 'user-1';
+      const content = 'Great post!';
+
+      blogRepository.findPostBySlug.mockResolvedValue(mockPost);
+      const mockComment = new BlogComment({
+        id: 'comment-1',
+        content,
+        userId,
+        postId: mockPost.id as string,
+        createdAt: new Date(),
+      });
+      blogRepository.createComment.mockResolvedValue(mockComment);
+      prisma.client.user.findUnique.mockResolvedValue({
+        id: userId,
+        name: 'John Doe',
+      });
+
+      const result = await service.addComment(slug, userId, content);
+
+      expect(blogRepository.createComment).toHaveBeenCalled();
+      expect(result.user.name).toBe('John Doe');
     });
   });
 });

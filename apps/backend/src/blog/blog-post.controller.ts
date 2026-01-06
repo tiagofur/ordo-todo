@@ -30,7 +30,7 @@ import type { User } from '@prisma/client';
 @ApiTags('Blog')
 @Controller('blog')
 export class BlogPostController {
-  constructor(private readonly blogPostService: BlogPostService) {}
+  constructor(private readonly blogPostService: BlogPostService) { }
 
   @Get()
   @Public()
@@ -47,8 +47,7 @@ export class BlogPostController {
     return this.blogPostService.findAll({
       skip: skip ? Number(skip) : 0,
       take: take ? Number(take) : 10,
-      where: published ? { published: published === 'true' } : undefined,
-      orderBy: { publishedAt: 'desc' },
+      publishedOnly: published === 'true',
     });
   }
 

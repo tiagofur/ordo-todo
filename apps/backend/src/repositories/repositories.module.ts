@@ -22,6 +22,7 @@ import { PrismaChangelogRepository } from './prisma-changelog.repository';
 import { PrismaNewsletterRepository } from './prisma-newsletter.repository';
 import { PrismaContactRepository } from './prisma-contact.repository';
 import { PrismaRoadmapRepository } from './prisma-roadmap.repository';
+import { PrismaBlogRepository } from './prisma-blog.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -148,6 +149,12 @@ import { PrismaRoadmapRepository } from './prisma-roadmap.repository';
         new PrismaRoadmapRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'BlogRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaBlogRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -171,6 +178,7 @@ import { PrismaRoadmapRepository } from './prisma-roadmap.repository';
     'NewsletterRepository',
     'ContactRepository',
     'RoadmapRepository',
+    'BlogRepository',
   ],
 })
 export class RepositoriesModule { }

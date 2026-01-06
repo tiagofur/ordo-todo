@@ -17,3 +17,4 @@ export * from "./changelog";
 export * from "./newsletter";
 export * from "./contact";
 export * from "./roadmap";
+export * from "./blog";

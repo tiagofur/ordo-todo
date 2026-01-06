@@ -297,19 +297,13 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 
 ### Contenido Público - Fase 2 (Semanas 4-5)
 
-#### 15. Blog ❌
-**Estado actual**: ❌ Violación completa
+#### 15. Blog ✅ **(COMPLETADO)**
+**Estado actual**: ✅ Arquitectura DDD completa
 - **Backend**: `apps/backend/src/blog/`
-- **Problema**: No existe domain layer
-- **Endpoints**: GET /posts, GET /posts/:id
-- **Prisma models**: BlogPost, BlogComment
-
-**Qué falta**:
-1. ❌ `BlogPost` entity
-2. ❌ `BlogPostRepository` interface
-3. ❌ Use cases
-4. ❌ PrismaBlogPostRepository
-5. ❌ Refactorizar BlogService
+- **Core**: `packages/core/src/blog/`
+- **Entity**: `BlogPost`, `BlogComment`
+- **Repository**: `IBlogRepository` → `PrismaBlogRepository`
+- **Tests**: 5 tests pasando
 
 #### 16. Changelog ✅ **(COMPLETADO)**
 **Estado actual**: ✅ Arquitectura DDD completa
@@ -530,13 +524,13 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 22. ✅ **ContactSubmission** → PrismaContactRepository (NUEVO ✅)
 23. ✅ **RoadmapItem** → PrismaRoadmapRepository (NUEVO ✅)
 24. ✅ **RoadmapVote** → PrismaRoadmapRepository (NUEVO ✅)
+25. ✅ **BlogPost** → PrismaBlogRepository (NUEVO ✅)
+26. ✅ **BlogComment** → PrismaBlogRepository (NUEVO ✅)
 
-### Modelos Prisma SIN Repository ❌ (28/52 = 53.8%)
+### Modelos Prisma SIN Repository ❌ (26/52 = 50.0%)
 
 #### Contenido Pública - Media Prioridad
 
-21. ❌ BlogPost - Usado en BlogService
-22. ❌ BlogComment - Usado en BlogService
 25. ❌ FAQ - No tiene service aún
 26. ❌ KBArticle - No tiene service aún
 27. ❌ KBCategory - No tiene service aún
