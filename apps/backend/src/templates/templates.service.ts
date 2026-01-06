@@ -1,35 +1,38 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { TaskTemplate } from '@ordo-todo/core';
+import type { ITaskTemplateRepository } from '@ordo-todo/core';
 import { CreateTemplateDto, UpdateTemplateDto } from './dto/template.dto';
 
 @Injectable()
 export class TemplatesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject('TaskTemplateRepository')
+    private readonly templateRepository: ITaskTemplateRepository
+  ) { }
 
-  async create(dto: CreateTemplateDto) {
-    return this.prisma.taskTemplate.create({
-      data: {
-        ...dto,
-        defaultTags: dto.defaultTags ? (dto.defaultTags as any) : undefined,
-      },
+  async create(dto: CreateTemplateDto): Promise<TaskTemplate> {
+    const template = TaskTemplate.create({
+      name: dto.name,
+      description: dto.description,
+      icon: dto.icon,
+      titlePattern: dto.titlePattern,
+      defaultPriority: dto.defaultPriority as any,
+      defaultEstimatedMinutes: dto.defaultEstimatedMinutes,
+      defaultDescription: dto.defaultDescription,
+      defaultTags: dto.defaultTags,
+      workspaceId: dto.workspaceId,
+      isPublic: dto.isPublic ?? true,
     });
+
+    return this.templateRepository.create(template);
   }
 
-  async findAll(workspaceId: string) {
-    return this.prisma.taskTemplate.findMany({
-      where: {
-        workspaceId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findAll(workspaceId: string): Promise<TaskTemplate[]> {
+    return this.templateRepository.findByWorkspaceId(workspaceId);
   }
 
-  async findOne(id: string) {
-    const template = await this.prisma.taskTemplate.findUnique({
-      where: { id },
-    });
+  async findOne(id: string): Promise<TaskTemplate> {
+    const template = await this.templateRepository.findById(id);
 
     if (!template) {
       throw new NotFoundException(`Task template with ID ${id} not found`);
@@ -38,23 +41,26 @@ export class TemplatesService {
     return template;
   }
 
-  async update(id: string, dto: UpdateTemplateDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateTemplateDto): Promise<TaskTemplate> {
+    const template = await this.findOne(id);
 
-    return this.prisma.taskTemplate.update({
-      where: { id },
-      data: {
-        ...dto,
-        defaultTags: dto.defaultTags ? (dto.defaultTags as any) : undefined,
-      },
+    const updatedTemplate = template.update({
+      name: dto.name,
+      description: dto.description,
+      icon: dto.icon,
+      titlePattern: dto.titlePattern,
+      defaultPriority: dto.defaultPriority as any,
+      defaultEstimatedMinutes: dto.defaultEstimatedMinutes,
+      defaultDescription: dto.defaultDescription,
+      defaultTags: dto.defaultTags,
+      isPublic: dto.isPublic,
     });
+
+    return this.templateRepository.update(updatedTemplate);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     await this.findOne(id);
-
-    return this.prisma.taskTemplate.delete({
-      where: { id },
-    });
+    return this.templateRepository.delete(id);
   }
 }

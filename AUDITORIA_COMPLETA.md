@@ -357,18 +357,15 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 - **Repository**: `IGamificationRepository` → `PrismaGamificationRepository` (con seeding)
 - **Tests**: 6 tests pasando
 
-#### 22. Templates ❌
-**Estado actual**: ❌ Violación completa
+#### 22. Templates ✅ **(COMPLETADO)**
+**Estado actual**: ✅ Arquitectura DDD completa
 - **Backend**: `apps/backend/src/templates/`
-- **Problema**: No existe domain layer
-- **Endpoints**: CRUD de templates
-- **Prisma model**: TaskTemplate
+- **Core**: `packages/core/src/templates/`
+- **Entity**: `TaskTemplate`
+- **Repository**: `ITaskTemplateRepository` → `PrismaTaskTemplateRepository`
+- **Tests**: 7 tests pasando (service)
 
-**Qué falta**:
-1. ❌ `TaskTemplate` entity
-2. ❌ Repository interface
-3. ❌ Use cases
-4. ❌ PrismaTemplateRepository
+
 
 #### 23. Collaboration ❌
 **Estado actual**: ❌ Violación completa
@@ -520,8 +517,9 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 28. ✅ **UserAchievement** → PrismaGamificationRepository (NUEVO ✅)
 29. ✅ **ChatConversation** → PrismaChatRepository (NUEVO ✅)
 30. ✅ **ChatMessage** → PrismaChatRepository (NUEVO ✅)
+31. ✅ **TaskTemplate** → PrismaTaskTemplateRepository (NUEVO ✅)
 
-### Modelos Prisma SIN Repository ❌ (22/52 = 42.3%)
+### Modelos Prisma SIN Repository ❌ (21/52 = 40.4%)
 
 #### Contenido Pública - Media Prioridad
 
@@ -531,7 +529,6 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 
 #### Características Avanzadas - Media Prioridad
 
-34. ❌ TaskTemplate - Usado en TemplatesService
 35. ❌ Objective - Usado en ObjectivesService
 36. ❌ KeyResult - Usado en ObjectivesService
 37. ❌ KeyResultTask - Usado en ObjectivesService
