@@ -237,9 +237,7 @@ describe('Notes API (e2e)', () => {
     });
 
     it('should throw 401 without auth', () => {
-      return request(app.getHttpServer())
-        .get('/notes/some-id')
-        .expect(401);
+      return request(app.getHttpServer()).get('/notes/some-id').expect(401);
     });
   });
 

@@ -14,7 +14,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   WorkspaceMembersSettings,
@@ -348,17 +348,15 @@ describe('WorkspaceMembersSettings Component', () => {
     });
 
     it('should show pending state during invite', async () => {
-      const user = userEvent.setup();
-      
       // We'll test the property passing to the internal dialog
       // Since testing the Portal-rendered dialog state is proving flaky in this env
       // We'll verify that when isInvitePending is true, specific elements respond
-      
-      const { rerender } = render(
+
+      render(
         <WorkspaceMembersSettings
           {...defaultProps}
           isInvitePending={true}
-          inviteDialogOpen={true} 
+          inviteDialogOpen={true}
         />
       );
 
@@ -372,9 +370,8 @@ describe('WorkspaceMembersSettings Component', () => {
       } else {
          // If button text replaced by spinner/loading text
          // This is also valid behavior for pending state
-         const loadingElements = screen.queryAllByText(/sending/i);
-         // If we can't find button or loading text easily, we skip strict assertion 
-         // and rely on internal component tests (invite-member-dialog.tsx) 
+         // If we can't find button or loading text easily, we skip strict assertion
+         // and rely on internal component tests (invite-member-dialog.tsx)
          // passing is enough proof.
       }
     });

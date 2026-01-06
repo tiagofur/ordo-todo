@@ -35,11 +35,12 @@ export class HealthService {
    * Comprehensive health check that verifies all dependencies
    */
   async getHealthCheck(): Promise<HealthCheckResult> {
-    const [dbCheck, redisCheck, memoryCheck] = await Promise.all([
+    const [dbCheck, redisCheck] = await Promise.all([
       this.checkDatabase(),
       this.checkRedis(),
-      this.checkMemory(),
     ]);
+
+    const memoryCheck = this.checkMemory();
 
     const checks = {
       database: dbCheck,

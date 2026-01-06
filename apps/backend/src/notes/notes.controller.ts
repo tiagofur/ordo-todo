@@ -189,10 +189,7 @@ export class NotesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'Note not found' })
-  findOne(
-    @Param('id') id: string,
-    @CurrentUser() user: RequestUser,
-  ) {
+  findOne(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.notesService.findOne(id, user.id);
   }
 
@@ -268,10 +265,7 @@ export class NotesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Only author can delete' })
   @ApiResponse({ status: 404, description: 'Note not found' })
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: RequestUser,
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.notesService.remove(id, user.id);
   }
 }

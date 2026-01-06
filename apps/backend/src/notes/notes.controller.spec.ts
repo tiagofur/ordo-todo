@@ -79,7 +79,10 @@ describe('NotesController', () => {
 
       const result = await controller.create(createDto, mockRequestUser);
 
-      expect(notesService.create).toHaveBeenCalledWith(createDto, mockRequestUser.id);
+      expect(notesService.create).toHaveBeenCalledWith(
+        createDto,
+        mockRequestUser.id,
+      );
       expect(result).toEqual(mockNote);
     });
 
@@ -91,7 +94,9 @@ describe('NotesController', () => {
 
       notesService.create.mockRejectedValue(new Error('Content is required'));
 
-      await expect(controller.create(createDto, mockRequestUser)).rejects.toThrow();
+      await expect(
+        controller.create(createDto, mockRequestUser),
+      ).rejects.toThrow();
     });
   });
 
@@ -122,9 +127,17 @@ describe('NotesController', () => {
         meta: { total: 2, page: 0, limit: 20, totalPages: 1 },
       } as any);
 
-      const result = await controller.findAll(workspaceId, {} as any, mockRequestUser);
+      const result = await controller.findAll(
+        workspaceId,
+        {} as any,
+        mockRequestUser,
+      );
 
-      expect(notesService.findAll).toHaveBeenCalledWith(workspaceId, mockRequestUser.id, expect.any(Object));
+      expect(notesService.findAll).toHaveBeenCalledWith(
+        workspaceId,
+        mockRequestUser.id,
+        expect.any(Object),
+      );
       expect(result).toEqual({
         data: mockNotes,
         meta: { total: 2, page: 0, limit: 20, totalPages: 1 },
@@ -139,9 +152,17 @@ describe('NotesController', () => {
         meta: { total: 0, page: 0, limit: 20, totalPages: 0 },
       } as any);
 
-      const result = await controller.findAll(workspaceId, {} as any, mockRequestUser);
+      const result = await controller.findAll(
+        workspaceId,
+        {} as any,
+        mockRequestUser,
+      );
 
-      expect(notesService.findAll).toHaveBeenCalledWith(workspaceId, mockRequestUser.id, expect.any(Object));
+      expect(notesService.findAll).toHaveBeenCalledWith(
+        workspaceId,
+        mockRequestUser.id,
+        expect.any(Object),
+      );
       expect(result).toEqual({
         data: [],
         meta: { total: 0, page: 0, limit: 20, totalPages: 0 },
@@ -177,7 +198,10 @@ describe('NotesController', () => {
 
       const result = await controller.findOne(noteId, mockRequestUser);
 
-      expect(notesService.findOne).toHaveBeenCalledWith(noteId, mockRequestUser.id);
+      expect(notesService.findOne).toHaveBeenCalledWith(
+        noteId,
+        mockRequestUser.id,
+      );
       expect(result).toEqual(mockNote);
     });
 
@@ -197,7 +221,9 @@ describe('NotesController', () => {
       const noteId = 'note-123';
 
       notesService.findOne.mockRejectedValue(
-        new ForbiddenException('You do not have permission to access this note'),
+        new ForbiddenException(
+          'You do not have permission to access this note',
+        ),
       );
 
       await expect(controller.findOne(noteId, mockRequestUser)).rejects.toThrow(
@@ -220,9 +246,17 @@ describe('NotesController', () => {
 
       notesService.update.mockResolvedValue(updatedNote as any);
 
-      const result = await controller.update(noteId, updateDto, mockRequestUser);
+      const result = await controller.update(
+        noteId,
+        updateDto,
+        mockRequestUser,
+      );
 
-      expect(notesService.update).toHaveBeenCalledWith(noteId, updateDto, mockRequestUser.id);
+      expect(notesService.update).toHaveBeenCalledWith(
+        noteId,
+        updateDto,
+        mockRequestUser.id,
+      );
       expect(result).toEqual(updatedNote);
     });
 
@@ -240,9 +274,17 @@ describe('NotesController', () => {
 
       notesService.update.mockResolvedValue(updatedNote as any);
 
-      const result = await controller.update(noteId, updateDto, mockRequestUser);
+      const result = await controller.update(
+        noteId,
+        updateDto,
+        mockRequestUser,
+      );
 
-      expect(notesService.update).toHaveBeenCalledWith(noteId, updateDto, mockRequestUser.id);
+      expect(notesService.update).toHaveBeenCalledWith(
+        noteId,
+        updateDto,
+        mockRequestUser.id,
+      );
       expect(result).toEqual(updatedNote);
     });
 
@@ -290,7 +332,10 @@ describe('NotesController', () => {
 
       const result = await controller.remove(noteId, mockRequestUser);
 
-      expect(notesService.remove).toHaveBeenCalledWith(noteId, mockRequestUser.id);
+      expect(notesService.remove).toHaveBeenCalledWith(
+        noteId,
+        mockRequestUser.id,
+      );
       expect(result).toEqual(mockNote);
     });
 

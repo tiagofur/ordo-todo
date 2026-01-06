@@ -95,7 +95,11 @@
       "Bash(git revert:*)",
       "Bash(npm run test:cov:*)",
       "Bash(yamllint:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(if:*)",
+      "Bash(then grep -B30 \"253:11\" apps/backend/lint-new.txt)",
+      "Bash(else grep:*)",
+      "Bash(fi:*)"
     ],
     "deny": [],
     "ask": []

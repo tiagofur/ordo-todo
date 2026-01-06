@@ -1,0 +1,289 @@
+
+> @ordo-todo/mobile@1.0.0 test
+> jest --runInBand
+
+FAIL app/screens/(internal)/__tests__/weekly-monthly-reports.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/screens/(internal)/__tests__/workspace-invitations.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/screens/(internal)/__tests__/project-settings.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/screens/(internal)/__tests__/all-tasks.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/lib/hooks/__tests__/use-background-timer.hook.test.ts
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/components/task/__tests__/time-blocking.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/components/shared/__tests__/text-input.component.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/components/shared/__tests__/card.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL app/components/shared/__tests__/button.component.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL e2e/tasks.test.ts
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL e2e/navigation.test.ts
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL e2e/auth.test.ts
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+FAIL e2e/app-launch.test.ts
+  ÔùÅ Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module react-native mapped as:
+    C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^react-native$/": "C:\Users\tfurt\source\repos\ordo-todo\apps\mobile\node_modules\react-native"
+      },
+      "resolver": undefined
+    }
+
+      at createNoMappedModuleFoundError (../../node_modules/jest-resolve/build/index.js:1117:17)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/to-be-visible.js:4:24)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/dist/extend-expect.js:6:25)
+      at Object.<anonymous> (../../node_modules/@testing-library/jest-native/extend-expect.js:1:1)
+
+Test Suites: 13 failed, 13 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        1.716 s
+Ran all test suites.
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\mobile
+npm error workspace @ordo-todo/mobile@1.0.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\mobile
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c jest --runInBand

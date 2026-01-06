@@ -250,10 +250,13 @@ export class CacheInvalidateInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      tap(async (result) => {
+      tap((result) => {
         // Only invalidate if operation was successful
         if (result) {
-          await this.invalidateCache(context, invalidateMetadata);
+          // Fire and forget - don't await in tap
+          this.invalidateCache(context, invalidateMetadata).catch((error) => {
+            this.logger.error('Cache invalidation failed:', error);
+          });
         }
       }),
     );

@@ -200,28 +200,42 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
 
   app.enableShutdownHooks();
 
-  process.on('SIGTERM', async () => {
+  process.on('SIGTERM', () => {
     console.log('SIGTERM signal received: closing HTTP server');
     setTimeout(() => {
       console.error('Forced shutdown after timeout');
       process.exit(1);
     }, gracefulShutdownTimeout);
 
-    await app.close();
-    console.log('HTTP server closed');
-    process.exit(0);
+    app
+      .close()
+      .then(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+      })
+      .catch((error) => {
+        console.error('Error during shutdown:', error);
+        process.exit(1);
+      });
   });
 
-  process.on('SIGINT', async () => {
+  process.on('SIGINT', () => {
     console.log('SIGINT signal received: closing HTTP server');
     setTimeout(() => {
       console.error('Forced shutdown after timeout');
       process.exit(1);
     }, gracefulShutdownTimeout);
 
-    await app.close();
-    console.log('HTTP server closed');
-    process.exit(0);
+    app
+      .close()
+      .then(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+      })
+      .catch((error) => {
+        console.error('Error during shutdown:', error);
+        process.exit(1);
+      });
   });
 }
 bootstrap();
