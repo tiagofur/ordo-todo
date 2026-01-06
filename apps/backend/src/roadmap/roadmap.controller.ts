@@ -28,7 +28,7 @@ import { Public } from '../common/decorators/public.decorator';
 @ApiTags('Roadmap')
 @Controller('roadmap')
 export class RoadmapController {
-  constructor(private readonly roadmapService: RoadmapService) {}
+  constructor(private readonly roadmapService: RoadmapService) { }
 
   @Get()
   @Public()
@@ -38,7 +38,6 @@ export class RoadmapController {
     return this.roadmapService.findAll({
       skip: skip ? Number(skip) : 0,
       take: take ? Number(take) : 50,
-      orderBy: { totalVotes: 'desc' },
     });
   }
 

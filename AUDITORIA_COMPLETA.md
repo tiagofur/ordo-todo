@@ -335,18 +335,13 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 - **Repository**: `IContactRepository` → `PrismaContactRepository`
 - **Tests**: 7 tests pasando
 
-#### 19. Roadmap ❌
-**Estado actual**: ❌ Violación completa
+#### 19. Roadmap ✅ **(COMPLETADO)**
+**Estado actual**: ✅ Arquitectura DDD completa
 - **Backend**: `apps/backend/src/roadmap/`
-- **Problema**: No existe domain layer
-- **Endpoints**: GET /roadmap
-- **Prisma models**: RoadmapItem, RoadmapVote
-
-**Qué falta**:
-1. ❌ `RoadmapItem`, `RoadmapVote` entities
-2. ❌ Repository interfaces
-3. ❌ Use cases
-4. ❌ PrismaRoadmapRepository
+- **Core**: `packages/core/src/roadmap/`
+- **Entity**: `RoadmapItem`, `RoadmapVote` (con lógica de peso de voto)
+- **Repository**: `IRoadmapRepository` → `PrismaRoadmapRepository` (con transacciones)
+- **Tests**: 7 tests pasando
 
 ---
 
@@ -533,15 +528,15 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 20. ✅ **ChangelogEntry** → PrismaChangelogRepository (NUEVO ✅)
 21. ✅ **NewsletterSubscriber** → PrismaNewsletterRepository (NUEVO ✅)
 22. ✅ **ContactSubmission** → PrismaContactRepository (NUEVO ✅)
+23. ✅ **RoadmapItem** → PrismaRoadmapRepository (NUEVO ✅)
+24. ✅ **RoadmapVote** → PrismaRoadmapRepository (NUEVO ✅)
 
-### Modelos Prisma SIN Repository ❌ (30/52 = 57.7%)
+### Modelos Prisma SIN Repository ❌ (28/52 = 53.8%)
 
 #### Contenido Pública - Media Prioridad
 
 21. ❌ BlogPost - Usado en BlogService
 22. ❌ BlogComment - Usado en BlogService
-23. ❌ RoadmapItem - Usado en RoadmapService
-24. ❌ RoadmapVote - Usado en RoadmapService
 25. ❌ FAQ - No tiene service aún
 26. ❌ KBArticle - No tiene service aún
 27. ❌ KBCategory - No tiene service aún

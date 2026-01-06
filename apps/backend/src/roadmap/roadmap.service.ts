@@ -1,45 +1,47 @@
 import {
   Injectable,
+  Inject,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { RoadmapItem, RoadmapVote, calculateVoteWeight } from '@ordo-todo/core';
+import type { IRoadmapRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import { CreateRoadmapItemDto } from './dto/create-roadmap-item.dto';
 import { UpdateRoadmapItemStatusDto } from './dto/update-roadmap-item-status.dto';
-import { Prisma, RoadmapStatus, SubscriptionPlan } from '@prisma/client';
+import { RoadmapStatus } from '@prisma/client';
 
 @Injectable()
 export class RoadmapService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject('RoadmapRepository')
+    private readonly roadmapRepository: IRoadmapRepository,
+    private readonly prisma: PrismaService, // Still needed for user/subscription lookup for now
+  ) { }
 
   async create(data: CreateRoadmapItemDto) {
-    return this.prisma.roadmapItem.create({
-      data: {
-        ...data,
-        status: RoadmapStatus.CONSIDERING,
-      },
+    const item = RoadmapItem.create({
+      title: data.title,
+      description: data.description,
     });
+
+    return this.roadmapRepository.createItem(item);
   }
 
   async findAll(params: {
     skip?: number;
     take?: number;
-    where?: Prisma.RoadmapItemWhereInput;
-    orderBy?: Prisma.RoadmapItemOrderByWithRelationInput;
+    status?: string;
   }) {
-    const { skip, take, where, orderBy } = params;
-    return this.prisma.roadmapItem.findMany({
-      skip,
-      take,
-      where,
-      orderBy: orderBy || { totalVotes: 'desc' }, // Default sort by votes
+    return this.roadmapRepository.findAllItems({
+      skip: params.skip,
+      take: params.take,
+      status: params.status as any,
     });
   }
 
   async findOne(id: string) {
-    const item = await this.prisma.roadmapItem.findUnique({
-      where: { id },
-    });
+    const item = await this.roadmapRepository.findItemById(id);
     if (!item) {
       throw new NotFoundException(`Roadmap item '${id}' not found`);
     }
@@ -48,105 +50,56 @@ export class RoadmapService {
 
   async updateStatus(id: string, dto: UpdateRoadmapItemStatusDto) {
     await this.findOne(id);
-    return this.prisma.roadmapItem.update({
-      where: { id },
-      data: { status: dto.status },
-    });
+    return this.roadmapRepository.updateItem(id, { status: dto.status as any });
   }
 
   async delete(id: string) {
     await this.findOne(id);
-    return this.prisma.roadmapItem.delete({
-      where: { id },
-    });
+    await this.roadmapRepository.deleteItem(id);
+    return { success: true };
   }
 
   async vote(itemId: string, userId: string) {
     // Check if item exists
-    const item = await this.findOne(itemId);
+    await this.findOne(itemId);
 
     // Check if user already voted
-    const existingVote = await this.prisma.roadmapVote.findUnique({
-      where: {
-        itemId_userId: { itemId, userId },
-      },
-    });
-
-    if (existingVote) {
+    const hasVoted = await this.roadmapRepository.hasUserVoted(itemId, userId);
+    if (hasVoted) {
       throw new BadRequestException('User already voted for this item');
     }
 
     // Determine weight based on subscription
-    const user = await this.prisma.user.findUnique({
+    // Note: In a full DDD implementation, we might have a Subscription service or repository
+    const user = await this.prisma.client.user.findUnique({
       where: { id: userId },
       include: { subscription: true },
     });
 
     if (!user) {
-      throw new NotFoundException('User not found'); // Should not happen if guarded
+      throw new NotFoundException('User not found');
     }
 
     let weight = 1;
     if (user.subscription && user.subscription.status === 'ACTIVE') {
-      switch (user.subscription.plan) {
-        case SubscriptionPlan.PRO:
-          weight = 3;
-          break;
-        case SubscriptionPlan.TEAM:
-          weight = 5;
-          break;
-        case SubscriptionPlan.ENTERPRISE:
-          weight = 10;
-          break;
-        default:
-          weight = 1;
-      }
+      weight = calculateVoteWeight(user.subscription.plan);
     }
 
-    // Transaction: Create vote and update totalVotes
-    return this.prisma.$transaction(async (tx) => {
-      const vote = await tx.roadmapVote.create({
-        data: {
-          itemId,
-          userId,
-          weight,
-        },
-      });
-
-      const updatedItem = await tx.roadmapItem.update({
-        where: { id: itemId },
-        data: {
-          totalVotes: { increment: weight },
-        },
-      });
-
-      return { vote, item: updatedItem };
+    const vote = RoadmapVote.create({
+      itemId,
+      userId,
+      weight,
     });
+
+    return this.roadmapRepository.createVote(vote);
   }
 
   async removeVote(itemId: string, userId: string) {
-    const existingVote = await this.prisma.roadmapVote.findUnique({
-      where: { itemId_userId: { itemId, userId } },
-    });
-
-    if (!existingVote) {
+    const hasVoted = await this.roadmapRepository.hasUserVoted(itemId, userId);
+    if (!hasVoted) {
       throw new NotFoundException('Vote not found');
     }
 
-    // Transaction: Delete vote and decrement totalVotes
-    return this.prisma.$transaction(async (tx) => {
-      await tx.roadmapVote.delete({
-        where: { id: existingVote.id },
-      });
-
-      const updatedItem = await tx.roadmapItem.update({
-        where: { id: itemId },
-        data: {
-          totalVotes: { decrement: existingVote.weight },
-        },
-      });
-
-      return updatedItem;
-    });
+    return this.roadmapRepository.deleteVote(itemId, userId);
   }
 }

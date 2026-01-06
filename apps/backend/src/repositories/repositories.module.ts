@@ -21,6 +21,7 @@ import { PrismaHabitRepository } from './prisma-habit.repository';
 import { PrismaChangelogRepository } from './prisma-changelog.repository';
 import { PrismaNewsletterRepository } from './prisma-newsletter.repository';
 import { PrismaContactRepository } from './prisma-contact.repository';
+import { PrismaRoadmapRepository } from './prisma-roadmap.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -141,6 +142,12 @@ import { PrismaContactRepository } from './prisma-contact.repository';
         new PrismaContactRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'RoadmapRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaRoadmapRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -163,6 +170,7 @@ import { PrismaContactRepository } from './prisma-contact.repository';
     'ChangelogRepository',
     'NewsletterRepository',
     'ContactRepository',
+    'RoadmapRepository',
   ],
 })
 export class RepositoriesModule { }
