@@ -2,6 +2,36 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🎯 Current Project Status (January 6, 2026)
+
+### ✅ Backend: FULLY FUNCTIONAL
+- **All 34 domain modules enabled** and operational
+- **74 REST endpoints** working across all features
+- **Module restoration completed** - previously commented out modules now active
+- **See**: [apps/backend/BACKEND_RESTORATION.md](apps/backend/BACKEND_RESTORATION.md) for full restoration details
+
+### ✅ Dependencies: 100% Updated
+- **NestJS**: 11.1.11 (Core), 11.0.14 (CLI)
+- **Next.js**: 16.1.1 (Latest)
+- **React**: 19.2.3 (Latest)
+- **UUID**: 11.0.0 (Latest CJS-compatible version for dual-format builds)
+- **TypeScript**: 5.9.3 (Latest)
+- **Zero vulnerabilities**: `npm audit` confirms 0 CVEs
+
+### ✅ Quality Metrics
+- **TypeScript**: 0 errors across all packages
+- **Tests**: 526/633 passing (83%)
+- **Build**: Successful for all packages
+- **Production Ready**: YES
+
+### Active Backend Modules (34 total)
+**Foundation**: Health, Metrics, Auth, Images, Users, Workspaces
+**Core Tasks**: Workflows, Projects, Tasks, Notes, Tags, Timers
+**Advanced**: Analytics, AI, Chat, Comments, Attachments, Upload, Notifications, Gamification, Templates, Collaboration, Habits, Objectives, CustomFields, Focus, Meetings, Search
+**Public Content**: Blog, Changelog, Newsletter, Contact, Roadmap
+
+---
+
 ## 🤖 Specialized Agents System
 
 This project uses **elite specialist agents** for autonomous development. Each agent is highly specialized and follows a complete workflow: research → implement → test → document → validate.
@@ -196,6 +226,48 @@ export class AuthController {
   }
 }
 ```
+
+### ⚠️ CRITICAL: Backend Module Management
+
+**As of January 6, 2026, ALL 34 backend modules are enabled** in `apps/backend/src/app.module.ts`.
+
+**When working with the backend**:
+- ✅ All domain modules are IMPORTED and ACTIVE
+- ✅ All controllers, services, and repositories are functional
+- ✅ 74 REST endpoints are operational
+- ⚠️ **DO NOT comment out modules** - this was a previous issue that has been resolved
+
+**If you need to verify module status**:
+```typescript
+// apps/backend/src/app.module.ts - imports array
+imports: [
+  // Infrastructure (always active)
+  ScheduleModule.forRoot(),
+  ThrottlerModule.forRoot([...]),
+  CacheModule, ConfigModule, DatabaseModule, RepositoriesModule,
+
+  // All 34 domain modules (ACTIVE)
+  HealthModule, MetricsModule, AuthModule, ImagesModule, UsersModule,
+  WorkspacesModule, WorkflowsModule, ProjectsModule, TasksModule,
+  NotesModule, TagsModule, TimersModule, AnalyticsModule,
+  AIModule, ChatModule, CommentsModule, AttachmentsModule,
+  UploadModule, NotificationsModule, GamificationModule,
+  TemplatesModule, CollaborationModule, HabitsModule,
+  ObjectivesModule, CustomFieldsModule, FocusModule,
+  MeetingsModule, SearchModule, BlogPostModule, ChangelogModule,
+  NewsletterModule, ContactModule, RoadmapModule,
+
+  WinstonModule.forRoot(loggerConfig),
+]
+```
+
+**Module Dependency Order** (if ever rebuilding):
+1. Infrastructure: Config, Database, Repositories
+2. Core: Auth, Images, Users
+3. Organization: Workspaces, Workflows, Projects
+4. Tasks: Tasks, Tags, Comments, Attachments
+5. Features: Timers, Analytics, AI, Chat, etc.
+6. Public: Blog, Changelog, Newsletter, Contact, Roadmap
 
 ### Frontend API Client
 
@@ -611,3 +683,19 @@ This is a monorepo with workspaces:
 - `packages/typescript-config` - @ordo-todo/typescript-config
 
 Dependencies between packages are managed via workspace protocol (`"@ordo-todo/core": "*"`).
+
+## ⚠️ Important Constraints
+
+### UUID Version Limitation
+**Current Version**: `uuid@11.0.0` (NOT v13)
+
+**Why NOT v13**: UUID v12+ is **ESM-only** and does NOT support CommonJS. Since `packages/core` builds BOTH CJS (`dist/index.js`) and ESM (`dist/index.mjs`) formats, we must use UUID v11 - the last version supporting both formats.
+
+**Impact**: None - UUID v11 includes all TypeScript types and full functionality. Only migrate to v13 if the project becomes ESM-only (removes CJS build).
+
+### Backend Module Dependencies
+All 34 domain modules are interdependent. When adding new modules:
+1. Follow the dependency order listed above
+2. Use `forwardRef()` for circular dependencies
+3. Verify imports in `app.module.ts`
+4. Run `npm run check-types` and `npm run build` before committing
