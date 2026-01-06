@@ -63,7 +63,7 @@ jobs:
                     if [ -f package-lock.json ]; then
                       if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
-                      if npm install; then SUCCESS=true; fi
+                      if npm install --legacy-peer-deps; then SUCCESS=true; fi
                     fi
                     
                     if [ "$SUCCESS" = true ]; then
@@ -172,7 +172,7 @@ jobs:
                     if [ -f package-lock.json ]; then
                       if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
-                      if npm install; then SUCCESS=true; fi
+                      if npm install --legacy-peer-deps; then SUCCESS=true; fi
                     fi
                     
                     if [ "$SUCCESS" = true ]; then
@@ -264,7 +264,7 @@ jobs:
                     if [ -f package-lock.json ]; then
                       if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
-                      if npm install; then SUCCESS=true; fi
+                      if npm install --legacy-peer-deps; then SUCCESS=true; fi
                     fi
                     
                     if [ "$SUCCESS" = true ]; then
@@ -347,7 +347,7 @@ jobs:
                     if [ -f package-lock.json ]; then
                       if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
-                      if npm install; then SUCCESS=true; fi
+                      if npm install --legacy-peer-deps; then SUCCESS=true; fi
                     fi
                     
                     if [ "$SUCCESS" = true ]; then
@@ -425,7 +425,7 @@ jobs:
                     if [ -f package-lock.json ]; then
                       if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
-                      if npm install; then SUCCESS=true; fi
+                      if npm install --legacy-peer-deps; then SUCCESS=true; fi
                     fi
                     
                     if [ "$SUCCESS" = true ]; then
