@@ -3,61 +3,55 @@ import {
   NotFoundException,
   Logger,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { Objective, KeyResult } from '@ordo-todo/core';
+import type { IObjectiveRepository } from '@ordo-todo/core';
 import { CreateObjectiveDto } from './dto/create-objective.dto';
 import { UpdateObjectiveDto } from './dto/update-objective.dto';
 import { CreateKeyResultDto } from './dto/create-key-result.dto';
 import { UpdateKeyResultDto } from './dto/update-key-result.dto';
 import { LinkTaskDto } from './dto/link-task.dto';
 import {
-  startOfDay,
-  endOfDay,
   startOfQuarter,
   endOfQuarter,
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-  startOfWeek,
-  endOfWeek,
   differenceInDays,
 } from 'date-fns';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class ObjectivesService {
   private readonly logger = new Logger(ObjectivesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject('ObjectiveRepository')
+    private readonly objectiveRepository: IObjectiveRepository,
+    // We keep PrismaService for complex queries with includes that are not yet in repositories
+    // or for cross-domain checks.
+    private readonly prisma: PrismaService,
+  ) { }
 
   /**
    * Create a new objective
    */
-  async create(createDto: CreateObjectiveDto, userId: string) {
+  async create(createDto: CreateObjectiveDto, userId: string): Promise<Objective> {
     this.logger.log(
       `Creating objective for user ${userId}: ${createDto.title}`,
     );
 
-    const objective = await this.prisma.client.objective.create({
-      data: {
-        title: createDto.title,
-        description: createDto.description,
-        startDate: createDto.startDate
-          ? new Date(createDto.startDate)
-          : new Date(),
-        endDate: new Date(createDto.endDate),
-        period: createDto.period ?? 'QUARTERLY',
-        color: createDto.color ?? '#3B82F6',
-        icon: createDto.icon,
-        workspaceId: createDto.workspaceId,
-        userId,
-      },
-      include: {
-        keyResults: true,
-      },
+    const objective = Objective.create({
+      title: createDto.title,
+      description: createDto.description,
+      userId,
+      workspaceId: createDto.workspaceId,
+      startDate: createDto.startDate ? new Date(createDto.startDate) : new Date(),
+      endDate: new Date(createDto.endDate),
+      period: (createDto.period as any) ?? 'QUARTERLY',
+      color: createDto.color ?? '#3B82F6',
+      icon: createDto.icon,
     });
 
-    return objective;
+    return this.objectiveRepository.create(objective);
   }
 
   /**
@@ -66,84 +60,37 @@ export class ObjectivesService {
   async findAll(
     userId: string,
     options?: { status?: string; period?: string; workspaceId?: string },
-  ) {
-    const where: any = { userId };
+  ): Promise<Objective[]> {
+    // For now we use the repository and manual filtering if needed, 
+    // or keep using prisma if the repository doesn't support complex filters yet.
+    // Let's implement filters in repository later if needed, for now use user repository findByUserId
+    let objectives = await this.objectiveRepository.findByUserId(userId);
 
     if (options?.status) {
-      where.status = options.status;
+      objectives = objectives.filter(o => o.props.status === options.status);
     }
-
     if (options?.workspaceId) {
-      where.workspaceId = options.workspaceId;
+      objectives = objectives.filter(o => o.props.workspaceId === options.workspaceId);
     }
 
-    return this.prisma.client.objective.findMany({
-      where,
-      include: {
-        keyResults: {
-          include: {
-            linkedTasks: {
-              include: {
-                task: {
-                  select: {
-                    id: true,
-                    title: true,
-                    status: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        workspace: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-      orderBy: [{ status: 'asc' }, { endDate: 'asc' }],
-    });
+    return objectives;
   }
 
   /**
    * Get objectives for the current period (quarter by default)
    */
-  async findCurrentPeriod(userId: string) {
+  async findCurrentPeriod(userId: string): Promise<Objective[]> {
     const now = new Date();
     const quarterStart = startOfQuarter(now);
     const quarterEnd = endOfQuarter(now);
 
-    return this.prisma.client.objective.findMany({
-      where: {
-        userId,
-        status: { in: ['ACTIVE', 'AT_RISK'] },
-        OR: [
-          {
-            startDate: { lte: quarterEnd },
-            endDate: { gte: quarterStart },
-          },
-        ],
-      },
-      include: {
-        keyResults: {
-          include: {
-            linkedTasks: {
-              include: {
-                task: {
-                  select: {
-                    id: true,
-                    title: true,
-                    status: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      orderBy: { endDate: 'asc' },
-    });
+    const objectives = await this.objectiveRepository.findByUserId(userId);
+
+    return objectives.filter(o =>
+      (o.props.status === 'ACTIVE' || (o.props.status as any) === 'AT_RISK') &&
+      o.props.startDate <= quarterEnd &&
+      o.props.endDate >= quarterStart
+    );
   }
 
   /**
@@ -154,23 +101,23 @@ export class ObjectivesService {
 
     const summary = {
       total: objectives.length,
-      completed: objectives.filter((o) => o.status === 'COMPLETED').length,
-      atRisk: objectives.filter((o) => o.status === 'AT_RISK').length,
+      completed: objectives.filter((o) => o.props.status === 'COMPLETED').length,
+      atRisk: objectives.filter((o) => (o.props.status as any) === 'AT_RISK').length,
       averageProgress:
         objectives.length > 0
           ? Math.round(
-              objectives.reduce((sum, o) => sum + o.progress, 0) /
-                objectives.length,
-            )
+            objectives.reduce((sum, o) => sum + o.progress, 0) /
+            objectives.length,
+          )
           : 0,
       objectives: objectives.slice(0, 3).map((o) => ({
-        id: o.id,
+        id: o.id as string,
         title: o.title,
         progress: o.progress,
-        status: o.status,
-        color: o.color,
-        daysRemaining: differenceInDays(o.endDate, new Date()),
-        keyResultsCount: o.keyResults.length,
+        status: o.props.status,
+        color: o.props.color,
+        daysRemaining: differenceInDays(o.props.endDate, new Date()),
+        keyResultsCount: o.props.keyResults?.length || 0,
       })),
     };
 
@@ -180,43 +127,10 @@ export class ObjectivesService {
   /**
    * Get a single objective
    */
-  async findOne(id: string, userId: string) {
-    const objective = await this.prisma.client.objective.findFirst({
-      where: { id, userId },
-      include: {
-        keyResults: {
-          include: {
-            linkedTasks: {
-              include: {
-                task: {
-                  select: {
-                    id: true,
-                    title: true,
-                    status: true,
-                    priority: true,
-                    dueDate: true,
-                    project: {
-                      select: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        workspace: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+  async findOne(id: string, userId: string): Promise<Objective> {
+    const objective = await this.objectiveRepository.findById(id);
 
-    if (!objective) {
+    if (!objective || objective.userId !== userId) {
       throw new NotFoundException(`Objective with ID ${id} not found`);
     }
 
@@ -226,35 +140,26 @@ export class ObjectivesService {
   /**
    * Update an objective
    */
-  async update(id: string, updateDto: UpdateObjectiveDto, userId: string) {
-    await this.findOne(id, userId);
+  async update(id: string, updateDto: UpdateObjectiveDto, userId: string): Promise<Objective> {
+    const objective = await this.findOne(id, userId);
 
-    const updateData: any = { ...updateDto };
+    const updatedObjective = objective.clone({
+      ...updateDto,
+      startDate: updateDto.startDate ? new Date(updateDto.startDate) : objective.props.startDate,
+      endDate: updateDto.endDate ? new Date(updateDto.endDate) : objective.props.endDate,
+      period: updateDto.period as any ?? objective.props.period,
+      updatedAt: new Date(),
+    } as any);
 
-    if (updateDto.startDate) {
-      updateData.startDate = new Date(updateDto.startDate);
-    }
-    if (updateDto.endDate) {
-      updateData.endDate = new Date(updateDto.endDate);
-    }
-
-    const objective = await this.prisma.client.objective.update({
-      where: { id },
-      data: updateData,
-      include: {
-        keyResults: true,
-      },
-    });
-
-    return objective;
+    return this.objectiveRepository.update(updatedObjective);
   }
 
   /**
    * Delete an objective
    */
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<{ success: boolean }> {
     await this.findOne(id, userId);
-    await this.prisma.client.objective.delete({ where: { id } });
+    await this.objectiveRepository.delete(id);
     return { success: true };
   }
 
@@ -267,29 +172,26 @@ export class ObjectivesService {
     objectiveId: string,
     createDto: CreateKeyResultDto,
     userId: string,
-  ) {
+  ): Promise<KeyResult> {
     await this.findOne(objectiveId, userId);
 
-    const keyResult = await this.prisma.client.keyResult.create({
-      data: {
-        objectiveId,
-        title: createDto.title,
-        description: createDto.description,
-        metricType: createDto.metricType ?? 'PERCENTAGE',
-        startValue: createDto.startValue ?? 0,
-        targetValue: createDto.targetValue,
-        currentValue: createDto.currentValue ?? 0,
-        unit: createDto.unit,
-      },
-      include: {
-        linkedTasks: true,
-      },
+    const keyResult = KeyResult.create({
+      objectiveId,
+      title: createDto.title,
+      description: createDto.description,
+      metricType: (createDto.metricType as any) ?? 'PERCENTAGE',
+      startValue: createDto.startValue ?? 0,
+      targetValue: createDto.targetValue,
+      currentValue: createDto.currentValue ?? 0,
+      unit: createDto.unit,
     });
+
+    const created = await this.objectiveRepository.createKeyResult(keyResult);
 
     // Recalculate objective progress
     await this.recalculateObjectiveProgress(objectiveId);
 
-    return keyResult;
+    return created;
   }
 
   /**
@@ -299,45 +201,34 @@ export class ObjectivesService {
     keyResultId: string,
     updateDto: UpdateKeyResultDto,
     userId: string,
-  ) {
-    const keyResult = await this.prisma.client.keyResult.findFirst({
-      where: { id: keyResultId },
-      include: { objective: true },
-    });
+  ): Promise<KeyResult> {
+    const keyResult = await this.objectiveRepository.findKeyResultById(keyResultId);
 
     if (!keyResult) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    if (keyResult.objective.userId !== userId) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+    // Verify ownership via objective
+    const objective = await this.objectiveRepository.findById(keyResult.props.objectiveId);
+    if (!objective || objective.userId !== userId) {
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    const updated = await this.prisma.client.keyResult.update({
-      where: { id: keyResultId },
-      data: updateDto,
-      include: {
-        linkedTasks: {
-          include: {
-            task: {
-              select: {
-                id: true,
-                title: true,
-                status: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const updatedKR = keyResult.clone({
+      ...updateDto,
+      updatedAt: new Date(),
+    } as any);
 
-    // Recalculate progress
-    await this.recalculateKeyResultProgress(keyResultId);
-    await this.recalculateObjectiveProgress(keyResult.objectiveId);
+    // If values changed, update progress
+    let finalKR = updatedKR;
+    if (updateDto.currentValue !== undefined) {
+      finalKR = updatedKR.updateProgress(updateDto.currentValue);
+    }
+
+    const updated = await this.objectiveRepository.updateKeyResult(finalKR);
+
+    // Recalculate objective progress
+    await this.recalculateObjectiveProgress(keyResult.props.objectiveId);
 
     return updated;
   }
@@ -345,26 +236,20 @@ export class ObjectivesService {
   /**
    * Delete a key result
    */
-  async removeKeyResult(keyResultId: string, userId: string) {
-    const keyResult = await this.prisma.client.keyResult.findFirst({
-      where: { id: keyResultId },
-      include: { objective: true },
-    });
+  async removeKeyResult(keyResultId: string, userId: string): Promise<{ success: boolean }> {
+    const keyResult = await this.objectiveRepository.findKeyResultById(keyResultId);
 
     if (!keyResult) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    if (keyResult.objective.userId !== userId) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+    const objective = await this.objectiveRepository.findById(keyResult.props.objectiveId);
+    if (!objective || objective.userId !== userId) {
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    const objectiveId = keyResult.objectiveId;
-    await this.prisma.client.keyResult.delete({ where: { id: keyResultId } });
+    const objectiveId = keyResult.props.objectiveId;
+    await this.objectiveRepository.deleteKeyResult(keyResultId);
 
     // Recalculate objective progress
     await this.recalculateObjectiveProgress(objectiveId);
@@ -378,24 +263,19 @@ export class ObjectivesService {
    * Link a task to a key result
    */
   async linkTask(keyResultId: string, linkDto: LinkTaskDto, userId: string) {
-    const keyResult = await this.prisma.client.keyResult.findFirst({
-      where: { id: keyResultId },
-      include: { objective: true },
-    });
+    const keyResult = await this.objectiveRepository.findKeyResultById(keyResultId);
 
     if (!keyResult) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    if (keyResult.objective.userId !== userId) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+    const objective = await this.objectiveRepository.findById(keyResult.props.objectiveId);
+    if (!objective || objective.userId !== userId) {
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
     // Verify task exists and belongs to user
+    // We use prisma for now as TaskRepository might not be injected or the service is not ready
     const task = await this.prisma.client.task.findFirst({
       where: { id: linkDto.taskId, ownerId: userId },
     });
@@ -404,83 +284,27 @@ export class ObjectivesService {
       throw new NotFoundException(`Task with ID ${linkDto.taskId} not found`);
     }
 
-    // Check if already linked
-    const existing = await this.prisma.client.keyResultTask.findUnique({
-      where: {
-        keyResultId_taskId: {
-          keyResultId,
-          taskId: linkDto.taskId,
-        },
-      },
-    });
+    await this.objectiveRepository.linkTask(keyResultId, linkDto.taskId, linkDto.weight);
 
-    if (existing) {
-      throw new BadRequestException(
-        'Task is already linked to this Key Result',
-      );
-    }
-
-    const link = await this.prisma.client.keyResultTask.create({
-      data: {
-        keyResultId,
-        taskId: linkDto.taskId,
-        weight: linkDto.weight ?? 1,
-      },
-      include: {
-        task: {
-          select: {
-            id: true,
-            title: true,
-            status: true,
-          },
-        },
-      },
-    });
-
-    // Recalculate progress if metric type is TASK_COUNT
-    if (keyResult.metricType === 'TASK_COUNT') {
-      await this.recalculateKeyResultProgress(keyResultId);
-      await this.recalculateObjectiveProgress(keyResult.objectiveId);
-    }
-
-    return link;
+    return { success: true };
   }
 
   /**
    * Unlink a task from a key result
    */
   async unlinkTask(keyResultId: string, taskId: string, userId: string) {
-    const keyResult = await this.prisma.client.keyResult.findFirst({
-      where: { id: keyResultId },
-      include: { objective: true },
-    });
+    const keyResult = await this.objectiveRepository.findKeyResultById(keyResultId);
 
     if (!keyResult) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    if (keyResult.objective.userId !== userId) {
-      throw new NotFoundException(
-        `Key Result with ID ${keyResultId} not found`,
-      );
+    const objective = await this.objectiveRepository.findById(keyResult.props.objectiveId);
+    if (!objective || objective.userId !== userId) {
+      throw new NotFoundException(`Key Result with ID ${keyResultId} not found`);
     }
 
-    await this.prisma.client.keyResultTask.delete({
-      where: {
-        keyResultId_taskId: {
-          keyResultId,
-          taskId,
-        },
-      },
-    });
-
-    // Recalculate progress if metric type is TASK_COUNT
-    if (keyResult.metricType === 'TASK_COUNT') {
-      await this.recalculateKeyResultProgress(keyResultId);
-      await this.recalculateObjectiveProgress(keyResult.objectiveId);
-    }
+    await this.objectiveRepository.unlinkTask(keyResultId, taskId);
 
     return { success: true };
   }
@@ -488,123 +312,42 @@ export class ObjectivesService {
   // ============ PROGRESS CALCULATIONS ============
 
   /**
-   * Calculate and update key result progress
-   */
-  private async recalculateKeyResultProgress(keyResultId: string) {
-    const keyResult = await this.prisma.client.keyResult.findUnique({
-      where: { id: keyResultId },
-      include: {
-        linkedTasks: {
-          include: {
-            task: true,
-          },
-        },
-      },
-    });
-
-    if (!keyResult) return;
-
-    let progress = 0;
-
-    if (keyResult.metricType === 'BOOLEAN') {
-      progress = keyResult.currentValue > 0 ? 100 : 0;
-    } else if (keyResult.metricType === 'TASK_COUNT') {
-      const completedTasks = keyResult.linkedTasks.filter(
-        (lt) => lt.task.status === 'COMPLETED',
-      );
-      progress =
-        keyResult.linkedTasks.length > 0
-          ? Math.round(
-              (completedTasks.length / keyResult.linkedTasks.length) * 100,
-            )
-          : 0;
-    } else {
-      // PERCENTAGE, NUMBER, CURRENCY
-      const range = keyResult.targetValue - keyResult.startValue;
-      if (range === 0) {
-        progress = keyResult.currentValue >= keyResult.targetValue ? 100 : 0;
-      } else {
-        progress =
-          ((keyResult.currentValue - keyResult.startValue) / range) * 100;
-        progress = Math.min(Math.max(Math.round(progress), 0), 100);
-      }
-    }
-
-    await this.prisma.client.keyResult.update({
-      where: { id: keyResultId },
-      data: { progress },
-    });
-  }
-
-  /**
    * Calculate and update objective progress based on key results
    */
   private async recalculateObjectiveProgress(objectiveId: string) {
-    const keyResults = await this.prisma.client.keyResult.findMany({
-      where: { objectiveId },
-    });
+    const objective = await this.objectiveRepository.findById(objectiveId);
+    if (!objective) return;
+
+    const keyResults = objective.props.keyResults || [];
 
     let progress = 0;
     if (keyResults.length > 0) {
-      const totalProgress = keyResults.reduce(
-        (sum, kr) => sum + kr.progress,
-        0,
-      );
+      const totalProgress = keyResults.reduce((sum, kr) => sum + kr.progress, 0);
       progress = Math.round(totalProgress / keyResults.length);
     }
 
-    // Determine status based on progress and time remaining
-    const objective = await this.prisma.client.objective.findUnique({
-      where: { id: objectiveId },
-    });
-
-    let status = objective?.status;
-    if (
-      objective &&
-      objective.status !== 'COMPLETED' &&
-      objective.status !== 'CANCELLED'
-    ) {
-      const daysRemaining = differenceInDays(objective.endDate, new Date());
-      const expectedProgress =
-        ((new Date().getTime() - objective.startDate.getTime()) /
-          (objective.endDate.getTime() - objective.startDate.getTime())) *
-        100;
+    let status = objective.props.status;
+    if (status !== 'COMPLETED' && status !== 'CANCELLED') {
+      const daysRemaining = differenceInDays(objective.props.endDate, new Date());
+      const totalDays = differenceInDays(objective.props.endDate, objective.props.startDate);
+      const daysPassed = differenceInDays(new Date(), objective.props.startDate);
+      const expectedProgress = totalDays > 0 ? (daysPassed / totalDays) * 100 : 0;
 
       if (progress >= 100) {
         status = 'COMPLETED';
       } else if (daysRemaining < 7 && progress < expectedProgress - 20) {
-        status = 'AT_RISK';
-      } else if (
-        objective.status === 'AT_RISK' &&
-        progress >= expectedProgress - 10
-      ) {
+        status = 'AT_RISK' as any;
+      } else if (status === ('AT_RISK' as any) && progress >= expectedProgress - 10) {
         status = 'ACTIVE';
       }
     }
 
-    await this.prisma.client.objective.update({
-      where: { id: objectiveId },
-      data: { progress, status },
-    });
-  }
+    const updatedObjective = objective.clone({
+      progress,
+      status,
+      updatedAt: new Date(),
+    } as any);
 
-  /**
-   * Recalculate progress for all key results that have a specific task linked
-   * Called when a task status changes
-   */
-  async recalculateProgressForTask(taskId: string) {
-    const links = await this.prisma.client.keyResultTask.findMany({
-      where: { taskId },
-      include: {
-        keyResult: true,
-      },
-    });
-
-    for (const link of links) {
-      if (link.keyResult.metricType === 'TASK_COUNT') {
-        await this.recalculateKeyResultProgress(link.keyResultId);
-        await this.recalculateObjectiveProgress(link.keyResult.objectiveId);
-      }
-    }
+    await this.objectiveRepository.update(updatedObjective);
   }
 }

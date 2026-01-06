@@ -26,6 +26,7 @@ import { PrismaBlogRepository } from './prisma-blog.repository';
 import { PrismaGamificationRepository } from './prisma-gamification.repository';
 import { PrismaChatRepository } from './prisma-chat.repository';
 import { PrismaTaskTemplateRepository } from './prisma-task-template.repository';
+import { PrismaObjectiveRepository } from './prisma-objective.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -176,6 +177,12 @@ import { PrismaTaskTemplateRepository } from './prisma-task-template.repository'
         new PrismaTaskTemplateRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'ObjectiveRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaObjectiveRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -203,6 +210,7 @@ import { PrismaTaskTemplateRepository } from './prisma-task-template.repository'
     'GamificationRepository',
     'ChatRepository',
     'TaskTemplateRepository',
+    'ObjectiveRepository',
   ],
 })
 export class RepositoriesModule { }

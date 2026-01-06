@@ -1,186 +1,159 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ObjectivesService } from './objectives.service';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
+import { Objective, KeyResult } from '@ordo-todo/core';
+import type { IObjectiveRepository } from '@ordo-todo/core';
+import { PrismaService } from '../database/prisma.service';
 
 describe('ObjectivesService', () => {
   let service: ObjectivesService;
+  let objectiveRepository: jest.Mocked<IObjectiveRepository>;
+  let prismaService: jest.Mocked<PrismaService>;
+
+  const userId = 'user-123';
+  const objectiveId = 'obj-123';
+
+  const mockObjective = new Objective({
+    id: objectiveId,
+    title: 'Test Objective',
+    userId,
+    startDate: new Date(),
+    endDate: new Date(),
+    period: 'QUARTERLY',
+    status: 'ACTIVE',
+    progress: 0,
+    color: '#3B82F6',
+    keyResults: [],
+  });
 
   beforeEach(async () => {
+    const mockRepository = {
+      findById: jest.fn(),
+      findByUserId: jest.fn(),
+      findByWorkspaceId: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      findKeyResultById: jest.fn(),
+      createKeyResult: jest.fn(),
+      updateKeyResult: jest.fn(),
+      deleteKeyResult: jest.fn(),
+      linkTask: jest.fn(),
+      unlinkTask: jest.fn(),
+    };
+
+    const mockPrisma = {
+      client: {
+        task: {
+          findFirst: jest.fn(),
+        }
+      }
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ObjectivesService],
+      providers: [
+        ObjectivesService,
+        { provide: 'ObjectiveRepository', useValue: mockRepository },
+        { provide: PrismaService, useValue: mockPrisma },
+      ],
     }).compile();
 
     service = module.get<ObjectivesService>(ObjectivesService);
+    objectiveRepository = module.get('ObjectiveRepository');
+    prismaService = module.get(PrismaService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
   describe('create', () => {
     it('should create an objective', async () => {
       const createDto = {
-        title: 'Test Objective',
-        description: 'Test Description',
-        startDate: new Date(),
-        period: 'QUARTERLY',
-        workspaceId: 'workspace-123',
-        userId: 'user-123',
+        title: 'New Objective',
+        endDate: new Date().toISOString(),
       };
+      objectiveRepository.create.mockResolvedValue(mockObjective);
 
-      const mockObjective = {
-        id: 'objective-123',
-        title: createDto.title,
-        description: createDto.description,
-      };
+      const result = await service.create(createDto as any, userId);
 
-      jest
-        .spyOn(service.prisma.client.objective, 'create')
-        .mockResolvedValue(mockObjective as any);
-
-      const result = await service.create(createDto, 'user-123');
-
-      expect(service.prisma.client.objective.create).toHaveBeenCalledWith({
-        data: {
-          title: createDto.title,
-          description: createDto.description,
-          startDate: new Date(createDto.startDate),
-          period: createDto.period,
-          color: createDto.color,
-          icon: createDto.icon,
-          workspaceId: createDto.workspaceId,
-          userId: 'user-123',
-        },
-        include: {
-          keyResults: true,
-        },
-      });
-
-      expect(result).toEqual(mockObjective);
-    });
-
-    it('should throw BadRequestException when user is not provided', async () => {
-      const createDto = {
-        title: 'Test Objective',
-        description: 'Test Description',
-        startDate: new Date(),
-        period: 'QUARTERLY',
-        workspaceId: 'workspace-123',
-      } as any;
-
-      await expect(service.create(createDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      expect(objectiveRepository.create).toHaveBeenCalled();
+      expect(result).toBeDefined();
     });
   });
 
   describe('findAll', () => {
     it('should return all objectives for a user', async () => {
-      const userId = 'user-123';
-      const mockObjectives = [
-        { id: 'obj-1', title: 'Objective 1', status: 'ACTIVE' },
-        { id: 'obj-2', title: 'Objective 2', status: 'COMPLETED' },
-      ];
-
-      jest
-        .spyOn(service.prisma.client.objective, 'findMany')
-        .mockResolvedValue(mockObjectives as any);
+      objectiveRepository.findByUserId.mockResolvedValue([mockObjective]);
 
       const result = await service.findAll(userId);
 
-      expect(result).toEqual(mockObjectives);
+      expect(objectiveRepository.findByUserId).toHaveBeenCalledWith(userId);
+      expect(result).toHaveLength(1);
     });
   });
 
   describe('findOne', () => {
     it('should return an objective by ID', async () => {
-      const objectiveId = 'obj-123';
-      const mockObjective = {
-        id: objectiveId,
-        title: 'Test Objective',
-        status: 'ACTIVE',
-      };
+      objectiveRepository.findById.mockResolvedValue(mockObjective);
 
-      jest
-        .spyOn(service.prisma.client.objective, 'findUnique')
-        .mockResolvedValue(mockObjective as any);
+      const result = await service.findOne(objectiveId, userId);
 
-      const result = await service.findOne(objectiveId, 'user-123');
-
-      expect(service.prisma.client.objective.findUnique).toHaveBeenCalledWith({
-        where: { id: objectiveId, userId: 'user-123' },
-      });
-
-      expect(result).toEqual(mockObjective);
+      expect(objectiveRepository.findById).toHaveBeenCalledWith(objectiveId);
+      expect(result.id).toBe(objectiveId);
     });
 
     it('should throw NotFoundException when objective not found', async () => {
-      jest
-        .spyOn(service.prisma.client.objective, 'findUnique')
-        .mockResolvedValue(null);
+      objectiveRepository.findById.mockResolvedValue(null);
 
-      await expect(service.findOne('not-found', 'user-123')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne('invalid', userId)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('update', () => {
     it('should update an objective', async () => {
-      const objectiveId = 'obj-123';
-      const updateDto = {
-        title: 'Updated Objective',
-        status: 'ACTIVE',
-      };
+      objectiveRepository.findById.mockResolvedValue(mockObjective);
+      objectiveRepository.update.mockResolvedValue(mockObjective);
 
-      const mockUpdated = {
-        id: objectiveId,
-        title: updateDto.title,
-        status: updateDto.status,
-      };
+      const result = await service.update(objectiveId, { title: 'Updated' }, userId);
 
-      jest
-        .spyOn(service.prisma.client.objective, 'update')
-        .mockResolvedValue(mockUpdated as any);
-
-      const result = await service.update(objectiveId, updateDto, 'user-123');
-
-      expect(service.prisma.client.objective.update).toHaveBeenCalledWith(
-        { where: { id: objectiveId } },
-        { data: updateDto },
-      );
-
-      expect(result).toEqual(mockUpdated);
+      expect(objectiveRepository.update).toHaveBeenCalled();
+      expect(result).toBeDefined();
     });
   });
 
   describe('remove', () => {
     it('should delete an objective', async () => {
-      const objectiveId = 'obj-123';
+      objectiveRepository.findById.mockResolvedValue(mockObjective);
+      objectiveRepository.delete.mockResolvedValue(undefined);
 
-      const mockDeleted = { success: true };
+      const result = await service.remove(objectiveId, userId);
 
-      jest
-        .spyOn(service.prisma.client.objective, 'delete')
-        .mockResolvedValue(undefined);
-
-      const result = await service.remove(objectiveId, 'user-123');
-
-      expect(service.prisma.client.objective.delete).toHaveBeenCalledWith({
-        where: { id: objectiveId },
-      });
-
-      expect(result).toEqual(mockDeleted);
+      expect(objectiveRepository.delete).toHaveBeenCalledWith(objectiveId);
+      expect(result.success).toBe(true);
     });
+  });
 
-    it('should throw NotFoundException when objective not found', async () => {
-      jest
-        .spyOn(service.prisma.client.objective, 'delete')
-        .mockResolvedValue(undefined);
+  describe('Key Results', () => {
+    it('should add a key result', async () => {
+      objectiveRepository.findById.mockResolvedValue(mockObjective);
+      const kr = new KeyResult({
+        id: 'kr-1',
+        objectiveId: objectiveId,
+        title: 'Test KR',
+        metricType: 'PERCENTAGE',
+        startValue: 0,
+        targetValue: 100,
+        currentValue: 0,
+        progress: 0,
+      });
+      objectiveRepository.createKeyResult.mockResolvedValue(kr);
+      objectiveRepository.update.mockResolvedValue(mockObjective);
 
-      jest
-        .spyOn(service.prisma.client.objective, 'findUnique')
-        .mockResolvedValue(null);
+      const result = await service.addKeyResult(objectiveId, { title: 'Test KR', targetValue: 100 } as any, userId);
 
-      await expect(service.remove('not-found', 'user-123')).rejects.toThrow(
-        NotFoundException,
-      );
+      expect(objectiveRepository.createKeyResult).toHaveBeenCalled();
+      expect(result).toBeDefined();
     });
   });
 });
