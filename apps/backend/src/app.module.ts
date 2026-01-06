@@ -37,6 +37,7 @@ import { NewsletterModule } from './newsletter/newsletter.module';
 import { ContactModule } from './contact/contact.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
 import { NotesModule } from './notes/notes.module';
+import { ImagesModule } from './images/images.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -62,6 +63,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     HealthModule, // Health check endpoints (no prefix)
     MetricsModule, // Prometheus metrics endpoint (no prefix)
     AuthModule,
+    ImagesModule,
     UsersModule,
     WorkspacesModule,
     WorkflowsModule,
