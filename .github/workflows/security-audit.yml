@@ -53,10 +53,10 @@ jobs:
         run: |
           if [ -f package-lock.json ]; then
             echo "package-lock.json found, using npm ci"
-            npm ci
+            npm ci --legacy-peer-deps
           else
             echo "No package-lock.json, using npm install"
-            npm install
+            npm install --legacy-peer-deps
           fi
         env:
           PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1
@@ -230,10 +230,10 @@ jobs:
         run: |
           if [ -f package-lock.json ]; then
             echo "package-lock.json found, using npm ci"
-            npm ci
+            npm ci --legacy-peer-deps
           else
             echo "No package-lock.json, using npm install"
-            npm install
+            npm install --legacy-peer-deps
           fi
         env:
           PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING: 1

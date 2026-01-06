@@ -61,7 +61,7 @@ jobs:
                   do
                     echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
                     if [ -f package-lock.json ]; then
-                      if npm ci; then SUCCESS=true; fi
+                      if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
                       if npm install; then SUCCESS=true; fi
                     fi
@@ -170,7 +170,7 @@ jobs:
                   do
                     echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
                     if [ -f package-lock.json ]; then
-                      if npm ci; then SUCCESS=true; fi
+                      if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
                       if npm install; then SUCCESS=true; fi
                     fi
@@ -262,7 +262,7 @@ jobs:
                   do
                     echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
                     if [ -f package-lock.json ]; then
-                      if npm ci; then SUCCESS=true; fi
+                      if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
                       if npm install; then SUCCESS=true; fi
                     fi
@@ -345,7 +345,7 @@ jobs:
                   do
                     echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
                     if [ -f package-lock.json ]; then
-                      if npm ci; then SUCCESS=true; fi
+                      if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
                       if npm install; then SUCCESS=true; fi
                     fi
@@ -423,7 +423,7 @@ jobs:
                   do
                     echo "Attempt $((RETRY_COUNT+1)) of $MAX_RETRIES..."
                     if [ -f package-lock.json ]; then
-                      if npm ci; then SUCCESS=true; fi
+                      if npm ci --legacy-peer-deps; then SUCCESS=true; fi
                     else
                       if npm install; then SUCCESS=true; fi
                     fi
