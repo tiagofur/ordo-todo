@@ -1,4 +1,6 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
+import { Achievement, UserAchievement } from '@ordo-todo/core';
+import type { IGamificationRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
@@ -13,9 +15,11 @@ export class GamificationService implements OnModuleInit {
   private readonly XP_SUBTASK_COMPLETED = 10;
 
   constructor(
-    private readonly prisma: PrismaService,
+    @Inject('GamificationRepository')
+    private readonly gamificationRepository: IGamificationRepository,
+    private readonly prisma: PrismaService, // Still needed for cross-module queries (User, Task, Timer) for now
     private readonly notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
@@ -28,7 +32,7 @@ export class GamificationService implements OnModuleInit {
   }
 
   private async seedAchievements() {
-    const achievements = [
+    const achievementsData = [
       {
         code: 'FIRST_TASK',
         name: 'Primera Tarea',
@@ -52,23 +56,20 @@ export class GamificationService implements OnModuleInit {
       },
     ];
 
-    for (const achievement of achievements) {
-      const existing = await this.prisma.achievement.findUnique({
-        where: { code: achievement.code },
-      });
+    for (const data of achievementsData) {
+      const existing = await this.gamificationRepository.findAchievementByCode(data.code);
 
       if (!existing) {
-        await this.prisma.achievement.create({
-          data: achievement,
-        });
-        this.logger.log(`Seeded achievement: ${achievement.name}`);
+        const achievement = Achievement.create(data);
+        await this.gamificationRepository.createAchievement(achievement);
+        this.logger.log(`Seeded achievement: ${data.name}`);
       }
     }
   }
 
   async addXp(userId: string, amount: number, source: string) {
     // Only select xp and level needed for the calculation
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.client.user.findUnique({
       where: { id: userId },
       select: { xp: true, level: true },
     });
@@ -78,7 +79,7 @@ export class GamificationService implements OnModuleInit {
     const currentLevel = user.level || 1;
     const newLevel = this.calculateLevel(newXp);
 
-    await this.prisma.user.update({
+    await this.prisma.client.user.update({
       where: { id: userId },
       data: {
         xp: newXp,
@@ -123,8 +124,8 @@ export class GamificationService implements OnModuleInit {
   }
 
   private async checkAchievements(userId: string, type: 'TASK' | 'POMODORO') {
-    if ((type as string) === 'TASK') {
-      const completedTasks = await this.prisma.task.count({
+    if (type === 'TASK') {
+      const completedTasks = await this.prisma.client.task.count({
         where: {
           ownerId: userId,
           status: 'COMPLETED',
@@ -137,8 +138,8 @@ export class GamificationService implements OnModuleInit {
       if (completedTasks >= 10) {
         await this.unlockAchievement(userId, 'TASK_10');
       }
-    } else if ((type as string) === 'POMODORO') {
-      const completedPomodoros = await this.prisma.timeSession.count({
+    } else if (type === 'POMODORO') {
+      const completedPomodoros = await this.prisma.client.timeSession.count({
         where: {
           userId,
           type: 'WORK' as const,
@@ -153,29 +154,20 @@ export class GamificationService implements OnModuleInit {
   }
 
   private async unlockAchievement(userId: string, achievementCode: string) {
-    const achievement = await this.prisma.achievement.findUnique({
-      where: { code: achievementCode },
-    });
+    const achievement = await this.gamificationRepository.findAchievementByCode(achievementCode);
 
     if (!achievement) return;
 
-    const existing = await this.prisma.userAchievement.findUnique({
-      where: {
-        userId_achievementId: {
-          userId,
-          achievementId: achievement.id,
-        },
-      },
+    const hasUnlocked = await this.gamificationRepository.hasUnlocked(userId, achievement.id as string);
+
+    if (hasUnlocked) return;
+
+    const userAchievement = UserAchievement.create({
+      userId,
+      achievementId: achievement.id as string,
     });
 
-    if (existing) return;
-
-    await this.prisma.userAchievement.create({
-      data: {
-        userId,
-        achievementId: achievement.id,
-      },
-    });
+    await this.gamificationRepository.unlockAchievement(userAchievement);
 
     if (achievement.xpReward > 0) {
       await this.addXp(

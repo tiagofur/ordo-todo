@@ -23,6 +23,7 @@ import { PrismaNewsletterRepository } from './prisma-newsletter.repository';
 import { PrismaContactRepository } from './prisma-contact.repository';
 import { PrismaRoadmapRepository } from './prisma-roadmap.repository';
 import { PrismaBlogRepository } from './prisma-blog.repository';
+import { PrismaGamificationRepository } from './prisma-gamification.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -155,6 +156,12 @@ import { PrismaBlogRepository } from './prisma-blog.repository';
         new PrismaBlogRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'GamificationRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaGamificationRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -179,6 +186,7 @@ import { PrismaBlogRepository } from './prisma-blog.repository';
     'ContactRepository',
     'RoadmapRepository',
     'BlogRepository',
+    'GamificationRepository',
   ],
 })
 export class RepositoriesModule { }
