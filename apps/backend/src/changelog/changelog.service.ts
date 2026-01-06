@@ -1,41 +1,43 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { ChangelogEntry } from '@ordo-todo/core';
+import type { IChangelogRepository } from '@ordo-todo/core';
 import { CreateChangelogDto } from './dto/create-changelog.dto';
 import { UpdateChangelogDto } from './dto/update-changelog.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ChangelogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject('ChangelogRepository')
+    private readonly changelogRepository: IChangelogRepository,
+  ) { }
 
   async create(data: CreateChangelogDto) {
-    return this.prisma.changelogEntry.create({
-      data: {
-        ...data,
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
-      },
+    const entry = ChangelogEntry.create({
+      version: data.version,
+      title: data.title,
+      content: data.content,
+      type: data.type ?? 'NEW',
+      publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
     });
+
+    return this.changelogRepository.create(entry);
   }
 
   async findAll(params: {
     skip?: number;
     take?: number;
-    where?: Prisma.ChangelogEntryWhereInput;
-    orderBy?: Prisma.ChangelogEntryOrderByWithRelationInput;
+    orderBy?: 'publishedAt' | 'createdAt';
   }) {
-    const { skip, take, where, orderBy } = params;
-    return this.prisma.changelogEntry.findMany({
-      skip,
-      take,
-      where,
-      orderBy,
+    return this.changelogRepository.findAll({
+      skip: params.skip,
+      take: params.take,
+      orderBy: params.orderBy,
+      order: 'desc',
     });
   }
 
   async findOne(id: string) {
-    const entry = await this.prisma.changelogEntry.findUnique({
-      where: { id },
-    });
+    const entry = await this.changelogRepository.findById(id);
 
     if (!entry) {
       throw new NotFoundException(`Changelog entry with ID '${id}' not found`);
@@ -45,51 +47,27 @@ export class ChangelogService {
   }
 
   async update(id: string, data: UpdateChangelogDto) {
-    try {
-      return await this.prisma.changelogEntry.update({
-        where: { id },
-        data: {
-          ...data,
-          publishedAt: data.publishedAt
-            ? new Date(data.publishedAt)
-            : undefined,
-        },
-      });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException(
-          `Changelog entry with ID '${id}' not found`,
-        );
-      }
-      throw error;
-    }
+    // Verify entry exists
+    await this.findOne(id);
+
+    return this.changelogRepository.update(id, {
+      version: data.version,
+      title: data.title,
+      content: data.content,
+      type: data.type,
+      publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+    });
   }
 
   async delete(id: string) {
-    try {
-      return await this.prisma.changelogEntry.delete({
-        where: { id },
-      });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException(
-          `Changelog entry with ID '${id}' not found`,
-        );
-      }
-      throw error;
-    }
+    // Verify entry exists
+    await this.findOne(id);
+
+    await this.changelogRepository.delete(id);
+    return { success: true };
   }
 
   async getLatestRelease() {
-    return this.prisma.changelogEntry.findFirst({
-      orderBy: { publishedAt: 'desc' },
-      where: { publishedAt: { lte: new Date() } },
-    });
+    return this.changelogRepository.findLatest();
   }
 }

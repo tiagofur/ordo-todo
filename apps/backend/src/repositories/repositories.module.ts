@@ -14,6 +14,13 @@ import { PrismaProductivityReportRepository } from './productivity-report.reposi
 import { PrismaWorkspaceInvitationRepository } from './workspace-invitation.repository';
 import { PrismaWorkspaceSettingsRepository } from './workspace-settings.repository';
 import { PrismaWorkspaceAuditLogRepository } from './workspace-audit-log.repository';
+import { PrismaCommentRepository } from './prisma-comment.repository';
+import { PrismaAttachmentRepository } from './prisma-attachment.repository';
+import { PrismaNotificationRepository } from './prisma-notification.repository';
+import { PrismaHabitRepository } from './prisma-habit.repository';
+import { PrismaChangelogRepository } from './prisma-changelog.repository';
+import { PrismaNewsletterRepository } from './prisma-newsletter.repository';
+import { PrismaContactRepository } from './prisma-contact.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -92,6 +99,48 @@ import { PrismaWorkspaceAuditLogRepository } from './workspace-audit-log.reposit
         new PrismaWorkspaceAuditLogRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'CommentRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaCommentRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'AttachmentRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaAttachmentRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'NotificationRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaNotificationRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'HabitRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaHabitRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'ChangelogRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaChangelogRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'NewsletterRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaNewsletterRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'ContactRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaContactRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -107,6 +156,13 @@ import { PrismaWorkspaceAuditLogRepository } from './workspace-audit-log.reposit
     'WorkspaceInvitationRepository',
     'WorkspaceSettingsRepository',
     'WorkspaceAuditLogRepository',
+    'CommentRepository',
+    'AttachmentRepository',
+    'NotificationRepository',
+    'HabitRepository',
+    'ChangelogRepository',
+    'NewsletterRepository',
+    'ContactRepository',
   ],
 })
-export class RepositoriesModule {}
+export class RepositoriesModule { }

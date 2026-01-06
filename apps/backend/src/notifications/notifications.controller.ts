@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) { }
 
   @Get()
   @ApiOperation({
@@ -86,8 +86,9 @@ export class NotificationsController {
     status: 401,
     description: 'Unauthorized - Invalid or missing JWT token',
   })
-  getUnreadCount(@Request() req) {
-    return this.notificationsService.getUnreadCount(req.user.id);
+  async getUnreadCount(@Request() req) {
+    const count = await this.notificationsService.getUnreadCount(req.user.id);
+    return { count };
   }
 
   @Patch(':id/read')

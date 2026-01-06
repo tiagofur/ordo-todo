@@ -498,6 +498,17 @@ declare function isAllowedFileType(mimeType: string): boolean;
  * Check if file is an image
  */
 declare function isImageFile(mimeType: string): boolean;
+/**
+ * Notification limits
+ */
+declare const NOTIFICATION_LIMITS: {
+    readonly TITLE_MIN_LENGTH: 1;
+    readonly TITLE_MAX_LENGTH: 200;
+    readonly MESSAGE_MAX_LENGTH: 1000;
+    readonly ACTION_LABEL_MAX_LENGTH: 50;
+    readonly ACTION_URL_MAX_LENGTH: 2048;
+    readonly MAX_NOTIFICATIONS_PER_USER: 500;
+};
 
 /**
  * Date utility functions
@@ -6021,4 +6032,3993 @@ declare class FindAllNotesUseCase implements UseCase<FindAllNotesInput, {
     }>;
 }
 
-export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, AddMemberToWorkspaceUseCase, type AnalyticsRepository, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, AssignTagToTaskUseCase, type AssignTags, type AuditAction, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, type CommentBase, type CommentFilter, type CompleteTaskInput, CompleteTaskUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateNoteInput, CreateNoteUseCase, type CreateProjectDTO, CreateProjectUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, type CreateUserProps, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, type DeleteNoteInput, DeleteNoteUseCase, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, FILE_LIMITS, type FindAllNotesInput, FindAllNotesUseCase, type FindNoteInput, FindNoteUseCase, type FocusScoreInput, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IHabitRepository, Id, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, type LearnFromSessionInput, LearnFromSessionUseCase, ListWorkflowsUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MemberRole, type MemberRoleValue, type MemberWithUser, type MetricsSnapshot, MockAIService, Note, type NoteProps, type NoteRepository, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecurrenceProps, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, type SessionFilters, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRepository, type TaskStatus, type TaskStatusValue, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMemberRole, type UpdateNoteInput, UpdateNoteUseCase, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UseCase, User, UserByEmail, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberProps, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };
+/**
+ * Properties for creating a Comment entity.
+ *
+ * Comments represent user discussions on tasks, supporting threaded
+ * replies and user mentions for collaboration.
+ *
+ * @example
+ * ```typescript
+ * const comment = new Comment({
+ *   taskId: 'task-123',
+ *   userId: 'user-456',
+ *   content: 'Please review this task',
+ *   mentions: ['user-789']
+ * });
+ * ```
+ */
+interface CommentProps extends EntityProps {
+    /**
+     * The ID of the task this comment belongs to.
+     * Required - every comment must be associated with a task.
+     */
+    taskId: string;
+    /**
+     * The ID of the user who wrote this comment.
+     * Required - every comment must have an author.
+     */
+    userId: string;
+    /**
+     * The comment text content.
+     * Required - must be between 1 and 2000 characters.
+     */
+    content: string;
+    /**
+     * Optional parent comment ID for threaded replies.
+     * If present, this comment is a reply to another comment.
+     */
+    parentCommentId?: string | null;
+    /**
+     * Array of user IDs mentioned in this comment.
+     * Mentions trigger notifications for the mentioned users.
+     */
+    mentions?: string[];
+    /**
+     * Whether this comment has been edited.
+     * Automatically set to true when edit() is called.
+     */
+    isEdited?: boolean;
+    /**
+     * Timestamp when the comment was last edited.
+     * Automatically updated when edit() is called.
+     */
+    editedAt?: Date;
+    /**
+     * Timestamp when the comment was created.
+     * Defaults to current time if not provided.
+     */
+    createdAt?: Date;
+    /**
+     * Timestamp when the comment was last updated.
+     * Defaults to current time if not provided.
+     */
+    updatedAt?: Date;
+}
+/**
+ * Represents a comment on a task.
+ *
+ * Comments enable team collaboration by allowing discussions
+ * directly on tasks. They support threaded replies and user mentions.
+ *
+ * ## Business Rules
+ *
+ * - Content must be between 1 and 2000 characters
+ * - Every comment must belong to a task
+ * - Every comment must have an author
+ * - Mentions are stored as an array of user IDs
+ * - Comments are immutable - use business methods to create updated versions
+ *
+ * ## Immutability
+ *
+ * All update methods return a new Comment instance.
+ * Never modify properties directly.
+ *
+ * @example
+ * ```typescript
+ * // Create a new comment
+ * const comment = Comment.create({
+ *   taskId: 'task-123',
+ *   userId: 'user-456',
+ *   content: 'Let me handle this'
+ * });
+ *
+ * // Edit the content
+ * const edited = comment.edit('Updated: I will handle this tomorrow');
+ *
+ * // Add a mention
+ * const withMention = edited.addMention('user-789');
+ *
+ * // Check if user is mentioned
+ * if (withMention.hasMention('user-789')) {
+ *   // Send notification
+ * }
+ *
+ * // Remove a mention
+ * const final = withMention.removeMention('user-789');
+ * ```
+ *
+ * @see {@link ../../shared/constants/limits.constants.ts | COMMENT_LIMITS}
+ */
+declare class Comment extends Entity<CommentProps> {
+    constructor(props: CommentProps, mode?: EntityMode);
+    /**
+     * Creates a new comment with defaults applied.
+     *
+     * Factory method for creating comments without manually
+     * setting id, timestamps, and default values.
+     *
+     * @param props - Comment properties (id, timestamps auto-generated)
+     * @returns A new Comment instance
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'Great work!'
+     * });
+     * ```
+     */
+    static create(props: Omit<CommentProps, "id" | "isEdited" | "editedAt" | "createdAt" | "updatedAt">): Comment;
+    get taskId(): string;
+    get userId(): string;
+    get content(): string;
+    get mentions(): string[];
+    get parentCommentId(): string | null | undefined;
+    get isEdited(): boolean;
+    get editedAt(): Date | undefined;
+    get createdAt(): Date;
+    get updatedAt(): Date;
+    /**
+     * Updates the comment content.
+     *
+     * Creates a new comment with updated content, marking it as edited.
+     * The edit timestamp is automatically recorded.
+     *
+     * @param newContent - The new comment content (1-2000 characters)
+     * @returns A new Comment instance with updated content
+     * @throws {Error} If content is invalid
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'Original text'
+     * });
+     *
+     * const edited = comment.edit('Corrected text');
+     * console.log(edited.isEdited); // true
+     * console.log(edited.editedAt); // Date object
+     * ```
+     */
+    edit(newContent: string): Comment;
+    /**
+     * Adds a user mention to the comment.
+     *
+     * If the user is already mentioned, this returns the comment unchanged.
+     * Mentions trigger notifications for the mentioned users.
+     *
+     * @param userId - The ID of the user to mention
+     * @returns A new Comment instance with the mention added
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: '@user-789 please review'
+     * });
+     *
+     * const withMention = comment.addMention('user-789');
+     * console.log(withMention.mentions); // ['user-789']
+     * ```
+     */
+    addMention(userId: string): Comment;
+    /**
+     * Removes a user mention from the comment.
+     *
+     * If the user is not mentioned, this returns the comment unchanged.
+     *
+     * @param userId - The ID of the user to unmention
+     * @returns A new Comment instance with the mention removed
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'Review',
+     *   mentions: ['user-789', 'user-abc']
+     * });
+     *
+     * const withoutMention = comment.removeMention('user-789');
+     * console.log(withoutMention.mentions); // ['user-abc']
+     * ```
+     */
+    removeMention(userId: string): Comment;
+    /**
+     * Checks if a user is mentioned in this comment.
+     *
+     * Useful for determining if a notification should be sent.
+     *
+     * @param userId - The ID of the user to check
+     * @returns true if the user is mentioned, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: '@user-789 please review',
+     *   mentions: ['user-789']
+     * });
+     *
+     * if (comment.hasMention('user-789')) {
+     *   sendNotification('user-789', 'You were mentioned');
+     * }
+     * ```
+     */
+    hasMention(userId: string): boolean;
+    /**
+     * Checks if this comment is a reply to another comment.
+     *
+     * @returns true if this comment has a parent, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'I agree',
+     *   parentCommentId: 'comment-123'
+     * });
+     *
+     * console.log(comment.isReply()); // true
+     * ```
+     */
+    isReply(): boolean;
+    /**
+     * Gets the number of users mentioned in this comment.
+     *
+     * @returns The count of unique mentioned users
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'Team please review',
+     *   mentions: ['user-789', 'user-abc', 'user-def']
+     * });
+     *
+     * console.log(comment.mentionCount); // 3
+     * ```
+     */
+    get mentionCount(): number;
+    /**
+     * Validates the comment content.
+     *
+     * @private
+     * @param content - The content to validate
+     * @throws {Error} If content is invalid
+     */
+    private validateContent;
+    /**
+     * Validates the task ID.
+     *
+     * @private
+     * @param taskId - The task ID to validate
+     * @throws {Error} If task ID is invalid
+     */
+    private validateTaskId;
+    /**
+     * Validates the user ID.
+     *
+     * @private
+     * @param userId - The user ID to validate
+     * @throws {Error} If user ID is invalid
+     */
+    private validateUserId;
+    /**
+     * Validates the mentions array.
+     *
+     * @private
+     * @param mentions - The mentions array to validate
+     * @throws {Error} If mentions are invalid
+     */
+    private validateMentions;
+    /**
+     * Creates a draft version of this comment.
+     *
+     * Draft mode skips validation, useful for forms before submission.
+     *
+     * @returns A new Comment instance in draft mode
+     *
+     * @example
+     * ```typescript
+     * const draft = comment.asDraft();
+     * // Can now modify without validation
+     * ```
+     */
+    asDraft(): this;
+    /**
+     * Converts this comment to valid mode.
+     *
+     * Triggers validation of all properties.
+     *
+     * @returns A new Comment instance in valid mode
+     * @throws {Error} If any validation fails
+     *
+     * @example
+     * ```typescript
+     * const draft = new Comment({ content: '' }, 'draft');
+     * const valid = draft.asValid(); // Throws error if content is empty
+     * ```
+     */
+    asValid(): this;
+}
+
+/**
+ * Repository interface for Comment entity persistence operations.
+ *
+ * This interface defines the contract for Comment data access, providing CRUD
+ * operations plus specialized methods for managing task comments and threaded replies.
+ * Comments enable team collaboration by allowing discussions directly on tasks.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaCommentRepository implements CommentRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(comment: Comment): Promise<Comment> {
+ *     const data = await this.prisma.comment.create({
+ *       data: {
+ *         id: comment.id,
+ *         taskId: comment.taskId,
+ *         userId: comment.userId,
+ *         content: comment.content,
+ *         parentCommentId: comment.parentCommentId,
+ *         mentions: comment.mentions,
+ *         isEdited: comment.isEdited,
+ *         editedAt: comment.editedAt,
+ *         createdAt: comment.createdAt,
+ *         updatedAt: comment.updatedAt,
+ *       }
+ *     });
+ *     return new Comment(data);
+ *   }
+ *
+ *   async findByTaskId(taskId: string): Promise<Comment[]> {
+ *     const comments = await this.prisma.comment.findMany({
+ *       where: { taskId },
+ *       orderBy: { createdAt: 'asc' }
+ *     });
+ *     return comments.map(comment => new Comment(comment));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ */
+interface CommentRepository {
+    /**
+     * Creates a new comment in the repository.
+     *
+     * Used when a user posts a new comment on a task. The comment
+     * should have all required fields populated before calling this method.
+     *
+     * @param comment - The comment entity to create (must be valid)
+     * @returns Promise resolving to the created comment with any database-generated fields populated
+     * @throws {Error} If comment validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const comment = Comment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'Let me handle this task',
+     *   mentions: ['user-789']
+     * });
+     *
+     * const created = await repository.create(comment);
+     * console.log(`Comment created with ID: ${created.id}`);
+     * ```
+     */
+    create(comment: Comment): Promise<Comment>;
+    /**
+     * Updates an existing comment in the repository.
+     *
+     * Used when a user edits their comment content or adds/removes mentions.
+     * The comment entity should already exist and be valid before calling this method.
+     *
+     * @param comment - The comment entity with updated fields
+     * @returns Promise resolving to the updated comment
+     * @throws {Error} If the comment doesn't exist or validation fails
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('comment-123');
+     * if (existing) {
+     *   const updated = existing.edit('Updated text with more details');
+     *   await repository.update(updated);
+     * }
+     * ```
+     */
+    update(comment: Comment): Promise<Comment>;
+    /**
+     * Finds a comment by its unique ID.
+     *
+     * Used for fetching comment details when the ID is known, such as from
+     * a URL parameter or after creating/updating a comment.
+     *
+     * @param id - The unique identifier of the comment
+     * @returns Promise resolving to the comment if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const comment = await repository.findById('comment-123');
+     * if (comment) {
+     *   console.log(`Found comment: ${comment.content}`);
+     * } else {
+     *   console.log('Comment not found');
+     * }
+     * ```
+     */
+    findById(id: string): Promise<Comment | null>;
+    /**
+     * Finds all comments for a specific task.
+     *
+     * Used for displaying the comment thread on a task detail view.
+     * Returns comments ordered by creation time (oldest first) for
+     * proper conversation flow display.
+     *
+     * @param taskId - The task ID to find comments for
+     * @returns Promise resolving to an array of comments (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const comments = await repository.findByTaskId('task-123');
+     * console.log(`Found ${comments.length} comments`);
+     *
+     * // Render comment thread
+     * comments.forEach(comment => {
+     *   console.log(`${comment.userId}: ${comment.content}`);
+     * });
+     * ```
+     */
+    findByTaskId(taskId: string): Promise<Comment[]>;
+    /**
+     * Finds all comments created by a specific user.
+     *
+     * Used for displaying a user's comment history or activity feed.
+     *
+     * @param userId - The user ID to find comments for
+     * @returns Promise resolving to an array of comments (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const userComments = await repository.findByUserId('user-456');
+     * console.log(`User has posted ${userComments.length} comments`);
+     * ```
+     */
+    findByUserId(userId: string): Promise<Comment[]>;
+    /**
+     * Finds all replies to a specific comment.
+     *
+     * Used for displaying threaded replies in a nested comment structure.
+     * This enables conversations within conversations on tasks.
+     *
+     * @param parentCommentId - The parent comment ID to find replies for
+     * @returns Promise resolving to an array of reply comments (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const replies = await repository.findByParentCommentId('comment-123');
+     * console.log(`Found ${replies.length} replies`);
+     * ```
+     */
+    findByParentCommentId(parentCommentId: string): Promise<Comment[]>;
+    /**
+     * Finds comments where a specific user is mentioned.
+     *
+     * Used for generating notifications and displaying "mentions" feeds.
+     * Returns all comments containing the user's ID in the mentions array.
+     *
+     * @param userId - The user ID to find mentions for
+     * @returns Promise resolving to an array of comments where the user is mentioned
+     *
+     * @example
+     * ```typescript
+     * const mentions = await repository.findMentionsForUser('user-789');
+     * console.log(`User mentioned in ${mentions.length} comments`);
+     *
+     * // Send notifications
+     * mentions.forEach(comment => {
+     *   sendNotification(comment.userId, `You were mentioned in a comment on ${comment.taskId}`);
+     * });
+     * ```
+     */
+    findMentionsForUser(userId: string): Promise<Comment[]>;
+    /**
+     * Deletes a comment from the repository.
+     *
+     * WARNING: This permanently deletes the comment and cannot be undone.
+     * For soft delete functionality, consider implementing a separate method.
+     *
+     * @param id - The unique identifier of the comment to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {Error} If the comment doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('comment-123');
+     * console.log('Comment deleted permanently');
+     * ```
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Counts the total number of comments for a specific task.
+     *
+     * Useful for displaying comment counts in task lists and badges.
+     *
+     * @param taskId - The task ID to count comments for
+     * @returns Promise resolving to the count of comments
+     *
+     * @example
+     * ```typescript
+     * const count = await repository.countByTaskId('task-123');
+     * console.log(`Task has ${count} comments`);
+     * ```
+     */
+    countByTaskId(taskId: string): Promise<number>;
+    /**
+     * Finds all comments mentioning the user within a specific task.
+     *
+     * Combines task filtering with mention filtering for targeted notifications.
+     *
+     * @param taskId - The task ID to filter by
+     * @param userId - The user ID to find mentions for
+     * @returns Promise resolving to an array of comments where the user is mentioned in the task
+     *
+     * @example
+     * ```typescript
+     * const mentions = await repository.findMentionsForUserInTask('task-123', 'user-789');
+     * if (mentions.length > 0) {
+     *   console.log(`You have ${mentions.length} mentions in this task`);
+     * }
+     * ```
+     */
+    findMentionsForUserInTask(taskId: string, userId: string): Promise<Comment[]>;
+}
+
+/**
+ * Input for creating a new comment.
+ *
+ * All fields are required unless marked optional.
+ */
+interface CreateCommentInput {
+    /**
+     * The ID of the task to comment on.
+     * The task must exist for the comment to be created.
+     */
+    taskId: string;
+    /**
+     * The ID of the user creating the comment.
+     * This user will be the author of the comment.
+     */
+    userId: string;
+    /**
+     * The comment content.
+     * Must be between 1 and 2000 characters.
+     */
+    content: string;
+    /**
+     * Optional parent comment ID for threaded replies.
+     * If provided, this comment will be a reply to another comment.
+     */
+    parentCommentId?: string | null;
+    /**
+     * Optional array of user IDs to mention in the comment.
+     * Mentioned users will receive notifications.
+     */
+    mentions?: string[];
+}
+/**
+ * Use case for creating a new comment on a task.
+ *
+ * This use case handles the creation of comments, which enable
+ * team collaboration by allowing discussions directly on tasks.
+ * Comments can be standalone or replies to other comments (threaded).
+ *
+ * ## Business Rules
+ *
+ * - The task must exist (checked via repository)
+ * - Content must be between 1 and 2000 characters
+ * - User ID and task ID are required
+ * - Mentions are optional but must be valid user IDs if provided
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new CreateCommentUseCase(commentRepository);
+ *
+ * const comment = await useCase.execute({
+ *   taskId: 'task-123',
+ *   userId: 'user-456',
+ *   content: 'Let me handle this task',
+ *   mentions: ['user-789']
+ * });
+ *
+ * console.log(`Comment created: ${comment.id}`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Task ID is missing or invalid
+ * - User ID is missing or invalid
+ * - Content is empty or too long
+ * - Repository operations fail
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class CreateCommentUseCase implements UseCase<CreateCommentInput, Comment> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the create comment use case.
+     *
+     * Creates a new comment on the specified task with the provided content.
+     * The comment is validated before being persisted.
+     *
+     * @param input - The comment creation input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the created comment
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const comment = await useCase.execute({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   content: 'Great work on this task!'
+     * });
+     * ```
+     */
+    execute(input: CreateCommentInput, _loggedUser?: unknown): Promise<Comment>;
+}
+
+/**
+ * Input for updating an existing comment.
+ */
+interface UpdateCommentInput {
+    /**
+     * The ID of the comment to update.
+     */
+    commentId: string;
+    /**
+     * The ID of the user attempting to update the comment.
+     * Must be the original author of the comment.
+     */
+    userId: string;
+    /**
+     * The new content for the comment.
+     * Must be between 1 and 2000 characters.
+     */
+    newContent: string;
+}
+/**
+ * Use case for updating an existing comment's content.
+ *
+ * This use case handles the editing of comments by their original authors.
+ * When a comment is edited, it is marked as edited with a timestamp.
+ *
+ * ## Business Rules
+ *
+ * - Only the comment author can edit their own comment
+ * - Content must be between 1 and 2000 characters
+ * - The edit is tracked with isEdited flag and editedAt timestamp
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new UpdateCommentUseCase(commentRepository);
+ *
+ * const updated = await useCase.execute({
+ *   commentId: 'comment-123',
+ *   userId: 'user-456',
+ *   newContent: 'Updated: I will handle this tomorrow instead'
+ * });
+ *
+ * console.log(updated.isEdited); // true
+ * console.log(updated.editedAt); // Date object
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Comment ID is missing or invalid
+ * - User ID is missing or invalid
+ * - New content is empty or too long
+ * - Comment doesn't exist
+ * - User is not the comment author
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class UpdateCommentUseCase implements UseCase<UpdateCommentInput, Comment> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the update comment use case.
+     *
+     * Updates the content of an existing comment if the user is the author.
+     * The comment is marked as edited with a timestamp.
+     *
+     * @param input - The update input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the updated comment
+     * @throws {Error} If validation fails or user is not the author
+     *
+     * @example
+     * ```typescript
+     * const updated = await useCase.execute({
+     *   commentId: 'comment-123',
+     *   userId: 'user-456',
+     *   newContent: 'Corrected information'
+     * });
+     * ```
+     */
+    execute(input: UpdateCommentInput, _loggedUser?: unknown): Promise<Comment>;
+}
+
+/**
+ * Input for deleting a comment.
+ */
+interface DeleteCommentInput {
+    /**
+     * The ID of the comment to delete.
+     */
+    commentId: string;
+    /**
+     * The ID of the user attempting to delete the comment.
+     * Must be the original author of the comment.
+     */
+    userId: string;
+}
+/**
+ * Use case for deleting a comment.
+ *
+ * This use case handles the permanent deletion of comments by their authors.
+ * Once deleted, a comment cannot be recovered.
+ *
+ * ## Business Rules
+ *
+ * - Only the comment author can delete their own comment
+ * - Deletion is permanent (consider soft delete for undo functionality)
+ * - All replies to the comment should also be handled (application-specific)
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new DeleteCommentUseCase(commentRepository);
+ *
+ * await useCase.execute({
+ *   commentId: 'comment-123',
+ *   userId: 'user-456'
+ * });
+ *
+ * console.log('Comment deleted');
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Comment ID is missing or invalid
+ * - User ID is missing or invalid
+ * - Comment doesn't exist
+ * - User is not the comment author
+ *
+ * ## Threaded Comments
+ *
+ * For threaded comments, consider whether deleting a parent comment
+ * should also delete its replies. This is application-specific logic
+ * that may be implemented in the repository or a separate use case.
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class DeleteCommentUseCase implements UseCase<DeleteCommentInput, void> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the delete comment use case.
+     *
+     * Permanently deletes a comment if the user is the author.
+     *
+     * @param input - The delete input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise that resolves when the comment is deleted
+     * @throws {Error} If validation fails or user is not the author
+     *
+     * @example
+     * ```typescript
+     * await useCase.execute({
+     *   commentId: 'comment-123',
+     *   userId: 'user-456'
+     * });
+     * ```
+     */
+    execute(input: DeleteCommentInput, _loggedUser?: unknown): Promise<void>;
+}
+
+/**
+ * Input for retrieving comments by task.
+ */
+interface GetCommentsByTaskInput {
+    /**
+     * The ID of the task to retrieve comments for.
+     */
+    taskId: string;
+}
+/**
+ * Use case for retrieving all comments for a specific task.
+ *
+ * This use case handles fetching the complete comment thread for a task,
+ * which is essential for displaying task discussions in the UI.
+ *
+ * ## Business Rules
+ *
+ * - Returns all comments for the specified task
+ * - Comments are ordered chronologically (oldest first)
+ * - Includes both top-level comments and threaded replies
+ * - Returns an empty array if no comments exist
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetCommentsByTaskUseCase(commentRepository);
+ *
+ * const comments = await useCase.execute({
+ *   taskId: 'task-123'
+ * });
+ *
+ * console.log(`Found ${comments.length} comments`);
+ * comments.forEach(comment => {
+ *   console.log(`${comment.userId}: ${comment.content}`);
+ * });
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Task ID is missing or invalid
+ * - Repository operation fails
+ *
+ * Returns an empty array (not an error) if:
+ * - Task has no comments
+ * - Task doesn't exist (application-specific - may throw instead)
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class GetCommentsByTaskUseCase implements UseCase<GetCommentsByTaskInput, Comment[]> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the get comments by task use case.
+     *
+     * Retrieves all comments for the specified task, ordered chronologically.
+     *
+     * @param input - The input containing the task ID
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to an array of comments (empty if none found)
+     * @throws {Error} If task ID is invalid or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const comments = await useCase.execute({
+     *   taskId: 'task-123'
+   * });
+     *
+     * // Display comments in UI
+     * return (
+     *   <CommentThread comments={comments} />
+     * );
+     * ```
+     */
+    execute(input: GetCommentsByTaskInput, _loggedUser?: unknown): Promise<Comment[]>;
+}
+
+/**
+ * Input for retrieving comments by user.
+ */
+interface GetCommentsByUserInput {
+    /**
+     * The ID of the user to retrieve comments for.
+     */
+    userId: string;
+}
+/**
+ * Use case for retrieving all comments created by a specific user.
+ *
+ * This use case handles fetching all comments authored by a user,
+ * which is useful for displaying user activity feeds or comment history.
+ *
+ * ## Business Rules
+ *
+ * - Returns all comments created by the specified user
+ * - Comments are ordered by creation time (most recent first typically)
+ * - Returns an empty array if the user has no comments
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetCommentsByUserUseCase(commentRepository);
+ *
+ * const comments = await useCase.execute({
+ *   userId: 'user-456'
+ * });
+ *
+ * console.log(`User has posted ${comments.length} comments`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing or invalid
+ * - Repository operation fails
+ *
+ * Returns an empty array (not an error) if:
+ * - User has no comments
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class GetCommentsByUserUseCase implements UseCase<GetCommentsByUserInput, Comment[]> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the get comments by user use case.
+     *
+     * Retrieves all comments created by the specified user.
+     *
+     * @param input - The input containing the user ID
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to an array of comments (empty if none found)
+     * @throws {Error} If user ID is invalid or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const comments = await useCase.execute({
+     *   userId: 'user-456'
+     * });
+     *
+     * // Display user's comment history
+     * return (
+     *   <UserCommentHistory comments={comments} />
+     * );
+     * ```
+     */
+    execute(input: GetCommentsByUserInput, _loggedUser?: unknown): Promise<Comment[]>;
+}
+
+/**
+ * Input for adding a mention to a comment.
+ */
+interface AddMentionInput {
+    /**
+     * The ID of the comment to add the mention to.
+     */
+    commentId: string;
+    /**
+     * The ID of the user to mention.
+     * This user will receive a notification about the mention.
+     */
+    userIdToMention: string;
+}
+/**
+ * Use case for adding a user mention to an existing comment.
+ *
+ * This use case handles adding user mentions to comments, which triggers
+ * notifications for the mentioned users. Mentions enable direct communication
+ * within task comments.
+ *
+ * ## Business Rules
+ *
+ * - The comment must exist
+ * - The user to mention must be a valid user ID
+ * - Duplicate mentions are ignored (idempotent operation)
+ * - Adding a mention updates the comment's updatedAt timestamp
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new AddMentionUseCase(commentRepository);
+ *
+ * const updated = await useCase.execute({
+ *   commentId: 'comment-123',
+ *   userIdToMention: 'user-789'
+ * });
+ *
+ * console.log(`User mentioned. Total mentions: ${updated.mentionCount}`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Comment ID is missing or invalid
+ * - User ID to mention is missing or invalid
+ * - Comment doesn't exist
+ * - Repository operation fails
+ *
+ * ## Idempotency
+ *
+ * This operation is idempotent - adding a mention for a user who is
+ * already mentioned will return the comment unchanged without error.
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class AddMentionUseCase implements UseCase<AddMentionInput, Comment> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the add mention use case.
+     *
+     * Adds a user mention to the specified comment. If the user is already
+     * mentioned, the comment is returned unchanged.
+     *
+     * @param input - The input containing comment ID and user ID to mention
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the updated comment
+     * @throws {Error} If validation fails or comment doesn't exist
+     *
+     * @example
+     * ```typescript
+     * const updated = await useCase.execute({
+     *   commentId: 'comment-123',
+     *   userIdToMention: 'user-789'
+     * });
+     *
+     * // Trigger notification for mentioned user
+     * if (updated.hasMention('user-789')) {
+     *   await sendMentionNotification('user-789', updated.id);
+     * }
+     * ```
+     */
+    execute(input: AddMentionInput, _loggedUser?: unknown): Promise<Comment>;
+}
+
+/**
+ * Input for removing a mention from a comment.
+ */
+interface RemoveMentionInput {
+    /**
+     * The ID of the comment to remove the mention from.
+     */
+    commentId: string;
+    /**
+     * The ID of the user to unmention.
+     */
+    userIdToUnmention: string;
+}
+/**
+ * Use case for removing a user mention from an existing comment.
+ *
+ * This use case handles removing user mentions from comments, which may be
+ * used when correcting mistakes or when a user requests to be unmentioned.
+ *
+ * ## Business Rules
+ *
+ * - The comment must exist
+ * - The user ID to unmention must be a valid user ID
+ * - Removing a non-existent mention is idempotent (no error)
+ * - Removing a mention updates the comment's updatedAt timestamp
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new RemoveMentionUseCase(commentRepository);
+ *
+ * const updated = await useCase.execute({
+ *   commentId: 'comment-123',
+ *   userIdToUnmention: 'user-789'
+ * });
+ *
+ * console.log(`User unmentioned. Remaining mentions: ${updated.mentionCount}`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Comment ID is missing or invalid
+ * - User ID to unmention is missing or invalid
+ * - Comment doesn't exist
+ * - Repository operation fails
+ *
+ * ## Idempotency
+ *
+ * This operation is idempotent - removing a mention for a user who is
+ * not mentioned will return the comment unchanged without error.
+ *
+ * @see {@link ../model/comment.entity.ts | Comment entity}
+ * @see {@link ../provider/comment.repository.ts | CommentRepository}
+ */
+declare class RemoveMentionUseCase implements UseCase<RemoveMentionInput, Comment> {
+    private readonly commentRepository;
+    constructor(commentRepository: CommentRepository);
+    /**
+     * Executes the remove mention use case.
+     *
+     * Removes a user mention from the specified comment. If the user is not
+     * mentioned, the comment is returned unchanged.
+     *
+     * @param input - The input containing comment ID and user ID to unmention
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the updated comment
+     * @throws {Error} If validation fails or comment doesn't exist
+     *
+     * @example
+     * ```typescript
+     * const updated = await useCase.execute({
+     *   commentId: 'comment-123',
+     *   userIdToUnmention: 'user-789'
+     * });
+     *
+     * // Check if mention was removed
+     * if (!updated.hasMention('user-789')) {
+     *   console.log('User successfully unmentioned');
+     * }
+     * ```
+     */
+    execute(input: RemoveMentionInput, _loggedUser?: unknown): Promise<Comment>;
+}
+
+/**
+ * Properties for creating an Attachment entity.
+ *
+ * Attachments represent files uploaded to tasks, such as images,
+ * documents, and other resources that provide context or reference
+ * material for task completion.
+ *
+ * @example
+ * ```typescript
+ * const attachment = new Attachment({
+ *   taskId: 'task-123',
+ *   userId: 'user-456',
+ *   fileName: 'document-v2.pdf',
+ *   originalName: 'document.pdf',
+ *   mimeType: 'application/pdf',
+ *   size: 1024000,
+ *   storagePath: '/uploads/abc123.pdf'
+ * });
+ * ```
+ */
+interface AttachmentProps extends EntityProps {
+    /**
+     * The ID of the task this attachment belongs to.
+     * Required - every attachment must be associated with a task.
+     */
+    taskId: string;
+    /**
+     * The ID of the user who uploaded this attachment.
+     * Required - every attachment must have an uploader.
+     */
+    userId: string;
+    /**
+     * The stored file name (may include UUID or timestamp prefix).
+     * Required - must be between 1 and 255 characters.
+     */
+    fileName: string;
+    /**
+     * The original file name as provided by the user.
+     * Required - must be between 1 and 255 characters.
+     */
+    originalName: string;
+    /**
+     * The MIME type of the file.
+     * Required - must be a valid MIME type string.
+     */
+    mimeType: string;
+    /**
+     * The file size in bytes.
+     * Required - must be greater than 0 and within size limits.
+     */
+    size: number;
+    /**
+     * The storage path or URL where the file is stored.
+     * Required - must be a non-empty string.
+     */
+    storagePath: string;
+    /**
+     * Whether the file has been successfully uploaded.
+     * Defaults to false for new attachments before upload completes.
+     */
+    isUploaded?: boolean;
+    /**
+     * Timestamp when the file upload completed.
+     * Null if upload has not completed yet.
+     */
+    uploadedAt?: Date | null;
+    /**
+     * Timestamp when the attachment record was created.
+     * Defaults to current time if not provided.
+     */
+    createdAt?: Date;
+    /**
+     * Timestamp when the attachment record was last updated.
+     * Defaults to current time if not provided.
+     */
+    updatedAt?: Date;
+}
+/**
+ * Represents a file attachment on a task.
+ *
+ * Attachments enable users to associate files with tasks for reference,
+ * documentation, or collaboration. Files are stored externally (S3, R2, local)
+ * while this entity tracks metadata and ownership.
+ *
+ * ## Business Rules
+ *
+ * - File name (both stored and original) must be 1-255 characters
+ * - Every attachment must belong to a task
+ * - Every attachment must have an uploader
+ * - File size must be greater than 0 and within limits (default 10MB max)
+ * - MIME type must be a valid string
+ * - Attachments are immutable - use business methods to create updated versions
+ *
+ * ## Immutability
+ *
+ * All update methods return a new Attachment instance.
+ * Never modify properties directly.
+ *
+ * @example
+ * ```typescript
+ * // Create a new attachment (before upload)
+ * const attachment = Attachment.create({
+ *   taskId: 'task-123',
+ *   userId: 'user-456',
+ *   fileName: 'unique-id-document.pdf',
+ *   originalName: 'document.pdf',
+ *   mimeType: 'application/pdf',
+ *   size: 1024000,
+ *   storagePath: '/uploads/unique-id-document.pdf'
+ * });
+ *
+ * // Mark as uploaded after successful upload
+ * const uploaded = attachment.markAsUploaded();
+ *
+ * // Check file type
+ * if (uploaded.isPDF()) {
+ *   console.log('This is a PDF document');
+ * }
+ *
+ * // Get human-readable size
+ * console.log(`File size: ${uploaded.getFileSizeInMB().toFixed(2)} MB`);
+ * ```
+ *
+ * @see {@link ../../shared/constants/limits.constants.ts | FILE_LIMITS}
+ */
+declare class Attachment extends Entity<AttachmentProps> {
+    constructor(props: AttachmentProps, mode?: EntityMode);
+    /**
+     * Creates a new attachment with defaults applied.
+     *
+     * Factory method for creating attachments without manually
+     * setting id, timestamps, and default values.
+     *
+     * @param props - Attachment properties (id, timestamps auto-generated)
+     * @returns A new Attachment instance
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   fileName: 'stored-name.pdf',
+     *   originalName: 'document.pdf',
+     *   mimeType: 'application/pdf',
+     *   size: 1024000,
+     *   storagePath: '/uploads/stored-name.pdf'
+     * });
+     * ```
+     */
+    static create(props: Omit<AttachmentProps, "id" | "isUploaded" | "uploadedAt" | "createdAt" | "updatedAt">): Attachment;
+    get taskId(): string;
+    get userId(): string;
+    get fileName(): string;
+    get originalName(): string;
+    get mimeType(): string;
+    get size(): number;
+    get storagePath(): string;
+    get isUploaded(): boolean;
+    get uploadedAt(): Date | null | undefined;
+    get createdAt(): Date;
+    get updatedAt(): Date;
+    /**
+     * Marks the attachment as successfully uploaded.
+     *
+     * Sets the isUploaded flag to true and records the upload timestamp.
+     * Use this after the file has been successfully stored.
+     *
+     * @returns A new Attachment instance marked as uploaded
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({ ... });
+     * // After successful file upload...
+     * const uploaded = attachment.markAsUploaded();
+     * console.log(uploaded.isUploaded); // true
+     * console.log(uploaded.uploadedAt); // Date object
+     * ```
+     */
+    markAsUploaded(): Attachment;
+    /**
+     * Gets the file size in megabytes.
+     *
+     * @returns The file size in MB (decimal)
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   size: 5242880 // 5 MB
+     * });
+     * console.log(attachment.getFileSizeInMB()); // 5.0
+     * ```
+     */
+    getFileSizeInMB(): number;
+    /**
+     * Gets the file size in kilobytes.
+     *
+     * @returns The file size in KB (decimal)
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   size: 102400 // ~100 KB
+     * });
+     * console.log(attachment.getFileSizeInKB()); // ~100.0
+     * ```
+     */
+    getFileSizeInKB(): number;
+    /**
+     * Checks if the attachment is an image file.
+     *
+     * Determines file type by MIME type.
+     *
+     * @returns true if the file is an image, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   mimeType: 'image/jpeg'
+     * });
+     * if (attachment.isImage()) {
+     *   console.log('This is an image file');
+     * }
+     * ```
+     */
+    isImage(): boolean;
+    /**
+     * Checks if the attachment is a PDF file.
+     *
+     * @returns true if the file is a PDF, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   mimeType: 'application/pdf'
+     * });
+     * if (attachment.isPDF()) {
+     *   console.log('This is a PDF document');
+     * }
+     * ```
+     */
+    isPDF(): boolean;
+    /**
+     * Checks if the attachment is a document file.
+     *
+     * Documents include PDF, Word, Excel, PowerPoint, and text files.
+     *
+     * @returns true if the file is a document, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+     * });
+     * if (attachment.isDocument()) {
+     *   console.log('This is a document file');
+     * }
+     * ```
+     */
+    isDocument(): boolean;
+    /**
+     * Gets the file extension from the original name.
+     *
+     * @returns The file extension including the dot (e.g., ".pdf"), or empty string if no extension
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   originalName: 'document.pdf'
+     * });
+     * console.log(attachment.getExtension()); // '.pdf'
+     * ```
+     */
+    getExtension(): string;
+    /**
+     * Checks if the file size exceeds a given limit.
+     *
+     * @param maxSizeMB - Maximum size in megabytes
+     * @returns true if the file is too large, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   ...
+     *   size: 15 * 1024 * 1024 // 15 MB
+     * });
+     * if (attachment.isTooLarge(10)) {
+     *   console.log('File exceeds 10 MB limit');
+     * }
+     * ```
+     */
+    isTooLarge(maxSizeMB: number): boolean;
+    /**
+     * Validates the task ID.
+     *
+     * @private
+     * @param taskId - The task ID to validate
+     * @throws {Error} If task ID is invalid
+     */
+    private validateTaskId;
+    /**
+     * Validates the user ID.
+     *
+     * @private
+     * @param userId - The user ID to validate
+     * @throws {Error} If user ID is invalid
+     */
+    private validateUserId;
+    /**
+     * Validates the file name.
+     *
+     * @private
+     * @param fileName - The file name to validate
+     * @throws {Error} If file name is invalid
+     */
+    private validateFileName;
+    /**
+     * Validates the original file name.
+     *
+     * @private
+     * @param originalName - The original file name to validate
+     * @throws {Error} If original name is invalid
+     */
+    private validateOriginalName;
+    /**
+     * Validates the MIME type.
+     *
+     * @private
+     * @param mimeType - The MIME type to validate
+     * @throws {Error} If MIME type is invalid
+     */
+    private validateMimeType;
+    /**
+     * Validates the file size.
+     *
+     * @private
+     * @param size - The file size in bytes to validate
+     * @throws {Error} If size is invalid
+     */
+    private validateSize;
+    /**
+     * Validates the storage path.
+     *
+     * @private
+     * @param storagePath - The storage path to validate
+     * @throws {Error} If storage path is invalid
+     */
+    private validateStoragePath;
+    /**
+     * Creates a draft version of this attachment.
+     *
+     * Draft mode skips validation, useful for forms before submission.
+     *
+     * @returns A new Attachment instance in draft mode
+     *
+     * @example
+     * ```typescript
+     * const draft = attachment.asDraft();
+     * // Can now modify without validation
+     * ```
+     */
+    asDraft(): this;
+    /**
+     * Converts this attachment to valid mode.
+     *
+     * Triggers validation of all properties.
+     *
+     * @returns A new Attachment instance in valid mode
+     * @throws {Error} If any validation fails
+     *
+     * @example
+     * ```typescript
+     * const draft = new Attachment({ fileName: '' }, 'draft');
+     * const valid = draft.asValid(); // Throws error if fileName is empty
+     * ```
+     */
+    asValid(): this;
+}
+
+/**
+ * Repository interface for Attachment entity persistence operations.
+ *
+ * This interface defines the contract for Attachment data access, providing CRUD
+ * operations plus specialized methods for managing task attachments and storage metrics.
+ * Attachments enable users to associate files with tasks for reference and collaboration.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaAttachmentRepository implements AttachmentRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(attachment: Attachment): Promise<Attachment> {
+ *     const data = await this.prisma.attachment.create({
+ *       data: {
+ *         id: attachment.id,
+ *         taskId: attachment.taskId,
+ *         uploadedById: attachment.userId,
+ *         filename: attachment.fileName,
+ *         url: attachment.storagePath,
+ *         mimeType: attachment.mimeType,
+ *         filesize: attachment.size,
+ *         uploadedAt: attachment.uploadedAt,
+ *       }
+ *     });
+ *     return new Attachment({
+ *       ...data,
+ *       userId: data.uploadedById,
+ *       originalName: data.filename,
+ *       storagePath: data.url,
+ *     });
+ *   }
+ *
+ *   async findByTaskId(taskId: string): Promise<Attachment[]> {
+ *     const attachments = await this.prisma.attachment.findMany({
+ *       where: { taskId },
+ *       orderBy: { uploadedAt: 'desc' }
+ *     });
+ *     return attachments.map(a => new Attachment({
+ *       ...a,
+ *       userId: a.uploadedById,
+ *       originalName: a.filename,
+ *       storagePath: a.url,
+ *     }));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ */
+interface AttachmentRepository {
+    /**
+     * Creates a new attachment in the repository.
+     *
+     * Used when a user uploads a file to a task. The attachment
+     * should have all required fields populated before calling this method.
+     *
+     * @param attachment - The attachment entity to create (must be valid)
+     * @returns Promise resolving to the created attachment with any database-generated fields populated
+     * @throws {Error} If attachment validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const attachment = Attachment.create({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   fileName: 'unique-id-document.pdf',
+     *   originalName: 'document.pdf',
+     *   mimeType: 'application/pdf',
+     *   size: 1024000,
+     *   storagePath: '/uploads/unique-id-document.pdf'
+     * });
+     *
+     * const created = await repository.create(attachment);
+     * console.log(`Attachment created with ID: ${created.id}`);
+     * ```
+     */
+    create(attachment: Attachment): Promise<Attachment>;
+    /**
+     * Updates an existing attachment in the repository.
+     *
+     * Used when updating attachment metadata, such as marking
+     * an attachment as uploaded after file storage completes.
+     *
+     * @param attachment - The attachment entity with updated fields
+     * @returns Promise resolving to the updated attachment
+     * @throws {Error} If the attachment doesn't exist or validation fails
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('attachment-123');
+     * if (existing) {
+     *   const uploaded = existing.markAsUploaded();
+     *   await repository.update(uploaded);
+     * }
+     * ```
+     */
+    update(attachment: Attachment): Promise<Attachment>;
+    /**
+     * Finds an attachment by its unique ID.
+     *
+     * Used for fetching attachment details when the ID is known, such as from
+     * a URL parameter or after creating/updating an attachment.
+     *
+     * @param id - The unique identifier of the attachment
+     * @returns Promise resolving to the attachment if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const attachment = await repository.findById('attachment-123');
+     * if (attachment) {
+     *   console.log(`Found attachment: ${attachment.originalName}`);
+     * } else {
+     *   console.log('Attachment not found');
+     * }
+     * ```
+     */
+    findById(id: string): Promise<Attachment | null>;
+    /**
+     * Finds all attachments for a specific task.
+     *
+     * Used for displaying the list of files attached to a task.
+     * Returns attachments ordered by upload date (newest first).
+     *
+     * @param taskId - The task ID to find attachments for
+     * @returns Promise resolving to an array of attachments (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const attachments = await repository.findByTaskId('task-123');
+     * console.log(`Found ${attachments.length} attachments`);
+     *
+     * // Render attachment list
+     * attachments.forEach(attachment => {
+     *   console.log(`${attachment.originalName} (${attachment.getFileSizeInMB().toFixed(2)} MB)`);
+     * });
+     * ```
+     */
+    findByTaskId(taskId: string): Promise<Attachment[]>;
+    /**
+     * Finds all attachments uploaded by a specific user.
+     *
+     * Used for displaying a user's upload history or activity feed.
+     *
+     * @param userId - The user ID to find attachments for
+     * @returns Promise resolving to an array of attachments (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const userAttachments = await repository.findByUserId('user-456');
+     * console.log(`User has uploaded ${userAttachments.length} files`);
+     * ```
+     */
+    findByUserId(userId: string): Promise<Attachment[]>;
+    /**
+     * Finds all attachments with a specific MIME type.
+     *
+     * Used for filtering attachments by file type, such as
+     * showing only images or only documents.
+     *
+     * @param mimeType - The MIME type to filter by (e.g., "image/jpeg", "application/pdf")
+     * @returns Promise resolving to an array of matching attachments
+     *
+     * @example
+     * ```typescript
+     * const images = await repository.findByMimeType('image/jpeg');
+     * console.log(`Found ${images.length} JPEG images`);
+     * ```
+     */
+    findByMimeType(mimeType: string): Promise<Attachment[]>;
+    /**
+     * Deletes an attachment from the repository.
+     *
+     * WARNING: This permanently deletes the attachment record from the database.
+     * The actual file in storage should be deleted separately (typically in the service layer).
+     *
+     * @param id - The unique identifier of the attachment to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {Error} If the attachment doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('attachment-123');
+     * console.log('Attachment record deleted');
+     * // Note: Physical file deletion should be handled separately
+     * ```
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Counts the total number of attachments for a specific task.
+     *
+     * Useful for displaying attachment counts in task lists and badges,
+     * and for enforcing limits on attachments per task.
+     *
+     * @param taskId - The task ID to count attachments for
+     * @returns Promise resolving to the count of attachments
+     *
+     * @example
+     * ```typescript
+     * const count = await repository.countByTaskId('task-123');
+     * console.log(`Task has ${count} attachments`);
+     * ```
+     */
+    countByTaskId(taskId: string): Promise<number>;
+    /**
+     * Gets the total file size for all attachments on a specific task.
+     *
+     * Useful for enforcing storage limits and displaying
+     * storage usage statistics.
+     *
+     * @param taskId - The task ID to calculate total size for
+     * @returns Promise resolving to the total size in bytes
+     *
+     * @example
+     * ```typescript
+     * const totalBytes = await repository.getTotalSizeByTaskId('task-123');
+     * const totalMB = totalBytes / (1024 * 1024);
+     * console.log(`Task attachments use ${totalMB.toFixed(2)} MB`);
+     * ```
+     */
+    getTotalSizeByTaskId(taskId: string): Promise<number>;
+}
+
+/**
+ * Input for creating a new attachment.
+ *
+ * All fields are required.
+ */
+interface CreateAttachmentInput {
+    /**
+     * The ID of the task to attach the file to.
+     * The task must exist for the attachment to be created.
+     */
+    taskId: string;
+    /**
+     * The ID of the user uploading the file.
+     * This user will be recorded as the uploader.
+     */
+    userId: string;
+    /**
+     * The stored file name (may include UUID or timestamp prefix).
+     * This is the actual name used in storage.
+     */
+    fileName: string;
+    /**
+     * The original file name as provided by the user.
+     * This is the name that will be displayed in the UI.
+     */
+    originalName: string;
+    /**
+     * The MIME type of the file.
+     * Used for content-type negotiation and file type detection.
+     */
+    mimeType: string;
+    /**
+     * The file size in bytes.
+     * Must be greater than 0 and within size limits.
+     */
+    size: number;
+    /**
+     * The storage path or URL where the file is stored.
+     * This can be a relative path, absolute URL, or cloud storage path.
+     */
+    storagePath: string;
+}
+/**
+ * Use case for creating a new attachment on a task.
+ *
+ * This use case handles the creation of attachment records before
+ * or after file upload completes. Attachments enable users to
+ * associate files with tasks for reference and collaboration.
+ *
+ * ## Business Rules
+ *
+ * - The task must exist (checked via repository)
+ * - File name (both stored and original) must be 1-255 characters
+ * - User ID and task ID are required
+ * - File size must be greater than 0 and within limits (default 10MB max)
+ * - MIME type must be valid
+ * - Storage path must be provided
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new CreateAttachmentUseCase(attachmentRepository);
+ *
+ * const attachment = await useCase.execute({
+ *   taskId: 'task-123',
+ *   userId: 'user-456',
+ *   fileName: 'abc123-document.pdf',
+ *   originalName: 'document.pdf',
+ *   mimeType: 'application/pdf',
+ *   size: 1024000,
+ *   storagePath: '/uploads/abc123-document.pdf'
+ * });
+ *
+ * console.log(`Attachment created: ${attachment.id}`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Task ID is missing or invalid
+ * - User ID is missing or invalid
+ * - File names are missing or too long
+ * - MIME type is invalid
+ * - File size is 0 or exceeds limits
+ * - Storage path is missing
+ * - Repository operations fail
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ * @see {@link ../provider/attachment.repository.ts | AttachmentRepository}
+ */
+declare class CreateAttachmentUseCase implements UseCase<CreateAttachmentInput, Attachment> {
+    private readonly attachmentRepository;
+    constructor(attachmentRepository: AttachmentRepository);
+    /**
+     * Executes the create attachment use case.
+     *
+     * Creates a new attachment record on the specified task with the
+     * provided file metadata. The attachment is validated before being persisted.
+     *
+     * @param input - The attachment creation input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the created attachment
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const attachment = await useCase.execute({
+     *   taskId: 'task-123',
+     *   userId: 'user-456',
+     *   fileName: 'unique-id-image.jpg',
+     *   originalName: 'photo.jpg',
+     *   mimeType: 'image/jpeg',
+     *   size: 524288,
+     *   storagePath: '/uploads/unique-id-image.jpg'
+     * });
+     * ```
+     */
+    execute(input: CreateAttachmentInput, _loggedUser?: unknown): Promise<Attachment>;
+}
+
+/**
+ * Input for marking an attachment as uploaded.
+ */
+interface MarkAsUploadedInput {
+    /**
+     * The ID of the attachment to mark as uploaded.
+     */
+    attachmentId: string;
+}
+/**
+ * Use case for marking an attachment as successfully uploaded.
+ *
+ * This use case handles updating an attachment's status after the file
+ * has been successfully stored. This is typically called after the
+ * upload process completes to record the upload timestamp.
+ *
+ * ## Business Rules
+ *
+ * - The attachment must exist
+ * - The isUploaded flag is set to true
+ * - The uploadedAt timestamp is recorded
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new MarkAsUploadedUseCase(attachmentRepository);
+ *
+ * // After successful file upload
+ * await storageService.upload(file);
+ * const attachment = await useCase.execute({
+ *   attachmentId: 'attachment-123'
+ * });
+ *
+ * console.log(`Attachment ${attachment.id} marked as uploaded`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Attachment ID is missing or invalid
+ * - Attachment doesn't exist
+ * - Repository operation fails
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ * @see {@link ../provider/attachment.repository.ts | AttachmentRepository}
+ */
+declare class MarkAsUploadedUseCase implements UseCase<MarkAsUploadedInput, Attachment> {
+    private readonly attachmentRepository;
+    constructor(attachmentRepository: AttachmentRepository);
+    /**
+     * Executes the mark as uploaded use case.
+     *
+     * Marks an attachment as successfully uploaded by setting the
+     * isUploaded flag to true and recording the upload timestamp.
+     *
+     * @param input - The input containing the attachment ID
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the updated attachment
+     * @throws {Error} If attachment ID is invalid or attachment not found
+     *
+     * @example
+     * ```typescript
+     * // After successful upload
+     * const attachment = await useCase.execute({
+     *   attachmentId: 'attachment-123'
+     * });
+     * console.log(attachment.isUploaded); // true
+     * console.log(attachment.uploadedAt); // Date object
+     * ```
+     */
+    execute(input: MarkAsUploadedInput, _loggedUser?: unknown): Promise<Attachment>;
+}
+
+/**
+ * Input for deleting an attachment.
+ */
+interface DeleteAttachmentInput {
+    /**
+     * The ID of the attachment to delete.
+     */
+    attachmentId: string;
+    /**
+     * The ID of the user attempting to delete the attachment.
+     * Must be the original uploader of the attachment.
+     */
+    userId: string;
+}
+/**
+ * Use case for deleting an attachment.
+ *
+ * This use case handles the deletion of attachment records by their uploaders.
+ * Note: Physical file deletion should be handled separately in the service layer
+ * as it's a cross-cutting concern (storage provider specifics).
+ *
+ * ## Business Rules
+ *
+ * - Only the attachment uploader can delete their own attachment
+ * - Deletion of the database record is permanent
+ * - Physical file deletion is handled separately (service layer concern)
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new DeleteAttachmentUseCase(attachmentRepository);
+ *
+ * await useCase.execute({
+ *   attachmentId: 'attachment-123',
+ *   userId: 'user-456'
+ * });
+ *
+ * // Delete physical file separately
+ * await storageService.deleteFile(filePath);
+ *
+ * console.log('Attachment deleted');
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Attachment ID is missing or invalid
+ * - User ID is missing or invalid
+ * - Attachment doesn't exist
+ * - User is not the attachment uploader
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ * @see {@link ../provider/attachment.repository.ts | AttachmentRepository}
+ */
+declare class DeleteAttachmentUseCase implements UseCase<DeleteAttachmentInput, void> {
+    private readonly attachmentRepository;
+    constructor(attachmentRepository: AttachmentRepository);
+    /**
+     * Executes the delete attachment use case.
+     *
+     * Permanently deletes the attachment record if the user is the uploader.
+     * Physical file deletion should be handled separately.
+     *
+     * @param input - The delete input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise that resolves when the attachment record is deleted
+     * @throws {Error} If validation fails or user is not the uploader
+     *
+     * @example
+     * ```typescript
+     * await useCase.execute({
+     *   attachmentId: 'attachment-123',
+     *   userId: 'user-456'
+     * });
+     * // Note: Remember to delete the physical file separately
+     * ```
+     */
+    execute(input: DeleteAttachmentInput, _loggedUser?: unknown): Promise<void>;
+}
+
+/**
+ * Input for retrieving attachments by task.
+ */
+interface GetAttachmentsByTaskInput {
+    /**
+     * The ID of the task to retrieve attachments for.
+     */
+    taskId: string;
+}
+/**
+ * Use case for retrieving all attachments for a specific task.
+ *
+ * This use case handles fetching the complete list of file attachments
+ * for a task, which is essential for displaying task resources in the UI.
+ *
+ * ## Business Rules
+ *
+ * - Returns all attachments for the specified task
+ * - Attachments are ordered by upload date (newest first)
+ * - Returns an empty array if no attachments exist
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetAttachmentsByTaskUseCase(attachmentRepository);
+ *
+ * const attachments = await useCase.execute({
+ *   taskId: 'task-123'
+ * });
+ *
+ * console.log(`Found ${attachments.length} attachments`);
+ * attachments.forEach(attachment => {
+ *   console.log(`${attachment.originalName} (${attachment.getFileSizeInMB().toFixed(2)} MB)`);
+ * });
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Task ID is missing or invalid
+ * - Repository operation fails
+ *
+ * Returns an empty array (not an error) if:
+ * - Task has no attachments
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ * @see {@link ../provider/attachment.repository.ts | AttachmentRepository}
+ */
+declare class GetAttachmentsByTaskUseCase implements UseCase<GetAttachmentsByTaskInput, Attachment[]> {
+    private readonly attachmentRepository;
+    constructor(attachmentRepository: AttachmentRepository);
+    /**
+     * Executes the get attachments by task use case.
+     *
+     * Retrieves all attachments for the specified task, ordered by
+     * upload date (newest first).
+     *
+     * @param input - The input containing the task ID
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to an array of attachments (empty if none found)
+     * @throws {Error} If task ID is invalid or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const attachments = await useCase.execute({
+     *   taskId: 'task-123'
+     * });
+     *
+     * // Display attachments in UI
+     * return (
+     *   <AttachmentList attachments={attachments} />
+     * );
+     * ```
+     */
+    execute(input: GetAttachmentsByTaskInput, _loggedUser?: unknown): Promise<Attachment[]>;
+}
+
+/**
+ * Input for retrieving attachments by user.
+ */
+interface GetAttachmentsByUserInput {
+    /**
+     * The ID of the user to retrieve attachments for.
+     */
+    userId: string;
+}
+/**
+ * Use case for retrieving all attachments uploaded by a specific user.
+ *
+ * This use case handles fetching a user's complete upload history,
+ * which is useful for activity feeds and user profile pages.
+ *
+ * ## Business Rules
+ *
+ * - Returns all attachments uploaded by the specified user
+ * - Attachments are ordered by upload date (newest first)
+ * - Returns an empty array if user has no attachments
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetAttachmentsByUserUseCase(attachmentRepository);
+ *
+ * const attachments = await useCase.execute({
+ *   userId: 'user-456'
+ * });
+ *
+ * console.log(`User has uploaded ${attachments.length} files`);
+ * const totalSize = attachments.reduce((sum, a) => sum + a.size, 0);
+ * console.log(`Total storage used: ${(totalSize / (1024 * 1024)).toFixed(2)} MB`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing or invalid
+ * - Repository operation fails
+ *
+ * Returns an empty array (not an error) if:
+ * - User has not uploaded any attachments
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ * @see {@link ../provider/attachment.repository.ts | AttachmentRepository}
+ */
+declare class GetAttachmentsByUserUseCase implements UseCase<GetAttachmentsByUserInput, Attachment[]> {
+    private readonly attachmentRepository;
+    constructor(attachmentRepository: AttachmentRepository);
+    /**
+     * Executes the get attachments by user use case.
+     *
+     * Retrieves all attachments uploaded by the specified user.
+     *
+     * @param input - The input containing the user ID
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to an array of attachments (empty if none found)
+     * @throws {Error} If user ID is invalid or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const attachments = await useCase.execute({
+     *   userId: 'user-456'
+     * });
+     *
+     * // Display in user profile
+     * return (
+     *   <UserUploads attachments={attachments} />
+     * );
+     * ```
+     */
+    execute(input: GetAttachmentsByUserInput, _loggedUser?: unknown): Promise<Attachment[]>;
+}
+
+/**
+ * Input for retrieving an attachment by ID.
+ */
+interface GetAttachmentByIdInput {
+    /**
+     * The ID of the attachment to retrieve.
+     */
+    attachmentId: string;
+}
+/**
+ * Use case for retrieving a single attachment by its ID.
+ *
+ * This use case handles fetching attachment details when the ID is known,
+ * such as from a URL parameter or after list filtering.
+ *
+ * ## Business Rules
+ *
+ * - Returns the attachment if found
+ * - Throws an error if attachment doesn't exist
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetAttachmentByIdUseCase(attachmentRepository);
+ *
+ * const attachment = await useCase.execute({
+ *   attachmentId: 'attachment-123'
+ * });
+ *
+ * console.log(`Found: ${attachment.originalName}`);
+ * console.log(`Size: ${attachment.getFileSizeInMB().toFixed(2)} MB`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Attachment ID is missing or invalid
+ * - Attachment doesn't exist
+ * - Repository operation fails
+ *
+ * @see {@link ../model/attachment.entity.ts | Attachment entity}
+ * @see {@link ../link provider/attachment.repository.ts | AttachmentRepository}
+ */
+declare class GetAttachmentByIdUseCase implements UseCase<GetAttachmentByIdInput, Attachment> {
+    private readonly attachmentRepository;
+    constructor(attachmentRepository: AttachmentRepository);
+    /**
+     * Executes the get attachment by ID use case.
+     *
+     * Retrieves a single attachment by its unique identifier.
+     *
+     * @param input - The input containing the attachment ID
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the attachment
+     * @throws {Error} If attachment ID is invalid or attachment not found
+     *
+     * @example
+     * ```typescript
+     * const attachment = await useCase.execute({
+     *   attachmentId: 'attachment-123'
+     * });
+     *
+     * // Display attachment details
+     * return (
+     *   <AttachmentDetails attachment={attachment} />
+     * );
+     * ```
+     */
+    execute(input: GetAttachmentByIdInput, _loggedUser?: unknown): Promise<Attachment>;
+}
+
+/**
+ * Notification type enum.
+ *
+ * Represents the category or reason for the notification.
+ * These types determine how notifications are displayed and grouped.
+ *
+ * @example
+ * ```typescript
+ * const type = NotificationType.TASK_ASSIGNED;
+ * ```
+ */
+declare enum NotificationType {
+    /** User was assigned to a task */
+    TASK_ASSIGNED = "TASK_ASSIGNED",
+    /** New comment added to a task */
+    COMMENT_ADDED = "COMMENT_ADDED",
+    /** User was mentioned in a comment */
+    MENTIONED = "MENTIONED",
+    /** Task due date is approaching */
+    DUE_DATE_APPROACHING = "DUE_DATE_APPROACHING",
+    /** User received a workspace invitation */
+    INVITATION_RECEIVED = "INVITATION_RECEIVED",
+    /** System-generated notification */
+    SYSTEM = "SYSTEM",
+    /** Task was completed */
+    TASK_COMPLETED = "TASK_COMPLETED",
+    /** Task status changed */
+    TASK_STATUS_CHANGED = "TASK_STATUS_CHANGED",
+    /** User was added to a workspace */
+    WORKSPACE_ADDED = "WORKSPACE_ADDED",
+    /** Project status changed */
+    PROJECT_UPDATED = "PROJECT_UPDATED"
+}
+/**
+ * Resource type enum.
+ *
+ * Represents the entity type that the notification refers to.
+ * Used for polymorphic associations and navigation.
+ */
+declare enum ResourceType {
+    /** Notification refers to a task */
+    TASK = "TASK",
+    /** Notification refers to a project */
+    PROJECT = "PROJECT",
+    /** Notification refers to a workspace */
+    WORKSPACE = "WORKSPACE",
+    /** Notification refers to a comment */
+    COMMENT = "COMMENT"
+}
+/**
+ * Properties for creating a Notification entity.
+ *
+ * Notifications represent messages sent to users about relevant events
+ * in their workspace, such as task assignments, mentions, and due dates.
+ *
+ * @example
+ * ```typescript
+ * const notification = new Notification({
+ *   userId: 'user-123',
+ *   type: NotificationType.TASK_ASSIGNED,
+ *   title: 'New task assigned',
+ *   message: 'You have been assigned to "Complete documentation"',
+ *   resourceId: 'task-456',
+ *   resourceType: ResourceType.TASK
+ * });
+ * ```
+ */
+interface NotificationProps extends EntityProps {
+    /**
+     * The ID of the user who will receive this notification.
+     * Required - every notification must have a recipient.
+     */
+    userId: string;
+    /**
+     * The type/category of this notification.
+     * Required - determines how the notification is displayed.
+     */
+    type: NotificationType;
+    /**
+     * The notification title/headline.
+     * Required - must be between 1 and 200 characters.
+     */
+    title: string;
+    /**
+     * Optional detailed message.
+     * If provided, must be between 1 and 1000 characters.
+     */
+    message?: string | null;
+    /**
+     * Optional ID of the related resource (task, project, etc.).
+     * Used for navigation and deep linking.
+     */
+    resourceId?: string | null;
+    /**
+     * Optional type of the related resource.
+     * Used with resourceId for polymorphic associations.
+     */
+    resourceType?: ResourceType | null;
+    /**
+     * Optional metadata for navigation (e.g., workspaceId, projectId).
+     * Stored as JSON in the database.
+     */
+    metadata?: Record<string, unknown> | null;
+    /**
+     * Whether the notification has been read by the user.
+     * Defaults to false for new notifications.
+     */
+    isRead?: boolean;
+    /**
+     * Timestamp when the notification was marked as read.
+     * Null if the notification is unread.
+     */
+    readAt?: Date | null;
+    /**
+     * Timestamp when the notification was created.
+     * Defaults to current time if not provided.
+     */
+    createdAt?: Date;
+    /**
+     * Timestamp when the notification was last updated.
+     * Defaults to current time if not provided.
+     */
+    updatedAt?: Date;
+}
+/**
+ * Represents a notification for a user.
+ *
+ * Notifications keep users informed about relevant events in their workspace,
+ * such as task assignments, mentions, comments, and approaching due dates.
+ *
+ * ## Business Rules
+ *
+ * - Title must be between 1 and 200 characters
+ * - Message (if provided) must be between 1 and 1000 characters
+ * - Every notification must have a recipient (userId)
+ * - Every notification must have a type
+ * - Notifications are immutable - use business methods to create updated versions
+ *
+ * ## Immutability
+ *
+ * All update methods return a new Notification instance.
+ * Never modify properties directly.
+ *
+ * @example
+ * ```typescript
+ * // Create a new notification
+ * const notification = Notification.create({
+ *   userId: 'user-123',
+ *   type: NotificationType.TASK_ASSIGNED,
+ *   title: 'New task assigned',
+ *   message: 'You have been assigned to "Complete documentation"',
+ *   resourceId: 'task-456',
+ *   resourceType: ResourceType.TASK,
+ *   metadata: { workspaceId: 'ws-789' }
+ * });
+ *
+ * // Mark as read
+ * const read = notification.markAsRead();
+ * console.log(read.isRead); // true
+ * console.log(read.readAt); // Date object
+ *
+ * // Check if high priority
+ * if (notification.isOlderThan(7 * 24 * 60 * 60 * 1000)) {
+ *   console.log('This notification is more than a week old');
+ * }
+ * ```
+ *
+ * @see {@link ../../shared/constants/limits.constants.ts | NOTIFICATION_LIMITS}
+ */
+declare class Notification extends Entity<NotificationProps> {
+    constructor(props: NotificationProps, mode?: EntityMode);
+    /**
+     * Creates a new notification with defaults applied.
+     *
+     * Factory method for creating notifications without manually
+     * setting id, timestamps, and default values.
+     *
+     * @param props - Notification properties (id, timestamps auto-generated)
+     * @returns A new Notification instance
+     *
+     * @example
+     * ```typescript
+     * const notification = Notification.create({
+     *   userId: 'user-123',
+     *   type: NotificationType.TASK_ASSIGNED,
+     *   title: 'New task assigned',
+     *   message: 'You have been assigned to a new task'
+     * });
+     * ```
+     */
+    static create(props: Omit<NotificationProps, "id" | "isRead" | "readAt" | "createdAt" | "updatedAt">): Notification;
+    get userId(): string;
+    get type(): NotificationType;
+    get title(): string;
+    get message(): string | null | undefined;
+    get resourceId(): string | null | undefined;
+    get resourceType(): ResourceType | null | undefined;
+    get metadata(): Record<string, unknown> | null | undefined;
+    get isRead(): boolean;
+    get readAt(): Date | null | undefined;
+    get createdAt(): Date;
+    get updatedAt(): Date;
+    /**
+     * Marks the notification as read.
+     *
+     * Sets the isRead flag to true and records the read timestamp.
+     * If already read, returns the same notification (idempotent).
+     *
+     * @returns A new Notification instance marked as read
+     *
+     * @example
+     * ```typescript
+     * const notification = Notification.create({ ... });
+     * const read = notification.markAsRead();
+     * console.log(read.isRead); // true
+     * console.log(read.readAt); // Date object
+     * ```
+     */
+    markAsRead(): Notification;
+    /**
+     * Marks the notification as unread.
+     *
+     * Sets the isRead flag to false and clears the read timestamp.
+     * If already unread, returns the same notification (idempotent).
+     *
+     * @returns A new Notification instance marked as unread
+     *
+     * @example
+     * ```typescript
+     * const readNotification = notification.markAsRead();
+     * const unread = readNotification.markAsUnread();
+     * console.log(unread.isRead); // false
+     * console.log(unread.readAt); // null
+     * ```
+     */
+    markAsUnread(): Notification;
+    /**
+     * Checks if the notification is expired.
+     *
+     * Currently returns false as notifications don't have an expiration
+     * timestamp in the base schema. This method is provided for future
+     * extensibility.
+     *
+     * @returns true if the notification is expired, false otherwise
+     *
+     * @example
+     * ```typescript
+     * if (!notification.isExpired()) {
+     *   // Display the notification
+     * }
+     * ```
+     */
+    isExpired(): boolean;
+    /**
+     * Checks if the notification is high priority.
+     *
+     * High priority notifications include task assignments, mentions,
+     * and due date approaching. These should be displayed more prominently.
+     *
+     * @returns true if the notification is high priority, false otherwise
+     *
+     * @example
+     * ```typescript
+     * if (notification.isHighPriority()) {
+     *   // Show with special styling or sound
+     * }
+     * ```
+     */
+    isHighPriority(): boolean;
+    /**
+     * Checks if the notification has an associated resource.
+     *
+     * Notifications with resources can provide deep links to the
+     * relevant task, project, or other entity.
+     *
+     * @returns true if the notification has a resourceId, false otherwise
+     *
+     * @example
+     * ```typescript
+     * if (notification.isActionable()) {
+     *   // Show "View" button that links to the resource
+     * }
+     * ```
+     */
+    isActionable(): boolean;
+    /**
+     * Gets the age of the notification in milliseconds.
+     *
+     * @returns The age in milliseconds since creation
+     *
+     * @example
+     * ```typescript
+     * const ageInMinutes = notification.getAge() / 60000;
+     * console.log(`Notification is ${ageInMinutes} minutes old`);
+     * ```
+     */
+    getAge(): number;
+    /**
+     * Checks if the notification is older than a specified time.
+     *
+     * Useful for filtering out stale notifications or applying
+     * different display rules based on age.
+     *
+     * @param ms - The age threshold in milliseconds
+     * @returns true if the notification is older than the threshold, false otherwise
+     *
+     * @example
+     * ```typescript
+     * // Check if notification is more than a day old
+     * if (notification.isOlderThan(24 * 60 * 60 * 1000)) {
+     *   console.log('This notification is old');
+     * }
+     * ```
+     */
+    isOlderThan(ms: number): boolean;
+    /**
+     * Gets the metadata value for a specific key.
+     *
+     * @param key - The metadata key to retrieve
+     * @param defaultValue - The default value if the key doesn't exist
+     * @returns The metadata value or the default
+     *
+     * @example
+     * ```typescript
+     * const workspaceId = notification.getMetadata('workspaceId', '');
+     * const projectId = notification.getMetadata<string>('projectId');
+     * ```
+     */
+    getMetadata<T = unknown>(key: string, defaultValue?: T): T | undefined;
+    /**
+     * Checks if this is a task-related notification.
+     *
+     * @returns true if the notification refers to a task, false otherwise
+     *
+     * @example
+     * ```typescript
+     * if (notification.isTaskNotification()) {
+     *   console.log('Navigate to task:', notification.resourceId);
+     * }
+     * ```
+     */
+    isTaskNotification(): boolean;
+    /**
+     * Checks if this is a project-related notification.
+     *
+     * @returns true if the notification refers to a project, false otherwise
+     *
+     * @example
+     * ```typescript
+     * if (notification.isProjectNotification()) {
+     *   console.log('Navigate to project:', notification.resourceId);
+     * }
+     * ```
+     */
+    isProjectNotification(): boolean;
+    /**
+     * Checks if this is a workspace-related notification.
+     *
+     * @returns true if the notification refers to a workspace, false otherwise
+     *
+     * @example
+     * ```typescript
+     * if (notification.isWorkspaceNotification()) {
+     *   console.log('Navigate to workspace:', notification.resourceId);
+     * }
+     * ```
+     */
+    isWorkspaceNotification(): boolean;
+    /**
+     * Validates the user ID.
+     *
+     * @private
+     * @param userId - The user ID to validate
+     * @throws {Error} If user ID is invalid
+     */
+    private validateUserId;
+    /**
+     * Validates the notification type.
+     *
+     * @private
+     * @param type - The notification type to validate
+     * @throws {Error} If type is invalid
+     */
+    private validateType;
+    /**
+     * Validates the notification title.
+     *
+     * @private
+     * @param title - The title to validate
+     * @throws {Error} If title is invalid
+     */
+    private validateTitle;
+    /**
+     * Validates the notification message.
+     *
+     * @private
+     * @param message - The message to validate (optional)
+     * @throws {Error} If message is invalid
+     */
+    private validateMessage;
+    /**
+     * Validates the resource type.
+     *
+     * @private
+     * @param resourceType - The resource type to validate (optional)
+     * @throws {Error} If resource type is invalid
+     */
+    private validateResourceType;
+    /**
+     * Validates the resource ID.
+     *
+     * @private
+     * @param resourceId - The resource ID to validate (optional)
+     * @throws {Error} If resource ID is invalid
+     */
+    private validateResourceId;
+    /**
+     * Validates the metadata object.
+     *
+     * @private
+     * @param metadata - The metadata to validate (optional)
+     * @throws {Error} If metadata is invalid
+     */
+    private validateMetadata;
+    /**
+     * Creates a draft version of this notification.
+     *
+     * Draft mode skips validation, useful for forms before submission.
+     *
+     * @returns A new Notification instance in draft mode
+     *
+     * @example
+     * ```typescript
+     * const draft = notification.asDraft();
+     * // Can now modify without validation
+     * ```
+     */
+    asDraft(): this;
+    /**
+     * Converts this notification to valid mode.
+     *
+     * Triggers validation of all properties.
+     *
+     * @returns A new Notification instance in valid mode
+     * @throws {Error} If any validation fails
+     *
+     * @example
+     * ```typescript
+     * const draft = new Notification({ title: '' }, 'draft');
+     * const valid = draft.asValid(); // Throws error if title is empty
+     * ```
+     */
+    asValid(): this;
+}
+
+/**
+ * Repository interface for Notification entity persistence operations.
+ *
+ * This interface defines the contract for Notification data access, providing CRUD
+ * operations plus specialized methods for managing user notifications, filtering
+ * by read status, type, and bulk operations. Notifications keep users informed
+ * about relevant events in their workspace.
+ *
+ * @example
+ * ```typescript
+ * // Prisma implementation example
+ * class PrismaNotificationRepository implements NotificationRepository {
+ *   constructor(private prisma: PrismaClient) {}
+ *
+ *   async create(notification: Notification): Promise<Notification> {
+ *     const data = await this.prisma.notification.create({
+ *       data: {
+ *         id: notification.id,
+ *         userId: notification.userId,
+ *         type: notification.type,
+ *         title: notification.title,
+ *         message: notification.message,
+ *         resourceId: notification.resourceId,
+ *         resourceType: notification.resourceType,
+ *         metadata: notification.metadata,
+ *         isRead: notification.isRead,
+ *         readAt: notification.readAt,
+ *         createdAt: notification.createdAt,
+ *         updatedAt: notification.updatedAt,
+ *       }
+ *     });
+ *     return new Notification(data);
+ *   }
+ *
+ *   async findByUserId(userId: string): Promise<Notification[]> {
+ *     const notifications = await this.prisma.notification.findMany({
+ *       where: { userId },
+ *       orderBy: { createdAt: 'desc' }
+ *     });
+ *     return notifications.map(n => new Notification(n));
+ *   }
+ *
+ *   // ... other methods
+ * }
+ * ```
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ */
+interface NotificationRepository {
+    /**
+     * Creates a new notification in the repository.
+     *
+     * Used when a new notification needs to be sent to a user. The notification
+     * should have all required fields populated before calling this method.
+     *
+     * @param notification - The notification entity to create (must be valid)
+     * @returns Promise resolving to the created notification with any database-generated fields populated
+     * @throws {Error} If notification validation fails or database constraint is violated
+     *
+     * @example
+     * ```typescript
+     * const notification = Notification.create({
+     *   userId: 'user-123',
+     *   type: NotificationType.TASK_ASSIGNED,
+     *   title: 'New task assigned',
+     *   message: 'You have been assigned to "Complete documentation"'
+     * });
+     *
+     * const created = await repository.create(notification);
+     * console.log(`Notification created with ID: ${created.id}`);
+     * ```
+     */
+    create(notification: Notification): Promise<Notification>;
+    /**
+     * Updates an existing notification in the repository.
+     *
+     * Used when a notification's state changes, such as marking as read/unread.
+     * The notification entity should already exist and be valid before calling this method.
+     *
+     * @param notification - The notification entity with updated fields
+     * @returns Promise resolving to the updated notification
+     * @throws {Error} If the notification doesn't exist or validation fails
+     *
+     * @example
+     * ```typescript
+     * const existing = await repository.findById('notif-123');
+     * if (existing) {
+     *   const updated = existing.markAsRead();
+     *   await repository.update(updated);
+     * }
+     * ```
+     */
+    update(notification: Notification): Promise<Notification>;
+    /**
+     * Finds a notification by its unique ID.
+     *
+     * Used for fetching notification details when the ID is known, such as from
+     * a URL parameter or after creating/updating a notification.
+     *
+     * @param id - The unique identifier of the notification
+     * @returns Promise resolving to the notification if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const notification = await repository.findById('notif-123');
+     * if (notification) {
+     *   console.log(`Found notification: ${notification.title}`);
+     * } else {
+     *   console.log('Notification not found');
+     * }
+     * ```
+     */
+    findById(id: string): Promise<Notification | null>;
+    /**
+     * Finds all notifications for a specific user.
+     *
+     * Used for displaying the notification list for a user.
+     * Returns notifications ordered by creation time (newest first).
+     *
+     * @param userId - The user ID to find notifications for
+     * @returns Promise resolving to an array of notifications (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const notifications = await repository.findByUserId('user-123');
+     * console.log(`Found ${notifications.length} notifications`);
+     *
+     * // Render notification list
+     * notifications.forEach(notification => {
+     *   console.log(`${notification.type}: ${notification.title}`);
+     * });
+     * ```
+     */
+    findByUserId(userId: string): Promise<Notification[]>;
+    /**
+     * Finds all unread notifications for a specific user.
+     *
+     * Used for displaying the unread notification count and list.
+     * Notifications are ordered by creation time (newest first).
+     *
+     * @param userId - The user ID to find unread notifications for
+     * @returns Promise resolving to an array of unread notifications (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const unreadNotifications = await repository.findUnreadByUserId('user-456');
+     * console.log(`User has ${unreadNotifications.length} unread notifications`);
+     *
+     * // Show unread badge
+     * if (unreadNotifications.length > 0) {
+     *   showBadge(unreadNotifications.length);
+     * }
+     * ```
+     */
+    findUnreadByUserId(userId: string): Promise<Notification[]>;
+    /**
+     * Finds all read notifications for a specific user.
+     *
+     * Used for displaying the read notification history.
+     * Notifications are ordered by creation time (newest first).
+     *
+     * @param userId - The user ID to find read notifications for
+     * @returns Promise resolving to an array of read notifications (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const readNotifications = await repository.findReadByUserId('user-789');
+     * console.log(`User has read ${readNotifications.length} notifications`);
+     * ```
+     */
+    findReadByUserId(userId: string): Promise<Notification[]>;
+    /**
+     * Finds all notifications of a specific type for a user.
+     *
+     * Used for filtering notifications by type/category.
+     *
+     * @param userId - The user ID to find notifications for
+     * @param type - The notification type to filter by
+     * @returns Promise resolving to an array of notifications of the specified type
+     *
+     * @example
+     * ```typescript
+     * const taskNotifications = await repository.findByType(
+     *   'user-123',
+     *   NotificationType.TASK_ASSIGNED
+     * );
+     * console.log(`Found ${taskNotifications.length} task assignment notifications`);
+     * ```
+     */
+    findByType(userId: string, type: NotificationType): Promise<Notification[]>;
+    /**
+     * Finds all notifications of a specific priority level for a user.
+     *
+     * Used for displaying high-priority notifications separately.
+     * High priority types include: TASK_ASSIGNED, MENTIONED, DUE_DATE_APPROACHING.
+     *
+     * @param userId - The user ID to find notifications for
+     * @param priority - The priority level filter ('high' or 'low')
+     * @returns Promise resolving to an array of notifications matching the priority
+     *
+     * @example
+     * ```typescript
+     * const importantNotifications = await repository.findByPriority('user-123', 'high');
+     * // Display with special styling
+     * ```
+     */
+    findByPriority(userId: string, priority: "high" | "low"): Promise<Notification[]>;
+    /**
+     * Deletes a notification from the repository.
+     *
+     * WARNING: This permanently deletes the notification and cannot be undone.
+     *
+     * @param id - The unique identifier of the notification to delete
+     * @returns Promise resolving when the deletion is complete
+     * @throws {Error} If the notification doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.delete('notif-123');
+     * console.log('Notification deleted permanently');
+     * ```
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Marks all notifications as read for a specific user.
+     *
+     * Used for bulk "mark all as read" functionality.
+     * More efficient than updating each notification individually.
+     *
+     * @param userId - The user ID to mark all notifications as read for
+     * @returns Promise resolving when the bulk update is complete
+     *
+     * @example
+     * ```typescript
+     * await repository.markAllAsRead('user-123');
+     * console.log('All notifications marked as read');
+     * ```
+     */
+    markAllAsRead(userId: string): Promise<void>;
+    /**
+     * Counts the total number of unread notifications for a specific user.
+     *
+     * Useful for displaying notification badges and counts.
+     * More efficient than fetching all unread notifications.
+     *
+     * @param userId - The user ID to count unread notifications for
+     * @returns Promise resolving to the count of unread notifications
+     *
+     * @example
+     * ```typescript
+     * const count = await repository.countUnreadByUserId('user-123');
+     * console.log(`User has ${count} unread notifications`);
+     *
+     * // Display badge
+     * if (count > 0) {
+     *   showBadge(count);
+     * }
+     * ```
+     */
+    countUnreadByUserId(userId: string): Promise<number>;
+    /**
+     * Deletes all expired notifications from the repository.
+     *
+     * Used for periodic cleanup of old notifications.
+     * Currently returns 0 as notifications don't have expiration.
+     * This method is provided for future extensibility.
+     *
+     * @returns Promise resolving to the number of notifications deleted
+     *
+     * @example
+     * ```typescript
+     * // Run daily cleanup job
+     * const deleted = await repository.deleteExpired();
+     * console.log(`Cleaned up ${deleted} expired notifications`);
+     * ```
+     */
+    deleteExpired(): Promise<number>;
+    /**
+     * Deletes notifications older than a specified number of days.
+     *
+     * Used for periodic cleanup of old, read notifications.
+     *
+     * @param days - The number of days (notifications older than this will be deleted)
+     * @returns Promise resolving to the number of notifications deleted
+     *
+     * @example
+     * ```typescript
+     * // Delete notifications older than 30 days
+     * const deleted = await repository.deleteOlderThan(30);
+     * console.log(`Deleted ${deleted} old notifications`);
+     * ```
+     */
+    deleteOlderThan(days: number): Promise<number>;
+}
+
+/**
+ * Input for creating a new notification.
+ *
+ * All fields are required unless marked optional.
+ */
+interface CreateNotificationInput {
+    /**
+     * The ID of the user who will receive this notification.
+     * The user must exist for the notification to be created.
+     */
+    userId: string;
+    /**
+     * The type/category of this notification.
+     * Determines how the notification is displayed and grouped.
+     */
+    type: NotificationType;
+    /**
+     * The notification title/headline.
+     * Must be between 1 and 200 characters.
+     */
+    title: string;
+    /**
+     * Optional detailed message.
+     * If provided, must be between 1 and 1000 characters.
+     */
+    message?: string;
+    /**
+     * Optional ID of the related resource (task, project, etc.).
+     * Used for navigation and deep linking.
+     */
+    resourceId?: string;
+    /**
+     * Optional type of the related resource.
+     * Used with resourceId for polymorphic associations.
+     */
+    resourceType?: ResourceType;
+    /**
+     * Optional metadata for navigation (e.g., workspaceId, projectId).
+     * Stored as JSON in the database.
+     */
+    metadata?: Record<string, unknown>;
+}
+/**
+ * Use case for creating a new notification.
+ *
+ * This use case handles the creation of notifications, which keep
+ * users informed about relevant events in their workspace.
+ *
+ * ## Business Rules
+ *
+ * - The user must exist (checked via repository)
+ * - Title must be between 1 and 200 characters
+ * - Message (if provided) must be between 1 and 1000 characters
+ * - User ID is required
+ * - Type must be a valid NotificationType
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new CreateNotificationUseCase(notificationRepository);
+ *
+ * const notification = await useCase.execute({
+ *   userId: 'user-123',
+ *   type: NotificationType.TASK_ASSIGNED,
+ *   title: 'New task assigned',
+ *   message: 'You have been assigned to "Complete documentation"',
+ *   resourceId: 'task-456',
+ *   resourceType: ResourceType.TASK,
+ *   metadata: { workspaceId: 'ws-789' }
+ * });
+ *
+ * console.log(`Notification created: ${notification.id}`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing or invalid
+ * - Type is invalid
+ * - Title is empty or too long
+ * - Message is too long
+ * - Repository operations fail
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class CreateNotificationUseCase implements UseCase<CreateNotificationInput, Notification> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the create notification use case.
+     *
+     * Creates a new notification with the provided data.
+     * The notification is validated before being persisted.
+     *
+     * @param input - The notification creation input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the created notification
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const notification = await useCase.execute({
+     *   userId: 'user-123',
+     *   type: NotificationType.COMMENT_ADDED,
+     *   title: 'New comment on your task',
+     *   message: 'Someone commented on your task'
+     * });
+     * ```
+     */
+    execute(input: CreateNotificationInput, _loggedUser?: unknown): Promise<Notification>;
+}
+
+/**
+ * Input for marking a notification as read.
+ *
+ * Both fields are required to ensure the user owns the notification.
+ */
+interface MarkAsReadInput {
+    /**
+     * The ID of the notification to mark as read.
+     */
+    notificationId: string;
+    /**
+     * The ID of the user who owns the notification.
+     * Used to verify ownership before marking as read.
+     */
+    userId: string;
+}
+/**
+ * Use case for marking a notification as read.
+ *
+ * This use case handles marking a specific notification as read,
+ * which updates the isRead flag and sets the readAt timestamp.
+ *
+ * ## Business Rules
+ *
+ * - The notification must exist
+ * - The notification must belong to the user
+ * - If already read, returns the notification unchanged (idempotent)
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new MarkAsReadUseCase(notificationRepository);
+ *
+ * const notification = await useCase.execute({
+ *   notificationId: 'notif-123',
+ *   userId: 'user-456'
+ * });
+ *
+ * console.log(`Notification marked as read at: ${notification.readAt}`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Notification ID is missing
+ * - User ID is missing
+ * - Notification doesn't exist
+ * - User doesn't own the notification
+ * - Repository operations fail
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class MarkAsReadUseCase implements UseCase<MarkAsReadInput, Notification> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the mark as read use case.
+     *
+     * Finds the notification, verifies ownership, and marks it as read.
+     *
+     * @param input - The mark as read input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the updated notification
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const notification = await useCase.execute({
+     *   notificationId: 'notif-123',
+     *   userId: 'user-456'
+     * });
+     * console.log(notification.isRead); // true
+     * ```
+     */
+    execute(input: MarkAsReadInput, _loggedUser?: unknown): Promise<Notification>;
+}
+
+/**
+ * Input for marking all notifications as read.
+ *
+ * Only the user ID is required to mark all of their notifications as read.
+ */
+interface MarkAllAsReadInput {
+    /**
+     * The ID of the user whose notifications should be marked as read.
+     */
+    userId: string;
+}
+/**
+ * Output for marking all notifications as read.
+ *
+ * Contains information about how many notifications were marked as read.
+ */
+interface MarkAllAsReadOutput {
+    /**
+     * The number of notifications that were marked as read.
+     */
+    count: number;
+}
+/**
+ * Use case for marking all notifications as read for a user.
+ *
+ * This use case handles bulk marking all unread notifications as read,
+ * which is useful for "mark all as read" functionality.
+ *
+ * ## Business Rules
+ *
+ * - Only unread notifications for the user are affected
+ * - Returns the count of notifications marked as read
+ * - More efficient than updating each notification individually
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new MarkAllAsReadUseCase(notificationRepository);
+ *
+ * const result = await useCase.execute({ userId: 'user-123' });
+ *
+ * console.log(`Marked ${result.count} notifications as read`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing
+ * - Repository operations fail
+ *
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class MarkAllAsReadUseCase implements UseCase<MarkAllAsReadInput, MarkAllAsReadOutput> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the mark all as read use case.
+     *
+     * Marks all unread notifications for the user as read.
+     *
+     * @param input - The mark all as read input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the count of notifications marked as read
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const result = await useCase.execute({ userId: 'user-123' });
+     * console.log(`Marked ${result.count} notifications as read`);
+     * ```
+     */
+    execute(input: MarkAllAsReadInput, _loggedUser?: unknown): Promise<MarkAllAsReadOutput>;
+}
+
+/**
+ * Input for marking a notification as unread.
+ *
+ * Both fields are required to ensure the user owns the notification.
+ */
+interface MarkAsUnreadInput {
+    /**
+     * The ID of the notification to mark as unread.
+     */
+    notificationId: string;
+    /**
+     * The ID of the user who owns the notification.
+     * Used to verify ownership before marking as unread.
+     */
+    userId: string;
+}
+/**
+ * Use case for marking a notification as unread.
+ *
+ * This use case handles marking a specific notification as unread,
+ * which updates the isRead flag to false and clears the readAt timestamp.
+ *
+ * ## Business Rules
+ *
+ * - The notification must exist
+ * - The notification must belong to the user
+ * - If already unread, returns the notification unchanged (idempotent)
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new MarkAsUnreadUseCase(notificationRepository);
+ *
+ * const notification = await useCase.execute({
+ *   notificationId: 'notif-123',
+ *   userId: 'user-456'
+ * });
+ *
+ * console.log(`Notification marked as unread`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Notification ID is missing
+ * - User ID is missing
+ * - Notification doesn't exist
+ * - User doesn't own the notification
+ * - Repository operations fail
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class MarkAsUnreadUseCase implements UseCase<MarkAsUnreadInput, Notification> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the mark as unread use case.
+     *
+     * Finds the notification, verifies ownership, and marks it as unread.
+     *
+     * @param input - The mark as unread input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the updated notification
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const notification = await useCase.execute({
+     *   notificationId: 'notif-123',
+     *   userId: 'user-456'
+     * });
+     * console.log(notification.isRead); // false
+     * ```
+     */
+    execute(input: MarkAsUnreadInput, _loggedUser?: unknown): Promise<Notification>;
+}
+
+/**
+ * Input for getting unread notifications.
+ *
+ * The user ID is required, and limit is optional for pagination.
+ */
+interface GetUnreadNotificationsInput {
+    /**
+     * The ID of the user to get unread notifications for.
+     */
+    userId: string;
+    /**
+     * Optional limit on the number of notifications to return.
+     * If not specified, returns all unread notifications.
+     */
+    limit?: number;
+}
+/**
+ * Use case for getting unread notifications for a user.
+ *
+ * This use case retrieves all unread notifications for a user,
+ * ordered by creation time (newest first). High-priority
+ * notifications are returned first.
+ *
+ * ## Business Rules
+ *
+ * - Only returns notifications belonging to the user
+ * - Only returns unread notifications
+ * - High-priority notifications (TASK_ASSIGNED, MENTIONED, DUE_DATE_APPROACHING) come first
+ * - Results are ordered by creation time (newest first within each priority level)
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetUnreadNotificationsUseCase(notificationRepository);
+ *
+ * const notifications = await useCase.execute({
+ *   userId: 'user-123',
+ *   limit: 20
+ * });
+ *
+ * console.log(`Found ${notifications.length} unread notifications`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing
+ * - Repository operations fail
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class GetUnreadNotificationsUseCase implements UseCase<GetUnreadNotificationsInput, Notification[]> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the get unread notifications use case.
+     *
+     * Retrieves all unread notifications for the user, ordered by
+     * priority and creation time.
+     *
+     * @param input - The get unread notifications input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to an array of unread notifications
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const notifications = await useCase.execute({
+     *   userId: 'user-123'
+     * });
+     *
+     * notifications.forEach(n => {
+     *   console.log(`${n.type}: ${n.title}`);
+     * });
+     * ```
+     */
+    execute(input: GetUnreadNotificationsInput, _loggedUser?: unknown): Promise<Notification[]>;
+}
+
+/**
+ * Input for getting a notification by ID.
+ *
+ * Both fields are required to ensure the user owns the notification.
+ */
+interface GetNotificationByIdInput {
+    /**
+     * The ID of the notification to retrieve.
+     */
+    notificationId: string;
+    /**
+     * The ID of the user requesting the notification.
+     * Used to verify ownership before returning the notification.
+     */
+    userId: string;
+}
+/**
+ * Use case for getting a specific notification by ID.
+ *
+ * This use case retrieves a single notification and verifies
+ * that the requesting user owns the notification.
+ *
+ * ## Business Rules
+ *
+ * - The notification must exist
+ * - The notification must belong to the user
+ * - Returns null if notification doesn't exist or user doesn't own it
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetNotificationByIdUseCase(notificationRepository);
+ *
+ * const notification = await useCase.execute({
+ *   notificationId: 'notif-123',
+ *   userId: 'user-456'
+ * });
+ *
+ * if (notification) {
+ *   console.log(`Found: ${notification.title}`);
+ * } else {
+ *   console.log('Notification not found');
+ * }
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Notification ID is missing
+ * - User ID is missing
+ * - Repository operations fail
+ *
+ * Returns null if the notification doesn't exist or user doesn't own it.
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class GetNotificationByIdUseCase implements UseCase<GetNotificationByIdInput, Notification | null> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the get notification by ID use case.
+     *
+     * Finds the notification and verifies ownership before returning it.
+     *
+     * @param input - The get notification by ID input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the notification if found and owned by user, null otherwise
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const notification = await useCase.execute({
+     *   notificationId: 'notif-123',
+     *   userId: 'user-456'
+     * });
+     *
+     * if (notification) {
+     *   console.log(notification.title);
+     * }
+     * ```
+     */
+    execute(input: GetNotificationByIdInput, _loggedUser?: unknown): Promise<Notification | null>;
+}
+
+/**
+ * Input for getting notifications by type.
+ *
+ * The user ID and type are required.
+ */
+interface GetNotificationsByTypeInput {
+    /**
+     * The ID of the user to get notifications for.
+     */
+    userId: string;
+    /**
+     * The notification type to filter by.
+     */
+    type: NotificationType;
+}
+/**
+ * Use case for getting notifications of a specific type for a user.
+ *
+ * This use case retrieves all notifications of a specific type
+ * for a user, useful for filtering and grouping notifications.
+ *
+ * ## Business Rules
+ *
+ * - Only returns notifications belonging to the user
+ * - Only returns notifications of the specified type
+ * - Results are ordered by creation time (newest first)
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new GetNotificationsByTypeUseCase(notificationRepository);
+ *
+ * const notifications = await useCase.execute({
+ *   userId: 'user-123',
+ *   type: NotificationType.TASK_ASSIGNED
+ * });
+ *
+ * console.log(`Found ${notifications.length} task assignment notifications`);
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing
+ * - Type is missing
+ * - Repository operations fail
+ *
+ * @see {@link ../model/notification.entity.ts | Notification entity}
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class GetNotificationsByTypeUseCase implements UseCase<GetNotificationsByTypeInput, Notification[]> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the get notifications by type use case.
+     *
+     * Retrieves all notifications of the specified type for the user.
+     *
+     * @param input - The get notifications by type input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to an array of notifications of the specified type
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const notifications = await useCase.execute({
+     *   userId: 'user-123',
+     *   type: NotificationType.COMMENT_ADDED
+     * });
+     *
+     * notifications.forEach(n => {
+     *   console.log(`${n.title}: ${n.message}`);
+     * });
+     * ```
+     */
+    execute(input: GetNotificationsByTypeInput, _loggedUser?: unknown): Promise<Notification[]>;
+}
+
+/**
+ * Input for deleting a notification.
+ *
+ * Both fields are required to ensure the user owns the notification.
+ */
+interface DeleteNotificationInput {
+    /**
+     * The ID of the notification to delete.
+     */
+    notificationId: string;
+    /**
+     * The ID of the user who owns the notification.
+     * Used to verify ownership before deletion.
+     */
+    userId: string;
+}
+/**
+ * Use case for deleting a notification.
+ *
+ * This use case handles permanent deletion of a notification,
+ * after verifying that the user owns it.
+ *
+ * ## Business Rules
+ *
+ * - The notification must exist
+ * - The notification must belong to the user
+ * - Deletion is permanent and cannot be undone
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new DeleteNotificationUseCase(notificationRepository);
+ *
+ * await useCase.execute({
+ *   notificationId: 'notif-123',
+ *   userId: 'user-456'
+ * });
+ *
+ * console.log('Notification deleted');
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - Notification ID is missing
+ * - User ID is missing
+ * - Notification doesn't exist
+ * - User doesn't own the notification
+ * - Repository operations fail
+ *
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class DeleteNotificationUseCase implements UseCase<DeleteNotificationInput, void> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the delete notification use case.
+     *
+     * Finds the notification, verifies ownership, and deletes it permanently.
+     *
+     * @param input - The delete notification input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving when the deletion is complete
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * await useCase.execute({
+     *   notificationId: 'notif-123',
+     *   userId: 'user-456'
+     * });
+     * ```
+     */
+    execute(input: DeleteNotificationInput, _loggedUser?: unknown): Promise<void>;
+}
+
+/**
+ * Input for counting unread notifications.
+ *
+ * Only the user ID is required to count their unread notifications.
+ */
+interface CountUnreadNotificationsInput {
+    /**
+     * The ID of the user to count unread notifications for.
+     */
+    userId: string;
+}
+/**
+ * Output for counting unread notifications.
+ *
+ * Contains the count of unread notifications.
+ */
+interface CountUnreadNotificationsOutput {
+    /**
+     * The number of unread notifications for the user.
+     */
+    count: number;
+}
+/**
+ * Use case for counting unread notifications for a user.
+ *
+ * This use case provides the count of unread notifications,
+ * useful for displaying notification badges.
+ *
+ * ## Business Rules
+ *
+ * - Only counts notifications belonging to the user
+ * - Only counts unread notifications
+ * - More efficient than fetching all notifications
+ *
+ * ## Example Usage
+ *
+ * ```typescript
+ * const useCase = new CountUnreadNotificationsUseCase(notificationRepository);
+ *
+ * const result = await useCase.execute({ userId: 'user-123' });
+ *
+ * console.log(`User has ${result.count} unread notifications`);
+ *
+ * // Display badge
+ * if (result.count > 0) {
+ *   showBadge(result.count);
+ * }
+ * ```
+ *
+ * ## Error Handling
+ *
+ * Throws errors if:
+ * - User ID is missing
+ * - Repository operations fail
+ *
+ * @see {@link ../provider/notification.repository.ts | NotificationRepository}
+ */
+declare class CountUnreadNotificationsUseCase implements UseCase<CountUnreadNotificationsInput, CountUnreadNotificationsOutput> {
+    private readonly notificationRepository;
+    constructor(notificationRepository: NotificationRepository);
+    /**
+     * Executes the count unread notifications use case.
+     *
+     * Counts all unread notifications for the user.
+     *
+     * @param input - The count unread notifications input data
+     * @param _loggedUser - Optional logged user context (not used in this use case)
+     * @returns Promise resolving to the count of unread notifications
+     * @throws {Error} If validation fails or repository operation fails
+     *
+     * @example
+     * ```typescript
+     * const result = await useCase.execute({ userId: 'user-123' });
+     * console.log(`Unread count: ${result.count}`);
+     * ```
+     */
+    execute(input: CountUnreadNotificationsInput, _loggedUser?: unknown): Promise<CountUnreadNotificationsOutput>;
+}
+
+/**
+ * Type of changelog entry
+ */
+type ChangelogType = "NEW" | "IMPROVED" | "FIXED" | "REMOVED";
+/**
+ * Props for ChangelogEntry entity
+ */
+interface ChangelogEntryProps extends EntityProps {
+    version?: string;
+    title: string;
+    content: string;
+    type: ChangelogType;
+    publishedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+/**
+ * ChangelogEntry domain entity
+ *
+ * Represents a changelog entry for the application's release notes.
+ */
+declare class ChangelogEntry extends Entity<ChangelogEntryProps> {
+    constructor(props: ChangelogEntryProps);
+    /**
+     * Create a new changelog entry
+     */
+    static create(props: Omit<ChangelogEntryProps, "id" | "createdAt" | "updatedAt">): ChangelogEntry;
+    get version(): string | undefined;
+    get title(): string;
+    get content(): string;
+    get type(): ChangelogType;
+    get publishedAt(): Date;
+    get createdAt(): Date;
+    get updatedAt(): Date;
+    /**
+     * Check if entry is published
+     */
+    isPublished(): boolean;
+    /**
+     * Check if entry is a new feature
+     */
+    isNewFeature(): boolean;
+    /**
+     * Check if entry is a fix
+     */
+    isFix(): boolean;
+    /**
+     * Update changelog entry
+     */
+    update(props: Partial<Omit<ChangelogEntryProps, "id" | "createdAt">>): ChangelogEntry;
+    /**
+     * Publish the entry
+     */
+    publish(): ChangelogEntry;
+}
+
+/**
+ * Repository interface for ChangelogEntry persistence operations.
+ */
+interface IChangelogRepository {
+    /**
+     * Find a changelog entry by ID
+     */
+    findById(id: string): Promise<ChangelogEntry | null>;
+    /**
+     * Find all changelog entries with optional filtering
+     */
+    findAll(params?: {
+        skip?: number;
+        take?: number;
+        orderBy?: "publishedAt" | "createdAt";
+        order?: "asc" | "desc";
+    }): Promise<ChangelogEntry[]>;
+    /**
+     * Get the latest published release
+     */
+    findLatest(): Promise<ChangelogEntry | null>;
+    /**
+     * Create a new changelog entry
+     */
+    create(entry: ChangelogEntry): Promise<ChangelogEntry>;
+    /**
+     * Update an existing changelog entry
+     */
+    update(id: string, data: Partial<ChangelogEntryProps>): Promise<ChangelogEntry>;
+    /**
+     * Delete a changelog entry
+     */
+    delete(id: string): Promise<void>;
+}
+
+/**
+ * Props for NewsletterSubscriber entity
+ */
+interface NewsletterSubscriberProps extends EntityProps {
+    email: string;
+    active: boolean;
+    userId?: string;
+    createdAt?: Date;
+}
+/**
+ * NewsletterSubscriber domain entity
+ *
+ * Represents a subscriber to the newsletter.
+ */
+declare class NewsletterSubscriber extends Entity<NewsletterSubscriberProps> {
+    constructor(props: NewsletterSubscriberProps);
+    /**
+     * Create a new newsletter subscriber
+     */
+    static create(props: Omit<NewsletterSubscriberProps, "id" | "createdAt" | "active">): NewsletterSubscriber;
+    get email(): string;
+    get active(): boolean;
+    get userId(): string | undefined;
+    get createdAt(): Date;
+    /**
+     * Check if subscription is active
+     */
+    isActive(): boolean;
+    /**
+     * Subscribe (activate)
+     */
+    subscribe(): NewsletterSubscriber;
+    /**
+     * Unsubscribe (deactivate)
+     */
+    unsubscribe(): NewsletterSubscriber;
+    /**
+     * Link to user account
+     */
+    linkToUser(userId: string): NewsletterSubscriber;
+    /**
+     * Update email
+     */
+    updateEmail(email: string): NewsletterSubscriber;
+}
+
+/**
+ * Repository interface for NewsletterSubscriber persistence operations.
+ */
+interface INewsletterRepository {
+    /**
+     * Find a subscriber by email
+     */
+    findByEmail(email: string): Promise<NewsletterSubscriber | null>;
+    /**
+     * Find a subscriber by user ID
+     */
+    findByUserId(userId: string): Promise<NewsletterSubscriber | null>;
+    /**
+     * Find all subscribers with optional filtering
+     */
+    findAll(params?: {
+        skip?: number;
+        take?: number;
+        activeOnly?: boolean;
+    }): Promise<NewsletterSubscriber[]>;
+    /**
+     * Create a new subscriber
+     */
+    create(subscriber: NewsletterSubscriber): Promise<NewsletterSubscriber>;
+    /**
+     * Update an existing subscriber
+     */
+    update(id: string, data: Partial<NewsletterSubscriberProps>): Promise<NewsletterSubscriber>;
+    /**
+     * Delete a subscriber
+     */
+    delete(id: string): Promise<void>;
+}
+
+/**
+ * Props for ContactSubmission entity
+ */
+interface ContactSubmissionProps extends EntityProps {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+    read: boolean;
+    createdAt?: Date;
+}
+/**
+ * ContactSubmission domain entity
+ *
+ * Represents a contact form submission from a user.
+ */
+declare class ContactSubmission extends Entity<ContactSubmissionProps> {
+    constructor(props: ContactSubmissionProps);
+    /**
+     * Create a new contact submission
+     */
+    static create(props: Omit<ContactSubmissionProps, "id" | "createdAt" | "read">): ContactSubmission;
+    get name(): string;
+    get email(): string;
+    get subject(): string;
+    get message(): string;
+    get read(): boolean;
+    get createdAt(): Date;
+    /**
+     * Check if submission has been read
+     */
+    isRead(): boolean;
+    /**
+     * Mark as read
+     */
+    markAsRead(): ContactSubmission;
+    /**
+     * Mark as unread
+     */
+    markAsUnread(): ContactSubmission;
+}
+
+/**
+ * Repository interface for ContactSubmission persistence operations.
+ */
+interface IContactRepository {
+    /**
+     * Find a submission by ID
+     */
+    findById(id: string): Promise<ContactSubmission | null>;
+    /**
+     * Find all submissions with optional filtering
+     */
+    findAll(params?: {
+        skip?: number;
+        take?: number;
+        unreadOnly?: boolean;
+    }): Promise<ContactSubmission[]>;
+    /**
+     * Create a new submission
+     */
+    create(submission: ContactSubmission): Promise<ContactSubmission>;
+    /**
+     * Update an existing submission
+     */
+    update(id: string, data: Partial<ContactSubmissionProps>): Promise<ContactSubmission>;
+    /**
+     * Delete a submission
+     */
+    delete(id: string): Promise<void>;
+}
+
+export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, AddMemberToWorkspaceUseCase, type AddMentionInput, AddMentionUseCase, type AnalyticsRepository, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, AssignTagToTaskUseCase, type AssignTags, Attachment, type AttachmentProps, type AttachmentRepository, type AuditAction, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, ChangelogEntry, type ChangelogEntryProps, type ChangelogType, Comment, type CommentBase, type CommentFilter, type CommentProps, type CommentRepository, type CompleteTaskInput, CompleteTaskUseCase, ContactSubmission, type ContactSubmissionProps, type CountUnreadNotificationsInput, type CountUnreadNotificationsOutput, CountUnreadNotificationsUseCase, type CreateAttachmentInput, CreateAttachmentUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateCommentInput, CreateCommentUseCase, type CreateNoteInput, CreateNoteUseCase, type CreateNotificationInput, CreateNotificationUseCase, type CreateProjectDTO, CreateProjectUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, type CreateUserProps, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, type DeleteAttachmentInput, DeleteAttachmentUseCase, type DeleteCommentInput, DeleteCommentUseCase, type DeleteNoteInput, DeleteNoteUseCase, type DeleteNotificationInput, DeleteNotificationUseCase, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, FILE_LIMITS, type FindAllNotesInput, FindAllNotesUseCase, type FindNoteInput, FindNoteUseCase, type FocusScoreInput, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, type GetAttachmentByIdInput, GetAttachmentByIdUseCase, type GetAttachmentsByTaskInput, GetAttachmentsByTaskUseCase, type GetAttachmentsByUserInput, GetAttachmentsByUserUseCase, type GetCommentsByTaskInput, GetCommentsByTaskUseCase, type GetCommentsByUserInput, GetCommentsByUserUseCase, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetNotificationByIdInput, GetNotificationByIdUseCase, type GetNotificationsByTypeInput, GetNotificationsByTypeUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetUnreadNotificationsInput, GetUnreadNotificationsUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IChangelogRepository, type IContactRepository, type IHabitRepository, type INewsletterRepository, Id, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, type LearnFromSessionInput, LearnFromSessionUseCase, ListWorkflowsUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MarkAllAsReadInput, type MarkAllAsReadOutput, MarkAllAsReadUseCase, type MarkAsReadInput, MarkAsReadUseCase, type MarkAsUnreadInput, MarkAsUnreadUseCase, type MarkAsUploadedInput, MarkAsUploadedUseCase, type MemberRole, type MemberRoleValue, type MemberWithUser, type MetricsSnapshot, MockAIService, NOTIFICATION_LIMITS, NewsletterSubscriber, type NewsletterSubscriberProps, Note, type NoteProps, type NoteRepository, Notification, type NotificationProps, type NotificationRepository, NotificationType, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecurrenceProps, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, type RemoveMentionInput, RemoveMentionUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, ResourceType, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, type SessionFilters, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRepository, type TaskStatus, type TaskStatusValue, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateCommentInput, UpdateCommentUseCase, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMemberRole, type UpdateNoteInput, UpdateNoteUseCase, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UseCase, User, UserByEmail, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberProps, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };

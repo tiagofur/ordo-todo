@@ -700,6 +700,16 @@ export const apiClient = {
       .then((res) => res.data),
   createAttachment: (data: CreateAttachmentDto): Promise<Attachment> =>
     axiosInstance.post("/attachments", data).then((res) => res.data),
+  uploadAttachment: (file: File, taskId?: string): Promise<Attachment> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (taskId) formData.append("taskId", taskId);
+    return axiosInstance
+      .post("/attachments/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => res.data);
+  },
   deleteAttachment: (id: string): Promise<void> =>
     axiosInstance.delete(`/attachments/${id}`).then((res) => res.data),
 

@@ -25,7 +25,7 @@ import { Public } from '../common/decorators/public.decorator';
 @ApiTags('Changelog')
 @Controller('changelog')
 export class ChangelogController {
-  constructor(private readonly changelogService: ChangelogService) {}
+  constructor(private readonly changelogService: ChangelogService) { }
 
   @Get()
   @Public()
@@ -37,7 +37,7 @@ export class ChangelogController {
     return this.changelogService.findAll({
       skip: skip ? Number(skip) : 0,
       take: take ? Number(take) : 20,
-      orderBy: { publishedAt: 'desc' },
+      orderBy: 'publishedAt',
     });
   }
 

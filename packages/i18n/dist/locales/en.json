@@ -29,7 +29,9 @@
     "eisenhower": "Eisenhower",
     "meetings": "Meetings",
     "wellbeing": "Well-being",
-    "workload": "Workload"
+    "workload": "Workload",
+    "notes": "Notes"
+
   },
   "Settings": {
     "title": "Settings",
@@ -124,6 +126,14 @@
     "noTasksWithTagDescription": "No tasks found with the tag \"{tagName}\".",
     "noPendingTasks": "You have no pending tasks. Good job!"
   },
+  "Notes": {
+    "title": "Notes",
+    "add": "New Note",
+    "delete": "Delete",
+    "noNotes": "No notes yet",
+    "placeholder": "Write something..."
+  },
+
   "Projects": {
     "title": "Projects",
     "subtitle": "Manage all your projects in one place.",

@@ -6,8 +6,9 @@ import { Bell, CheckCheck, Inbox } from "lucide-react";
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from "@/lib/api-hooks";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { es, enUS } from "date-fns/locale";
+import { es, enUS, ptBR } from "date-fns/locale";
 import { useTranslations, useLocale } from "next-intl";
+import { Notification } from "@ordo-todo/api-client";
 
 export function NotificationPopover() {
   const t = useTranslations('Notifications');
@@ -28,10 +29,16 @@ export function NotificationPopover() {
     markAllAsRead.mutate();
   };
 
-  const formatTime = (date: string) => {
+  const formatTime = (date: string | Date) => {
+    const localeMap: Record<string, typeof enUS> = {
+      es: es,
+      'pt-br': ptBR,
+      en: enUS
+    };
+    
     return formatDistanceToNow(new Date(date), { 
       addSuffix: true, 
-      locale: locale === 'es' ? es : enUS 
+      locale: localeMap[locale] || enUS 
     });
   };
 
@@ -74,7 +81,7 @@ export function NotificationPopover() {
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map((notification: any) => (
+              {notifications.map((notification: Notification) => (
                 <div 
                   key={notification.id}
                   className={cn(

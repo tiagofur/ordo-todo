@@ -17,19 +17,8 @@ import { Button } from '@/components/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui';
+import { Attachment } from '@ordo-todo/api-client';
 
-interface Attachment {
-  id: string | number;
-  filename: string;
-  url: string;
-  mimeType: string;
-  filesize: number;
-  uploadedAt: Date | string;
-  uploadedBy?: {
-    id: string;
-    name: string | null;
-  };
-}
 
 interface AttachmentListProps {
   taskId: string;

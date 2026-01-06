@@ -124,3 +124,15 @@ export function isAllowedFileType(mimeType: string): boolean {
 export function isImageFile(mimeType: string): boolean {
     return (FILE_LIMITS.ALLOWED_IMAGE_TYPES as readonly string[]).includes(mimeType);
 }
+
+/**
+ * Notification limits
+ */
+export const NOTIFICATION_LIMITS = {
+    TITLE_MIN_LENGTH: 1,
+    TITLE_MAX_LENGTH: 200,
+    MESSAGE_MAX_LENGTH: 1000,
+    ACTION_LABEL_MAX_LENGTH: 50,
+    ACTION_URL_MAX_LENGTH: 2048,
+    MAX_NOTIFICATIONS_PER_USER: 500,
+} as const;

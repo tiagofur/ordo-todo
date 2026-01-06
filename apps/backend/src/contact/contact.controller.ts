@@ -25,7 +25,7 @@ import { Public } from '../common/decorators/public.decorator';
 @ApiTags('Contact')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(private readonly contactService: ContactService) { }
 
   @Post()
   @Public()
@@ -45,7 +45,6 @@ export class ContactController {
     return this.contactService.findAll({
       skip: skip ? Number(skip) : 0,
       take: take ? Number(take) : 20,
-      orderBy: { createdAt: 'desc' },
     });
   }
 

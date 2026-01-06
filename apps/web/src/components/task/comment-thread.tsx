@@ -17,18 +17,7 @@ import { MentionTextarea } from '@/components/ui';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-interface Comment {
-  id: string | number;
-  content: string;
-  createdAt: Date | string;
-  updatedAt?: Date | string;
-  author: {
-    id: string;
-    name: string;
-    email?: string;
-    image?: string;
-  };
-}
+import { Comment } from '@ordo-todo/api-client';
 
 interface MentionUser {
   id: string;
@@ -182,7 +171,8 @@ export function CommentThread({
       <div className="space-y-4">
         {comments.map((comment) => {
           const isEditing = editingId === comment.id;
-          const isOwner = currentUserId && comment.author.id === currentUserId;
+          const author = comment.user || { id: 'unknown', name: 'Unknown User', image: null };
+          const isOwner = currentUserId && author.id === currentUserId;
 
           return (
             <div
@@ -191,9 +181,9 @@ export function CommentThread({
             >
               {/* Avatar */}
               <Avatar className="h-8 w-8 shrink-0">
-                <AvatarImage src={comment.author.image} alt={comment.author.name} />
+                <AvatarImage src={author.image || undefined} alt={author.name || ''} />
                 <AvatarFallback className="text-xs">
-                  {getInitials(comment.author.name)}
+                  {getInitials(author.name || '??')}
                 </AvatarFallback>
               </Avatar>
 
@@ -202,7 +192,7 @@ export function CommentThread({
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{comment.author.name}</p>
+                    <p className="text-sm font-medium truncate">{author.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatTimestamp(comment.createdAt)}
                       {comment.updatedAt && comment.updatedAt !== comment.createdAt && (

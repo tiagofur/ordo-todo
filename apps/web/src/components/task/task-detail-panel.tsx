@@ -19,6 +19,19 @@ import {
   Tag as TagIcon,
   Plus
 } from 'lucide-react';
+import { CommentThread } from './comment-thread';
+import { AttachmentList } from './attachment-list';
+import { 
+  useTaskComments, 
+  useCreateComment, 
+  useUpdateComment, 
+  useDeleteComment, 
+  useWorkspaceMembers,
+  useCurrentUser,
+  useTaskAttachments,
+  useUploadAttachment,
+  useDeleteAttachment
+} from '@/lib/api-hooks';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -51,10 +64,9 @@ import type {
   UpdateTaskDto,
   Task as TaskType,
   Tag,
-  Comment,
-  Attachment,
   TaskStatus,
-  TaskPriority
+  TaskPriority,
+  WorkspaceMember
 } from "@ordo-todo/api-client";
 
 interface TaskDetailPanelProps {
@@ -197,6 +209,62 @@ export function TaskDetailPanel({
     dueDate: '',
     estimatedTime: '',
   });
+
+  // Comments & Mentions Logic
+  const { data: comments = [] } = useTaskComments(taskId as string);
+  const { data: currentUser } = useCurrentUser();
+  // Only fetch members if we have a task and it has a workspaceId
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(task?.project?.workspaceId ?? '');
+  
+  const createCommentMutation = useCreateComment();
+  const updateCommentMutation = useUpdateComment();
+  const deleteCommentMutation = useDeleteComment();
+
+  // Transform workspace members to MentionUser format
+  const mentionUsers = workspaceMembers
+    .filter((member: WorkspaceMember) => !!member.user)
+    .map((member: WorkspaceMember) => {
+      const user = member.user!;
+      return {
+        id: user.id,
+        name: user.name || 'Unknown',
+        image: user.image || undefined,
+      };
+    });
+
+  const handleCreateComment = async (content: string) => {
+    if (!taskId) return;
+    await createCommentMutation.mutateAsync({ taskId, content });
+  };
+
+  const handleUpdateComment = async (commentId: string, content: string) => {
+    await updateCommentMutation.mutateAsync({ commentId, data: { content } });
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    await deleteCommentMutation.mutateAsync(commentId);
+  };
+
+  // Attachments Logic
+  const { data: attachments = [] } = useTaskAttachments(taskId as string);
+  const uploadAttachmentMutation = useUploadAttachment();
+  const deleteAttachmentMutation = useDeleteAttachment();
+
+  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!taskId || !e.target.files?.length) return;
+    const file = e.target.files[0];
+    try {
+        await uploadAttachmentMutation.mutateAsync({ file, taskId });
+        // Clear input? easier to just use a key or controlled input, but simple is fine for now
+    } catch (error) {
+        console.error("Failed to upload", error);
+    }
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    if (!taskId) return;
+    await deleteAttachmentMutation.mutateAsync(attachmentId);
+  };
 
   useEffect(() => {
     if (task) {
@@ -646,7 +714,7 @@ export function TaskDetailPanel({
                        onClick={() => setActiveTab('attachments')}
                        icon={Paperclip}
                        label={t.tabsAttachments}
-                       count={task?.attachments?.length}
+                       count={attachments.length}
                      />
                      <TabButton
                        active={activeTab === 'activity'}
@@ -658,8 +726,44 @@ export function TaskDetailPanel({
                     
                     <div className="min-h-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
                        {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
-                       {activeTab === 'comments' && taskId && renderComments && renderComments(taskId)}
-                       {activeTab === 'attachments' && taskId && renderAttachments && renderAttachments(taskId)}
+                       {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
+                       {activeTab === 'comments' && taskId && (
+                         renderComments ? renderComments(taskId) : (
+                           <CommentThread
+                             taskId={taskId}
+                             comments={comments}
+                             currentUserId={currentUser?.id}
+                             users={mentionUsers}
+                             onCreate={handleCreateComment}
+                             onUpdate={handleUpdateComment}
+                             onDelete={handleDeleteComment}
+                             labels={{
+                                title: t['tabsComments'], // Reuse tab label or add specific ones
+                                placeholder: 'Write a comment... (use @ to mention)',
+                             }}
+                           />
+                         )
+                       )}
+                       {activeTab === 'attachments' && taskId && (
+                         renderAttachments ? renderAttachments(taskId) : (
+                           <div className="space-y-4">
+                             <div className="flex items-center gap-2">
+                               <Input
+                                 type="file"
+                                 className="text-sm cursor-pointer"
+                                 onChange={handleUploadFile}
+                                 disabled={uploadAttachmentMutation.isPending}
+                               />
+                               {uploadAttachmentMutation.isPending && <span className="text-xs text-muted-foreground">Uploading...</span>}
+                             </div>
+                             <AttachmentList
+                               taskId={taskId}
+                               attachments={attachments}
+                               onDelete={handleDeleteAttachment}
+                             />
+                           </div>
+                         )
+                       )}
                        {activeTab === 'activity' && taskId && renderActivity && renderActivity(taskId)}
                     </div>
                  </div>

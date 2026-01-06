@@ -142,6 +142,7 @@ export const queryKeys = {
   taskStatusDistribution: ["analytics", "task-status-distribution"] as const,
   productivityStreak: ["analytics", "streak"] as const,
 
+
   // AI
   aiProfile: ["ai", "profile"] as const,
   optimalSchedule: (params?: { topN?: number }) =>
@@ -1488,6 +1489,23 @@ export function useCreateAttachment() {
   });
 }
 
+export function useUploadAttachment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ file, taskId }: { file: File, taskId: string }) =>
+      apiClient.uploadAttachment(file, taskId),
+    onSuccess: (attachment) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskAttachments(attachment.taskId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.taskDetails(attachment.taskId),
+      });
+    },
+  });
+}
+
 export function useDeleteAttachment() {
   const queryClient = useQueryClient();
 
@@ -1526,6 +1544,7 @@ export const useUnreadNotificationsCount = () => {
   return useQuery({
     queryKey: ["notifications", "unread-count"],
     queryFn: () => apiClient.getUnreadNotificationsCount(),
+    select: (data) => data.count,
     refetchInterval: 30000, // Poll every 30 seconds
   });
 };

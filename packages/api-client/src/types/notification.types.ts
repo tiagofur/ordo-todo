@@ -4,25 +4,25 @@
 
 export type NotificationType =
   | 'TASK_ASSIGNED'
-  | 'TASK_MENTIONED'
-  | 'TASK_COMPLETED'
-  | 'TASK_DUE_SOON'
-  | 'TASK_OVERDUE'
   | 'COMMENT_ADDED'
-  | 'WORKSPACE_INVITATION'
-  | 'PROJECT_SHARED'
-  | 'REPORT_READY';
+  | 'MENTIONED'
+  | 'DUE_DATE_APPROACHING'
+  | 'INVITATION_RECEIVED'
+  | 'SYSTEM';
 
 export interface Notification {
   id: string;
   userId: string;
   type: NotificationType;
   title: string;
-  message: string;
-  data?: Record<string, unknown>;
-  read: boolean;
-  readAt?: Date;
+  message: string | null;
+  resourceId?: string;
+  resourceType?: string;
+  metadata?: Record<string, unknown>;
+  isRead: boolean;
+  readAt?: Date | null;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface UnreadCountResponse {

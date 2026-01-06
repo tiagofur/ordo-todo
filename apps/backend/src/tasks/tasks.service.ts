@@ -39,7 +39,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   /**
    * Creates a new task with automatic priority calculation and notifications

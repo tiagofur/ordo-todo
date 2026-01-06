@@ -6,6 +6,7 @@ import { PrismaService } from '../database/prisma.service';
 describe('AttachmentsController', () => {
   let controller: AttachmentsController;
   let attachmentsService: jest.Mocked<AttachmentsService>;
+  let prismaService: any;
 
   const mockUser = {
     id: 'user-123',
@@ -27,6 +28,12 @@ describe('AttachmentsController', () => {
       attachment: {
         findUnique: jest.fn(),
       },
+      task: {
+        findUnique: jest.fn(),
+      },
+      workspaceMember: {
+        findUnique: jest.fn(),
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -41,6 +48,7 @@ describe('AttachmentsController', () => {
     attachmentsService = module.get<AttachmentsService>(
       AttachmentsService,
     ) as jest.Mocked<AttachmentsService>;
+    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {
@@ -56,15 +64,26 @@ describe('AttachmentsController', () => {
         filename: 'task-123-123456789-test.pdf',
         buffer: Buffer.from('test'),
       } as Express.Multer.File;
-      const taskId = 'task-123';
+      const taskId = '550e8400-e29b-41d4-a716-446655440000'; // Valid UUID
+      const workspaceId = '550e8400-e29b-41d4-a716-446655440002';
       const mockAttachment = {
-        id: 'att-123',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         taskId,
         filename: 'test.pdf',
         url: '/uploads/task-123-123456789-test.pdf',
         mimeType: 'application/pdf',
         filesize: 1024,
       };
+
+      // Mock Prisma calls
+      prismaService.task.findUnique.mockResolvedValue({
+        id: taskId,
+        project: { workspaceId },
+      });
+      prismaService.workspaceMember.findUnique.mockResolvedValue({
+        workspaceId,
+        userId: mockUser.id,
+      });
 
       attachmentsService.create.mockResolvedValue(mockAttachment as any);
 

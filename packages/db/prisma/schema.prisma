@@ -964,11 +964,26 @@ model Comment {
 
   content String @db.Text
 
+  // Threaded replies: parent comment for nested comments
+  parent   Comment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  parentCommentId String?
+
+  // Reverse relation for replies
+  replies Comment[] @relation("CommentReplies")
+
+  // User mentions stored as JSON array of user IDs
+  mentions String[] @default([])
+
+  // Track if comment has been edited
+  isEdited Boolean @default(false)
+  editedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([taskId])
   @@index([authorId])
+  @@index([parentCommentId])
 }
 
 model Activity {

@@ -29,7 +29,9 @@
     "eisenhower": "Eisenhower",
     "meetings": "Reuniones",
     "wellbeing": "Bienestar",
-    "workload": "Carga de trabajo"
+    "workload": "Carga de trabajo",
+    "notes": "Notas"
+
   },
   "Settings": {
     "title": "Configuración",
@@ -124,6 +126,14 @@
     "noTasksWithTagDescription": "No se encontraron tareas con la etiqueta \"{tagName}\".",
     "noPendingTasks": "No tienes tareas pendientes. ¡Buen trabajo!"
   },
+  "Notes": {
+    "title": "Notas",
+    "add": "Nueva Nota",
+    "delete": "Eliminar",
+    "noNotes": "No hay notas aún",
+    "placeholder": "Escribe algo..."
+  },
+
   "Projects": {
     "title": "Proyectos",
     "subtitle": "Gestiona todos tus proyectos en un solo lugar.",

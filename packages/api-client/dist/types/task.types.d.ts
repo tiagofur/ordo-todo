@@ -54,6 +54,11 @@ export interface TaskDetails extends Task {
     comments: Comment[];
     attachments: Attachment[];
     tags: Tag[];
+    project: {
+        id: string;
+        name: string;
+        workspaceId: string;
+    };
 }
 export interface TaskDependency {
     id: string;

@@ -1,68 +1,63 @@
 import {
   Injectable,
+  Inject,
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { NewsletterSubscriber } from '@ordo-todo/core';
+import type { INewsletterRepository } from '@ordo-todo/core';
 import { SubscribeDto } from './dto/subscribe.dto';
 import { UnsubscribeDto } from './dto/unsubscribe.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class NewsletterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject('NewsletterRepository')
+    private readonly newsletterRepository: INewsletterRepository,
+  ) { }
 
   async subscribe(data: SubscribeDto) {
     const { email, userId } = data;
 
     // Check if subscription already exists by email
-    const existingByEmail = await this.prisma.newsletterSubscriber.findUnique({
-      where: { email },
-    });
+    const existingByEmail = await this.newsletterRepository.findByEmail(email);
 
     if (existingByEmail) {
       if (existingByEmail.active) {
         throw new BadRequestException('Email is already subscribed');
       }
       // Reactivate
-      return this.prisma.newsletterSubscriber.update({
-        where: { email },
-        data: { active: true, userId: userId || existingByEmail.userId },
+      return this.newsletterRepository.update(existingByEmail.id as string, {
+        active: true,
+        userId: userId || existingByEmail.userId,
       });
     }
 
     // Check if subscription exists by userId if provided
     if (userId) {
-      const existingByUser = await this.prisma.newsletterSubscriber.findUnique({
-        where: { userId },
-      });
+      const existingByUser = await this.newsletterRepository.findByUserId(userId);
       if (existingByUser) {
-        // User already has a subscription (maybe with different email?)
-        // For simplicity, we'll update the email on their existing subscription or throw
-        // Let's assume we update it.
-        return this.prisma.newsletterSubscriber.update({
-          where: { id: existingByUser.id },
-          data: { email, active: true },
+        // User already has a subscription, update their email
+        return this.newsletterRepository.update(existingByUser.id as string, {
+          email,
+          active: true,
         });
       }
     }
 
     // Create new
-    return this.prisma.newsletterSubscriber.create({
-      data: {
-        email,
-        userId: userId || null,
-        active: true,
-      },
+    const subscriber = NewsletterSubscriber.create({
+      email,
+      userId: userId || undefined,
     });
+
+    return this.newsletterRepository.create(subscriber);
   }
 
   async unsubscribe(data: UnsubscribeDto) {
     const { email } = data;
 
-    const subscriber = await this.prisma.newsletterSubscriber.findUnique({
-      where: { email },
-    });
+    const subscriber = await this.newsletterRepository.findByEmail(email);
 
     if (!subscriber) {
       throw new NotFoundException('Subscriber not found');
@@ -73,31 +68,25 @@ export class NewsletterService {
       return subscriber;
     }
 
-    return this.prisma.newsletterSubscriber.update({
-      where: { email },
-      data: { active: false },
+    return this.newsletterRepository.update(subscriber.id as string, {
+      active: false,
     });
   }
 
   async checkStatus(email: string): Promise<boolean> {
-    const subscriber = await this.prisma.newsletterSubscriber.findUnique({
-      where: { email },
-    });
-    return !!subscriber;
+    const subscriber = await this.newsletterRepository.findByEmail(email);
+    return !!subscriber?.active;
   }
 
   async findAll(params: {
     skip?: number;
     take?: number;
-    where?: Prisma.NewsletterSubscriberWhereInput;
-    orderBy?: Prisma.NewsletterSubscriberOrderByWithRelationInput;
+    activeOnly?: boolean;
   }) {
-    const { skip, take, where, orderBy } = params;
-    return this.prisma.newsletterSubscriber.findMany({
-      skip,
-      take,
-      where,
-      orderBy,
+    return this.newsletterRepository.findAll({
+      skip: params.skip,
+      take: params.take,
+      activeOnly: params.activeOnly,
     });
   }
 }

@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Inject,
   NotFoundException,
   Logger,
   BadRequestException,
@@ -9,6 +10,12 @@ import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
 import { GamificationService } from '../gamification/gamification.service';
+import {
+  Habit,
+  HabitFrequency,
+  TimeOfDay,
+} from '@ordo-todo/core';
+import type { IHabitRepository } from '@ordo-todo/core';
 import {
   startOfDay,
   endOfDay,
@@ -28,9 +35,11 @@ export class HabitsService {
   private readonly logger = new Logger(HabitsService.name);
 
   constructor(
+    @Inject('HabitRepository')
+    private readonly habitRepository: IHabitRepository,
     private readonly prisma: PrismaService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   /**
    * Create a new habit

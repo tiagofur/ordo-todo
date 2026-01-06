@@ -56,6 +56,7 @@ export declare const locales: {
             meetings: string;
             wellbeing: string;
             workload: string;
+            notes: string;
         };
         Settings: {
             title: string;
@@ -149,6 +150,13 @@ export declare const locales: {
             allClear: string;
             noTasksWithTagDescription: string;
             noPendingTasks: string;
+        };
+        Notes: {
+            title: string;
+            add: string;
+            delete: string;
+            noNotes: string;
+            placeholder: string;
         };
         Projects: {
             title: string;
@@ -2374,6 +2382,7 @@ export declare const locales: {
             meetings: string;
             wellbeing: string;
             workload: string;
+            notes: string;
         };
         Settings: {
             title: string;
@@ -2467,6 +2476,13 @@ export declare const locales: {
             allClear: string;
             noTasksWithTagDescription: string;
             noPendingTasks: string;
+        };
+        Notes: {
+            title: string;
+            add: string;
+            delete: string;
+            noNotes: string;
+            placeholder: string;
         };
         Projects: {
             title: string;

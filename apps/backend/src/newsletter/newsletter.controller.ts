@@ -27,7 +27,7 @@ import type { RequestUser } from '../common/types/request-user.interface';
 @ApiTags('Newsletter')
 @Controller('newsletter')
 export class NewsletterController {
-  constructor(private readonly newsletterService: NewsletterService) {}
+  constructor(private readonly newsletterService: NewsletterService) { }
 
   @Post('subscribe')
   @Public()
@@ -103,7 +103,6 @@ export class NewsletterController {
     return this.newsletterService.findAll({
       skip: skip ? Number(skip) : 0,
       take: take ? Number(take) : 20,
-      orderBy: { createdAt: 'desc' },
     });
   }
 }
