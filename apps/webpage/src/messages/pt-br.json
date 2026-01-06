@@ -104,7 +104,8 @@
     "badge": "Do Nosso Blog",
     "title": "Dicas e Insights de Produtividade",
     "subtitle": "Conselhos de especialistas para ajudar você a trabalhar de forma mais inteligente.",
-    "view_all": "Ver Todos os Posts"
+    "view_all": "Ver Todos os Posts",
+    "no_posts": "Não há posts disponíveis no momento."
   },
   "Changelog": {
     "badge": "Novidades",

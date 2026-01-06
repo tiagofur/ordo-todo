@@ -2,6 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaUserRepository } from './user.repository';
 import { PrismaService } from '../database/prisma.service';
 import { User } from '@ordo-todo/core';
+import {
+  MOCK_VALID_HASH,
+  MOCK_VALID_HASH_2,
+} from '../test-utils/password.util';
 
 describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository;
@@ -46,7 +50,7 @@ describe('PrismaUserRepository', () => {
         name: 'Test User',
         username: 'testuser',
         email: 'test@example.com',
-        password: 'hashedpassword',
+        password: MOCK_VALID_HASH,
       });
 
       mockPrismaService.user.upsert.mockResolvedValue({ id: 'user-123' });
@@ -60,7 +64,7 @@ describe('PrismaUserRepository', () => {
           name: 'Test User',
           username: 'testuser',
           email: 'test@example.com',
-          hashedPassword: 'hashedpassword',
+          hashedPassword: MOCK_VALID_HASH,
           updatedAt: undefined,
         },
         update: {
@@ -68,7 +72,7 @@ describe('PrismaUserRepository', () => {
           name: 'Test User',
           username: 'testuser',
           email: 'test@example.com',
-          hashedPassword: 'hashedpassword',
+          hashedPassword: MOCK_VALID_HASH,
           updatedAt: undefined,
         },
       });
@@ -80,7 +84,7 @@ describe('PrismaUserRepository', () => {
         name: 'Updated Name',
         username: 'testuser',
         email: 'test@example.com',
-        password: 'newhashedpassword',
+        password: MOCK_VALID_HASH_2,
       });
 
       mockPrismaService.user.upsert.mockResolvedValue({ id: 'user-123' });
@@ -92,7 +96,7 @@ describe('PrismaUserRepository', () => {
         create: expect.any(Object),
         update: expect.objectContaining({
           name: 'Updated Name',
-          hashedPassword: 'newhashedpassword',
+          hashedPassword: MOCK_VALID_HASH_2,
         }),
       });
     });
@@ -110,7 +114,7 @@ describe('PrismaUserRepository', () => {
       const props = {
         name: 'Updated Name',
         email: 'updated@example.com',
-        password: 'newhashedpassword',
+        password: MOCK_VALID_HASH_2,
       };
 
       mockPrismaService.user.update.mockResolvedValue({ id: 'user-123' });
@@ -122,7 +126,7 @@ describe('PrismaUserRepository', () => {
         data: {
           name: 'Updated Name',
           email: 'updated@example.com',
-          hashedPassword: 'newhashedpassword',
+          hashedPassword: MOCK_VALID_HASH_2,
           updatedAt: expect.any(Date),
         },
       });
@@ -166,7 +170,7 @@ describe('PrismaUserRepository', () => {
         username: 'testuser',
         name: 'Test User',
         image: 'https://example.com/image.jpg',
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -193,7 +197,7 @@ describe('PrismaUserRepository', () => {
         username: 'testuser',
         name: 'Test User',
         image: null,
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -204,7 +208,7 @@ describe('PrismaUserRepository', () => {
 
       expect(result).toBeInstanceOf(User);
       expect(result?.email).toBe(email);
-      expect(result?.password).toBe('hashedpassword'); // Password should be included
+      expect(result?.password).toBe(MOCK_VALID_HASH); // Password should be included
     });
 
     it('should return null when user not found by email', async () => {
@@ -232,7 +236,7 @@ describe('PrismaUserRepository', () => {
         username: username,
         name: 'Test User',
         image: null,
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -274,7 +278,7 @@ describe('PrismaUserRepository', () => {
         username: 'testuser',
         name: 'Test User',
         image: null,
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -391,7 +395,7 @@ describe('PrismaUserRepository', () => {
         username: 'testuser',
         name: 'Test User',
         image: null,
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -441,7 +445,7 @@ describe('PrismaUserRepository', () => {
         email: 'test@example.com',
         username: 'testuser',
         name: 'Test User',
-        password: 'hashedpassword',
+        password: MOCK_VALID_HASH,
       };
 
       const mockPrismaUser = {
@@ -547,7 +551,7 @@ describe('PrismaUserRepository', () => {
         email: 'test@example.com',
         username: 'testuser',
         name: 'Test User',
-        password: 'hashedpassword',
+        password: MOCK_VALID_HASH,
       };
 
       const mockPrismaUser = {
@@ -578,7 +582,7 @@ describe('PrismaUserRepository', () => {
         username: 'testuser',
         name: 'Test User',
         image: 'https://example.com/image.jpg',
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -592,7 +596,7 @@ describe('PrismaUserRepository', () => {
       expect(result?.email).toBe('test@example.com');
       expect(result?.name).toBe('Test User');
       expect(result?.props.username).toBe('testuser');
-      expect(result?.password).toBe('hashedpassword');
+      expect(result?.password).toBe(MOCK_VALID_HASH);
     });
 
     it('should handle null image', async () => {
@@ -602,7 +606,7 @@ describe('PrismaUserRepository', () => {
         username: 'testuser',
         name: 'Test User',
         image: null,
-        hashedPassword: 'hashedpassword',
+        hashedPassword: MOCK_VALID_HASH,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

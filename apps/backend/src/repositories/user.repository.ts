@@ -7,17 +7,44 @@ import { PrismaService } from '../database/prisma.service';
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private toDomain(prismaUser: PrismaUser): User {
-    return new User({
-      id: prismaUser.id,
-      name: prismaUser.name,
-      username: prismaUser.username,
-      email: prismaUser.email,
-      password: (prismaUser as any).hashedPassword ?? undefined,
-      image: (prismaUser as any).image ?? null,
-      createdAt: prismaUser.createdAt,
-      updatedAt: prismaUser.updatedAt,
-    });
+  /**
+   * Converts Prisma User model to Domain User entity
+   *
+   * Uses 'draft' mode to skip validation since Prisma data is already validated.
+   * The password field is handled separately to avoid bcrypt hash validation errors.
+   *
+   * @param prismaUser - Prisma User model with hashedPassword field
+   * @returns Domain User entity
+   */
+  private toDomain(prismaUser: PrismaUser & { hashedPassword?: string }): User {
+    // Extract the password from hashedPassword field
+    const password = prismaUser.hashedPassword ?? undefined;
+
+    // Create User entity without password first (in draft mode)
+    const user = new User(
+      {
+        id: prismaUser.id,
+        name: prismaUser.name,
+        username: prismaUser.username,
+        email: prismaUser.email,
+        image: prismaUser.image,
+        createdAt: prismaUser.createdAt,
+        updatedAt: prismaUser.updatedAt,
+      },
+      'draft', // Skip validation since data comes from database
+    );
+
+    // Set password separately if it exists
+    if (password) {
+      Object.defineProperty(user, 'password', {
+        value: password,
+        writable: false,
+        enumerable: true,
+        configurable: false,
+      });
+    }
+
+    return user;
   }
 
   async save(user: User): Promise<void> {

@@ -4,13 +4,17 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { GeminiAIService } from '../ai/gemini-ai.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BlogPostService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private geminiService: GeminiAIService,
+  ) {}
 
   async create(data: CreatePostDto) {
     return this.prisma.blogPost.create({
@@ -138,5 +142,9 @@ export class BlogPostService {
     return this.prisma.blogComment.delete({
       where: { id: commentId },
     });
+  }
+
+  async generatePost(topic: string) {
+    return this.geminiService.generateBlogPost(topic);
   }
 }

@@ -10,6 +10,9 @@ import {
   Res,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
@@ -24,16 +27,49 @@ import type { RequestUser } from '../common/types/request-user.interface';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
+import { ImagesService } from '../images/images.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { BaseController } from '../common/base/base.controller';
 
+/**
+ * Users Controller
+ *
+ * Handles user-related operations including profile management,
+ * avatar uploads, preferences, and subscription information.
+ *
+ * @extends BaseController
+ */
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
 @UseGuards(JwtAuthGuard)
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class UsersController extends BaseController {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly imagesService: ImagesService,
+  ) {
+    super('UsersController');
+  }
 
   /**
    * Get current user (basic info)
+   *
+   * Returns basic user information. Use this endpoint for lightweight
+   * user data retrieval. For complete profile including subscription
+   * and preferences, use GET /users/me/profile.
+   *
+   * @param user - Authenticated user from JWT token
+   * @returns Basic user information (id, email, username, name, image)
+   * @throws {UnauthorizedException} If JWT token is invalid or missing
+   *
+   * @example
+   * ```typescript
+   * const response = await fetch('/users/me', {
+   *   headers: { 'Authorization': 'Bearer <token>' }
+   * });
+   * const user = await response.json();
+   * // { id: 'clx123', email: 'user@example.com', username: 'johndoe', name: 'John Doe' }
+   * ```
    */
   @Get('me')
   @ApiOperation({
@@ -58,6 +94,7 @@ export class UsersController {
     description: 'Unauthorized - Invalid or missing JWT token',
   })
   async getMe(@CurrentUser() user: RequestUser) {
+    this.logAction('get_me', user);
     return this.usersService.getMe(user.email);
   }
 
@@ -333,5 +370,154 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async deleteAccount(@CurrentUser() user: RequestUser) {
     return this.usersService.deleteAccount(user.email);
+  }
+
+  /**
+   * Upload avatar image
+   *
+   * Uploads and processes an avatar image for the authenticated user.
+   * The image is automatically resized to 256x256px, optimized to JPEG
+   * format with 85% quality, and saved to the server. Any existing
+   * avatar is replaced.
+   *
+   * @param user - Authenticated user from JWT token
+   * @param file - Uploaded image file (multipart/form-data)
+   * @returns Object containing avatar URL and success message
+   * @throws {BadRequestException} If file is not provided, exceeds 5MB, is not an image, or exceeds 4000x4000px
+   * @throws {UnauthorizedException} If JWT token is invalid or missing
+   *
+   * @example
+   * ```typescript
+   * const formData = new FormData();
+   * formData.append('avatar', fileInput.files[0]);
+   *
+   * const response = await fetch('/users/me/avatar', {
+   *   method: 'POST',
+   *   headers: { 'Authorization': 'Bearer <token>' },
+   *   body: formData
+   * });
+   * const result = await response.json();
+   * // { url: '/uploads/avatars/avatar-user-123-1234567890.jpg', message: 'Avatar uploaded successfully' }
+   * ```
+   */
+  @Post('me/avatar')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Upload user avatar',
+    description:
+      'Uploads and optimizes avatar image. Automatically resizes to 256x256px and optimizes for web. Supports JPEG, PNG, WEBP up to 5MB.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar uploaded successfully',
+    schema: {
+      example: {
+        url: '/uploads/avatars/user-123-1234567890.jpg',
+        message: 'Avatar uploaded successfully',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid file (size, format, or dimensions)',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseInterceptors(FileInterceptor('avatar'))
+  async uploadAvatar(
+    @CurrentUser() user: RequestUser,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    this.logAction('upload_avatar', user, {
+      filename: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype,
+    });
+
+    // Process and optimize image
+    const processed = await this.imagesService.processAvatar(file);
+
+    // Get current user to check for existing avatar
+    const currentUser = await this.usersService.getMe(user.email);
+
+    // Delete old avatar if exists
+    if (currentUser.image) {
+      await this.imagesService.deleteAvatar(currentUser.image);
+    }
+
+    // Save new avatar
+    const avatarUrl = await this.imagesService.saveAvatar(
+      processed.buffer,
+      user.id,
+    );
+
+    // Update user with new avatar URL
+    await this.usersService.updateAvatar(user.email, avatarUrl);
+
+    return {
+      url: avatarUrl,
+      message: 'Avatar uploaded successfully',
+    };
+  }
+
+  /**
+   * Delete avatar image
+   *
+   * Removes the current avatar image for the authenticated user.
+   * The user's profile will revert to the default avatar. The avatar
+   * file is deleted from the server. This operation is idempotent -
+   * calling it when no avatar is set will return success.
+   *
+   * @param user - Authenticated user from JWT token
+   * @returns Object containing success flag and message
+   * @throws {UnauthorizedException} If JWT token is invalid or missing
+   *
+   * @example
+   * ```typescript
+   * const response = await fetch('/users/me/avatar', {
+   *   method: 'DELETE',
+   *   headers: { 'Authorization': 'Bearer <token>' }
+   * });
+   * const result = await response.json();
+   * // { success: true, message: 'Avatar deleted successfully' }
+   * ```
+   */
+  @Delete('me/avatar')
+  @ApiOperation({
+    summary: 'Delete user avatar',
+    description: 'Removes the current avatar image and reverts to default.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar deleted successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Avatar deleted successfully',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async deleteAvatar(@CurrentUser() user: RequestUser) {
+    this.logAction('delete_avatar', user);
+
+    // Get current user
+    const currentUser = await this.usersService.getMe(user.email);
+
+    // Delete avatar file if exists
+    if (currentUser.image) {
+      await this.imagesService.deleteAvatar(currentUser.image);
+    }
+
+    // Remove avatar URL from user
+    await this.usersService.removeAvatar(user.email);
+
+    return {
+      success: true,
+      message: 'Avatar deleted successfully',
+    };
   }
 }

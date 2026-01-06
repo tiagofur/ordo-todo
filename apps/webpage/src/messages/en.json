@@ -104,7 +104,8 @@
     "badge": "From Our Blog",
     "title": "Productivity Tips & Insights",
     "subtitle": "Expert advice to help you work smarter, not harder.",
-    "view_all": "View All Posts"
+    "view_all": "View All Posts",
+    "no_posts": "No blog posts available at the moment."
   },
   "Changelog": {
     "badge": "What's New",

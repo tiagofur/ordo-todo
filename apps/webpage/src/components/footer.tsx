@@ -31,17 +31,16 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative border-t bg-card/50">
+    <footer className="relative border-t bg-card">
       {/* Subtle Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-muted/50 to-transparent pointer-events-none" />
-      
       <div className="container relative z-10 px-4 md:px-6 py-16 lg:py-20">
         <div className="grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand Column */}
           <div className="col-span-2 lg:col-span-2">
             <Link href="/" className="inline-flex items-center space-x-2 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-[#06B6D4] rounded-lg blur-md opacity-60 group-hover:opacity-100 transition-opacity" />
+                {/* Solid background square instead of blur */}
+                <div className="absolute inset-0 bg-[#06B6D4] rounded-lg -rotate-6 opacity-20 group-hover:rotate-0 transition-transform" />
                 <div className="relative h-10 w-10 rounded-lg bg-[#06B6D4] flex items-center justify-center">
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>

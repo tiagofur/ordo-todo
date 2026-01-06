@@ -98,6 +98,18 @@ export class BlogPostController {
     return this.blogPostService.deleteComment(id, user.id);
   }
 
+  @Post('generate')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Generate a blog post using AI' })
+  @ApiResponse({
+    status: 201,
+    description: 'Blog post content generated successfully.',
+  })
+  async generate(@Body('topic') topic: string) {
+    return this.blogPostService.generatePost(topic);
+  }
+
   // Admin Endpoints protected by JwtAuthGuard for now
   @Post()
   @UseGuards(JwtAuthGuard)

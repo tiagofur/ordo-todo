@@ -7,8 +7,13 @@ import type {
   WellbeingIndicators,
   WorkflowSuggestion,
   ChatMessageDto,
+  BlogPostGenerationResult,
 } from './dto/ai-chat.dto';
 import { CircuitBreaker } from '../common/decorators/circuit-breaker.decorator';
+import type {
+  ParsedTaskResult as TypedParsedTaskResult,
+  WellbeingAIResponse,
+} from './types/ai-response.types';
 
 export interface ProductivityReportData {
   summary: string;
@@ -439,7 +444,9 @@ Ejemplos:
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[0]);
+        // Type-safe parsing with fallback
+        const data = JSON.parse(jsonMatch[0]) as Partial<TypedParsedTaskResult>;
+
         return {
           title: data.title || input,
           description: data.description,
@@ -551,7 +558,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
       const jsonMatch = text.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[0]);
+        // Type-safe parsing
+        const data = JSON.parse(jsonMatch[0]) as Partial<WellbeingAIResponse>;
+
         return {
           ...localMetrics,
           insights: data.insights || [],
@@ -676,7 +685,7 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
   async suggestWorkflow(
     projectName: string,
     projectDescription?: string,
-    objectives?: string,
+    objectives?: string[],
   ): Promise<WorkflowSuggestion> {
     if (!this.ai) {
       return this.getDefaultWorkflowSuggestion(projectName);
@@ -781,6 +790,66 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
         'Comunica el progreso regularmente',
       ],
     };
+  }
+
+  // ============ BLOG GENERATION ============
+
+  /**
+   * Generate a blog post based on a topic or title
+   * Uses THINKING model for high quality content
+   */
+  @CircuitBreaker({ failureThreshold: 3, resetTimeout: 60000 })
+  async generateBlogPost(
+    topic: string,
+    tone: 'professional' | 'casual' | 'enthusiastic' = 'professional',
+    language: 'es' | 'en' | 'pt-br' = 'es',
+  ): Promise<BlogPostGenerationResult> {
+    if (!this.ai) {
+      throw new Error('AI_NOT_CONFIGURED');
+    }
+
+    try {
+      const modelName = this.getModelName('high'); // Use smart model for writing
+
+      const prompt = `Eres un redactor experto de blogs de tecnología y productividad. Escribe un artículo de blog completo sobre: "${topic}".
+
+Configuración:
+- Tono: ${tone}
+- Idioma: ${language}
+- Formato: Markdown
+
+Requisitos:
+1. Título atractivo (SEO optimized)
+2. Slug URL friendly
+3. Excerpt (resumen corto) de 2-3 frases
+4. Contenido estructurado con H2, H3, listas y negritas.
+5. Sugerencia de categoría (Ej: Productividad, Bienestar, Tecnología, Noticias)
+6. Tags (3-5 tags relevantes)
+7. Tiempo de lectura estimado (en minutos)
+
+Responde SOLO con este JSON exacto:
+{
+  "title": "",
+  "slug": "",
+  "excerpt": "",
+  "content": "",
+  "category": "",
+  "tags": [],
+  "readTime": 0
+}`;
+
+      const text = await this.generateContent(modelName, prompt);
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+
+      throw new Error('Invalid JSON response');
+    } catch (error) {
+      this.logger.error('Blog generation failed', error);
+      throw error;
+    }
   }
 
   // ============ PRODUCTIVITY REPORTS ============

@@ -8,41 +8,30 @@ import { Button } from '@ordo-todo/ui';
 import Image from 'next/image';
 
 // Mock blog data - in production this would come from the API
-const PREVIEW_POSTS = [
-  {
-    id: '1',
-    slug: 'productivity-tips-2024',
-    title: 'Top 10 Productivity Tips for 2024',
-    excerpt: 'Discover the most effective strategies to boost your productivity and achieve more in less time.',
-    coverImage: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=800',
-    readTime: 5,
-    category: 'Productivity',
-    categoryColor: '#06B6D4',
-  },
-  {
-    id: '2',
-    slug: 'pomodoro-guide',
-    title: 'The Complete Guide to Pomodoro Technique',
-    excerpt: 'Master the art of focused work with our comprehensive Pomodoro technique guide.',
-    coverImage: 'https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&q=80&w=800',
-    readTime: 8,
-    category: 'Focus',
-    categoryColor: '#EC4899',
-  },
-  {
-    id: '3',
-    slug: 'remote-work-tips',
-    title: 'Staying Productive While Working Remotely',
-    excerpt: 'Essential tips for maintaining high productivity when working from home.',
-    coverImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800',
-    readTime: 6,
-    category: 'Remote Work',
-    categoryColor: '#10B981',
-  },
-];
+// Mock removed, using real data
+import { getBlogPosts, BlogPost } from '@/lib/api';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@ordo-todo/ui';
 
 export function BlogPreview() {
   const t = useTranslations('BlogPreview');
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const data = await getBlogPosts();
+        // Take latest 3
+        setPosts(data.slice(0, 3));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadPosts();
+  }, []);
 
   return (
     <section className="py-24 lg:py-32 bg-background relative overflow-hidden">
@@ -86,59 +75,82 @@ export function BlogPreview() {
 
         {/* Blog Posts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PREVIEW_POSTS.map((post, index) => (
-            <motion.article
-              key={post.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
-            >
-              <Link href={`/blog/${post.slug}`} className="block h-full">
-                <div className="h-full rounded-2xl border-2 border-border bg-card overflow-hidden hover:border-[#EC4899]/50 transition-all duration-300 hover:shadow-xl">
-                  {/* Image */}
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <Image 
-                      src={post.coverImage}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    {/* Category badge */}
-                    <div 
-                      className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white"
-                      style={{ backgroundColor: post.categoryColor }}
-                    >
-                      {post.category}
+          {isLoading ? (
+            // Skeletons
+            [1, 2, 3].map(i => (
+              <div key={i} className="h-[400px] rounded-2xl bg-muted animate-pulse" />
+            ))
+          ) : posts.length > 0 ? (
+            posts.map((post, index) => (
+              <motion.article
+                key={post.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group"
+              >
+                <Link href={`/blog/${post.slug}`} className="block h-full">
+                  <div className="h-full rounded-2xl border-2 border-border bg-card overflow-hidden hover:border-[#EC4899]/50 transition-all duration-300 hover:shadow-xl">
+                    {/* Image */}
+                    <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                      {post.coverImage ? (
+                        <Image 
+                          src={post.coverImage}
+                          alt={post.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <span className="text-4xl">📝</span>
+                        </div>
+                      )}
+                      
+                      {/* Category badge */}
+                      {post.category && (
+                        <div 
+                          className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white bg-[#06B6D4]"
+                        >
+                          {post.category}
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-[#EC4899] transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-muted-foreground mb-4 line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    
-                    {/* Meta */}
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{post.readTime} min</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Tag className="h-4 w-4" />
-                        <span>{post.category}</span>
+                    {/* Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-[#EC4899] transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-muted-foreground mb-4 line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                      
+                      {/* Meta */}
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        {post.readTime && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{post.readTime} min</span>
+                          </div>
+                        )}
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Tag className="h-4 w-4" />
+                            <span>{post.tags[0]}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.article>
-          ))}
+                </Link>
+              </motion.article>
+            ))
+          ) : (
+            <div className="col-span-3 text-center py-12 text-muted-foreground">
+              {t('no_posts', { defaultMessage: 'Coming soon...' })}
+            </div>
+          )}
         </div>
       </div>
     </section>

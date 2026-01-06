@@ -178,7 +178,7 @@ export class AIService {
   async suggestWorkflow(
     projectName: string,
     projectDescription?: string,
-    objectives?: string,
+    objectives?: string[],
   ) {
     return this.geminiService.suggestWorkflow(
       projectName,

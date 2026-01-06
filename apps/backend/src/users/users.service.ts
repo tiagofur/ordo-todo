@@ -380,4 +380,39 @@ export class UsersService {
       exportedAt: new Date().toISOString(),
     };
   }
+
+  /**
+   * Update user avatar URL
+   *
+   * @param email - User email
+   * @param avatarUrl - New avatar URL
+   * @returns Updated user
+   * @throws {NotFoundException} If user not found
+   */
+  async updateAvatar(email: string, avatarUrl: string): Promise<void> {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.userRepository.updateProps(user, { image: avatarUrl });
+  }
+
+  /**
+   * Remove user avatar
+   *
+   * @param email - User email
+   * @returns void
+   * @throws {NotFoundException} If user not found
+   */
+  async removeAvatar(email: string): Promise<void> {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.userRepository.updateProps(user, { image: null });
+  }
 }

@@ -1,135 +1,44 @@
-import {
-  IsString,
-  IsOptional,
-  IsArray,
-  ValidateNested,
-  IsEnum,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-
-export class ChatMessageDto {
-  @IsString()
-  content: string;
-
-  @IsEnum(['user', 'assistant', 'system'])
-  @IsOptional()
-  role?: 'user' | 'assistant' | 'system' = 'user';
+export class AIChatDto {
+  message: string;
+  history?: { role: 'user' | 'assistant' | 'system'; content: string }[];
+  workspaceId?: string;
+  projectId?: string;
 }
 
-export class AIChatDto {
-  @IsString()
+export class ChatMessageDto {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export class ChatResponse {
   message: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ChatMessageDto)
-  @IsOptional()
-  history?: ChatMessageDto[];
-
-  @IsString()
-  @IsOptional()
-  workspaceId?: string;
-
-  @IsString()
-  @IsOptional()
-  projectId?: string;
+  actions: any[];
+  suggestions?: string[];
 }
 
 export class AIParseTaskDto {
-  @IsString()
   input: string;
-
-  @IsString()
-  @IsOptional()
   projectId?: string;
-
-  @IsString()
-  @IsOptional()
   timezone?: string;
 }
 
-export class AIWellbeingDto {
-  @IsString()
-  @IsOptional()
-  startDate?: string;
-
-  @IsString()
-  @IsOptional()
-  endDate?: string;
-}
-
-export class AIWorkflowSuggestionDto {
-  @IsString()
-  projectName: string;
-
-  @IsString()
-  @IsOptional()
-  projectDescription?: string;
-
-  @IsString()
-  @IsOptional()
-  objectives?: string;
-}
-
-export class AIDecomposeTaskDto {
-  @IsString()
-  taskTitle: string;
-
-  @IsString()
-  @IsOptional()
-  taskDescription?: string;
-
-  @IsString()
-  @IsOptional()
-  projectContext?: string;
-
-  @IsOptional()
-  maxSubtasks?: number;
-}
-
-// Response types
-export interface ParsedTaskResult {
+export class ParsedTaskResult {
   title: string;
   description?: string;
   dueDate?: Date;
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   estimatedMinutes?: number;
-  tags?: string[];
+  tags: string[];
   confidence: 'LOW' | 'MEDIUM' | 'HIGH';
   reasoning: string;
 }
 
-export interface CreateTaskActionData {
-  title: string;
-  description?: string;
-  dueDate?: string;
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-}
-
-export interface ChatResponse {
-  message: string;
-  actions?: {
-    type:
-      | 'CREATE_TASK'
-      | 'UPDATE_TASK'
-      | 'COMPLETE_TASK'
-      | 'LIST_TASKS'
-      | 'CREATE_PROJECT'
-      | 'NONE';
-    data?: CreateTaskActionData;
-    result?: { taskId?: string; success: boolean; error?: string };
-  }[];
-  suggestions?: string[];
-}
-
-export interface WellbeingIndicators {
-  overallScore: number; // 0-100
+export class WellbeingIndicators {
+  overallScore: number;
   burnoutRisk: 'LOW' | 'MEDIUM' | 'HIGH';
-  workLifeBalance: number; // 0-100
-  focusQuality: number; // 0-100
-  consistencyScore: number; // 0-100
-  insights: string[];
-  recommendations: string[];
+  workLifeBalance: number;
+  focusQuality: number;
+  consistencyScore: number;
   metrics: {
     avgHoursPerDay: number;
     avgSessionsPerDay: number;
@@ -137,9 +46,17 @@ export interface WellbeingIndicators {
     weekendWorkPercentage: number;
     lateNightWorkPercentage: number;
   };
+  insights?: string[];
+  recommendations?: string[];
 }
 
-export interface WorkflowSuggestion {
+export class AIWorkflowSuggestionDto {
+  projectName: string;
+  projectDescription: string;
+  objectives?: string[];
+}
+
+export class WorkflowSuggestion {
   phases: {
     name: string;
     description: string;
@@ -147,9 +64,26 @@ export interface WorkflowSuggestion {
       title: string;
       description?: string;
       estimatedMinutes?: number;
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+      priority: 'LOW' | 'MEDIUM' | 'HIGH';
     }[];
   }[];
   estimatedDuration: string;
   tips: string[];
+}
+
+export class AIDecomposeTaskDto {
+  taskTitle: string;
+  taskDescription?: string;
+  projectContext?: string;
+  maxSubtasks?: number;
+}
+
+export class BlogPostGenerationResult {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string; // Markdown
+  category: string;
+  tags: string[];
+  readTime: number;
 }

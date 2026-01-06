@@ -128,7 +128,8 @@
     "badge": "De Nuestro Blog",
     "title": "Tips e Insights de Productividad",
     "subtitle": "Consejos expertos para ayudarte a trabajar más inteligentemente.",
-    "view_all": "Ver Todos los Artículos"
+    "view_all": "Ver Todos los Artículos",
+    "no_posts": "No hay publicaciones disponibles en este momento."
   },
   "Changelog": {
     "badge": "Novedades",
