@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@ordo-todo/ui';
 import { Link } from '@/i18n/routing';
 import { ArrowRight, Play, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
 
 export function Hero() {
   const t = useTranslations('Hero');
@@ -191,10 +192,13 @@ export function Hero() {
               
               {/* App Screenshot Container */}
               <div className="relative rounded-2xl overflow-hidden border-2 border-[#06B6D4]/30 shadow-2xl bg-card">
-                <img 
+                <Image 
                   src="/images/guide/dashboard.png" 
                   alt="Ordo Todo Dashboard Preview"
+                  width={1200}
+                  height={800}
                   className="w-full h-auto"
+                  priority
                 />
               </div>
 

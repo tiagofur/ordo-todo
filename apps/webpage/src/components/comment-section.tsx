@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { addBlogComment } from '@/lib/api';
 import type { BlogComment } from '@/lib/api';
 import { Button } from '@ordo-todo/ui';
+import Image from 'next/image';
 import { Send, Trash2, LogIn, User, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -56,9 +57,11 @@ export function CommentSection({ slug, initialComments = [] }: CommentSectionPro
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex items-start gap-3">
             {user.image ? (
-              <img 
+              <Image 
                 src={user.image} 
                 alt={user.name} 
+                width={40}
+                height={40}
                 className="h-10 w-10 rounded-full object-cover flex-shrink-0"
               />
             ) : (
@@ -120,9 +123,11 @@ export function CommentSection({ slug, initialComments = [] }: CommentSectionPro
               className="flex items-start gap-3"
             >
               {comment.user.image ? (
-                <img 
+                <Image 
                   src={comment.user.image} 
                   alt={comment.user.name} 
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-full object-cover flex-shrink-0"
                 />
               ) : (

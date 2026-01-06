@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Timer, Zap, Coffee, Moon } from 'lucide-react';
 
@@ -35,9 +36,11 @@ export default function FocusGuide() {
         transition={{ duration: 0.5 }}
         className="my-8 rounded-2xl overflow-hidden"
       >
-        <img 
+        <Image 
           src="/images/guide/focus.png" 
           alt="Focus Timer" 
+          width={1200}
+          height={675}
           className="w-full rounded-xl border shadow-2xl"
         />
       </motion.div>

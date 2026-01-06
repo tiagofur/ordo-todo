@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight, BookOpen, Clock, Tag } from 'lucide-react';
 import { Button } from '@ordo-todo/ui';
+import Image from 'next/image';
 
 // Mock blog data - in production this would come from the API
 const PREVIEW_POSTS = [
@@ -98,10 +99,11 @@ export function BlogPreview() {
                 <div className="h-full rounded-2xl border-2 border-border bg-card overflow-hidden hover:border-[#EC4899]/50 transition-all duration-300 hover:shadow-xl">
                   {/* Image */}
                   <div className="relative aspect-[16/10] overflow-hidden">
-                    <img 
+                    <Image 
                       src={post.coverImage}
                       alt={post.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     {/* Category badge */}
                     <div 

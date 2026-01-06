@@ -247,7 +247,7 @@ export async function getNewsletterStatus(): Promise<boolean> {
         });
         if (!res.ok) return false;
         return res.json();
-    } catch (error) {
+    } catch {
         return false;
     }
 }

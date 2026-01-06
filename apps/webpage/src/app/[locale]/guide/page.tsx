@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Rocket, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import Image from 'next/image';
 
 export default function GuidePage() {
   const t = useTranslations('Guide');
@@ -27,9 +28,11 @@ export default function GuidePage() {
         className="relative mb-12 rounded-2xl overflow-hidden"
       >
         <div className="absolute inset-0 bg-[#06B6D4]/10 rounded-2xl" />
-        <img 
+        <Image 
           src="/images/guide/dashboard.png" 
           alt="Ordo Todo Dashboard" 
+          width={1200}
+          height={675}
           className="w-full rounded-2xl border shadow-2xl"
         />
       </motion.div>

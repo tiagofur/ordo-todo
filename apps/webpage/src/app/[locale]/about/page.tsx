@@ -103,7 +103,7 @@ export default function AboutPage() {
             <Heart className="h-12 w-12 text-[#F97316] mx-auto" />
           </div>
           <blockquote className="text-xl md:text-2xl font-medium text-foreground mb-6">
-            "{t('quote')}"
+            &quot;{t('quote')}&quot;
           </blockquote>
           <cite className="not-italic text-muted-foreground">
              Ordo Todo Team

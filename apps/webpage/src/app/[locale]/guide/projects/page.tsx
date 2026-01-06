@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Layout, Columns3, List, Tags, Users } from 'lucide-react';
 
@@ -39,9 +40,11 @@ export default function ProjectsGuide() {
         transition={{ duration: 0.5 }}
         className="my-8 rounded-2xl overflow-hidden"
       >
-        <img 
+        <Image 
           src="/images/guide/projects.png" 
           alt="Kanban Board" 
+          width={1200}
+          height={675}
           className="w-full rounded-xl border shadow-2xl"
         />
       </motion.div>

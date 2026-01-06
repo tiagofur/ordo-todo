@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, Search, Loader2 } from 'lucide-react';
 import { getFAQs } from '@/lib/api';
 import type { FAQ } from '@/lib/api';
+import { Link } from '@/i18n/routing';
 
 const CATEGORY_ORDER = ['General', 'Features', 'Billing', 'Privacy & Security'];
 
@@ -165,12 +166,12 @@ export default function FAQPage() {
           className="text-center mt-16"
         >
           <p className="text-muted-foreground mb-4">{t('still_need_help')}</p>
-          <a
+          <Link
             href="/contact"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#EC4899] text-white font-medium hover:opacity-90 transition-opacity"
           >
             {t('contact_us')}
-          </a>
+          </Link>
         </motion.div>
       </div>
     </main>

@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 import { getBlogPost } from '@/lib/api';
 import { Link } from '@/i18n/routing';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
@@ -21,10 +22,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       
       {post.coverImage && (
         <div className="aspect-video w-full overflow-hidden rounded-xl mb-8">
-           <img 
+           <Image 
              src={post.coverImage} 
              alt={post.title} 
-             className="w-full h-full object-cover"
+             fill
+             className="object-cover"
            />
         </div>
       )}

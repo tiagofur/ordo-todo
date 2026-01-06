@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@ordo-todo/ui';
+import Image from 'next/image';
 import { LogIn, User, LogOut } from 'lucide-react';
 
 interface LoginButtonProps {
@@ -33,9 +34,11 @@ export function LoginButton({
         {showUserInfo && (
           <div className="flex items-center gap-2">
             {user.image ? (
-              <img 
+              <Image 
                 src={user.image} 
                 alt={user.name} 
+                width={32}
+                height={32}
                 className="h-8 w-8 rounded-full object-cover"
               />
             ) : (

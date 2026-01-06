@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Clock, Target, Flame, Calendar } from 'lucide-react';
 
@@ -38,9 +39,11 @@ export default function AnalyticsGuide() {
         transition={{ duration: 0.5 }}
         className="my-8 rounded-2xl overflow-hidden"
       >
-        <img 
+        <Image 
           src="/images/guide/analytics.png" 
           alt="Analytics Dashboard" 
+          width={1200}
+          height={675}
           className="w-full rounded-xl border shadow-2xl"
         />
       </motion.div>

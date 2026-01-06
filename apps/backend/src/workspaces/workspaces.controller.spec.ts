@@ -8,6 +8,11 @@ import { AddMemberDto } from './dto/add-member.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { UpdateWorkspaceSettingsDto } from './dto/update-workspace-settings.dto';
+import { RedisService } from '../cache/redis.service';
+import {
+  CacheInvalidateInterceptor,
+  CacheInterceptor,
+} from '../common/decorators/cache';
 
 // Mock the guards and decorators
 jest.mock('../common/guards/jwt-auth.guard', () => ({
@@ -58,6 +63,30 @@ describe('WorkspacesController', () => {
       controllers: [WorkspacesController],
       providers: [
         { provide: WorkspacesService, useValue: mockWorkspacesService },
+        {
+          provide: RedisService,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            delPattern: jest.fn(),
+          },
+        },
+        {
+          provide: CacheInvalidateInterceptor,
+          useValue: {
+            intercept: jest
+              .fn()
+              .mockImplementation((context, next) => next.handle()),
+          },
+        },
+        {
+          provide: CacheInterceptor,
+          useValue: {
+            intercept: jest
+              .fn()
+              .mockImplementation((context, next) => next.handle()),
+          },
+        },
       ],
     }).compile();
 
@@ -227,9 +256,15 @@ describe('WorkspacesController', () => {
       };
       service.findBySlug.mockResolvedValue(mockWorkspace as any);
 
-      const result = await controller.findBySlug('test-workspace');
+      const result = await controller.findBySlug(
+        'test-workspace',
+        mockUser as any,
+      );
 
-      expect(service.findBySlug).toHaveBeenCalledWith('test-workspace');
+      expect(service.findBySlug).toHaveBeenCalledWith(
+        'test-workspace',
+        mockUser.id,
+      );
       expect(result).toEqual(mockWorkspace);
     });
 
@@ -238,9 +273,9 @@ describe('WorkspacesController', () => {
         new NotFoundException('Workspace not found'),
       );
 
-      await expect(controller.findBySlug('nonexistent')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        controller.findBySlug('nonexistent', mockUser as any),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -803,8 +838,8 @@ describe('WorkspacesController', () => {
       const result = await controller.getSettings('ws-123');
 
       expect(service.getSettings).toHaveBeenCalledWith('ws-123');
-      expect(result.defaultView).toBe('KANBAN');
-      expect(result.timezone).toBe('America/New_York');
+      expect(result?.defaultView).toBe('KANBAN');
+      expect(result?.timezone).toBe('America/New_York');
     });
 
     it('should return null when settings not found', async () => {

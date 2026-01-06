@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl';
 import { getBlogPosts } from '@/lib/api';
 import { BlogPostCard } from '@/components/blog-card';
 

@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth-context';
 import { getRoadmapItems, voteRoadmapItem, removeRoadmapVote } from '@/lib/api';
 import type { RoadmapItem } from '@/lib/api';
-import { Button } from '@ordo-todo/ui';
 import { 
   ThumbsUp, 
   Lightbulb, 
@@ -14,7 +12,6 @@ import {
   Rocket, 
   CheckCircle2, 
   XCircle,
-  LogIn,
   Star
 } from 'lucide-react';
 import { LoginButton } from '@/components/login-button';
@@ -138,7 +135,7 @@ export default function RoadmapPage() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-5xl font-bold text-foreground mb-6"
           >
-            What's Next for Ordo Todo
+            What&apos;s Next for Ordo Todo
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

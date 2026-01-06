@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Scale, FileText, AlertCircle, HelpCircle } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 
 export default function TermsPage() {
   const t = useTranslations('Terms');
@@ -57,7 +58,7 @@ export default function TermsPage() {
           })}
 
           <h3>{t('contact_title')}</h3>
-          <p>{t('contact_text')} <a href="/contact" className="text-primary hover:underline">contact us</a>.</p>
+          <p>{t('contact_text')} <Link href="/contact" className="text-primary hover:underline">contact us</Link>.</p>
         </div>
       </div>
     </main>

@@ -1,16 +1,18 @@
 import { Link } from '@/i18n/routing';
 import { BlogPost } from '@/lib/api';
+import Image from 'next/image';
 // Using shared UI card from packages or standard HTML/Tailwind
 
 export function BlogPostCard({ post }: { post: BlogPost }) {
   return (
     <div className="flex flex-col rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden transition-all hover:shadow-md">
       {post.coverImage && (
-        <div className="aspect-video w-full overflow-hidden">
-          <img 
+        <div className="aspect-video w-full overflow-hidden relative">
+          <Image 
             src={post.coverImage} 
             alt={post.title} 
-            className="h-full w-full object-cover transition-transform hover:scale-105"
+            fill
+            className="object-cover transition-transform hover:scale-105"
           />
         </div>
       )}

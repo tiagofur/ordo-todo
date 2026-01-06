@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Check, Sparkles, Crown, Building2, Zap } from 'lucide-react';
 import { Button } from '@ordo-todo/ui';
+import { Link } from '@/i18n/routing';
 
 export default function PricingPage() {
   const t = useTranslations('Pricing');
@@ -158,23 +159,40 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                <a 
-                  href={plan.key === 'enterprise' ? '/contact' : 'https://ordotodo.app/register'}
-                  target={plan.key === 'enterprise' ? undefined : '_blank'}
-                  rel={plan.key === 'enterprise' ? undefined : 'noreferrer'}
-                >
-                  <Button 
+                {plan.key === 'enterprise' ? (
+                  <Link href="/contact" className="w-full">
+                    <Button 
+                      className="w-full"
+                      style={{ 
+                        backgroundColor: plan.popular ? plan.color : 'transparent',
+                        borderColor: plan.color,
+                        color: plan.popular ? 'white' : plan.color,
+                      }}
+                      variant={plan.popular ? 'default' : 'outline'}
+                    >
+                      {t(`plans.${plan.key}.cta`)}
+                    </Button>
+                  </Link>
+                ) : (
+                  <a 
+                    href="https://ordotodo.app/register"
+                    target="_blank"
+                    rel="noreferrer"
                     className="w-full"
-                    style={{ 
-                      backgroundColor: plan.popular ? plan.color : 'transparent',
-                      borderColor: plan.color,
-                      color: plan.popular ? 'white' : plan.color,
-                    }}
-                    variant={plan.popular ? 'default' : 'outline'}
                   >
-                    {t(`plans.${plan.key}.cta`)}
-                  </Button>
-                </a>
+                    <Button 
+                      className="w-full"
+                      style={{ 
+                        backgroundColor: plan.popular ? plan.color : 'transparent',
+                        borderColor: plan.color,
+                        color: plan.popular ? 'white' : plan.color,
+                      }}
+                      variant={plan.popular ? 'default' : 'outline'}
+                    >
+                      {t(`plans.${plan.key}.cta`)}
+                    </Button>
+                  </a>
+                )}
               </motion.div>
             );
           })}
@@ -188,12 +206,12 @@ export default function PricingPage() {
           className="text-center mt-16"
         >
           <p className="text-muted-foreground mb-4">{t('questions')}</p>
-          <a
+          <Link
             href="/faq"
             className="inline-flex items-center gap-2 text-[#06B6D4] hover:text-[#0891B2] font-medium transition-colors"
           >
             {t('view_faq')}
-          </a>
+          </Link>
         </motion.div>
 
         {/* Money Back Guarantee */}

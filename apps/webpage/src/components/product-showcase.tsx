@@ -11,6 +11,7 @@ import {
   Target,
   ArrowRight
 } from 'lucide-react';
+import Image from 'next/image';
 
 export function ProductShowcase() {
   const t = useTranslations('ProductShowcase');
@@ -147,9 +148,11 @@ export function ProductShowcase() {
                     className="relative rounded-2xl overflow-hidden border-2 shadow-2xl bg-card"
                     style={{ borderColor: `${item.color}50` }}
                   >
-                    <img 
+                    <Image 
                       src={item.image}
                       alt={item.id}
+                      width={1200}
+                      height={800}
                       className="w-full h-auto"
                     />
                   </div>
