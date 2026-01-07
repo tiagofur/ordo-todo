@@ -31,6 +31,7 @@ import { PrismaFAQRepository } from './prisma-faq.repository';
 import { PrismaKBRepository } from './prisma-kb.repository';
 import { PrismaCollaborationRepository } from './prisma-collaboration.repository';
 import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
+import { PrismaFocusRepository } from './prisma-focus.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -206,6 +207,11 @@ import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
         new PrismaCustomFieldRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'FocusRepository',
+      useFactory: (prisma: PrismaService) => new PrismaFocusRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -238,6 +244,7 @@ import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
     'KBRepository',
     'CollaborationRepository',
     'CustomFieldRepository',
+    'FocusRepository',
   ],
 })
 export class RepositoriesModule { }
