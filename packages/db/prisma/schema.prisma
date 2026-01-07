@@ -44,6 +44,7 @@ model User {
   assignedTasks   Task[]            @relation("AssignedTasks")
   ownedProjects   Project[]
   notes           Note[]
+  meetings      Meeting[]         @relation("MeetingOwner")
 
   comments        Comment[]         @relation("UserComments")
   attachments     Attachment[]      @relation("UploadedAttachments")
@@ -449,6 +450,7 @@ model Workspace {
   taskTemplates TaskTemplate[]
   objectives    Objective[]
   notes         Note[]
+  meetings      Meeting[]         @relation("MeetingOwner")
 
 
   // NUEVO: Estados de ciclo de vida
@@ -640,6 +642,7 @@ model Project {
 
   // Content
   tasks Task[]
+  meetings Meeting[]
 
   // Metrics (Denormalized)
   tasksCount          Int @default(0)
@@ -1556,3 +1559,29 @@ model Note {
   @@index([authorId])
 }
 
+
+// ============ MEETINGS ============
+
+model Meeting {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  date      DateTime
+  duration  Int // minutes
+  transcript String? @db.Text
+  audioUrl    String?
+  analysis    Json? // MeetingAnalysis as JSON
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  // Author
+  author   User   @relation("MeetingOwner", fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([projectId])
+  @@index([date])
+  @@index([userId, date])
+}

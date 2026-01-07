@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaService } from '../database/prisma.service';
+import { SemanticSearchService } from '../search/semantic-search.service';
 import { PrismaUserRepository } from './user.repository';
 import { PrismaTaskRepository } from './task.repository';
 import { PrismaProjectRepository } from './project.repository';
@@ -32,6 +33,8 @@ import { PrismaKBRepository } from './prisma-kb.repository';
 import { PrismaCollaborationRepository } from './prisma-collaboration.repository';
 import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
 import { PrismaFocusRepository } from './prisma-focus.repository';
+import { PrismaMeetingRepository } from './prisma-meeting.repository';
+import { PrismaSearchRepository } from '../search/prisma-search.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -212,6 +215,16 @@ import { PrismaFocusRepository } from './prisma-focus.repository';
       useFactory: (prisma: PrismaService) => new PrismaFocusRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'MeetingRepository',
+      useFactory: (prisma: PrismaService) => new PrismaMeetingRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'SearchRepository',
+      useFactory: (semanticSearch: SemanticSearchService) => new PrismaSearchRepository(semanticSearch),
+      inject: [SemanticSearchService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -245,6 +258,8 @@ import { PrismaFocusRepository } from './prisma-focus.repository';
     'CollaborationRepository',
     'CustomFieldRepository',
     'FocusRepository',
+    'MeetingRepository',
+    'SearchRepository',
   ],
 })
 export class RepositoriesModule { }
