@@ -131,27 +131,22 @@ export class UsersService {
   }
 
   async updateProfile(email: string, updateProfileDto: UpdateProfileDto) {
-    // Only select fields needed for validation logic
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        username: true,
-        lastUsernameChangeAt: true,
-      },
-    });
+    // Use UserRepository to find user
+    const userEntity = await this.userRepository.findByEmail(email);
 
-    if (!user) {
+    if (!userEntity) {
       throw new NotFoundException('User not found');
     }
 
+    const userProps = userEntity.props;
+
     // Check if username is being updated and if it's unique
     if (updateProfileDto.username) {
-      if (updateProfileDto.username !== user.username) {
+      if (updateProfileDto.username !== userProps.username) {
         // Check 30-day cooldown
-        if (user.lastUsernameChangeAt) {
+        if (userProps.lastUsernameChangeAt) {
           const daysSinceLastChange = Math.floor(
-            (Date.now() - user.lastUsernameChangeAt.getTime()) /
+            (Date.now() - new Date(userProps.lastUsernameChangeAt).getTime()) /
               (1000 * 60 * 60 * 24),
           );
           if (daysSinceLastChange < 30) {
@@ -161,7 +156,7 @@ export class UsersService {
           }
         }
 
-        // Only select id to check existence
+        // Only select id to check existence (keep Prisma for username uniqueness check)
         const existingUser = await this.prisma.user.findUnique({
           where: { username: updateProfileDto.username },
           select: { id: true },
@@ -188,32 +183,30 @@ export class UsersService {
     // If username is being changed, update it and track the change time
     if (
       updateProfileDto.username &&
-      updateProfileDto.username !== user.username
+      updateProfileDto.username !== userProps.username
     ) {
       updateData.username = updateProfileDto.username;
       updateData.lastUsernameChangeAt = new Date();
     }
 
-    // Update extended profile fields directly in Prisma
-    const updatedUser = await this.prisma.user.update({
-      where: { email },
-      data: updateData,
-    });
+    // Update using UserRepository
+    await this.userRepository.updateProps(userEntity, updateData);
+    const updatedUser = await this.userRepository.findByEmail(email);
 
     return {
       success: true,
       user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        username: updatedUser.username,
-        phone: updatedUser.phone,
-        jobTitle: updatedUser.jobTitle,
-        department: updatedUser.department,
-        bio: updatedUser.bio,
-        timezone: updatedUser.timezone,
-        locale: updatedUser.locale,
-        image: updatedUser.image,
+        id: updatedUser!.id,
+        name: updatedUser!.props.name,
+        email: updatedUser!.props.email,
+        username: updatedUser!.props.username,
+        phone: updatedUser!.props.phone,
+        jobTitle: updatedUser!.props.jobTitle,
+        department: updatedUser!.props.department,
+        bio: updatedUser!.props.bio,
+        timezone: updatedUser!.props.timezone,
+        locale: updatedUser!.props.locale,
+        image: updatedUser!.props.image,
       },
     };
   }
@@ -222,21 +215,18 @@ export class UsersService {
    * Update user preferences (AI and privacy settings)
    */
   async updatePreferences(email: string, dto: UpdatePreferencesDto) {
-    // Only select id needed for the upsert operation
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
+    // Use UserRepository to find user
+    const userEntity = await this.userRepository.findByEmail(email);
 
-    if (!user) {
+    if (!userEntity) {
       throw new NotFoundException('User not found');
     }
 
-    // Upsert preferences
+    // Upsert preferences using Prisma (specific upsert operation)
     const preferences = await this.prisma.userPreferences.upsert({
-      where: { userId: user.id },
+      where: { userId: userEntity.id },
       create: {
-        userId: user.id,
+        userId: userEntity.id,
         ...dto,
       },
       update: {
@@ -307,20 +297,15 @@ export class UsersService {
    * Delete user account and all associated data
    */
   async deleteAccount(email: string) {
-    // Only select id needed for deletion
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
+    // Use UserRepository to find user
+    const userEntity = await this.userRepository.findByEmail(email);
 
-    if (!user) {
+    if (!userEntity) {
       throw new NotFoundException('User not found');
     }
 
-    // Delete user - cascades to all related data due to Prisma schema
-    await this.prisma.user.delete({
-      where: { id: user.id },
-    });
+    // Delete user using UserRepository - cascades to all related data
+    await this.userRepository.delete(userEntity.id);
 
     return { success: true, message: 'Account deleted successfully' };
   }

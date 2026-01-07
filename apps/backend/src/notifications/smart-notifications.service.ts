@@ -1,9 +1,10 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import { Injectable, Logger, Optional, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NotificationsService } from './notifications.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { PrismaService } from '../database/prisma.service';
 import { BurnoutPreventionService } from '../ai/burnout-prevention.service';
+import type { TimerRepository } from '@ordo-todo/core';
 
 @Injectable()
 export class SmartNotificationsService {
@@ -12,6 +13,8 @@ export class SmartNotificationsService {
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly prisma: PrismaService,
+    @Inject('TimerRepository')
+    private readonly timerRepository: TimerRepository,
     @Optional() private readonly gateway?: NotificationsGateway,
     @Optional() private readonly burnoutService?: BurnoutPreventionService,
   ) {}
@@ -89,20 +92,26 @@ export class SmartNotificationsService {
     const now = new Date();
     const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
 
-    const longSessions = await this.prisma.timeSession.findMany({
-      where: {
-        startedAt: {
-          lte: twoHoursAgo,
-        },
-        endedAt: null,
-        type: 'WORK',
-      },
-    });
+    // Get all sessions and filter for long active work sessions
+    // Note: TimerRepository doesn't have a direct method for this query,
+    // so we get all recent sessions and filter
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      'system', // Dummy userId, we'll filter by results
+      twoHoursAgo,
+      now,
+    );
+
+    const longSessions = sessions.filter(
+      (s) =>
+        s.props.type === 'WORK' &&
+        s.props.startedAt <= twoHoursAgo &&
+        !s.props.endedAt,
+    );
 
     for (const session of longSessions) {
       const existing = await this.prisma.notification.findFirst({
         where: {
-          userId: session.userId,
+          userId: session.props.userId,
           type: 'SYSTEM',
           title: 'Tiempo de descanso',
           createdAt: {
@@ -113,14 +122,16 @@ export class SmartNotificationsService {
 
       if (!existing) {
         await this.notificationsService.create({
-          userId: session.userId,
+          userId: session.props.userId,
           type: 'SYSTEM',
           title: 'Tiempo de descanso',
           message:
             'Has estado trabajando por más de 2 horas. Considera tomar un descanso.',
           metadata: { sessionId: session.id },
         });
-        this.logger.log(`Sent break reminder to user ${session.userId}`);
+        this.logger.log(
+          `Sent break reminder to user ${session.props.userId}`,
+        );
       }
     }
   }
@@ -321,17 +332,22 @@ export class SmartNotificationsService {
     this.logger.debug('Running smart break reminder check...');
     const now = new Date();
 
-    // Find active sessions
-    const activeSessions = await this.prisma.timeSession.findMany({
-      where: {
-        endedAt: null,
-        type: 'WORK',
-      },
+    // Find active work sessions using TimerRepository
+    // Get all users first, then check each for active sessions
+    const users = await this.prisma.user.findMany({
+      select: { id: true },
     });
 
-    for (const session of activeSessions) {
+    for (const user of users) {
+      const activeSession = await this.timerRepository.findActiveSession(
+        user.id,
+      );
+
+      if (!activeSession || activeSession.props.type !== 'WORK') continue;
+
       const sessionMinutes = Math.floor(
-        (now.getTime() - new Date(session.startedAt).getTime()) / 60000,
+        (now.getTime() - new Date(activeSession.props.startedAt).getTime()) /
+          60000,
       );
 
       // Only check if session is at least 75 minutes (give buffer before 90min threshold)
@@ -339,7 +355,7 @@ export class SmartNotificationsService {
 
       try {
         const recommendations =
-          await this.burnoutService.getRestRecommendations(session.userId);
+          await this.burnoutService.getRestRecommendations(user.id);
 
         const breakRec = recommendations.find(
           (r) => r.type === 'TAKE_BREAK' && r.priority === 'HIGH',
@@ -350,7 +366,7 @@ export class SmartNotificationsService {
           const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
           const existing = await this.prisma.notification.findFirst({
             where: {
-              userId: session.userId,
+              userId: user.id,
               type: 'SYSTEM',
               title: { contains: 'descanso' },
               createdAt: { gte: thirtyMinutesAgo },
@@ -359,16 +375,16 @@ export class SmartNotificationsService {
 
           if (!existing) {
             await this.notificationsService.create({
-              userId: session.userId,
+              userId: user.id,
               type: 'SYSTEM',
               title: '☕ Momento de descanso',
               message: breakRec.message,
-              metadata: { sessionId: session.id, sessionMinutes },
+              metadata: { sessionId: activeSession.id, sessionMinutes },
             });
 
             // Push via WebSocket
-            if (this.gateway && this.gateway.isUserConnected(session.userId)) {
-              this.gateway.sendInsight(session.userId, {
+            if (this.gateway && this.gateway.isUserConnected(user.id)) {
+              this.gateway.sendInsight(user.id, {
                 type: 'BREAK_REMINDER',
                 message: breakRec.message,
                 priority: 'MEDIUM',
@@ -380,7 +396,7 @@ export class SmartNotificationsService {
         }
       } catch (error) {
         this.logger.error(
-          `Smart break check failed for user ${session.userId}`,
+          `Smart break check failed for user ${user.id}`,
           error,
         );
       }

@@ -141,30 +141,34 @@ export class AIService {
     const start =
       startDate || new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Get daily metrics
-    const dailyMetrics = await this.prisma.dailyMetrics.findMany({
-      where: {
+    // Get daily metrics using AnalyticsRepository
+    const dailyMetricsEntities =
+      await this.analyticsRepository.findByUserIdAndDateRange(
         userId,
-        date: { gte: start, lte: end },
-      },
-      orderBy: { date: 'desc' },
-    });
+        start,
+        end,
+      );
+    const dailyMetrics = dailyMetricsEntities.map((dm) => dm.props);
 
-    // Get time sessions
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: start, lte: end },
-        endedAt: { not: null },
-      },
-    });
+    // Get time sessions using TimerRepository
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      start,
+      end,
+    );
+    const completedSessions = sessions.filter(
+      (s) => s.props.endedAt !== null,
+    );
 
     // Get AI profile if exists
     const profile = await this.aiProfileRepository.findByUserId(userId);
 
     return this.geminiService.analyzeWellbeing({
       dailyMetrics,
-      sessions: sessions.map((s) => ({ ...s, duration: s.duration || 0 })),
+      sessions: completedSessions.map((s) => ({
+        ...s.props,
+        duration: s.props.duration || 0,
+      })),
       profile: profile?.props || {
         peakHours: {},
         avgTaskDuration: 0,
@@ -326,21 +330,21 @@ export class AIService {
     end.setDate(0);
     end.setHours(23, 59, 59, 999);
 
-    // Get metrics for the month
-    const dailyMetrics = await this.prisma.dailyMetrics.findMany({
-      where: {
+    // Get metrics for the month using AnalyticsRepository and TimerRepository
+    const dailyMetricsEntities =
+      await this.analyticsRepository.findByUserIdAndDateRange(
         userId,
-        date: { gte: start, lte: end },
-      },
-    });
+        start,
+        end,
+      );
+    const dailyMetrics = dailyMetricsEntities.map((dm) => dm.props);
 
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: start, lte: end },
-        endedAt: { not: null },
-      },
-    });
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      start,
+      end,
+    );
+    const completedSessions = sessions.filter((s) => s.props.endedAt !== null);
 
     const profile = await this.aiProfileRepository.findByUserId(userId);
 
@@ -370,9 +374,9 @@ export class AIService {
       userId,
       scope: 'MONTHLY_SCHEDULED',
       metricsSnapshot,
-      sessions: sessions
+      sessions: completedSessions
         .slice(0, 20)
-        .map((s) => ({ ...s, duration: s.duration || 0 })),
+        .map((s) => ({ ...s.props, duration: s.props.duration || 0 })),
       profile: profile?.props || {
         peakHours: {},
         avgTaskDuration: 0,
@@ -426,14 +430,18 @@ export class AIService {
       throw new Error('Project not found');
     }
 
-    // Get time sessions for project tasks
+    // Get time sessions for project tasks using TimerRepository
+    // Get all user sessions and filter by taskId
+    const now = new Date();
+    const userSessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000), // Last year
+      now,
+    );
     const taskIds = project.tasks.map((t) => t.id);
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        taskId: { in: taskIds },
-        endedAt: { not: null },
-      },
-    });
+    const sessions = userSessions
+      .filter((s) => s.props.taskId && taskIds.includes(s.props.taskId))
+      .filter((s) => s.props.endedAt !== null);
 
     const metricsSnapshot = {
       projectName: project.name,
@@ -441,12 +449,12 @@ export class AIService {
       completedTasks: project.tasks.filter((t) => t.status === 'COMPLETED')
         .length,
       totalMinutesWorked: sessions.reduce(
-        (sum, s) => sum + (s.duration || 0),
+        (sum, s) => sum + (s.props.duration || 0),
         0,
       ),
       avgTaskDuration:
         project.tasks.length > 0
-          ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) /
+          ? sessions.reduce((sum, s) => sum + (s.props.duration || 0), 0) /
             project.tasks.filter((t) => t.status === 'COMPLETED').length
           : 0,
       estimateAccuracy: this.calculateEstimateAccuracy(project.tasks),
@@ -461,7 +469,7 @@ export class AIService {
       metricsSnapshot: numericMetrics,
       sessions: sessions
         .slice(0, 20)
-        .map((s) => ({ ...s, duration: s.duration || 0 })),
+        .map((s) => ({ ...s.props, duration: s.props.duration || 0 })),
       projectName: project.name,
     });
 
