@@ -190,4 +190,48 @@ export interface AnalyticsRepository {
    * ```
    */
   getRangeDescending(userId: string, limit: number): Promise<DailyMetrics[]>;
+
+  /**
+   * Counts tasks with specific criteria for analytics.
+   *
+   * Used for burnout prevention and productivity analytics to count tasks
+   * by status, priority, due date, or date ranges. Supports complex filters for
+   * comprehensive task analytics.
+   *
+   * @param userId - The user ID to count tasks for
+   * @param options - Filter options for the count
+   * @returns Promise resolving to the count of tasks matching the criteria
+   *
+   * @example
+   * ```typescript
+   * // Count urgent tasks
+   * const urgentCount = await repository.countTasks('user-123', {
+   *   priority: 'URGENT',
+   *   status: { notIn: ['COMPLETED', 'CANCELLED'] }
+   * });
+   *
+   * // Count completed tasks in date range
+   * const completedCount = await repository.countTasks('user-123', {
+   *   status: 'COMPLETED',
+   *   completedAt: { gte: weekStart, lte: weekEnd }
+   * });
+   *
+   * // Count overdue tasks
+   * const overdueCount = await repository.countTasks('user-123', {
+   *   status: { notIn: ['COMPLETED', 'CANCELLED'] },
+   *   dueDate: { lt: new Date() }
+   * });
+   * ```
+   */
+  countTasks(
+    userId: string,
+    options?: {
+      status?: string | string[];
+      priority?: string;
+      dueDate?: { lt?: Date; lte?: Date; gte?: Date };
+      completedAt?: { lt?: Date; lte?: Date; gte?: Date };
+      createdAt?: { lt?: Date; lte?: Date; gte?: Date };
+      assigneeId?: string;
+    },
+  ): Promise<number>;
 }

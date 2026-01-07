@@ -99,4 +99,50 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
 
     return metrics.map((m) => this.toDomain(m));
   }
+
+  async countTasks(
+    userId: string,
+    options?: {
+      status?: string | string[];
+      priority?: string;
+      dueDate?: { lt?: Date; lte?: Date; gte?: Date };
+      completedAt?: { lt?: Date; lte?: Date; gte?: Date };
+      createdAt?: { lt?: Date; lte?: Date; gte?: Date };
+      assigneeId?: string;
+    },
+  ): Promise<number> {
+    const where: any = {
+      OR: [{ ownerId: userId }, { assigneeId: userId }],
+    };
+
+    if (options) {
+      if (options.status) {
+        where.status = Array.isArray(options.status)
+          ? { in: options.status }
+          : options.status;
+      }
+
+      if (options.priority) {
+        where.priority = options.priority;
+      }
+
+      if (options.dueDate) {
+        where.dueDate = options.dueDate;
+      }
+
+      if (options.completedAt) {
+        where.completedAt = options.completedAt;
+      }
+
+      if (options.createdAt) {
+        where.createdAt = options.createdAt;
+      }
+
+      if (options.assigneeId) {
+        where.assigneeId = options.assigneeId;
+      }
+    }
+
+    return this.prisma.task.count({ where });
+  }
 }

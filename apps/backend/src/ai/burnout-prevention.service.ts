@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { GeminiAIService } from './gemini-ai.service';
-import type { TimerRepository } from '@ordo-todo/core';
+import type { TimerRepository, AnalyticsRepository } from '@ordo-todo/core';
 
 /**
  * Risk levels for burnout assessment
@@ -144,6 +144,8 @@ export class BurnoutPreventionService {
     private readonly geminiAI: GeminiAIService,
     @Inject('TimerRepository')
     private readonly timerRepository: TimerRepository,
+    @Inject('AnalyticsRepository')
+    private readonly analyticsRepository: AnalyticsRepository,
   ) {}
 
   /**
@@ -234,21 +236,15 @@ export class BurnoutPreventionService {
           60
         : 0;
 
-    // Get task overload indicators
+    // Get task overload indicators using AnalyticsRepository
     const [urgentTasks, overdueTasks] = await Promise.all([
-      this.prisma.task.count({
-        where: {
-          OR: [{ ownerId: userId }, { assigneeId: userId }],
-          priority: 'URGENT',
-          status: { notIn: ['COMPLETED', 'CANCELLED'] },
-        },
+      this.analyticsRepository.countTasks(userId, {
+        priority: 'URGENT',
+        status: { notIn: ['COMPLETED', 'CANCELLED'] },
       }),
-      this.prisma.task.count({
-        where: {
-          OR: [{ ownerId: userId }, { assigneeId: userId }],
-          status: { notIn: ['COMPLETED', 'CANCELLED'] },
-          dueDate: { lt: new Date() },
-        },
+      this.analyticsRepository.countTasks(userId, {
+        status: { notIn: ['COMPLETED', 'CANCELLED'] },
+        dueDate: { lt: new Date() },
       }),
     ]);
 
@@ -487,13 +483,10 @@ export class BurnoutPreventionService {
       (s) => s.props.type === 'WORK' && s.props.duration !== null,
     );
 
-    // Get week's completed tasks
-    const completedTasks = await this.prisma.task.count({
-      where: {
-        OR: [{ ownerId: userId }, { assigneeId: userId }],
-        status: 'COMPLETED',
-        completedAt: { gte: weekStart, lte: weekEnd },
-      },
+    // Get week's completed tasks using AnalyticsRepository
+    const completedTasks = await this.analyticsRepository.countTasks(userId, {
+      status: 'COMPLETED',
+      completedAt: { gte: weekStart, lte: weekEnd },
     });
 
     // Calculate metrics
@@ -754,17 +747,11 @@ export class BurnoutPreventionService {
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
     const [recentTasks, previousTasks] = await Promise.all([
-      this.prisma.task.count({
-        where: {
-          OR: [{ ownerId: userId }, { assigneeId: userId }],
-          createdAt: { gte: sevenDaysAgo },
-        },
+      this.analyticsRepository.countTasks(userId, {
+        createdAt: { gte: sevenDaysAgo },
       }),
-      this.prisma.task.count({
-        where: {
-          OR: [{ ownerId: userId }, { assigneeId: userId }],
-          createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
-        },
+      this.analyticsRepository.countTasks(userId, {
+        createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
       }),
     ]);
 
@@ -788,31 +775,19 @@ export class BurnoutPreventionService {
 
     const [recentTotal, recentCompleted, previousTotal, previousCompleted] =
       await Promise.all([
-        this.prisma.task.count({
-          where: {
-            OR: [{ ownerId: userId }, { assigneeId: userId }],
-            createdAt: { gte: sevenDaysAgo },
-          },
+        this.analyticsRepository.countTasks(userId, {
+          createdAt: { gte: sevenDaysAgo },
         }),
-        this.prisma.task.count({
-          where: {
-            OR: [{ ownerId: userId }, { assigneeId: userId }],
-            status: 'COMPLETED',
-            completedAt: { gte: sevenDaysAgo },
-          },
+        this.analyticsRepository.countTasks(userId, {
+          status: 'COMPLETED',
+          completedAt: { gte: sevenDaysAgo },
         }),
-        this.prisma.task.count({
-          where: {
-            OR: [{ ownerId: userId }, { assigneeId: userId }],
-            createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
-          },
+        this.analyticsRepository.countTasks(userId, {
+          createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
         }),
-        this.prisma.task.count({
-          where: {
-            OR: [{ ownerId: userId }, { assigneeId: userId }],
-            status: 'COMPLETED',
-            completedAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
-          },
+        this.analyticsRepository.countTasks(userId, {
+          status: 'COMPLETED',
+          completedAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
         }),
       ]);
 
