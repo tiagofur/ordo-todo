@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { GeminiAIService } from '../ai/gemini-ai.service';
 import { ChatRole } from '@prisma/client';
+import type { TimerRepository } from '@ordo-todo/core';
 
 export interface UserContext {
   pendingTasks: Array<{
@@ -50,6 +51,8 @@ export class ProductivityCoachService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geminiAI: GeminiAIService,
+    @Inject('TimerRepository')
+    private readonly timerRepository: TimerRepository,
   ) {}
 
   /**
@@ -403,28 +406,28 @@ REGLAS:
   }
 
   private async getActiveTimer(userId: string) {
-    const session = await this.prisma.timeSession.findFirst({
-      where: {
-        userId,
-        endedAt: null,
-      },
-      include: {
-        task: {
-          select: { title: true },
-        },
-      },
-      orderBy: { startedAt: 'desc' },
-    });
+    // Use TimerRepository to find active session
+    const session = await this.timerRepository.findActiveSession(userId);
 
     if (!session) {
       return null;
     }
 
+    // Get task title from Prisma (keep this for specific task relation)
+    let taskTitle: string | undefined;
+    if (session.props.taskId) {
+      const task = await this.prisma.task.findUnique({
+        where: { id: session.props.taskId },
+        select: { title: true },
+      });
+      taskTitle = task?.title;
+    }
+
     return {
       isActive: true,
-      taskTitle: session.task?.title,
-      startedAt: session.startedAt,
-      type: session.type,
+      taskTitle,
+      startedAt: new Date(session.props.startedAt),
+      type: session.props.type,
     };
   }
 
@@ -435,35 +438,26 @@ REGLAS:
     const weekStart = new Date(today);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
 
+    // Use TimerRepository for both queries
     const [todaySessions, weeklySessions] = await Promise.all([
-      this.prisma.timeSession.findMany({
-        where: {
-          userId,
-          startedAt: { gte: today },
-          duration: { not: null },
-        },
-        select: { duration: true },
-      }),
-      this.prisma.timeSession.findMany({
-        where: {
-          userId,
-          startedAt: { gte: weekStart },
-          duration: { not: null },
-        },
-        select: { duration: true },
-      }),
+      this.timerRepository.findByUserIdAndDateRange(userId, today, new Date()),
+      this.timerRepository.findByUserIdAndDateRange(userId, weekStart, new Date()),
     ]);
 
-    const todayMinutes = todaySessions.reduce(
-      (sum, s) => sum + (s.duration || 0),
+    // Filter for completed sessions with duration
+    const todayCompleted = todaySessions.filter((s) => s.props.duration !== null);
+    const weeklyCompleted = weeklySessions.filter((s) => s.props.duration !== null);
+
+    const todayMinutes = todayCompleted.reduce(
+      (sum, s) => sum + (s.props.duration || 0),
       0,
     );
-    const weeklyMinutes = weeklySessions.reduce(
-      (sum, s) => sum + (s.duration || 0),
+    const weeklyMinutes = weeklyCompleted.reduce(
+      (sum, s) => sum + (s.props.duration || 0),
       0,
     );
     const avgSessionLength =
-      weeklySessions.length > 0 ? weeklyMinutes / weeklySessions.length : 25; // Default to pomodoro length
+      weeklyCompleted.length > 0 ? weeklyMinutes / weeklyCompleted.length : 25; // Default to pomodoro length
 
     return {
       todayMinutes,
@@ -555,21 +549,20 @@ REGLAS:
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: thirtyDaysAgo },
-        duration: { not: null },
-      },
-      select: {
-        startedAt: true,
-      },
-    });
+    // Use TimerRepository to get sessions
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      thirtyDaysAgo,
+      new Date(),
+    );
+
+    // Filter for completed sessions with duration
+    const completedSessions = sessions.filter((s) => s.props.duration !== null);
 
     // Count by hour
     const hourCounts = new Map<number, number>();
-    for (const session of sessions) {
-      const hour = new Date(session.startedAt).getHours();
+    for (const session of completedSessions) {
+      const hour = new Date(session.props.startedAt).getHours();
       hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1);
     }
 

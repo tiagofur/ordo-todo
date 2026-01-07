@@ -773,12 +773,34 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
      - 5 llamadas restantes: User.findUnique con includes complejos (3), UserPreferences.upsert (1), User.findUnique por username (1)
      - **Nota**: Llamadas restantes son queries complejas con includes (getFullProfile, getIntegrations, exportData) y uperts específicos
 
+7. **ProductivityCoachService** ✅ (Parcialmente completado - 7 de enero de 2026)
+   - **Antes**: 9 llamadas directas a Prisma
+   - **Después**: 6 llamadas (33% de reducción)
+   - **Mejora**: 3 llamadas a TimeSession eliminadas
+   - **Cambios**:
+     - Inyectado `TimerRepository`
+     - Refactorizados métodos: `getActiveTimer()`, `getTimerStats()`, `getHourlyActivity()`
+     - Usan `timerRepository.findActiveSession()` y `findByUserIdAndDateRange()`
+     - 6 llamadas restantes: Task.count() x5 (analítica de productividad) + Task.findUnique x1 (título de tarea)
+     - **Nota**: Llamadas restantes son Task.count() para estadísticas de productividad (requerirían AnalyticsRepository especializado)
+
+8. **SemanticSearchService** ℹ️ (Mantenido sin cambios - 7 de enero de 2026)
+   - **Antes**: 8 llamadas directas a Prisma
+   - **Después**: 8 llamadas (0% de reducción, justificado)
+   - **Decisión**: Mantener sin cambios debido a complejidad de búsqueda
+   - **Justificación**:
+     - Búsquedas semánticas con filtros dinámicos complejos y condiciones OR basadas en keywords
+     - Queries específicas con `mode: 'insensitive'` para búsqueda de texto
+     - No existen métodos en repositorios que soporten búsquedas tan especializadas
+     - Requeriría crear un SearchRepository genérico (fuera del scope actual)
+     - Servicio de baja prioridad según auditoría
+   - **Llamadas**: Task (5: 2 findMany + 3 count), Project (1 findMany), Habit (1 findMany)
+   - **Nota**: Caso especial justificado - búsquedas altamente especializadas
+
 **🔄 Pendientes** (Servicios con 5+ llamadas directas):
 
 | Servicio | Llamadas Prisma | Prioridad | Notas |
 |----------|-----------------|-----------|-------|
-| ProductivityCoachService | 9 | Media | Coach de productividad |
-| SemanticSearchService | 8 | Baja | Servicio de búsqueda semántica |
 | AttachmentsService | 6 | Baja | Ya parcialmente refactorizado |
 | CommentsService | 5 | Baja | Ya parcialmente refactorizado |
 
@@ -787,20 +809,31 @@ Estos módulos ya tenían arquitectura correcta ANTES de la refactorización:
 
 #### Impacto de la Refactorización
 
-**Métricas de Progreso** (Actualizado 7 de enero de 2026):
-- **Llamadas eliminadas**: 73 de ~120 (61%)
+**Métricas de Progreso** (Actualizado 7 de enero de 2026 - Final de Sesión):
+- **Llamadas eliminadas**: 76 de ~120 (63%)
 - **Servicios 100% refactorizados**: 2 de 35 (6%)
-- **Servicios parcialmente refactorizados**: 4 de 35 (11%)
+- **Servicios parcialmente refactorizados**: 5 de 35 (14%)
+- **Servicios justificados sin cambios**: 1 de 35 (3%)
 - **Architecture Quality Score**: 92 → 94/100 (mejora estimada)
 
-**Próximos pasos**:
+**Resumen de Servicios Refactorizados**:
+1. TasksService ✅ (80% reducción)
+2. HabitsService ✅ (100% reducción)
+3. BurnoutPreventionService 🔄 (31% reducción, parcial)
+4. SmartNotificationsService 🔄 (8% reducción, parcial)
+5. AiService 🔄 (45% reducción, parcial)
+6. UsersService 🔄 (50% reducción, parcial)
+7. ProductivityCoachService 🔄 (33% reducción, parcial)
+8. SemanticSearchService ℹ️ (0% reducción, justificado por complejidad)
+
+**Próximos pasos** (opcional):
 1. Completar BurnoutPreventionService (9 llamadas restantes a Task.count()) - agregar métodos de analítica
-2. ProductivityCoachService (9 llamadas) - refactorizar lógica de coaching
-3. SemanticSearchService (8 llamadas) - refactorizar búsqueda semántica
+2. Refactorizar servicios restantes menores (AttachmentsService, CommentsService)
+3. Crear AnalyticsRepository para centralizar queries de contadores
 4. Validar y actualizar métricas finales
 5. Documentar patrones de refactorización parcial
 
-**Estimated effort**: ~1-2 semanas adicionales
+**Estimated effort**: ~1 semana adicional para completar servicios prioridad alta/media
 
 ---
 
