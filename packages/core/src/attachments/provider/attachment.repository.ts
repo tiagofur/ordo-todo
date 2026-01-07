@@ -232,4 +232,48 @@ export interface AttachmentRepository {
    * ```
    */
   getTotalSizeByTaskId(taskId: string): Promise<number>;
+
+  /**
+   * Finds an attachment by its URL/storage path.
+   *
+   * Used for checking if an attachment exists with a specific URL,
+   * such as when cleaning up orphaned files or verifying uniqueness.
+   *
+   * @param url - The URL or storage path to search for
+   * @returns Promise resolving to the attachment if found, null otherwise
+   *
+   * @example
+   * ```typescript
+   * const attachment = await repository.findByUrl('/uploads/abc123-document.pdf');
+   * if (attachment) {
+   *   console.log('Attachment exists for this URL');
+   * } else {
+   *   console.log('No attachment found - file may be orphaned');
+   * }
+   * ```
+   */
+  findByUrl(url: string): Promise<Attachment | null>;
+
+  /**
+   * Finds all attachments for tasks within a specific project.
+   *
+   * Used for displaying all files attached to tasks in a project,
+   * such as a project's file library or resource view.
+   *
+   * @param projectId - The project ID to find attachments for
+   * @returns Promise resolving to an array of attachments (empty array if none found)
+   *
+   * @example
+   * ```typescript
+   * const projectAttachments = await repository.findByProjectId('project-123');
+   * console.log(`Project has ${projectAttachments.length} total attachments`);
+   *
+   * // Group by task
+   * const byTask = projectAttachments.reduce((acc, a) => {
+   *   (acc[a.taskId] = acc[a.taskId] || []).push(a);
+   *   return acc;
+   * }, {});
+   * ```
+   */
+  findByProjectId(projectId: string): Promise<Attachment[]>;
 }

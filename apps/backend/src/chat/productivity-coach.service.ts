@@ -2,7 +2,7 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { GeminiAIService } from '../ai/gemini-ai.service';
 import { ChatRole } from '@prisma/client';
-import type { TimerRepository } from '@ordo-todo/core';
+import type { TimerRepository, AnalyticsRepository } from '@ordo-todo/core';
 
 export interface UserContext {
   pendingTasks: Array<{
@@ -53,6 +53,8 @@ export class ProductivityCoachService {
     private readonly geminiAI: GeminiAIService,
     @Inject('TimerRepository')
     private readonly timerRepository: TimerRepository,
+    @Inject('AnalyticsRepository')
+    private readonly analyticsRepository: AnalyticsRepository,
   ) {}
 
   /**
@@ -396,12 +398,9 @@ REGLAS:
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return this.prisma.task.count({
-      where: {
-        OR: [{ ownerId: userId }, { assigneeId: userId }],
-        status: 'COMPLETED',
-        completedAt: { gte: today },
-      },
+    return this.analyticsRepository.countTasks(userId, {
+      status: 'COMPLETED',
+      completedAt: { gte: today },
     });
   }
 
@@ -473,18 +472,12 @@ REGLAS:
 
     const [totalTasks, completedTasks, streak, hourlyActivity] =
       await Promise.all([
-        this.prisma.task.count({
-          where: {
-            OR: [{ ownerId: userId }, { assigneeId: userId }],
-            createdAt: { gte: thirtyDaysAgo },
-          },
+        this.analyticsRepository.countTasks(userId, {
+          createdAt: { gte: thirtyDaysAgo },
         }),
-        this.prisma.task.count({
-          where: {
-            OR: [{ ownerId: userId }, { assigneeId: userId }],
-            status: 'COMPLETED',
-            completedAt: { gte: thirtyDaysAgo },
-          },
+        this.analyticsRepository.countTasks(userId, {
+          status: 'COMPLETED',
+          completedAt: { gte: thirtyDaysAgo },
         }),
         this.calculateStreak(userId),
         this.getHourlyActivity(userId),
@@ -520,14 +513,11 @@ REGLAS:
       const dayEnd = new Date(checkDate);
       dayEnd.setDate(dayEnd.getDate() + 1);
 
-      const count = await this.prisma.task.count({
-        where: {
-          OR: [{ ownerId: userId }, { assigneeId: userId }],
-          status: 'COMPLETED',
-          completedAt: {
-            gte: dayStart,
-            lt: dayEnd,
-          },
+      const count = await this.analyticsRepository.countTasks(userId, {
+        status: 'COMPLETED',
+        completedAt: {
+          gte: dayStart,
+          lt: dayEnd,
         },
       });
 

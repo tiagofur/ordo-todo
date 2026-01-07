@@ -128,6 +128,37 @@ export class PrismaAttachmentRepository implements AttachmentRepository {
     return attachments.reduce((total, a) => total + a.filesize, 0);
   }
 
+  async findByUrl(url: string): Promise<Attachment | null> {
+    const prismaAttachment = await this.prisma.attachment.findFirst({
+      where: { url },
+    });
+
+    return prismaAttachment ? this.toDomain(prismaAttachment) : null;
+  }
+
+  async findByProjectId(projectId: string): Promise<Attachment[]> {
+    const prismaAttachments = await this.prisma.attachment.findMany({
+      where: {
+        task: {
+          projectId: projectId,
+        },
+      },
+      include: {
+        task: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        uploadedAt: 'desc',
+      },
+    });
+
+    return prismaAttachments.map((a) => this.toDomain(a));
+  }
+
   /**
    * Converts a PrismaAttachment to a domain Attachment entity.
    *

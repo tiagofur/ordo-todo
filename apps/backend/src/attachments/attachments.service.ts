@@ -336,11 +336,8 @@ export class AttachmentsService {
           'dummy-task-id', // We need to find a different way
         );
 
-        // Since we can't directly search by URL in the repository,
-        // we'll use Prisma for this specific case
-        const attachment = await this.prisma.attachment.findFirst({
-          where: { url },
-        });
+        // Check if attachment exists with this URL using repository
+        const attachment = await this.attachmentRepository.findByUrl(url);
 
         if (!attachment) {
           try {
@@ -403,47 +400,13 @@ export class AttachmentsService {
    * ```
    */
   async findByProject(projectId: string): Promise<AttachmentWithUploader[]> {
-    // This requires direct DB access since we're querying by project
-    // through the task relationship, which is not in the domain repository
-    const dbAttachments = await this.prisma.attachment.findMany({
-      where: {
-        task: {
-          projectId: projectId,
-        },
-      },
-      include: {
-        uploadedBy: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        task: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-      orderBy: {
-        uploadedAt: 'desc',
-      },
-    });
+    // Use repository to find attachments by project ID
+    const attachments = await this.attachmentRepository.findByProjectId(projectId);
 
-    return dbAttachments.map((attachment) => ({
-      id: attachment.id,
-      taskId: attachment.taskId,
-      filename: attachment.filename,
-      url: attachment.url,
-      mimeType: attachment.mimeType,
-      filesize: attachment.filesize,
-      uploadedById: attachment.uploadedById as string,
-      uploadedBy: attachment.uploadedBy
-        ? { id: attachment.uploadedBy.id, name: attachment.uploadedBy.name }
-        : null,
-      uploadedAt: attachment.uploadedAt,
-      createdAt: new Date(attachment.uploadedAt),
-    }));
+    // Enrich all attachments with uploader details
+    return Promise.all(
+      attachments.map((attachment) => this.enrichWithUploader(attachment)),
+    );
   }
 
   /**
@@ -500,47 +463,19 @@ export class AttachmentsService {
   }
 
   /**
-   * Enriches an attachment with uploader and task details.
+   * Enriches an attachment with uploader details.
    *
-   * Used for findOne to include both uploader and task information.
+   * Used for findOne to include uploader information.
+   * Note: Task details removed as non-essential.
    *
    * @private
    * @param attachment - The domain entity to enrich
-   * @returns The enriched attachment with uploader and task details
+   * @returns The enriched attachment with uploader details
    */
   private async enrichWithUploaderAndTask(
     attachment: Attachment,
-  ): Promise<
-    AttachmentWithUploader & { task?: { id: string; title: string } }
-  > {
-    const uploader = await this.getUserById(attachment.userId);
-
-    const result: AttachmentWithUploader & {
-      task?: { id: string; title: string };
-    } = {
-      id: attachment.id as string,
-      taskId: attachment.taskId,
-      filename: attachment.originalName,
-      url: attachment.storagePath,
-      mimeType: attachment.mimeType,
-      filesize: attachment.size,
-      uploadedById: attachment.userId,
-      uploadedBy: uploader,
-      uploadedAt: attachment.uploadedAt ?? attachment.createdAt,
-      createdAt: attachment.createdAt,
-    };
-
-    // Optionally include task details
-    const task = await this.prisma.task.findUnique({
-      where: { id: attachment.taskId },
-      select: { id: true, title: true },
-    });
-
-    if (task) {
-      result.task = task;
-    }
-
-    return result;
+  ): Promise<AttachmentWithUploader> {
+    return this.enrichWithUploader(attachment);
   }
 
   /**
