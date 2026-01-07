@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { GeminiAIService } from './gemini-ai.service';
+import type { TimerRepository } from '@ordo-todo/core';
 
 /**
  * Risk levels for burnout assessment
@@ -141,6 +142,8 @@ export class BurnoutPreventionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geminiAI: GeminiAIService,
+    @Inject('TimerRepository')
+    private readonly timerRepository: TimerRepository,
   ) {}
 
   /**
@@ -154,31 +157,32 @@ export class BurnoutPreventionService {
     startDate.setDate(startDate.getDate() - days);
     startDate.setHours(0, 0, 0, 0);
 
-    // Get all work sessions in the period
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: startDate },
-        type: 'WORK',
-        duration: { not: null },
-      },
-      orderBy: { startedAt: 'asc' },
-    });
+    // Get all work sessions in the period using TimerRepository
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      startDate,
+      new Date(),
+    );
+
+    // Filter to work sessions only
+    const workSessions = sessions.filter(
+      (s) => s.props.type === 'WORK' && s.props.duration !== null,
+    );
 
     // Calculate late night work
-    const lateNightSessions = sessions.filter((s) => {
-      const hour = new Date(s.startedAt).getHours();
+    const lateNightSessions = workSessions.filter((s) => {
+      const hour = new Date(s.props.startedAt).getHours();
       return (
         hour >= this.THRESHOLDS.lateNightStartHour ||
         hour < this.THRESHOLDS.earlyMorningEndHour
       );
     });
     const lateNightMinutes = lateNightSessions.reduce(
-      (sum, s) => sum + (s.duration || 0),
+      (sum, s) => sum + (s.props.duration || 0),
       0,
     );
-    const totalMinutes = sessions.reduce(
-      (sum, s) => sum + (s.duration || 0),
+    const totalMinutes = workSessions.reduce(
+      (sum, s) => sum + (s.props.duration || 0),
       0,
     );
     const lateNightPercentage =
@@ -187,27 +191,27 @@ export class BurnoutPreventionService {
     // Count unique late night days
     const lateNightDays = new Set(
       lateNightSessions.map(
-        (s) => new Date(s.startedAt).toISOString().split('T')[0],
+        (s) => new Date(s.props.startedAt).toISOString().split('T')[0],
       ),
     ).size;
 
     // Calculate weekend work
-    const weekendSessions = sessions.filter((s) => {
-      const day = new Date(s.startedAt).getDay();
+    const weekendSessions = workSessions.filter((s) => {
+      const day = new Date(s.props.startedAt).getDay();
       return day === 0 || day === 6; // Sunday = 0, Saturday = 6
     });
     const weekendMinutes = weekendSessions.reduce(
-      (sum, s) => sum + (s.duration || 0),
+      (sum, s) => sum + (s.props.duration || 0),
       0,
     );
     const weekendWorkPercentage =
       totalMinutes > 0 ? (weekendMinutes / totalMinutes) * 100 : 0;
     const weekendDays = new Set(
-      weekendSessions.map((s) => new Date(s.startedAt).toDateString()),
+      weekendSessions.map((s) => new Date(s.props.startedAt).toDateString()),
     ).size;
 
     // Calculate session lengths
-    const sessionLengths = sessions.map((s) => s.duration || 0);
+    const sessionLengths = workSessions.map((s) => s.props.duration || 0);
     const avgSessionWithoutBreak =
       sessionLengths.length > 0
         ? sessionLengths.reduce((a, b) => a + b, 0) / sessionLengths.length
@@ -216,11 +220,11 @@ export class BurnoutPreventionService {
 
     // Calculate daily work hours
     const dailyMinutes = new Map<string, number>();
-    for (const session of sessions) {
-      const dateKey = new Date(session.startedAt).toISOString().split('T')[0];
+    for (const session of workSessions) {
+      const dateKey = new Date(session.props.startedAt).toISOString().split('T')[0];
       dailyMinutes.set(
         dateKey,
-        (dailyMinutes.get(dateKey) || 0) + (session.duration || 0),
+        (dailyMinutes.get(dateKey) || 0) + (session.props.duration || 0),
       );
     }
     const avgDailyWorkHours =
@@ -302,15 +306,12 @@ export class BurnoutPreventionService {
     const analysis = await this.analyzeBurnoutRisk(userId);
     const recommendations: RestRecommendation[] = [];
 
-    // Check if currently working
-    const activeSession = await this.prisma.timeSession.findFirst({
-      where: { userId, endedAt: null },
-      orderBy: { startedAt: 'desc' },
-    });
+    // Check if currently working using TimerRepository
+    const activeSession = await this.timerRepository.findActiveSession(userId);
 
     if (activeSession) {
       const sessionMinutes = Math.floor(
-        (Date.now() - new Date(activeSession.startedAt).getTime()) / 60000,
+        (Date.now() - new Date(activeSession.props.startedAt).getTime()) / 60000,
       );
 
       if (sessionMinutes >= this.THRESHOLDS.warningSessionWithoutBreak) {
@@ -347,18 +348,18 @@ export class BurnoutPreventionService {
       });
     }
 
-    // Check today's total hours
+    // Check today's total hours using TimerRepository
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todaySessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: today },
-        duration: { not: null },
-      },
-    });
+    const todaySessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      today,
+      new Date(),
+    );
     const todayHours =
-      todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60;
+      todaySessions
+        .filter((s) => s.props.duration !== null)
+        .reduce((sum, s) => sum + (s.props.duration || 0), 0) / 60;
 
     if (todayHours >= this.THRESHOLDS.criticalDailyHours) {
       recommendations.push({
@@ -474,15 +475,17 @@ export class BurnoutPreventionService {
     weekStart.setDate(weekStart.getDate() - 7);
     weekStart.setHours(0, 0, 0, 0);
 
-    // Get week's sessions
-    const sessions = await this.prisma.timeSession.findMany({
-      where: {
-        userId,
-        startedAt: { gte: weekStart, lte: weekEnd },
-        type: 'WORK',
-        duration: { not: null },
-      },
-    });
+    // Get week's sessions using TimerRepository
+    const sessions = await this.timerRepository.findByUserIdAndDateRange(
+      userId,
+      weekStart,
+      weekEnd,
+    );
+
+    // Filter to work sessions only
+    const workSessions = sessions.filter(
+      (s) => s.props.type === 'WORK' && s.props.duration !== null,
+    );
 
     // Get week's completed tasks
     const completedTasks = await this.prisma.task.count({
@@ -494,8 +497,8 @@ export class BurnoutPreventionService {
     });
 
     // Calculate metrics
-    const totalMinutes = sessions.reduce(
-      (sum, s) => sum + (s.duration || 0),
+    const totalMinutes = workSessions.reduce(
+      (sum, s) => sum + (s.props.duration || 0),
       0,
     );
     const totalHoursWorked = totalMinutes / 60;
