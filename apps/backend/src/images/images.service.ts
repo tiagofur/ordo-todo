@@ -3,34 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { mkdir, unlink } from 'fs/promises';
 import { join } from 'path';
-
-/**
- * ProcessedImage result interface
- *
- * @example
- * ```typescript
- * const processed: ProcessedImage = {
- *   buffer: Buffer.from('...'),
- *   width: 256,
- *   height: 256,
- *   format: 'jpeg',
- *   size: 12345,
- * };
- * ```
- */
-export interface ProcessedImage {
-  buffer: Buffer;
-  width: number;
-  height: number;
-  format: string;
-  size: number;
-}
+import { ImageSpecs, ProcessedImage as DomainProcessedImage } from '@ordo-todo/core';
 
 /**
  * Image processing service for avatar uploads and image optimization
  *
+ * Refactored to use domain layer (ImageSpecs, ProcessedImage)
  * Handles validation, resizing, and optimization of user-uploaded images.
- * Supports JPEG, PNG, WEBP formats with automatic conversion to JPEG for avatars.
  *
  * @example
  * ```typescript
@@ -42,11 +21,6 @@ export interface ProcessedImage {
 export class ImagesService {
   private readonly logger = new Logger(ImagesService.name);
 
-  // Configuration
-  private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-  private readonly MAX_DIMENSIONS = 4000; // 4000x4000px
-  private readonly AVATAR_SIZE = 256; // 256x256px
-  private readonly AVATAR_QUALITY = 85; // JPEG quality
   private readonly UPLOAD_DIR = 'uploads/avatars';
 
   constructor(private config: ConfigService) {
@@ -56,38 +30,31 @@ export class ImagesService {
   }
 
   /**
-   * Validate and optimize avatar image
+   * Validate and optimize avatar image using domain specifications
    *
    * Performs the following operations:
-   * 1. Validates file size (max 5MB)
+   * 1. Validates file size using ImageSpecs
    * 2. Validates file format (images only)
-   * 3. Validates dimensions (max 4000x4000px)
-   * 4. Resizes to 256x256px
-   * 5. Converts to JPEG with 85% quality
+   * 3. Validates dimensions using ImageSpecs
+   * 4. Resizes to target size from ImageSpecs
+   * 5. Converts to target format/quality from ImageSpecs
    *
    * @param file - Uploaded file from Multer
-   * @returns Processed image buffer
+   * @returns Processed image value object
    * @throws {BadRequestException} If validation fails
-   *
-   * @example
-   * ```typescript
-   * @Post('avatar')
-   * @UseInterceptors(FileInterceptor('avatar'))
-   * async uploadAvatar(@UploadedFile() file: Express.Multer.File) {
-   *   const processed = await this.imagesService.processAvatar(file);
-   *   // Save processed.buffer
-   * }
-   * ```
    */
-  async processAvatar(file: Express.Multer.File): Promise<ProcessedImage> {
+  async processAvatar(file: Express.Multer.File): Promise<DomainProcessedImage> {
     this.logger.log(
       `Processing avatar: ${file.originalname} (${file.size} bytes)`,
     );
 
-    // Validate file size
-    if (file.size > this.MAX_FILE_SIZE) {
+    // Use domain specs for avatar processing
+    const specs = ImageSpecs.forAvatar();
+
+    // Validate file size using domain specs
+    if (!specs.isValidFileSize(file.size)) {
       throw new BadRequestException(
-        `File too large. Maximum size is ${this.MAX_FILE_SIZE / 1024 / 1024}MB`,
+        `File too large. Maximum size is ${specs.getMaxFileSizeInMB()}MB`,
       );
     }
 
@@ -104,24 +71,24 @@ export class ImagesService {
       // Get metadata
       const metadata = await image.metadata();
 
-      // Validate dimensions
+      // Validate dimensions using domain specs
       const width = metadata.width || 0;
       const height = metadata.height || 0;
 
-      if (width > this.MAX_DIMENSIONS || height > this.MAX_DIMENSIONS) {
+      if (!specs.isValidDimensions(width, height)) {
         throw new BadRequestException(
-          `Image too large. Maximum dimensions are ${this.MAX_DIMENSIONS}x${this.MAX_DIMENSIONS}px`,
+          `Image too large. Maximum dimensions are ${specs.maxDimensions}x${specs.maxDimensions}px`,
         );
       }
 
-      // Resize and optimize for avatar
+      // Resize and optimize using specs from domain
       image = image
-        .resize(this.AVATAR_SIZE, this.AVATAR_SIZE, {
+        .resize(specs.targetSize!, specs.targetSize!, {
           fit: 'cover',
           position: 'center',
         })
         .jpeg({
-          quality: this.AVATAR_QUALITY,
+          quality: specs.quality!,
           progressive: true, // Better for web
         });
 
@@ -131,13 +98,15 @@ export class ImagesService {
         `Avatar processed: ${file.originalname} → ${buffer.info.width}x${buffer.info.height} (${buffer.info.size} bytes)`,
       );
 
-      return {
+      // Return domain ProcessedImage value object
+      return new DomainProcessedImage({
         buffer: buffer.data,
         width: buffer.info.width,
         height: buffer.info.height,
-        format: 'jpeg',
+        format: specs.format!,
         size: buffer.info.size,
-      };
+        originalName: file.originalname,
+      });
     } catch (error) {
       this.logger.error('Failed to process avatar', error);
 
@@ -157,12 +126,6 @@ export class ImagesService {
    * @param buffer - Processed image buffer
    * @param userId - User ID for filename
    * @returns Relative URL to saved avatar
-   *
-   * @example
-   * ```typescript
-   * const url = await this.imagesService.saveAvatar(buffer, 'user-123');
-   * // Returns: '/uploads/avatars/user-123-1234567890.jpg'
-   * ```
    */
   async saveAvatar(buffer: Buffer, userId: string): Promise<string> {
     const filename = `avatar-${userId}-${Date.now()}.jpg`;
@@ -186,11 +149,6 @@ export class ImagesService {
    *
    * @param imageUrl - URL of the avatar to delete
    * @returns Promise that resolves when deleted
-   *
-   * @example
-   * ```typescript
-   * await this.imagesService.deleteAvatar('/uploads/avatars/user-123-1234567890.jpg');
-   * ```
    */
   async deleteAvatar(imageUrl: string): Promise<void> {
     if (!imageUrl) {
@@ -218,25 +176,17 @@ export class ImagesService {
   /**
    * Validate image without processing
    *
-   * Use this when you need to validate an image but don't need to process it yet.
+   * Uses domain specs for validation logic.
    *
    * @param file - File to validate
    * @returns Promise that resolves if valid, rejects if invalid
-   *
-   * @example
-   * ```typescript
-   * try {
-   *   await this.imagesService.validateImage(file);
-   *   // Image is valid
-   * } catch (error) {
-   *   // Image is invalid
-   * }
-   * ```
    */
   async validateImage(file: Express.Multer.File): Promise<void> {
-    if (file.size > this.MAX_FILE_SIZE) {
+    const specs = ImageSpecs.forAvatar();
+
+    if (!specs.isValidFileSize(file.size)) {
       throw new BadRequestException(
-        `File too large. Maximum size is ${this.MAX_FILE_SIZE / 1024 / 1024}MB`,
+        `File too large. Maximum size is ${specs.getMaxFileSizeInMB()}MB`,
       );
     }
 
@@ -250,11 +200,10 @@ export class ImagesService {
       if (
         !metadata.width ||
         !metadata.height ||
-        metadata.width > this.MAX_DIMENSIONS ||
-        metadata.height > this.MAX_DIMENSIONS
+        !specs.isValidDimensions(metadata.width, metadata.height)
       ) {
         throw new BadRequestException(
-          `Invalid image dimensions. Maximum is ${this.MAX_DIMENSIONS}x${this.MAX_DIMENSIONS}px`,
+          `Invalid image dimensions. Maximum is ${specs.maxDimensions}x${specs.maxDimensions}px`,
         );
       }
     } catch (error) {

@@ -35,6 +35,7 @@ import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
 import { PrismaFocusRepository } from './prisma-focus.repository';
 import { PrismaMeetingRepository } from './prisma-meeting.repository';
 import { PrismaSearchRepository } from '../search/prisma-search.repository';
+import { PrismaActivityRepository } from './prisma-activity.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -225,6 +226,11 @@ import { PrismaSearchRepository } from '../search/prisma-search.repository';
       useFactory: (semanticSearch: SemanticSearchService) => new PrismaSearchRepository(semanticSearch),
       inject: [SemanticSearchService],
     },
+    {
+      provide: 'ActivityRepository',
+      useFactory: (prisma: PrismaService) => new PrismaActivityRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -260,6 +266,7 @@ import { PrismaSearchRepository } from '../search/prisma-search.repository';
     'FocusRepository',
     'MeetingRepository',
     'SearchRepository',
+    'ActivityRepository',
   ],
 })
 export class RepositoriesModule { }

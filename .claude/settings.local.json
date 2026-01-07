@@ -99,7 +99,13 @@
       "Bash(if:*)",
       "Bash(then grep -B30 \"253:11\" apps/backend/lint-new.txt)",
       "Bash(else grep:*)",
-      "Bash(fi:*)"
+      "Bash(fi:*)",
+      "Bash(git config:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh auth setup-git:*)",
+      "Bash(gh repo set-default:*)",
+      "Bash(gh repo sync:*)"
     ],
     "deny": [],
     "ask": []

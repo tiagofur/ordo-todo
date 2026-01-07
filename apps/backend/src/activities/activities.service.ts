@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
 import { ActivityType, Prisma } from '@prisma/client';
+import { LogActivityUseCase } from '@ordo-todo/core';
 
 interface CreateActivityData {
   taskId: string;
@@ -14,23 +14,21 @@ interface CreateActivityData {
   };
 }
 
+/**
+ * Activities service for logging task-related actions
+ *
+ * Refactored to use domain layer (LogActivityUseCase)
+ * instead of direct Prisma calls.
+ */
 @Injectable()
 export class ActivitiesService {
   private readonly logger = new Logger(ActivitiesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly logActivityUseCase: LogActivityUseCase) {}
 
   async createActivity(data: CreateActivityData): Promise<void> {
     try {
-      await this.prisma.activity.create({
-        data: {
-          taskId: data.taskId,
-          userId: data.userId,
-          type: data.type,
-          metadata: (data.metadata || {}) as Prisma.InputJsonValue,
-        },
-      });
-
+      await this.logActivityUseCase.execute(data);
       this.logger.log(`Activity: ${data.type} on task ${data.taskId}`);
     } catch (error) {
       this.logger.error(`Failed to log activity: ${data.type}`, error);
