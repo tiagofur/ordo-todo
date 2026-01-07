@@ -14,7 +14,7 @@ export class NewsletterService {
   constructor(
     @Inject('NewsletterRepository')
     private readonly newsletterRepository: INewsletterRepository,
-  ) { }
+  ) {}
 
   async subscribe(data: SubscribeDto) {
     const { email, userId } = data;
@@ -35,7 +35,8 @@ export class NewsletterService {
 
     // Check if subscription exists by userId if provided
     if (userId) {
-      const existingByUser = await this.newsletterRepository.findByUserId(userId);
+      const existingByUser =
+        await this.newsletterRepository.findByUserId(userId);
       if (existingByUser) {
         // User already has a subscription, update their email
         return this.newsletterRepository.update(existingByUser.id as string, {

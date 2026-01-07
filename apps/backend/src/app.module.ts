@@ -38,6 +38,8 @@ import { ContactModule } from './contact/contact.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
 import { NotesModule } from './notes/notes.module';
 import { ImagesModule } from './images/images.module';
+import { FAQModule } from './faq/faq.module';
+import { KnowledgeBaseModule } from './knowledge-base/knowledge-base.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -94,6 +96,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     NewsletterModule,
     ContactModule,
     RoadmapModule,
+    FAQModule,
+    KnowledgeBaseModule,
     WinstonModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
@@ -109,4 +113,4 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

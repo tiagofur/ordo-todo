@@ -2,18 +2,28 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
+import {
+  CustomField,
+  CustomFieldValue,
+  CustomFieldType,
+} from '@ordo-todo/core';
+import type { ICustomFieldRepository } from '@ordo-todo/core';
 import { PrismaService } from '@/database/prisma.service';
 import {
   CreateCustomFieldDto,
   UpdateCustomFieldDto,
   SetCustomFieldValueDto,
-  CustomFieldType,
 } from './dto';
 
 @Injectable()
 export class CustomFieldsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject('CustomFieldRepository')
+    private readonly customFieldRepository: ICustomFieldRepository,
+    private readonly prisma: PrismaService, // Keep for existence checks of other entities if needed, or better, use other repositories
+  ) { }
 
   /**
    * Get all custom fields for a project
@@ -27,10 +37,7 @@ export class CustomFieldsService {
       throw new NotFoundException('Project not found');
     }
 
-    return this.prisma.client.customField.findMany({
-      where: { projectId },
-      orderBy: { position: 'asc' },
-    });
+    return this.customFieldRepository.findByProject(projectId);
   }
 
   /**
@@ -45,74 +52,54 @@ export class CustomFieldsService {
       throw new NotFoundException('Project not found');
     }
 
-    // Validate options for SELECT types
-    if (
-      (dto.type === CustomFieldType.SELECT ||
-        dto.type === CustomFieldType.MULTI_SELECT) &&
-      (!dto.options || dto.options.length === 0)
-    ) {
-      throw new BadRequestException(
-        'SELECT and MULTI_SELECT fields require at least one option',
-      );
+    const field = CustomField.create({
+      name: dto.name,
+      type: dto.type as unknown as CustomFieldType,
+      projectId,
+      description: dto.description,
+      options: dto.options,
+      isRequired: dto.isRequired,
+      position: dto.position,
+    });
+
+    if (field.position === 0) {
+      const maxPos = await this.customFieldRepository.getMaxPosition(projectId);
+      field.position = maxPos + 1;
     }
 
-    // Get max position
-    const maxPos = await this.prisma.client.customField.aggregate({
-      where: { projectId },
-      _max: { position: true },
-    });
-
-    return this.prisma.client.customField.create({
-      data: {
-        name: dto.name,
-        type: dto.type,
-        description: dto.description,
-        options: dto.options,
-        isRequired: dto.isRequired ?? false,
-        position: dto.position ?? (maxPos._max.position ?? 0) + 1,
-        projectId,
-      },
-    });
+    return this.customFieldRepository.create(field);
   }
 
   /**
    * Update a custom field
    */
   async updateCustomField(fieldId: string, dto: UpdateCustomFieldDto) {
-    const field = await this.prisma.client.customField.findUnique({
-      where: { id: fieldId },
-    });
+    const field = await this.customFieldRepository.findById(fieldId);
     if (!field) {
       throw new NotFoundException('Custom field not found');
     }
 
-    return this.prisma.client.customField.update({
-      where: { id: fieldId },
-      data: {
-        name: dto.name,
-        description: dto.description,
-        options: dto.options,
-        isRequired: dto.isRequired,
-        position: dto.position,
-      },
+    field.update({
+      name: dto.name,
+      description: dto.description,
+      options: dto.options,
+      isRequired: dto.isRequired,
+      position: dto.position,
     });
+
+    return this.customFieldRepository.update(field);
   }
 
   /**
    * Delete a custom field (and all its values)
    */
   async deleteCustomField(fieldId: string) {
-    const field = await this.prisma.client.customField.findUnique({
-      where: { id: fieldId },
-    });
+    const field = await this.customFieldRepository.findById(fieldId);
     if (!field) {
       throw new NotFoundException('Custom field not found');
     }
 
-    await this.prisma.client.customField.delete({
-      where: { id: fieldId },
-    });
-
+    await this.customFieldRepository.delete(fieldId);
     return { success: true };
   }
 
@@ -120,12 +107,7 @@ export class CustomFieldsService {
    * Get custom field values for a task
    */
   async getTaskCustomValues(taskId: string) {
-    return this.prisma.client.customFieldValue.findMany({
-      where: { taskId },
-      include: {
-        field: true,
-      },
-    });
+    return this.customFieldRepository.findValuesByTask(taskId);
   }
 
   /**
@@ -144,39 +126,25 @@ export class CustomFieldsService {
     const results = await Promise.all(
       values.map(async (v) => {
         // Verify field exists
-        const field = await this.prisma.client.customField.findUnique({
-          where: { id: v.fieldId },
-        });
+        const field = await this.customFieldRepository.findById(v.fieldId);
         if (!field) {
           throw new NotFoundException(`Custom field ${v.fieldId} not found`);
         }
 
         // Validate value based on field type
         this.validateFieldValue(
-          field.type as CustomFieldType,
+          field.type,
           v.value,
-          field.options as string[] | null,
+          field.options || null,
         );
 
-        return this.prisma.client.customFieldValue.upsert({
-          where: {
-            fieldId_taskId: {
-              fieldId: v.fieldId,
-              taskId,
-            },
-          },
-          create: {
-            fieldId: v.fieldId,
-            taskId,
-            value: v.value,
-          },
-          update: {
-            value: v.value,
-          },
-          include: {
-            field: true,
-          },
+        const customValue = CustomFieldValue.create({
+          fieldId: v.fieldId,
+          taskId,
+          value: v.value,
         });
+
+        return this.customFieldRepository.upsertValue(customValue);
       }),
     );
 

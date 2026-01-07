@@ -42,8 +42,7 @@ export class AttachmentsController {
   constructor(
     private readonly attachmentsService: AttachmentsService,
     private readonly prisma: PrismaService,
-  ) { }
-
+  ) {}
 
   @Get('project/:projectId')
   @ApiOperation({

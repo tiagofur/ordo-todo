@@ -10,4 +10,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [ChangelogService],
   exports: [ChangelogService],
 })
-export class ChangelogModule { }
+export class ChangelogModule {}

@@ -11,4 +11,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [ChatService, ProductivityCoachService],
   exports: [ChatService, ProductivityCoachService],
 })
-export class ChatModule { }
+export class ChatModule {}

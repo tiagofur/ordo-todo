@@ -11,4 +11,4 @@ import { AIModule } from '../ai/ai.module';
   providers: [BlogPostService],
   exports: [],
 })
-export class BlogPostModule { }
+export class BlogPostModule {}

@@ -25,7 +25,7 @@ import { Public } from '../common/decorators/public.decorator';
 @ApiTags('Contact')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) { }
+  constructor(private readonly contactService: ContactService) {}
 
   @Post()
   @Public()

@@ -6,10 +6,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WsThrottleGuard } from '../common/guards/ws-throttle.guard';
 import { DatabaseModule } from '../database/database.module';
+import { RepositoriesModule } from '../repositories/repositories.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    RepositoriesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -30,4 +32,4 @@ import { DatabaseModule } from '../database/database.module';
   ],
   exports: [CollaborationGateway, TeamWorkloadService],
 })
-export class CollaborationModule {}
+export class CollaborationModule { }

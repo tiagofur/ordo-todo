@@ -30,7 +30,7 @@ import type { User } from '@prisma/client';
 @ApiTags('Blog')
 @Controller('blog')
 export class BlogPostController {
-  constructor(private readonly blogPostService: BlogPostService) { }
+  constructor(private readonly blogPostService: BlogPostService) {}
 
   @Get()
   @Public()

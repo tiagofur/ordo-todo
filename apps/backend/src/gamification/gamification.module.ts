@@ -9,4 +9,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [GamificationService],
   exports: [GamificationService],
 })
-export class GamificationModule { }
+export class GamificationModule {}

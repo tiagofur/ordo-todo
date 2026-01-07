@@ -145,9 +145,11 @@ describe('AttachmentsService', () => {
     it('should return an attachment with uploader and task details', async () => {
       attachmentRepository.findById.mockResolvedValue(mockAttachment);
 
-      const result = await service.findOne('attachment-123') as any;
+      const result = (await service.findOne('attachment-123')) as any;
 
-      expect(attachmentRepository.findById).toHaveBeenCalledWith('attachment-123');
+      expect(attachmentRepository.findById).toHaveBeenCalledWith(
+        'attachment-123',
+      );
       expect(result.task).toBeDefined();
       expect(result.uploadedBy).toEqual({
         id: 'user-123',
@@ -201,9 +203,7 @@ describe('AttachmentsService', () => {
         userId: 'user-456',
       });
 
-      attachmentRepository.findById.mockResolvedValue(
-        differentUserAttachment,
-      );
+      attachmentRepository.findById.mockResolvedValue(differentUserAttachment);
       attachmentRepository.update.mockResolvedValue(mockAttachment);
 
       const result = await service.update(
@@ -219,11 +219,7 @@ describe('AttachmentsService', () => {
       attachmentRepository.findById.mockResolvedValue(null);
 
       await expect(
-        service.update(
-          'non-existent',
-          {} as CreateAttachmentDto,
-          'user-123',
-        ),
+        service.update('non-existent', {} as CreateAttachmentDto, 'user-123'),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -238,19 +234,13 @@ describe('AttachmentsService', () => {
         ownerId: 'user-789',
       };
 
-      attachmentRepository.findById.mockResolvedValue(
-        differentUserAttachment,
-      );
+      attachmentRepository.findById.mockResolvedValue(differentUserAttachment);
       (prisma.task.findUnique as jest.Mock).mockResolvedValue(
         differentOwnerTask,
       );
 
       await expect(
-        service.update(
-          'attachment-123',
-          {} as CreateAttachmentDto,
-          'user-999',
-        ),
+        service.update('attachment-123', {} as CreateAttachmentDto, 'user-999'),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -267,7 +257,9 @@ describe('AttachmentsService', () => {
 
       const result = await service.remove('attachment-123', 'user-123');
 
-      expect(attachmentRepository.delete).toHaveBeenCalledWith('attachment-123');
+      expect(attachmentRepository.delete).toHaveBeenCalledWith(
+        'attachment-123',
+      );
       expect(result).toEqual({ success: true });
 
       unlinkSpy.mockRestore();
@@ -276,9 +268,9 @@ describe('AttachmentsService', () => {
     it('should throw NotFoundException when attachment not found', async () => {
       attachmentRepository.findById.mockResolvedValue(null);
 
-      await expect(
-        service.remove('non-existent', 'user-123'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('non-existent', 'user-123')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ForbiddenException when user is not owner', async () => {
@@ -292,9 +284,7 @@ describe('AttachmentsService', () => {
         ownerId: 'user-789',
       };
 
-      attachmentRepository.findById.mockResolvedValue(
-        differentUserAttachment,
-      );
+      attachmentRepository.findById.mockResolvedValue(differentUserAttachment);
       (prisma.task.findUnique as jest.Mock).mockResolvedValue(
         differentOwnerTask,
       );
@@ -321,7 +311,9 @@ describe('AttachmentsService', () => {
 
       const result = await service.findByTask('task-123');
 
-      expect(attachmentRepository.findByTaskId).toHaveBeenCalledWith('task-123');
+      expect(attachmentRepository.findByTaskId).toHaveBeenCalledWith(
+        'task-123',
+      );
       expect(result).toHaveLength(2);
       expect(result[0].uploadedBy).toEqual({
         id: 'user-123',
@@ -404,7 +396,9 @@ describe('AttachmentsService', () => {
 
       const result = await service.findByUser('user-123');
 
-      expect(attachmentRepository.findByUserId).toHaveBeenCalledWith('user-123');
+      expect(attachmentRepository.findByUserId).toHaveBeenCalledWith(
+        'user-123',
+      );
       expect(result).toHaveLength(2);
     });
   });
@@ -443,9 +437,7 @@ describe('AttachmentsService', () => {
         .mockResolvedValue(['file1.pdf', 'file2.jpg'] as any);
 
       (prisma.attachment.findFirst as jest.Mock).mockResolvedValue(null);
-      jest
-        .spyOn(require('fs/promises'), 'unlink')
-        .mockResolvedValue(undefined);
+      jest.spyOn(require('fs/promises'), 'unlink').mockResolvedValue(undefined);
 
       const result = await service.cleanOrphanedFiles();
 

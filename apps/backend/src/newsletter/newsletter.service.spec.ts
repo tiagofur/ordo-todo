@@ -89,7 +89,9 @@ describe('NewsletterService', () => {
 
       const result = await service.unsubscribe({ email: 'test@test.com' });
 
-      expect(newsletterRepository.update).toHaveBeenCalledWith('sub-1', { active: false });
+      expect(newsletterRepository.update).toHaveBeenCalledWith('sub-1', {
+        active: false,
+      });
       expect(result.active).toBe(false);
     });
 

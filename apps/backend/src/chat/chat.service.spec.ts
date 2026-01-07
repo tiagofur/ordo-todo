@@ -50,7 +50,9 @@ describe('ChatService', () => {
 
     service = module.get<ChatService>(ChatService);
     chatRepository = module.get('ChatRepository');
-    coachService = module.get<ProductivityCoachService>(ProductivityCoachService) as jest.Mocked<ProductivityCoachService>;
+    coachService = module.get<ProductivityCoachService>(
+      ProductivityCoachService,
+    ) as jest.Mocked<ProductivityCoachService>;
   });
 
   it('should be defined', () => {
@@ -119,10 +121,13 @@ describe('ChatService', () => {
         offset: 0,
       });
 
-      expect(chatRepository.findConversationsByUserId).toHaveBeenCalledWith(mockUserId, {
-        limit: 20,
-        offset: 0,
-      });
+      expect(chatRepository.findConversationsByUserId).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          limit: 20,
+          offset: 0,
+        },
+      );
       expect(result.total).toBe(1);
       expect(result.conversations).toHaveLength(1);
     });
@@ -221,7 +226,7 @@ describe('ChatService', () => {
       expect(chatRepository.updateConversation).toHaveBeenCalledWith(
         mockConversationId,
         mockUserId,
-        expect.objectContaining({ isArchived: true })
+        expect.objectContaining({ isArchived: true }),
       );
     });
   });

@@ -27,6 +27,10 @@ import { PrismaGamificationRepository } from './prisma-gamification.repository';
 import { PrismaChatRepository } from './prisma-chat.repository';
 import { PrismaTaskTemplateRepository } from './prisma-task-template.repository';
 import { PrismaObjectiveRepository } from './prisma-objective.repository';
+import { PrismaFAQRepository } from './prisma-faq.repository';
+import { PrismaKBRepository } from './prisma-kb.repository';
+import { PrismaCollaborationRepository } from './prisma-collaboration.repository';
+import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -125,8 +129,7 @@ import { PrismaObjectiveRepository } from './prisma-objective.repository';
     },
     {
       provide: 'HabitRepository',
-      useFactory: (prisma: PrismaService) =>
-        new PrismaHabitRepository(prisma),
+      useFactory: (prisma: PrismaService) => new PrismaHabitRepository(prisma),
       inject: [PrismaService],
     },
     {
@@ -155,8 +158,7 @@ import { PrismaObjectiveRepository } from './prisma-objective.repository';
     },
     {
       provide: 'BlogRepository',
-      useFactory: (prisma: PrismaService) =>
-        new PrismaBlogRepository(prisma),
+      useFactory: (prisma: PrismaService) => new PrismaBlogRepository(prisma),
       inject: [PrismaService],
     },
     {
@@ -167,8 +169,7 @@ import { PrismaObjectiveRepository } from './prisma-objective.repository';
     },
     {
       provide: 'ChatRepository',
-      useFactory: (prisma: PrismaService) =>
-        new PrismaChatRepository(prisma),
+      useFactory: (prisma: PrismaService) => new PrismaChatRepository(prisma),
       inject: [PrismaService],
     },
     {
@@ -181,6 +182,28 @@ import { PrismaObjectiveRepository } from './prisma-objective.repository';
       provide: 'ObjectiveRepository',
       useFactory: (prisma: PrismaService) =>
         new PrismaObjectiveRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'FAQRepository',
+      useFactory: (prisma: PrismaService) => new PrismaFAQRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'KBRepository',
+      useFactory: (prisma: PrismaService) => new PrismaKBRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'CollaborationRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaCollaborationRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'CustomFieldRepository',
+      useFactory: (prisma: PrismaService) =>
+        new PrismaCustomFieldRepository(prisma),
       inject: [PrismaService],
     },
   ],
@@ -211,6 +234,10 @@ import { PrismaObjectiveRepository } from './prisma-objective.repository';
     'ChatRepository',
     'TaskTemplateRepository',
     'ObjectiveRepository',
+    'FAQRepository',
+    'KBRepository',
+    'CollaborationRepository',
+    'CustomFieldRepository',
   ],
 })
 export class RepositoriesModule { }

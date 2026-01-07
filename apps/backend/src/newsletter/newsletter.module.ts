@@ -10,4 +10,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [NewsletterService],
   exports: [NewsletterService],
 })
-export class NewsletterModule { }
+export class NewsletterModule {}

@@ -17,7 +17,7 @@ export class RoadmapService {
     @Inject('RoadmapRepository')
     private readonly roadmapRepository: IRoadmapRepository,
     private readonly prisma: PrismaService, // Still needed for user/subscription lookup for now
-  ) { }
+  ) {}
 
   async create(data: CreateRoadmapItemDto) {
     const item = RoadmapItem.create({
@@ -28,11 +28,7 @@ export class RoadmapService {
     return this.roadmapRepository.createItem(item);
   }
 
-  async findAll(params: {
-    skip?: number;
-    take?: number;
-    status?: string;
-  }) {
+  async findAll(params: { skip?: number; take?: number; status?: string }) {
     return this.roadmapRepository.findAllItems({
       skip: params.skip,
       take: params.take,

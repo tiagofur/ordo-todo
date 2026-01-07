@@ -10,11 +10,7 @@ import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
 import { GamificationService } from '../gamification/gamification.service';
-import {
-  Habit,
-  HabitFrequency,
-  TimeOfDay,
-} from '@ordo-todo/core';
+import { Habit, HabitFrequency, TimeOfDay } from '@ordo-todo/core';
 import type { IHabitRepository } from '@ordo-todo/core';
 import {
   startOfDay,
@@ -39,7 +35,7 @@ export class HabitsService {
     private readonly habitRepository: IHabitRepository,
     private readonly prisma: PrismaService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   /**
    * Create a new habit

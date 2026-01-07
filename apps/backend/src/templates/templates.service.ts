@@ -7,8 +7,8 @@ import { CreateTemplateDto, UpdateTemplateDto } from './dto/template.dto';
 export class TemplatesService {
   constructor(
     @Inject('TaskTemplateRepository')
-    private readonly templateRepository: ITaskTemplateRepository
-  ) { }
+    private readonly templateRepository: ITaskTemplateRepository,
+  ) {}
 
   async create(dto: CreateTemplateDto): Promise<TaskTemplate> {
     const template = TaskTemplate.create({

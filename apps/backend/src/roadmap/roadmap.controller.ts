@@ -28,7 +28,7 @@ import { Public } from '../common/decorators/public.decorator';
 @ApiTags('Roadmap')
 @Controller('roadmap')
 export class RoadmapController {
-  constructor(private readonly roadmapService: RoadmapService) { }
+  constructor(private readonly roadmapService: RoadmapService) {}
 
   @Get()
   @Public()

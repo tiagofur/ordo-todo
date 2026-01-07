@@ -143,7 +143,9 @@ export class AttachmentsService {
     );
 
     try {
-      const attachment = await getAttachmentByIdUseCase.execute({ attachmentId: id });
+      const attachment = await getAttachmentByIdUseCase.execute({
+        attachmentId: id,
+      });
 
       // Enrich with task details as well
       return this.enrichWithUploaderAndTask(attachment);
@@ -197,10 +199,7 @@ export class AttachmentsService {
       select: { ownerId: true },
     });
 
-    if (
-      existingAttachment.userId !== userId &&
-      task?.ownerId !== userId
-    ) {
+    if (existingAttachment.userId !== userId && task?.ownerId !== userId) {
       throw new ForbiddenException(
         'You can only update your own attachments or attachments on your tasks',
       );
@@ -241,10 +240,7 @@ export class AttachmentsService {
    * // Returns: { success: true }
    * ```
    */
-  async remove(
-    id: string,
-    userId: string,
-  ): Promise<{ success: true }> {
+  async remove(id: string, userId: string): Promise<{ success: true }> {
     this.logger.debug(`Deleting attachment ${id} by user ${userId}`);
 
     // Get attachment first for file deletion
@@ -260,10 +256,7 @@ export class AttachmentsService {
       select: { ownerId: true },
     });
 
-    if (
-      existingAttachment.userId !== userId &&
-      task?.ownerId !== userId
-    ) {
+    if (existingAttachment.userId !== userId && task?.ownerId !== userId) {
       throw new ForbiddenException(
         'You can only delete your own attachments or attachments on your tasks',
       );
@@ -517,7 +510,9 @@ export class AttachmentsService {
    */
   private async enrichWithUploaderAndTask(
     attachment: Attachment,
-  ): Promise<AttachmentWithUploader & { task?: { id: string; title: string } }> {
+  ): Promise<
+    AttachmentWithUploader & { task?: { id: string; title: string } }
+  > {
     const uploader = await this.getUserById(attachment.userId);
 
     const result: AttachmentWithUploader & {

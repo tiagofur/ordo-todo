@@ -86,7 +86,9 @@ describe('ChangelogService', () => {
     it('should throw NotFoundException if not found', async () => {
       changelogRepository.findById.mockResolvedValue(null);
 
-      await expect(service.findOne('not-found')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('not-found')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

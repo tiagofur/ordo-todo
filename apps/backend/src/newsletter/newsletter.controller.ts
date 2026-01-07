@@ -27,7 +27,7 @@ import type { RequestUser } from '../common/types/request-user.interface';
 @ApiTags('Newsletter')
 @Controller('newsletter')
 export class NewsletterController {
-  constructor(private readonly newsletterService: NewsletterService) { }
+  constructor(private readonly newsletterService: NewsletterService) {}
 
   @Post('subscribe')
   @Public()

@@ -9,7 +9,7 @@ export class ContactService {
   constructor(
     @Inject('ContactRepository')
     private readonly contactRepository: IContactRepository,
-  ) { }
+  ) {}
 
   async create(data: CreateContactDto) {
     const submission = ContactSubmission.create({

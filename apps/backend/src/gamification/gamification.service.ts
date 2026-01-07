@@ -19,7 +19,7 @@ export class GamificationService implements OnModuleInit {
     private readonly gamificationRepository: IGamificationRepository,
     private readonly prisma: PrismaService, // Still needed for cross-module queries (User, Task, Timer) for now
     private readonly notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     try {
@@ -57,7 +57,9 @@ export class GamificationService implements OnModuleInit {
     ];
 
     for (const data of achievementsData) {
-      const existing = await this.gamificationRepository.findAchievementByCode(data.code);
+      const existing = await this.gamificationRepository.findAchievementByCode(
+        data.code,
+      );
 
       if (!existing) {
         const achievement = Achievement.create(data);
@@ -154,11 +156,15 @@ export class GamificationService implements OnModuleInit {
   }
 
   private async unlockAchievement(userId: string, achievementCode: string) {
-    const achievement = await this.gamificationRepository.findAchievementByCode(achievementCode);
+    const achievement =
+      await this.gamificationRepository.findAchievementByCode(achievementCode);
 
     if (!achievement) return;
 
-    const hasUnlocked = await this.gamificationRepository.hasUnlocked(userId, achievement.id as string);
+    const hasUnlocked = await this.gamificationRepository.hasUnlocked(
+      userId,
+      achievement.id as string,
+    );
 
     if (hasUnlocked) return;
 

@@ -10,4 +10,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [ObjectivesService],
   exports: [ObjectivesService],
 })
-export class ObjectivesModule { }
+export class ObjectivesModule {}

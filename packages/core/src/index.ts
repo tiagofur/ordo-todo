@@ -22,3 +22,7 @@ export * from "./gamification";
 export * from "./chat";
 export * from "./templates";
 export * from "./objectives";
+export * from "./faq";
+export * from "./knowledge-base";
+export * from "./collaboration";
+export * from "./custom-fields";

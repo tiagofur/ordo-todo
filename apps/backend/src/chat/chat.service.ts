@@ -28,7 +28,7 @@ export class ChatService {
     @Inject('ChatRepository')
     private readonly chatRepository: IChatRepository,
     private readonly coachService: ProductivityCoachService,
-  ) { }
+  ) {}
 
   /**
    * Create a new conversation, optionally with an initial message
@@ -47,7 +47,8 @@ export class ChatService {
           : null,
     });
 
-    const conversation = await this.chatRepository.createConversation(conversationEntity);
+    const conversation =
+      await this.chatRepository.createConversation(conversationEntity);
 
     // If there's an initial message, process it
     if (dto.initialMessage) {
@@ -79,10 +80,11 @@ export class ChatService {
     limit: number;
     offset: number;
   }> {
-    const { conversations, total } = await this.chatRepository.findConversationsByUserId(userId, options);
+    const { conversations, total } =
+      await this.chatRepository.findConversationsByUserId(userId, options);
 
     return {
-      conversations: conversations.map(conv => ({
+      conversations: conversations.map((conv) => ({
         id: conv.id as string,
         title: conv.title ?? null,
         context: conv.props.context ?? null,
@@ -123,15 +125,15 @@ export class ChatService {
         content: m.content,
         metadata: m.metadata as
           | {
-            actions?: Array<{
-              type: string;
-              data?: any;
-              result?: any;
-            }>;
-            suggestions?: string[];
-            modelUsed?: string;
-            processingTimeMs?: number;
-          }
+              actions?: Array<{
+                type: string;
+                data?: any;
+                result?: any;
+              }>;
+              suggestions?: string[];
+              modelUsed?: string;
+              processingTimeMs?: number;
+            }
           | undefined,
         createdAt: m.createdAt,
       })),
@@ -202,7 +204,9 @@ export class ChatService {
         processingTimeMs: processingTime,
       },
     });
-    const assistantMessage = await this.chatRepository.addMessage(assistantMessageEntity);
+    const assistantMessage = await this.chatRepository.addMessage(
+      assistantMessageEntity,
+    );
 
     // Auto-generate title from first message if not set
     const conversation = await this.chatRepository.findConversationById(
@@ -211,11 +215,9 @@ export class ChatService {
     );
     if (!conversation?.title && history.length === 0) {
       const title = this.generateTitle(dto.message);
-      await this.chatRepository.updateConversation(
-        conversationId,
-        userId,
-        { title },
-      );
+      await this.chatRepository.updateConversation(conversationId, userId, {
+        title,
+      });
     }
 
     this.logger.debug(
@@ -259,11 +261,9 @@ export class ChatService {
       );
     }
 
-    await this.chatRepository.updateConversation(
-      conversationId,
-      userId,
-      { title },
-    );
+    await this.chatRepository.updateConversation(conversationId, userId, {
+      title,
+    });
   }
 
   /**

@@ -86,7 +86,9 @@ describe('ContactService', () => {
     it('should throw NotFoundException if not found', async () => {
       contactRepository.findById.mockResolvedValue(null);
 
-      await expect(service.findOne('not-found')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('not-found')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -101,7 +103,9 @@ describe('ContactService', () => {
 
       const result = await service.markAsRead('contact-1');
 
-      expect(contactRepository.update).toHaveBeenCalledWith('contact-1', { read: true });
+      expect(contactRepository.update).toHaveBeenCalledWith('contact-1', {
+        read: true,
+      });
       expect(result.read).toBe(true);
     });
   });

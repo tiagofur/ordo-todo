@@ -10,4 +10,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [ContactService],
   exports: [ContactService],
 })
-export class ContactModule { }
+export class ContactModule {}

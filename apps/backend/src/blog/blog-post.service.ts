@@ -18,7 +18,7 @@ export class BlogPostService {
     private readonly blogRepository: IBlogRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService, // Still needed for user lookup in comments for now
-  ) { }
+  ) {}
 
   async create(data: CreatePostDto) {
     const post = BlogPost.create({
@@ -64,7 +64,9 @@ export class BlogPostService {
     }
 
     // Standard DDD: Service orchestrates fetching related data if not in aggregate
-    const comments = await this.blogRepository.findCommentsByPostId(post.id as string);
+    const comments = await this.blogRepository.findCommentsByPostId(
+      post.id as string,
+    );
 
     // We need to fetch user info for comments as well
     // For now, let's keep it simple. If the UI needs user info, we might need a more complex query.
@@ -83,7 +85,7 @@ export class BlogPostService {
           ...c.props,
           user,
         };
-      })
+      }),
     );
 
     return {
@@ -100,7 +102,8 @@ export class BlogPostService {
 
     return this.blogRepository.updatePost(id, {
       ...data,
-      publishedAt: data.published && !post.published ? new Date() : post.props.publishedAt,
+      publishedAt:
+        data.published && !post.published ? new Date() : post.props.publishedAt,
     });
   }
 

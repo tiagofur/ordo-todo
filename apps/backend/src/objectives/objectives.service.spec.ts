@@ -46,8 +46,8 @@ describe('ObjectivesService', () => {
       client: {
         task: {
           findFirst: jest.fn(),
-        }
-      }
+        },
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -106,7 +106,9 @@ describe('ObjectivesService', () => {
     it('should throw NotFoundException when objective not found', async () => {
       objectiveRepository.findById.mockResolvedValue(null);
 
-      await expect(service.findOne('invalid', userId)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('invalid', userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -115,7 +117,11 @@ describe('ObjectivesService', () => {
       objectiveRepository.findById.mockResolvedValue(mockObjective);
       objectiveRepository.update.mockResolvedValue(mockObjective);
 
-      const result = await service.update(objectiveId, { title: 'Updated' }, userId);
+      const result = await service.update(
+        objectiveId,
+        { title: 'Updated' },
+        userId,
+      );
 
       expect(objectiveRepository.update).toHaveBeenCalled();
       expect(result).toBeDefined();
@@ -150,7 +156,11 @@ describe('ObjectivesService', () => {
       objectiveRepository.createKeyResult.mockResolvedValue(kr);
       objectiveRepository.update.mockResolvedValue(mockObjective);
 
-      const result = await service.addKeyResult(objectiveId, { title: 'Test KR', targetValue: 100 } as any, userId);
+      const result = await service.addKeyResult(
+        objectiveId,
+        { title: 'Test KR', targetValue: 100 } as any,
+        userId,
+      );
 
       expect(objectiveRepository.createKeyResult).toHaveBeenCalled();
       expect(result).toBeDefined();

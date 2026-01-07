@@ -10,4 +10,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [RoadmapService],
   exports: [RoadmapService],
 })
-export class RoadmapModule { }
+export class RoadmapModule {}

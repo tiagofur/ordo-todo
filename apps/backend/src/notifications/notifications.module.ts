@@ -31,4 +31,4 @@ import { AIModule } from '../ai/ai.module';
   ],
   exports: [NotificationsService, NotificationsGateway],
 })
-export class NotificationsModule { }
+export class NotificationsModule {}

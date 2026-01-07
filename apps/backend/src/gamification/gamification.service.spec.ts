@@ -116,7 +116,9 @@ describe('GamificationService', () => {
       prisma.client.user.findUnique.mockResolvedValue({ xp: 0, level: 1 });
       prisma.client.user.update.mockResolvedValue({});
       prisma.client.task.count.mockResolvedValue(1);
-      gamificationRepository.findAchievementByCode.mockResolvedValue(mockAchievement);
+      gamificationRepository.findAchievementByCode.mockResolvedValue(
+        mockAchievement,
+      );
       gamificationRepository.hasUnlocked.mockResolvedValue(true);
 
       await service.awardTaskCompletion('user-123');
@@ -130,7 +132,9 @@ describe('GamificationService', () => {
       const userId = 'user-123';
       const achievementCode = 'FIRST_TASK';
 
-      gamificationRepository.findAchievementByCode.mockResolvedValue(mockAchievement);
+      gamificationRepository.findAchievementByCode.mockResolvedValue(
+        mockAchievement,
+      );
       gamificationRepository.hasUnlocked.mockResolvedValue(false);
       gamificationRepository.unlockAchievement.mockResolvedValue({} as any);
 
@@ -145,7 +149,7 @@ describe('GamificationService', () => {
       expect(mockNotificationsService.create).toHaveBeenCalledWith(
         expect.objectContaining({
           title: '¡Logro Desbloqueado!',
-        })
+        }),
       );
     });
   });

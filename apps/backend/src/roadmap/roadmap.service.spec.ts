@@ -148,7 +148,9 @@ describe('RoadmapService', () => {
   describe('updateStatus', () => {
     it('should update item status', async () => {
       roadmapRepository.findItemById.mockResolvedValue(mockItem);
-      roadmapRepository.updateItem.mockResolvedValue(mockItem.updateStatus('PLANNED'));
+      roadmapRepository.updateItem.mockResolvedValue(
+        mockItem.updateStatus('PLANNED'),
+      );
 
       await service.updateStatus('item-1', { status: 'PLANNED' as any });
 

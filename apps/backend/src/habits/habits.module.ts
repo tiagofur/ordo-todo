@@ -11,4 +11,4 @@ import { HabitsService } from './habits.service';
   providers: [HabitsService],
   exports: [HabitsService],
 })
-export class HabitsModule { }
+export class HabitsModule {}

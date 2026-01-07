@@ -25,7 +25,7 @@ import { Public } from '../common/decorators/public.decorator';
 @ApiTags('Changelog')
 @Controller('changelog')
 export class ChangelogController {
-  constructor(private readonly changelogService: ChangelogService) { }
+  constructor(private readonly changelogService: ChangelogService) {}
 
   @Get()
   @Public()

@@ -29,7 +29,7 @@ describe('BlogPostService', () => {
       },
       blogComment: {
         findUnique: jest.fn(),
-      }
+      },
     },
   };
 
@@ -134,7 +134,7 @@ describe('BlogPostService', () => {
       const result = await service.addComment(slug, userId, content);
 
       expect(blogRepository.createComment).toHaveBeenCalled();
-      expect(result.user.name).toBe('John Doe');
+      expect(result.user!.name).toBe('John Doe');
     });
   });
 });

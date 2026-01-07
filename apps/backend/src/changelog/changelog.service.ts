@@ -9,7 +9,7 @@ export class ChangelogService {
   constructor(
     @Inject('ChangelogRepository')
     private readonly changelogRepository: IChangelogRepository,
-  ) { }
+  ) {}
 
   async create(data: CreateChangelogDto) {
     const entry = ChangelogEntry.create({

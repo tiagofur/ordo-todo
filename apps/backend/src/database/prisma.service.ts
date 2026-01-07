@@ -251,4 +251,16 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get roadmapVote() {
     return this.prisma.roadmapVote;
   }
+
+  get faq() {
+    return this.prisma.faq;
+  }
+
+  get kBCategory() {
+    return this.prisma.kBCategory;
+  }
+
+  get kBArticle() {
+    return this.prisma.kBArticle;
+  }
 }

@@ -57,8 +57,8 @@ describe('NotificationsService', () => {
         id: 'notif-1',
         ...data,
         type: data.type as any,
-        message: data.message!,
-        resourceId: data.resourceId!,
+        message: data.message,
+        resourceId: data.resourceId,
         resourceType: data.resourceType as any,
         metadata: data.metadata,
       });
@@ -67,12 +67,14 @@ describe('NotificationsService', () => {
 
       const result = await service.create(data);
 
-      expect(mockNotificationRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-        props: expect.objectContaining({
-          userId: data.userId,
-          title: data.title,
-        })
-      }));
+      expect(mockNotificationRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          props: expect.objectContaining({
+            userId: data.userId,
+            title: data.title,
+          }),
+        }),
+      );
 
       expect(result.title).toBe(data.title);
       expect(result.userId).toBe(data.userId);
@@ -84,15 +86,27 @@ describe('NotificationsService', () => {
     it('should return notifications for a user', async () => {
       const userId = 'user-1';
       const notifications = [
-        new Notification({ id: 'notif-1', userId, title: 'Notif 1', type: 'SYSTEM' as any }),
-        new Notification({ id: 'notif-2', userId, title: 'Notif 2', type: 'SYSTEM' as any }),
+        new Notification({
+          id: 'notif-1',
+          userId,
+          title: 'Notif 1',
+          type: 'SYSTEM' as any,
+        }),
+        new Notification({
+          id: 'notif-2',
+          userId,
+          title: 'Notif 2',
+          type: 'SYSTEM' as any,
+        }),
       ];
 
       mockNotificationRepository.findByUserId.mockResolvedValue(notifications);
 
       const result = await service.findAll(userId);
 
-      expect(mockNotificationRepository.findByUserId).toHaveBeenCalledWith(userId);
+      expect(mockNotificationRepository.findByUserId).toHaveBeenCalledWith(
+        userId,
+      );
       expect(result).toEqual(notifications);
     });
   });
@@ -104,7 +118,9 @@ describe('NotificationsService', () => {
 
       const result = await service.getUnreadCount(userId);
 
-      expect(mockNotificationRepository.countUnreadByUserId).toHaveBeenCalledWith(userId);
+      expect(
+        mockNotificationRepository.countUnreadByUserId,
+      ).toHaveBeenCalledWith(userId);
       expect(result).toBe(5);
     });
   });
@@ -119,13 +135,13 @@ describe('NotificationsService', () => {
         userId,
         title: 'Test',
         type: 'SYSTEM' as any,
-        isRead: false
+        isRead: false,
       });
 
       const updatedNotification = new Notification({
         ...notification.props,
         isRead: true,
-        readAt: new Date()
+        readAt: new Date(),
       });
 
       mockNotificationRepository.findById.mockResolvedValue(notification);
@@ -149,7 +165,9 @@ describe('NotificationsService', () => {
 
       const result = await service.markAllAsRead(userId);
 
-      expect(mockNotificationRepository.markAllAsRead).toHaveBeenCalledWith(userId);
+      expect(mockNotificationRepository.markAllAsRead).toHaveBeenCalledWith(
+        userId,
+      );
       expect(result).toEqual({ count: 1 });
     });
   });

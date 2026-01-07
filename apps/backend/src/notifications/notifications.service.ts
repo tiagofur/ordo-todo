@@ -17,7 +17,7 @@ export class NotificationsService {
     @Inject('NotificationRepository')
     private readonly notificationRepository: NotificationRepository,
     @Optional() private gateway?: NotificationsGateway,
-  ) { }
+  ) {}
 
   async create(data: {
     userId: string;
@@ -67,7 +67,9 @@ export class NotificationsService {
   }
 
   async getUnreadCount(userId: string) {
-    const useCase = new CountUnreadNotificationsUseCase(this.notificationRepository);
+    const useCase = new CountUnreadNotificationsUseCase(
+      this.notificationRepository,
+    );
     const result = await useCase.execute({ userId });
     return result.count;
   }
