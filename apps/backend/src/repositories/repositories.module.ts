@@ -39,6 +39,11 @@ import { PrismaActivityRepository } from './prisma-activity.repository';
 import { PrismaRecurrenceRepository } from './prisma-recurrence.repository';
 import { PrismaTaskDependencyRepository } from './prisma-task-dependency.repository';
 import { PrismaSubscriptionRepository } from './prisma-subscription.repository';
+import { PrismaWorkspaceMemberRepository } from './prisma-workspace-member.repository';
+import { PrismaUserIntegrationRepository } from './prisma-user-integration.repository';
+import { PrismaAdminUserRepository } from './prisma-admin-user.repository';
+import { PrismaSessionRepository } from './prisma-session.repository';
+import { PrismaAccountRepository } from './prisma-account.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -249,6 +254,31 @@ import { PrismaSubscriptionRepository } from './prisma-subscription.repository';
       useFactory: (prisma: PrismaService) => new PrismaSubscriptionRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'WorkspaceMemberRepository',
+      useFactory: (prisma: PrismaService) => new PrismaWorkspaceMemberRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'UserIntegrationRepository',
+      useFactory: (prisma: PrismaService) => new PrismaUserIntegrationRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'AdminUserRepository',
+      useFactory: (prisma: PrismaService) => new PrismaAdminUserRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'SessionRepository',
+      useFactory: (prisma: PrismaService) => new PrismaSessionRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'AccountRepository',
+      useFactory: (prisma: PrismaService) => new PrismaAccountRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -288,6 +318,11 @@ import { PrismaSubscriptionRepository } from './prisma-subscription.repository';
     'RecurrenceRepository',
     'TaskDependencyRepository',
     'SubscriptionRepository',
+    'WorkspaceMemberRepository',
+    'UserIntegrationRepository',
+    'AdminUserRepository',
+    'SessionRepository',
+    'AccountRepository',
   ],
 })
 export class RepositoriesModule { }
