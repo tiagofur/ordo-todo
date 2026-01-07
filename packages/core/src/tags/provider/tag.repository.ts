@@ -137,6 +137,59 @@ export interface TagRepository {
     findByWorkspaceId(workspaceId: string): Promise<Tag[]>;
 
     /**
+     * Finds all tags in a workspace with their associated task counts.
+     *
+     * Used for tag lists where you need to show how many tasks each tag has.
+     * Returns tags with task count metadata for display purposes.
+     *
+     * @param workspaceId - The workspace ID to filter tags by
+     * @returns Promise resolving to an array of tags with task counts
+     *
+     * @example
+     * ```typescript
+     * const tags = await repository.findByWorkspaceIdWithTaskCount('workspace-123');
+     * tags.forEach(tag => {
+     *   console.log(`${tag.name}: ${tag.taskCount} tasks`);
+     * });
+     * ```
+     */
+    findByWorkspaceIdWithTaskCount(
+        workspaceId: string,
+    ): Promise<Array<{
+        id: string;
+        name: string;
+        color: string;
+        workspaceId: string;
+        createdAt: Date;
+        taskCount: number;
+    }>>;
+
+    /**
+     * Finds a tag by ID with its associated task count.
+     *
+     * Used for displaying a single tag with its usage statistics.
+     *
+     * @param id - The unique identifier of the tag
+     * @returns Promise resolving to the tag with task count if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const tag = await repository.findByIdWithTaskCount('tag-123');
+     * if (tag) {
+     *   console.log(`${tag.name} is used in ${tag.taskCount} tasks`);
+     * }
+     * ```
+     */
+    findByIdWithTaskCount(id: string): Promise<{
+        id: string;
+        name: string;
+        color: string;
+        workspaceId: string;
+        createdAt: Date;
+        taskCount: number;
+    } | null>;
+
+    /**
      * Deletes a tag from the repository.
      *
      * WARNING: This will also remove the tag from all tasks that have it assigned.

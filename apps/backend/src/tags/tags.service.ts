@@ -36,41 +36,18 @@ export class TagsService {
   }
 
   async findAll(workspaceId: string) {
-    // Get tags with task count from Prisma directly
-    const tagsWithCount = await this.prisma.tag.findMany({
-      where: { workspaceId },
-      include: {
-        _count: {
-          select: { tasks: true },
-        },
-      },
-    });
-
-    const result = tagsWithCount.map((tag) => ({
-      id: tag.id,
-      name: tag.name,
-      color: tag.color,
-      workspaceId: tag.workspaceId,
-      createdAt: tag.createdAt,
-      taskCount: tag._count.tasks,
-    }));
-
-    this.logger.debug(
-      `Found ${result.length} tags for workspace ${workspaceId}`,
+    // Use TagRepository to get tags with task count
+    const tags = await this.tagRepository.findByWorkspaceIdWithTaskCount(
+      workspaceId,
     );
-    return result;
+
+    this.logger.debug(`Found ${tags.length} tags for workspace ${workspaceId}`);
+    return tags;
   }
 
   async findOne(id: string) {
-    // Get tag with task count from Prisma directly
-    const tag = await this.prisma.tag.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { tasks: true },
-        },
-      },
-    });
+    // Use TagRepository to get tag with task count
+    const tag = await this.tagRepository.findByIdWithTaskCount(id);
 
     if (!tag) {
       this.logger.warn(`Tag ${id} not found`);
@@ -78,14 +55,7 @@ export class TagsService {
     }
 
     this.logger.debug(`Found tag ${id}`);
-    return {
-      id: tag.id,
-      name: tag.name,
-      color: tag.color,
-      workspaceId: tag.workspaceId,
-      createdAt: tag.createdAt,
-      taskCount: tag._count.tasks,
-    };
+    return tag;
   }
 
   async assignToTask(tagId: string, taskId: string) {

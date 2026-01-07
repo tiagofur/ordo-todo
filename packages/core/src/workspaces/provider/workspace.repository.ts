@@ -101,6 +101,58 @@ export interface WorkspaceRepository {
   findBySlug(slug: string, ownerId: string): Promise<Workspace | null>;
 
   /**
+   * Finds a workspace by owner ID and slug with complete statistics.
+   *
+   * Used for public workspace pages (e.g., /username/workspace-slug) where
+   * full workspace data with stats (projects, members, tasks) is needed.
+   *
+   * Returns workspace data with:
+   * - Owner information (id, username, name, email)
+   * - Stats (projectCount, memberCount, taskCount)
+   * - All workspace properties
+   *
+   * @param ownerId - The unique identifier of the workspace owner
+   * @param slug - The unique URL-friendly slug of the workspace
+   * @returns Promise that resolves to workspace with stats if found, null otherwise
+   *
+   * @example
+   * ```typescript
+   * const workspace = await repository.findByOwnerAndSlugWithStats('user-123', 'my-project');
+   * if (workspace) {
+   *   console.log(`${workspace.name}: ${workspace.stats.projectCount} projects`);
+   * }
+   * ```
+   */
+  findByOwnerAndSlugWithStats(
+    ownerId: string,
+    slug: string,
+  ): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    type: string;
+    tier: string;
+    color: string;
+    icon: string | null;
+    ownerId: string;
+    owner: {
+      id: string;
+      username: string;
+      name: string | null;
+      email: string | null;
+    };
+    isArchived: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    stats: {
+      projectCount: number;
+      memberCount: number;
+      taskCount: number;
+    };
+  } | null>;
+
+  /**
    * Finds all workspaces owned by a specific user.
    *
    * @param ownerId - The unique identifier of the workspace owner

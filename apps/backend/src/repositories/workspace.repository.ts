@@ -216,6 +216,98 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     });
   }
 
+  async findByOwnerAndSlugWithStats(
+    ownerId: string,
+    slug: string,
+  ): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    type: string;
+    tier: string;
+    color: string;
+    icon: string | null;
+    ownerId: string;
+    owner: {
+      id: string;
+      username: string;
+      name: string | null;
+      email: string | null;
+    };
+    isArchived: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    stats: {
+      projectCount: number;
+      memberCount: number;
+      taskCount: number;
+    };
+  } | null> {
+    const workspace = await this.prisma.workspace.findUnique({
+      where: {
+        ownerId_slug: {
+          ownerId,
+          slug,
+        },
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
+        _count: {
+          select: {
+            projects: true,
+            members: true,
+          },
+        },
+        projects: {
+          select: {
+            _count: {
+              select: { tasks: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!workspace || workspace.isDeleted) {
+      return null;
+    }
+
+    // Format stats manually
+    const taskCount = workspace.projects.reduce(
+      (acc, p) => acc + p._count.tasks,
+      0,
+    );
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      description: workspace.description,
+      type: workspace.type,
+      tier: workspace.tier,
+      color: workspace.color,
+      icon: workspace.icon,
+      ownerId: workspace.ownerId,
+      owner: workspace.owner,
+      isArchived: workspace.isArchived,
+      createdAt: workspace.createdAt,
+      updatedAt: workspace.updatedAt,
+      stats: {
+        projectCount: workspace._count.projects,
+        memberCount: workspace._count.members,
+        taskCount: taskCount,
+      },
+    };
+  }
+
   async findByOwnerId(ownerId: string): Promise<Workspace[]> {
     const workspaces = await this.prisma.workspace.findMany({
       where: { ownerId, isDeleted: false },

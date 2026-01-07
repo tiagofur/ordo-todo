@@ -568,4 +568,30 @@ export interface TimerRepository {
       } | null;
     }>
   >;
+
+  /**
+   * Counts completed time sessions for a user with optional filters.
+   *
+   * Used for gamification features where users earn achievements based on
+   * completed pomodoros, total sessions, etc. Supports filtering by session type.
+   *
+   * @param userId - The user ID to count sessions for
+   * @param type - Optional session type filter (e.g., 'WORK', 'SHORT_BREAK', 'LONG_BREAK')
+   * @returns Promise resolving to the count of completed sessions
+   *
+   * @example
+   * ```typescript
+   * // Count all completed pomodoros (WORK sessions)
+   * const pomodoroCount = await repository.countCompletedSessions('user-123', 'WORK');
+   * console.log(`User has completed ${pomodoroCount} pomodoros`);
+   *
+   * // Count all completed sessions regardless of type
+   * const totalSessions = await repository.countCompletedSessions('user-123');
+   * console.log(`User has completed ${totalSessions} sessions total`);
+   * ```
+   */
+  countCompletedSessions(
+    userId: string,
+    type?: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK',
+  ): Promise<number>;
 }

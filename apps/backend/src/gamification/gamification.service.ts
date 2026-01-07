@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { Achievement, UserAchievement } from '@ordo-todo/core';
-import type { IGamificationRepository } from '@ordo-todo/core';
+import type { IGamificationRepository, UserRepository, TimerRepository, AnalyticsRepository } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
@@ -17,7 +17,13 @@ export class GamificationService implements OnModuleInit {
   constructor(
     @Inject('GamificationRepository')
     private readonly gamificationRepository: IGamificationRepository,
-    private readonly prisma: PrismaService, // Still needed for cross-module queries (User, Task, Timer) for now
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
+    @Inject('TimerRepository')
+    private readonly timerRepository: TimerRepository,
+    @Inject('AnalyticsRepository')
+    private readonly analyticsRepository: AnalyticsRepository,
+    private readonly prisma: PrismaService, // Still needed for User XP/Level lookup (can be further optimized)
     private readonly notificationsService: NotificationsService,
   ) {}
 
@@ -70,7 +76,7 @@ export class GamificationService implements OnModuleInit {
   }
 
   async addXp(userId: string, amount: number, source: string) {
-    // Only select xp and level needed for the calculation
+    // Get current XP and level from User entity
     const user = await this.prisma.client.user.findUnique({
       where: { id: userId },
       select: { xp: true, level: true },
@@ -81,13 +87,8 @@ export class GamificationService implements OnModuleInit {
     const currentLevel = user.level || 1;
     const newLevel = this.calculateLevel(newXp);
 
-    await this.prisma.client.user.update({
-      where: { id: userId },
-      data: {
-        xp: newXp,
-        level: newLevel,
-      },
-    });
+    // Use UserRepository to update XP and level
+    await this.userRepository.updateXpAndLevel(userId, newXp, newLevel);
 
     this.logger.log(
       `User ${userId} gained ${amount} XP from ${source}. Total XP: ${newXp}`,
@@ -127,11 +128,9 @@ export class GamificationService implements OnModuleInit {
 
   private async checkAchievements(userId: string, type: 'TASK' | 'POMODORO') {
     if (type === 'TASK') {
-      const completedTasks = await this.prisma.client.task.count({
-        where: {
-          ownerId: userId,
-          status: 'COMPLETED',
-        },
+      // Use AnalyticsRepository to count completed tasks
+      const completedTasks = await this.analyticsRepository.countTasks(userId, {
+        status: 'COMPLETED',
       });
 
       if (completedTasks >= 1) {
@@ -141,13 +140,11 @@ export class GamificationService implements OnModuleInit {
         await this.unlockAchievement(userId, 'TASK_10');
       }
     } else if (type === 'POMODORO') {
-      const completedPomodoros = await this.prisma.client.timeSession.count({
-        where: {
-          userId,
-          type: 'WORK' as const,
-          wasCompleted: true,
-        },
-      });
+      // Use TimerRepository to count completed WORK sessions
+      const completedPomodoros = await this.timerRepository.countCompletedSessions(
+        userId,
+        'WORK',
+      );
 
       if (completedPomodoros >= 1) {
         await this.unlockAchievement(userId, 'FIRST_POMODORO');

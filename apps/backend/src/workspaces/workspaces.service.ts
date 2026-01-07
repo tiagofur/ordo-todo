@@ -183,78 +183,24 @@ export class WorkspacesService {
   }
 
   async findByUserAndSlug(username: string, slug: string) {
-    // Fetch user by username
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-    });
+    // Fetch user by username using UserRepository
+    const user = await this.userRepository.findByUsername(username);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Fetch workspace by ownerId and slug
-    const workspace = await this.prisma.workspace.findUnique({
-      where: {
-        ownerId_slug: {
-          ownerId: user.id,
-          slug,
-        },
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            email: true,
-          },
-        },
-        _count: {
-          select: {
-            projects: true,
-            members: true,
-          },
-        },
-        projects: {
-          select: {
-            _count: {
-              select: { tasks: true },
-            },
-          },
-        },
-      },
-    });
+    // Fetch workspace by ownerId and slug using WorkspaceRepository
+    const workspace = await this.workspaceRepository.findByOwnerAndSlugWithStats(
+      user.id,
+      slug,
+    );
 
-    if (!workspace || workspace.isDeleted) {
+    if (!workspace) {
       throw new NotFoundException('Workspace not found');
     }
 
-    // Format stats manually as in repository (simplified)
-    const taskCount = workspace.projects.reduce(
-      (acc, p) => acc + p._count.tasks,
-      0,
-    );
-
-    return {
-      id: workspace.id,
-      name: workspace.name,
-      slug: workspace.slug,
-      description: workspace.description,
-      type: workspace.type,
-      tier: workspace.tier,
-      color: workspace.color,
-      icon: workspace.icon,
-      ownerId: workspace.ownerId,
-      owner: workspace.owner,
-      isArchived: workspace.isArchived,
-      createdAt: workspace.createdAt,
-      updatedAt: workspace.updatedAt,
-      stats: {
-        projectCount: workspace._count.projects,
-        memberCount: workspace._count.members,
-        taskCount: taskCount,
-      },
-    };
+    return workspace;
   }
 
   async findBySlug(slug: string, userId: string) {

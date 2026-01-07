@@ -193,4 +193,18 @@ export class PrismaUserRepository implements UserRepository {
 
     return this.toDomain(user as any);
   }
+
+  async updateXpAndLevel(
+    userId: string,
+    xp: number,
+    level: number,
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        xp,
+        level,
+      },
+    });
+  }
 }

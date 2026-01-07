@@ -436,4 +436,20 @@ export class PrismaTimerRepository implements TimerRepository {
         : null,
     }));
   }
+
+  async countCompletedSessions(
+    userId: string,
+    type?: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK',
+  ): Promise<number> {
+    const where: any = {
+      userId,
+      wasCompleted: true,
+    };
+
+    if (type) {
+      where.type = this.mapTypeToPrisma(type);
+    }
+
+    return this.prisma.timeSession.count({ where });
+  }
 }

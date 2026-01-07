@@ -212,4 +212,28 @@ export default interface UserRepository {
    * ```
    */
   create(props: CreateUserProps): Promise<User>;
+
+  /**
+   * Updates a user's XP (experience points) and level.
+   *
+   * Used for gamification features where users earn XP through
+   * completing tasks, pomodoros, achievements, etc.
+   *
+   * @param userId - The user ID to update
+   * @param xp - The new XP value
+   * @param level - The new level value
+   * @returns Promise that resolves when the user is updated
+   * @throws {Error} If the user doesn't exist
+   *
+   * @example
+   * ```typescript
+   * await repository.updateXpAndLevel('user-123', 500, 3);
+   * console.log('User leveled up to 3!');
+   * ```
+   */
+  updateXpAndLevel(
+    userId: string,
+    xp: number,
+    level: number,
+  ): Promise<void>;
 }
