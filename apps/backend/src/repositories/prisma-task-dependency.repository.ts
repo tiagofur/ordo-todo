@@ -91,6 +91,20 @@ export class PrismaTaskDependencyRepository implements TaskDependencyRepository 
     return count > 0;
   }
 
+  async deleteByTasks(
+    blockingTaskId: string,
+    blockedTaskId: string,
+  ): Promise<void> {
+    await this.prisma.taskDependency.delete({
+      where: {
+        blockingTaskId_blockedTaskId: {
+          blockingTaskId,
+          blockedTaskId,
+        },
+      },
+    });
+  }
+
   /**
    * Convert Prisma model to domain entity
    */

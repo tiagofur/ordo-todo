@@ -6,7 +6,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
-import type { TaskRepository, AnalyticsRepository } from '@ordo-todo/core';
+import type {
+  TaskRepository,
+  AnalyticsRepository,
+  TaskDependencyRepository,
+} from '@ordo-todo/core';
 import {
   CreateTaskUseCase,
   CompleteTaskUseCase,
@@ -35,6 +39,8 @@ export class TasksService {
     private readonly taskRepository: TaskRepository,
     @Inject('AnalyticsRepository')
     private readonly analyticsRepository: AnalyticsRepository,
+    @Inject('TaskDependencyRepository')
+    private readonly taskDependencyRepository: TaskDependencyRepository,
     private readonly prisma: PrismaService,
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
@@ -807,10 +813,9 @@ export class TasksService {
     // Generate a random token
     const publicToken = crypto.randomUUID();
 
-    await this.prisma.task.update({
-      where: { id },
-      data: { publicToken },
-    });
+    // Update task with public token using repository
+    const updatedTask = task.update({ publicToken });
+    await this.taskRepository.update(updatedTask);
 
     return { publicToken };
   }
@@ -872,30 +877,26 @@ export class TasksService {
 
     // Check if tasks exist
     const [blocked, blocking] = await Promise.all([
-      this.prisma.task.findUnique({ where: { id: blockedTaskId } }),
-      this.prisma.task.findUnique({ where: { id: blockingTaskId } }),
+      this.taskRepository.findById(blockedTaskId),
+      this.taskRepository.findById(blockingTaskId),
     ]);
 
     if (!blocked || !blocking) throw new NotFoundException('Task not found');
 
     // Check direct circular dependency
-    const reverse = await this.prisma.taskDependency.findUnique({
-      where: {
-        blockingTaskId_blockedTaskId: {
-          blockingTaskId: blockedTaskId,
-          blockedTaskId: blockingTaskId,
-        },
-      },
+    const hasReverse = await this.taskDependencyRepository.exists(
+      blockedTaskId,
+      blockingTaskId,
+    );
+
+    if (hasReverse) throw new BadRequestException('Circular dependency detected');
+
+    const dependency = await this.taskDependencyRepository.create({
+      blockingTaskId,
+      blockedTaskId,
     });
 
-    if (reverse) throw new BadRequestException('Circular dependency detected');
-
-    return this.prisma.taskDependency.create({
-      data: {
-        blockedTaskId,
-        blockingTaskId,
-      },
-    });
+    return dependency;
   }
 
   /**
@@ -903,22 +904,16 @@ export class TasksService {
    *
    * @param blockedTaskId - ID of the blocked task
    * @param blockingTaskId - ID of the blocking task
-   * @returns Deleted dependency data
+   * @returns Success status
    * @throws {NotFoundException} If dependency does not exist
    */
   async removeDependency(blockedTaskId: string, blockingTaskId: string) {
-    // Check if exists first to avoid P2025? Or let it throw/catch.
-    // Prisma delete throws if record not found unless we use deleteMany or check.
-    // We'll trust client pass correct IDs or handle error
     try {
-      return await this.prisma.taskDependency.delete({
-        where: {
-          blockingTaskId_blockedTaskId: {
-            blockedTaskId,
-            blockingTaskId,
-          },
-        },
-      });
+      await this.taskDependencyRepository.deleteByTasks(
+        blockingTaskId,
+        blockedTaskId,
+      );
+      return { success: true };
     } catch (e) {
       throw new NotFoundException('Dependency not found');
     }
@@ -932,18 +927,34 @@ export class TasksService {
    * @throws {NotFoundException} If task is not found
    */
   async getDependencies(taskId: string) {
-    const task = await this.prisma.task.findUnique({
-      where: { id: taskId },
-      include: {
-        blockedBy: { include: { blockingTask: true } },
-        blocking: { include: { blockedTask: true } },
-      },
-    });
+    const task = await this.taskRepository.findById(taskId);
     if (!task) throw new NotFoundException('Task not found');
 
+    const [blockingDependencies, blockedDependencies] = await Promise.all([
+      this.taskDependencyRepository.findBlockingTasks(taskId),
+      this.taskDependencyRepository.findBlockedTasks(taskId),
+    ]);
+
+    // Get the actual task objects
+    const blockedByTaskIds = blockingDependencies.map(
+      (d) => d.props.blockingTaskId,
+    );
+    const blockingTaskIds = blockedDependencies.map(
+      (d) => d.props.blockedTaskId,
+    );
+
+    const [blockedByTasks, blockingTasks] = await Promise.all([
+      Promise.all(
+        blockedByTaskIds.map((id) => this.taskRepository.findById(id)),
+      ),
+      Promise.all(
+        blockingTaskIds.map((id) => this.taskRepository.findById(id)),
+      ),
+    ]);
+
     return {
-      blockedBy: task.blockedBy.map((d) => d.blockingTask),
-      blocking: task.blocking.map((d) => d.blockedTask),
+      blockedBy: blockedByTasks.filter((t) => t !== null).map((t) => t!.props),
+      blocking: blockingTasks.filter((t) => t !== null).map((t) => t!.props),
     };
   }
 }

@@ -51,4 +51,9 @@ export interface TaskDependencyRepository {
    * Check if a task has any dependencies
    */
   hasDependencies(taskId: string): Promise<boolean>;
+
+  /**
+   * Delete a dependency by composite key (blockingTaskId, blockedTaskId)
+   */
+  deleteByTasks(blockingTaskId: string, blockedTaskId: string): Promise<void>;
 }
