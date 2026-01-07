@@ -8,6 +8,16 @@ export interface UserProps extends EntityProps<string> {
   email?: string;
   password?: string;
   image?: string | null;
+
+  // Extended Profile
+  phone?: string | null;
+  jobTitle?: string | null;
+  department?: string | null;
+  bio?: string | null;
+  timezone?: string | null;
+  locale?: string | null;
+  lastUsernameChangeAt?: Date | null;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

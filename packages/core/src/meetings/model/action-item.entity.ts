@@ -2,7 +2,7 @@ import { Entity, EntityProps } from '../../shared/entity';
 
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
-export interface ActionItemProps extends EntityProps {
+export interface ActionItemProps extends EntityProps<string> {
   title: string;
   description?: string;
   assignee?: string;
@@ -19,6 +19,13 @@ export class ActionItem extends Entity<ActionItemProps> {
     if (mode === 'valid') {
       this.validate();
     }
+  }
+
+  static create(props: Omit<ActionItemProps, 'id'>): ActionItem {
+    return new ActionItem({
+      id: Math.random().toString(36).substring(7),
+      ...props,
+    });
   }
 
   private validate(): void {

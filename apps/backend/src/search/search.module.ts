@@ -4,15 +4,18 @@ import { AIModule } from '../ai/ai.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { SearchController } from './search.controller';
 import { SemanticSearchService } from './semantic-search.service';
-import { ExecuteSearchUseCase } from '@ordo-todo/core';
-import { GetSuggestionsUseCase } from '@ordo-todo/core';
-import { AskQuestionUseCase } from '@ordo-todo/core';
+import { PrismaSearchRepository } from './prisma-search.repository';
+import { ExecuteSearchUseCase, GetSuggestionsUseCase, AskQuestionUseCase } from '@ordo-todo/core';
 
 @Module({
   imports: [DatabaseModule, AIModule, RepositoriesModule],
   controllers: [SearchController],
   providers: [
     SemanticSearchService,
+    {
+      provide: 'SearchRepository',
+      useClass: PrismaSearchRepository,
+    },
     {
       provide: 'ExecuteSearchUseCase',
       useFactory: (searchRepo: any) => new ExecuteSearchUseCase(searchRepo),
@@ -31,4 +34,4 @@ import { AskQuestionUseCase } from '@ordo-todo/core';
   ],
   exports: [SemanticSearchService, 'ExecuteSearchUseCase', 'GetSuggestionsUseCase', 'AskQuestionUseCase'],
 })
-export class SearchModule {}
+export class SearchModule { }

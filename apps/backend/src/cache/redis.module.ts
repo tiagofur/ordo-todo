@@ -1,13 +1,11 @@
 import { Module, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RedisService } from './redis.service';
-import { CacheModule } from './cache.module';
 
 /**
  * Redis Module - Production-Scale Caching
  *
  * This module provides Redis-backed caching for production deployments.
- * It extends the base CacheModule with Redis capabilities.
  *
  * Environment Variables:
  * - REDIS_URL: Redis connection string (default: redis://localhost:6379)
@@ -27,7 +25,7 @@ import { CacheModule } from './cache.module';
 @Module({
   imports: [ConfigModule],
   providers: [RedisService],
-  exports: [RedisService, CacheModule],
+  exports: [RedisService],
 })
 export class RedisModule {
   /**

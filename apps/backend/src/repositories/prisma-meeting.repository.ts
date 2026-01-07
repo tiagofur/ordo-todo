@@ -15,7 +15,7 @@ import { Prisma, Meeting as PrismaMeeting } from '@prisma/client';
 export class PrismaMeetingRepository implements MeetingRepository {
   private readonly logger = new Logger(PrismaMeetingRepository.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(meeting: Meeting): Promise<Meeting> {
     const prismaMeeting = await this.prisma.meeting.create({
@@ -27,7 +27,7 @@ export class PrismaMeetingRepository implements MeetingRepository {
         duration: meeting.duration,
         transcript: meeting.transcript || null,
         audioUrl: meeting.audioUrl || null,
-        analysis: meeting.analysis ? (meeting.analysis as any) : null,
+        analysis: meeting.analysis ? (meeting.analysis as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
         projectId: meeting.projectId || null,
         createdAt: meeting.createdAt,
         updatedAt: meeting.updatedAt,
@@ -72,7 +72,7 @@ export class PrismaMeetingRepository implements MeetingRepository {
         duration: meeting.duration,
         transcript: meeting.transcript || null,
         audioUrl: meeting.audioUrl || null,
-        analysis: meeting.analysis ? (meeting.analysis as Prisma.InputJsonValue) : null,
+        analysis: meeting.analysis ? (meeting.analysis as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
         projectId: meeting.projectId || null,
         updatedAt: new Date(),
       },
@@ -160,7 +160,7 @@ export class PrismaMeetingRepository implements MeetingRepository {
       where: {
         userId,
         analysis: {
-          not: null,
+          not: Prisma.AnyNull,
         },
       },
       orderBy: { date: 'desc' },
@@ -197,7 +197,7 @@ export class PrismaMeetingRepository implements MeetingRepository {
         where: { userId, transcript: { not: null } },
       }),
       this.prisma.meeting.count({
-        where: { userId, analysis: { not: null } },
+        where: { userId, analysis: { not: Prisma.AnyNull } },
       }),
       this.prisma.meeting.findMany({
         where: { userId },
@@ -218,7 +218,7 @@ export class PrismaMeetingRepository implements MeetingRepository {
   }
 
   private toDomain(prismaMeeting: PrismaMeeting): Meeting {
-    return Meeting.create({
+    return new Meeting({
       id: prismaMeeting.id,
       userId: prismaMeeting.userId,
       title: prismaMeeting.title,
@@ -241,7 +241,7 @@ export class PrismaMeetingRepository implements MeetingRepository {
       summary: analysisJson.summary || '',
       keyPoints: analysisJson.keyPoints || [],
       actionItems: (analysisJson.actionItems || []).map((item: any) =>
-        ActionItem.create({
+        new ActionItem({
           id: item.id || 'temp',
           title: item.title,
           description: item.description,

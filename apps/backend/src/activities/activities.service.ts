@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ActivityType, Prisma } from '@prisma/client';
 import { LogActivityUseCase } from '@ordo-todo/core';
 
@@ -24,7 +24,10 @@ interface CreateActivityData {
 export class ActivitiesService {
   private readonly logger = new Logger(ActivitiesService.name);
 
-  constructor(private readonly logActivityUseCase: LogActivityUseCase) {}
+  constructor(
+    @Inject('LogActivityUseCase')
+    private readonly logActivityUseCase: LogActivityUseCase,
+  ) { }
 
   async createActivity(data: CreateActivityData): Promise<void> {
     try {

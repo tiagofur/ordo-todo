@@ -1,4 +1,4 @@
-import { WorkspaceMember } from './workspace-member.entity';
+import { WorkspaceMember } from '../model/workspace-member.entity';
 import { MemberRole } from '@prisma/client';
 
 /**

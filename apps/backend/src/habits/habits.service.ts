@@ -35,7 +35,7 @@ export class HabitsService {
     private readonly habitRepository: IHabitRepository,
     private readonly prisma: PrismaService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   /**
    * Create a new habit
@@ -107,7 +107,10 @@ export class HabitsService {
       if (a.isPaused !== b.isPaused) return a.isPaused ? 1 : -1;
       if ((a.timeOfDay || '') !== (b.timeOfDay || ''))
         return (a.timeOfDay || '').localeCompare(b.timeOfDay || '');
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return (
+        new Date(a.createdAt || 0).getTime() -
+        new Date(b.createdAt || 0).getTime()
+      );
     });
   }
 
@@ -282,12 +285,13 @@ export class HabitsService {
       await this.habitRepository.getCompletionForDate(id, startOfDay(yesterday));
 
     const isConsecutive =
-      !!yesterdayCompletion || habit.props.currentStreak === 0;
-    const newStreak = isConsecutive ? habit.props.currentStreak + 1 : 1;
-    const newLongest = Math.max(habit.props.longestStreak, newStreak);
+      !!yesterdayCompletion || (habit.props.currentStreak || 0) === 0;
+    const newStreak = isConsecutive ? (habit.props.currentStreak || 0) + 1 : 1;
+    const newLongest = Math.max(habit.props.longestStreak || 0, newStreak);
 
     // Create completion using repository (handles transaction internally)
     const updatedHabit = await this.habitRepository.createCompletion(id, {
+      habitId: id,
       completedAt,
       completedDate: today,
       note: completeDto.note,
@@ -325,7 +329,7 @@ export class HabitsService {
         name: habit.props.name,
         currentStreak: newStreak,
         longestStreak: newLongest,
-        totalCompletions: habit.props.totalCompletions + 1,
+        totalCompletions: (habit.props.totalCompletions || 0) + 1,
       },
       xpAwarded,
       xpReason,
@@ -360,7 +364,7 @@ export class HabitsService {
 
     await this.habitRepository.update(id, {
       currentStreak: newStreak,
-      totalCompletions: habit.props.totalCompletions - 1,
+      totalCompletions: (habit.props.totalCompletions || 0) - 1,
     });
 
     return { success: true, newStreak };
@@ -447,7 +451,7 @@ export class HabitsService {
     }
     return this.habitRepository.update(id, {
       isPaused: false,
-      pausedAt: null,
+      pausedAt: undefined,
     });
   }
 

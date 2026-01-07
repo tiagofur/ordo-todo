@@ -226,7 +226,7 @@ export interface AnalyticsRepository {
   countTasks(
     userId: string,
     options?: {
-      status?: string | string[];
+      status?: string | string[] | { in?: string[]; notIn?: string[] };
       priority?: string;
       dueDate?: { lt?: Date; lte?: Date; gte?: Date };
       completedAt?: { lt?: Date; lte?: Date; gte?: Date };

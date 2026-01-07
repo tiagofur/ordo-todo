@@ -1,5 +1,6 @@
 import { Entity } from '../../shared/entity';
 import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
+export { SubscriptionPlan, SubscriptionStatus };
 
 /**
  * Properties for Subscription entity
@@ -113,7 +114,7 @@ export class Subscription extends Entity<SubscriptionProps> {
    * Check if subscription is cancelled
    */
   isCancelled(): boolean {
-    return this.props.status === SubscriptionStatus.CANCELLED;
+    return this.props.status === SubscriptionStatus.CANCELED;
   }
 
   /**
@@ -127,7 +128,7 @@ export class Subscription extends Entity<SubscriptionProps> {
    * Check if subscription is on trial
    */
   isTrial(): boolean {
-    return this.props.status === SubscriptionStatus.TRIAL;
+    return this.props.status === SubscriptionStatus.TRIALING;
   }
 
   /**
@@ -142,7 +143,7 @@ export class Subscription extends Entity<SubscriptionProps> {
    */
   isPaid(): boolean {
     return [SubscriptionPlan.PRO, SubscriptionPlan.TEAM, SubscriptionPlan.ENTERPRISE].includes(
-      this.props.plan
+      this.props.plan as any
     );
   }
 

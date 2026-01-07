@@ -6,3 +6,5 @@ export * from "./usecase/soft-delete-task.usecase";
 export * from "./usecase/restore-task.usecase";
 export * from "./usecase/permanent-delete-task.usecase";
 export * from "./usecase/get-deleted-tasks.usecase";
+export * from "./model/task-dependency.entity";
+export * from "./provider/task-dependency.repository";

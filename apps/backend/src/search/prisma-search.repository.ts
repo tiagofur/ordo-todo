@@ -5,7 +5,7 @@ import {
   SearchResults,
   SearchRepository,
 } from '@ordo-todo/core';
-import { SemanticSearchService } from '../semantic-search.service';
+import { SemanticSearchService } from './semantic-search.service';
 
 /**
  * Adapter that implements SearchRepository using the existing SemanticSearchService.
@@ -13,7 +13,7 @@ import { SemanticSearchService } from '../semantic-search.service';
  */
 @Injectable()
 export class PrismaSearchRepository implements SearchRepository {
-  constructor(private readonly semanticSearchService: SemanticSearchService) {}
+  constructor(private readonly semanticSearchService: SemanticSearchService) { }
 
   async search(query: SearchQuery): Promise<SearchResults> {
     const result = await this.semanticSearchService.search(
@@ -58,8 +58,8 @@ export class PrismaSearchRepository implements SearchRepository {
     partialQuery: string,
     limit: number = 5,
   ): Promise<Array<{ text: string; type: 'query' | 'task' | 'project'; count: number }>> {
-    const result = await this.semanticSearchService.getSuggestions(userId, partialQuery);
-    return result.suggestions.slice(0, limit);
+    const suggestions = await this.semanticSearchService.getSuggestions(userId, partialQuery);
+    return suggestions.slice(0, limit).map(s => ({ text: s, type: 'query', count: 0 }));
   }
 
   async quickSearch(userId: string, query: string, limit: number = 5): Promise<SearchResult[]> {
@@ -86,6 +86,20 @@ export class PrismaSearchRepository implements SearchRepository {
     type: 'summary' | 'data' | 'error';
     data?: any;
   }> {
-    return await this.semanticSearchService.ask(userId, question);
+    const result = await this.semanticSearchService.ask(userId, question);
+
+    // Map internal types to repository types
+    const typeMapping: Record<string, 'summary' | 'data' | 'error'> = {
+      'count': 'data',
+      'list': 'data',
+      'summary': 'summary',
+      'insight': 'summary'
+    };
+
+    return {
+      answer: result.answer,
+      type: typeMapping[result.type] || 'summary',
+      data: result.data
+    };
   }
 }

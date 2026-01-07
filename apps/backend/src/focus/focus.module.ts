@@ -18,10 +18,6 @@ import {
   controllers: [FocusController],
   providers: [
     {
-      provide: 'FocusRepository',
-      useExisting: 'FocusRepository',
-    },
-    {
       provide: GetUserPreferencesUseCase,
       useFactory: (focusRepo: FocusRepository) =>
         new GetUserPreferencesUseCase(focusRepo),
@@ -61,4 +57,4 @@ import {
   ],
   exports: [FocusAudioService],
 })
-export class FocusModule {}
+export class FocusModule { }

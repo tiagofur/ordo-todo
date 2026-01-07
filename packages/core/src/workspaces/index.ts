@@ -5,6 +5,7 @@ export * from "./model/workspace-audit-log.entity";
 export * from "./provider/workspace.repository";
 export * from "./provider/workspace-settings.repository";
 export * from "./provider/workspace-audit-log.repository";
+export * from "./provider/workspace-member.repository";
 export * from "./usecase/create-workspace.usecase";
 export * from "./usecase/add-member-to-workspace.usecase";
 export * from "./usecase/remove-member-from-workspace.usecase";

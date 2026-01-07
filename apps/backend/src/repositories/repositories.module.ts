@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaService } from '../database/prisma.service';
-import { SemanticSearchService } from '../search/semantic-search.service';
 import { PrismaUserRepository } from './user.repository';
 import { PrismaTaskRepository } from './task.repository';
 import { PrismaProjectRepository } from './project.repository';
@@ -34,7 +33,6 @@ import { PrismaCollaborationRepository } from './prisma-collaboration.repository
 import { PrismaCustomFieldRepository } from './prisma-custom-field.repository';
 import { PrismaFocusRepository } from './prisma-focus.repository';
 import { PrismaMeetingRepository } from './prisma-meeting.repository';
-import { PrismaSearchRepository } from '../search/prisma-search.repository';
 import { PrismaActivityRepository } from './prisma-activity.repository';
 import { PrismaRecurrenceRepository } from './prisma-recurrence.repository';
 import { PrismaTaskDependencyRepository } from './prisma-task-dependency.repository';
@@ -230,11 +228,6 @@ import { PrismaAccountRepository } from './prisma-account.repository';
       inject: [PrismaService],
     },
     {
-      provide: 'SearchRepository',
-      useFactory: (semanticSearch: SemanticSearchService) => new PrismaSearchRepository(semanticSearch),
-      inject: [SemanticSearchService],
-    },
-    {
       provide: 'ActivityRepository',
       useFactory: (prisma: PrismaService) => new PrismaActivityRepository(prisma),
       inject: [PrismaService],
@@ -313,7 +306,6 @@ import { PrismaAccountRepository } from './prisma-account.repository';
     'CustomFieldRepository',
     'FocusRepository',
     'MeetingRepository',
-    'SearchRepository',
     'ActivityRepository',
     'RecurrenceRepository',
     'TaskDependencyRepository',

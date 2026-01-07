@@ -60,7 +60,6 @@ export class FocusPreferences extends Entity<FocusPreferencesProps> {
       return this.removeFavorite(trackId);
     }
     return this.addFavorite(trackId);
-    }
   }
 
   isFavorite(trackId: string): boolean {

@@ -354,6 +354,9 @@ model UserPreferences {
   // Data Retention (null = never delete, else number of days)
   completedTasksRetention Int?
   timeSessionsRetention   Int?
+
+  // Extended JSON data
+  focusAudio Json?
 }
 
 // ============ USER INTEGRATIONS ============
@@ -450,7 +453,7 @@ model Workspace {
   taskTemplates TaskTemplate[]
   objectives    Objective[]
   notes         Note[]
-  meetings      Meeting[]         @relation("MeetingOwner")
+  meetings      Meeting[]         @relation("WorkspaceMeetings")
 
 
   // NUEVO: Estados de ciclo de vida
@@ -1574,6 +1577,9 @@ model Meeting {
   projectId   String?
   project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   
+  workspaceId String?
+  workspace   Workspace? @relation("WorkspaceMeetings", fields: [workspaceId], references: [id], onDelete: Cascade)
+
   // Author
   author   User   @relation("MeetingOwner", fields: [userId], references: [id], onDelete: Cascade)
   

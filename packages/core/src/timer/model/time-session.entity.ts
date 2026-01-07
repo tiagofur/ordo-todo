@@ -10,7 +10,7 @@ export interface PauseRecord {
 
 
 
-export interface TimeSessionProps extends EntityProps {
+export interface TimeSessionProps extends EntityProps<string> {
     taskId?: string;
     userId: string;
     startedAt: Date;
@@ -139,5 +139,34 @@ export class TimeSession extends Entity<TimeSessionProps> {
             currentPauseStart: undefined,
             totalPauseTime: (this.props.totalPauseTime ?? 0) + extraPauseTime,
         });
+    }
+
+    // Getters
+    get startedAt(): Date {
+        return this.props.startedAt;
+    }
+
+    get finishedAt(): Date | undefined {
+        return this.props.endedAt;
+    }
+
+    get duration(): number {
+        return this.props.duration ?? 0;
+    }
+
+    get type(): SessionType {
+        return this.props.type;
+    }
+
+    get wasCompleted(): boolean {
+        return this.props.wasCompleted;
+    }
+
+    get userId(): string {
+        return this.props.userId;
+    }
+
+    get taskId(): string | undefined {
+        return this.props.taskId;
     }
 }

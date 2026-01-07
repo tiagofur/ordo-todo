@@ -16,10 +16,6 @@ import {
   controllers: [MeetingsController],
   providers: [
     {
-      provide: 'MeetingRepository',
-      useExisting: 'MeetingRepository',
-    },
-    {
       provide: CreateMeetingUseCase,
       useFactory: (meetingRepo: MeetingRepository) =>
         new CreateMeetingUseCase(meetingRepo),
@@ -41,4 +37,4 @@ import {
   ],
   exports: [MeetingAssistantService],
 })
-export class MeetingsModule {}
+export class MeetingsModule { }

@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { MemberRole as MemberRole$1, ActivityType, RecurrencePattern, SubscriptionPlan, SubscriptionStatus, IntegrationProvider } from '@prisma/client';
+export { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
 
 interface ValueObject<T, V = unknown> {
     value: V;
@@ -1503,6 +1505,13 @@ interface UserProps extends EntityProps<string> {
     email?: string;
     password?: string;
     image?: string | null;
+    phone?: string | null;
+    jobTitle?: string | null;
+    department?: string | null;
+    bio?: string | null;
+    timezone?: string | null;
+    locale?: string | null;
+    lastUsernameChangeAt?: Date | null;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -1719,6 +1728,33 @@ interface UserRepository {
      * ```
      */
     create(props: CreateUserProps): Promise<User>;
+    /**
+     * Updates a user's XP (experience points) and level.
+     *
+     * Used for gamification features where users earn XP through
+     * completing tasks, pomodoros, achievements, etc.
+     *
+     * @param userId - The user ID to update
+     * @param xp - The new XP value
+     * @param level - The new level value
+     * @returns Promise that resolves when the user is updated
+     * @throws {Error} If the user doesn't exist
+     *
+     * @example
+     * ```typescript
+     * await repository.updateXpAndLevel('user-123', 500, 3);
+     * console.log('User leveled up to 3!');
+     * ```
+     */
+    updateXpAndLevel(userId: string, xp: number, level: number): Promise<void>;
+    /**
+     * Deletes a user account and all associated data.
+     *
+     * @param id - The unique identifier of the user to delete
+     * @returns Promise that resolves when the user is deleted
+     * @throws {Error} If the user doesn't exist or database operation fails
+     */
+    delete(id: string): Promise<void>;
 }
 
 interface CryptoProvider {
@@ -1776,7 +1812,7 @@ declare class Tag extends Entity<TagProps> {
 
 type TaskStatus = "TODO" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-interface TaskProps extends EntityProps {
+interface TaskProps extends EntityProps<string> {
     title: string;
     description?: string;
     status: TaskStatus;
@@ -1793,7 +1829,10 @@ interface TaskProps extends EntityProps {
     assigneeId?: string | null;
     parentTaskId?: string;
     subTasks?: Task[];
-    estimatedTime?: number;
+    estimatedMinutes?: number;
+    actualMinutes?: number;
+    publicToken?: string;
+    energyRequired?: "LOW" | "MEDIUM" | "HIGH";
     tags?: TagProps[];
     project?: {
         id: string;
@@ -1814,9 +1853,9 @@ interface TaskProps extends EntityProps {
     deletedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
-    recurrence?: RecurrenceProps;
+    recurrence?: TaskRecurrenceInfo;
 }
-interface RecurrenceProps {
+interface TaskRecurrenceInfo {
     pattern: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "CUSTOM";
     interval?: number;
     daysOfWeek?: number[];
@@ -2136,7 +2175,7 @@ interface CreateTaskInput {
     ownerId: string;
     assigneeId?: string;
     parentTaskId?: string;
-    recurrence?: RecurrenceProps;
+    recurrence?: TaskRecurrenceInfo;
 }
 declare class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
     private readonly repository;
@@ -2176,6 +2215,110 @@ declare class GetDeletedTasksUseCase {
     private taskRepository;
     constructor(taskRepository: TaskRepository);
     execute(projectId: string): Promise<Task[]>;
+}
+
+/**
+ * Properties for TaskDependency entity
+ */
+interface TaskDependencyProps {
+    id: string;
+    blockingTaskId: string;
+    blockedTaskId: string;
+    createdAt: Date;
+}
+/**
+ * TaskDependency entity represents a dependency relationship between tasks
+ *
+ * When Task A blocks Task B, Task B cannot be completed until Task A is done.
+ * This is critical for project management and task scheduling.
+ *
+ * @example
+ * ```typescript
+ * const dependency = new TaskDependency({
+ *   id: 'dep-123',
+ *   blockingTaskId: 'task-a', // Must complete first
+ *   blockedTaskId: 'task-b',  // Blocked by task-a
+ *   createdAt: new Date(),
+ * });
+ *
+ * dependency.isBlocking('task-a'); // true
+ * dependency.isBlockedBy('task-b'); // true
+ * ```
+ */
+declare class TaskDependency extends Entity<TaskDependencyProps> {
+    constructor(props: TaskDependencyProps, mode?: 'valid' | 'draft');
+    /**
+     * Validate task dependency properties
+     */
+    private validate;
+    get blockingTaskId(): string;
+    get blockedTaskId(): string;
+    get createdAt(): Date;
+    /**
+     * Check if a task is blocking another task
+     */
+    isBlocking(taskId: string): boolean;
+    /**
+     * Check if a task is blocked by another task
+     */
+    isBlockedBy(taskId: string): boolean;
+    /**
+     * Check if this dependency involves a specific task
+     */
+    involvesTask(taskId: string): boolean;
+    /**
+     * Get the other task in the dependency
+     */
+    getOtherTask(taskId: string): string | null;
+}
+
+/**
+ * Input for creating task dependency
+ */
+interface TaskDependencyInput {
+    blockingTaskId: string;
+    blockedTaskId: string;
+}
+/**
+ * Repository interface for TaskDependency domain
+ */
+interface TaskDependencyRepository {
+    /**
+     * Create a dependency between tasks
+     */
+    create(input: TaskDependencyInput): Promise<TaskDependency>;
+    /**
+     * Get dependency by ID
+     */
+    findById(id: string): Promise<TaskDependency | null>;
+    /**
+     * Get all blocking tasks for a given task
+     */
+    findBlockingTasks(taskId: string): Promise<TaskDependency[]>;
+    /**
+     * Get all tasks blocked by a given task
+     */
+    findBlockedTasks(taskId: string): Promise<TaskDependency[]>;
+    /**
+     * Check if a dependency exists
+     */
+    exists(blockingTaskId: string, blockedTaskId: string): Promise<boolean>;
+    /**
+     * Delete a dependency
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Delete all dependencies for a task
+     */
+    deleteByTaskId(taskId: string): Promise<number>;
+    /**
+     * Check if a task has any dependencies
+     */
+    hasDependencies(taskId: string): Promise<boolean>;
+    /**
+     * Delete a dependency by composite key (blockingTaskId, blockedTaskId)
+     */
+    deleteByTasks(blockingTaskId: string, blockedTaskId: string): Promise<void>;
 }
 
 type WorkspaceType = "PERSONAL" | "WORK" | "TEAM";
@@ -2225,6 +2368,62 @@ interface WorkspaceMemberProps extends EntityProps {
 declare class WorkspaceMember extends Entity<WorkspaceMemberProps> {
     constructor(props: WorkspaceMemberProps);
     static create(props: Omit<WorkspaceMemberProps, "id" | "joinedAt">): WorkspaceMember;
+    /**
+     * Check if member is owner
+     */
+    isOwner(): boolean;
+    /**
+     * Check if member is admin
+     */
+    isAdmin(): boolean;
+    /**
+     * Check if member is regular member
+     */
+    isMember(): boolean;
+    /**
+     * Check if member is viewer (read-only)
+     */
+    isViewer(): boolean;
+    /**
+     * Check if member has admin-level permissions (OWNER or ADMIN)
+     */
+    hasAdminPermissions(): boolean;
+    /**
+     * Check if member can manage workspace settings
+     */
+    canManageWorkspace(): boolean;
+    /**
+     * Check if member can invite other members
+     */
+    canInviteMembers(): boolean;
+    /**
+     * Check if member can remove other members
+     */
+    canRemoveMembers(): boolean;
+    /**
+     * Check if member can change roles
+     */
+    canChangeRoles(): boolean;
+    /**
+     * Check if member can create/edit/delete tasks
+     */
+    canManageTasks(): boolean;
+    /**
+     * Check if member can only view (no edit permissions)
+     */
+    isReadOnly(): boolean;
+    /**
+     * Get role level for hierarchy comparison
+     */
+    getRoleLevel(): number;
+    /**
+     * Check if this member has higher role than another member
+     */
+    hasHigherRoleThan(otherMember: WorkspaceMember): boolean;
+    /**
+     * Check if this member can manage another member
+     */
+    canManageMember(otherMember: WorkspaceMember): boolean;
 }
 
 type ViewType = "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
@@ -2351,6 +2550,54 @@ interface WorkspaceRepository {
      * ```
      */
     findBySlug(slug: string, ownerId: string): Promise<Workspace | null>;
+    /**
+     * Finds a workspace by owner ID and slug with complete statistics.
+     *
+     * Used for public workspace pages (e.g., /username/workspace-slug) where
+     * full workspace data with stats (projects, members, tasks) is needed.
+     *
+     * Returns workspace data with:
+     * - Owner information (id, username, name, email)
+     * - Stats (projectCount, memberCount, taskCount)
+     * - All workspace properties
+     *
+     * @param ownerId - The unique identifier of the workspace owner
+     * @param slug - The unique URL-friendly slug of the workspace
+     * @returns Promise that resolves to workspace with stats if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const workspace = await repository.findByOwnerAndSlugWithStats('user-123', 'my-project');
+     * if (workspace) {
+     *   console.log(`${workspace.name}: ${workspace.stats.projectCount} projects`);
+     * }
+     * ```
+     */
+    findByOwnerAndSlugWithStats(ownerId: string, slug: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+        type: string;
+        tier: string;
+        color: string;
+        icon: string | null;
+        ownerId: string;
+        owner: {
+            id: string;
+            username: string;
+            name: string | null;
+            email: string | null;
+        };
+        isArchived: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        stats: {
+            projectCount: number;
+            memberCount: number;
+            taskCount: number;
+        };
+    } | null>;
     /**
      * Finds all workspaces owned by a specific user.
      *
@@ -2797,6 +3044,72 @@ interface WorkspaceAuditLogRepository {
      * ```
      */
     countByWorkspaceId(workspaceId: string): Promise<number>;
+}
+
+/**
+ * Input for creating workspace member
+ */
+interface WorkspaceMemberInput {
+    workspaceId: string;
+    userId: string;
+    role: MemberRole$1;
+}
+/**
+ * Repository interface for WorkspaceMember domain
+ */
+interface WorkspaceMemberRepository {
+    /**
+     * Add member to workspace
+     */
+    create(input: WorkspaceMemberInput): Promise<WorkspaceMember>;
+    /**
+     * Get member by ID
+     */
+    findById(id: string): Promise<WorkspaceMember | null>;
+    /**
+     * Get member by workspace and user
+     */
+    findByWorkspaceAndUser(workspaceId: string, userId: string): Promise<WorkspaceMember | null>;
+    /**
+     * Get all members of a workspace
+     */
+    findByWorkspace(workspaceId: string): Promise<WorkspaceMember[]>;
+    /**
+     * Get all workspaces for a user
+     */
+    findByUser(userId: string): Promise<WorkspaceMember[]>;
+    /**
+     * Get members by role in workspace
+     */
+    findByWorkspaceAndRole(workspaceId: string, role: MemberRole$1): Promise<WorkspaceMember[]>;
+    /**
+     * Update member role
+     */
+    updateRole(id: string, role: MemberRole$1): Promise<WorkspaceMember>;
+    /**
+     * Remove member from workspace
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Remove member from workspace by workspace and user
+     */
+    deleteByWorkspaceAndUser(workspaceId: string, userId: string): Promise<void>;
+    /**
+     * Check if user is member of workspace
+     */
+    isMember(workspaceId: string, userId: string): Promise<boolean>;
+    /**
+     * Count members in workspace
+     */
+    countMembers(workspaceId: string): Promise<number>;
+    /**
+     * Get workspace owner
+     */
+    findOwner(workspaceId: string): Promise<WorkspaceMember | null>;
+    /**
+     * Get workspace admins (including owner)
+     */
+    findAdmins(workspaceId: string): Promise<WorkspaceMember[]>;
 }
 
 declare class CreateWorkspaceUseCase {
@@ -3883,6 +4196,55 @@ interface TagRepository {
      */
     findByWorkspaceId(workspaceId: string): Promise<Tag[]>;
     /**
+     * Finds all tags in a workspace with their associated task counts.
+     *
+     * Used for tag lists where you need to show how many tasks each tag has.
+     * Returns tags with task count metadata for display purposes.
+     *
+     * @param workspaceId - The workspace ID to filter tags by
+     * @returns Promise resolving to an array of tags with task counts
+     *
+     * @example
+     * ```typescript
+     * const tags = await repository.findByWorkspaceIdWithTaskCount('workspace-123');
+     * tags.forEach(tag => {
+     *   console.log(`${tag.name}: ${tag.taskCount} tasks`);
+     * });
+     * ```
+     */
+    findByWorkspaceIdWithTaskCount(workspaceId: string): Promise<Array<{
+        id: string;
+        name: string;
+        color: string;
+        workspaceId: string;
+        createdAt: Date;
+        taskCount: number;
+    }>>;
+    /**
+     * Finds a tag by ID with its associated task count.
+     *
+     * Used for displaying a single tag with its usage statistics.
+     *
+     * @param id - The unique identifier of the tag
+     * @returns Promise resolving to the tag with task count if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const tag = await repository.findByIdWithTaskCount('tag-123');
+     * if (tag) {
+     *   console.log(`${tag.name} is used in ${tag.taskCount} tasks`);
+     * }
+     * ```
+     */
+    findByIdWithTaskCount(id: string): Promise<{
+        id: string;
+        name: string;
+        color: string;
+        workspaceId: string;
+        createdAt: Date;
+        taskCount: number;
+    } | null>;
+    /**
      * Deletes a tag from the repository.
      *
      * WARNING: This will also remove the tag from all tasks that have it assigned.
@@ -3997,7 +4359,7 @@ interface PauseRecord {
     endedAt: Date;
     duration: number;
 }
-interface TimeSessionProps extends EntityProps {
+interface TimeSessionProps extends EntityProps<string> {
     taskId?: string;
     userId: string;
     startedAt: Date;
@@ -4021,6 +4383,13 @@ declare class TimeSession extends Entity<TimeSessionProps> {
     resume(pauseStartedAt: Date, pauseEndedAt?: Date): TimeSession;
     stop(endedAt?: Date, wasCompleted?: boolean, wasInterrupted?: boolean): TimeSession;
     split(endedAt?: Date, wasCompleted?: boolean, splitReason?: string): TimeSession;
+    get startedAt(): Date;
+    get finishedAt(): Date | undefined;
+    get duration(): number;
+    get type(): SessionType;
+    get wasCompleted(): boolean;
+    get userId(): string;
+    get taskId(): string | undefined;
 }
 
 /**
@@ -4540,6 +4909,28 @@ interface TimerRepository {
             } | null;
         } | null;
     }>>;
+    /**
+     * Counts completed time sessions for a user with optional filters.
+     *
+     * Used for gamification features where users earn achievements based on
+     * completed pomodoros, total sessions, etc. Supports filtering by session type.
+     *
+     * @param userId - The user ID to count sessions for
+     * @param type - Optional session type filter (e.g., 'WORK', 'SHORT_BREAK', 'LONG_BREAK')
+     * @returns Promise resolving to the count of completed sessions
+     *
+     * @example
+     * ```typescript
+     * // Count all completed pomodoros (WORK sessions)
+     * const pomodoroCount = await repository.countCompletedSessions('user-123', 'WORK');
+     * console.log(`User has completed ${pomodoroCount} pomodoros`);
+     *
+     * // Count all completed sessions regardless of type
+     * const totalSessions = await repository.countCompletedSessions('user-123');
+     * console.log(`User has completed ${totalSessions} sessions total`);
+     * ```
+     */
+    countCompletedSessions(userId: string, type?: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK'): Promise<number>;
 }
 
 declare class StartTimerUseCase {
@@ -4576,7 +4967,7 @@ declare class SwitchTaskUseCase {
     }>;
 }
 
-interface DailyMetricsProps extends EntityProps {
+interface DailyMetricsProps extends EntityProps<string> {
     userId: string;
     date: Date;
     tasksCreated: number;
@@ -4789,6 +5180,61 @@ interface AnalyticsRepository {
      * ```
      */
     getRangeDescending(userId: string, limit: number): Promise<DailyMetrics[]>;
+    /**
+     * Counts tasks with specific criteria for analytics.
+     *
+     * Used for burnout prevention and productivity analytics to count tasks
+     * by status, priority, due date, or date ranges. Supports complex filters for
+     * comprehensive task analytics.
+     *
+     * @param userId - The user ID to count tasks for
+     * @param options - Filter options for the count
+     * @returns Promise resolving to the count of tasks matching the criteria
+     *
+     * @example
+     * ```typescript
+     * // Count urgent tasks
+     * const urgentCount = await repository.countTasks('user-123', {
+     *   priority: 'URGENT',
+     *   status: { notIn: ['COMPLETED', 'CANCELLED'] }
+     * });
+     *
+     * // Count completed tasks in date range
+     * const completedCount = await repository.countTasks('user-123', {
+     *   status: 'COMPLETED',
+     *   completedAt: { gte: weekStart, lte: weekEnd }
+     * });
+     *
+     * // Count overdue tasks
+     * const overdueCount = await repository.countTasks('user-123', {
+     *   status: { notIn: ['COMPLETED', 'CANCELLED'] },
+     *   dueDate: { lt: new Date() }
+     * });
+     * ```
+     */
+    countTasks(userId: string, options?: {
+        status?: string | string[] | {
+            in?: string[];
+            notIn?: string[];
+        };
+        priority?: string;
+        dueDate?: {
+            lt?: Date;
+            lte?: Date;
+            gte?: Date;
+        };
+        completedAt?: {
+            lt?: Date;
+            lte?: Date;
+            gte?: Date;
+        };
+        createdAt?: {
+            lt?: Date;
+            lte?: Date;
+            gte?: Date;
+        };
+        assigneeId?: string;
+    }): Promise<number>;
 }
 
 declare class GetDailyMetricsUseCase {
@@ -5509,14 +5955,14 @@ declare const aiService: MockAIService;
 
 type HabitFrequency = "DAILY" | "WEEKLY" | "SPECIFIC_DAYS" | "MONTHLY";
 type TimeOfDay = "MORNING" | "AFTERNOON" | "EVENING" | "ANYTIME";
-interface HabitCompletionProps extends EntityProps {
+interface HabitCompletionProps extends EntityProps<string> {
     habitId: string;
     completedAt: Date;
     completedDate: Date;
     note?: string;
     value?: number;
 }
-interface HabitProps extends EntityProps {
+interface HabitProps extends EntityProps<string> {
     name: string;
     description?: string;
     icon?: string;
@@ -5528,11 +5974,11 @@ interface HabitProps extends EntityProps {
     targetCount: number;
     preferredTime?: string;
     timeOfDay?: TimeOfDay;
-    currentStreak: number;
-    longestStreak: number;
-    totalCompletions: number;
-    isActive: boolean;
-    isPaused: boolean;
+    currentStreak?: number;
+    longestStreak?: number;
+    totalCompletions?: number;
+    isActive?: boolean;
+    isPaused?: boolean;
     pausedAt?: Date;
     archivedAt?: Date;
     completions?: HabitCompletionProps[];
@@ -7789,6 +8235,48 @@ interface AttachmentRepository {
      * ```
      */
     getTotalSizeByTaskId(taskId: string): Promise<number>;
+    /**
+     * Finds an attachment by its URL/storage path.
+     *
+     * Used for checking if an attachment exists with a specific URL,
+     * such as when cleaning up orphaned files or verifying uniqueness.
+     *
+     * @param url - The URL or storage path to search for
+     * @returns Promise resolving to the attachment if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const attachment = await repository.findByUrl('/uploads/abc123-document.pdf');
+     * if (attachment) {
+     *   console.log('Attachment exists for this URL');
+     * } else {
+     *   console.log('No attachment found - file may be orphaned');
+     * }
+     * ```
+     */
+    findByUrl(url: string): Promise<Attachment | null>;
+    /**
+     * Finds all attachments for tasks within a specific project.
+     *
+     * Used for displaying all files attached to tasks in a project,
+     * such as a project's file library or resource view.
+     *
+     * @param projectId - The project ID to find attachments for
+     * @returns Promise resolving to an array of attachments (empty array if none found)
+     *
+     * @example
+     * ```typescript
+     * const projectAttachments = await repository.findByProjectId('project-123');
+     * console.log(`Project has ${projectAttachments.length} total attachments`);
+     *
+     * // Group by task
+     * const byTask = projectAttachments.reduce((acc, a) => {
+     *   (acc[a.taskId] = acc[a.taskId] || []).push(a);
+     *   return acc;
+     * }, {});
+     * ```
+     */
+    findByProjectId(projectId: string): Promise<Attachment[]>;
 }
 
 /**
@@ -10913,4 +11401,1654 @@ interface ICustomFieldRepository {
     upsertValue(value: CustomFieldValue): Promise<CustomFieldValue>;
 }
 
-export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, Achievement, type AchievementProps, AddMemberToWorkspaceUseCase, type AddMentionInput, AddMentionUseCase, type AnalyticsRepository, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, AssignTagToTaskUseCase, type AssignTags, Attachment, type AttachmentProps, type AttachmentRepository, type AuditAction, BlogComment, type BlogCommentProps, BlogPost, type BlogPostProps, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, ChangelogEntry, type ChangelogEntryProps, type ChangelogType, ChatConversation, type ChatConversationProps, ChatMessage, type ChatMessageProps, type ChatRole, Comment, type CommentBase, type CommentFilter, type CommentProps, type CommentRepository, type CompleteTaskInput, CompleteTaskUseCase, ContactSubmission, type ContactSubmissionProps, type CountUnreadNotificationsInput, type CountUnreadNotificationsOutput, CountUnreadNotificationsUseCase, type CreateAttachmentInput, CreateAttachmentUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateCommentInput, CreateCommentUseCase, type CreateNoteInput, CreateNoteUseCase, type CreateNotificationInput, CreateNotificationUseCase, type CreateProjectDTO, CreateProjectUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, type CreateUserProps, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, CustomField, CustomFieldType, CustomFieldValue, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, type DeleteAttachmentInput, DeleteAttachmentUseCase, type DeleteCommentInput, DeleteCommentUseCase, type DeleteNoteInput, DeleteNoteUseCase, type DeleteNotificationInput, DeleteNotificationUseCase, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, FAQ, type FAQProps, FILE_LIMITS, type FindAllNotesInput, FindAllNotesUseCase, type FindNoteInput, FindNoteUseCase, type FocusScoreInput, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, type GetAttachmentByIdInput, GetAttachmentByIdUseCase, type GetAttachmentsByTaskInput, GetAttachmentsByTaskUseCase, type GetAttachmentsByUserInput, GetAttachmentsByUserUseCase, type GetCommentsByTaskInput, GetCommentsByTaskUseCase, type GetCommentsByUserInput, GetCommentsByUserUseCase, type GetConversationsOptions, type GetConversationsResult, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetNotificationByIdInput, GetNotificationByIdUseCase, type GetNotificationsByTypeInput, GetNotificationsByTypeUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetUnreadNotificationsInput, GetUnreadNotificationsUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IBlogRepository, type IChangelogRepository, type IChatRepository, type ICollaborationRepository, type IContactRepository, type ICustomFieldRepository, type IFAQRepository, type IGamificationRepository, type IHabitRepository, type IKBRepository, type INewsletterRepository, type IObjectiveRepository, type IRoadmapRepository, type ITaskTemplateRepository, Id, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, KBArticle, type KBArticleProps, KBCategory, type KBCategoryProps, KeyResult, type KeyResultProps, KeyResultTask, type KeyResultTaskProps, type LearnFromSessionInput, LearnFromSessionUseCase, ListWorkflowsUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MarkAllAsReadInput, type MarkAllAsReadOutput, MarkAllAsReadUseCase, type MarkAsReadInput, MarkAsReadUseCase, type MarkAsUnreadInput, MarkAsUnreadUseCase, type MarkAsUploadedInput, MarkAsUploadedUseCase, type MemberRole, type MemberRoleValue, type MemberWithUser, type MemberWorkload, type MetricType, type MetricsSnapshot, MockAIService, NOTIFICATION_LIMITS, NewsletterSubscriber, type NewsletterSubscriberProps, Note, type NoteProps, type NoteRepository, Notification, type NotificationProps, type NotificationRepository, NotificationType, type OKRPeriod, Objective, type ObjectiveProps, type ObjectiveStatus, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecurrenceProps, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, type RemoveMentionInput, RemoveMentionUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, ResourceType, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, RoadmapItem, type RoadmapItemProps, type RoadmapStatus, RoadmapVote, type RoadmapVoteProps, type SessionFilters, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRepository, type TaskStatus, type TaskStatusValue, TaskTemplate, type TaskTemplateProps, type TeamWorkloadSummary, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateCommentInput, UpdateCommentUseCase, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMemberRole, type UpdateNoteInput, UpdateNoteUseCase, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UseCase, User, UserAchievement, type UserAchievementProps, UserByEmail, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, type WorkloadSuggestion, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberProps, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateVoteWeight, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };
+type SearchEntityType = 'task' | 'project' | 'note' | 'comment' | 'habit';
+type SearchIntent = 'find' | 'filter' | 'aggregate' | 'compare';
+interface SearchQueryProps extends EntityProps {
+    userId: string;
+    query: string;
+    intent: SearchIntent;
+    keywords: string[];
+    filters: SearchFilters;
+    createdAt: Date;
+}
+interface SearchFilters {
+    types?: SearchEntityType[];
+    projectId?: string;
+    workspaceId?: string;
+    includeCompleted?: boolean;
+    dateRange?: {
+        from?: Date;
+        to?: Date;
+    };
+    priorities?: string[];
+    statuses?: string[];
+}
+declare class SearchQuery extends Entity<SearchQueryProps> {
+    constructor(props: SearchQueryProps, mode?: 'valid' | 'draft');
+    static create(userId: string, query: string, intent: SearchIntent, keywords: string[], filters: SearchFilters): SearchQuery;
+    private validate;
+    isTypeSearch(): boolean;
+    isFilterSearch(): boolean;
+    isAggregateSearch(): boolean;
+    isCompareSearch(): boolean;
+    hasTypeFilter(): boolean;
+    hasProjectFilter(): boolean;
+    hasDateRange(): boolean;
+    get userId(): string;
+    get query(): string;
+    get intent(): SearchIntent;
+    get keywords(): string[];
+    get filters(): SearchFilters;
+    get createdAt(): Date;
+}
+
+type SearchResultEntityType = 'task' | 'project' | 'note' | 'comment' | 'habit';
+interface SearchResultProps {
+    id: string;
+    type: SearchResultEntityType;
+    title: string;
+    description?: string;
+    relevanceScore: number;
+    highlights: string[];
+    metadata: {
+        status?: string;
+        priority?: string;
+        dueDate?: Date;
+        projectName?: string;
+        createdAt?: Date;
+    };
+}
+declare class SearchResult {
+    private readonly props;
+    constructor(props: SearchResultProps);
+    private validate;
+    isTask(): boolean;
+    isProject(): boolean;
+    isNote(): boolean;
+    isComment(): boolean;
+    isHabit(): boolean;
+    isHighRelevance(threshold?: number): boolean;
+    hasHighlights(): boolean;
+    getHighlightCount(): number;
+    get id(): string;
+    get type(): SearchResultEntityType;
+    get title(): string;
+    get description(): string | undefined;
+    get relevanceScore(): number;
+    get highlights(): string[];
+    get metadata(): {
+        status?: string;
+        priority?: string;
+        dueDate?: Date;
+        projectName?: string;
+        createdAt?: Date;
+    };
+}
+interface SearchResultsProps {
+    query: string;
+    results: SearchResult[];
+    interpretation: {
+        intent: string;
+        explanation: string;
+        suggestedFilters?: any;
+    };
+    totalCount: number;
+    executionTime: number;
+}
+declare class SearchResults {
+    private readonly props;
+    constructor(props: SearchResultsProps);
+    private validate;
+    hasResults(): boolean;
+    getResultCount(): number;
+    getTopResults(count?: number): SearchResult[];
+    getResultsByType(type: SearchResultEntityType): SearchResult[];
+    getHighRelevanceResults(threshold?: number): SearchResult[];
+    getTaskResults(): SearchResult[];
+    getProjectResults(): SearchResult[];
+    get query(): string;
+    get results(): SearchResult[];
+    get interpretation(): {
+        intent: string;
+        explanation: string;
+        suggestedFilters?: any;
+    };
+    get totalCount(): number;
+    get executionTime(): number;
+}
+
+interface SearchRepository {
+    search(query: SearchQuery): Promise<SearchResults>;
+    getSuggestions(userId: string, partialQuery: string, limit?: number): Promise<Array<{
+        text: string;
+        type: 'query' | 'task' | 'project';
+        count: number;
+    }>>;
+    quickSearch(userId: string, query: string, limit?: number): Promise<SearchResult[]>;
+    askQuestion(userId: string, question: string): Promise<{
+        answer: string;
+        type: 'summary' | 'data' | 'error';
+        data?: any;
+    }>;
+}
+interface SearchService {
+    interpretQuery(query: string): Promise<{
+        intent: 'find' | 'filter' | 'aggregate' | 'compare';
+        keywords: string[];
+        suggestedFilters: any;
+        explanation: string;
+    }>;
+}
+
+interface ExecuteSearchInput {
+    userId: string;
+    query: string;
+    types?: string[];
+    projectId?: string;
+    includeCompleted?: boolean;
+    limit?: number;
+}
+declare class ExecuteSearchUseCase implements UseCase<ExecuteSearchInput, SearchResults> {
+    private readonly searchRepo;
+    constructor(searchRepo: SearchRepository);
+    execute(input: ExecuteSearchInput): Promise<SearchResults>;
+}
+
+interface GetSuggestionsInput {
+    userId: string;
+    partialQuery: string;
+    limit?: number;
+}
+declare class GetSuggestionsUseCase implements UseCase<GetSuggestionsInput, any> {
+    private readonly searchRepo;
+    constructor(searchRepo: SearchRepository);
+    execute(input: GetSuggestionsInput): Promise<any>;
+}
+
+interface AskQuestionInput {
+    userId: string;
+    question: string;
+}
+declare class AskQuestionUseCase implements UseCase<AskQuestionInput, any> {
+    private readonly searchRepo;
+    constructor(searchRepo: SearchRepository);
+    execute(input: AskQuestionInput): Promise<any>;
+}
+
+/**
+ * Metadata structure for activity logs
+ */
+interface ActivityMetadata {
+    oldValue?: string;
+    newValue?: string;
+    fieldName?: string;
+    itemName?: string;
+}
+/**
+ * Properties for Activity entity
+ */
+interface ActivityProps {
+    id: string;
+    taskId: string;
+    userId: string;
+    type: ActivityType;
+    metadata?: ActivityMetadata;
+    createdAt: Date;
+}
+/**
+ * Activity entity represents a log entry for task-related actions
+ *
+ * Activities are immutable records of what happened to a task.
+ * They provide an audit trail for task history and user actions.
+ *
+ * @example
+ * ```typescript
+ * const activity = new Activity({
+ *   id: 'act-123',
+ *   taskId: 'task-456',
+ *   userId: 'user-789',
+ *   type: ActivityType.STATUS_CHANGED,
+ *   metadata: { oldValue: 'TODO', newValue: 'IN_PROGRESS', fieldName: 'status' },
+ *   createdAt: new Date(),
+ * });
+ *
+ * activity.isTaskRelated(); // true
+ * activity.isCommentActivity(); // false
+ * ```
+ */
+declare class Activity extends Entity<ActivityProps> {
+    constructor(props: ActivityProps, mode?: 'valid' | 'draft');
+    /**
+     * Validate activity properties
+     */
+    private validate;
+    get taskId(): string;
+    get userId(): string;
+    get type(): ActivityType;
+    get metadata(): ActivityMetadata | undefined;
+    get createdAt(): Date;
+    /**
+     * Check if this is a task-related activity
+     */
+    isTaskActivity(): boolean;
+    /**
+     * Check if this is a comment-related activity
+     */
+    isCommentActivity(): boolean;
+    /**
+     * Check if this is an attachment-related activity
+     */
+    isAttachmentActivity(): boolean;
+    /**
+     * Check if this is a subtask-related activity
+     */
+    isSubtaskActivity(): boolean;
+    /**
+     * Check if this is a field change activity
+     */
+    isFieldChangeActivity(): boolean;
+    /**
+     * Get the field name that changed (if applicable)
+     */
+    getChangedFieldName(): string | null;
+    /**
+     * Get human-readable description of the activity
+     */
+    getDescription(): string;
+}
+
+/**
+ * Input for creating an activity log
+ */
+interface CreateActivityInput {
+    taskId: string;
+    userId: string;
+    type: ActivityType;
+    metadata?: ActivityMetadata;
+}
+/**
+ * Repository interface for Activity domain
+ */
+interface ActivityRepository {
+    /**
+     * Log a new activity
+     */
+    logActivity(input: CreateActivityInput): Promise<Activity>;
+    /**
+     * Get activities for a specific task
+     */
+    getTaskActivities(taskId: string, limit?: number): Promise<Activity[]>;
+    /**
+     * Get activities by user
+     */
+    getUserActivities(userId: string, limit?: number): Promise<Activity[]>;
+    /**
+     * Get activities by type
+     */
+    getActivitiesByType(type: ActivityType, limit?: number): Promise<Activity[]>;
+    /**
+     * Get activities within a date range
+     */
+    getActivitiesByDateRange(startDate: Date, endDate: Date, taskId?: string): Promise<Activity[]>;
+    /**
+     * Delete old activities (for cleanup/retention)
+     */
+    deleteOldActivities(beforeDate: Date): Promise<number>;
+}
+
+interface LogActivityInput extends CreateActivityInput {
+}
+declare class LogActivityUseCase implements UseCase<LogActivityInput, Activity> {
+    private readonly activityRepo;
+    constructor(activityRepo: ActivityRepository);
+    execute(input: LogActivityInput): Promise<Activity>;
+}
+
+interface GetTaskActivitiesInput {
+    taskId: string;
+    limit?: number;
+}
+declare class GetTaskActivitiesUseCase implements UseCase<GetTaskActivitiesInput, Activity[]> {
+    private readonly activityRepo;
+    constructor(activityRepo: ActivityRepository);
+    execute(input: GetTaskActivitiesInput): Promise<Activity[]>;
+}
+
+type TrackCategory = 'nature' | 'cafe' | 'music' | 'white-noise' | 'binaural';
+interface AmbientTrackProps extends EntityProps<string> {
+    name: string;
+    description: string;
+    category: TrackCategory;
+    iconEmoji: string;
+    url: string;
+    duration: number;
+    isPremium: boolean;
+}
+declare class AmbientTrack extends Entity<AmbientTrackProps> {
+    constructor(props: AmbientTrackProps, mode?: 'valid' | 'draft');
+    private validate;
+    isLooping(): boolean;
+    getDurationInMinutes(): number;
+    isAccessibleToUser(hasPremium: boolean): boolean;
+    matchesCategory(category: TrackCategory): boolean;
+    isNature(): boolean;
+    isCafe(): boolean;
+    isMusic(): boolean;
+    isWhiteNoise(): boolean;
+    isBinaural(): boolean;
+    get name(): string;
+    get description(): string;
+    get category(): TrackCategory;
+    get iconEmoji(): string;
+    get url(): string;
+    get duration(): number;
+    get isPremium(): boolean;
+}
+
+interface FocusModeProps extends EntityProps {
+    name: string;
+    description: string;
+    workDuration: number;
+    shortBreakDuration: number;
+    longBreakDuration: number;
+    sessionsBeforeLongBreak: number;
+    recommendedTrackIds: string[];
+}
+declare class FocusMode extends Entity<FocusModeProps> {
+    constructor(props: FocusModeProps, mode?: 'valid' | 'draft');
+    private validate;
+    getTotalCycleTime(): number;
+    getTotalCycleTimeWithLongBreak(): number;
+    isLongBreakSession(sessionNumber: number): boolean;
+    getExpectedSessionDuration(sessionNumber: number): number;
+    hasRecommendedTrack(trackId: string): boolean;
+    isIntensive(): boolean;
+    isLight(): boolean;
+    get name(): string;
+    get description(): string;
+    get workDuration(): number;
+    get shortBreakDuration(): number;
+    get longBreakDuration(): number;
+    get sessionsBeforeLongBreak(): number;
+    get recommendedTrackIds(): string[];
+}
+
+interface FocusPreferencesProps extends EntityProps {
+    userId: string;
+    favoriteTrackIds: string[];
+    defaultVolume: number;
+    enableTransitions: boolean;
+    preferredModeId: string | null;
+}
+declare class FocusPreferences extends Entity<FocusPreferencesProps> {
+    constructor(props: FocusPreferencesProps, mode?: 'valid' | 'draft');
+    static create(userId: string): FocusPreferences;
+    private validate;
+    addFavorite(trackId: string): FocusPreferences;
+    removeFavorite(trackId: string): FocusPreferences;
+    toggleFavorite(trackId: string): FocusPreferences;
+    isFavorite(trackId: string): boolean;
+    updateVolume(volume: number): FocusPreferences;
+    setTransitionsEnabled(enabled: boolean): FocusPreferences;
+    setPreferredMode(modeId: string | null): FocusPreferences;
+    hasPreferredMode(): boolean;
+    getFavoriteCount(): number;
+    get userId(): string;
+    get favoriteTrackIds(): string[];
+    get defaultVolume(): number;
+    get enableTransitions(): boolean;
+    get preferredModeId(): string | null;
+}
+
+/**
+ * Value Object for Focus Session Statistics
+ */
+interface FocusStatsProps {
+    totalSessions: number;
+    totalFocusMinutes: number;
+    avgSessionLength: number;
+    favoriteTrack: string | null;
+    preferredMode: string | null;
+    streakDays: number;
+}
+declare class FocusStats {
+    private readonly props;
+    constructor(props: FocusStatsProps);
+    private validate;
+    getTotalFocusHours(): number;
+    hasData(): boolean;
+    hasStreak(): boolean;
+    isProductive(): boolean;
+    getStreakLevel(): 'none' | 'bronze' | 'silver' | 'gold' | 'platinum';
+    get totalSessions(): number;
+    get totalFocusMinutes(): number;
+    get avgSessionLength(): number;
+    get favoriteTrack(): string | null;
+    get preferredMode(): string | null;
+    get streakDays(): number;
+    toJSON(): {
+        totalSessions: number;
+        totalFocusMinutes: number;
+        totalFocusHours: number;
+        avgSessionLength: number;
+        favoriteTrack: string | null;
+        preferredMode: string | null;
+        streakDays: number;
+        streakLevel: "none" | "bronze" | "silver" | "gold" | "platinum";
+        hasData: boolean;
+        hasStreak: boolean;
+        isProductive: boolean;
+    };
+}
+
+interface TrackUsageRecord {
+    trackId: string;
+    durationMinutes: number;
+    userId: string;
+    recordedAt?: Date;
+}
+interface FocusRepository {
+    getUserPreferences(userId: string): Promise<FocusPreferences | null>;
+    saveUserPreferences(preferences: FocusPreferences): Promise<void>;
+    getFocusStats(userId: string): Promise<FocusStats>;
+    calculateFocusStreak(userId: string): Promise<number>;
+    recordTrackUsage(record: TrackUsageRecord): Promise<void>;
+    getMostUsedTracks(userId: string, limit?: number): Promise<Array<{
+        trackId: string;
+        count: number;
+    }>>;
+    getMostUsedMode(userId: string): Promise<string | null>;
+}
+
+interface GetUserPreferencesInput {
+    userId: string;
+}
+declare class GetUserPreferencesUseCase implements UseCase<GetUserPreferencesInput, FocusPreferences> {
+    private readonly focusRepo;
+    constructor(focusRepo: FocusRepository);
+    execute(input: GetUserPreferencesInput): Promise<FocusPreferences>;
+}
+
+interface UpdateUserPreferencesInput {
+    userId: string;
+    defaultVolume?: number;
+    enableTransitions?: boolean;
+    preferredModeId?: string | null;
+}
+declare class UpdateUserPreferencesUseCase implements UseCase<UpdateUserPreferencesInput, FocusPreferences> {
+    private readonly focusRepo;
+    constructor(focusRepo: FocusRepository);
+    execute(input: UpdateUserPreferencesInput): Promise<FocusPreferences>;
+}
+
+interface ToggleFavoriteTrackInput {
+    userId: string;
+    trackId: string;
+}
+declare class ToggleFavoriteTrackUseCase implements UseCase<ToggleFavoriteTrackInput, {
+    isFavorite: boolean;
+    preferences: FocusPreferences;
+}> {
+    private readonly focusRepo;
+    constructor(focusRepo: FocusRepository);
+    execute(input: ToggleFavoriteTrackInput): Promise<{
+        isFavorite: boolean;
+        preferences: FocusPreferences;
+    }>;
+}
+
+interface GetFocusStatsInput {
+    userId: string;
+}
+declare class GetFocusStatsUseCase implements UseCase<GetFocusStatsInput, FocusStats> {
+    private readonly focusRepo;
+    constructor(focusRepo: FocusRepository);
+    execute(input: GetFocusStatsInput): Promise<FocusStats>;
+}
+
+interface RecordTrackUsageInput {
+    userId: string;
+    trackId: string;
+    durationMinutes: number;
+}
+declare class RecordTrackUsageUseCase implements UseCase<RecordTrackUsageInput, void> {
+    private readonly focusRepo;
+    constructor(focusRepo: FocusRepository);
+    execute(input: RecordTrackUsageInput): Promise<void>;
+}
+
+interface GetRecommendedTracksInput {
+    userId: string;
+    hasPremium: boolean;
+    allAvailableTracks: AmbientTrack[];
+}
+declare class GetRecommendedTracksUseCase implements UseCase<GetRecommendedTracksInput, AmbientTrack[]> {
+    private readonly focusRepo;
+    constructor(focusRepo: FocusRepository);
+    execute(input: GetRecommendedTracksInput): Promise<AmbientTrack[]>;
+}
+
+type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+interface ActionItemProps extends EntityProps<string> {
+    title: string;
+    description?: string;
+    assignee?: string;
+    dueDate?: Date;
+    priority: Priority;
+    context: string;
+    completed?: boolean;
+    taskId?: string;
+}
+declare class ActionItem extends Entity<ActionItemProps> {
+    constructor(props: ActionItemProps, mode?: 'valid' | 'draft');
+    static create(props: Omit<ActionItemProps, 'id'>): ActionItem;
+    private validate;
+    isAssigned(): boolean;
+    hasDueDate(): boolean;
+    isOverdue(): boolean;
+    isDueWithin(days: number): boolean;
+    markAsCompleted(taskId?: string): ActionItem;
+    linkToTask(taskId: string): ActionItem;
+    isUrgent(): boolean;
+    getPriorityLevel(): number;
+    isHigherPriorityThan(other: ActionItem): boolean;
+    get title(): string;
+    get description(): string | undefined;
+    get assignee(): string | undefined;
+    get dueDate(): Date | undefined;
+    get priority(): Priority;
+    get context(): string;
+    get completed(): boolean;
+    get taskId(): string | undefined;
+}
+
+/**
+ * Value Objects for Meeting Analysis components
+ */
+type Sentiment = 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE' | 'MIXED';
+interface KeyDecisionProps {
+    decision: string;
+    context: string;
+    participants?: string[];
+}
+declare class KeyDecision {
+    private readonly props;
+    constructor(props: KeyDecisionProps);
+    private validate;
+    get decision(): string;
+    get context(): string;
+    get participants(): string[];
+    hasParticipants(): boolean;
+}
+interface MeetingParticipantProps {
+    name: string;
+    role?: string;
+    speakingTime?: number;
+}
+declare class MeetingParticipant {
+    private readonly props;
+    constructor(props: MeetingParticipantProps);
+    private validate;
+    get name(): string;
+    get role(): string | undefined;
+    get speakingTime(): number | undefined;
+    hasRole(): boolean;
+    isActiveSpeaker(): boolean;
+}
+interface MeetingTopicProps {
+    topic: string;
+    duration?: number;
+    summary: string;
+}
+declare class MeetingTopic {
+    private readonly props;
+    constructor(props: MeetingTopicProps);
+    private validate;
+    get topic(): string;
+    get duration(): number | undefined;
+    get summary(): string;
+    isMajorTopic(): boolean;
+}
+interface MeetingAnalysisProps {
+    summary: string;
+    keyPoints: string[];
+    actionItems: any[];
+    decisions: KeyDecision[];
+    participants: MeetingParticipant[];
+    topics: MeetingTopic[];
+    sentiment: Sentiment;
+    followUpRequired: boolean;
+    suggestedFollowUpDate?: Date;
+}
+declare class MeetingAnalysis {
+    private readonly props;
+    constructor(props: MeetingAnalysisProps);
+    private validate;
+    hasActionItems(): boolean;
+    hasDecisions(): boolean;
+    hasParticipants(): boolean;
+    hasTopics(): boolean;
+    isPositive(): boolean;
+    isNegative(): boolean;
+    requiresFollowUp(): boolean;
+    getActionItemCount(): number;
+    getDecisionCount(): number;
+    getParticipantCount(): number;
+    getTopicCount(): number;
+    wasProductive(): boolean;
+    get summary(): string;
+    get keyPoints(): string[];
+    get actionItems(): any[];
+    get decisions(): KeyDecision[];
+    get participants(): MeetingParticipant[];
+    get topics(): MeetingTopic[];
+    get sentiment(): Sentiment;
+    get followUpRequired(): boolean;
+    get suggestedFollowUpDate(): Date | undefined;
+}
+
+interface MeetingProps extends EntityProps<string> {
+    userId: string;
+    title: string;
+    date: Date;
+    duration: number;
+    transcript?: string;
+    audioUrl?: string;
+    analysis?: MeetingAnalysis;
+    projectId?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+declare class Meeting extends Entity<MeetingProps> {
+    constructor(props: MeetingProps, mode?: 'valid' | 'draft');
+    static create(props: Omit<MeetingProps, 'id' | 'createdAt' | 'updatedAt'>): Meeting;
+    private validate;
+    hasTranscript(): boolean;
+    hasAudio(): boolean;
+    hasAnalysis(): boolean;
+    isAssociatedWithProject(): boolean;
+    isPast(): boolean;
+    isFuture(): boolean;
+    isToday(): boolean;
+    isUpcoming(days?: number): boolean;
+    getDurationInHours(): number;
+    isLong(): boolean;
+    isShort(): boolean;
+    updateAnalysis(analysis: MeetingAnalysis): Meeting;
+    addTranscript(transcript: string): Meeting;
+    linkToProject(projectId: string): Meeting;
+    get userId(): string;
+    get title(): string;
+    get date(): Date;
+    get duration(): number;
+    get transcript(): string | undefined;
+    get audioUrl(): string | undefined;
+    get analysis(): MeetingAnalysis | undefined;
+    get projectId(): string | undefined;
+    get createdAt(): Date;
+    get updatedAt(): Date;
+}
+
+interface MeetingRepository {
+    create(meeting: Meeting): Promise<Meeting>;
+    findById(id: string): Promise<Meeting | null>;
+    findByUserId(userId: string): Promise<Meeting[]>;
+    findByProjectId(projectId: string): Promise<Meeting[]>;
+    update(meeting: Meeting): Promise<Meeting>;
+    delete(id: string): Promise<void>;
+    findUpcoming(userId: string, days?: number): Promise<Meeting[]>;
+    findPast(userId: string): Promise<Meeting[]>;
+    findByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Meeting[]>;
+    findWithTranscript(userId: string): Promise<Meeting[]>;
+    findWithAnalysis(userId: string): Promise<Meeting[]>;
+    countByUserId(userId: string): Promise<number>;
+    getTotalDuration(userId: string): Promise<number>;
+    getMeetingsStats(userId: string): Promise<{
+        total: number;
+        withTranscript: number;
+        withAnalysis: number;
+        totalHours: number;
+        avgDuration: number;
+    }>;
+}
+interface MeetingAnalysisService {
+    analyzeTranscript(transcript: string, options?: {
+        meetingTitle?: string;
+        participants?: string[];
+        duration?: number;
+        projectContext?: string;
+    }): Promise<MeetingAnalysis>;
+    extractActionItems(transcript: string, projectContext?: string): Promise<ActionItem[]>;
+    generateSummary(transcript: string, style?: 'executive' | 'detailed' | 'bullet-points'): Promise<string>;
+}
+
+interface CreateMeetingInput {
+    userId: string;
+    title: string;
+    date: Date;
+    duration: number;
+    transcript?: string;
+    audioUrl?: string;
+    projectId?: string;
+}
+declare class CreateMeetingUseCase implements UseCase<CreateMeetingInput, Meeting> {
+    private readonly meetingRepo;
+    constructor(meetingRepo: MeetingRepository);
+    execute(input: CreateMeetingInput): Promise<Meeting>;
+}
+
+interface GetMeetingInput {
+    id: string;
+}
+declare class GetMeetingUseCase implements UseCase<GetMeetingInput, Meeting | null> {
+    private readonly meetingRepo;
+    constructor(meetingRepo: MeetingRepository);
+    execute(input: GetMeetingInput): Promise<Meeting | null>;
+}
+
+interface ListMeetingsInput {
+    userId: string;
+    projectId?: string;
+    upcoming?: boolean;
+    past?: boolean;
+    days?: number;
+}
+declare class ListMeetingsUseCase implements UseCase<ListMeetingsInput, Meeting[]> {
+    private readonly meetingRepo;
+    constructor(meetingRepo: MeetingRepository);
+    execute(input: ListMeetingsInput): Promise<Meeting[]>;
+}
+
+interface AnalyzeTranscriptInput {
+    transcript: string;
+    meetingTitle?: string;
+    participants?: string[];
+    duration?: number;
+    projectContext?: string;
+}
+declare class AnalyzeTranscriptUseCase implements UseCase<AnalyzeTranscriptInput, MeetingAnalysis> {
+    private readonly analysisService;
+    constructor(analysisService: MeetingAnalysisService);
+    execute(input: AnalyzeTranscriptInput): Promise<MeetingAnalysis>;
+}
+
+interface ExtractActionItemsInput {
+    transcript: string;
+    projectContext?: string;
+}
+declare class ExtractActionItemsUseCase implements UseCase<ExtractActionItemsInput, ActionItem[]> {
+    private readonly analysisService;
+    constructor(analysisService: MeetingAnalysisService);
+    execute(input: ExtractActionItemsInput): Promise<ActionItem[]>;
+}
+
+interface GenerateSummaryInput {
+    transcript: string;
+    style?: 'executive' | 'detailed' | 'bullet-points';
+}
+declare class GenerateSummaryUseCase implements UseCase<GenerateSummaryInput, string> {
+    private readonly analysisService;
+    constructor(analysisService: MeetingAnalysisService);
+    execute(input: GenerateSummaryInput): Promise<string>;
+}
+
+interface UpdateMeetingAnalysisInput {
+    meetingId: string;
+    analysis: MeetingAnalysis;
+}
+declare class UpdateMeetingAnalysisUseCase implements UseCase<UpdateMeetingAnalysisInput, Meeting> {
+    private readonly meetingRepo;
+    constructor(meetingRepo: MeetingRepository);
+    execute(input: UpdateMeetingAnalysisInput): Promise<Meeting>;
+}
+
+/**
+ * Value Object representing image processing specifications
+ *
+ * Defines validation rules and processing parameters for images.
+ * These specifications are used throughout the image processing pipeline.
+ *
+ * @example
+ * ```typescript
+ * const avatarSpecs = ImageSpecs.forAvatar();
+ * const customSpecs = new ImageSpecs({
+ *   maxFileSize: 10 * 1024 * 1024, // 10MB
+ *   maxDimensions: 5000,
+ *   targetSize: 512,
+ *   quality: 90,
+ *   format: 'jpeg',
+ * });
+ * ```
+ */
+declare class ImageSpecs {
+    readonly maxFileSize: number;
+    readonly maxDimensions: number;
+    readonly targetSize?: number;
+    readonly quality?: number;
+    readonly format?: string;
+    constructor(props: {
+        maxFileSize: number;
+        maxDimensions: number;
+        targetSize?: number;
+        quality?: number;
+        format?: string;
+    });
+    private validate;
+    /**
+     * Get specifications for avatar processing
+     */
+    static forAvatar(): ImageSpecs;
+    /**
+     * Get specifications for general image optimization
+     */
+    static forOptimization(): ImageSpecs;
+    /**
+     * Get specifications for thumbnail processing
+     */
+    static forThumbnail(): ImageSpecs;
+    /**
+     * Get max file size in MB
+     */
+    getMaxFileSizeInMB(): number;
+    /**
+     * Check if file size is within limits
+     */
+    isValidFileSize(sizeInBytes: number): boolean;
+    /**
+     * Check if dimensions are within limits
+     */
+    isValidDimensions(width: number, height: number): boolean;
+    /**
+     * Check if this is an avatar specification
+     */
+    isAvatarSpecs(): boolean;
+}
+
+/**
+ * Value Object representing a processed image
+ *
+ * Contains the result of image processing operations including
+ * the buffer, dimensions, format, and size information.
+ *
+ * @example
+ * ```typescript
+ * const processed = new ProcessedImage({
+ *   buffer: Buffer.from('...'),
+ *   width: 256,
+ *   height: 256,
+ *   format: 'jpeg',
+ *   size: 12345,
+ *   originalName: 'avatar.jpg',
+ * });
+ *
+ * processed.isSquare(); // true
+ * processed.getSizeInKB(); // ~12 KB
+ * ```
+ */
+declare class ProcessedImage {
+    readonly buffer: Buffer;
+    readonly width: number;
+    readonly height: number;
+    readonly format: string;
+    readonly size: number;
+    readonly originalName?: string;
+    constructor(props: {
+        buffer: Buffer;
+        width: number;
+        height: number;
+        format: string;
+        size: number;
+        originalName?: string;
+    });
+    private validate;
+    /**
+     * Get size in bytes
+     */
+    getSizeInBytes(): number;
+    /**
+     * Get size in KB
+     */
+    getSizeInKB(): number;
+    /**
+     * Get size in MB
+     */
+    getSizeInMB(): number;
+    /**
+     * Check if image is square
+     */
+    isSquare(): boolean;
+    /**
+     * Check if image is landscape
+     */
+    isLandscape(): boolean;
+    /**
+     * Check if image is portrait
+     */
+    isPortrait(): boolean;
+    /**
+     * Check if format is JPEG
+     */
+    isJPEG(): boolean;
+    /**
+     * Check if format is PNG
+     */
+    isPNG(): boolean;
+    /**
+     * Check if format is WEBP
+     */
+    isWEBP(): boolean;
+    /**
+     * Get aspect ratio
+     */
+    getAspectRatio(): number;
+    /**
+     * Get megapixel count
+     */
+    getMegapixels(): number;
+    /**
+     * Generate filename for storage
+     */
+    generateFilename(prefix?: string): string;
+    /**
+     * Get file extension
+     */
+    getExtension(): string;
+    /**
+     * Get MIME type
+     */
+    getMimeType(): string;
+    /**
+     * Convert to DTO for API responses
+     */
+    toDTO(): {
+        size: number;
+        width: number;
+        height: number;
+        format: string;
+        sizeInKB: number;
+        sizeInMB: number;
+        aspectRatio: number;
+        megapixels: number;
+        isSquare: boolean;
+        mimeType: string;
+    };
+}
+
+/**
+ * Properties for Recurrence entity
+ */
+interface RecurrenceProps {
+    id: string;
+    taskId: string;
+    pattern: RecurrencePattern;
+    interval: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+    endDate?: Date;
+    createdAt: Date;
+}
+/**
+ * Recurrence entity represents task recurrence patterns
+ *
+ * Handles complex recurring task logic including daily, weekly, monthly,
+ * and yearly patterns with custom intervals and end dates.
+ *
+ * @example
+ * ```typescript
+ * const recurrence = new Recurrence({
+ *   id: 'rec-123',
+ *   taskId: 'task-456',
+ *   pattern: RecurrencePattern.WEEKLY,
+ *   interval: 2, // Every 2 weeks
+ *   daysOfWeek: [1, 3, 5], // Monday, Wednesday, Friday
+ *   endDate: new Date('2026-12-31'),
+ *   createdAt: new Date(),
+ * });
+ *
+ * recurrence.getNextOccurrence(new Date()); // Returns next date
+ * recurrence.isActive(); // true if before endDate
+ * ```
+ */
+declare class Recurrence extends Entity<RecurrenceProps> {
+    constructor(props: RecurrenceProps, mode?: 'valid' | 'draft');
+    /**
+     * Validate recurrence properties
+     */
+    private validate;
+    get taskId(): string;
+    get pattern(): RecurrencePattern;
+    get interval(): number;
+    get daysOfWeek(): number[] | undefined;
+    get dayOfMonth(): number | undefined;
+    get endDate(): Date | undefined;
+    /**
+     * Check if recurrence is still active
+     */
+    isActive(): boolean;
+    /**
+     * Check if recurrence has ended
+     */
+    hasEnded(): boolean;
+    /**
+     * Check if pattern is daily
+     */
+    isDaily(): boolean;
+    /**
+     * Check if pattern is weekly
+     */
+    isWeekly(): boolean;
+    /**
+     * Check if pattern is monthly
+     */
+    isMonthly(): boolean;
+    /**
+     * Check if pattern is yearly
+     */
+    isYearly(): boolean;
+    /**
+     * Calculate next occurrence from a given date
+     */
+    getNextOccurrence(fromDate?: Date): Date | null;
+    /**
+     * Get multiple next occurrences
+     */
+    getNextOccurrences(count: number, fromDate?: Date): Date[];
+    /**
+     * Calculate next weekly occurrence
+     */
+    private getNextWeeklyOccurrence;
+    /**
+     * Calculate next monthly occurrence
+     */
+    private getNextMonthlyOccurrence;
+    /**
+     * Get number of days in a month
+     */
+    private getDaysInMonth;
+    /**
+     * Get human-readable description
+     */
+    getDescription(): string;
+}
+
+/**
+ * Input for creating/updating recurrence
+ */
+interface RecurrenceInput {
+    taskId: string;
+    pattern: RecurrencePattern;
+    interval: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+    endDate?: Date;
+}
+/**
+ * Repository interface for Recurrence domain
+ */
+interface RecurrenceRepository {
+    /**
+     * Create recurrence for a task
+     */
+    create(input: RecurrenceInput): Promise<Recurrence>;
+    /**
+     * Get recurrence by ID
+     */
+    findById(id: string): Promise<Recurrence | null>;
+    /**
+     * Get recurrence by task ID
+     */
+    findByTaskId(taskId: string): Promise<Recurrence | null>;
+    /**
+     * Update recurrence
+     */
+    update(id: string, input: Partial<RecurrenceInput>): Promise<Recurrence>;
+    /**
+     * Delete recurrence
+     */
+    delete(id: string): Promise<void>;
+    /**
+     * Get all active recurrences
+     */
+    findActive(): Promise<Recurrence[]>;
+    /**
+     * Get recurrences ending before a date
+     */
+    findEndingBefore(date: Date): Promise<Recurrence[]>;
+    /**
+     * Get recurrences for a specific pattern
+     */
+    findByPattern(pattern: RecurrencePattern): Promise<Recurrence[]>;
+}
+
+declare class CreateRecurrenceUseCase implements UseCase<RecurrenceInput, Recurrence> {
+    private readonly recurrenceRepo;
+    constructor(recurrenceRepo: RecurrenceRepository);
+    execute(input: RecurrenceInput): Promise<Recurrence>;
+}
+
+interface GetNextOccurrenceInput {
+    taskId: string;
+    fromDate?: Date;
+}
+declare class GetNextOccurrenceUseCase implements UseCase<GetNextOccurrenceInput, Date | null> {
+    private readonly recurrenceRepo;
+    constructor(recurrenceRepo: RecurrenceRepository);
+    execute(input: GetNextOccurrenceInput): Promise<Date | null>;
+}
+
+/**
+ * Properties for Subscription entity
+ */
+interface SubscriptionProps {
+    id: string;
+    userId: string;
+    plan: SubscriptionPlan;
+    status: SubscriptionStatus;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    stripePriceId?: string;
+    stripeCurrentPeriodEnd?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
+/**
+ * Subscription entity represents user subscription plan
+ *
+ * Handles billing plans, subscription status, and Stripe integration.
+ * Enforces business rules for plan upgrades, downgrades, and cancellations.
+ *
+ * @example
+ * ```typescript
+ * const subscription = new Subscription({
+ *   id: 'sub-123',
+ *   userId: 'user-456',
+ *   plan: SubscriptionPlan.PRO,
+ *   status: SubscriptionStatus.ACTIVE,
+ *   stripeCustomerId: 'cus_xyz',
+ *   stripeSubscriptionId: 'sub_xyz',
+ *   createdAt: new Date(),
+ *   updatedAt: new Date(),
+ * });
+ *
+ * subscription.isActive(); // true
+ * subscription.canUpgradeTo(SubscriptionPlan.TEAM); // true
+ * ```
+ */
+declare class Subscription extends Entity<SubscriptionProps> {
+    constructor(props: SubscriptionProps, mode?: 'valid' | 'draft');
+    /**
+     * Validate subscription properties
+     */
+    private validate;
+    get userId(): string;
+    get plan(): SubscriptionPlan;
+    get status(): SubscriptionStatus;
+    get stripeCustomerId(): string | undefined;
+    get stripeSubscriptionId(): string | undefined;
+    get stripePriceId(): string | undefined;
+    get stripeCurrentPeriodEnd(): Date | undefined;
+    /**
+     * Check if subscription is active
+     */
+    isActive(): boolean;
+    /**
+     * Check if subscription is cancelled
+     */
+    isCancelled(): boolean;
+    /**
+     * Check if subscription is past due
+     */
+    isPastDue(): boolean;
+    /**
+     * Check if subscription is on trial
+     */
+    isTrial(): boolean;
+    /**
+     * Check if plan is free
+     */
+    isFree(): boolean;
+    /**
+     * Check if plan is paid (PRO, TEAM, or ENTERPRISE)
+     */
+    isPaid(): boolean;
+    /**
+     * Check if user can upgrade to a specific plan
+     */
+    canUpgradeTo(targetPlan: SubscriptionPlan): boolean;
+    /**
+     * Check if user can downgrade to a specific plan
+     */
+    canDowngradeTo(targetPlan: SubscriptionPlan): boolean;
+    /**
+     * Get plan level
+     */
+    getPlanLevel(): number;
+    /**
+     * Check if subscription has access to team features
+     */
+    hasTeamFeatures(): boolean;
+    /**
+     * Check if subscription has access to enterprise features
+     */
+    hasEnterpriseFeatures(): boolean;
+    /**
+     * Get days remaining in current billing period
+     */
+    getDaysRemainingInPeriod(): number | null;
+    /**
+     * Check if subscription is in trial period
+     */
+    isInTrialPeriod(): boolean;
+}
+
+/**
+ * Input for creating/updating subscription
+ */
+interface SubscriptionInput {
+    userId: string;
+    plan: SubscriptionPlan;
+    status: SubscriptionStatus;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    stripePriceId?: string;
+    stripeCurrentPeriodEnd?: Date;
+}
+/**
+ * Repository interface for Subscription domain
+ */
+interface SubscriptionRepository {
+    /**
+     * Create subscription
+     */
+    create(input: SubscriptionInput): Promise<Subscription>;
+    /**
+     * Get subscription by ID
+     */
+    findById(id: string): Promise<Subscription | null>;
+    /**
+     * Get subscription by user ID
+     */
+    findByUserId(userId: string): Promise<Subscription | null>;
+    /**
+     * Get subscription by Stripe customer ID
+     */
+    findByStripeCustomerId(stripeCustomerId: string): Promise<Subscription | null>;
+    /**
+     * Get subscription by Stripe subscription ID
+     */
+    findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<Subscription | null>;
+    /**
+     * Update subscription
+     */
+    update(id: string, input: Partial<SubscriptionInput>): Promise<Subscription>;
+    /**
+     * Update subscription status
+     */
+    updateStatus(id: string, status: SubscriptionStatus): Promise<Subscription>;
+    /**
+     * Get all active subscriptions
+     */
+    findActive(): Promise<Subscription[]>;
+    /**
+     * Get subscriptions by plan
+     */
+    findByPlan(plan: SubscriptionPlan): Promise<Subscription[]>;
+    /**
+     * Get subscriptions expiring soon (within 7 days)
+     */
+    findExpiringSoon(): Promise<Subscription[]>;
+    /**
+     * Cancel subscription
+     */
+    cancel(id: string): Promise<Subscription>;
+}
+
+interface GetUserSubscriptionInput {
+    userId: string;
+}
+declare class GetUserSubscriptionUseCase implements UseCase<GetUserSubscriptionInput, Subscription | null> {
+    private readonly subscriptionRepo;
+    constructor(subscriptionRepo: SubscriptionRepository);
+    execute(input: GetUserSubscriptionInput): Promise<Subscription | null>;
+}
+
+interface UpgradePlanInput {
+    subscriptionId: string;
+    newPlan: SubscriptionPlan;
+    stripePriceId?: string;
+}
+declare class UpgradePlanUseCase implements UseCase<UpgradePlanInput, Subscription> {
+    private readonly subscriptionRepo;
+    constructor(subscriptionRepo: SubscriptionRepository);
+    execute(input: UpgradePlanInput): Promise<Subscription>;
+}
+
+/**
+ * Properties for Session entity
+ */
+interface SessionProps {
+    id: string;
+    sessionToken: string;
+    userId: string;
+    expires: Date;
+}
+/**
+ * Session entity represents user authentication session
+ *
+ * Simple entity for session management.
+ * No complex business logic.
+ *
+ * @example
+ * ```typescript
+ * const session = new Session({
+ *   id: 'sess-123',
+ *   sessionToken: 'token-xyz',
+ *   userId: 'user-456',
+ *   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+ * });
+ *
+ * session.isExpired(); // false
+ * session.getDaysUntilExpiry(); // 7
+ * ```
+ */
+declare class Session extends Entity<SessionProps> {
+    constructor(props: SessionProps, mode?: 'valid' | 'draft');
+    private validate;
+    get sessionToken(): string;
+    get userId(): string;
+    get expires(): Date;
+    /**
+     * Check if session is expired
+     */
+    isExpired(): boolean;
+    /**
+     * Check if session is valid (not expired)
+     */
+    isValid(): boolean;
+    /**
+     * Get days until expiry
+     */
+    getDaysUntilExpiry(): number;
+}
+
+/**
+ * Properties for Account entity (OAuth)
+ */
+interface AccountProps {
+    id: string;
+    userId: string;
+    type: string;
+    provider: string;
+    providerAccountId: string;
+    refresh_token?: string;
+    access_token?: string;
+    expires_at?: number;
+    token_type?: string;
+    scope?: string;
+    id_token?: string;
+    session_state?: string;
+}
+/**
+ * Account entity represents OAuth connected account
+ *
+ * Simple entity for third-party OAuth providers.
+ * No complex business logic.
+ *
+ * @example
+ * ```typescript
+ * const account = new Account({
+ *   id: 'acc-123',
+ *   userId: 'user-456',
+ *   type: 'oauth',
+ *   provider: 'google',
+ *   providerAccountId: 'google-123',
+ *   access_token: 'token',
+ * });
+ *
+ * account.isExpired(); // checks expires_at
+ * ```
+ */
+declare class Account extends Entity<AccountProps> {
+    constructor(props: AccountProps, mode?: 'valid' | 'draft');
+    private validate;
+    get userId(): string;
+    get provider(): string;
+    get providerAccountId(): string;
+    get access_token(): string | undefined;
+    get refresh_token(): string | undefined;
+    get expires_at(): number | undefined;
+    /**
+     * Check if OAuth token is expired
+     */
+    isExpired(): boolean;
+    /**
+     * Check if account has refresh token
+     */
+    hasRefreshToken(): boolean;
+}
+
+interface SessionInput {
+    sessionToken: string;
+    userId: string;
+    expires: Date;
+}
+interface SessionRepository {
+    create(input: SessionInput): Promise<Session>;
+    findById(id: string): Promise<Session | null>;
+    findByToken(token: string): Promise<Session | null>;
+    findByUserId(userId: string): Promise<Session[]>;
+    delete(id: string): Promise<void>;
+    deleteByUserId(userId: string): Promise<void>;
+    deleteExpired(): Promise<number>;
+}
+
+interface AccountInput {
+    userId: string;
+    type: string;
+    provider: string;
+    providerAccountId: string;
+    refresh_token?: string;
+    access_token?: string;
+    expires_at?: number;
+    token_type?: string;
+    scope?: string;
+    id_token?: string;
+    session_state?: string;
+}
+interface AccountRepository {
+    create(input: AccountInput): Promise<Account>;
+    findById(id: string): Promise<Account | null>;
+    findByUserId(userId: string): Promise<Account[]>;
+    findByProvider(provider: string): Promise<Account[]>;
+    update(id: string, input: Partial<AccountInput>): Promise<Account>;
+    delete(id: string): Promise<void>;
+}
+
+/**
+ * Properties for AdminUser entity
+ */
+interface AdminUserProps {
+    id: string;
+    email: string;
+    hashedPassword: string;
+    name: string;
+    role: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+/**
+ * AdminUser entity represents admin panel users
+ *
+ * Simple entity for admin authentication and authorization.
+ * No complex business logic, just basic CRUD.
+ *
+ * @example
+ * ```typescript
+ * const admin = new AdminUser({
+ *   id: 'admin-123',
+ *   email: 'admin@example.com',
+ *   hashedPassword: 'hash',
+ *   name: 'Admin User',
+ *   role: 'admin',
+ *   createdAt: new Date(),
+ *   updatedAt: new Date(),
+ * });
+ *
+ * admin.isSuperAdmin(); // depends on role
+ * ```
+ */
+declare class AdminUser extends Entity<AdminUserProps> {
+    constructor(props: AdminUserProps, mode?: 'valid' | 'draft');
+    private validate;
+    get email(): string;
+    get hashedPassword(): string;
+    get name(): string;
+    get role(): string;
+    /**
+     * Check if user is super admin
+     */
+    isSuperAdmin(): boolean;
+    /**
+     * Check if user has specific role
+     */
+    hasRole(role: string): boolean;
+}
+
+interface AdminUserInput {
+    email: string;
+    hashedPassword: string;
+    name: string;
+    role?: string;
+}
+interface AdminUserRepository {
+    create(input: AdminUserInput): Promise<AdminUser>;
+    findById(id: string): Promise<AdminUser | null>;
+    findByEmail(email: string): Promise<AdminUser | null>;
+    update(id: string, input: Partial<AdminUserInput>): Promise<AdminUser>;
+    delete(id: string): Promise<void>;
+    findAll(): Promise<AdminUser[]>;
+}
+
+/**
+ * Properties for UserIntegration entity
+ */
+interface UserIntegrationProps {
+    id: string;
+    userId: string;
+    provider: IntegrationProvider;
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: Date;
+    scope?: string;
+    providerUserId?: string;
+    providerEmail?: string;
+    settings?: Record<string, unknown>;
+    isActive: boolean;
+    lastSyncAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
+/**
+ * UserIntegration entity represents third-party service integrations
+ *
+ * Handles connections to Google, Slack, GitHub, etc.
+ * Manages OAuth tokens and sync status.
+ *
+ * @example
+ * ```typescript
+ * const integration = new UserIntegration({
+ *   id: 'int-123',
+ *   userId: 'user-456',
+ *   provider: IntegrationProvider.GOOGLE_CALENDAR,
+ *   accessToken: 'xyz',
+ *   isActive: true,
+ *   createdAt: new Date(),
+ *   updatedAt: new Date(),
+ * });
+ *
+ * integration.needsSync(); // true if last sync > 1 hour ago
+ * integration.isExpired(); // checks token expiry
+ * ```
+ */
+declare class UserIntegration extends Entity<UserIntegrationProps> {
+    constructor(props: UserIntegrationProps, mode?: 'valid' | 'draft');
+    private validate;
+    get userId(): string;
+    get provider(): IntegrationProvider;
+    get accessToken(): string | undefined;
+    get refreshToken(): string | undefined;
+    get expiresAt(): Date | undefined;
+    get isActive(): boolean;
+    get lastSyncAt(): Date | undefined;
+    get settings(): Record<string, unknown> | undefined;
+    /**
+     * Check if integration is active and connected
+     */
+    isConnected(): boolean;
+    /**
+     * Check if access token is expired
+     */
+    isExpired(): boolean;
+    /**
+     * Check if token will expire soon (within 1 hour)
+     */
+    willExpireSoon(): boolean;
+    /**
+     * Check if integration needs sync (no sync in last hour)
+     */
+    needsSync(): boolean;
+    /**
+     * Check if sync is recent (within last hour)
+     */
+    hasRecentSync(): boolean;
+    /**
+     * Get time since last sync in minutes
+     */
+    getMinutesSinceLastSync(): number | null;
+    /**
+     * Update sync timestamp
+     */
+    markAsSynced(): UserIntegration;
+    /**
+     * Deactivate integration
+     */
+    deactivate(): UserIntegration;
+    /**
+     * Activate integration
+     */
+    activate(): UserIntegration;
+    /**
+     * Update settings
+     */
+    updateSettings(settings: Record<string, unknown>): UserIntegration;
+    /**
+     * Get a specific setting value
+     */
+    getSetting<K extends keyof Record<string, unknown>>(key: K): Record<string, unknown>[K] | undefined;
+}
+
+interface UserIntegrationInput {
+    userId: string;
+    provider: IntegrationProvider;
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: Date;
+    scope?: string;
+    providerUserId?: string;
+    providerEmail?: string;
+    settings?: Record<string, unknown>;
+}
+interface UserIntegrationRepository {
+    create(input: UserIntegrationInput): Promise<UserIntegration>;
+    findById(id: string): Promise<UserIntegration | null>;
+    findByUserAndProvider(userId: string, provider: IntegrationProvider): Promise<UserIntegration | null>;
+    findByUser(userId: string): Promise<UserIntegration[]>;
+    update(id: string, input: Partial<UserIntegrationInput>): Promise<UserIntegration>;
+    updateLastSync(id: string): Promise<UserIntegration>;
+    deactivate(id: string): Promise<void>;
+    delete(id: string): Promise<void>;
+    findActive(): Promise<UserIntegration[]>;
+    findExpiringSoon(): Promise<UserIntegration[]>;
+}
+
+export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, Account, type AccountInput, type AccountProps, type AccountRepository, Achievement, type AchievementProps, ActionItem, type ActionItemProps, Activity, type ActivityMetadata, type ActivityProps, type ActivityRepository, AddMemberToWorkspaceUseCase, type AddMentionInput, AddMentionUseCase, AdminUser, type AdminUserInput, type AdminUserProps, type AdminUserRepository, AmbientTrack, type AmbientTrackProps, type AnalyticsRepository, type AnalyzeTranscriptInput, AnalyzeTranscriptUseCase, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, type AskQuestionInput, AskQuestionUseCase, AssignTagToTaskUseCase, type AssignTags, Attachment, type AttachmentProps, type AttachmentRepository, type AuditAction, BlogComment, type BlogCommentProps, BlogPost, type BlogPostProps, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, ChangelogEntry, type ChangelogEntryProps, type ChangelogType, ChatConversation, type ChatConversationProps, ChatMessage, type ChatMessageProps, type ChatRole, Comment, type CommentBase, type CommentFilter, type CommentProps, type CommentRepository, type CompleteTaskInput, CompleteTaskUseCase, ContactSubmission, type ContactSubmissionProps, type CountUnreadNotificationsInput, type CountUnreadNotificationsOutput, CountUnreadNotificationsUseCase, type CreateActivityInput, type CreateAttachmentInput, CreateAttachmentUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateCommentInput, CreateCommentUseCase, type CreateMeetingInput, CreateMeetingUseCase, type CreateNoteInput, CreateNoteUseCase, type CreateNotificationInput, CreateNotificationUseCase, type CreateProjectDTO, CreateProjectUseCase, CreateRecurrenceUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, type CreateUserProps, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, CustomField, CustomFieldType, CustomFieldValue, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, type DeleteAttachmentInput, DeleteAttachmentUseCase, type DeleteCommentInput, DeleteCommentUseCase, type DeleteNoteInput, DeleteNoteUseCase, type DeleteNotificationInput, DeleteNotificationUseCase, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, type ExecuteSearchInput, ExecuteSearchUseCase, type ExtractActionItemsInput, ExtractActionItemsUseCase, FAQ, type FAQProps, FILE_LIMITS, type FindAllNotesInput, FindAllNotesUseCase, type FindNoteInput, FindNoteUseCase, FocusMode, type FocusModeProps, FocusPreferences, type FocusPreferencesProps, type FocusRepository, type FocusScoreInput, FocusStats, type FocusStatsProps, type GenerateSummaryInput, GenerateSummaryUseCase, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, type GetAttachmentByIdInput, GetAttachmentByIdUseCase, type GetAttachmentsByTaskInput, GetAttachmentsByTaskUseCase, type GetAttachmentsByUserInput, GetAttachmentsByUserUseCase, type GetCommentsByTaskInput, GetCommentsByTaskUseCase, type GetCommentsByUserInput, GetCommentsByUserUseCase, type GetConversationsOptions, type GetConversationsResult, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetFocusStatsInput, GetFocusStatsUseCase, type GetMeetingInput, GetMeetingUseCase, type GetNextOccurrenceInput, GetNextOccurrenceUseCase, type GetNotificationByIdInput, GetNotificationByIdUseCase, type GetNotificationsByTypeInput, GetNotificationsByTypeUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetRecommendedTracksInput, GetRecommendedTracksUseCase, type GetSuggestionsInput, GetSuggestionsUseCase, type GetTaskActivitiesInput, GetTaskActivitiesUseCase, type GetUnreadNotificationsInput, GetUnreadNotificationsUseCase, type GetUserPreferencesInput, GetUserPreferencesUseCase, type GetUserSubscriptionInput, GetUserSubscriptionUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IBlogRepository, type IChangelogRepository, type IChatRepository, type ICollaborationRepository, type IContactRepository, type ICustomFieldRepository, type IFAQRepository, type IGamificationRepository, type IHabitRepository, type IKBRepository, type INewsletterRepository, type IObjectiveRepository, type IRoadmapRepository, type ITaskTemplateRepository, Id, ImageSpecs, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, KBArticle, type KBArticleProps, KBCategory, type KBCategoryProps, KeyDecision, type KeyDecisionProps, KeyResult, type KeyResultProps, KeyResultTask, type KeyResultTaskProps, type LearnFromSessionInput, LearnFromSessionUseCase, type ListMeetingsInput, ListMeetingsUseCase, ListWorkflowsUseCase, type LogActivityInput, LogActivityUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MarkAllAsReadInput, type MarkAllAsReadOutput, MarkAllAsReadUseCase, type MarkAsReadInput, MarkAsReadUseCase, type MarkAsUnreadInput, MarkAsUnreadUseCase, type MarkAsUploadedInput, MarkAsUploadedUseCase, Meeting, MeetingAnalysis, type MeetingAnalysisProps, type MeetingAnalysisService, MeetingParticipant, type MeetingParticipantProps, type MeetingProps, type MeetingRepository, MeetingTopic, type MeetingTopicProps, type MemberRole, type MemberRoleValue, type MemberWithUser, type MemberWorkload, type MetricType, type MetricsSnapshot, MockAIService, NOTIFICATION_LIMITS, NewsletterSubscriber, type NewsletterSubscriberProps, Note, type NoteProps, type NoteRepository, Notification, type NotificationProps, type NotificationRepository, NotificationType, type OKRPeriod, Objective, type ObjectiveProps, type ObjectiveStatus, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, type Priority, ProcessedImage, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecordTrackUsageInput, RecordTrackUsageUseCase, Recurrence, type RecurrenceInput, type RecurrenceProps, type RecurrenceRepository, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, type RemoveMentionInput, RemoveMentionUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, ResourceType, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, RoadmapItem, type RoadmapItemProps, type RoadmapStatus, RoadmapVote, type RoadmapVoteProps, type SearchEntityType, type SearchFilters, type SearchIntent, SearchQuery, type SearchQueryProps, type SearchRepository, SearchResult, type SearchResultEntityType, type SearchResultProps, SearchResults, type SearchResultsProps, type SearchService, type Sentiment, Session, type SessionFilters, type SessionInput, type SessionProps, type SessionRepository, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, Subscription, type SubscriptionInput, type SubscriptionProps, type SubscriptionRepository, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, TaskDependency, type TaskDependencyInput, type TaskDependencyProps, type TaskDependencyRepository, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRecurrenceInfo, type TaskRepository, type TaskStatus, type TaskStatusValue, TaskTemplate, type TaskTemplateProps, type TeamWorkloadSummary, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type ToggleFavoriteTrackInput, ToggleFavoriteTrackUseCase, type TrackCategory, type TrackUsageRecord, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateCommentInput, UpdateCommentUseCase, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMeetingAnalysisInput, UpdateMeetingAnalysisUseCase, type UpdateMemberRole, type UpdateNoteInput, UpdateNoteUseCase, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserPreferencesInput, UpdateUserPreferencesUseCase, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UpgradePlanInput, UpgradePlanUseCase, type UseCase, User, UserAchievement, type UserAchievementProps, UserByEmail, UserIntegration, type UserIntegrationInput, type UserIntegrationProps, type UserIntegrationRepository, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, type WorkloadSuggestion, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberInput, type WorkspaceMemberProps, type WorkspaceMemberRepository, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateVoteWeight, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };

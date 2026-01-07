@@ -61,7 +61,7 @@ export class UpdateTaskDto {
 
   @IsNumber()
   @IsOptional()
-  estimatedTime?: number;
+  estimatedMinutes?: number;
 
   @IsString()
   @IsOptional()

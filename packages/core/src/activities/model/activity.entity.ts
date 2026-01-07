@@ -103,7 +103,7 @@ export class Activity extends Entity<ActivityProps> {
       ActivityType.TASK_UPDATED,
       ActivityType.TASK_COMPLETED,
       ActivityType.TASK_DELETED,
-    ].includes(this.props.type);
+    ].includes(this.props.type as any);
   }
 
   /**
@@ -114,7 +114,7 @@ export class Activity extends Entity<ActivityProps> {
       ActivityType.COMMENT_ADDED,
       ActivityType.COMMENT_EDITED,
       ActivityType.COMMENT_DELETED,
-    ].includes(this.props.type);
+    ].includes(this.props.type as any);
   }
 
   /**
@@ -124,7 +124,7 @@ export class Activity extends Entity<ActivityProps> {
     return [
       ActivityType.ATTACHMENT_ADDED,
       ActivityType.ATTACHMENT_DELETED,
-    ].includes(this.props.type);
+    ].includes(this.props.type as any);
   }
 
   /**
@@ -134,7 +134,7 @@ export class Activity extends Entity<ActivityProps> {
     return [
       ActivityType.SUBTASK_ADDED,
       ActivityType.SUBTASK_COMPLETED,
-    ].includes(this.props.type);
+    ].includes(this.props.type as any);
   }
 
   /**
@@ -146,7 +146,7 @@ export class Activity extends Entity<ActivityProps> {
       ActivityType.PRIORITY_CHANGED,
       ActivityType.DUE_DATE_CHANGED,
       ActivityType.ASSIGNEE_CHANGED,
-    ].includes(this.props.type);
+    ].includes(this.props.type as any);
   }
 
   /**

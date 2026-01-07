@@ -4,7 +4,7 @@ import type { TagProps } from "../../tags/model/tag.entity";
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-export interface TaskProps extends EntityProps {
+export interface TaskProps extends EntityProps<string> {
   title: string;
   description?: string;
   status: TaskStatus;
@@ -21,7 +21,10 @@ export interface TaskProps extends EntityProps {
   assigneeId?: string | null;
   parentTaskId?: string;
   subTasks?: Task[];
-  estimatedTime?: number;
+  estimatedMinutes?: number;
+  actualMinutes?: number;
+  publicToken?: string;
+  energyRequired?: "LOW" | "MEDIUM" | "HIGH";
   tags?: TagProps[];
   project?: { id: string; name: string; color: string }; // Project information for display
   assignee?: { id: string; name: string; image?: string }; // Assignee information for display
@@ -30,10 +33,10 @@ export interface TaskProps extends EntityProps {
   deletedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
-  recurrence?: RecurrenceProps;
+  recurrence?: TaskRecurrenceInfo;
 }
 
-export interface RecurrenceProps {
+export interface TaskRecurrenceInfo {
   pattern: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "CUSTOM";
   interval?: number;
   daysOfWeek?: number[];

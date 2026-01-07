@@ -18,23 +18,19 @@ import { Prisma } from '@prisma/client';
 export class PrismaFocusRepository implements FocusRepository {
   private readonly logger = new Logger(PrismaFocusRepository.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getUserPreferences(userId: string): Promise<FocusPreferences | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { preferences: true },
+    const preferences = await this.prisma.userPreferences.findUnique({
+      where: { userId },
+      select: { focusAudio: true },
     });
 
-    if (!user) {
+    if (!preferences || !preferences.focusAudio) {
       return null;
     }
 
-    const prefs = (user.preferences as Record<string, any>)?.focusAudio;
-
-    if (!prefs) {
-      return null;
-    }
+    const prefs = preferences.focusAudio as Record<string, any>;
 
     return new FocusPreferences({
       id: 'prefs',
@@ -47,22 +43,22 @@ export class PrismaFocusRepository implements FocusRepository {
   }
 
   async saveUserPreferences(preferences: FocusPreferences): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: preferences.userId },
-      select: { preferences: true },
-    });
-
-    const currentPrefs = (user?.preferences as Record<string, any>) || {};
-    currentPrefs.focusAudio = {
+    const focusAudio = {
       favoriteTrackIds: preferences.favoriteTrackIds,
       defaultVolume: preferences.defaultVolume,
       enableTransitions: preferences.enableTransitions,
       preferredModeId: preferences.preferredModeId,
     };
 
-    await this.prisma.user.update({
-      where: { id: preferences.userId },
-      data: { preferences: currentPrefs as Prisma.InputJsonValue },
+    await this.prisma.userPreferences.upsert({
+      where: { userId: preferences.userId },
+      create: {
+        userId: preferences.userId,
+        focusAudio: focusAudio as Prisma.InputJsonValue,
+      },
+      update: {
+        focusAudio: focusAudio as Prisma.InputJsonValue,
+      },
     });
   }
 

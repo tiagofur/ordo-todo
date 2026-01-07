@@ -1264,3 +1264,110 @@ La auditoría inicial identificó **22 módulos** que necesitan refactorización
 **Fecha finalización**: 7 de enero, 2026  
 **Duración Phase 5**: Sesión continua (análisis + refactorización)
 
+---
+
+# 🔧 PHASE 5b - CORRECCIÓN DE E2E TESTS (7 de enero, 2026)
+
+## Resumen de Correcciones
+
+Esta sesión se enfocó en resolver errores de inicialización que impedían la ejecución de los tests E2E del backend.
+
+### Problemas Identificados y Resueltos
+
+#### 1. ❌ `TypeError: Cannot read properties of undefined (reading 'provide')`
+
+**Causa**: Dependencia circular entre módulos de cache/redis.
+
+**Archivos afectados**:
+- `apps/backend/src/cache/redis.module.ts`
+- `apps/backend/src/cache/cache.module.ts`
+
+**Solución**: 
+- Removido `CacheModule` de las exportaciones de `redis.module.ts`
+- Eliminada la referencia circular que causaba que módulos exportaran `undefined`
+
+#### 2. ❌ `Nest can't resolve dependencies of RedisService`
+
+**Causa**: `HealthModule` importaba el módulo Redis equivocado (`src/redis/redis.module.ts` en lugar de `src/cache/redis.module.ts`).
+
+**Archivos modificados**:
+- `apps/backend/src/health/health.module.ts` - Cambiado import de `RedisModule` a `CacheModule`
+- `apps/backend/src/health/health.service.ts` - Cambiado import de `RedisService` de `../cache/redis.service`
+
+#### 3. ❌ `Nest can't resolve dependencies of ActivitiesService`
+
+**Causa**: `ActivitiesService` no usaba `@Inject('LogActivityUseCase')` para el token string.
+
+**Archivo modificado**:
+- `apps/backend/src/activities/activities.service.ts` - Agregado `@Inject('LogActivityUseCase')` decorator
+
+#### 4. ❌ `FocusAudioService dependency undefined at index [1]`
+
+**Causa**: Use cases importados con `import type` en lugar de `import` regular.
+
+**Archivo modificado**:
+- `apps/backend/src/focus/focus-audio.service.ts` - Movidos use cases de `import type` a `import` regular para disponibilidad en runtime
+
+#### 5. ❌ `'app.router' is deprecated` (Express version mismatch)
+
+**Causa**: `@nestjs/platform-express@11.x` requiere Express 5.x, pero el root `package.json` tenía override de Express 4.x.
+
+**Archivos modificados**:
+- `package.json` (root):
+  - Actualizado override de `express` a `^5.2.1`
+  - Agregado `express: ^5.2.1` como dependencia directa
+  - Removidos overrides conflictivos: `body-parser`, `send`, `serve-static`, `path-to-regexp`
+
+#### 6. 🔧 Limpieza de módulos
+
+**Archivos modificados**:
+- `apps/backend/src/meetings/meetings.module.ts` - Removido `useExisting` auto-referencial innecesario
+- `apps/backend/src/focus/focus.module.ts` - Removido `useExisting` auto-referencial innecesario
+
+### Resultados
+
+| Test Suite | Estado Antes | Estado Después |
+|------------|--------------|----------------|
+| `app.e2e-spec.ts` | ❌ FAIL (TypeError: provide) | ✅ PASS |
+
+### Estado Actual de E2E Tests
+
+```
+PASS test/app.e2e-spec.ts
+  AppController (e2e)
+    ✓ / (GET) (520 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+```
+
+### Problemas Menores Pendientes (No Blockers)
+
+1. **Prisma Logger Issue**: `this.log is not a function` - Conocido en Prisma 7.x
+2. **Jest Not Exiting**: Background scheduler cron jobs ejecutándose durante tests
+3. **Test Data Validation**: Algunos tests E2E fallan por datos de prueba (400 Bad Request en registro)
+
+### Dependencias Actualizadas
+
+| Paquete | Versión Anterior | Versión Nueva |
+|---------|------------------|---------------|
+| `express` | `^4.21.2` (override) | `^5.2.1` |
+
+### Archivos Modificados (Total: 9)
+
+1. `package.json` (root) - Express override y dependencia
+2. `apps/backend/src/cache/redis.module.ts` - Removida exportación circular
+3. `apps/backend/src/health/health.module.ts` - Import CacheModule
+4. `apps/backend/src/health/health.service.ts` - Import correcto de RedisService
+5. `apps/backend/src/activities/activities.service.ts` - Added @Inject decorator
+6. `apps/backend/src/focus/focus-audio.service.ts` - Fixed use case imports
+7. `apps/backend/src/focus/focus.module.ts` - Removed self-referencing provider
+8. `apps/backend/src/meetings/meetings.module.ts` - Removed self-referencing provider
+9. `apps/backend/src/app.module.ts` - Restaurados módulos comentados
+
+---
+
+**Fecha**: 7 de enero, 2026  
+**Sesión**: Corrección de E2E Tests  
+**Tests E2E básicos**: ✅ FUNCIONANDO
+

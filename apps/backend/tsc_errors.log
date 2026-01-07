@@ -1,0 +1,25 @@
+src/focus/focus-audio.service.ts(241,33): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+src/repositories/prisma-meeting.repository.ts(75,9): error TS2322: Type 'InputJsonValue | null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+src/repositories/prisma-meeting.repository.ts(75,39): error TS2352: Conversion of type 'MeetingAnalysis' to type 'InputJsonValue' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MeetingAnalysis' is not comparable to type 'InputJsonObject'.
+    Index signature for type 'string' is missing in type 'MeetingAnalysis'.
+src/repositories/prisma-meeting.repository.ts(163,11): error TS2322: Type 'null' is not assignable to type 'InputJsonValue | JsonNullValueFilter | FieldRef<"Meeting", "Json"> | undefined'.
+src/repositories/prisma-meeting.repository.ts(200,38): error TS2322: Type 'null' is not assignable to type 'InputJsonValue | JsonNullValueFilter | FieldRef<"Meeting", "Json"> | undefined'.
+src/repositories/prisma-meeting.repository.ts(222,7): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'Omit<MeetingProps, "id" | "createdAt" | "updatedAt">'.
+src/repositories/prisma-meeting.repository.ts(244,20): error TS2339: Property 'create' does not exist on type 'typeof ActionItem'.
+src/repositories/tag.repository.ts(88,5): error TS2322: Type '{ id: string; name: string; color: string; workspaceId: string | null; createdAt: Date; taskCount: number; }[]' is not assignable to type '{ id: string; name: string; color: string; workspaceId: string; createdAt: Date; taskCount: number; }[]'.
+  Type '{ id: string; name: string; color: string; workspaceId: string | null; createdAt: Date; taskCount: number; }' is not assignable to type '{ id: string; name: string; color: string; workspaceId: string; createdAt: Date; taskCount: number; }'.
+    Types of property 'workspaceId' are incompatible.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+src/repositories/tag.repository.ts(121,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/repositories/task.repository.ts(170,36): error TS2339: Property 'estimatedTime' does not exist on type 'Readonly<TaskProps>'.
+src/repositories/task.repository.ts(404,36): error TS2339: Property 'estimatedTime' does not exist on type 'Readonly<TaskProps>'.
+src/repositories/workspace.repository.ts(298,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/repositories/workspace.repository.ts(299,7): error TS2322: Type '{ name: string; id: string; email: string; username: string; } | null' is not assignable to type '{ id: string; username: string; name: string | null; email: string | null; }'.
+  Type 'null' is not assignable to type '{ id: string; username: string; name: string | null; email: string | null; }'.
+src/tasks/tasks.service.ts(366,33): error TS2339: Property 'estimatedTime' does not exist on type 'Readonly<TaskProps>'.
+src/users/users.service.ts(308,31): error TS2339: Property 'delete' does not exist on type 'UserRepository'.

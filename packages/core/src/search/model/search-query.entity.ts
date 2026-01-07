@@ -86,7 +86,7 @@ export class SearchQuery extends Entity<SearchQueryProps> {
   }
 
   hasDateRange(): boolean {
-    return !!this.props.filters.dateRange && (this.props.filters.dateRange.from || this.props.filters.dateRange.to);
+    return !!this.props.filters.dateRange && !!(this.props.filters.dateRange.from || this.props.filters.dateRange.to);
   }
 
   // Getters

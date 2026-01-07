@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Converts Prisma User model to Domain User entity
@@ -28,6 +28,13 @@ export class PrismaUserRepository implements UserRepository {
         username: prismaUser.username,
         email: prismaUser.email,
         image: prismaUser.image,
+        phone: prismaUser.phone,
+        jobTitle: prismaUser.jobTitle,
+        department: prismaUser.department,
+        bio: prismaUser.bio,
+        timezone: prismaUser.timezone ?? undefined,
+        locale: prismaUser.locale ?? undefined,
+        lastUsernameChangeAt: prismaUser.lastUsernameChangeAt,
         createdAt: prismaUser.createdAt,
         updatedAt: prismaUser.updatedAt,
       },
@@ -70,6 +77,15 @@ export class PrismaUserRepository implements UserRepository {
       data: {
         name: props.name,
         email: props.email,
+        username: props.username,
+        image: props.image,
+        phone: props.phone,
+        jobTitle: props.jobTitle,
+        department: props.department,
+        bio: props.bio,
+        timezone: props.timezone,
+        locale: props.locale,
+        lastUsernameChangeAt: props.lastUsernameChangeAt,
         hashedPassword: props.password,
         updatedAt: new Date(),
       },
@@ -83,6 +99,13 @@ export class PrismaUserRepository implements UserRepository {
     username: true,
     name: true,
     image: true,
+    phone: true,
+    jobTitle: true,
+    department: true,
+    bio: true,
+    timezone: true,
+    locale: true,
+    lastUsernameChangeAt: true,
     hashedPassword: true,
     createdAt: true,
     updatedAt: true,
@@ -205,6 +228,12 @@ export class PrismaUserRepository implements UserRepository {
         xp,
         level,
       },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.user.delete({
+      where: { id },
     });
   }
 }

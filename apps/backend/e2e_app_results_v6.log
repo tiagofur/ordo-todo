@@ -1,0 +1,61 @@
+
+> @ordo-todo/backend@1.1.0 test:e2e
+> jest --config ./test/jest-e2e.json test/app.e2e-spec.ts
+
+FAIL test/app.e2e-spec.ts
+  AppController (e2e)
+    ├ù / (GET) (72 ms)
+
+  ÔùÅ AppController (e2e) ÔÇ║ / (GET)
+
+    Nest can't resolve dependencies of the ActivitiesService (?). Please make sure that the argument KE at index [0] is available in the ActivitiesModule context.
+
+    Potential solutions:
+    - Is ActivitiesModule a valid NestJS module?
+    - If KE is a provider, is it part of the current ActivitiesModule?
+    - If KE is exported from a separate @Module, is that module imported within ActivitiesModule?
+      @Module({
+        imports: [ /* the Module containing KE */ ]
+      })
+
+    For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
+
+       9 |
+      10 |   beforeEach(async () => {
+    > 11 |     const moduleFixture: TestingModule = await Test.createTestingModule({
+         |                                          ^
+      12 |       imports: [AppModule],
+      13 |     }).compile();
+      14 |
+
+      at TestingInjector.lookupComponentInParentModules (../../../node_modules/@nestjs/core/injector/injector.js:290:19)
+      at TestingInjector.resolveComponentWrapper (../../../node_modules/@nestjs/testing/testing-injector.js:19:45)
+      at resolveParam (../../../node_modules/@nestjs/core/injector/injector.js:140:38)
+          at async Promise.all (index 0)
+      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:169:27)
+      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
+      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
+      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
+          at async Promise.all (index 3)
+      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
+          at async Promise.all (index 26)
+      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+      at Object.<anonymous> (app.e2e-spec.ts:11:42)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        3.625 s, estimated 4 s
+Ran all test suites matching test/app.e2e-spec.ts.
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error workspace @ordo-todo/backend@1.1.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c jest --config ./test/jest-e2e.json test/app.e2e-spec.ts

@@ -2,7 +2,7 @@ import { Entity, EntityProps } from '../../shared/entity';
 
 export type TrackCategory = 'nature' | 'cafe' | 'music' | 'white-noise' | 'binaural';
 
-export interface AmbientTrackProps extends EntityProps {
+export interface AmbientTrackProps extends EntityProps<string> {
   name: string;
   description: string;
   category: TrackCategory;

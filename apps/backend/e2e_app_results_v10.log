@@ -1,0 +1,46 @@
+
+> @ordo-todo/backend@1.1.0 test:e2e
+> jest --config ./test/jest-e2e.json test/app.e2e-spec.ts
+
+  console.log
+    prisma:error this.log is not a function
+
+      at Object.Kl (../../../node_modules/@prisma/internals/src/logger.ts:13:11)
+          at async Promise.all (index 0)
+
+PASS test/app.e2e-spec.ts
+  AppController (e2e)
+    ÔêÜ / (GET) (520 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        4.9 s
+Ran all test suites matching test/app.e2e-spec.ts.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
+
+  ÔùÅ  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "prisma:error this.log is not a function".
+
+      40 |     for (const task of tasks) {
+      41 |       if (!task.assigneeId && !task.ownerId) continue;
+    > 42 |
+         | ^
+      43 |       const targetUserId = task.assigneeId || task.ownerId;
+      44 |
+      45 |       const existing = await this.prisma.notification.findFirst({
+
+      at console.log (../../../node_modules/@jest/console/build/index.js:311:10)
+      at Object.Kl (../../../node_modules/@prisma/internals/src/logger.ts:13:11)
+      at EventEmitter.<anonymous> (../../../node_modules/@prisma/client/src/runtime/getPrismaClient.ts:402:24)
+      at qr.handleAndLogRequestError (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:177:25)
+      at qr.request (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+      at a (../../../node_modules/@prisma/client/src/runtime/getPrismaClient.ts:805:24)
+      at SmartNotificationsService.checkUpcomingTasks (../src/notifications/smart-notifications.service.ts:42:23)
+      at CronJob.<anonymous> (../../../node_modules/@nestjs/schedule/dist/schedule.explorer.js:119:17)
+
+[Nest] 18648  - 07/01/2026, 4:40:00 p.m.   ERROR [Scheduler] [TypeError: this.log is not a function] {
+  clientVersion: '7.2.0'
+}

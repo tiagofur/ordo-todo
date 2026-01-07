@@ -1,0 +1,1 @@
+src/users/users.service.ts(308,31): error TS2339: Property 'delete' does not exist on type 'UserRepository'.

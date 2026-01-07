@@ -1,0 +1,42 @@
+
+> @ordo-todo/backend@1.1.0 test:e2e
+> jest --config ./test/jest-e2e.json test/app.e2e-spec.ts
+
+FAIL test/app.e2e-spec.ts
+  AppController (e2e)
+    ├ù / (GET) (78 ms)
+
+  ÔùÅ AppController (e2e) ÔÇ║ / (GET)
+
+    'app.router' is deprecated!
+    Please see the 3.x to 4.x migration guide for details on how to update your app.
+
+      14 |
+      15 |     app = moduleFixture.createNestApplication();
+    > 16 |     await app.init();
+         |     ^
+      17 |   });
+      18 |
+      19 |   it('/ (GET)', () => {
+
+      at Function.get (../../../node_modules/express/lib/application.js:131:13)
+      at ExpressAdapter.isMiddlewareApplied (../../../node_modules/@nestjs/platform-express/adapters/express-adapter.js:349:23)
+      at ../../../node_modules/@nestjs/platform-express/adapters/express-adapter.js:210:37
+          at Array.filter (<anonymous>)
+      at ExpressAdapter.registerParserMiddleware (../../../node_modules/@nestjs/platform-express/adapters/express-adapter.js:210:14)
+      at Proxy.registerParserMiddleware (../../../node_modules/@nestjs/core/nest-application.js:113:26)
+      at Proxy.init (../../../node_modules/@nestjs/core/nest-application.js:100:31)
+      at Object.<anonymous> (app.e2e-spec.ts:16:5)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        3.183 s
+Ran all test suites matching test/app.e2e-spec.ts.
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error workspace @ordo-todo/backend@1.1.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c jest --config ./test/jest-e2e.json test/app.e2e-spec.ts

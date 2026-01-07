@@ -45,7 +45,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   /**
    * Creates a new task with automatic priority calculation and notifications
@@ -363,7 +363,7 @@ export class TasksService {
       scheduledDate: task.props.scheduledDate,
       scheduledTime: task.props.scheduledTime,
       scheduledEndTime: task.props.scheduledEndTime,
-      estimatedTime: task.props.estimatedTime,
+      estimatedMinutes: task.props.estimatedMinutes,
       project: task.props.project,
       tags: task.props.tags,
     }));
@@ -474,7 +474,7 @@ export class TasksService {
     return {
       ...task,
       tags: task.tags.map((t) => t.tag),
-      estimatedTime: task.estimatedMinutes,
+      estimatedMinutes: task.estimatedMinutes,
       // Flatten keyResults for easier access
       linkedKeyResults: task.keyResults.map((krt) => ({
         id: krt.keyResult.id,
@@ -668,7 +668,7 @@ export class TasksService {
       if (
         updateTaskDto.title ||
         updateTaskDto.description ||
-        updateTaskDto.estimatedTime
+        updateTaskDto.estimatedMinutes
       ) {
         await this.activitiesService.logTaskUpdated(id, userId);
       }

@@ -1,0 +1,44 @@
+
+> @ordo-todo/backend@1.1.0 test:e2e
+> jest --config ./test/jest-e2e.json test/app.e2e-spec.ts
+
+FAIL test/app.e2e-spec.ts
+  AppController (e2e)
+    ├ù / (GET) (20 ms)
+
+  ÔùÅ AppController (e2e) ÔÇ║ / (GET)
+
+    TypeError: Cannot read properties of undefined (reading 'provide')
+
+       9 |
+      10 |   beforeEach(async () => {
+    > 11 |     const moduleFixture: TestingModule = await Test.createTestingModule({
+         |                                          ^
+      12 |       imports: [AppModule],
+      13 |     }).compile();
+      14 |
+
+      at Module.isCustomProvider (../../../node_modules/@nestjs/core/injector/module.js:185:52)
+      at Module.addExportedProviderOrModule (../../../node_modules/@nestjs/core/injector/module.js:285:18)
+      at NestContainer.addExportedProviderOrModule (../../../node_modules/@nestjs/core/injector/container.js:182:19)
+      at DependenciesScanner.insertExportedProviderOrModule (../../../node_modules/@nestjs/core/scanner.js:293:24)
+      at ../../../node_modules/@nestjs/core/scanner.js:152:50
+          at Array.forEach (<anonymous>)
+      at DependenciesScanner.reflectExports (../../../node_modules/@nestjs/core/scanner.js:152:17)
+      at DependenciesScanner.scanModulesForDependencies (../../../node_modules/@nestjs/core/scanner.js:105:18)
+      at DependenciesScanner.scan (../../../node_modules/@nestjs/core/scanner.js:32:9)
+      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:70:9)
+      at Object.<anonymous> (app.e2e-spec.ts:11:42)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        3.618 s, estimated 4 s
+Ran all test suites matching test/app.e2e-spec.ts.
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error workspace @ordo-todo/backend@1.1.0
+npm error location C:\Users\tfurt\source\repos\ordo-todo\apps\backend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c jest --config ./test/jest-e2e.json test/app.e2e-spec.ts

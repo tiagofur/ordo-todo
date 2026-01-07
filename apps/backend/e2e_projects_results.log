@@ -1,0 +1,437 @@
+npm warn Unknown cli config "--forceExit". This will stop working in the next major version of npm.
+
+> @ordo-todo/backend@1.1.0 test:e2e
+> jest --config ./test/jest-e2e.json test/projects.e2e-spec.ts
+
+  console.log
+    prisma:error this.log is not a function
+
+      at Object.Kl (../../../node_modules/@prisma/internals/src/logger.ts:13:11)
+          at async Promise.all (index 0)
+
+  console.log
+    prisma:error this.log is not a function
+
+      at Object.Kl (../../../node_modules/@prisma/internals/src/logger.ts:13:11)
+
+FAIL test/projects.e2e-spec.ts
+  ÔùÅ Projects API (e2e) ÔÇ║ POST /projects ÔÇ║ should create a new project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ POST /projects ÔÇ║ should fail without authentication
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ POST /projects ÔÇ║ should fail with invalid data
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ GET /projects ÔÇ║ should return all projects for a workspace
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ GET /projects ÔÇ║ should require workspaceId parameter
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ GET /projects/all ÔÇ║ should return all projects for current user
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ GET /projects/:id ÔÇ║ should return a specific project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ GET /projects/:id ÔÇ║ should return 404 for non-existent project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ PUT /projects/:id ÔÇ║ should update a project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ PATCH /projects/:id/archive ÔÇ║ should archive a project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ PATCH /projects/:id/archive ÔÇ║ should unarchive a project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ PATCH /projects/:id/complete ÔÇ║ should mark a project as completed
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ Trash Functionality ÔÇ║ DELETE /projects/:id ÔÇ║ should soft delete a project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ Trash Functionality ÔÇ║ GET /projects/deleted ÔÇ║ should return deleted projects for a workspace
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ Trash Functionality ÔÇ║ POST /projects/:id/restore ÔÇ║ should restore a deleted project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ Trash Functionality ÔÇ║ POST /projects/:id/restore ÔÇ║ should restore a deleted project
+
+    expected 204 "No Content", got 401 "Unauthorized"
+
+      347 |           .delete(`/projects/${projectIdForRestore}`)
+      348 |           .set('Authorization', `Bearer ${authToken}`)
+    > 349 |           .expect(204);
+          |            ^
+      350 |       });
+      351 |
+      352 |       it('should restore a deleted project', () => {
+
+      at Object.<anonymous> (projects.e2e-spec.ts:349:12)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ Trash Functionality ÔÇ║ DELETE /projects/:id/permanent ÔÇ║ should permanently delete a project
+
+    expected 201 "Created", got 400 "Bad Request"
+
+      32 |         username: `testuserproj${Date.now()}`,
+      33 |       })
+    > 34 |       .expect(201);
+         |        ^
+      35 |
+      36 |     authToken = registerResponse.body.accessToken;
+      37 |     userId = registerResponse.body.user.id;
+
+      at Object.<anonymous> (projects.e2e-spec.ts:34:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ÔùÅ Projects API (e2e) ÔÇ║ Trash Functionality ÔÇ║ DELETE /projects/:id/permanent ÔÇ║ should permanently delete a project
+
+    expected 204 "No Content", got 401 "Unauthorized"
+
+      368 |           .delete(`/projects/${projectIdForPermanentDelete}`)
+      369 |           .set('Authorization', `Bearer ${authToken}`)
+    > 370 |           .expect(204);
+          |            ^
+      371 |       });
+      372 |
+      373 |       it('should permanently delete a project', async () => {
+
+      at Object.<anonymous> (projects.e2e-spec.ts:370:12)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+
+  ÔùÅ Test suite failed to run
+
+    TypeError: this.log is not a function
+
+      51 |   afterAll(async () => {
+      52 |     // Cleanup: Delete test data
+    > 53 |     await prisma.task.deleteMany({
+         |     ^
+      54 |       where: { ownerId: userId },
+      55 |     });
+      56 |     await prisma.project.deleteMany({
+
+      at BoundPool.newClient (../../../node_modules/pg-pool/index.js:237:10)
+      at BoundPool.connect (../../../node_modules/pg-pool/index.js:227:10)
+      at BoundPool.query (../../../node_modules/pg-pool/index.js:411:10)
+      at PrismaPgAdapter.performIO (../../../node_modules/@prisma/adapter-pg/dist/index.js:652:40)
+      at PrismaPgAdapter.executeRaw (../../../node_modules/@prisma/adapter-pg/dist/index.js:641:24)
+      at ../../../node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:174:16
+      at execute (../../../node_modules/@prisma/client-engine-runtime/src/tracing.ts:68:28)
+      at Object.callback [as runInChildSpan] (../../../node_modules/@prisma/client/src/runtime/core/tracing/TracingHelper.ts:28:12)
+      at ti.runInChildSpan (../../../node_modules/@prisma/client/src/runtime/core/tracing/TracingHelper.ts:53:36)
+      at fr (../../../node_modules/@prisma/client-engine-runtime/src/tracing.ts:56:30)
+      at e.withQuerySpanAndEvent (../../../node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:371:12)
+      at e.#withQuerySpanAndEvent [as interpretNode] (../../../node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:172:29)
+      at e.interpretNode (../../../node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:276:52)
+      at e.run (../../../node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:96:34)
+      at execute (../../../node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:30)
+      at Dt.request (../../../node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:472:37)
+      at Object.singleLoader (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:112:26)
+      at qr.request (../../../node_modules/@prisma/client/src/runtime/RequestHandler.ts:140:14)
+      at a (../../../node_modules/@prisma/client/src/runtime/getPrismaClient.ts:805:24)
+      at Object.<anonymous> (projects.e2e-spec.ts:53:5)
+
+Test Suites: 1 failed, 1 total
+Tests:       16 failed, 16 total
+Snapshots:   0 total
+Time:        3.883 s, estimated 7 s
+Ran all test suites matching test/projects.e2e-spec.ts.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.

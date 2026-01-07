@@ -13,7 +13,7 @@ import { SubscriptionStatus } from '@prisma/client';
  */
 @Injectable()
 export class PrismaSubscriptionRepository implements SubscriptionRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(input: SubscriptionInput): Promise<Subscription> {
     const data = await this.prisma.subscription.create({
@@ -121,7 +121,7 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
   }
 
   async cancel(id: string): Promise<Subscription> {
-    return await this.updateStatus(id, SubscriptionStatus.CANCELLED);
+    return await this.updateStatus(id, SubscriptionStatus.CANCELED);
   }
 
   /**

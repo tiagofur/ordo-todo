@@ -91,7 +91,7 @@ export class CreateTaskDto {
 
   @IsInt()
   @IsOptional()
-  estimatedTime?: number;
+  estimatedMinutes?: number;
 
   @ValidateNested()
   @Type(() => CreateRecurrenceDto)

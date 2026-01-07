@@ -1,5 +1,3 @@
-import { ValueObject } from '../../shared/value-object';
-
 export type SearchResultEntityType = 'task' | 'project' | 'note' | 'comment' | 'habit';
 
 export interface SearchResultProps {
@@ -18,9 +16,8 @@ export interface SearchResultProps {
   };
 }
 
-export class SearchResult extends ValueObject {
+export class SearchResult {
   constructor(private readonly props: SearchResultProps) {
-    super();
     this.validate();
   }
 
@@ -114,9 +111,8 @@ export interface SearchResultsProps {
   executionTime: number;
 }
 
-export class SearchResults extends ValueObject {
+export class SearchResults {
   constructor(private readonly props: SearchResultsProps) {
-    super();
     this.validate();
   }
 

@@ -1,6 +1,6 @@
 import { Entity, EntityProps } from "../../shared/entity";
 
-export interface DailyMetricsProps extends EntityProps {
+export interface DailyMetricsProps extends EntityProps<string> {
     userId: string;
     date: Date;
     tasksCreated: number;

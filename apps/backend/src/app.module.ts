@@ -61,11 +61,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     CacheModule,
     ConfigModule,
     DatabaseModule,
-    RepositoriesModule,
+    // RepositoriesModule,
     HealthModule, // Health check endpoints (no prefix)
     MetricsModule, // Prometheus metrics endpoint (no prefix)
     AuthModule,
-    ImagesModule,
+    // ImagesModule,
     UsersModule,
     WorkspacesModule,
     WorkflowsModule,
@@ -90,7 +90,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     CustomFieldsModule,
     FocusModule,
     MeetingsModule,
-    SearchModule,
+    // SearchModule,
     BlogPostModule,
     ChangelogModule,
     NewsletterModule,

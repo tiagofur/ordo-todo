@@ -1,7 +1,7 @@
 import { Entity, EntityProps } from '../../shared/entity';
 import { MeetingAnalysis } from './meeting-analysis.vo';
 
-export interface MeetingProps extends EntityProps {
+export interface MeetingProps extends EntityProps<string> {
   userId: string;
   title: string;
   date: Date;
@@ -23,11 +23,11 @@ export class Meeting extends Entity<MeetingProps> {
   }
 
   static create(props: Omit<MeetingProps, 'id' | 'createdAt' | 'updatedAt'>): Meeting {
+    const now = new Date();
     return new Meeting({
       ...props,
-      id: props.id || 'pending',
-      createdAt: props.createdAt || new Date(),
-      updatedAt: props.updatedAt || new Date(),
+      createdAt: now,
+      updatedAt: now,
     });
   }
 

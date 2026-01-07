@@ -19,7 +19,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private toDomain(prismaWorkspace: PrismaWorkspace): Workspace {
     return new Workspace({
@@ -295,8 +295,8 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       tier: workspace.tier,
       color: workspace.color,
       icon: workspace.icon,
-      ownerId: workspace.ownerId,
-      owner: workspace.owner,
+      ownerId: workspace.ownerId!,
+      owner: workspace.owner!,
       isArchived: workspace.isArchived,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,

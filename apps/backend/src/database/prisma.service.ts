@@ -232,6 +232,22 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.blogComment;
   }
 
+  get meeting() {
+    return this.prisma.meeting;
+  }
+
+  get adminUser() {
+    return this.prisma.adminUser;
+  }
+
+  get customField() {
+    return this.prisma.customField;
+  }
+
+  get customFieldValue() {
+    return this.prisma.customFieldValue;
+  }
+
   get changelogEntry() {
     return this.prisma.changelogEntry;
   }
@@ -253,7 +269,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   }
 
   get faq() {
-    return this.prisma.faq;
+    return this.prisma.fAQ;
   }
 
   get kBCategory() {

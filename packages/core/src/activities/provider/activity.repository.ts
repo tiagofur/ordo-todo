@@ -1,15 +1,5 @@
-import { Activity } from '../model/activity.entity';
+import { Activity, ActivityMetadata } from '../model/activity.entity';
 import { ActivityType } from '@prisma/client';
-
-/**
- * Metadata structure for activity logs
- */
-export interface ActivityMetadata {
-  oldValue?: string;
-  newValue?: string;
-  fieldName?: string;
-  itemName?: string;
-}
 
 /**
  * Input for creating an activity log

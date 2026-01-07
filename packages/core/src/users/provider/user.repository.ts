@@ -236,4 +236,13 @@ export default interface UserRepository {
     xp: number,
     level: number,
   ): Promise<void>;
+
+  /**
+   * Deletes a user account and all associated data.
+   *
+   * @param id - The unique identifier of the user to delete
+   * @returns Promise that resolves when the user is deleted
+   * @throws {Error} If the user doesn't exist or database operation fails
+   */
+  delete(id: string): Promise<void>;
 }

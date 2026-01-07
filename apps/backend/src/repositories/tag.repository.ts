@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaTagRepository implements TagRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private toDomain(prismaTag: PrismaTag): Tag {
     return new Tag({
@@ -89,7 +89,7 @@ export class PrismaTagRepository implements TagRepository {
       id: tag.id,
       name: tag.name,
       color: tag.color,
-      workspaceId: tag.workspaceId,
+      workspaceId: tag.workspaceId!,
       createdAt: tag.createdAt,
       taskCount: tag._count.tasks,
     }));
@@ -118,7 +118,7 @@ export class PrismaTagRepository implements TagRepository {
       id: tag.id,
       name: tag.name,
       color: tag.color,
-      workspaceId: tag.workspaceId,
+      workspaceId: tag.workspaceId!,
       createdAt: tag.createdAt,
       taskCount: tag._count.tasks,
     };

@@ -1,5 +1,5 @@
 import { UseCase } from "../../shared/use-case";
-import { Task, TaskPriority, RecurrenceProps } from "../model/task.entity";
+import { Task, TaskPriority, TaskRecurrenceInfo } from "../model/task.entity";
 import { TaskRepository } from "../provider/task.repository";
 
 export interface CreateTaskInput {
@@ -11,7 +11,7 @@ export interface CreateTaskInput {
     ownerId: string;
     assigneeId?: string;
     parentTaskId?: string;
-    recurrence?: RecurrenceProps;
+    recurrence?: TaskRecurrenceInfo;
 }
 
 export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {

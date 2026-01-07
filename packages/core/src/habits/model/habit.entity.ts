@@ -3,7 +3,7 @@ import { Entity, EntityProps } from "../../shared/entity";
 export type HabitFrequency = "DAILY" | "WEEKLY" | "SPECIFIC_DAYS" | "MONTHLY";
 export type TimeOfDay = "MORNING" | "AFTERNOON" | "EVENING" | "ANYTIME";
 
-export interface HabitCompletionProps extends EntityProps {
+export interface HabitCompletionProps extends EntityProps<string> {
     habitId: string;
     completedAt: Date;
     completedDate: Date;
@@ -11,7 +11,7 @@ export interface HabitCompletionProps extends EntityProps {
     value?: number;
 }
 
-export interface HabitProps extends EntityProps {
+export interface HabitProps extends EntityProps<string> {
     name: string;
     description?: string;
     icon?: string;
@@ -27,13 +27,13 @@ export interface HabitProps extends EntityProps {
     timeOfDay?: TimeOfDay;
 
     // Gamification
-    currentStreak: number;
-    longestStreak: number;
-    totalCompletions: number;
+    currentStreak?: number;
+    longestStreak?: number;
+    totalCompletions?: number;
 
     // State
-    isActive: boolean;
-    isPaused: boolean;
+    isActive?: boolean;
+    isPaused?: boolean;
     pausedAt?: Date;
     archivedAt?: Date;
 
@@ -105,9 +105,9 @@ export class Habit extends Entity<HabitProps> {
      * Mark habit as completed, updating streak
      */
     complete(isConsecutive: boolean = true): Habit {
-        const newTotal = this.props.totalCompletions + 1;
-        const newStreak = isConsecutive ? this.props.currentStreak + 1 : 1;
-        const newLongest = Math.max(this.props.longestStreak, newStreak);
+        const newTotal = (this.props.totalCompletions || 0) + 1;
+        const newStreak = isConsecutive ? (this.props.currentStreak || 0) + 1 : 1;
+        const newLongest = Math.max(this.props.longestStreak || 0, newStreak);
 
         return this.clone({
             totalCompletions: newTotal,

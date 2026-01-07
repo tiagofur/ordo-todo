@@ -1,0 +1,3 @@
+src/repositories/prisma-meeting.repository.ts(163,11): error TS2322: Type 'null' is not assignable to type 'InputJsonValue | JsonNullValueFilter | FieldRef<"Meeting", "Json"> | undefined'.
+src/repositories/prisma-meeting.repository.ts(200,38): error TS2322: Type 'null' is not assignable to type 'InputJsonValue | JsonNullValueFilter | FieldRef<"Meeting", "Json"> | undefined'.
+src/users/users.service.ts(308,31): error TS2339: Property 'delete' does not exist on type 'UserRepository'.
