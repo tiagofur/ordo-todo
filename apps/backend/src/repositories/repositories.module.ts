@@ -36,6 +36,9 @@ import { PrismaFocusRepository } from './prisma-focus.repository';
 import { PrismaMeetingRepository } from './prisma-meeting.repository';
 import { PrismaSearchRepository } from '../search/prisma-search.repository';
 import { PrismaActivityRepository } from './prisma-activity.repository';
+import { PrismaRecurrenceRepository } from './prisma-recurrence.repository';
+import { PrismaTaskDependencyRepository } from './prisma-task-dependency.repository';
+import { PrismaSubscriptionRepository } from './prisma-subscription.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -231,6 +234,21 @@ import { PrismaActivityRepository } from './prisma-activity.repository';
       useFactory: (prisma: PrismaService) => new PrismaActivityRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'RecurrenceRepository',
+      useFactory: (prisma: PrismaService) => new PrismaRecurrenceRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'TaskDependencyRepository',
+      useFactory: (prisma: PrismaService) => new PrismaTaskDependencyRepository(prisma),
+      inject: [PrismaService],
+    },
+    {
+      provide: 'SubscriptionRepository',
+      useFactory: (prisma: PrismaService) => new PrismaSubscriptionRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -267,6 +285,9 @@ import { PrismaActivityRepository } from './prisma-activity.repository';
     'MeetingRepository',
     'SearchRepository',
     'ActivityRepository',
+    'RecurrenceRepository',
+    'TaskDependencyRepository',
+    'SubscriptionRepository',
   ],
 })
 export class RepositoriesModule { }
