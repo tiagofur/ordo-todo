@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { ImagesService } from '../images/images.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
   let usersService: jest.Mocked<UsersService>;
+  let imagesService: jest.Mocked<ImagesService>;
 
   const mockUser = {
     id: 'user-123',
@@ -22,11 +24,22 @@ describe('UsersController', () => {
       getIntegrations: jest.fn(),
       exportData: jest.fn(),
       deleteAccount: jest.fn(),
+      updateAvatar: jest.fn(),
+      removeAvatar: jest.fn(),
+    };
+
+    const mockImagesService = {
+      processAvatar: jest.fn(),
+      deleteAvatar: jest.fn(),
+      saveAvatar: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [{ provide: UsersService, useValue: mockUsersService }],
+      providers: [
+        { provide: UsersService, useValue: mockUsersService },
+        { provide: ImagesService, useValue: mockImagesService },
+      ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);

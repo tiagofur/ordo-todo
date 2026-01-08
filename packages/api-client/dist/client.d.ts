@@ -581,7 +581,9 @@ export declare class OrdoApiClient {
      * Get weekly metrics
      * GET /analytics/weekly
      */
-    getWeeklyMetrics(): Promise<Array<{
+    getWeeklyMetrics(params?: {
+        weekStart?: string;
+    }): Promise<Array<{
         date: string;
         pomodorosCount: number;
         focusDuration: number;

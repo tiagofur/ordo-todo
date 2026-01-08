@@ -10,7 +10,7 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import { useTasks, useTags, useProjects } from "@/lib/shared-hooks";
+import { useTasks, useTags, useProjects } from "@/lib/api-hooks";
 import { useCreateTask } from "@/lib/api-hooks";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";

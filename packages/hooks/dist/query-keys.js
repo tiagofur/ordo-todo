@@ -29,7 +29,7 @@ exports.queryKeys = {
     project: (id) => ['projects', id],
     projectBySlugs: (workspaceSlug, projectSlug) => ['projects', 'by-slug', workspaceSlug, projectSlug],
     // ============ Tasks ============
-    tasks: (projectId) => projectId ? ['tasks', projectId] : ['tasks'],
+    tasks: (projectId, tags, assignedToMe) => ['tasks', { projectId, tags, assignedToMe }],
     task: (id) => ['tasks', id],
     taskDetails: (id) => ['tasks', id, 'details'],
     publicTask: (token) => ['public-task', token],
@@ -43,7 +43,7 @@ exports.queryKeys = {
     taskTimeSessions: (taskId) => ['timer', 'task', taskId],
     // ============ Analytics ============
     dailyMetrics: (params) => ['analytics', 'daily', params],
-    weeklyMetrics: () => ['analytics', 'weekly'],
+    weeklyMetrics: (params) => ['analytics', 'weekly', params],
     monthlyMetrics: (params) => ['analytics', 'monthly', params],
     dateRangeMetrics: (startDate, endDate) => ['analytics', 'range', startDate, endDate],
     dashboardStats: ['analytics', 'dashboard-stats'],

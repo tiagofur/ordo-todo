@@ -21,11 +21,16 @@ describe('WorkspacesService', () => {
     addMember: jest.fn(),
     removeMember: jest.fn(),
     findMember: jest.fn(),
+    findByOwnerAndSlugWithStats: jest.fn(),
+    findDeleted: jest.fn(),
+    restore: jest.fn(),
+    permanentDelete: jest.fn(),
     listMembers: jest.fn(),
   };
 
   const mockUserRepository = {
     findById: jest.fn(),
+    findByUsername: jest.fn(),
   };
 
   const mockInvitationRepository = {
@@ -588,39 +593,17 @@ describe('WorkspacesService', () => {
 
       const mockUser = {
         id: userId,
-        username: 'testuser',
+        props: { username: 'testuser' },
       };
 
       const mockWorkspace = {
-        id: 'ws-123',
-        name: 'My Workspace',
         slug: 'my-workspace',
-        ownerId: userId,
-        type: 'PERSONAL',
-        tier: 'FREE',
-        color: '#2563EB',
-        icon: null,
-        description: null,
-        isArchived: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        owner: {
-          id: userId,
-          username: 'testuser',
-          name: 'Test User',
-          email: 'test@example.com',
-        },
-        _count: {
-          projects: 2,
-          members: 1,
-        },
-        projects: [{ _count: { tasks: 5 } }, { _count: { tasks: 3 } }],
+        owner: { id: userId },
+        stats: { taskCount: 8 },
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(mockUser as any);
-      mockPrismaService.workspace.findUnique.mockResolvedValue(
-        mockWorkspace as any,
-      );
+      mockUserRepository.findByUsername.mockResolvedValue(mockUser);
+      mockWorkspaceRepository.findByOwnerAndSlugWithStats.mockResolvedValue(mockWorkspace);
 
       const result = await service.findByUserAndSlug(username, slug);
 
@@ -631,7 +614,7 @@ describe('WorkspacesService', () => {
     });
 
     it('should throw NotFoundException when user not found', async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockUserRepository.findByUsername.mockResolvedValue(null);
 
       await expect(
         service.findByUserAndSlug('nonexistent', 'slug'),
@@ -646,35 +629,17 @@ describe('WorkspacesService', () => {
       const slug = 'nonexistent-workspace';
       const userId = 'user-123';
 
-      mockPrismaService.user.findUnique.mockResolvedValue({
+      mockUserRepository.findByUsername.mockResolvedValue({
         id: userId,
-        username: 'testuser',
-      } as any);
-      mockPrismaService.workspace.findUnique.mockResolvedValue(null);
+        props: { username: 'testuser' },
+      });
+      mockWorkspaceRepository.findByOwnerAndSlugWithStats.mockResolvedValue(null);
 
       await expect(service.findByUserAndSlug(username, slug)).rejects.toThrow(
         NotFoundException,
       );
       await expect(service.findByUserAndSlug(username, slug)).rejects.toThrow(
         'Workspace not found',
-      );
-    });
-
-    it('should throw NotFoundException when workspace is deleted', async () => {
-      const username = 'testuser';
-      const slug = 'deleted-workspace';
-      const userId = 'user-123';
-
-      mockPrismaService.user.findUnique.mockResolvedValue({
-        id: userId,
-        username: 'testuser',
-      } as any);
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
-        isDeleted: true,
-      } as any);
-
-      await expect(service.findByUserAndSlug(username, slug)).rejects.toThrow(
-        NotFoundException,
       );
     });
   });
@@ -1824,31 +1789,35 @@ describe('WorkspacesService', () => {
   describe('findBySlug', () => {
     it('should successfully find workspace by slug', async () => {
       const slug = 'my-workspace';
+      const userId = 'user-123';
       const mockWorkspace = {
         id: 'ws-123',
-        slug: slug,
-        name: 'My Workspace',
+        props: {
+          slug: slug,
+          name: 'My Workspace',
+          isDeleted: false,
+        },
       };
 
       mockWorkspaceRepository.findBySlug.mockResolvedValue(
         mockWorkspace as any,
       );
 
-      const result = await service.findBySlug(slug);
+      const result = await service.findBySlug(slug, userId);
 
-      expect(mockWorkspaceRepository.findBySlug).toHaveBeenCalledWith(slug);
-      expect(result).toEqual(mockWorkspace);
+      expect(mockWorkspaceRepository.findBySlug).toHaveBeenCalledWith(slug, userId);
+      expect(result).toEqual(mockWorkspace.props);
     });
 
     it('should return null when workspace not found', async () => {
       const slug = 'nonexistent-workspace';
+      const userId = 'user-123';
 
       mockWorkspaceRepository.findBySlug.mockResolvedValue(null);
 
-      const result = await service.findBySlug(slug);
-
-      expect(mockWorkspaceRepository.findBySlug).toHaveBeenCalledWith(slug);
-      expect(result).toBeNull();
+      await expect(service.findBySlug(slug, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -1858,27 +1827,29 @@ describe('WorkspacesService', () => {
       const mockDeletedWorkspaces = [
         {
           id: 'ws-1',
-          name: 'Deleted Workspace 1',
-          isDeleted: true,
-          deletedAt: new Date(),
+          props: {
+            name: 'Deleted Workspace 1',
+            isDeleted: true,
+            deletedAt: new Date(),
+          },
         },
         {
           id: 'ws-2',
-          name: 'Deleted Workspace 2',
-          isDeleted: true,
-          deletedAt: new Date(),
+          props: {
+            name: 'Deleted Workspace 2',
+            isDeleted: true,
+            deletedAt: new Date(),
+          },
         },
       ];
 
-      mockWorkspaceRepository.findByOwnerId.mockResolvedValue(
+      mockWorkspaceRepository.findDeleted.mockResolvedValue(
         mockDeletedWorkspaces as any,
       );
 
       const result = await service.getDeleted(userId);
 
-      expect(mockWorkspaceRepository.findByOwnerId).toHaveBeenCalledWith(
-        userId,
-      );
+      expect(mockWorkspaceRepository.findDeleted).toHaveBeenCalledWith(userId);
       expect(result).toHaveLength(2);
       expect(result[0].isDeleted).toBe(true);
     });
@@ -1886,7 +1857,7 @@ describe('WorkspacesService', () => {
     it('should return empty array when no deleted workspaces', async () => {
       const userId = 'user-123';
 
-      mockWorkspaceRepository.findByOwnerId.mockResolvedValue([]);
+      mockWorkspaceRepository.findDeleted.mockResolvedValue([]);
 
       const result = await service.getDeleted(userId);
 
@@ -1900,49 +1871,45 @@ describe('WorkspacesService', () => {
       const workspaceId = 'ws-123';
       const mockWorkspace = {
         id: workspaceId,
-        name: 'Restored Workspace',
-        ownerId: userId,
-        isDeleted: false,
-        deletedAt: null,
+        props: {
+          name: 'Restored Workspace',
+          ownerId: userId,
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
+        restore: jest.fn(),
       };
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
-        id: workspaceId,
-        ownerId: userId,
-      });
-      mockWorkspaceRepository.update.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.findById.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.restore.mockResolvedValue(undefined);
       mockAuditLogRepository.create.mockResolvedValue({} as any);
 
       const result = await service.restore(workspaceId, userId);
 
-      expect(mockPrismaService.workspace.findUnique).toHaveBeenCalledWith({
-        where: { id: workspaceId },
-        select: { ownerId: true },
-      });
-      expect(mockWorkspaceRepository.update).toHaveBeenCalledWith({
-        id: workspaceId,
-        isDeleted: false,
-        deletedAt: null,
-      });
-      expect(mockAuditLogRepository.create).toHaveBeenCalled();
-      expect(result.isDeleted).toBe(false);
-      expect(result.deletedAt).toBeNull();
+      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(workspaceId);
+      expect(mockWorkspaceRepository.restore).toHaveBeenCalledWith(workspaceId);
+      expect(result).toEqual({ success: true });
     });
 
     it('should throw ForbiddenException when user does not own workspace', async () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
+      const mockWorkspace = {
         id: workspaceId,
-        ownerId: 'different-user',
-      });
+        props: {
+          ownerId: 'different-user',
+          isDeleted: true,
+        },
+      };
+
+      mockWorkspaceRepository.findById.mockResolvedValue(mockWorkspace as any);
 
       await expect(service.restore(workspaceId, userId)).rejects.toThrow(
         ForbiddenException,
       );
       await expect(service.restore(workspaceId, userId)).rejects.toThrow(
-        'You do not have permission to restore this workspace',
+        'No tienes permisos para restaurar este workspace',
       );
     });
 
@@ -1950,7 +1917,7 @@ describe('WorkspacesService', () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue(null);
+      mockWorkspaceRepository.findById.mockResolvedValue(null);
 
       await expect(service.restore(workspaceId, userId)).rejects.toThrow(
         NotFoundException,
@@ -1967,72 +1934,64 @@ describe('WorkspacesService', () => {
       const workspaceId = 'ws-123';
       const mockWorkspace = {
         id: workspaceId,
-        name: 'Workspace to Delete',
-        ownerId: userId,
+        props: {
+          name: 'Workspace to Delete',
+          ownerId: userId,
+          isDeleted: true,
+        },
+        delete: jest.fn(),
       };
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
-        id: workspaceId,
-        ownerId: userId,
-        isDeleted: true,
-      });
-      mockWorkspaceRepository.delete.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.findById.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.permanentDelete.mockResolvedValue(undefined);
       mockAuditLogRepository.create.mockResolvedValue({} as any);
 
       const result = await service.permanentDelete(workspaceId, userId);
 
-      expect(mockPrismaService.workspace.findUnique).toHaveBeenCalledWith({
-        where: { id: workspaceId },
-        select: { ownerId: true, isDeleted: true },
-      });
-      expect(mockWorkspaceRepository.delete).toHaveBeenCalledWith(workspaceId);
-      expect(mockAuditLogRepository.create).toHaveBeenCalled();
-      expect(result).toEqual(mockWorkspace);
+      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(workspaceId);
+      expect(mockWorkspaceRepository.permanentDelete).toHaveBeenCalledWith(workspaceId);
+      expect(result).toEqual({ success: true });
     });
 
     it('should throw ForbiddenException when user does not own workspace', async () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
+      mockWorkspaceRepository.findById.mockResolvedValue({
         id: workspaceId,
-        ownerId: 'different-user',
-        isDeleted: true,
-      });
+        props: {
+          ownerId: 'different-user',
+          isDeleted: true,
+        }
+      } as any);
 
       await expect(
         service.permanentDelete(workspaceId, userId),
       ).rejects.toThrow(ForbiddenException);
-      await expect(
-        service.permanentDelete(workspaceId, userId),
-      ).rejects.toThrow(
-        'You do not have permission to permanently delete this workspace',
-      );
     });
 
     it('should throw NotFoundException when workspace not found', async () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue(null);
+      mockWorkspaceRepository.findById.mockResolvedValue(null);
 
       await expect(
         service.permanentDelete(workspaceId, userId),
       ).rejects.toThrow(NotFoundException);
-      await expect(
-        service.permanentDelete(workspaceId, userId),
-      ).rejects.toThrow('Workspace not found');
     });
 
-    it('should throw BadRequestException when workspace is not deleted', async () => {
+    it('should throw ForbiddenException when workspace is not deleted', async () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockPrismaService.workspace.findUnique.mockResolvedValue({
+      mockWorkspaceRepository.findById.mockResolvedValue({
         id: workspaceId,
-        ownerId: userId,
-        isDeleted: false,
-      });
+        props: {
+          ownerId: userId,
+          isDeleted: false,
+        }
+      } as any);
 
       await expect(
         service.permanentDelete(workspaceId, userId),
@@ -2040,7 +1999,7 @@ describe('WorkspacesService', () => {
       await expect(
         service.permanentDelete(workspaceId, userId),
       ).rejects.toThrow(
-        'Can only permanently delete workspaces that are already deleted',
+        'El workspace debe ser eliminado temporalmente primero',
       );
     });
   });

@@ -28,7 +28,11 @@ export declare const queryKeys: {
     readonly allProjects: readonly ["projects", "all"];
     readonly project: (id: string) => readonly ["projects", string];
     readonly projectBySlugs: (workspaceSlug: string, projectSlug: string) => readonly ["projects", "by-slug", string, string];
-    readonly tasks: (projectId?: string) => readonly ["tasks", string] | readonly ["tasks"];
+    readonly tasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) => readonly ["tasks", {
+        readonly projectId: string | undefined;
+        readonly tags: string[] | undefined;
+        readonly assignedToMe: boolean | undefined;
+    }];
     readonly task: (id: string) => readonly ["tasks", string];
     readonly taskDetails: (id: string) => readonly ["tasks", string, "details"];
     readonly publicTask: (token: string) => readonly ["public-task", string];
@@ -45,7 +49,11 @@ export declare const queryKeys: {
     } | undefined];
     readonly taskTimeSessions: (taskId: string) => readonly ["timer", "task", string];
     readonly dailyMetrics: (params?: GetDailyMetricsParams) => readonly ["analytics", "daily", GetDailyMetricsParams | undefined];
-    readonly weeklyMetrics: () => readonly ["analytics", "weekly"];
+    readonly weeklyMetrics: (params?: {
+        weekStart?: string;
+    }) => readonly ["analytics", "weekly", {
+        weekStart?: string;
+    } | undefined];
     readonly monthlyMetrics: (params?: {
         monthStart?: string;
     }) => readonly ["analytics", "monthly", {

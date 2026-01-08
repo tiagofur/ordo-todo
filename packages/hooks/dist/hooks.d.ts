@@ -138,8 +138,8 @@ export declare function createHooks(config: CreateHooksConfig): {
         parentTaskId: string;
         data: CreateSubtaskDto;
     }, unknown>;
-    useShareTask: () => import("@tanstack/react-query").UseMutationResult<unknown, Error, string, unknown>;
-    usePublicTask: (token: string) => import("@tanstack/react-query").UseQueryResult<unknown, Error>;
+    useShareTask: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").TaskShareResponse, Error, string, unknown>;
+    usePublicTask: (token: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").PublicTaskResponse, Error>;
     useTags: (workspaceId: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Tag[], Error>;
     useTaskTags: (taskId: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Tag[], Error>;
     useCreateTag: () => import("@tanstack/react-query").UseMutationResult<{
@@ -186,7 +186,9 @@ export declare function createHooks(config: CreateHooksConfig): {
     }) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").TimerStatsResponse, Error>;
     useTaskTimeSessions: (taskId: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").TaskTimeResponse, Error>;
     useDailyMetrics: (params?: GetDailyMetricsParams) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").DailyMetrics[], Error>;
-    useWeeklyMetrics: () => import("@tanstack/react-query").UseQueryResult<{
+    useWeeklyMetrics: (params?: {
+        weekStart?: string;
+    }) => import("@tanstack/react-query").UseQueryResult<{
         date: string;
         pomodorosCount: number;
         focusDuration: number;
@@ -248,11 +250,11 @@ export declare function createHooks(config: CreateHooksConfig): {
     useTaskAttachments: (taskId: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Attachment[], Error>;
     useCreateAttachment: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").Attachment, Error, CreateAttachmentDto, unknown>;
     useDeleteAttachment: () => import("@tanstack/react-query").UseMutationResult<void, Error, string, unknown>;
-    useProjectAttachments: (projectId: string) => import("@tanstack/react-query").UseQueryResult<unknown, Error>;
-    useNotifications: () => import("@tanstack/react-query").UseQueryResult<unknown, Error>;
-    useUnreadNotificationsCount: () => import("@tanstack/react-query").UseQueryResult<unknown, Error>;
-    useMarkNotificationAsRead: () => import("@tanstack/react-query").UseMutationResult<unknown, Error, string, unknown>;
-    useMarkAllNotificationsAsRead: () => import("@tanstack/react-query").UseMutationResult<unknown, Error, void, unknown>;
+    useProjectAttachments: (projectId: string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Attachment[], Error>;
+    useNotifications: () => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Notification[], Error>;
+    useUnreadNotificationsCount: () => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").UnreadCountResponse, Error>;
+    useMarkNotificationAsRead: () => import("@tanstack/react-query").UseMutationResult<import("@ordo-todo/api-client").Notification, Error, string, unknown>;
+    useMarkAllNotificationsAsRead: () => import("@tanstack/react-query").UseMutationResult<any, Error, void, unknown>;
     useTimeBlocks: (start?: Date | string, end?: Date | string) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").TimeBlock[], Error>;
     useHabits: (includeArchived?: boolean) => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").Habit[], Error>;
     useTodayHabits: () => import("@tanstack/react-query").UseQueryResult<import("@ordo-todo/api-client").TodayHabitsResponse, Error>;

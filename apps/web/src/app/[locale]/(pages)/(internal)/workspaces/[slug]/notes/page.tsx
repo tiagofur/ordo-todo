@@ -1,7 +1,7 @@
 'use client';
 
 import { useWorkspaceBySlug } from '@/lib/api-hooks';
-import { useNotes } from '@/lib/shared-hooks';
+import { useNotes } from '@/lib/api-hooks';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { NoteBoard } from '@/components/notes/board';

@@ -5,7 +5,7 @@ import { Note } from '@ordo-todo/api-client';
 import { cn } from '@/lib/utils';
 import { Button } from '@ordo-todo/ui';
 import { X, GripVertical } from 'lucide-react';
-import { useDeleteNote, useUpdateNote } from '@/lib/shared-hooks';
+import { useDeleteNote, useUpdateNote } from '@/lib/api-hooks';
 import { useState, useEffect } from 'react';
 
 interface NoteItemProps {

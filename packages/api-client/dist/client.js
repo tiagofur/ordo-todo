@@ -918,8 +918,8 @@ class OrdoApiClient {
      * Get weekly metrics
      * GET /analytics/weekly
      */
-    async getWeeklyMetrics() {
-        const response = await this.axios.get("/analytics/weekly");
+    async getWeeklyMetrics(params) {
+        const response = await this.axios.get("/analytics/weekly", { params });
         return response.data;
     }
     /**

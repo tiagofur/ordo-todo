@@ -1,7 +1,7 @@
 /**
  * Types for the hooks package
  */
-import type { OrdoApiClient } from '@ordo-todo/api-client';
+import type { OrdoApiClient, Notification, UnreadCountResponse, PublicTaskResponse, TaskShareResponse, Attachment } from '@ordo-todo/api-client';
 /**
  * API Client interface that the hooks expect.
  * This allows both OrdoApiClient class instances and plain object clients.
@@ -59,8 +59,8 @@ export type ApiClient = OrdoApiClient | {
     completeTask: OrdoApiClient['completeTask'];
     deleteTask: OrdoApiClient['deleteTask'];
     createSubtask: OrdoApiClient['createSubtask'];
-    generatePublicToken?: (taskId: string) => Promise<unknown>;
-    getTaskByPublicToken?: (token: string) => Promise<unknown>;
+    generatePublicToken?: (taskId: string) => Promise<TaskShareResponse>;
+    getTaskByPublicToken?: (token: string) => Promise<PublicTaskResponse>;
     getTimeBlocks?: OrdoApiClient['getTimeBlocks'];
     getTags: OrdoApiClient['getTags'];
     getTaskTags: OrdoApiClient['getTaskTags'];
@@ -100,11 +100,11 @@ export type ApiClient = OrdoApiClient | {
     getTaskAttachments: OrdoApiClient['getTaskAttachments'];
     createAttachment: OrdoApiClient['createAttachment'];
     deleteAttachment: OrdoApiClient['deleteAttachment'];
-    getProjectAttachments?: (projectId: string) => Promise<unknown>;
-    getNotifications?: () => Promise<unknown>;
-    getUnreadNotificationsCount?: () => Promise<unknown>;
-    markNotificationAsRead?: (id: string) => Promise<unknown>;
-    markAllNotificationsAsRead?: () => Promise<unknown>;
+    getProjectAttachments?: (projectId: string) => Promise<Attachment[]>;
+    getNotifications?: () => Promise<Notification[]>;
+    getUnreadNotificationsCount?: () => Promise<UnreadCountResponse>;
+    markNotificationAsRead?: (id: string) => Promise<Notification>;
+    markAllNotificationsAsRead?: () => Promise<any>;
     getHabits: OrdoApiClient['getHabits'];
     getTodayHabits: OrdoApiClient['getTodayHabits'];
     getHabit: OrdoApiClient['getHabit'];

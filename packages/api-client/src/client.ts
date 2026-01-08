@@ -1417,7 +1417,7 @@ export class OrdoApiClient {
    * Get weekly metrics
    * GET /analytics/weekly
    */
-  async getWeeklyMetrics(): Promise<
+  async getWeeklyMetrics(params?: { weekStart?: string }): Promise<
     Array<{
       date: string;
       pomodorosCount: number;
@@ -1425,7 +1425,7 @@ export class OrdoApiClient {
       tasksCompletedCount: number;
     }>
   > {
-    const response = await this.axios.get("/analytics/weekly");
+    const response = await this.axios.get("/analytics/weekly", { params });
     return response.data;
   }
 

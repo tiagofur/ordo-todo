@@ -35,7 +35,8 @@ export const queryKeys = {
     ['projects', 'by-slug', workspaceSlug, projectSlug] as const,
 
   // ============ Tasks ============
-  tasks: (projectId?: string) => projectId ? ['tasks', projectId] as const : ['tasks'] as const,
+  tasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) =>
+    ['tasks', { projectId, tags, assignedToMe }] as const,
   task: (id: string) => ['tasks', id] as const,
   taskDetails: (id: string) => ['tasks', id, 'details'] as const,
   publicTask: (token: string) => ['public-task', token] as const,
@@ -53,7 +54,7 @@ export const queryKeys = {
 
   // ============ Analytics ============
   dailyMetrics: (params?: GetDailyMetricsParams) => ['analytics', 'daily', params] as const,
-  weeklyMetrics: () => ['analytics', 'weekly'] as const,
+  weeklyMetrics: (params?: { weekStart?: string }) => ['analytics', 'weekly', params] as const,
   monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
   dateRangeMetrics: (startDate: string, endDate: string) =>
     ['analytics', 'range', startDate, endDate] as const,

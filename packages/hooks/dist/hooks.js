@@ -778,10 +778,10 @@ function createHooks(config) {
             queryFn: () => apiClient.getDailyMetrics(params),
         });
     }
-    function useWeeklyMetrics() {
+    function useWeeklyMetrics(params) {
         return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.weeklyMetrics(),
-            queryFn: () => apiClient.getWeeklyMetrics(),
+            queryKey: query_keys_1.queryKeys.weeklyMetrics(params),
+            queryFn: () => apiClient.getWeeklyMetrics(params),
         });
     }
     function useMonthlyMetrics(params) {

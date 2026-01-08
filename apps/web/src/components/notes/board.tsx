@@ -2,7 +2,7 @@
 
 import { DndContext, useSensor, useSensors, PointerSensor, DragEndEvent } from '@dnd-kit/core';
 import { NoteItem } from './note';
-import { useCreateNote, useUpdateNote } from '@/lib/shared-hooks';
+import { useCreateNote, useUpdateNote } from '@/lib/api-hooks';
 import { Button } from '@ordo-todo/ui';
 import { Plus } from 'lucide-react';
 import { Note } from '@ordo-todo/api-client';

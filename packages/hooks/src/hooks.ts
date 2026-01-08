@@ -984,10 +984,10 @@ export function createHooks(config: CreateHooksConfig) {
     });
   }
 
-  function useWeeklyMetrics() {
+  function useWeeklyMetrics(params?: { weekStart?: string }) {
     return useQuery({
-      queryKey: queryKeys.weeklyMetrics(),
-      queryFn: () => apiClient.getWeeklyMetrics(),
+      queryKey: queryKeys.weeklyMetrics(params),
+      queryFn: () => apiClient.getWeeklyMetrics(params),
     });
   }
 
