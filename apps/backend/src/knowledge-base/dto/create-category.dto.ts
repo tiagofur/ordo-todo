@@ -1,19 +1,25 @@
-import { IsString, IsNotEmpty, IsOptional, IsInt, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  IsBoolean,
+} from 'class-validator';
 
 export class CreateKBCategoryDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    @IsNotEmpty()
-    slug: string;
+  @IsString()
+  @IsNotEmpty()
+  slug: string;
 
-    @IsString()
-    @IsOptional()
-    icon?: string;
+  @IsString()
+  @IsOptional()
+  icon?: string;
 
-    @IsInt()
-    @IsOptional()
-    order?: number;
+  @IsInt()
+  @IsOptional()
+  order?: number;
 }

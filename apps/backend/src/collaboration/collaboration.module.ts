@@ -32,4 +32,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   ],
   exports: [CollaborationGateway, TeamWorkloadService],
 })
-export class CollaborationModule { }
+export class CollaborationModule {}

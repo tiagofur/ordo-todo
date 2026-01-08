@@ -5,7 +5,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaTagRepository implements TagRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(prismaTag: PrismaTag): Tag {
     return new Tag({
@@ -64,9 +64,7 @@ export class PrismaTagRepository implements TagRepository {
     return tags.map((t) => this.toDomain(t));
   }
 
-  async findByWorkspaceIdWithTaskCount(
-    workspaceId: string,
-  ): Promise<
+  async findByWorkspaceIdWithTaskCount(workspaceId: string): Promise<
     Array<{
       id: string;
       name: string;

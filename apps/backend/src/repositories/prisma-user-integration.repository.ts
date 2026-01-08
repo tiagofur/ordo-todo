@@ -60,7 +60,10 @@ export class PrismaUserIntegrationRepository implements UserIntegrationRepositor
     return integrations.map((i) => this.toDomain(i));
   }
 
-  async update(id: string, input: Partial<UserIntegrationInput>): Promise<UserIntegration> {
+  async update(
+    id: string,
+    input: Partial<UserIntegrationInput>,
+  ): Promise<UserIntegration> {
     const data = await this.prisma.userIntegration.update({
       where: { id },
       data: {
@@ -134,7 +137,7 @@ export class PrismaUserIntegrationRepository implements UserIntegrationRepositor
       scope: prismaIntegration.scope,
       providerUserId: prismaIntegration.providerUserId,
       providerEmail: prismaIntegration.providerEmail,
-      settings: prismaIntegration.settings as any,
+      settings: prismaIntegration.settings,
       isActive: prismaIntegration.isActive,
       lastSyncAt: prismaIntegration.lastSyncAt,
       createdAt: prismaIntegration.createdAt,

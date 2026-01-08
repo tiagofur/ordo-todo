@@ -15,19 +15,21 @@ import { Prisma, Meeting as PrismaMeeting } from '@prisma/client';
 export class PrismaMeetingRepository implements MeetingRepository {
   private readonly logger = new Logger(PrismaMeetingRepository.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(meeting: Meeting): Promise<Meeting> {
     const prismaMeeting = await this.prisma.meeting.create({
       data: {
-        id: meeting.id as string,
+        id: meeting.id,
         userId: meeting.userId,
         title: meeting.title,
         date: meeting.date,
         duration: meeting.duration,
         transcript: meeting.transcript || null,
         audioUrl: meeting.audioUrl || null,
-        analysis: meeting.analysis ? (meeting.analysis as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
+        analysis: meeting.analysis
+          ? (meeting.analysis as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
         projectId: meeting.projectId || null,
         createdAt: meeting.createdAt,
         updatedAt: meeting.updatedAt,
@@ -65,14 +67,16 @@ export class PrismaMeetingRepository implements MeetingRepository {
 
   async update(meeting: Meeting): Promise<Meeting> {
     const prismaMeeting = await this.prisma.meeting.update({
-      where: { id: meeting.id as string },
+      where: { id: meeting.id },
       data: {
         title: meeting.title,
         date: meeting.date,
         duration: meeting.duration,
         transcript: meeting.transcript || null,
         audioUrl: meeting.audioUrl || null,
-        analysis: meeting.analysis ? (meeting.analysis as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
+        analysis: meeting.analysis
+          ? (meeting.analysis as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
         projectId: meeting.projectId || null,
         updatedAt: new Date(),
       },
@@ -240,18 +244,19 @@ export class PrismaMeetingRepository implements MeetingRepository {
     return new MeetingAnalysis({
       summary: analysisJson.summary || '',
       keyPoints: analysisJson.keyPoints || [],
-      actionItems: (analysisJson.actionItems || []).map((item: any) =>
-        new ActionItem({
-          id: item.id || 'temp',
-          title: item.title,
-          description: item.description,
-          assignee: item.assignee,
-          dueDate: item.dueDate ? new Date(item.dueDate) : undefined,
-          priority: item.priority,
-          context: item.context || '',
-          completed: item.completed,
-          taskId: item.taskId,
-        }),
+      actionItems: (analysisJson.actionItems || []).map(
+        (item: any) =>
+          new ActionItem({
+            id: item.id || 'temp',
+            title: item.title,
+            description: item.description,
+            assignee: item.assignee,
+            dueDate: item.dueDate ? new Date(item.dueDate) : undefined,
+            priority: item.priority,
+            context: item.context || '',
+            completed: item.completed,
+            taskId: item.taskId,
+          }),
       ),
       decisions: (analysisJson.decisions || []).map((d: any) => ({
         decision: d.decision,

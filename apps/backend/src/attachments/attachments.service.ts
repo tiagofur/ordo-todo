@@ -401,7 +401,8 @@ export class AttachmentsService {
    */
   async findByProject(projectId: string): Promise<AttachmentWithUploader[]> {
     // Use repository to find attachments by project ID
-    const attachments = await this.attachmentRepository.findByProjectId(projectId);
+    const attachments =
+      await this.attachmentRepository.findByProjectId(projectId);
 
     // Enrich all attachments with uploader details
     return Promise.all(

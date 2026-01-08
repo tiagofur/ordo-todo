@@ -87,4 +87,62 @@ export class PrismaTagRepository implements TagRepository {
         });
         return tags.map(t => this.toDomain(t));
     }
+
+    async findByWorkspaceIdWithTaskCount(workspaceId: string): Promise<
+        Array<{
+            id: string;
+            name: string;
+            color: string;
+            workspaceId: string;
+            createdAt: Date;
+            taskCount: number;
+        }>
+    > {
+        const tags = await this.prisma.tag.findMany({
+            where: { workspaceId } as Record<string, unknown>,
+            include: {
+                _count: {
+                    select: { tasks: true },
+                },
+            },
+        });
+
+        return tags.map((tag: { id: string; name: string; color: string; workspaceId: string | null; createdAt: Date; _count: { tasks: number } }) => ({
+            id: tag.id,
+            name: tag.name,
+            color: tag.color,
+            workspaceId: tag.workspaceId!,
+            createdAt: tag.createdAt,
+            taskCount: tag._count.tasks,
+        }));
+    }
+
+    async findByIdWithTaskCount(id: string): Promise<{
+        id: string;
+        name: string;
+        color: string;
+        workspaceId: string;
+        createdAt: Date;
+        taskCount: number;
+    } | null> {
+        const tag = await this.prisma.tag.findUnique({
+            where: { id },
+            include: {
+                _count: {
+                    select: { tasks: true },
+                },
+            },
+        });
+
+        if (!tag) return null;
+
+        return {
+            id: tag.id,
+            name: tag.name,
+            color: tag.color,
+            workspaceId: (tag as { workspaceId: string | null }).workspaceId!,
+            createdAt: tag.createdAt,
+            taskCount: tag._count.tasks,
+        };
+    }
 }

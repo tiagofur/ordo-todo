@@ -5,7 +5,7 @@
   "description": "Ordo-Todo Web Application - Next.js 16 + REST API",
   "scripts": {
     "dev": "next dev -p 3100",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "check-types": "tsc --noEmit",

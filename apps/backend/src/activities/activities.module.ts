@@ -16,10 +16,15 @@ import { GetTaskActivitiesUseCase } from '@ordo-todo/core';
     },
     {
       provide: 'GetTaskActivitiesUseCase',
-      useFactory: (activityRepo: any) => new GetTaskActivitiesUseCase(activityRepo),
+      useFactory: (activityRepo: any) =>
+        new GetTaskActivitiesUseCase(activityRepo),
       inject: ['ActivityRepository'],
     },
   ],
-  exports: [ActivitiesService, 'LogActivityUseCase', 'GetTaskActivitiesUseCase'],
+  exports: [
+    ActivitiesService,
+    'LogActivityUseCase',
+    'GetTaskActivitiesUseCase',
+  ],
 })
 export class ActivitiesModule {}

@@ -440,12 +440,20 @@ REGLAS:
     // Use TimerRepository for both queries
     const [todaySessions, weeklySessions] = await Promise.all([
       this.timerRepository.findByUserIdAndDateRange(userId, today, new Date()),
-      this.timerRepository.findByUserIdAndDateRange(userId, weekStart, new Date()),
+      this.timerRepository.findByUserIdAndDateRange(
+        userId,
+        weekStart,
+        new Date(),
+      ),
     ]);
 
     // Filter for completed sessions with duration
-    const todayCompleted = todaySessions.filter((s) => s.props.duration !== null);
-    const weeklyCompleted = weeklySessions.filter((s) => s.props.duration !== null);
+    const todayCompleted = todaySessions.filter(
+      (s) => s.props.duration !== null,
+    );
+    const weeklyCompleted = weeklySessions.filter(
+      (s) => s.props.duration !== null,
+    );
 
     const todayMinutes = todayCompleted.reduce(
       (sum, s) => sum + (s.props.duration || 0),

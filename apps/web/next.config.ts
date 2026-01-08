@@ -29,7 +29,9 @@ const nextConfig: NextConfig = {
   },
   // Disable production source maps to avoid build issues
   productionBrowserSourceMaps: false,
-  transpilePackages: ["@ordo-todo/ui", "@ordo-todo/styles"],
+  // Mark packages that use Node.js APIs as server-only
+  serverExternalPackages: ['@ordo-todo/core'],
+  transpilePackages: ["@ordo-todo/ui", "@ordo-todo/styles", "@ordo-todo/hooks"],
 
   // Bundle optimization with webpack
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
@@ -127,19 +129,6 @@ const nextConfig: NextConfig = {
           },
         },
       };
-
-      // Configure module rules for better optimization
-      config.module.rules.push({
-        test: /\.(js|jsx|ts|tsx)$/,
-        include: [path.resolve(__dirname, 'src')],
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
-            plugins: ['@babel/plugin-syntax-dynamic-import'],
-          },
-        },
-      });
     }
 
     return config;

@@ -18,7 +18,7 @@ import { Prisma } from '@prisma/client';
 export class PrismaFocusRepository implements FocusRepository {
   private readonly logger = new Logger(PrismaFocusRepository.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getUserPreferences(userId: string): Promise<FocusPreferences | null> {
     const preferences = await this.prisma.userPreferences.findUnique({
@@ -75,12 +75,17 @@ export class PrismaFocusRepository implements FocusRepository {
     });
 
     const totalSessions = sessions.length;
-    const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
-    const avgSessionLength = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+    const totalMinutes = sessions.reduce(
+      (sum, s) => sum + (s.duration || 0),
+      0,
+    );
+    const avgSessionLength =
+      totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
 
     // Get favorite track from usage analytics (if available)
     const mostUsedTracks = await this.getMostUsedTracks(userId, 1);
-    const favoriteTrack = mostUsedTracks.length > 0 ? mostUsedTracks[0].trackId : null;
+    const favoriteTrack =
+      mostUsedTracks.length > 0 ? mostUsedTracks[0].trackId : null;
 
     // Get most used mode from user preferences
     const preferredMode = await this.getMostUsedMode(userId);

@@ -1,0 +1,6 @@
+src/server/repositories/task.prisma.ts(29,7): error TS2353: Object literal may only specify known properties, and 'estimatedTime' does not exist in type 'TaskProps'.
+src/server/repositories/task.prisma.ts(105,36): error TS2339: Property 'estimatedTime' does not exist on type 'Readonly<TaskProps>'.
+src/server/repositories/timer.prisma.ts(17,14): error TS2420: Class 'PrismaTimerRepository' incorrectly implements interface 'TimerRepository'.
+  Property 'countCompletedSessions' is missing in type 'PrismaTimerRepository' but required in type 'TimerRepository'.
+src/server/repositories/user.prisma.ts(4,14): error TS2420: Class 'PrismaUserRepository' incorrectly implements interface 'UserRepository'.
+  Type 'PrismaUserRepository' is missing the following properties from type 'UserRepository': updateXpAndLevel, delete

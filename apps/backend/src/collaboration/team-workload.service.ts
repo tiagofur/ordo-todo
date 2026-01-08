@@ -1,5 +1,10 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import type { ICollaborationRepository, TeamWorkloadSummary, MemberWorkload, WorkloadSuggestion } from '@ordo-todo/core';
+import type {
+  ICollaborationRepository,
+  TeamWorkloadSummary,
+  MemberWorkload,
+  WorkloadSuggestion,
+} from '@ordo-todo/core';
 
 @Injectable()
 export class TeamWorkloadService {
@@ -8,7 +13,7 @@ export class TeamWorkloadService {
   constructor(
     @Inject('CollaborationRepository')
     private readonly collaborationRepository: ICollaborationRepository,
-  ) { }
+  ) {}
 
   /**
    * Get workload summary for a workspace

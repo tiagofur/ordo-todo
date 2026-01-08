@@ -129,9 +129,7 @@ export class SmartNotificationsService {
             'Has estado trabajando por más de 2 horas. Considera tomar un descanso.',
           metadata: { sessionId: session.id },
         });
-        this.logger.log(
-          `Sent break reminder to user ${session.props.userId}`,
-        );
+        this.logger.log(`Sent break reminder to user ${session.props.userId}`);
       }
     }
   }

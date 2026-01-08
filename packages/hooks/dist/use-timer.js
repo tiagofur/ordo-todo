@@ -8,7 +8,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useTimer = useTimer;
 const react_1 = require("react");
-const core_1 = require("@ordo-todo/core");
+/**
+ * Format time for timer display (MM:SS)
+ * Note: Inlined from @ordo-todo/core to avoid importing Node.js dependencies
+ */
+function formatTimerDisplay(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+}
 function useTimer({ type, config, onSessionComplete, }) {
     const [isRunning, setIsRunning] = (0, react_1.useState)(false);
     const [isPaused, setIsPaused] = (0, react_1.useState)(false);
@@ -184,7 +192,7 @@ function useTimer({ type, config, onSessionComplete, }) {
         };
     }, [isRunning, isPaused, type, skipToNext, stop]);
     const formatTime = (seconds) => {
-        return (0, core_1.formatTimerDisplay)(seconds);
+        return formatTimerDisplay(seconds);
     };
     const getProgress = () => {
         const total = getDuration(mode);

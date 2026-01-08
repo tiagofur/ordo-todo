@@ -223,7 +223,9 @@ export class BurnoutPreventionService {
     // Calculate daily work hours
     const dailyMinutes = new Map<string, number>();
     for (const session of workSessions) {
-      const dateKey = new Date(session.props.startedAt).toISOString().split('T')[0];
+      const dateKey = new Date(session.props.startedAt)
+        .toISOString()
+        .split('T')[0];
       dailyMinutes.set(
         dateKey,
         (dailyMinutes.get(dateKey) || 0) + (session.props.duration || 0),
@@ -307,7 +309,8 @@ export class BurnoutPreventionService {
 
     if (activeSession) {
       const sessionMinutes = Math.floor(
-        (Date.now() - new Date(activeSession.props.startedAt).getTime()) / 60000,
+        (Date.now() - new Date(activeSession.props.startedAt).getTime()) /
+          60000,
       );
 
       if (sessionMinutes >= this.THRESHOLDS.warningSessionWithoutBreak) {

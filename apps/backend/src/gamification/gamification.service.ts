@@ -1,6 +1,11 @@
 import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { Achievement, UserAchievement } from '@ordo-todo/core';
-import type { IGamificationRepository, UserRepository, TimerRepository, AnalyticsRepository } from '@ordo-todo/core';
+import type {
+  IGamificationRepository,
+  UserRepository,
+  TimerRepository,
+  AnalyticsRepository,
+} from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
@@ -141,10 +146,8 @@ export class GamificationService implements OnModuleInit {
       }
     } else if (type === 'POMODORO') {
       // Use TimerRepository to count completed WORK sessions
-      const completedPomodoros = await this.timerRepository.countCompletedSessions(
-        userId,
-        'WORK',
-      );
+      const completedPomodoros =
+        await this.timerRepository.countCompletedSessions(userId, 'WORK');
 
       if (completedPomodoros >= 1) {
         await this.unlockAchievement(userId, 'FIRST_POMODORO');

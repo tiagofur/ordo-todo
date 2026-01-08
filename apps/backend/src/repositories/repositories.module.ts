@@ -224,52 +224,62 @@ import { PrismaAccountRepository } from './prisma-account.repository';
     },
     {
       provide: 'MeetingRepository',
-      useFactory: (prisma: PrismaService) => new PrismaMeetingRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaMeetingRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'ActivityRepository',
-      useFactory: (prisma: PrismaService) => new PrismaActivityRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaActivityRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'RecurrenceRepository',
-      useFactory: (prisma: PrismaService) => new PrismaRecurrenceRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaRecurrenceRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'TaskDependencyRepository',
-      useFactory: (prisma: PrismaService) => new PrismaTaskDependencyRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaTaskDependencyRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'SubscriptionRepository',
-      useFactory: (prisma: PrismaService) => new PrismaSubscriptionRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaSubscriptionRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'WorkspaceMemberRepository',
-      useFactory: (prisma: PrismaService) => new PrismaWorkspaceMemberRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaWorkspaceMemberRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'UserIntegrationRepository',
-      useFactory: (prisma: PrismaService) => new PrismaUserIntegrationRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaUserIntegrationRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'AdminUserRepository',
-      useFactory: (prisma: PrismaService) => new PrismaAdminUserRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaAdminUserRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'SessionRepository',
-      useFactory: (prisma: PrismaService) => new PrismaSessionRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaSessionRepository(prisma),
       inject: [PrismaService],
     },
     {
       provide: 'AccountRepository',
-      useFactory: (prisma: PrismaService) => new PrismaAccountRepository(prisma),
+      useFactory: (prisma: PrismaService) =>
+        new PrismaAccountRepository(prisma),
       inject: [PrismaService],
     },
   ],
@@ -317,4 +327,4 @@ import { PrismaAccountRepository } from './prisma-account.repository';
     'AccountRepository',
   ],
 })
-export class RepositoriesModule { }
+export class RepositoriesModule {}

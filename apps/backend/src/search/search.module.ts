@@ -5,7 +5,11 @@ import { RepositoriesModule } from '../repositories/repositories.module';
 import { SearchController } from './search.controller';
 import { SemanticSearchService } from './semantic-search.service';
 import { PrismaSearchRepository } from './prisma-search.repository';
-import { ExecuteSearchUseCase, GetSuggestionsUseCase, AskQuestionUseCase } from '@ordo-todo/core';
+import {
+  ExecuteSearchUseCase,
+  GetSuggestionsUseCase,
+  AskQuestionUseCase,
+} from '@ordo-todo/core';
 
 @Module({
   imports: [DatabaseModule, AIModule, RepositoriesModule],
@@ -32,6 +36,11 @@ import { ExecuteSearchUseCase, GetSuggestionsUseCase, AskQuestionUseCase } from 
       inject: ['SearchRepository'],
     },
   ],
-  exports: [SemanticSearchService, 'ExecuteSearchUseCase', 'GetSuggestionsUseCase', 'AskQuestionUseCase'],
+  exports: [
+    SemanticSearchService,
+    'ExecuteSearchUseCase',
+    'GetSuggestionsUseCase',
+    'AskQuestionUseCase',
+  ],
 })
-export class SearchModule { }
+export class SearchModule {}
