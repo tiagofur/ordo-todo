@@ -10,4 +10,4 @@ import { RepositoriesModule } from '../repositories/repositories.module';
   providers: [CustomFieldsService],
   exports: [CustomFieldsService],
 })
-export class CustomFieldsModule { }
+export class CustomFieldsModule {}

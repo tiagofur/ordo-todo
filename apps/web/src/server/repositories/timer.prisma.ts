@@ -282,7 +282,7 @@ export class PrismaTimerRepository implements TimerRepository {
 
     return {
       totalSessions: sessions.length,
-      totalMinutes: sessions.reduce((acc, s) => acc + (s.duration ?? 0), 0),
+      totalMinutes: sessions.reduce((acc, s: any) => acc + (s.duration ?? 0), 0),
       completedSessions: sessions.filter((s) => s.wasCompleted).length,
       lastSessionAt: sessions[0]?.startedAt,
     };
@@ -321,7 +321,7 @@ export class PrismaTimerRepository implements TimerRepository {
       },
     });
 
-    return sessions.map((s) => ({
+    return sessions.map((s: any) => ({
       id: s.id,
       startedAt: s.startedAt,
       duration: s.duration,
@@ -332,5 +332,11 @@ export class PrismaTimerRepository implements TimerRepository {
         }
         : null,
     }));
+  }
+
+  async countCompletedSessions(userId?: string): Promise<number> {
+    const where = userId ? { userId, wasCompleted: true } : { wasCompleted: true };
+    const count = await this.prisma.timeSession.count({ where });
+    return count;
   }
 }

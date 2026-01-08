@@ -57,4 +57,4 @@ import {
   ],
   exports: [FocusAudioService],
 })
-export class FocusModule { }
+export class FocusModule {}

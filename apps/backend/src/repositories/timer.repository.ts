@@ -138,7 +138,7 @@ export class PrismaTimerRepository implements TimerRepository {
     };
 
     const data: any = {
-      id: session.id as string,
+      id: session.id,
       userId: session.props.userId,
       startedAt: session.props.startedAt,
       type: this.mapTypeToPrisma(session.props.type),
@@ -190,7 +190,7 @@ export class PrismaTimerRepository implements TimerRepository {
     };
 
     const updated = await this.prisma.timeSession.update({
-      where: { id: session.id as string },
+      where: { id: session.id },
       data: data,
     });
 

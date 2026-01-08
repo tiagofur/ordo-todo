@@ -29,7 +29,7 @@ export class HealthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
-  ) { }
+  ) {}
 
   /**
    * Comprehensive health check that verifies all dependencies

@@ -32,7 +32,7 @@ export class PrismaWorkflowRepository implements WorkflowRepository {
             where: { workspaceId },
             orderBy: { position: "asc" },
         });
-        return data.map((d) => new Workflow({
+        return data.map((d: any) => new Workflow({
             ...d,
             description: d.description === null ? undefined : d.description,
             icon: d.icon === null ? undefined : d.icon,

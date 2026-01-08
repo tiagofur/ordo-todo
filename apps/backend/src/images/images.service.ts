@@ -3,7 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { mkdir, unlink } from 'fs/promises';
 import { join } from 'path';
-import { ImageSpecs, ProcessedImage as DomainProcessedImage } from '@ordo-todo/core';
+import {
+  ImageSpecs,
+  ProcessedImage as DomainProcessedImage,
+} from '@ordo-todo/core';
 
 /**
  * Image processing service for avatar uploads and image optimization
@@ -43,7 +46,9 @@ export class ImagesService {
    * @returns Processed image value object
    * @throws {BadRequestException} If validation fails
    */
-  async processAvatar(file: Express.Multer.File): Promise<DomainProcessedImage> {
+  async processAvatar(
+    file: Express.Multer.File,
+  ): Promise<DomainProcessedImage> {
     this.logger.log(
       `Processing avatar: ${file.originalname} (${file.size} bytes)`,
     );
@@ -83,7 +88,7 @@ export class ImagesService {
 
       // Resize and optimize using specs from domain
       image = image
-        .resize(specs.targetSize!, specs.targetSize!, {
+        .resize(specs.targetSize, specs.targetSize, {
           fit: 'cover',
           position: 'center',
         })

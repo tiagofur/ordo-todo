@@ -45,7 +45,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   /**
    * Creates a new task with automatic priority calculation and notifications
@@ -109,13 +109,13 @@ export class TasksService {
         type: NotificationType.TASK_ASSIGNED,
         title: 'Task assigned to you',
         message: `You were assigned to task "${task.props.title}"`,
-        resourceId: task.id as string,
+        resourceId: task.id,
         resourceType: ResourceType.TASK,
       });
     }
 
     // Log activity
-    await this.activitiesService.logTaskCreated(task.id as string, userId);
+    await this.activitiesService.logTaskCreated(task.id, userId);
 
     // Update daily metrics - increment tasksCreated
     const updateMetrics = new UpdateDailyMetricsUseCase(
@@ -791,7 +791,7 @@ export class TasksService {
     );
 
     // Log creation on the subtask itself
-    await this.activitiesService.logTaskCreated(subtask.id as string, userId);
+    await this.activitiesService.logTaskCreated(subtask.id, userId);
 
     return subtask.props;
   }
@@ -889,7 +889,8 @@ export class TasksService {
       blockingTaskId,
     );
 
-    if (hasReverse) throw new BadRequestException('Circular dependency detected');
+    if (hasReverse)
+      throw new BadRequestException('Circular dependency detected');
 
     const dependency = await this.taskDependencyRepository.create({
       blockingTaskId,
@@ -953,8 +954,8 @@ export class TasksService {
     ]);
 
     return {
-      blockedBy: blockedByTasks.filter((t) => t !== null).map((t) => t!.props),
-      blocking: blockingTasks.filter((t) => t !== null).map((t) => t!.props),
+      blockedBy: blockedByTasks.filter((t) => t !== null).map((t) => t.props),
+      blocking: blockingTasks.filter((t) => t !== null).map((t) => t.props),
     };
   }
 }

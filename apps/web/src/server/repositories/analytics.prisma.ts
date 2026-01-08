@@ -105,4 +105,15 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
 
     return metrics.map((m) => this.toDomain(m));
   }
+
+  async countTasks(userId: string, filters?: any): Promise<number> {
+    const where: any = { ownerId: userId, isDeleted: false };
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+    if (filters?.projectId) {
+      where.projectId = filters.projectId;
+    }
+    return this.prisma.task.count({ where });
+  }
 }

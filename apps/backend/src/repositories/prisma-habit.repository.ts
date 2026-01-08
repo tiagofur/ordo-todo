@@ -135,7 +135,7 @@ export class PrismaHabitRepository implements IHabitRepository {
   async create(habit: Habit): Promise<Habit> {
     const prismaHabit = await this.prisma.client.habit.create({
       data: {
-        id: habit.id as string,
+        id: habit.id,
         name: habit.props.name,
         description: habit.props.description ?? null,
         icon: habit.props.icon ?? null,

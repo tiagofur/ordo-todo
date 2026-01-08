@@ -32,7 +32,7 @@ export class AIService {
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   // ============ AI CHAT ============
   @CircuitBreaker({ failureThreshold: 3, resetTimeout: 30000 })
@@ -142,12 +142,11 @@ export class AIService {
       startDate || new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     // Get daily metrics using AnalyticsRepository
-    const dailyMetricsEntities =
-      await this.analyticsRepository.getRange(
-        userId,
-        start,
-        end,
-      );
+    const dailyMetricsEntities = await this.analyticsRepository.getRange(
+      userId,
+      start,
+      end,
+    );
     const dailyMetrics = dailyMetricsEntities.map((dm) => dm.props);
 
     // Get time sessions using TimerRepository
@@ -156,9 +155,7 @@ export class AIService {
       start,
       end,
     );
-    const completedSessions = sessions.filter(
-      (s) => s.props.endedAt !== null,
-    );
+    const completedSessions = sessions.filter((s) => s.props.endedAt !== null);
 
     // Get AI profile if exists
     const profile = await this.aiProfileRepository.findByUserId(userId);
@@ -334,12 +331,11 @@ export class AIService {
     end.setHours(23, 59, 59, 999);
 
     // Get metrics for the month using AnalyticsRepository and TimerRepository
-    const dailyMetricsEntities =
-      await this.analyticsRepository.getRange(
-        userId,
-        start,
-        end,
-      );
+    const dailyMetricsEntities = await this.analyticsRepository.getRange(
+      userId,
+      start,
+      end,
+    );
     const dailyMetrics = dailyMetricsEntities.map((dm) => dm.props);
 
     const sessions = await this.timerRepository.findByUserIdAndDateRange(
@@ -368,7 +364,7 @@ export class AIService {
       avgFocusScore:
         dailyMetrics.length > 0
           ? dailyMetrics.reduce((sum, d) => sum + (d.focusScore || 0), 0) /
-          dailyMetrics.length
+            dailyMetrics.length
           : 0,
       daysWorked: dailyMetrics.filter((d) => d.minutesWorked > 0).length,
     };
@@ -377,15 +373,13 @@ export class AIService {
       userId,
       scope: 'MONTHLY_SCHEDULED',
       metricsSnapshot,
-      sessions: completedSessions
-        .slice(0, 20)
-        .map((s) => ({
-          id: String(s.id),
-          startedAt: s.props.startedAt,
-          duration: s.props.duration || 0,
-          pauseCount: s.props.pauseCount,
-          wasCompleted: s.props.wasCompleted,
-        })),
+      sessions: completedSessions.slice(0, 20).map((s) => ({
+        id: String(s.id),
+        startedAt: s.props.startedAt,
+        duration: s.props.duration || 0,
+        pauseCount: s.props.pauseCount,
+        wasCompleted: s.props.wasCompleted,
+      })),
       profile: profile?.props || {
         peakHours: {},
         avgTaskDuration: 0,
@@ -464,7 +458,7 @@ export class AIService {
       avgTaskDuration:
         project.tasks.length > 0
           ? sessions.reduce((sum, s) => sum + (s.props.duration || 0), 0) /
-          project.tasks.filter((t) => t.status === 'COMPLETED').length
+            project.tasks.filter((t) => t.status === 'COMPLETED').length
           : 0,
       estimateAccuracy: this.calculateEstimateAccuracy(project.tasks),
     };
@@ -476,15 +470,13 @@ export class AIService {
       userId,
       scope: 'PROJECT_SUMMARY',
       metricsSnapshot: numericMetrics,
-      sessions: sessions
-        .slice(0, 20)
-        .map((s) => ({
-          id: String(s.id),
-          startedAt: s.props.startedAt,
-          duration: s.props.duration || 0,
-          pauseCount: s.props.pauseCount,
-          wasCompleted: s.props.wasCompleted,
-        })),
+      sessions: sessions.slice(0, 20).map((s) => ({
+        id: String(s.id),
+        startedAt: s.props.startedAt,
+        duration: s.props.duration || 0,
+        pauseCount: s.props.pauseCount,
+        wasCompleted: s.props.wasCompleted,
+      })),
       projectName: project.name,
     });
 

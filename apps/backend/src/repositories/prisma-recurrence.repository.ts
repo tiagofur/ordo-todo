@@ -45,7 +45,10 @@ export class PrismaRecurrenceRepository implements RecurrenceRepository {
     return data ? this.toDomain(data) : null;
   }
 
-  async update(id: string, input: Partial<RecurrenceInput>): Promise<Recurrence> {
+  async update(
+    id: string,
+    input: Partial<RecurrenceInput>,
+  ): Promise<Recurrence> {
     const data = await this.prisma.recurrence.update({
       where: { id },
       data: {

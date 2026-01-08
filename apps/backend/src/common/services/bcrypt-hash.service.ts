@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import type { HashService } from '@ordo-todo/core';
 
 /**
- * Bcrypt implementation of HashService for the backend.
+ * Bcryptjs implementation of HashService for the backend.
  * Used for hashing invitation tokens and other secure data.
+ * Uses pure JavaScript bcrypt implementation for cross-platform compatibility.
  */
 @Injectable()
 export class BcryptHashService implements HashService {

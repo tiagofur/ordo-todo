@@ -23,7 +23,7 @@ export class CustomFieldsService {
     @Inject('CustomFieldRepository')
     private readonly customFieldRepository: ICustomFieldRepository,
     private readonly prisma: PrismaService, // Keep for existence checks of other entities if needed, or better, use other repositories
-  ) { }
+  ) {}
 
   /**
    * Get all custom fields for a project
@@ -132,11 +132,7 @@ export class CustomFieldsService {
         }
 
         // Validate value based on field type
-        this.validateFieldValue(
-          field.type,
-          v.value,
-          field.options || null,
-        );
+        this.validateFieldValue(field.type, v.value, field.options || null);
 
         const customValue = CustomFieldValue.create({
           fieldId: v.fieldId,

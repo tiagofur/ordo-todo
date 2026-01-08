@@ -27,7 +27,7 @@ export class ActivitiesService {
   constructor(
     @Inject('LogActivityUseCase')
     private readonly logActivityUseCase: LogActivityUseCase,
-  ) { }
+  ) {}
 
   async createActivity(data: CreateActivityData): Promise<void> {
     try {

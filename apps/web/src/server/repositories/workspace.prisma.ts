@@ -146,7 +146,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       updatedAt: workspace.props.updatedAt,
     };
 
-    const created = await this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx: any) => {
       const workspaceData = await tx.workspace.create({
         data: data,
       });
@@ -193,7 +193,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         isDeleted: false,
       },
     });
-    return workspaces.map((w) => this.toDomain(w));
+    return workspaces.map((w: any) => this.toDomain(w));
   }
 
   async findByUserId(userId: string): Promise<Workspace[]> {
@@ -207,7 +207,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         isDeleted: false,
       },
     });
-    return workspaces.map((w) => this.toDomain(w));
+    return workspaces.map((w: any) => this.toDomain(w));
   }
 
   async update(workspace: Workspace): Promise<Workspace> {
@@ -272,7 +272,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
         isDeleted: true,
       },
     });
-    return workspaces.map((w) => this.toDomain(w));
+    return workspaces.map((w: any) => this.toDomain(w));
   }
 
   async permanentDelete(id: string): Promise<void> {
@@ -327,7 +327,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     const members = await this.prisma.workspaceMember.findMany({
       where: { workspaceId },
     });
-    return members.map((m) => this.toMemberDomain(m));
+    return members.map((m: any) => this.toMemberDomain(m));
   }
 
   async listMembersWithUser(workspaceId: string): Promise<
@@ -356,5 +356,28 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       role: this.mapRoleToDomain(m.role),
       user: m.user,
     }));
+  }
+
+  async findByOwnerAndSlugWithStats(ownerId: string, slug: string): Promise<any> {
+    const workspace = await this.prisma.workspace.findFirst({
+      where: {
+        ownerId,
+        slug,
+      },
+      include: {
+        _count: {
+          select: {
+            workflows: true,
+            members: true,
+          },
+        },
+      },
+    });
+
+    if (!workspace) {
+      return null;
+    }
+
+    return this.toDomain(workspace);
   }
 }

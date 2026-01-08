@@ -87,4 +87,28 @@ export class PrismaTagRepository implements TagRepository {
         });
         return tags.map(t => this.toDomain(t));
     }
+
+    async findByWorkspaceIdWithTaskCount(workspaceId: string): Promise<any[]> {
+        const tags = await this.prisma.tag.findMany({
+            where: { workspaceId },
+            include: {
+                _count: {
+                    select: { tasks: true },
+                },
+            },
+        });
+        return tags.map(t => this.toDomain(t));
+    }
+
+    async findByIdWithTaskCount(id: string): Promise<any> {
+        const tag = await this.prisma.tag.findUnique({
+            where: { id },
+            include: {
+                _count: {
+                    select: { tasks: true },
+                },
+            },
+        });
+        return tag ? this.toDomain(tag) : null;
+    }
 }

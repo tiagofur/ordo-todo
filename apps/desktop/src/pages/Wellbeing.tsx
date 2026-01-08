@@ -88,7 +88,7 @@ export function Wellbeing() {
           setBurnout({
               ...data,
               // Create pseudo-warnings from riskFactors
-              warnings: (data.riskFactors || []).map(factor => ({
+              warnings: (data.riskFactors || []).map((factor: string) => ({
                   message: factor,
                   severity: "MODERATE", // Default
                   recommendation: "Review this factor"

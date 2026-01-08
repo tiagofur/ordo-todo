@@ -105,7 +105,8 @@
       "Bash(gh auth status:*)",
       "Bash(gh auth setup-git:*)",
       "Bash(gh repo set-default:*)",
-      "Bash(gh repo sync:*)"
+      "Bash(gh repo sync:*)",
+      "Bash(npx turbo run lint:*)"
     ],
     "deny": [],
     "ask": []

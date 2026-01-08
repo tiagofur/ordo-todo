@@ -4,9 +4,9 @@ import { KnowledgeBaseController } from './knowledge-base.controller';
 import { RepositoriesModule } from '../repositories/repositories.module';
 
 @Module({
-    imports: [RepositoriesModule],
-    controllers: [KnowledgeBaseController],
-    providers: [KnowledgeBaseService],
-    exports: [KnowledgeBaseService],
+  imports: [RepositoriesModule],
+  controllers: [KnowledgeBaseController],
+  providers: [KnowledgeBaseService],
+  exports: [KnowledgeBaseService],
 })
-export class KnowledgeBaseModule { }
+export class KnowledgeBaseModule {}

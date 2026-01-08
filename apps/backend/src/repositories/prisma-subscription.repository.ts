@@ -13,7 +13,7 @@ import { SubscriptionStatus } from '@prisma/client';
  */
 @Injectable()
 export class PrismaSubscriptionRepository implements SubscriptionRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(input: SubscriptionInput): Promise<Subscription> {
     const data = await this.prisma.subscription.create({
@@ -47,7 +47,9 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return data ? this.toDomain(data) : null;
   }
 
-  async findByStripeCustomerId(stripeCustomerId: string): Promise<Subscription | null> {
+  async findByStripeCustomerId(
+    stripeCustomerId: string,
+  ): Promise<Subscription | null> {
     const data = await this.prisma.subscription.findUnique({
       where: { stripeCustomerId },
     });
@@ -55,7 +57,9 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return data ? this.toDomain(data) : null;
   }
 
-  async findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<Subscription | null> {
+  async findByStripeSubscriptionId(
+    stripeSubscriptionId: string,
+  ): Promise<Subscription | null> {
     const data = await this.prisma.subscription.findUnique({
       where: { stripeSubscriptionId },
     });
@@ -63,7 +67,10 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return data ? this.toDomain(data) : null;
   }
 
-  async update(id: string, input: Partial<SubscriptionInput>): Promise<Subscription> {
+  async update(
+    id: string,
+    input: Partial<SubscriptionInput>,
+  ): Promise<Subscription> {
     const data = await this.prisma.subscription.update({
       where: { id },
       data: {
@@ -79,7 +86,10 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return this.toDomain(data);
   }
 
-  async updateStatus(id: string, status: SubscriptionStatus): Promise<Subscription> {
+  async updateStatus(
+    id: string,
+    status: SubscriptionStatus,
+  ): Promise<Subscription> {
     const data = await this.prisma.subscription.update({
       where: { id },
       data: { status },

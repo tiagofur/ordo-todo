@@ -27,7 +27,10 @@ export class PrismaActivityRepository implements ActivityRepository {
     return this.toDomain(data);
   }
 
-  async getTaskActivities(taskId: string, limit: number = 50): Promise<Activity[]> {
+  async getTaskActivities(
+    taskId: string,
+    limit: number = 50,
+  ): Promise<Activity[]> {
     const activities = await this.prisma.activity.findMany({
       where: { taskId },
       orderBy: { createdAt: 'desc' },
@@ -37,7 +40,10 @@ export class PrismaActivityRepository implements ActivityRepository {
     return activities.map((a) => this.toDomain(a));
   }
 
-  async getUserActivities(userId: string, limit: number = 50): Promise<Activity[]> {
+  async getUserActivities(
+    userId: string,
+    limit: number = 50,
+  ): Promise<Activity[]> {
     const activities = await this.prisma.activity.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -47,7 +53,10 @@ export class PrismaActivityRepository implements ActivityRepository {
     return activities.map((a) => this.toDomain(a));
   }
 
-  async getActivitiesByType(type: any, limit: number = 50): Promise<Activity[]> {
+  async getActivitiesByType(
+    type: any,
+    limit: number = 50,
+  ): Promise<Activity[]> {
     const activities = await this.prisma.activity.findMany({
       where: { type },
       orderBy: { createdAt: 'desc' },
@@ -97,7 +106,7 @@ export class PrismaActivityRepository implements ActivityRepository {
       taskId: prismaActivity.taskId,
       userId: prismaActivity.userId,
       type: prismaActivity.type,
-      metadata: prismaActivity.metadata as any,
+      metadata: prismaActivity.metadata,
       createdAt: prismaActivity.createdAt,
     });
   }

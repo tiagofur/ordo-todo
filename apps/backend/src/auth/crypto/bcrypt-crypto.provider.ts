@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import type { CryptoProvider } from '@ordo-todo/core';
 
 /**
  * Bcrypt Crypto Provider
  *
- * Implements password hashing using bcrypt.
+ * Implements password hashing using bcryptjs (pure JavaScript implementation).
  *
  * SECURITY: Uses 12 salt rounds (increased from 10) for better security.
  * - 10 rounds: ~100ms per hash (fast but less secure)

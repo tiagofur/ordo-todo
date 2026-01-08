@@ -191,10 +191,8 @@ export class WorkspacesService {
     }
 
     // Fetch workspace by ownerId and slug using WorkspaceRepository
-    const workspace = await this.workspaceRepository.findByOwnerAndSlugWithStats(
-      user.id,
-      slug,
-    );
+    const workspace =
+      await this.workspaceRepository.findByOwnerAndSlugWithStats(user.id, slug);
 
     if (!workspace) {
       throw new NotFoundException('Workspace not found');

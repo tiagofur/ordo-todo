@@ -4,9 +4,9 @@ import { FAQController } from './faq.controller';
 import { RepositoriesModule } from '../repositories/repositories.module';
 
 @Module({
-    imports: [RepositoriesModule],
-    controllers: [FAQController],
-    providers: [FAQService],
-    exports: [FAQService],
+  imports: [RepositoriesModule],
+  controllers: [FAQController],
+  providers: [FAQService],
+  exports: [FAQService],
 })
-export class FAQModule { }
+export class FAQModule {}

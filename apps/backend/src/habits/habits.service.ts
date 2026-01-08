@@ -35,7 +35,7 @@ export class HabitsService {
     private readonly habitRepository: IHabitRepository,
     private readonly prisma: PrismaService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   /**
    * Create a new habit
@@ -88,7 +88,7 @@ export class HabitsService {
     const habitsWithCompletions = await Promise.all(
       habits.map(async (habit) => {
         const completions = await this.habitRepository.getCompletions(
-          habit.id as string,
+          habit.id,
           weekStart,
           weekEnd,
         );
@@ -139,7 +139,7 @@ export class HabitsService {
     const habitsWithCompletions = await Promise.all(
       filteredHabits.map(async (habit) => {
         const completion = await this.habitRepository.getCompletionForDate(
-          habit.id as string,
+          habit.id,
           startOfDay(today),
         );
         return {
@@ -151,15 +151,11 @@ export class HabitsService {
 
     // Group by time of day
     const grouped = {
-      MORNING: habitsWithCompletions.filter(
-        (h) => h.timeOfDay === 'MORNING',
-      ),
+      MORNING: habitsWithCompletions.filter((h) => h.timeOfDay === 'MORNING'),
       AFTERNOON: habitsWithCompletions.filter(
         (h) => h.timeOfDay === 'AFTERNOON',
       ),
-      EVENING: habitsWithCompletions.filter(
-        (h) => h.timeOfDay === 'EVENING',
-      ),
+      EVENING: habitsWithCompletions.filter((h) => h.timeOfDay === 'EVENING'),
       ANYTIME: habitsWithCompletions.filter(
         (h) => h.timeOfDay === 'ANYTIME' || !h.timeOfDay,
       ),
@@ -272,8 +268,10 @@ export class HabitsService {
       : new Date();
 
     // Check if already completed today
-    const existingCompletion =
-      await this.habitRepository.getCompletionForDate(id, today);
+    const existingCompletion = await this.habitRepository.getCompletionForDate(
+      id,
+      today,
+    );
 
     if (existingCompletion) {
       throw new BadRequestException('Habit already completed for today');
@@ -281,8 +279,10 @@ export class HabitsService {
 
     // Calculate new streak
     const yesterday = subDays(today, 1);
-    const yesterdayCompletion =
-      await this.habitRepository.getCompletionForDate(id, startOfDay(yesterday));
+    const yesterdayCompletion = await this.habitRepository.getCompletionForDate(
+      id,
+      startOfDay(yesterday),
+    );
 
     const isConsecutive =
       !!yesterdayCompletion || (habit.props.currentStreak || 0) === 0;
@@ -469,9 +469,7 @@ export class HabitsService {
     if (completions.length === 0) return 0;
 
     const today = startOfDay(new Date());
-    const latestCompletion = startOfDay(
-      new Date(completions[0].completedDate),
-    );
+    const latestCompletion = startOfDay(new Date(completions[0].completedDate));
 
     // If no completion today or yesterday, streak is 0
     if (differenceInDays(today, latestCompletion) > 1) {

@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { AdminUser, AdminUserRepository, AdminUserInput } from '@ordo-todo/core';
+import {
+  AdminUser,
+  AdminUserRepository,
+  AdminUserInput,
+} from '@ordo-todo/core';
 
 @Injectable()
 export class PrismaAdminUserRepository implements AdminUserRepository {

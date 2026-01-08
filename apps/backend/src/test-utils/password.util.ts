@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 /**
  * Test utility for generating valid bcrypt hashes
@@ -54,7 +54,7 @@ export async function generateTestHash(
  * ```
  */
 export const MOCK_VALID_HASH =
-  '$2b$10$N9qo8uLOickgx2ZMRZoMye1eqhQ0XpKZSY5pL2vJY5VHEwV8sAyOa';
+  '$2a$10$N9qo8uLOickgx2ZMRZoMye1eqhQ0XpKZSY5pL2vJY5VHEwV8sAyOa';
 
 /**
  * Alternative valid bcrypt hash (for testing multiple users)
@@ -62,14 +62,14 @@ export const MOCK_VALID_HASH =
  * Same password as MOCK_VALID_HASH but different salt
  */
 export const MOCK_VALID_HASH_2 =
-  '$2b$10$U4FGKBVsGdlyVCtVMPCylOqK.HHXy8Ll9zJQvC8VpMHE6VYv5qj3q';
+  '$2a$10$U4FGKBVsGdlyVCtVMPCylOqK.HHXy8Ll9zJQvC8VpMHE6VYv5qj3q';
 
 /**
  * Hash of "password" with cost 10
  * Useful when you need a predictable password
  */
 export const MOCK_PASSWORD_HASH =
-  '$2b$10$XOp3f7zP8l5Kq5Z5Z5Z5Zu5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zu';
+  '$2a$10$XOp3f7zP8l5Kq5Z5Z5Z5Zu5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Zu';
 
 /**
  * Generates multiple unique valid hashes

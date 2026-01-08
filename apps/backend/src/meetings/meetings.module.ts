@@ -37,4 +37,4 @@ import {
   ],
   exports: [MeetingAssistantService],
 })
-export class MeetingsModule { }
+export class MeetingsModule {}
