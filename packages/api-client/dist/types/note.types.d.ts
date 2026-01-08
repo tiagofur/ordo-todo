@@ -14,7 +14,6 @@ export interface Note {
     createdAt: string;
     updatedAt: string;
 }
-
 export interface CreateNoteDto {
     content: string;
     x?: number;
@@ -24,7 +23,6 @@ export interface CreateNoteDto {
     height?: number;
     workspaceId: string;
 }
-
 export interface UpdateNoteDto {
     content?: string;
     x?: number;
@@ -33,3 +31,4 @@ export interface UpdateNoteDto {
     width?: number;
     height?: number;
 }
+//# sourceMappingURL=note.types.d.ts.map
