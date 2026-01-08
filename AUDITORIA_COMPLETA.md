@@ -1371,3 +1371,42 @@ Tests:       1 passed, 1 total
 **Sesión**: Corrección de E2E Tests  
 **Tests E2E básicos**: ✅ FUNCIONANDO
 
+# 🕵️‍♀️ PHASE 5c - AUDITORÍA WEB APP & PACKAGES (7 de enero, 2026)
+
+## Estado de Integración de Packages
+
+Se auditaron los paquetes compartidos y su integración con `apps/web`.
+
+### 1. 📦 Shared Packages Audit
+
+| Paquete | Estado | Calidad | Hallazgos |
+|---------|:------:|:-------:|-----------|
+| **@ordo-todo/ui** | ✅ **EXCELENTE** | Google-tier | Estructura **Shadcn/ui** correcta. Primitivos en `components/ui`, lógica de negocio separada en `components/[domain]`. Accesibilidad (Radix UI) y styling (Tailwind + CVA) implementados correctamente. |
+| **@ordo-todo/hooks** | ✅ **EXCELENTE** | Google-tier | Implementación de **Factory Pattern** (`createHooks`) para inyección de dependencias de API Client. Query Keys centralizados en `query-keys.ts` para prevención de colisiones. |
+
+### 2. 🌐 Web App Integration Audit (`apps/web`)
+
+| Aspecto | Estado | Diagnóstico |
+|---------|:------:|-------------|
+| **UI Integration** | ✅ Correcto | Exporta componentes directamente desde `@ordo-todo/ui` vía `src/components/ui/index.ts`. Sin duplicación detectada. |
+| **Backend Config** | ✅ Correcto | `next.config.ts` optimizado para tree-shaking de packages internos. `api-client.ts` apunta correctamente a API URL. |
+| **Hooks Integration** | ⚠️ **DUPLICADO** | La app tiene una implementación **MANUAL** de hooks en `lib/api-hooks.ts` que duplica la lógica de `@ordo-todo/hooks`. Existe `lib/shared-hooks.ts` que usa correctamente el factory del paquete compartido, pero es infrautilizado. |
+| **Server Types** | ❌ **ERROR** | Error de compilación TypeScript (TS2420) en `src/server/repositories/analytics.prisma.ts` debido a mismatch de interfaz con `WorkspaceRepository`. |
+
+## 🛠️ Plan de Trabajo (Para continuar en casa)
+
+### Tarea 1: Estandarización de Hooks (Prioridad: ALTA)
+**Objetivo**: Eliminar la duplicación de código y usar el paquete compartido `@ordo-todo/hooks`.
+1.  **Refactorizar**: Reemplazar importaciones de `@/lib/api-hooks` por `@/lib/shared-hooks` (o `@ordo-todo/hooks`).
+2.  **Limpieza**: Eliminar el archivo duplicado `apps/web/src/lib/api-hooks.ts`.
+3.  **Renombrar**: Mover `shared-hooks.ts` a `api-hooks.ts` para mantener convención limpia.
+
+### Tarea 2: Fix Build Errors (Prioridad: ALTA)
+**Objetivo**: Corregir error de compilación en `check-types`.
+1.  **Analizar**: Revisar `apps/web/src/server/repositories/analytics.prisma.ts`.
+2.  **Corregir**: Actualizar implementación de `MetricsRepository` para coincidir con la interfaz del Core.
+
+---
+**Fecha**: 7 de enero, 2026
+**Estado Final**: Auditoría completada. Plan de estandarización listo para ejecución.
+
