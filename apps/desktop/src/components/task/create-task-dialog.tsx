@@ -142,7 +142,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         if (!title) return;
         
         try {
-            const parsed = await parseTaskInput(title);
+            const parsed = parseTaskInput(title);
             if (parsed.title) setValue("title", parsed.title);
             if (parsed.priority) setValue("priority", parsed.priority);
             if (parsed.dueDate) setValue("dueDate", parsed.dueDate.toISOString().split('T')[0]);
