@@ -603,7 +603,9 @@ describe('WorkspacesService', () => {
       };
 
       mockUserRepository.findByUsername.mockResolvedValue(mockUser);
-      mockWorkspaceRepository.findByOwnerAndSlugWithStats.mockResolvedValue(mockWorkspace);
+      mockWorkspaceRepository.findByOwnerAndSlugWithStats.mockResolvedValue(
+        mockWorkspace,
+      );
 
       const result = await service.findByUserAndSlug(username, slug);
 
@@ -633,7 +635,9 @@ describe('WorkspacesService', () => {
         id: userId,
         props: { username: 'testuser' },
       });
-      mockWorkspaceRepository.findByOwnerAndSlugWithStats.mockResolvedValue(null);
+      mockWorkspaceRepository.findByOwnerAndSlugWithStats.mockResolvedValue(
+        null,
+      );
 
       await expect(service.findByUserAndSlug(username, slug)).rejects.toThrow(
         NotFoundException,
@@ -1805,7 +1809,10 @@ describe('WorkspacesService', () => {
 
       const result = await service.findBySlug(slug, userId);
 
-      expect(mockWorkspaceRepository.findBySlug).toHaveBeenCalledWith(slug, userId);
+      expect(mockWorkspaceRepository.findBySlug).toHaveBeenCalledWith(
+        slug,
+        userId,
+      );
       expect(result).toEqual(mockWorkspace.props);
     });
 
@@ -1886,7 +1893,9 @@ describe('WorkspacesService', () => {
 
       const result = await service.restore(workspaceId, userId);
 
-      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(workspaceId);
+      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(
+        workspaceId,
+      );
       expect(mockWorkspaceRepository.restore).toHaveBeenCalledWith(workspaceId);
       expect(result).toEqual({ success: true });
     });
@@ -1948,8 +1957,12 @@ describe('WorkspacesService', () => {
 
       const result = await service.permanentDelete(workspaceId, userId);
 
-      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(workspaceId);
-      expect(mockWorkspaceRepository.permanentDelete).toHaveBeenCalledWith(workspaceId);
+      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(
+        workspaceId,
+      );
+      expect(mockWorkspaceRepository.permanentDelete).toHaveBeenCalledWith(
+        workspaceId,
+      );
       expect(result).toEqual({ success: true });
     });
 
@@ -1962,7 +1975,7 @@ describe('WorkspacesService', () => {
         props: {
           ownerId: 'different-user',
           isDeleted: true,
-        }
+        },
       } as any);
 
       await expect(
@@ -1990,7 +2003,7 @@ describe('WorkspacesService', () => {
         props: {
           ownerId: userId,
           isDeleted: false,
-        }
+        },
       } as any);
 
       await expect(
