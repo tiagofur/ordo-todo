@@ -2,6 +2,7 @@
 -- Description: Fix onDelete behaviors for data integrity (7 critical fixes)
 
 -- 1. Task.ownerId - Cascade (delete owned tasks when user is deleted)
+ALTER TABLE "Task" DROP CONSTRAINT IF EXISTS "Task_creatorId_fkey";
 ALTER TABLE "Task" DROP CONSTRAINT IF EXISTS "Task_ownerId_fkey";
 ALTER TABLE "Task" ADD CONSTRAINT "Task_ownerId_fkey"
   FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
