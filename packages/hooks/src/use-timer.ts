@@ -11,7 +11,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
  * Format time for timer display (MM:SS)
  * Note: Inlined from @ordo-todo/core to avoid importing Node.js dependencies
  */
-function formatTimerDisplay(seconds: number): string {
+export function formatTimerDisplay(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;

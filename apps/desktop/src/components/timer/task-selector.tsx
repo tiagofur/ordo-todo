@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@ordo-todo/ui";
-import { useTasks } from "@/hooks/api/use-tasks";
+import { useTasks } from "@/hooks/api";
 
 interface TaskSelectorProps {
   selectedTaskId?: string | null;

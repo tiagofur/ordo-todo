@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useShareUrl } from "@/hooks/api/use-tasks";
+import { useShareUrl } from "@/hooks/api";
 import {
   Dialog,
   DialogContent,

@@ -7,28 +7,6 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   // Enable standalone output for Docker deployment
   output: 'standalone',
-  turbopack: {
-    root: path.resolve(__dirname, '../..'),
-    // Disable debug IDs and sourcemaps to avoid parsing errors in monorepo
-    debugIds: false,
-  },
-  experimental: {
-    // Disable source maps in development to avoid Turbopack parsing issues
-    serverSourceMaps: false,
-    // Optimize package imports for better tree shaking
-    optimizePackageImports: [
-      '@ordo-todo/ui',
-      '@ordo-todo/hooks',
-      '@ordo-todo/stores',
-      'recharts',
-      'date-fns',
-      'lucide-react',
-      'framer-motion',
-      'cmdk'
-    ],
-  },
-  // Disable production source maps to avoid build issues
-  productionBrowserSourceMaps: false,
   // Mark packages that use Node.js APIs as server-only
   serverExternalPackages: ['@ordo-todo/core'],
   transpilePackages: ["@ordo-todo/ui", "@ordo-todo/styles", "@ordo-todo/hooks"],
@@ -130,6 +108,15 @@ const nextConfig: NextConfig = {
         },
       };
     }
+
+    // Force single instance of core libraries
+    const rootNodeModules = path.resolve(__dirname, '../../node_modules');
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@tanstack/react-query': path.resolve(rootNodeModules, '@tanstack/react-query'),
+      'react': path.resolve(rootNodeModules, 'react'),
+      'react-dom': path.resolve(rootNodeModules, 'react-dom'),
+    };
 
     return config;
   },

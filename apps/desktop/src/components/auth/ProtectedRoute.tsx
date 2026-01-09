@@ -1,12 +1,8 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useCurrentUser } from "@/hooks/api/use-auth";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
+import { useCurrentUser } from "@/hooks/api";
 import { Loader2 } from "lucide-react";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute() {
   const { data: user, isLoading } = useCurrentUser();
   const location = useLocation();
 
@@ -27,5 +23,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

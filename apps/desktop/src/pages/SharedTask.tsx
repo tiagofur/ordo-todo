@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useSharedTask } from "@/hooks/api/use-tasks";
+import { useSharedTask } from "@/hooks/api";
 import {
   Card,
   CardContent,

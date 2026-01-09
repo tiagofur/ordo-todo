@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CheckSquare, MoreVertical, Trash2, Flag, Calendar, Edit, ListTodo, CalendarClock, CalendarCheck, Share2 } from "lucide-react";
-import { useUpdateTask, useTask } from "@/hooks/api/use-tasks";
+import { useUpdateTask, useTask } from "@/hooks/api";
 import {
   cn,
   Badge,

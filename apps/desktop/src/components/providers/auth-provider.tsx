@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useCurrentUser, useLogin, useRegister, useLogout } from "@/hooks/api/use-auth";
+import { useCurrentUser, useLogin, useRegister, useLogout } from "@/hooks/api";
 import type { User, LoginDto, RegisterDto } from "@ordo-todo/api-client";
 import { apiClient } from "@/lib/api-client";
 

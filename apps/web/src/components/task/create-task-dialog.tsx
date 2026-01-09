@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { createTaskSchema } from '@ordo-todo/core';
+import { createTaskSchema } from '@ordo-todo/hooks';
 import {
   Dialog,
   DialogContent,

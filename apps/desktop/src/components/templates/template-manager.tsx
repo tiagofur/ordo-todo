@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@ordo-todo/ui";
 import { Plus, Trash2, Edit2, Save, X } from "lucide-react";
-import { useTemplates, useCreateTemplate, useUpdateTemplate, useDeleteTemplate, TaskTemplate } from "@/hooks/api/use-templates";
+import { useTemplates, useCreateTemplate, useUpdateTemplate, useDeleteTemplate, TaskTemplate } from "@/hooks/api";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { toast } from "sonner";
 

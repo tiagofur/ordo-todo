@@ -1,111 +1,133 @@
-import React, { createContext, useContext, useState } from "react";
-import { useTimer, SessionData, TimerMode, TimerType } from "@/hooks/use-timer";
-import { useStartTimer, useStopTimer } from "@/hooks/api/use-timers";
-import { useUpdateTask } from "@/hooks/api/use-tasks";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-interface TimerContextType extends ReturnType<typeof useTimer> {
-  selectedTaskId: string | null;
-  toggleTaskSelection: (taskId: string | null) => void;
-  completeTask: () => Promise<void>;
-  startSession: () => Promise<void>;
-  stopSession: () => void;
+import { createContext, useContext, useEffect, useState } from "react";
+import { useTimerBackend, TimerSessionMode } from "@/hooks/use-timer-backend";
+import { useUserPreferences, useUpdateTask } from "@/hooks/api";
+import { TaskStatus } from "@ordo-todo/api-client";
+
+interface TimerConfig {
+    workDuration: number;
+    shortBreakDuration: number;
+    longBreakDuration: number;
+    pomodorosUntilLongBreak: number;
+    autoStartBreaks: boolean;
+    autoStartPomodoros: boolean;
+    soundEnabled: boolean;
+    notificationsEnabled: boolean;
 }
 
-const TimerContext = createContext<TimerContextType | null>(null);
-
-const DEFAULT_CONFIG = {
-  workDuration: 25,
-  shortBreakDuration: 5,
-  longBreakDuration: 15,
-  pomodorosUntilLongBreak: 4,
+const DEFAULT_CONFIG: TimerConfig = {
+    workDuration: 25,
+    shortBreakDuration: 5,
+    longBreakDuration: 15,
+    pomodorosUntilLongBreak: 4,
+    autoStartBreaks: false,
+    autoStartPomodoros: false,
+    soundEnabled: true,
+    notificationsEnabled: true,
 };
+
+interface TimerContextType {
+    isRunning: boolean;
+    isPaused: boolean;
+    timeLeft: number;
+    mode: TimerSessionMode;
+    completedPomodoros: number;
+    start: () => Promise<void>;
+    pause: () => Promise<void>;
+    resume: () => Promise<void>;
+    stop: (wasCompleted?: boolean) => Promise<void>;
+    skipToNext: () => Promise<void>;
+    formatTime: (seconds: number) => string;
+    getProgress: () => number;
+    activeSession: any;
+    selectedTaskId: string | null;
+    setSelectedTaskId: (taskId: string | null) => void;
+    toggleTaskSelection: (taskId: string | null) => void;
+    completeTask: () => void;
+    pauseCount: number;
+    config: TimerConfig;
+}
+
+const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [config] = useState(DEFAULT_CONFIG);
-  // const utils = api.useUtils();
+    const { data: preferences } = useUserPreferences();
+    const updateTask = useUpdateTask();
+    const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
 
-  const queryClient = useQueryClient();
-  const startTimer = useStartTimer();
-  const stopTimer = useStopTimer();
+    useEffect(() => {
+        const prefs = preferences as any;
+        if (prefs?.timerConfig) {
+             setConfig({
+                 ...DEFAULT_CONFIG,
+                 ...prefs.timerConfig,
+             });
+        }
+    }, [preferences]);
+   
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
-  const updateTaskMutation = useUpdateTask();
-
-  const handleSessionComplete = async (data: SessionData) => {
-    if (selectedTaskId) {
-      // useStopTimer args? likely void or {}.
-      await stopTimer.mutateAsync({} as any);
-    }
-  };
-
-  const timer = useTimer({
-    type: "POMODORO",
-    config,
-    onSessionComplete: handleSessionComplete,
-  });
-
-  const startSession = async () => {
-    if (!timer.isRunning && !timer.isPaused && selectedTaskId) {
-      await startTimer.mutateAsync({
+    const timer = useTimerBackend({
+        type: "POMODORO", // Default type
+        config,
         taskId: selectedTaskId,
-        // type: timer.mode, // useStartTimer might not take type if implicit or different?
-        // Checking usage: useStartTimer expects { taskId: string }. 
-        // If it handles type, great. If not, we pass what it needs.
-        // Assuming signature matches somewhat or we adjust.
-        // Reading use-timers.ts signature... NO, I can't read now in this tool.
-        // I'll assume useStartTimer({ taskId }) is sufficient or update later.
-        // But invalid arg will fail compilation.
-        // I'll pass simple object for now.
-      });
-    }
-    timer.start();
-  };
-  
-  const stopSession = () => {
-      timer.stop(false);
-  };
+        onSessionComplete: () => {
+             // Optional: native notification handled by main process if triggered by event
+        }
+    });
 
-  const toggleTaskSelection = async (newTaskId: string | null) => {
-    if (timer.isRunning && !timer.isPaused) {
-      timer.split();
-      if (newTaskId) {
-        await startTimer.mutateAsync({ taskId: newTaskId });
-      }
-    }
-    setSelectedTaskId(newTaskId);
-  };
+    // Sync selectedTaskId with activeSession
+    useEffect(() => {
+        if (timer.activeSession?.taskId) {
+            setSelectedTaskId(timer.activeSession.taskId);
+        }
+    }, [timer.activeSession]);
 
-  const completeTask = async () => {
-    if (selectedTaskId) {
-      await updateTaskMutation.mutateAsync({ taskId: selectedTaskId, data: { status: "DONE" as any } });
-      if (timer.isRunning) timer.split();
-      setSelectedTaskId(null);
-      toast.success("Tarea completada! Selecciona otra para continuar.");
-    }
-  };
+    const toggleTaskSelection = (taskId: string | null) => {
+        if (!taskId) {
+            setSelectedTaskId(null);
+            return;
+        }
+        setSelectedTaskId(prev => prev === taskId ? null : taskId);
+    };
 
-  return (
-    <TimerContext.Provider
-      value={{
-        ...timer,
-        start: startSession, // Use wrapper
-        stop: stopSession,
-        selectedTaskId,
-        toggleTaskSelection,
-        completeTask,
-        startSession,
-        stopSession,
-      }}
-    >
-      {children}
-    </TimerContext.Provider>
-  );
+
+
+    const completeTask = () => {
+        if (selectedTaskId) {
+            updateTask.mutate({
+                taskId: selectedTaskId,
+                data: { status: "DONE" as TaskStatus } 
+            });
+            timer.stop(true);
+            setSelectedTaskId(null);
+        }
+    };
+
+    return (
+        <TimerContext.Provider
+            value={{
+                ...timer,
+                selectedTaskId,
+                setSelectedTaskId,
+                toggleTaskSelection,
+                completeTask,
+                pauseCount: 0, // Not currently tracked in backend hook return
+                config,
+            }}
+        >
+            {children}
+        </TimerContext.Provider>
+    );
 }
 
-export const useTimerContext = () => {
-  const context = useContext(TimerContext);
-  if (!context) throw new Error("useTimerContext must be used within TimerProvider");
-  return context;
-};
+export function useTimer() {
+    const context = useContext(TimerContext);
+    if (context === undefined) {
+        throw new Error("useTimer must be used within a TimerProvider");
+    }
+    return context;
+}
+
+// Legacy alias if needed, or update consumers
+export const useTimerContext = useTimer;

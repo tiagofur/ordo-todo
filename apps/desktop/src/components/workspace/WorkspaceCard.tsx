@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { MoreVertical, Trash2, Settings as SettingsIcon, Briefcase, FolderKanban, CheckSquare } from "lucide-react";
-import { useDeleteWorkspace } from "@/hooks/api/use-workspaces";
+import { useDeleteWorkspace } from "@/hooks/api";
 import {
   cn,
   DropdownMenu,

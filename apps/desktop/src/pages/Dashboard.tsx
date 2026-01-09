@@ -1,105 +1,120 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
   Clock,
-  TrendingUp,
-  Plus,
-  ListTodo,
-  Target,
   Home,
+  TrendingUp,
   ArrowUpDown,
   Eye,
   EyeOff,
   List,
   LayoutGrid,
+  ListChecks,
+  Plus,
   Timer,
   FolderPlus,
-  ListChecks,
+  Rocket,
+  Search,
 } from "lucide-react";
-import { Button, cn } from "@ordo-todo/ui";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@ordo-todo/ui"; // or @/lib/utils if cn is not in ui
+import { 
+  useTimerStats, 
+  useDailyMetrics, 
+  // useCreateTask, // Removed 
+  // useCreateProject, // Removed
+  useProductivityStreak,
+  useTasks 
+} from "@/hooks/api";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
+// Using TaskCard as TaskCardCompact replacement for now
 import { TaskCard } from "@/components/task/task-card";
-import { useTasks } from "@/hooks/api/use-tasks";
-import { useProjects, useAllProjects } from "@/hooks/api/use-projects";
-import { useDashboardStats, useDailyMetrics } from "@/hooks/api/use-analytics";
-import { PageTransition, SlideIn, StaggerList, StaggerItem } from "@/components/motion";
-import {
-  StatsCard,
-  ProductivityStreakWidget,
-  UpcomingTasksWidget,
-  TimerWidget,
-  WeeklyActivityWidget,
-  ActiveProjectsWidget,
-  OkrWidget,
+import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { 
+  TimerWidget, 
+  ProductivityStreakWidget, 
+  HabitsWidget, 
+  OkrWidget, 
+  AIInsightsWidget 
 } from "@/components/dashboard";
+import { type TaskPriority } from "@ordo-todo/api-client";
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
 
 export function Dashboard() {
-  const { t, i18n } = (useTranslation as any)();
+  const { t, i18n } = useTranslation(); // Note: check translation namespace
   const navigate = useNavigate();
-  
+  const accentColor = "#06b6d4"; // Cyan
+
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
   const [showCompleted, setShowCompleted] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  // Quick Actions State
   const [showQuickActions, setShowQuickActions] = useState(false);
-  const [showCreateTask, setShowCreateTask] = useState(false);
-  const [showCreateProject, setShowCreateProject] = useState(false);
-
-  // Data hooks
-  const { data: tasksData } = useTasks();
-  const { data: projectsData } = useAllProjects();
-  const { data: dashboardStats } = useDashboardStats();
-
-  const tasks = tasksData ?? [];
-  const projects = projectsData ?? [];
-
-  // Accent color (matching Web)
-  const accentColor = "#06b6d4"; // Cyan
+  const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
+  const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+  
+  // Hooks removed as Dialogs handle mutation internally
 
   // Get today's date range
   const today = new Date();
-  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+  const startOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const endOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    23,
+    59,
+    59
+  );
 
-  // Fetch daily metrics
+  // Fetch today's timer stats
+  const { data: stats } = useTimerStats({
+    startDate: startOfDay.toISOString(),
+    endDate: endOfDay.toISOString(),
+  });
+
+  // Fetch today's daily metrics (tasksCompleted, subtasksCompleted, etc.)
   const { data: dailyMetricsArray } = useDailyMetrics({
     startDate: startOfDay.toISOString(),
     endDate: endOfDay.toISOString(),
   });
   const dailyMetrics = dailyMetricsArray?.[0];
 
-  // Calculate stats
-  const completedTasks = tasks.filter((t: any) => t.status === "COMPLETED").length;
-  const totalTasks = tasks.length;
-  const pendingTasks = tasks.filter((t: any) => t.status !== "COMPLETED").length;
+  // Fetch all tasks (we'll filter for today's tasks to display)
+  const { data: allTasks = [] } = useTasks();
 
-  // Filter today's tasks
-  const todayStr = today.toISOString().split("T")[0];
-  const todaysTasks = tasks.filter((t: any) => {
+  // Filter tasks for today view
+  const todaysTasks = allTasks.filter((task: any) => {
     // Check if task has dueDate = today
-    if (t.dueDate) {
-      const dueDate = new Date(t.dueDate);
+    if (task.dueDate) {
+      const dueDate = new Date(task.dueDate);
       if (dueDate.toDateString() === today.toDateString()) {
         return true;
       }
     }
 
     // Check if task was completed today
-    if (t.status === "COMPLETED") {
-      if (t.completedAt) {
-        const completedDate = new Date(t.completedAt);
+    if (task.status === "COMPLETED") {
+      if (task.completedAt) {
+        const completedDate = new Date(task.completedAt);
         if (completedDate.toDateString() === today.toDateString()) {
           return true;
         }
       }
-      if (t.updatedAt) {
-        const updatedDate = new Date(t.updatedAt);
+      if (task.updatedAt) {
+        const updatedDate = new Date(task.updatedAt);
         if (updatedDate.toDateString() === today.toDateString()) {
           return true;
         }
@@ -107,11 +122,11 @@ export function Dashboard() {
     }
 
     // Include pending tasks that are overdue or have no dueDate
-    if (t.status === "TODO" || t.status === "IN_PROGRESS") {
-      if (!t.dueDate) {
+    if (task.status === "TODO" || task.status === "IN_PROGRESS") {
+      if (!task.dueDate) {
         return true;
       }
-      const dueDate = new Date(t.dueDate);
+      const dueDate = new Date(task.dueDate);
       if (dueDate < startOfDay) {
         return true;
       }
@@ -119,34 +134,6 @@ export function Dashboard() {
 
     return false;
   });
-
-  // Get upcoming tasks (next 7 days, not completed)
-  const upcomingTasks = tasks
-    .filter((t: any) => {
-      if (t.status === "COMPLETED" || !t.dueDate) return false;
-      const dueDate = new Date(t.dueDate);
-      const sevenDaysFromNow = new Date();
-      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-      return dueDate >= startOfDay && dueDate <= sevenDaysFromNow;
-    })
-    .map((t: any) => ({
-      id: t.id,
-      title: t.title,
-      dueDate: t.dueDate,
-      priority: t.priority || "MEDIUM",
-      project: t.project ? { name: t.project.name, color: t.project.color || "#6b7280" } : undefined,
-    }));
-
-  // Projects with progress
-  const activeProjects = projects
-    .filter((p: any) => !p.isArchived)
-    .map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      color: p.color || "#6b7280",
-      completedTasks: tasks.filter((t: any) => t.projectId === p.id && t.status === "COMPLETED").length,
-      totalTasks: tasks.filter((t: any) => t.projectId === p.id).length,
-    }));
 
   // Filter out completed tasks if showCompleted is false
   const filteredTasks = showCompleted
@@ -163,8 +150,10 @@ export function Dashboard() {
     switch (sortBy) {
       case "priority": {
         const priorityOrder = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-        const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 2;
-        const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 2;
+        const aPriority =
+          priorityOrder[a.priority as keyof typeof priorityOrder] ?? 2;
+        const bPriority =
+          priorityOrder[b.priority as keyof typeof priorityOrder] ?? 2;
         return aPriority - bPriority;
       }
       case "duration": {
@@ -173,7 +162,9 @@ export function Dashboard() {
         return aDuration - bDuration;
       }
       case "created": {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       }
       default:
         return 0;
@@ -181,16 +172,17 @@ export function Dashboard() {
   });
 
   // Count completed tasks for the toggle label
-  const completedCount = todaysTasks.filter((task: any) => task.status === "COMPLETED").length;
+  const completedCount = todaysTasks.filter(
+    (task: any) => task.status === "COMPLETED"
+  ).length;
 
   // Use metrics from backend
-  const completedToday = dailyMetrics?.tasksCompleted ?? dashboardStats?.tasks ?? 0;
-  const subtasksCompletedToday = (dailyMetrics as any)?.subtasksCompleted ?? 0;
+  const completedToday = dailyMetrics?.tasksCompleted ?? 0;
+  const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
-  // Format time worked (from dashboardStats.minutes)
-  const totalMinutesWorked = dashboardStats?.minutes ?? 0;
-  const hoursWorked = Math.floor(totalMinutesWorked / 60);
-  const minutesWorked = totalMinutesWorked % 60;
+  // Format time worked
+  const hoursWorked = stats ? Math.floor(stats.totalMinutesWorked / 60) : 0;
+  const minutesWorked = stats ? stats.totalMinutesWorked % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
       ? `${hoursWorked}h ${minutesWorked}m`
@@ -200,283 +192,283 @@ export function Dashboard() {
 
   // Calculate productivity
   const productivity =
-    dashboardStats && dashboardStats.pomodoros > 0
-      ? `${Math.round((dashboardStats.tasks / (dashboardStats.tasks + 5)) * 100)}%`
-      : totalTasks > 0 
-        ? `${Math.round((completedTasks / totalTasks) * 100)}%`
-        : "--";
+    stats && stats.totalSessions > 0
+      ? `${Math.round(stats.completionRate * 100)}%`
+      : "--";
 
-  // Mock weekly data (TODO: integrate with real analytics)
-  const weeklyData = [
-    { date: "2025-12-01", completedTasks: 4, totalMinutes: 100, pomodoros: 4 },
-    { date: "2025-12-02", completedTasks: 6, totalMinutes: 150, pomodoros: 6 },
-    { date: "2025-12-03", completedTasks: 3, totalMinutes: 75, pomodoros: 3 },
-    { date: "2025-12-04", completedTasks: 5, totalMinutes: 125, pomodoros: 5 },
-    { date: "2025-12-05", completedTasks: completedToday, totalMinutes: totalMinutesWorked, pomodoros: dashboardStats?.pomodoros || 0 },
+  // Get real productivity streak from backend
+  const { data: streakData } = useProductivityStreak();
+  const currentStreak = streakData?.currentStreak ?? 0;
+  const longestStreak = streakData?.longestStreak ?? 0;
+
+  const statCards = [
+    {
+      title: t("Dashboard.completed", "Completadas"),
+      value: completedToday.toString(),
+      icon: CheckCircle2,
+      color: accentColor,
+    },
+    {
+      title: "Subtareas",
+      value: subtasksCompletedToday.toString(),
+      icon: ListChecks,
+      color: "#8b5cf6", // Purple
+    },
+    {
+      title: t("Dashboard.timeWorked", "Tiempo"),
+      value: timeWorkedText,
+      icon: Clock,
+      color: "#f59e0b", // Amber
+    },
+    {
+      title: t("Dashboard.productivity", "Productividad"),
+      value: productivity,
+      icon: TrendingUp,
+      color: "#10b981", // Emerald
+    },
   ];
 
   return (
-    <PageTransition>
-      <div className="space-y-6">
-        {/* Header */}
-        <SlideIn direction="top">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{
-                    backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                  }}
-                >
-                  <Home className="h-6 w-6" />
-                </div>
-                {t("Dashboard.today")}
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                {new Date().toLocaleDateString(i18n.language, {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
+            <div
+              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lg"
+              style={{
+                backgroundColor: accentColor,
+                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+              }}
+            >
+              <Home className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-          </div>
-        </SlideIn>
+            {t("Dashboard.today", "Hoy")}
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">
+            {new Date().toLocaleDateString(i18n.language, {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+      </div>
 
-        {/* Quick Stats */}
-        <StaggerList className="grid gap-4 md:grid-cols-4">
-          <StaggerItem>
-            <StatsCard
-              title={t("Dashboard.completed")}
-              value={completedToday}
-              icon={CheckCircle2}
-              iconColor="text-cyan-500"
-              iconBgColor="bg-cyan-500/10"
-            />
-          </StaggerItem>
-          <StaggerItem>
-            <StatsCard
-              title={t("Dashboard.subtasks")}
-              value={subtasksCompletedToday}
-              icon={ListChecks}
-              iconColor="text-violet-500"
-              iconBgColor="bg-violet-500/10"
-            />
-          </StaggerItem>
-          <StaggerItem>
-            <StatsCard
-              title={t("Dashboard.timeWorked")}
-              value={timeWorkedText}
-              icon={Clock}
-              iconColor="text-amber-500"
-              iconBgColor="bg-amber-500/10"
-            />
-          </StaggerItem>
-          <StaggerItem>
-            <StatsCard
-              title={t("Dashboard.productivity")}
-              value={productivity}
-              icon={TrendingUp}
-              iconColor="text-emerald-500"
-              iconBgColor="bg-emerald-500/10"
-            />
-          </StaggerItem>
-        </StaggerList>
+      {/* Quick Stats */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((card, index) => (
+          <motion.div
+            key={card.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.05 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            className={cn(
+              "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
+              "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+            )}
+            style={{
+              borderLeftWidth: "4px",
+              borderLeftColor: card.color,
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                style={{
+                  backgroundColor: `${card.color}15`,
+                  color: card.color,
+                }}
+              >
+                <card.icon className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{card.title}</p>
+                <p className="text-2xl font-bold">{card.value}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
-        {/* Main Grid */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left Column - Timer & Stats */}
-          <div className="space-y-6 lg:col-span-2">
-            {/* Timer Widget */}
-            <SlideIn delay={0.1}>
-              <TimerWidget onExpand={() => navigate("/timer")} />
-            </SlideIn>
+      {/* New Widgets Row */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <ProductivityStreakWidget
+          currentStreak={currentStreak}
+          longestStreak={longestStreak}
+          accentColor={accentColor}
+        />
+        {/* Using TimerWidget instead of DashboardTimerWidget - assumes TimerWidget fits context */}
+        <TimerWidget onExpand={() => navigate("/timer")} />
+        <HabitsWidget accentColor="#8b5cf6" />
+        <OkrWidget />
+      </div>
 
-            {/* OKR Widget */}
-            <SlideIn delay={0.12}>
-              <OkrWidget />
-            </SlideIn>
+      {/* AI Insights Widget */}
+      <AIInsightsWidget className="w-full" />
 
-            {/* Weekly Activity */}
-            <SlideIn delay={0.15}>
-              <WeeklyActivityWidget days={weeklyData} />
-            </SlideIn>
-          </div>
+      {/* Tasks Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.15 }}
+        className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300"
+      >
+        {/* Header with controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h2 className="text-xl font-semibold">{t("Dashboard.todaysTasks", "Tareas de hoy")}</h2>
 
-          {/* Right Column - Sidebar Widgets */}
-          <div className="space-y-6">
-            {/* Productivity Streak */}
-            <SlideIn delay={0.1}>
-              <ProductivityStreakWidget currentStreak={5} longestStreak={12} />
-            </SlideIn>
+          <div className="flex items-center gap-3">
+            {/* View mode toggle */}
+            <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "p-1.5 transition-all duration-200",
+                  viewMode === "list"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted/50"
+                )}
+                title="Vista de lista"
+              >
+                <List className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "p-1.5 transition-all duration-200",
+                  viewMode === "grid"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted/50"
+                )}
+                title="Vista de cuadrícula"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+            </div>
 
-            {/* Upcoming Tasks */}
-            <SlideIn delay={0.15}>
-              <UpcomingTasksWidget
-                tasks={upcomingTasks}
-                onTaskClick={(id) => navigate(`/tasks/${id}`)}
-              />
-            </SlideIn>
+            {/* Sort dropdown */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+              >
+                <option value="priority">{t("Dashboard.sortOptions.priority", "Prioridad")}</option>
+                <option value="duration">{t("Dashboard.sortOptions.duration", "Duración")}</option>
+                <option value="created">{t("Dashboard.sortOptions.created", "Recientes")}</option>
+              </select>
+            </div>
 
-            {/* Active Projects */}
-            <SlideIn delay={0.2}>
-              <ActiveProjectsWidget
-                projects={activeProjects}
-                onProjectClick={(id) => navigate(`/projects/${id}`)}
-                onViewAll={() => navigate("/projects")}
-              />
-            </SlideIn>
+            {/* Show completed toggle */}
+            <button
+              onClick={() => setShowCompleted(!showCompleted)}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
+                showCompleted
+                  ? "bg-primary/10 border-primary/20 text-primary"
+                  : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted"
+              )}
+            >
+              {showCompleted ? (
+                <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
+              )}
+              <span className="hidden sm:inline">
+                {showCompleted ? t("Dashboard.hideCompleted", "Ocultar") : t("Dashboard.showCompleted", "Mostrar completadas")}
+              </span>
+              {completedCount > 0 && (
+                <span
+                  className={cn(
+                    "px-1.5 py-0.5 rounded-full text-xs font-medium",
+                    showCompleted
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {completedCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Today's Tasks Section */}
-        <SlideIn delay={0.2}>
-          <div className="rounded-2xl border border-border/50 bg-card overflow-hidden">
-            {/* Header with controls */}
-            <div className="border-b p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h2 className="text-xl font-semibold">{t("Dashboard.todaysTasks")}</h2>
-
-              <div className="flex items-center gap-3">
-                {/* View mode toggle */}
-                <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={cn(
-                      "p-1.5 transition-all duration-200",
-                      viewMode === "list"
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted/50"
-                    )}
-                    title={t("Dashboard.viewList")}
-                  >
-                    <List className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={cn(
-                      "p-1.5 transition-all duration-200",
-                      viewMode === "grid"
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted/50"
-                    )}
-                    title={t("Dashboard.viewGrid")}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {/* Sort dropdown */}
-                <div className="flex items-center gap-2">
-                  <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-                  >
-                    <option value="priority">{t("Dashboard.sortOptions.priority")}</option>
-                    <option value="duration">{t("Dashboard.sortOptions.duration")}</option>
-                    <option value="created">{t("Dashboard.sortOptions.created")}</option>
-                  </select>
-                </div>
-
-                {/* Show completed toggle */}
-                <button
-                  onClick={() => setShowCompleted(!showCompleted)}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
-                    showCompleted
-                      ? "bg-primary/10 border-primary/20 text-primary"
-                      : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  {showCompleted ? (
-                    <Eye className="h-4 w-4" />
-                  ) : (
-                    <EyeOff className="h-4 w-4" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {showCompleted ? t("Dashboard.hideCompleted") : t("Dashboard.showCompleted")}
-                  </span>
-                  {completedCount > 0 && (
-                    <span
-                      className={cn(
-                        "px-1.5 py-0.5 rounded-full text-xs font-medium",
-                        showCompleted
-                          ? "bg-primary/20 text-primary"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {completedCount}
-                    </span>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Task List */}
-            <div className="p-6">
-              {sortedTasks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-                  <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="mb-2 text-lg font-medium">
-                    {!showCompleted && completedCount > 0
-                      ? t("Dashboard.allTasksCompleted")
-                      : t("Dashboard.noTasks")}
-                  </h3>
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    {!showCompleted && completedCount > 0
-                      ? t("Dashboard.tasksCompletedToday", { count: completedCount })
-                      : t("Dashboard.noTasksDescription")}
-                  </p>
-                  {!showCompleted && completedCount > 0 ? (
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowCompleted(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Eye className="h-4 w-4" />
-                      {t("Dashboard.showCompleted")}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => setShowCreateTask(true)}
-                      style={{
-                        backgroundColor: accentColor,
-                        boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                      }}
-                      className="text-white hover:opacity-90"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {t("Dashboard.createTask")}
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <div
-                  className={cn(
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                      : "space-y-3"
-                  )}
-                >
-                  {sortedTasks.map((task: any) => (
-                    <TaskCard key={task.id} task={task} />
-                  ))}
-                </div>
-              )}
-            </div>
+        {sortedTasks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
+            <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
+            <h3 className="mb-2 text-lg font-medium">
+              {!showCompleted && completedCount > 0
+                ? t("Dashboard.allTasksCompleted", "Todas las tareas completadas")
+                : t("Dashboard.noTasks", "Sin tareas")}
+            </h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              {!showCompleted && completedCount > 0
+                ? t("Dashboard.tasksCompletedToday", { count: completedCount, defaultValue:`Tienes ${completedCount} tareas completadas hoy` })
+                : t("Dashboard.noTasksDescription", "No tienes tareas para hoy")}
+            </p>
+            {!showCompleted && completedCount > 0 ? (
+              <button
+                onClick={() => setShowCompleted(true)}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-muted hover:bg-muted/80 transition-all duration-200"
+              >
+                <Eye className="h-4 w-4" />
+                Mostrar completadas
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowCreateTaskDialog(true)}
+                style={{
+                  backgroundColor: accentColor,
+                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
+                }}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
+              >
+                <Plus className="h-4 w-4" />
+                {t("Dashboard.createTask", "Crear tarea")}
+              </button>
+            )}
           </div>
-        </SlideIn>
+        ) : (
+          <div
+            className={cn(
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-2"
+            )}
+          >
+            {sortedTasks.map((task: any) => (
 
-        {/* Quick Actions FAB */}
-        <div className="fixed bottom-6 right-6 z-50">
+              <div key={task.id} onClick={() => setSelectedTaskId(task.id)}>
+                 <TaskCard task={task} />
+              </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Task Detail Panel */}
+      <TaskDetailPanel
+        taskId={selectedTaskId}
+        open={selectedTaskId !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedTaskId(null);
+        }}
+      />
+
+      {/* Quick Actions FAB */}
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+        <AnimatePresence>
           {showQuickActions && (
             <>
               {/* Backdrop */}
-              <div
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/20 backdrop-blur-sm"
                 onClick={() => setShowQuickActions(false)}
               />
@@ -484,15 +476,19 @@ export function Dashboard() {
               {/* Action buttons */}
               <div className="absolute bottom-16 right-0 flex flex-col gap-3 items-end">
                 {/* Create Project */}
-                <button
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0 }}
                   onClick={() => {
                     setShowQuickActions(false);
-                    setShowCreateProject(true);
+                    setShowCreateProjectDialog(true);
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    {t("Dashboard.quickActionButtons.newProject")}
+                    Nuevo Proyecto
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -500,10 +496,14 @@ export function Dashboard() {
                   >
                     <FolderPlus className="h-5 w-5" />
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Start Timer */}
-                <button
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0.05 }}
                   onClick={() => {
                     setShowQuickActions(false);
                     navigate("/timer");
@@ -511,7 +511,7 @@ export function Dashboard() {
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    {t("Dashboard.quickActionButtons.startTimer")}
+                    Iniciar Timer
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -519,18 +519,22 @@ export function Dashboard() {
                   >
                     <Timer className="h-5 w-5" />
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Create Task */}
-                <button
+                <motion.button
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                  transition={{ delay: 0.1 }}
                   onClick={() => {
                     setShowQuickActions(false);
-                    setShowCreateTask(true);
+                    setShowCreateTaskDialog(true);
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    {t("Dashboard.quickActionButtons.newTask")}
+                    Nueva Tarea
                   </span>
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
@@ -538,34 +542,39 @@ export function Dashboard() {
                   >
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
-                </button>
+                </motion.button>
               </div>
             </>
           )}
+        </AnimatePresence>
 
-          {/* Main FAB Button */}
-          <button
-            onClick={() => setShowQuickActions(!showQuickActions)}
-            className={cn(
-              "flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg transition-all duration-300",
-              showQuickActions ? "rotate-45" : "rotate-0"
-            )}
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 25px -5px ${accentColor}60, 0 8px 10px -6px ${accentColor}40`,
-            }}
-          >
-            <Plus className="h-7 w-7" />
-          </button>
-        </div>
-
-        {/* Dialogs */}
-        <CreateTaskDialog open={showCreateTask} onOpenChange={setShowCreateTask} />
-        <CreateProjectDialog
-          open={showCreateProject}
-          onOpenChange={setShowCreateProject}
-        />
+        {/* Main FAB Button */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowQuickActions(!showQuickActions)}
+          className={cn(
+            "flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg transition-all duration-300",
+            showQuickActions ? "rotate-45" : "rotate-0"
+          )}
+          style={{
+            backgroundColor: accentColor,
+            boxShadow: `0 10px 25px -5px ${accentColor}60, 0 8px 10px -6px ${accentColor}40`,
+          }}
+        >
+          <Plus className="h-7 w-7" />
+        </motion.button>
       </div>
-    </PageTransition>
+
+      {/* Dialogs */}
+      <CreateTaskDialog
+        open={showCreateTaskDialog}
+        onOpenChange={setShowCreateTaskDialog}
+      />
+      <CreateProjectDialog
+        open={showCreateProjectDialog}
+        onOpenChange={setShowCreateProjectDialog}
+      />
+    </div>
   );
 }

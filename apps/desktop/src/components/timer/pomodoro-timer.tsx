@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTimerContext } from "@/contexts/timer-context";
-import { TimerMode, TimerType } from "@/hooks/use-timer";
+import { TimerSessionMode as TimerMode, TimerType } from "@/hooks/use-timer-backend";
 import { TaskSelector } from "./task-selector";
 
 interface PomodoroTimerProps {
@@ -44,21 +44,27 @@ export function PomodoroTimer({
   const getModeColor = (mode: TimerMode): string => {
     switch (mode) {
       case "WORK":
+      case "CONTINUOUS":
         return "bg-red-500";
       case "SHORT_BREAK":
         return "bg-blue-500";
       case "LONG_BREAK":
         return "bg-green-500";
+      default:
+        return "bg-slate-500";
     }
   };
 
   const getModeIcon = (mode: TimerMode) => {
     switch (mode) {
       case "WORK":
+      case "CONTINUOUS":
         return <Zap className="h-5 w-5" />;
       case "SHORT_BREAK":
       case "LONG_BREAK":
         return <Coffee className="h-5 w-5" />;
+      default:
+        return <Zap className="h-5 w-5" />;
     }
   };
 
@@ -66,10 +72,14 @@ export function PomodoroTimer({
     switch (mode) {
       case "WORK":
         return "Tiempo de Trabajo";
+      case "CONTINUOUS":
+        return "Modo Continuo";
       case "SHORT_BREAK":
         return "Descanso Corto";
       case "LONG_BREAK":
         return "Descanso Largo";
+      default:
+        return "Listo";
     }
   };
 

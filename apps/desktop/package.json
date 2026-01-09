@@ -1,7 +1,6 @@
 {
   "name": "@ordo-todo/desktop",
   "version": "1.0.0",
-  "type": "module",
   "description": "Ordo-Todo Desktop Application - Modern Task & Pomodoro Management",
   "author": {
     "name": "Ordo-Todo Team",

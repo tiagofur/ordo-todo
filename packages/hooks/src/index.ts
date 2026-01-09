@@ -61,6 +61,7 @@ export type { ApiClient, CreateHooksConfig } from './types';
 // Timer hook
 export {
   useTimer,
+  formatTimerDisplay,
   type TimerMode,
   type TimerType,
   type TimerConfig,
@@ -74,3 +75,15 @@ export {
   useUsernameValidation,
   generateUsernameSuggestions,
 } from './use-username-validation';
+
+// Validation schemas
+export {
+  taskBaseSchema,
+  createTaskSchema,
+  inviteMemberSchema,
+  TASK_LIMITS,
+  PRIORITY_VALUES,
+  TASK_STATUS_VALUES,
+  WORKSPACE_LIMITS,
+  MEMBER_ROLES,
+} from './schemas';

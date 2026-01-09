@@ -39,8 +39,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const registerMutation = useRegister();
   const logoutMutation = useLogout();
 
-  // Extract user from response
-  const user = currentUserData || null;
+  // Handle 401 errors specifically
+  const isUnauthorized = (error as any)?.response?.status === 401;
+  const user = isUnauthorized ? null : (currentUserData || null);
 
   // Handle authentication initialization
   useEffect(() => {
@@ -49,13 +50,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Redirect to login if not authenticated and error is 401
   useEffect(() => {
-    if (!isInitializing && error && !user) {
+    if (!isInitializing && isUnauthorized) {
       // Only redirect if we're not already on an auth page
       if (typeof window !== 'undefined' && !['/login', '/register'].some(path => window.location.pathname.startsWith(path))) {
+        removeToken();
+        removeRefreshToken();
         router.push('/login');
       }
     }
-  }, [error, user, isInitializing, router]);
+  }, [isUnauthorized, isInitializing, router]);
 
   const login = async (data: LoginDto) => {
     const response = await loginMutation.mutateAsync(data);

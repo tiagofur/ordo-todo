@@ -1,5 +1,6 @@
 import { ValueObject } from "./value-object";
-import { v4 as uuidv4, validate as isUuid } from "uuid";
+import { v4 as uuidv4 } from "uuid";
+import { validate as isUuid } from "uuid";
 
 export class Id implements ValueObject<Id, string> {
   private readonly _value: string;

@@ -19,7 +19,7 @@ import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { ScrollArea } from '@/components/ui';
 import { Briefcase, Check, Palette, LayoutTemplate } from 'lucide-react';
-import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/core';
+import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/hooks';
 
 // Interfaces for props
 export interface WorkspaceOption {

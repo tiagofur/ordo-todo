@@ -21,7 +21,7 @@ import { CreateProjectDialog } from "@/components/project/create-project-dialog"
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { parseTaskInput } from "@/utils/smart-capture";
 import { TemplateSelector } from "./template-selector";
-import { TaskTemplate } from "@/hooks/api/use-templates";
+import { TaskTemplate } from "@/hooks/api";
 import { VoiceInputButton } from "@/components/voice/voice-input";
 import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 

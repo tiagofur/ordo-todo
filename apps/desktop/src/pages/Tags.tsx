@@ -5,8 +5,8 @@ import { Plus, Tag as TagIcon, Trash2, MoreVertical, Edit, CheckSquare } from "l
 import { CreateTagDialog } from "@/components/tag/create-tag-dialog";
 import { PageTransition, SlideIn, FadeIn } from "@/components/motion";
 import { toast } from "sonner";
-import { useTags, useDeleteTag } from "@/hooks/api/use-tags";
-import { useTasks } from "@/hooks/api/use-tasks";
+import { useTags, useCreateTag, useDeleteTag } from "@/hooks/api";
+import { useTasks } from "@/hooks/api";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import {
   cn,

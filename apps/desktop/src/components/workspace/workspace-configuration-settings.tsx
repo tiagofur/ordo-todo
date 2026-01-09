@@ -12,7 +12,7 @@ import {
   Input,
 } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
-import { useWorkspaceSettings, useUpdateWorkspaceSettings } from "@/hooks/api/use-workspaces";
+import { useWorkspaceSettings, useUpdateWorkspaceSettings } from "@/hooks/api";
 
 interface WorkspaceConfigurationSettingsProps {
   workspaceId: string;

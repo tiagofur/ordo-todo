@@ -1,13 +1,13 @@
 import { Target, TrendingUp, AlertTriangle, ArrowRight, Calendar } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useObjectivesDashboardSummary } from "@/hooks/api/use-objectives";
+import { useObjectivesDashboard } from "@/hooks/api";
 import { cn, Button } from "@ordo-todo/ui";
 
 export function OkrWidget() {
   const { t } = (useTranslation as any)();
   const navigate = useNavigate();
-  const { data: summary, isLoading } = useObjectivesDashboardSummary();
+  const { data: summary, isLoading } = useObjectivesDashboard();
 
   if (isLoading) {
     return <div className="h-[250px] animate-pulse rounded-3xl bg-muted/10 border border-border/50" />;

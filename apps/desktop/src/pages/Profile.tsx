@@ -13,7 +13,7 @@ import {
   useUpdatePreferences,
   useExportData,
   useDeleteAccount
-} from "@/hooks/api/use-user";
+} from "@/hooks/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 

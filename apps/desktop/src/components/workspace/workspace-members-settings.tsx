@@ -26,7 +26,7 @@ import {
   useWorkspaceMembers, 
   useWorkspaceInvitations, 
   useRemoveWorkspaceMember 
-} from "@/hooks/api/use-workspaces";
+} from "@/hooks/api";
 import { toast } from "sonner";
 
 interface WorkspaceMembersSettingsProps {

@@ -10841,7 +10841,8 @@ var PersonName = class _PersonName {
 };
 
 // src/shared/id.vo.ts
-import { v4 as uuidv4, validate as isUuid } from "uuid";
+import { v4 as uuidv4 } from "uuid";
+import { validate as isUuid } from "uuid";
 var Id = class _Id {
   _value;
   constructor(value) {

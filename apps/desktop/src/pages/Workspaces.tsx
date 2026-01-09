@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Briefcase, Building2 } from "lucide-react";
-import { useWorkspaces } from "@/hooks/api/use-workspaces";
+import { useWorkspaces, useCreateWorkspace } from "@/hooks/api";
 import { PageTransition, SlideIn, FadeIn } from "@/components/motion";
 import { CreateWorkspaceDialog } from "@/components/workspace/CreateWorkspaceDialog";
 import { WorkspaceCard } from "@/components/workspace/WorkspaceCard";

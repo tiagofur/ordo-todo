@@ -4,88 +4,180 @@ import { apiClient } from './api-client';
 /**
  * Shared React Query hooks initialized with the Desktop API client.
  * 
- * Only hooks that are confirmed to exist in @ordo-todo/hooks are exported here.
- * If you need a hook that is missing, please add it to @ordo-todo/hooks first.
+ * All hooks are created from the @ordo-todo/hooks factory.
+ * Desktop-specific hooks should be created in separate files.
  */
 export const {
-    // Auth
+    // ============ AUTH ============
     useRegister,
     useLogin,
     useLogout,
 
-    // User
+    // ============ USER ============
     useCurrentUser,
     useUpdateProfile,
-    // useUpdatePassword, 
+    useFullProfile,
+    useUserPreferences,
+    useUpdatePreferences,
+    useUserIntegrations,
+    useExportData,
+    useDeleteAccount,
 
-    // Workspace
+    // ============ WORKSPACE ============
     useWorkspaces,
-    // useWorkspace, 
+    useWorkspace,
+    useWorkspaceBySlug,
     useCreateWorkspace,
     useUpdateWorkspace,
     useDeleteWorkspace,
-    useWorkspaceMembers,
+    useDeletedWorkspaces,
+    useRestoreWorkspace,
+    usePermanentDeleteWorkspace,
     useAddWorkspaceMember,
     useRemoveWorkspaceMember,
+    useWorkspaceMembers,
     useWorkspaceInvitations,
     useInviteMember,
+    useAcceptInvitation,
+    useWorkspaceSettings,
+    useUpdateWorkspaceSettings,
+    useWorkspaceAuditLogs,
+    useCreateAuditLog,
+    useArchiveWorkspace,
 
-    // Project
+    // ============ WORKFLOW ============
+    useWorkflows,
+    useCreateWorkflow,
+    useUpdateWorkflow,
+    useDeleteWorkflow,
+
+    // ============ PROJECT ============
     useProjects,
     useAllProjects,
     useProject,
     useCreateProject,
     useUpdateProject,
-    useDeleteProject,
     useArchiveProject,
     useCompleteProject,
+    useDeleteProject,
 
-    // Task
+    // ============ TASK ============
     useTasks,
     useTask,
     useTaskDetails,
     useCreateTask,
     useUpdateTask,
-    useDeleteTask,
     useCompleteTask,
+    useDeleteTask,
+    useShareTask,
+    usePublicTask,
 
-    // Subtask
+    // ============ SUBTASK ============
     useCreateSubtask,
-    // useUpdateSubtask,
-    // useDeleteSubtask,
-    // useToggleSubtask,
 
-    // Tag
+    // ============ TAG ============
     useTags,
+    useTaskTags,
     useCreateTag,
     useUpdateTag,
     useDeleteTag,
+    useAssignTagToTask,
+    useRemoveTagFromTask,
 
-    // Timer
-    // useSessions,
-    // useDailyMetrics,
+    // ============ TIMER ============
+    useActiveTimer,
     useStartTimer,
     useStopTimer,
-    // useDeleteSession,
-    // useTimeBlocks,
+    usePauseTimer,
+    useResumeTimer,
+    useSwitchTask,
+    useSessionHistory,
+    useTimerStats,
+    useTaskTimeSessions,
 
-    // Habits
+    // ============ ANALYTICS ============
+    useDailyMetrics,
+    useWeeklyMetrics,
+    useMonthlyMetrics,
+    useDateRangeMetrics,
+    useDashboardStats,
+    useHeatmapData,
+    useProjectDistribution,
+    useTaskStatusDistribution,
+
+    // ============ AI ============
+    useAIProfile,
+    useOptimalSchedule,
+    useTaskDurationPrediction,
+    useGenerateWeeklyReport,
+    useReports,
+    useReport,
+    useDeleteReport,
+
+    // ============ HABITS ============
     useHabits,
+    useTodayHabits,
+    useHabit,
+    useHabitStats,
     useCreateHabit,
     useUpdateHabit,
     useDeleteHabit,
     useCompleteHabit,
+    useUncompleteHabit,
+    usePauseHabit,
+    useResumeHabit,
 
-    // Custom Fields
+    // ============ OBJECTIVES (OKRs) ============
+    useObjectives,
+    useCurrentPeriodObjectives,
+    useObjectivesDashboard,
+    useObjective,
+    useCreateObjective,
+    useUpdateObjective,
+    useDeleteObjective,
+    useAddKeyResult,
+    useUpdateKeyResult,
+    useDeleteKeyResult,
+    useLinkTaskToKeyResult,
+    useUnlinkTaskFromKeyResult,
+
+    // ============ CUSTOM FIELDS ============
     useCustomFields,
     useCreateCustomField,
     useUpdateCustomField,
     useDeleteCustomField,
+    useTaskCustomValues,
+    useSetTaskCustomValues,
 
-    // Comments
+    // ============ COMMENTS ============
     useTaskComments,
     useCreateComment,
     useUpdateComment,
     useDeleteComment,
+
+    // ============ ATTACHMENTS ============
+    useTaskAttachments,
+    useCreateAttachment,
+    useDeleteAttachment,
+    useProjectAttachments,
+
+    // ============ NOTIFICATIONS ============
+    useNotifications,
+    useUnreadNotificationsCount,
+    useMarkNotificationAsRead,
+    useMarkAllNotificationsAsRead,
+
+    // ============ TIME BLOCKING ============
+    useTimeBlocks,
+
+    // ============ NOTES ============
+    useNotes,
+    useNote,
+    useCreateNote,
+    useUpdateNote,
+    useDeleteNote,
+
+    // ============ UTILITIES ============
+    invalidateAllTasks,
 
 } = createHooks({ apiClient });

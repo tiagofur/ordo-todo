@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateTag } from "@/hooks/api/use-tags";
+import { useCreateTag } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,

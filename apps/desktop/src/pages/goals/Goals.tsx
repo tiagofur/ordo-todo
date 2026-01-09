@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Target, Plus, Calendar, TrendingUp } from "lucide-react";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { Button, cn } from "@ordo-todo/ui";
-import { useObjectives } from "@/hooks/api/use-objectives";
+import { useObjectives } from "@/hooks/api";
 // import { CreateObjectiveDialog } from "@/components/goals/create-objective-dialog"; 
 import { useNavigate } from "react-router-dom";
 

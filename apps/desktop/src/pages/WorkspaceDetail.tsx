@@ -15,8 +15,8 @@ import {
   List,
   Loader2
 } from "lucide-react";
-import { useWorkspaceBySlug, useWorkspaceAuditLogs, useDeleteWorkspace } from "@/hooks/api/use-workspaces";
-import { useProjects } from "@/hooks/api/use-projects";
+import { useWorkspace, useDesktopWorkspaceBySlug, useUpdateWorkspace, useDeleteWorkspace, useWorkspaceAuditLogs } from "@/hooks/api";
+import { useProjects } from "@/hooks/api";
 import {
   cn,
   Button,
@@ -51,7 +51,7 @@ export function WorkspaceDetail() {
   // If we have username and slug (new route), use by username and slug
   // Otherwise use the old by-slug method
   const actualSlug = slug || workspaceSlug || "";
-  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(actualSlug);
+  const { data: workspace, isLoading: isLoadingWorkspace } = useDesktopWorkspaceBySlug(actualSlug, username);
   
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

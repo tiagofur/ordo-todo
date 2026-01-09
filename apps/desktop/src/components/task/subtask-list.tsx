@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, GripVertical, Check, X, Trash2, ArrowRight } from "lucide-react";
-import { useCreateTask, useUpdateTask, useDeleteTask } from "@/hooks/api/use-tasks";
+import { useCreateTask, useUpdateTask, useDeleteTask } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn, Button, Input, Checkbox } from "@ordo-todo/ui";

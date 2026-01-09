@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Trash2, Save, X } from "lucide-react";
 import { toast } from "sonner";
-import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/hooks/api/use-workspaces";
+import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/hooks/api";
 import {
   Dialog,
   DialogContent,

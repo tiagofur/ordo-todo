@@ -3,7 +3,7 @@ import { WorkspaceInvitationRepository } from "../provider/workspace-invitation.
 import { WorkspaceRepository } from "../provider/workspace.repository";
 import { MemberRole } from "../model/workspace-member.entity";
 import { HashService } from "../../shared/services/hash.service";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 export class InviteMemberUseCase {
     constructor(

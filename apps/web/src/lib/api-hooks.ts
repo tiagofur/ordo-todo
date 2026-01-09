@@ -408,7 +408,7 @@ export function useAIInsights(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["ai", "insights"],
     queryFn: () => apiClient.getAIInsights(),
-    enabled: options?.enabled ?? true,
+    enabled: (options?.enabled ?? true) && isAuthenticated(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

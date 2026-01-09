@@ -4,7 +4,7 @@ import { Plus, FolderKanban } from "lucide-react";
 import { ProjectCard } from "@/components/project/project-card";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { useWorkspaceStore } from "@/stores/workspace-store";
-import { useProjects } from "@/hooks/api/use-projects";
+import { useProjects, useCreateProject } from "@/hooks/api";
 import { PageTransition, SlideIn, FadeIn } from "@/components/motion";
 
 export function Projects() {

@@ -1,5 +1,5 @@
 import { Download, Trash2, File, Image as ImageIcon, FileText, Film, Music, Eye, X } from "lucide-react";
-import { useDeleteAttachment } from "@/hooks/api/use-attachments";
+import { useDeleteAttachment } from "@/hooks/api";
 import { toast } from "sonner";
 import { cn, Button, Dialog, DialogContent, DialogTitle } from "@ordo-todo/ui";
 import { formatDistanceToNow } from "date-fns";

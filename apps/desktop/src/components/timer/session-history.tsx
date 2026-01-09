@@ -22,15 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@ordo-todo/ui";
-
-// Session types
-type SessionType = "WORK" | "SHORT_BREAK" | "LONG_BREAK";
+import { useSessionHistory, useTimerStats } from "@/hooks/api";
+import type { SessionType } from "@ordo-todo/api-client";
 
 interface Session {
   id: string;
   type: SessionType;
-  duration: number;
-  completedAt: string;
+  duration?: number;
+  endedAt?: string | Date;
+  createdAt: string | Date;
   taskId?: string;
   task?: { title: string };
 }
@@ -44,11 +44,11 @@ interface SessionHistoryFilters {
 
 // Mock data - TODO: Replace with actual API hook
 const mockSessions: Session[] = [
-  { id: "1", type: "WORK", duration: 25, completedAt: new Date().toISOString() },
-  { id: "2", type: "SHORT_BREAK", duration: 5, completedAt: subDays(new Date(), 0).toISOString() },
-  { id: "3", type: "WORK", duration: 25, completedAt: subDays(new Date(), 1).toISOString() },
-  { id: "4", type: "LONG_BREAK", duration: 15, completedAt: subDays(new Date(), 1).toISOString() },
-  { id: "5", type: "WORK", duration: 25, completedAt: subDays(new Date(), 2).toISOString() },
+  { id: "1", type: "WORK", duration: 25, endedAt: new Date().toISOString(), createdAt: new Date().toISOString() },
+  { id: "2", type: "SHORT_BREAK", duration: 5, endedAt: subDays(new Date(), 0).toISOString(), createdAt: subDays(new Date(), 0).toISOString() },
+  { id: "3", type: "WORK", duration: 25, endedAt: subDays(new Date(), 1).toISOString(), createdAt: subDays(new Date(), 1).toISOString() },
+  { id: "4", type: "LONG_BREAK", duration: 15, endedAt: subDays(new Date(), 1).toISOString(), createdAt: subDays(new Date(), 1).toISOString() },
+  { id: "5", type: "WORK", duration: 25, endedAt: subDays(new Date(), 2).toISOString(), createdAt: subDays(new Date(), 2).toISOString() },
 ];
 
 export function SessionHistory() {
@@ -60,11 +60,20 @@ export function SessionHistory() {
     limit: 10,
   });
 
-  // TODO: Replace with actual API hook
-  const sessions = mockSessions;
-  const isLoading = false;
-  const totalSessions = sessions.length;
-  const totalPages = Math.ceil(totalSessions / filters.limit);
+  const { data: historyData, isLoading: historyLoading } = useSessionHistory({
+    type: filters.type === 'ALL' ? undefined : filters.type,
+    startDate: subDays(new Date(), filters.days).toISOString(),
+    page: filters.page,
+    limit: filters.limit
+  });
+
+  const { data: timerStats } = useTimerStats({
+    startDate: subDays(new Date(), filters.days).toISOString()
+  });
+
+  const sessions = historyData?.sessions || [];
+  const isLoading = historyLoading;
+  const totalPages = historyData?.totalPages || 0;
 
   const getSessionTypeColor = (type: SessionType) => {
     switch (type) {
@@ -74,6 +83,8 @@ export function SessionHistory() {
         return "bg-green-500/10 text-green-500 border-green-500/20";
       case "LONG_BREAK":
         return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+      case "CONTINUOUS":
+        return "bg-purple-500/10 text-purple-500 border-purple-500/20";
       default:
         return "bg-gray-500/10 text-gray-500 border-gray-500/20";
     }
@@ -87,6 +98,8 @@ export function SessionHistory() {
         return <Coffee className="h-4 w-4" />;
       case "LONG_BREAK":
         return <TreePine className="h-4 w-4" />;
+      case "CONTINUOUS":
+        return <Timer className="h-4 w-4" />;
       default:
         return <Timer className="h-4 w-4" />;
     }
@@ -100,6 +113,8 @@ export function SessionHistory() {
         return t("Timer.modes.shortBreak") || "Descanso corto";
       case "LONG_BREAK":
         return t("Timer.modes.longBreak") || "Descanso largo";
+      case "CONTINUOUS":
+        return t("Timer.modes.continuous") || "Modo continuo";
       default:
         return type;
     }
@@ -114,17 +129,13 @@ export function SessionHistory() {
     return `${minutes}m`;
   };
 
-  // Filter sessions
-  const filteredSessions = sessions.filter((session) => {
-    if (filters.type !== "ALL" && session.type !== filters.type) return false;
-    const sessionDate = new Date(session.completedAt);
-    const daysAgo = subDays(new Date(), filters.days);
-    return sessionDate >= daysAgo;
-  });
-
   // Calculate stats
-  const totalMinutes = filteredSessions.reduce((acc, s) => acc + s.duration, 0);
-  const workSessions = filteredSessions.filter((s) => s.type === "WORK").length;
+  // We use timerStats from API for accurate totals across all pages
+  const totalMinutes = (timerStats?.totalMinutesWorked || 0) + (timerStats?.totalBreakMinutes || 0);
+  const workSessions = timerStats?.totalWorkSessions || 0;
+  const totalSessionsCount = timerStats?.totalSessions || 0;
+  // filteredSessions is now just 'sessions' (current page)
+  const displaySessions = sessions;
 
   return (
     <div className="space-y-6">
@@ -139,7 +150,7 @@ export function SessionHistory() {
               <p className="text-sm text-muted-foreground">
                 {t("Timer.history.totalSessions") || "Sesiones totales"}
               </p>
-              <p className="text-2xl font-bold">{filteredSessions.length}</p>
+              <p className="text-2xl font-bold">{totalSessionsCount}</p>
             </div>
           </div>
         </div>
@@ -196,6 +207,7 @@ export function SessionHistory() {
             <SelectItem value="WORK">{t("Timer.modes.work") || "Trabajo"}</SelectItem>
             <SelectItem value="SHORT_BREAK">{t("Timer.modes.shortBreak") || "Descanso corto"}</SelectItem>
             <SelectItem value="LONG_BREAK">{t("Timer.modes.longBreak") || "Descanso largo"}</SelectItem>
+            <SelectItem value="CONTINUOUS">{t("Timer.modes.continuous") || "Modo continuo"}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -224,7 +236,7 @@ export function SessionHistory() {
           <div className="p-8 text-center text-muted-foreground">
             {t("Timer.history.loading") || "Cargando historial..."}
           </div>
-        ) : filteredSessions.length === 0 ? (
+        ) : displaySessions.length === 0 ? (
           <div className="p-8 text-center">
             <Clock className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="font-medium mb-1">
@@ -236,7 +248,7 @@ export function SessionHistory() {
           </div>
         ) : (
           <div className="divide-y">
-            {filteredSessions.map((session) => (
+            {displaySessions.map((session) => (
               <div
                 key={session.id}
                 className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
@@ -253,7 +265,7 @@ export function SessionHistory() {
                   <div>
                     <p className="font-medium">{getSessionTypeLabel(session.type)}</p>
                     <p className="text-sm text-muted-foreground">
-                      {formatDistanceToNow(new Date(session.completedAt), {
+                      {formatDistanceToNow(new Date(session.endedAt || session.createdAt), {
                         addSuffix: true,
                         locale: es,
                       })}
@@ -262,7 +274,7 @@ export function SessionHistory() {
                 </div>
 
                 <Badge variant="secondary" className="font-mono">
-                  {formatDuration(session.duration)}
+                  {formatDuration(session.duration || 0)}
                 </Badge>
               </div>
             ))}

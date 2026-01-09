@@ -5,12 +5,9 @@
  * that can be used across web, mobile, and desktop applications.
  */
 'use client';
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createHooks = createHooks;
-const react_query_1 = require("@tanstack/react-query");
-const query_keys_1 = require("./query-keys");
-const use_notes_1 = require("./notes/use-notes");
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from './query-keys';
+import { createNotesHooks } from './notes/use-notes';
 /**
  * Creates all React Query hooks bound to a specific API client.
  *
@@ -28,22 +25,22 @@ const use_notes_1 = require("./notes/use-notes");
  * } = createHooks({ apiClient });
  * ```
  */
-function createHooks(config) {
+export function createHooks(config) {
     const { apiClient } = config;
     // ============ AUTH HOOKS ============
     function useRegister() {
-        return (0, react_query_1.useMutation)({
+        return useMutation({
             mutationFn: (data) => apiClient.register(data),
         });
     }
     function useLogin() {
-        return (0, react_query_1.useMutation)({
+        return useMutation({
             mutationFn: (data) => apiClient.login(data),
         });
     }
     function useLogout() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: () => apiClient.logout(),
             onSuccess: () => {
                 queryClient.clear();
@@ -57,8 +54,8 @@ function createHooks(config) {
      * @returns The current user profile or null if not authenticated.
      */
     function useCurrentUser() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.currentUser,
+        return useQuery({
+            queryKey: queryKeys.currentUser,
             queryFn: () => apiClient.getCurrentUser(),
             retry: false,
         });
@@ -68,54 +65,54 @@ function createHooks(config) {
      * Invalidates `currentUser` and `userProfile` queries on success.
      */
     function useUpdateProfile() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.updateProfile(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.currentUser });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.userProfile });
+                queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+                queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
             },
         });
     }
     function useFullProfile() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.userProfile,
+        return useQuery({
+            queryKey: queryKeys.userProfile,
             queryFn: () => apiClient.getFullProfile(),
             retry: false,
         });
     }
     function useUserPreferences() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.userPreferences,
+        return useQuery({
+            queryKey: queryKeys.userPreferences,
             queryFn: () => apiClient.getPreferences(),
             retry: false,
         });
     }
     function useUpdatePreferences() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.updatePreferences(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.userPreferences });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.userProfile });
+                queryClient.invalidateQueries({ queryKey: queryKeys.userPreferences });
+                queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
             },
         });
     }
     function useUserIntegrations() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.userIntegrations,
+        return useQuery({
+            queryKey: queryKeys.userIntegrations,
             queryFn: () => apiClient.getIntegrations(),
             retry: false,
         });
     }
     function useExportData() {
-        return (0, react_query_1.useMutation)({
+        return useMutation({
             mutationFn: () => apiClient.exportData(),
         });
     }
     function useDeleteAccount() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: () => apiClient.deleteAccount(),
             onSuccess: () => {
                 queryClient.clear();
@@ -128,100 +125,100 @@ function createHooks(config) {
      * @returns A list of workspaces.
      */
     function useWorkspaces() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workspaces,
+        return useQuery({
+            queryKey: queryKeys.workspaces,
             queryFn: () => apiClient.getWorkspaces(),
         });
     }
     function useWorkspace(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workspace(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.workspace(workspaceId),
             queryFn: () => apiClient.getWorkspace(workspaceId),
             enabled: !!workspaceId,
         });
     }
     function useWorkspaceBySlug(username, slug) {
-        return (0, react_query_1.useQuery)({
+        return useQuery({
             queryKey: ['workspaces', 'slug', username, slug],
             queryFn: () => apiClient.getWorkspaceBySlug(username, slug),
             enabled: !!username && !!slug,
         });
     }
     function useCreateWorkspace() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createWorkspace(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
             },
         });
     }
     function useUpdateWorkspace() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workspaceId, data }) => apiClient.updateWorkspace(workspaceId, data),
             onSuccess: (_, { workspaceId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspace(workspaceId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
             },
         });
     }
     function useDeleteWorkspace() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (workspaceId) => apiClient.deleteWorkspace(workspaceId),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
             },
         });
     }
     function useDeletedWorkspaces() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.deletedWorkspaces,
+        return useQuery({
+            queryKey: queryKeys.deletedWorkspaces,
             queryFn: () => apiClient.getDeletedWorkspaces(),
         });
     }
     function useRestoreWorkspace() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (workspaceId) => apiClient.restoreWorkspace(workspaceId),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.deletedWorkspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.deletedWorkspaces });
             },
         });
     }
     function usePermanentDeleteWorkspace() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (workspaceId) => apiClient.permanentDeleteWorkspace(workspaceId),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.deletedWorkspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.deletedWorkspaces });
             },
         });
     }
     function useAddWorkspaceMember() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workspaceId, data }) => apiClient.addWorkspaceMember(workspaceId, data),
             onSuccess: (_, { workspaceId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspace(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
             },
         });
     }
     function useRemoveWorkspaceMember() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workspaceId, userId }) => apiClient.removeWorkspaceMember(workspaceId, userId),
             onSuccess: (_, { workspaceId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspace(workspaceId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaceMembers(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaceMembers(workspaceId) });
             },
         });
     }
     function useWorkspaceMembers(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workspaceMembers(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.workspaceMembers(workspaceId),
             queryFn: () => {
                 if (!apiClient.getWorkspaceMembers) {
                     throw new Error('getWorkspaceMembers not implemented in API client');
@@ -232,8 +229,8 @@ function createHooks(config) {
         });
     }
     function useWorkspaceInvitations(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workspaceInvitations(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.workspaceInvitations(workspaceId),
             queryFn: () => {
                 if (!apiClient.getWorkspaceInvitations) {
                     throw new Error('getWorkspaceInvitations not implemented in API client');
@@ -244,8 +241,8 @@ function createHooks(config) {
         });
     }
     function useInviteMember() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workspaceId, data }) => {
                 if (!apiClient.inviteWorkspaceMember) {
                     throw new Error('inviteWorkspaceMember not implemented in API client');
@@ -253,13 +250,13 @@ function createHooks(config) {
                 return apiClient.inviteWorkspaceMember(workspaceId, data);
             },
             onSuccess: (_, { workspaceId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaceInvitations(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaceInvitations(workspaceId) });
             },
         });
     }
     function useAcceptInvitation() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => {
                 if (!apiClient.acceptWorkspaceInvitation) {
                     throw new Error('acceptWorkspaceInvitation not implemented in API client');
@@ -267,13 +264,13 @@ function createHooks(config) {
                 return apiClient.acceptWorkspaceInvitation(data);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
             },
         });
     }
     function useWorkspaceSettings(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workspaceSettings(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.workspaceSettings(workspaceId),
             queryFn: () => {
                 if (!apiClient.getWorkspaceSettings) {
                     throw new Error('getWorkspaceSettings not implemented in API client');
@@ -284,8 +281,8 @@ function createHooks(config) {
         });
     }
     function useUpdateWorkspaceSettings() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workspaceId, data, }) => {
                 if (!apiClient.updateWorkspaceSettings) {
                     throw new Error('updateWorkspaceSettings not implemented in API client');
@@ -293,14 +290,14 @@ function createHooks(config) {
                 return apiClient.updateWorkspaceSettings(workspaceId, data);
             },
             onSuccess: (_, { workspaceId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaceSettings(workspaceId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaceAuditLogs(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaceSettings(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
             },
         });
     }
     function useWorkspaceAuditLogs(workspaceId, params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workspaceAuditLogs(workspaceId, params),
+        return useQuery({
+            queryKey: queryKeys.workspaceAuditLogs(workspaceId, params),
             queryFn: () => {
                 if (!apiClient.getWorkspaceAuditLogs) {
                     throw new Error('getWorkspaceAuditLogs not implemented in API client');
@@ -311,8 +308,8 @@ function createHooks(config) {
         });
     }
     function useCreateAuditLog() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workspaceId, action, payload, }) => {
                 if (!apiClient.createAuditLog) {
                     throw new Error('createAuditLog not implemented in API client');
@@ -320,13 +317,13 @@ function createHooks(config) {
                 return apiClient.createAuditLog(workspaceId, action, payload);
             },
             onSuccess: (_, { workspaceId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaceAuditLogs(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
             },
         });
     }
     function useArchiveWorkspace() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (workspaceId) => {
                 if (!apiClient.archiveWorkspace) {
                     throw new Error('archiveWorkspace not implemented in API client');
@@ -334,40 +331,40 @@ function createHooks(config) {
                 return apiClient.archiveWorkspace(workspaceId);
             },
             onSuccess: (_, workspaceId) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspaces });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workspace(workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
             },
         });
     }
     // ============ WORKFLOW HOOKS ============
     function useWorkflows(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.workflows(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.workflows(workspaceId),
             queryFn: () => apiClient.getWorkflows(workspaceId),
             enabled: !!workspaceId,
         });
     }
     function useCreateWorkflow() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createWorkflow(data),
             onSuccess: (workflow) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workflows(workflow.workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workflows(workflow.workspaceId) });
             },
         });
     }
     function useUpdateWorkflow() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ workflowId, data }) => apiClient.updateWorkflow(workflowId, data),
             onSuccess: (workflow) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.workflows(workflow.workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.workflows(workflow.workspaceId) });
             },
         });
     }
     function useDeleteWorkflow() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (workflowId) => apiClient.deleteWorkflow(workflowId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['workflows'] });
@@ -376,76 +373,76 @@ function createHooks(config) {
     }
     // ============ PROJECT HOOKS ============
     function useProjects(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.projects(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.projects(workspaceId),
             queryFn: () => apiClient.getProjects(workspaceId),
             enabled: !!workspaceId,
         });
     }
     function useAllProjects() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.allProjects,
+        return useQuery({
+            queryKey: queryKeys.allProjects,
             queryFn: () => apiClient.getAllProjects(),
         });
     }
     function useProject(projectId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.project(projectId),
+        return useQuery({
+            queryKey: queryKeys.project(projectId),
             queryFn: () => apiClient.getProject(projectId),
             enabled: !!projectId,
         });
     }
     function useProjectBySlugs(workspaceSlug, projectSlug) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.projectBySlugs(workspaceSlug, projectSlug),
+        return useQuery({
+            queryKey: queryKeys.projectBySlugs(workspaceSlug, projectSlug),
             queryFn: () => apiClient.getProjectBySlugs(workspaceSlug, projectSlug),
             enabled: !!workspaceSlug && !!projectSlug,
         });
     }
     function useCreateProject() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createProject(data),
             onSuccess: (project) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.projects(project.workspaceId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.allProjects });
+                queryClient.invalidateQueries({ queryKey: queryKeys.projects(project.workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.allProjects });
             },
         });
     }
     function useUpdateProject() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ projectId, data }) => apiClient.updateProject(projectId, data),
             onSuccess: (project) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.project(project.id) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.projects(project.workspaceId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.allProjects });
+                queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.projects(project.workspaceId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.allProjects });
             },
         });
     }
     function useArchiveProject() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (projectId) => apiClient.archiveProject(projectId),
             onSuccess: (project) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.project(project.id) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
                 queryClient.invalidateQueries({ queryKey: ['projects'] });
             },
         });
     }
     function useCompleteProject() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (projectId) => apiClient.completeProject(projectId),
             onSuccess: (project) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.project(project.id) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
                 queryClient.invalidateQueries({ queryKey: ['projects'] });
             },
         });
     }
     function useDeleteProject() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (projectId) => apiClient.deleteProject(projectId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -454,7 +451,7 @@ function createHooks(config) {
     }
     // ============ TASK HOOKS ============
     function useTasks(projectId, tags, options) {
-        return (0, react_query_1.useQuery)({
+        return useQuery({
             queryKey: projectId
                 ? ['tasks', projectId, { tags, assignedToMe: options?.assignedToMe }]
                 : ['tasks', { tags, assignedToMe: options?.assignedToMe }],
@@ -462,46 +459,46 @@ function createHooks(config) {
         });
     }
     function useTask(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.task(taskId),
+        return useQuery({
+            queryKey: queryKeys.task(taskId),
             queryFn: () => apiClient.getTask(taskId),
             enabled: !!taskId,
         });
     }
     function useTaskDetails(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskDetails(taskId),
+        return useQuery({
+            queryKey: queryKeys.taskDetails(taskId),
             queryFn: () => apiClient.getTaskDetails(taskId),
             enabled: !!taskId,
         });
     }
     function useCreateTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createTask(data),
             onSuccess: (task) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.tasks(task.projectId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.tasks() });
+                queryClient.invalidateQueries({ queryKey: queryKeys.tasks(task.projectId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.tasks() });
             },
         });
     }
     function useUpdateTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ taskId, data }) => apiClient.updateTask(taskId, data),
             onMutate: async ({ taskId, data }) => {
-                await queryClient.cancelQueries({ queryKey: query_keys_1.queryKeys.task(taskId) });
-                await queryClient.cancelQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
-                const previousTask = queryClient.getQueryData(query_keys_1.queryKeys.task(taskId));
-                const previousTaskDetails = queryClient.getQueryData(query_keys_1.queryKeys.taskDetails(taskId));
+                await queryClient.cancelQueries({ queryKey: queryKeys.task(taskId) });
+                await queryClient.cancelQueries({ queryKey: queryKeys.taskDetails(taskId) });
+                const previousTask = queryClient.getQueryData(queryKeys.task(taskId));
+                const previousTaskDetails = queryClient.getQueryData(queryKeys.taskDetails(taskId));
                 if (previousTask) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.task(taskId), (old) => ({
+                    queryClient.setQueryData(queryKeys.task(taskId), (old) => ({
                         ...old,
                         ...data,
                     }));
                 }
                 if (previousTaskDetails) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.taskDetails(taskId), (old) => ({
+                    queryClient.setQueryData(queryKeys.taskDetails(taskId), (old) => ({
                         ...old,
                         ...data,
                     }));
@@ -510,37 +507,37 @@ function createHooks(config) {
             },
             onError: (_err, { taskId }, context) => {
                 if (context?.previousTask) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.task(taskId), context.previousTask);
+                    queryClient.setQueryData(queryKeys.task(taskId), context.previousTask);
                 }
                 if (context?.previousTaskDetails) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.taskDetails(taskId), context.previousTaskDetails);
+                    queryClient.setQueryData(queryKeys.taskDetails(taskId), context.previousTaskDetails);
                 }
             },
             onSettled: (_task, _error, { taskId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.task(taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
             },
         });
     }
     function useCompleteTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (taskId) => apiClient.completeTask(taskId),
             onMutate: async (taskId) => {
-                await queryClient.cancelQueries({ queryKey: query_keys_1.queryKeys.task(taskId) });
-                await queryClient.cancelQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
-                const previousTask = queryClient.getQueryData(query_keys_1.queryKeys.task(taskId));
-                const previousTaskDetails = queryClient.getQueryData(query_keys_1.queryKeys.taskDetails(taskId));
+                await queryClient.cancelQueries({ queryKey: queryKeys.task(taskId) });
+                await queryClient.cancelQueries({ queryKey: queryKeys.taskDetails(taskId) });
+                const previousTask = queryClient.getQueryData(queryKeys.task(taskId));
+                const previousTaskDetails = queryClient.getQueryData(queryKeys.taskDetails(taskId));
                 if (previousTask) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.task(taskId), (old) => ({
+                    queryClient.setQueryData(queryKeys.task(taskId), (old) => ({
                         ...old,
                         status: 'COMPLETED',
                     }));
                 }
                 if (previousTaskDetails) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.taskDetails(taskId), (old) => ({
+                    queryClient.setQueryData(queryKeys.taskDetails(taskId), (old) => ({
                         ...old,
                         status: 'COMPLETED',
                     }));
@@ -549,15 +546,15 @@ function createHooks(config) {
             },
             onError: (_err, taskId, context) => {
                 if (context?.previousTask) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.task(taskId), context.previousTask);
+                    queryClient.setQueryData(queryKeys.task(taskId), context.previousTask);
                 }
                 if (context?.previousTaskDetails) {
-                    queryClient.setQueryData(query_keys_1.queryKeys.taskDetails(taskId), context.previousTaskDetails);
+                    queryClient.setQueryData(queryKeys.taskDetails(taskId), context.previousTaskDetails);
                 }
             },
             onSettled: (_task, _error, taskId) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.task(taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 queryClient.invalidateQueries({ queryKey: ['analytics'] });
                 queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
@@ -566,8 +563,8 @@ function createHooks(config) {
         });
     }
     function useDeleteTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (taskId) => apiClient.deleteTask(taskId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -575,18 +572,18 @@ function createHooks(config) {
         });
     }
     function useCreateSubtask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ parentTaskId, data }) => apiClient.createSubtask(parentTaskId, data),
             onSuccess: (_, { parentTaskId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(parentTaskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(parentTaskId) });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
             },
         });
     }
     function useShareTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (taskId) => {
                 if (!apiClient.generatePublicToken) {
                     throw new Error('generatePublicToken not implemented in API client');
@@ -594,13 +591,13 @@ function createHooks(config) {
                 return apiClient.generatePublicToken(taskId);
             },
             onSuccess: (_data, taskId) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
             },
         });
     }
     function usePublicTask(token) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.publicTask(token),
+        return useQuery({
+            queryKey: queryKeys.publicTask(token),
             queryFn: () => {
                 if (!apiClient.getTaskByPublicToken) {
                     throw new Error('getTaskByPublicToken not implemented in API client');
@@ -612,34 +609,34 @@ function createHooks(config) {
     }
     // ============ TAG HOOKS ============
     function useTags(workspaceId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.tags(workspaceId),
+        return useQuery({
+            queryKey: queryKeys.tags(workspaceId),
             queryFn: () => apiClient.getTags(workspaceId),
             enabled: !!workspaceId,
         });
     }
     function useTaskTags(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskTags(taskId),
+        return useQuery({
+            queryKey: queryKeys.taskTags(taskId),
             queryFn: () => apiClient.getTaskTags(taskId),
             enabled: !!taskId,
         });
     }
     function useCreateTag() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createTag(data),
             onSuccess: (tag) => {
                 if (tag.workspaceId) {
-                    queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.tags(tag.workspaceId) });
+                    queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
                 }
                 queryClient.invalidateQueries({ queryKey: ['tags'] });
             },
         });
     }
     function useUpdateTag() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: async ({ tagId, data }) => {
                 if (!apiClient.updateTag) {
                     throw new Error('updateTag not implemented in API client');
@@ -648,41 +645,41 @@ function createHooks(config) {
             },
             onSuccess: (tag) => {
                 if (tag.workspaceId) {
-                    queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.tags(tag.workspaceId) });
+                    queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
                 }
                 queryClient.invalidateQueries({ queryKey: ['tags'] });
             },
         });
     }
     function useAssignTagToTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ tagId, taskId }) => apiClient.assignTagToTask(tagId, taskId),
             onSuccess: (_, { taskId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskTags(taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.task(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 queryClient.invalidateQueries({ queryKey: ['tags'] });
             },
         });
     }
     function useRemoveTagFromTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ tagId, taskId }) => apiClient.removeTagFromTask(tagId, taskId),
             onSuccess: (_, { taskId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskTags(taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.task(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 queryClient.invalidateQueries({ queryKey: ['tags'] });
             },
         });
     }
     function useDeleteTag() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (tagId) => apiClient.deleteTag(tagId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['tags'] });
@@ -691,28 +688,28 @@ function createHooks(config) {
     }
     // ============ TIMER HOOKS ============
     function useActiveTimer() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.activeTimer,
+        return useQuery({
+            queryKey: queryKeys.activeTimer,
             queryFn: () => apiClient.getActiveTimer(),
             refetchInterval: 1000,
         });
     }
     function useStartTimer() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.startTimer(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.activeTimer });
+                queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
             },
         });
     }
     function useStopTimer() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.stopTimer(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.activeTimer });
+                queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
                 queryClient.invalidateQueries({ queryKey: ['analytics'] });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
@@ -722,29 +719,29 @@ function createHooks(config) {
         });
     }
     function usePauseTimer() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.pauseTimer(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.activeTimer });
+                queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
             },
         });
     }
     function useResumeTimer() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.resumeTimer(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.activeTimer });
+                queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
             },
         });
     }
     function useSwitchTask() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.switchTask(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.activeTimer });
+                queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
                 queryClient.invalidateQueries({ queryKey: ['analytics'] });
                 queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
@@ -753,40 +750,40 @@ function createHooks(config) {
         });
     }
     function useSessionHistory(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.timerHistory(params),
+        return useQuery({
+            queryKey: queryKeys.timerHistory(params),
             queryFn: () => apiClient.getSessionHistory(params),
         });
     }
     function useTimerStats(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.timerStats(params),
+        return useQuery({
+            queryKey: queryKeys.timerStats(params),
             queryFn: () => apiClient.getTimerStats(params),
         });
     }
     function useTaskTimeSessions(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskTimeSessions(taskId),
+        return useQuery({
+            queryKey: queryKeys.taskTimeSessions(taskId),
             queryFn: () => apiClient.getTaskTimeSessions(taskId),
             enabled: !!taskId,
         });
     }
     // ============ ANALYTICS HOOKS ============
     function useDailyMetrics(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.dailyMetrics(params),
+        return useQuery({
+            queryKey: queryKeys.dailyMetrics(params),
             queryFn: () => apiClient.getDailyMetrics(params),
         });
     }
     function useWeeklyMetrics(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.weeklyMetrics(params),
+        return useQuery({
+            queryKey: queryKeys.weeklyMetrics(params),
             queryFn: () => apiClient.getWeeklyMetrics(params),
         });
     }
     function useMonthlyMetrics(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.monthlyMetrics(params),
+        return useQuery({
+            queryKey: queryKeys.monthlyMetrics(params),
             queryFn: () => {
                 if (!apiClient.getMonthlyMetrics) {
                     throw new Error('getMonthlyMetrics not implemented in API client');
@@ -797,8 +794,8 @@ function createHooks(config) {
         });
     }
     function useDateRangeMetrics(startDate, endDate) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.dateRangeMetrics(startDate, endDate),
+        return useQuery({
+            queryKey: queryKeys.dateRangeMetrics(startDate, endDate),
             queryFn: () => {
                 if (!apiClient.getDateRangeMetrics) {
                     throw new Error('getDateRangeMetrics not implemented in API client');
@@ -809,111 +806,111 @@ function createHooks(config) {
         });
     }
     function useDashboardStats() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.dashboardStats,
+        return useQuery({
+            queryKey: queryKeys.dashboardStats,
             queryFn: () => apiClient.getDashboardStats(),
         });
     }
     function useHeatmapData() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.heatmapData,
+        return useQuery({
+            queryKey: queryKeys.heatmapData,
             queryFn: () => apiClient.getHeatmapData(),
         });
     }
     function useProjectDistribution() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.projectDistribution,
+        return useQuery({
+            queryKey: queryKeys.projectDistribution,
             queryFn: () => apiClient.getProjectDistribution(),
         });
     }
     function useTaskStatusDistribution() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskStatusDistribution,
+        return useQuery({
+            queryKey: queryKeys.taskStatusDistribution,
             queryFn: () => apiClient.getTaskStatusDistribution(),
         });
     }
     // ============ AI HOOKS ============
     function useAIProfile() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.aiProfile,
+        return useQuery({
+            queryKey: queryKeys.aiProfile,
             queryFn: () => apiClient.getAIProfile(),
         });
     }
     function useOptimalSchedule(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.optimalSchedule(params),
+        return useQuery({
+            queryKey: queryKeys.optimalSchedule(params),
             queryFn: () => apiClient.getOptimalSchedule(params?.topN),
         });
     }
     function useTaskDurationPrediction(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskDurationPrediction(params),
+        return useQuery({
+            queryKey: queryKeys.taskDurationPrediction(params),
             queryFn: () => apiClient.predictTaskDuration(params),
             enabled: !!params?.title || !!params?.description,
         });
     }
     function useGenerateWeeklyReport() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (weekStart) => apiClient.generateWeeklyReport(weekStart),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.reports() });
+                queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
             },
         });
     }
     function useReports(params) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.reports(params),
+        return useQuery({
+            queryKey: queryKeys.reports(params),
             queryFn: () => apiClient.getReports(params),
         });
     }
     function useReport(id) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.report(id),
+        return useQuery({
+            queryKey: queryKeys.report(id),
             queryFn: () => apiClient.getReport(id),
             enabled: !!id,
         });
     }
     function useDeleteReport() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (id) => apiClient.deleteReport(id),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.reports() });
+                queryClient.invalidateQueries({ queryKey: queryKeys.reports() });
             },
         });
     }
     // ============ COMMENT HOOKS ============
     function useTaskComments(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskComments(taskId),
+        return useQuery({
+            queryKey: queryKeys.taskComments(taskId),
             queryFn: () => apiClient.getTaskComments(taskId),
             enabled: !!taskId,
         });
     }
     function useCreateComment() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createComment(data),
             onSuccess: (comment) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskComments(comment.taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(comment.taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskComments(comment.taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(comment.taskId) });
             },
         });
     }
     function useUpdateComment() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ commentId, data }) => apiClient.updateComment(commentId, data),
             onSuccess: (comment) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskComments(comment.taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(comment.taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskComments(comment.taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(comment.taskId) });
             },
         });
     }
     function useDeleteComment() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (commentId) => apiClient.deleteComment(commentId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -922,25 +919,25 @@ function createHooks(config) {
     }
     // ============ ATTACHMENT HOOKS ============
     function useTaskAttachments(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskAttachments(taskId),
+        return useQuery({
+            queryKey: queryKeys.taskAttachments(taskId),
             queryFn: () => apiClient.getTaskAttachments(taskId),
             enabled: !!taskId,
         });
     }
     function useCreateAttachment() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createAttachment(data),
             onSuccess: (attachment) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskAttachments(attachment.taskId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskDetails(attachment.taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskAttachments(attachment.taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(attachment.taskId) });
             },
         });
     }
     function useDeleteAttachment() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (attachmentId) => apiClient.deleteAttachment(attachmentId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -949,8 +946,8 @@ function createHooks(config) {
         });
     }
     function useProjectAttachments(projectId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.projectAttachments(projectId),
+        return useQuery({
+            queryKey: queryKeys.projectAttachments(projectId),
             queryFn: () => {
                 if (!apiClient.getProjectAttachments) {
                     throw new Error('getProjectAttachments not implemented in API client');
@@ -962,8 +959,8 @@ function createHooks(config) {
     }
     // ============ NOTIFICATION HOOKS ============
     function useNotifications() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.notifications,
+        return useQuery({
+            queryKey: queryKeys.notifications,
             queryFn: () => {
                 if (!apiClient.getNotifications) {
                     throw new Error('getNotifications not implemented in API client');
@@ -975,8 +972,8 @@ function createHooks(config) {
         });
     }
     function useUnreadNotificationsCount() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.unreadNotificationsCount,
+        return useQuery({
+            queryKey: queryKeys.unreadNotificationsCount,
             queryFn: () => {
                 if (!apiClient.getUnreadNotificationsCount) {
                     throw new Error('getUnreadNotificationsCount not implemented in API client');
@@ -988,8 +985,8 @@ function createHooks(config) {
         });
     }
     function useMarkNotificationAsRead() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (id) => {
                 if (!apiClient.markNotificationAsRead) {
                     throw new Error('markNotificationAsRead not implemented in API client');
@@ -1002,8 +999,8 @@ function createHooks(config) {
         });
     }
     function useMarkAllNotificationsAsRead() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: () => {
                 if (!apiClient.markAllNotificationsAsRead) {
                     throw new Error('markAllNotificationsAsRead not implemented in API client');
@@ -1023,8 +1020,8 @@ function createHooks(config) {
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
     function useTimeBlocks(start, end) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.timeBlocks(start instanceof Date ? start.toISOString() : start, end instanceof Date ? end.toISOString() : end),
+        return useQuery({
+            queryKey: queryKeys.timeBlocks(start instanceof Date ? start.toISOString() : start, end instanceof Date ? end.toISOString() : end),
             queryFn: () => {
                 if (!apiClient.getTimeBlocks) {
                     throw new Error('getTimeBlocks not implemented in API client');
@@ -1036,140 +1033,140 @@ function createHooks(config) {
     }
     // ============ HABIT HOOKS ============
     function useHabits(includeArchived) {
-        return (0, react_query_1.useQuery)({
-            queryKey: [...query_keys_1.queryKeys.habits, { includeArchived }],
+        return useQuery({
+            queryKey: [...queryKeys.habits, { includeArchived }],
             queryFn: () => apiClient.getHabits(includeArchived),
         });
     }
     function useTodayHabits() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.todayHabits,
+        return useQuery({
+            queryKey: queryKeys.todayHabits,
             queryFn: () => apiClient.getTodayHabits(),
         });
     }
     function useHabit(habitId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.habit(habitId),
+        return useQuery({
+            queryKey: queryKeys.habit(habitId),
             queryFn: () => apiClient.getHabit(habitId),
             enabled: !!habitId,
         });
     }
     function useHabitStats(habitId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.habitStats(habitId),
+        return useQuery({
+            queryKey: queryKeys.habitStats(habitId),
             queryFn: () => apiClient.getHabitStats(habitId),
             enabled: !!habitId,
         });
     }
     function useCreateHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createHabit(data),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
             },
         });
     }
     function useUpdateHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ habitId, data }) => apiClient.updateHabit(habitId, data),
             onSuccess: (_, { habitId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habit(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
             },
         });
     }
     function useDeleteHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (habitId) => apiClient.deleteHabit(habitId),
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
             },
         });
     }
     function useCompleteHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ habitId, data }) => apiClient.completeHabit(habitId, data),
             onSuccess: (_, { habitId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habit(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habitStats(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habitStats(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
                 // Invalidate user profile for XP updates
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.currentUser });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.userProfile });
+                queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+                queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
             },
         });
     }
     function useUncompleteHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (habitId) => apiClient.uncompleteHabit(habitId),
             onSuccess: (_, habitId) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habit(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habitStats(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habitStats(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
             },
         });
     }
     function usePauseHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (habitId) => apiClient.pauseHabit(habitId),
             onSuccess: (_, habitId) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habit(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
             },
         });
     }
     function useResumeHabit() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (habitId) => apiClient.resumeHabit(habitId),
             onSuccess: (_, habitId) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habit(habitId) });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.habits });
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.todayHabits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habit(habitId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.habits });
+                queryClient.invalidateQueries({ queryKey: queryKeys.todayHabits });
             },
         });
     }
     // ============ OBJECTIVES (OKRs) HOOKS ============
     function useObjectives(options) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.objectives(options),
+        return useQuery({
+            queryKey: queryKeys.objectives(options),
             queryFn: () => apiClient.getObjectives(options),
         });
     }
     function useCurrentPeriodObjectives() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.currentPeriodObjectives,
+        return useQuery({
+            queryKey: queryKeys.currentPeriodObjectives,
             queryFn: () => apiClient.getCurrentPeriodObjectives(),
         });
     }
     function useObjectivesDashboard() {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.objectivesDashboard,
+        return useQuery({
+            queryKey: queryKeys.objectivesDashboard,
             queryFn: () => apiClient.getObjectivesDashboardSummary(),
         });
     }
     function useObjective(objectiveId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.objective(objectiveId),
+        return useQuery({
+            queryKey: queryKeys.objective(objectiveId),
             queryFn: () => apiClient.getObjective(objectiveId),
             enabled: !!objectiveId,
         });
     }
     function useCreateObjective() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (data) => apiClient.createObjective(data),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
@@ -1177,18 +1174,18 @@ function createHooks(config) {
         });
     }
     function useUpdateObjective() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ objectiveId, data }) => apiClient.updateObjective(objectiveId, data),
             onSuccess: (_, { objectiveId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.objective(objectiveId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
             },
         });
     }
     function useDeleteObjective() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (objectiveId) => apiClient.deleteObjective(objectiveId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
@@ -1196,18 +1193,18 @@ function createHooks(config) {
         });
     }
     function useAddKeyResult() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ objectiveId, data }) => apiClient.addKeyResult(objectiveId, data),
             onSuccess: (_, { objectiveId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.objective(objectiveId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
             },
         });
     }
     function useUpdateKeyResult() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ keyResultId, data }) => apiClient.updateKeyResult(keyResultId, data),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
@@ -1215,8 +1212,8 @@ function createHooks(config) {
         });
     }
     function useDeleteKeyResult() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: (keyResultId) => apiClient.deleteKeyResult(keyResultId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
@@ -1224,8 +1221,8 @@ function createHooks(config) {
         });
     }
     function useLinkTaskToKeyResult() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ keyResultId, data }) => apiClient.linkTaskToKeyResult(keyResultId, data),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
@@ -1233,8 +1230,8 @@ function createHooks(config) {
         });
     }
     function useUnlinkTaskFromKeyResult() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ keyResultId, taskId }) => apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['objectives'] });
@@ -1243,58 +1240,58 @@ function createHooks(config) {
     }
     // ==================== Custom Fields ====================
     function useCustomFields(projectId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.customFields(projectId),
+        return useQuery({
+            queryKey: queryKeys.customFields(projectId),
             queryFn: () => apiClient.getProjectCustomFields(projectId),
             enabled: !!projectId,
         });
     }
     function useCreateCustomField() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ projectId, data }) => apiClient.createCustomField(projectId, data),
             onSuccess: (_, { projectId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.customFields(projectId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.customFields(projectId) });
             },
         });
     }
     function useUpdateCustomField() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ fieldId, data, projectId }) => apiClient.updateCustomField(fieldId, data),
             onSuccess: (_, { projectId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.customFields(projectId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.customFields(projectId) });
             },
         });
     }
     function useDeleteCustomField() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ fieldId, projectId }) => apiClient.deleteCustomField(fieldId),
             onSuccess: (_, { projectId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.customFields(projectId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.customFields(projectId) });
             },
         });
     }
     function useTaskCustomValues(taskId) {
-        return (0, react_query_1.useQuery)({
-            queryKey: query_keys_1.queryKeys.taskCustomValues(taskId),
+        return useQuery({
+            queryKey: queryKeys.taskCustomValues(taskId),
             queryFn: () => apiClient.getTaskCustomValues(taskId),
             enabled: !!taskId,
         });
     }
     function useSetTaskCustomValues() {
-        const queryClient = (0, react_query_1.useQueryClient)();
-        return (0, react_query_1.useMutation)({
+        const queryClient = useQueryClient();
+        return useMutation({
             mutationFn: ({ taskId, data }) => apiClient.setTaskCustomValues(taskId, data),
             onSuccess: (_, { taskId }) => {
-                queryClient.invalidateQueries({ queryKey: query_keys_1.queryKeys.taskCustomValues(taskId) });
+                queryClient.invalidateQueries({ queryKey: queryKeys.taskCustomValues(taskId) });
                 queryClient.invalidateQueries({ queryKey: ['tasks'] });
             },
         });
     }
     // ============ NOTES HOOKS ============
-    const { useNotes, useNote, useCreateNote, useUpdateNote, useDeleteNote } = (0, use_notes_1.createNotesHooks)(apiClient);
+    const { useNotes, useNote, useCreateNote, useUpdateNote, useDeleteNote } = createNotesHooks(apiClient);
     // Return all hooks
     return {
         // Auth

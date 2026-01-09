@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
-import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/hooks/api/use-tags";
+import { useTags, useAssignTagToTask, useRemoveTagFromTask } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Popover,

@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@ordo-todo/ui";
-import { useTemplates, TaskTemplate } from "@/hooks/api/use-templates";
+import { useTemplates, TaskTemplate } from "@/hooks/api";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TemplateManagerDialog } from "@/components/templates/template-manager-dialog";
 

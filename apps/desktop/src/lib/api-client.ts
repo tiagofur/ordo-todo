@@ -49,7 +49,7 @@ export class DesktopApiClient extends OrdoApiClient {
 
   // ============ WORKSPACE ENDPOINTS ============
 
-  async getWorkspaceBySlug(slug: string) {
+  async getWorkspaceBySlugLegacy(slug: string) {
     const response = await this.axios.get(`/workspaces/slug/${slug}`);
     return response.data;
   }

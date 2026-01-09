@@ -1,9 +1,9 @@
 import { Clock, Pause } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useActiveTimeSession } from "@/hooks/api/use-timers";
+import { useActiveTimer } from "@/lib/shared-hooks";
 
 export function TimerWidget() {
-  const { data: activeSession } = useActiveTimeSession();
+  const { data: activeSession } = useActiveTimer();
 
   const formatDuration = (startedAt: Date | string): string => {
     const start = typeof startedAt === "string" ? new Date(startedAt) : startedAt;

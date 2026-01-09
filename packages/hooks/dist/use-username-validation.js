@@ -1,19 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useUsernameValidation = useUsernameValidation;
-exports.generateUsernameSuggestions = generateUsernameSuggestions;
-const react_1 = require("react");
-function useUsernameValidation({ apiClient, minLength = 3, maxLength = 20, debounceMs = 500, currentUsername, }) {
-    const [validationResult, setValidationResult] = (0, react_1.useState)({
+import { useState, useCallback, useRef } from 'react';
+export function useUsernameValidation({ apiClient, minLength = 3, maxLength = 20, debounceMs = 500, currentUsername, }) {
+    const [validationResult, setValidationResult] = useState({
         isValid: false,
         isAvailable: null,
         message: '',
         isLoading: false,
     });
-    const [lastCheckedUsername, setLastCheckedUsername] = (0, react_1.useState)('');
+    const [lastCheckedUsername, setLastCheckedUsername] = useState('');
     // Enhanced regex for better username validation
     const usernameRegex = /^[a-z0-9_-]+$/;
-    const validateFormat = (0, react_1.useCallback)((username) => {
+    const validateFormat = useCallback((username) => {
         if (!username || username.length === 0) {
             return { isValid: false, message: 'Username is required' };
         }
@@ -41,9 +37,9 @@ function useUsernameValidation({ apiClient, minLength = 3, maxLength = 20, debou
         }
         return { isValid: true, message: 'Username format is valid' };
     }, [minLength, maxLength]);
-    const timeoutRef = (0, react_1.useRef)(null);
+    const timeoutRef = useRef(null);
     // Debounced function to check username availability
-    const checkUsernameAvailability = (0, react_1.useCallback)(async (username) => {
+    const checkUsernameAvailability = useCallback(async (username) => {
         // Clear existing timeout
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -110,7 +106,7 @@ function useUsernameValidation({ apiClient, minLength = 3, maxLength = 20, debou
             }
         }, debounceMs);
     }, [lastCheckedUsername, debounceMs, currentUsername]);
-    const validateUsername = (0, react_1.useCallback)(async (username) => {
+    const validateUsername = useCallback(async (username) => {
         const formatValidation = validateFormat(username);
         if (!formatValidation.isValid) {
             setValidationResult({
@@ -134,7 +130,7 @@ function useUsernameValidation({ apiClient, minLength = 3, maxLength = 20, debou
             });
         }
     }, [validateFormat, checkUsernameAvailability, minLength]);
-    const resetValidation = (0, react_1.useCallback)(() => {
+    const resetValidation = useCallback(() => {
         setValidationResult({
             isValid: false,
             isAvailable: null,
@@ -150,7 +146,7 @@ function useUsernameValidation({ apiClient, minLength = 3, maxLength = 20, debou
     };
 }
 // Helper function to generate username suggestions
-function generateUsernameSuggestions(baseName) {
+export function generateUsernameSuggestions(baseName) {
     const base = baseName.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 10);
     const suggestions = [];
     const randomNumbers = [123, 456, 789, 2024, 2025];

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { formatTimerDisplay } from "@ordo-todo/core";
+import { formatTimerDisplay } from "@ordo-todo/hooks";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/lib/api-hooks";
 import { notify } from "@/lib/notify";
 import { useTimerNotifications } from "./use-timer-notifications";

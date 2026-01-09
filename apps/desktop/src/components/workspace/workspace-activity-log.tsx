@@ -4,7 +4,7 @@ import { Button } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
-import { useWorkspaceAuditLogs } from "@/hooks/api/use-workspaces";
+import { useWorkspaceAuditLogs } from "@/hooks/api";
 
 interface WorkspaceActivityLogProps {
   workspaceId: string;

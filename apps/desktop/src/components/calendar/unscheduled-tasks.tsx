@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useAvailableTasks } from "@/hooks/api/use-tasks";
+import { useAvailableTasks } from "@/hooks/api";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { GripVertical, AlertCircle, CalendarClock } from "lucide-react";

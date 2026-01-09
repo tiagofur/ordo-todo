@@ -16,13 +16,7 @@ import {
 import { StatsCard } from "@/components/dashboard";
 import { AIWeeklyReport } from "@/components/ai";
 import { PageTransition, SlideIn, StaggerList, StaggerItem } from "@/components/motion";
-import { 
-  useDashboardStats, 
-  useWeeklyMetrics, 
-  useHeatmapData,
-  useProjectDistribution,
-  useTaskStatusDistribution
-} from "@/hooks/api/use-analytics";
+import { useDailyMetrics, useWeeklyMetrics, useDashboardStats, useHeatmapData, useProjectDistribution, useTaskStatusDistribution, useProductivityStreak } from '@/hooks/api';
 
 export function Analytics() {
   const { t } = (useTranslation as any)();
@@ -37,6 +31,7 @@ export function Analytics() {
   const { data: heatmapData, isLoading: heatmapLoading } = useHeatmapData();
   const { data: projectData } = useProjectDistribution();
   const { data: statusData } = useTaskStatusDistribution();
+  const { data: streakData } = useProductivityStreak();
 
   // Transform Weekly Metrics
   const weeklyData = weeklyMetrics?.map((m: any) => ({
@@ -55,14 +50,31 @@ export function Analytics() {
   // Focus score calculation (simplified)
   const focusScore = Math.min(100, Math.round((totalPomodoros / 35) * 100));
   
+  // Calculate Peak Hour from Heatmap
+  const peakHour = heatmapData?.reduce((max: any, current: any) => 
+    (current.value > max.value) ? current : max, 
+    { value: -1, hour: 10 }
+  ).hour || 10;
+
+  // Calculate Top Project
+  const topProjectData = projectData?.reduce((max: any, current: any) => 
+    (current.value > max.value) ? current : max, 
+    { name: '-', value: 0 }
+  );
+
+  const topProject = { 
+    name: topProjectData?.name || "N/A", 
+    tasks: topProjectData?.value || 0 
+  };
+
   // Generate insights
   const insights = generateInsights({
     completedPomodoros: totalPomodoros,
     completedTasks: totalTasks,
     avgSessionLength: totalPomodoros > 0 ? Math.round(totalMinutes / totalPomodoros) : 0,
-    peakHour: 10, // TODO: Calc peak hour from Heatmap
-    currentStreak: 5, // TODO: Add streak to API
-    longestStreak: 12,
+    peakHour,
+    currentStreak: streakData?.currentStreak || 0,
+    longestStreak: streakData?.longestStreak || 0,
   });
 
   // AI Report data
@@ -70,10 +82,10 @@ export function Analytics() {
     totalPomodoros,
     totalTasks: totalTasks + 10, // Mock total created?
     completedTasks: totalTasks,
-    streak: 5,
+    streak: streakData?.currentStreak || 0,
     avgPomodorosPerDay: avgPomodoros,
-    peakHour: 10,
-    topProject: { name: "Proyecto Alpha", tasks: 12 }, // TODO: Fetch top project
+    peakHour,
+    topProject,
     weeklyData: weeklyData.map((d: any) => ({
       day: d.dayName,
       pomodoros: d.pomodoros,
@@ -161,7 +173,7 @@ export function Analytics() {
           <StaggerItem>
             <StatsCard
               title={t("Analytics.streak")}
-              value={5}
+              value={streakData?.currentStreak || 0}
               subtitle="días"
               icon={Flame}
               iconColor="text-orange-500"

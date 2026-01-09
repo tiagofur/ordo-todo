@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateWorkspace } from "@/hooks/api/use-workspaces";
+import { useCreateWorkspace } from "@/hooks/api";
 import {
   Dialog,
   DialogContent,

@@ -4,6 +4,11 @@
  * A React hook for managing Pomodoro and continuous timer functionality.
  * Can be used across web, mobile, and desktop applications.
  */
+/**
+ * Format time for timer display (MM:SS)
+ * Note: Inlined from @ordo-todo/core to avoid importing Node.js dependencies
+ */
+export declare function formatTimerDisplay(seconds: number): string;
 export type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
 export type TimerType = 'POMODORO' | 'CONTINUOUS';
 export interface TimerConfig {

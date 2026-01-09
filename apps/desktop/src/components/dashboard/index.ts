@@ -3,7 +3,7 @@
 
 export {
     StatsCard,
-    ProductivityStreakWidget,
+    // ProductivityStreakWidget, // Using local version
     UpcomingTasksWidget,
     WeeklyActivityWidget,
     ActiveProjectsWidget,
@@ -12,6 +12,9 @@ export {
 // Keep local TimerWidget as it has desktop-specific functionality
 export { TimerWidget } from "./TimerWidget";
 export { OkrWidget } from "./OkrWidget";
+export { HabitsWidget } from "./HabitsWidget";
+export { AIInsightsWidget } from "./AIInsightsWidget";
+export { ProductivityStreakWidget } from "./ProductivityStreakWidget";
 
 // Type re-exports
 export type {

@@ -1,4 +1,4 @@
-import { useTasks, useUpdateTask } from "@/hooks/api/use-tasks";
+import { useTasks, useUpdateTask } from "@/hooks/api";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";

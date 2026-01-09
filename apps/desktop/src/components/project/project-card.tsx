@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { FolderKanban, MoreVertical, Archive, Trash2, CheckCircle2, Clock } from "lucide-react";
-import { useDeleteProject, useUpdateProject } from "@/hooks/api/use-projects";
+import { useDeleteProject, useUpdateProject, useTasks } from "@/hooks/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   cn,
@@ -27,12 +27,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const queryClient = useQueryClient();
 
   // Fetch tasks for this project to show progress
-  // const { data: tasks } = api.task.list.useQuery(undefined);
-  // TODO: Re-implement statistics with proper hooks (need workspaceId)
-  const tasks: any[] = [];
-  const projectTasks = tasks?.filter(t => t.projectId === project.id) || [];
-  const completedTasks = projectTasks.filter(t => t.status === "COMPLETED").length;
-  const totalTasks = projectTasks.length;
+  const { data: tasks = [] } = useTasks(
+    project.id ? String(project.id) : undefined
+  );
+  
+  const completedTasks = tasks.filter((t: any) => t.status === "DONE" || t.status === "COMPLETED").length;
+  const totalTasks = tasks.length;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const archiveProjectMutation = useUpdateProject();

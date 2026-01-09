@@ -1,23 +1,25 @@
 import { Timer, Play, Pause, SkipForward, RotateCcw } from "lucide-react";
 import { cn, Button } from "@ordo-todo/ui";
-import { useTimerStore, startTimerInterval, stopTimerInterval } from "@/stores/timer-store";
+import { useTimer } from "@/contexts/timer-context";
 
 interface TimerWidgetProps {
   onExpand?: () => void;
 }
 
-const MODE_LABELS = {
+const MODE_LABELS: Record<string, string> = {
   WORK: "Trabajo",
   SHORT_BREAK: "Descanso Corto",
   LONG_BREAK: "Descanso Largo",
   IDLE: "Inactivo",
+  CONTINUOUS: "Continuo",
 };
 
-const MODE_COLORS = {
+const MODE_COLORS: Record<string, string> = {
   WORK: "#ef4444",
   SHORT_BREAK: "#22c55e",
   LONG_BREAK: "#3b82f6",
   IDLE: "#6b7280",
+  CONTINUOUS: "#8b5cf6",
 };
 
 export function TimerWidget({ onExpand }: TimerWidgetProps) {
@@ -25,17 +27,17 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
     mode,
     isRunning,
     isPaused,
-    getTimeFormatted,
+    timeLeft,
+    formatTime,
     getProgress,
     start,
     pause,
     resume,
     stop,
-    skip,
-    reset,
-    selectedTaskTitle,
+    skipToNext,
+    activeSession,
     completedPomodoros,
-  } = useTimerStore();
+  } = useTimer();
 
   const handleToggle = () => {
     if (isRunning && !isPaused) {
@@ -44,18 +46,14 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
       resume();
     } else {
       start();
-      startTimerInterval();
     }
   };
 
-  const handleStop = () => {
-    stop();
-    stopTimerInterval();
-  };
+  const activeTaskTitle = activeSession?.task?.title;
 
   const progress = getProgress();
-  const timeFormatted = getTimeFormatted();
-  const modeColor = MODE_COLORS[mode];
+  const timeFormatted = formatTime(timeLeft);
+  const modeColor = MODE_COLORS[mode] || MODE_COLORS.IDLE;
 
   return (
     <div
@@ -84,7 +82,7 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
               <Timer className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">{MODE_LABELS[mode]}</h3>
+              <h3 className="text-lg font-semibold">{MODE_LABELS[mode] || mode}</h3>
               <p className="text-xs text-muted-foreground">
                 {completedPomodoros} pomodoros completados
               </p>
@@ -100,9 +98,9 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
           >
             {timeFormatted}
           </p>
-          {selectedTaskTitle && (
+          {activeTaskTitle && (
             <p className="text-sm text-muted-foreground mt-2 truncate">
-              📋 {selectedTaskTitle}
+              📋 {activeTaskTitle}
             </p>
           )}
         </div>
@@ -112,8 +110,8 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
           <Button
             variant="outline"
             size="icon"
-            onClick={reset}
-            disabled={!isRunning && mode === "IDLE"}
+            onClick={() => stop()}
+            disabled={!isRunning && mode === "WORK" && !isPaused} // Can reset if running/paused
             className="h-10 w-10"
           >
             <RotateCcw className="h-4 w-4" />
@@ -138,8 +136,8 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
           <Button
             variant="outline"
             size="icon"
-            onClick={skip}
-            disabled={!isRunning}
+            onClick={() => skipToNext()}
+            disabled={!isRunning && !isPaused}
             className="h-10 w-10"
           >
             <SkipForward className="h-4 w-4" />
@@ -155,7 +153,7 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
                 "h-2 w-2 rounded-full transition-all duration-300",
                 mode === m ? "scale-125" : "opacity-30"
               )}
-              style={{ backgroundColor: MODE_COLORS[m as keyof typeof MODE_COLORS] }}
+              style={{ backgroundColor: MODE_COLORS[m] }}
             />
           ))}
         </div>

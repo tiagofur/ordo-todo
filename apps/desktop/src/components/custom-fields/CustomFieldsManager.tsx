@@ -10,7 +10,7 @@ import { Button } from "@ordo-todo/ui";
 import { ScrollArea } from "@ordo-todo/ui";
 import { Separator, EmptyState } from "@ordo-todo/ui";
 import { Settings, Edit, Trash2, Plus } from "lucide-react";
-import { useCustomFields, useCreateCustomField, useUpdateCustomField, useDeleteCustomField } from "@/hooks/api/use-custom-fields";
+import { useCustomFields, useCreateCustomField, useUpdateCustomField, useDeleteCustomField } from "@/hooks/api";
 import type { CustomField, CreateCustomFieldDto, UpdateCustomFieldDto } from "@ordo-todo/api-client";
 import { CustomFieldForm } from "./CustomFieldForm";
 import { toast } from "sonner";

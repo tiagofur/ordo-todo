@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useObjective } from "@/hooks/api/use-objectives";
+import { useObjective } from "@/hooks/api";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Target, Calendar, TrendingUp } from "lucide-react";
 import { Button, Progress, Card, CardHeader, CardTitle, CardContent, cn } from "@ordo-todo/ui";

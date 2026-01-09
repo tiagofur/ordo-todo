@@ -9,7 +9,7 @@ import {
   Button,
 } from "@ordo-todo/ui";
 import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
-import { useGenerateWeeklyReport } from "@/hooks/api/use-ai";
+import { useGenerateWeeklyReport } from "@/hooks/api";
 import { useTranslation } from "react-i18next";
 
 interface GenerateReportDialogProps {

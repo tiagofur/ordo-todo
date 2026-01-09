@@ -4,11 +4,13 @@ import { cn } from "@/lib/utils";
 interface ProductivityStreakWidgetProps {
   currentStreak: number;
   longestStreak: number;
+  accentColor?: string;
 }
 
 export function ProductivityStreakWidget({
   currentStreak,
   longestStreak,
+  accentColor = "#f97316", // Default orange
 }: ProductivityStreakWidgetProps) {
   const isOnStreak = currentStreak > 0;
   const isPersonalBest = currentStreak === longestStreak && currentStreak > 0;
@@ -21,7 +23,7 @@ export function ProductivityStreakWidget({
       )}
       style={{
         borderLeftWidth: "4px",
-        borderLeftColor: isOnStreak ? "#f97316" : "#6b7280",
+        borderLeftColor: isOnStreak ? accentColor : "#6b7280",
       }}
     >
       <div className="flex items-center gap-4">
@@ -31,8 +33,8 @@ export function ProductivityStreakWidget({
             "group-hover:scale-110 group-hover:rotate-3"
           )}
           style={{
-            backgroundColor: isOnStreak ? "#f9731615" : "#6b728015",
-            color: isOnStreak ? "#f97316" : "#6b7280",
+            backgroundColor: isOnStreak ? `${accentColor}15` : "#6b728015",
+            color: isOnStreak ? accentColor : "#6b7280",
           }}
         >
           <Flame className={cn("h-6 w-6", isOnStreak && "animate-pulse")} />

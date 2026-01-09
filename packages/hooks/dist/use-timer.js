@@ -1,40 +1,37 @@
-"use strict";
 /**
  * Shared useTimer Hook for Ordo-Todo
  *
  * A React hook for managing Pomodoro and continuous timer functionality.
  * Can be used across web, mobile, and desktop applications.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useTimer = useTimer;
-const react_1 = require("react");
+import { useState, useEffect, useRef, useCallback } from 'react';
 /**
  * Format time for timer display (MM:SS)
  * Note: Inlined from @ordo-todo/core to avoid importing Node.js dependencies
  */
-function formatTimerDisplay(seconds) {
+export function formatTimerDisplay(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
-function useTimer({ type, config, onSessionComplete, }) {
-    const [isRunning, setIsRunning] = (0, react_1.useState)(false);
-    const [isPaused, setIsPaused] = (0, react_1.useState)(false);
-    const [timeLeft, setTimeLeft] = (0, react_1.useState)(config.workDuration * 60); // seconds
-    const [mode, setMode] = (0, react_1.useState)('WORK');
-    const [completedPomodoros, setCompletedPomodoros] = (0, react_1.useState)(0);
-    const [pauseCount, setPauseCount] = (0, react_1.useState)(0);
-    const [totalPauseTime, setTotalPauseTime] = (0, react_1.useState)(0);
+export function useTimer({ type, config, onSessionComplete, }) {
+    const [isRunning, setIsRunning] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(config.workDuration * 60); // seconds
+    const [mode, setMode] = useState('WORK');
+    const [completedPomodoros, setCompletedPomodoros] = useState(0);
+    const [pauseCount, setPauseCount] = useState(0);
+    const [totalPauseTime, setTotalPauseTime] = useState(0);
     // Use refs to avoid stale closure issues
-    const completedPomodorosRef = (0, react_1.useRef)(0);
-    const isTransitioningRef = (0, react_1.useRef)(false);
-    const sessionStartRef = (0, react_1.useRef)(null);
-    const pauseStartRef = (0, react_1.useRef)(null);
-    const intervalRef = (0, react_1.useRef)(null);
-    const timeoutRef = (0, react_1.useRef)(null);
-    const isMountedRef = (0, react_1.useRef)(true);
+    const completedPomodorosRef = useRef(0);
+    const isTransitioningRef = useRef(false);
+    const sessionStartRef = useRef(null);
+    const pauseStartRef = useRef(null);
+    const intervalRef = useRef(null);
+    const timeoutRef = useRef(null);
+    const isMountedRef = useRef(true);
     // Cleanup on unmount
-    (0, react_1.useEffect)(() => {
+    useEffect(() => {
         isMountedRef.current = true;
         return () => {
             isMountedRef.current = false;
@@ -49,10 +46,10 @@ function useTimer({ type, config, onSessionComplete, }) {
         };
     }, []);
     // Keep ref in sync with state
-    (0, react_1.useEffect)(() => {
+    useEffect(() => {
         completedPomodorosRef.current = completedPomodoros;
     }, [completedPomodoros]);
-    const getDuration = (0, react_1.useCallback)((mode) => {
+    const getDuration = useCallback((mode) => {
         switch (mode) {
             case 'WORK':
                 return config.workDuration * 60;
@@ -62,7 +59,7 @@ function useTimer({ type, config, onSessionComplete, }) {
                 return config.longBreakDuration * 60;
         }
     }, [config]);
-    const start = (0, react_1.useCallback)(() => {
+    const start = useCallback(() => {
         if (!sessionStartRef.current) {
             sessionStartRef.current = new Date();
         }
@@ -75,13 +72,13 @@ function useTimer({ type, config, onSessionComplete, }) {
         setIsRunning(true);
         setIsPaused(false);
     }, [isPaused]);
-    const pause = (0, react_1.useCallback)(() => {
+    const pause = useCallback(() => {
         setIsPaused(true);
         setIsRunning(false);
         setPauseCount((prev) => prev + 1);
         pauseStartRef.current = new Date();
     }, []);
-    const stop = (0, react_1.useCallback)((wasCompleted = false) => {
+    const stop = useCallback((wasCompleted = false) => {
         if (sessionStartRef.current && onSessionComplete) {
             const sessionData = {
                 startedAt: sessionStartRef.current,
@@ -102,11 +99,11 @@ function useTimer({ type, config, onSessionComplete, }) {
         setPauseCount(0);
         setTotalPauseTime(0);
     }, [mode, onSessionComplete, pauseCount, totalPauseTime]);
-    const reset = (0, react_1.useCallback)(() => {
+    const reset = useCallback(() => {
         stop(false);
         setTimeLeft(getDuration(mode));
     }, [mode, getDuration, stop]);
-    const skipToNext = (0, react_1.useCallback)(() => {
+    const skipToNext = useCallback(() => {
         // Prevent multiple simultaneous transitions
         if (isTransitioningRef.current) {
             return;
@@ -146,7 +143,7 @@ function useTimer({ type, config, onSessionComplete, }) {
         isTransitioningRef.current = false;
     }, [type, mode, config.pomodorosUntilLongBreak, getDuration, stop]);
     // Timer countdown effect
-    (0, react_1.useEffect)(() => {
+    useEffect(() => {
         if (isRunning && !isPaused && !isTransitioningRef.current) {
             intervalRef.current = setInterval(() => {
                 setTimeLeft((prev) => {
@@ -198,7 +195,7 @@ function useTimer({ type, config, onSessionComplete, }) {
         const total = getDuration(mode);
         return ((total - timeLeft) / total) * 100;
     };
-    const split = (0, react_1.useCallback)(() => {
+    const split = useCallback(() => {
         if (sessionStartRef.current && onSessionComplete) {
             // Log the completed portion
             const sessionData = {

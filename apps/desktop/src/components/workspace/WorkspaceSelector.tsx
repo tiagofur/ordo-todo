@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Building2, ChevronDown, Plus, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useWorkspaceStore } from "../../stores/workspace-store";
-import { useWorkspaces } from "@/hooks/api/use-workspaces";
+import { useWorkspaces } from "@/hooks/api";
 import {
   DropdownMenu,
   DropdownMenuContent,

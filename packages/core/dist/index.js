@@ -11184,6 +11184,7 @@ var PersonName = class _PersonName {
 
 // src/shared/id.vo.ts
 var import_uuid = require("uuid");
+var import_uuid2 = require("uuid");
 var Id = class _Id {
   _value;
   constructor(value) {
@@ -11195,7 +11196,7 @@ var Id = class _Id {
     return new _Id(value);
   }
   static validate(id) {
-    if (!(0, import_uuid.validate)(id)) {
+    if (!(0, import_uuid2.validate)(id)) {
       throw new Error("O id fornecido n\xE3o \xE9 um UUID v\xE1lido.");
     }
   }
@@ -26905,7 +26906,7 @@ var WorkspaceInvitation = class _WorkspaceInvitation extends Entity {
 };
 
 // src/workspaces/usecase/invite-member.usecase.ts
-var import_uuid2 = require("uuid");
+var import_uuid3 = require("uuid");
 var InviteMemberUseCase = class {
   constructor(workspaceRepository, invitationRepository, hashService) {
     this.workspaceRepository = workspaceRepository;
@@ -26917,7 +26918,7 @@ var InviteMemberUseCase = class {
     if (!workspace) {
       throw new Error("Workspace not found");
     }
-    const token = (0, import_uuid2.v4)();
+    const token = (0, import_uuid3.v4)();
     const tokenHash = await this.hashService.hash(token);
     const expiresAt = /* @__PURE__ */ new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);

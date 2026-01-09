@@ -28,7 +28,7 @@ import {
 } from "@ordo-todo/ui";
 
 import { inviteMemberSchema } from "@ordo-todo/core";
-import { useInviteMember } from "@/hooks/api/use-workspaces";
+import { useInviteMember } from "@/hooks/api";
 
 // Use the core schema directly
 const formSchema = inviteMemberSchema;

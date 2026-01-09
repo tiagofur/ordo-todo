@@ -1,13 +1,10 @@
-"use strict";
 /**
  * Centralized Query Keys for React Query
  *
  * All query keys are defined here to ensure consistency across the application
  * and to make cache invalidation easier to manage.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryKeys = void 0;
-exports.queryKeys = {
+export const queryKeys = {
     // ============ Auth & User ============
     currentUser: ['user', 'current'],
     userProfile: ['user', 'profile'],

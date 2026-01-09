@@ -16,9 +16,9 @@ import {
   Badge,
 } from "@ordo-todo/ui";
 import { Settings, Save, X } from "lucide-react";
-import { useCustomFields, useTaskCustomValues, useSetTaskCustomValues } from "@/hooks/api/use-custom-fields";
+import { useCustomFields, useTaskCustomValues, useSetTaskCustomValues } from "@/hooks/api";
 import type { CustomField, CustomFieldValue, CustomFieldType } from "@ordo-todo/api-client";
-import { useCustomFieldForm } from "@/hooks/api/use-custom-fields";
+import { useCustomFieldForm } from "@/hooks/api";
 import { toast } from "sonner";
 
 interface TaskCustomFieldsProps {

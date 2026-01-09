@@ -171,16 +171,46 @@ apps/desktop/src/
 2. Actualizar todos los imports a `@ordo-todo/ui`
 3. Verificar exports en paquete compartido
 
-### Fase 2: Estandarizar Hooks API (Semana 2-3)
+### Phase 2: Standardize API Hooks (Critical) - **Completed ✅**
+> **Goal:** Consolidate data access logic by reusing `@ordo-todo/hooks` and centrally managing desktop-specific hooks.
 
-1. Expandir `shared-hooks.ts` con hooks faltantes
-2. Eliminar hooks duplicados en `hooks/api/`
+- [x] **Audit:** Identify all hooks in `src/hooks/api/`.
+- [x] **Expand `shared-hooks.ts`:** Ensure all hooks from `@ordo-todo/hooks` are exported.
+- [x] **Refactor `hooks/api/index.ts`:**
+  - Re-export everything from `shared-hooks.ts`.
+  - Export desktop-specific hooks (e.g., existing `use-tasks.ts` extras).
+- [x] **Refactor/Delete Duplicates:**
+  - Delete local files that are identical to shared ones (e.g., `use-projects.ts`, `use-tags.ts`, `use-auth.ts`).
+  - Keep files with desktop-specific logic (e.g., `use-tasks.ts` if it has Electron IPC calls).
+- [x] **Update Imports:**
+  - Change imports from `import { ... } from "@/hooks/api/use-projects"` to `import { ... } from "@/hooks/api"`.
+- [x] **Verification:** Ensure `check-types` passes.
+
+#### Changes Made:
+- Standardized `hooks/api/index.ts` to be the single source of truth.
+- Deleted redundant files: `use-auth.ts`, `use-projects.ts`, `use-tags.ts`, `use-workspaces.ts`, `use-workflows.ts`, `use-habits.ts`, `use-timers.ts`, `use-comments.ts`, `use-attachments.ts`, `use-analytics.ts`, `use-objectives.ts`, `use-user.ts`, `use-ai.ts`.
+- Retained `use-custom-fields.ts` (for desktop-specific form logic), `use-tasks.ts` (legacy support), `use-templates.ts` (not yet shared).
+- Fixed `DesktopApiClient` method conflict and implemented `useDesktopWorkspaceBySlug`.
+- Updated all imports across the app to use centralized `@/hooks/api`.
 
 ### Fase 3: Alinear Páginas con Web (Semana 3-5)
+> **Goal:** Align visual design and functionality with Web App, adding missing features.
 
-1. Refactorizar Dashboard
-2. Añadir página Notes/Post-it
-3. Resolver TODOs
+1. [x] **Refactor Dashboard:** (`apps/desktop/src/pages/Dashboard.tsx`)
+    - Aligned with Web Grid layout using `framer-motion`.
+    - Implemented `AIInsightsWidget` and `HabitsWidget`.
+    - Integrated standardized hooks.
+    - Updated `ProductivityStreakWidget` with local logic.
+2. [x] **Implement Notes Page:** (`apps/desktop/src/pages/Notes.tsx`)
+    - Created `NoteBoard` with `@dnd-kit` for drag-and-drop.
+    - Added routing in `routes.tsx`.
+    - Applied `.bg-dot-pattern`.
+3. [ ] **Resolve remaining TODOs**
+    - `Analytics.tsx` hardcoded data.
+    - `session-history.tsx` hook replacement.
+    - `TimerWidget.tsx` actual functionality.
+    - `project-card.tsx` statistics hook.
+    - `task-detail-panel.tsx` activity fetching.
 
 ### Fase 4: Mejorar Features Desktop (Semana 6-8)
 

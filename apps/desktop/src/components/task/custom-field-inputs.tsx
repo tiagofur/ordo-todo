@@ -22,7 +22,7 @@ import {
   useCustomFields,
   useTaskCustomValues,
   useCustomFieldForm,
-} from '@/hooks/api/use-custom-fields';
+} from '@/hooks/api';
 import type { CustomField, CustomFieldValue } from '@ordo-todo/api-client';
 
 interface CustomFieldInputsProps {

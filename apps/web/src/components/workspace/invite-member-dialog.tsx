@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { useInviteMember } from "@/lib/api-hooks";
 
-import { inviteMemberSchema } from "@ordo-todo/core";
+import { inviteMemberSchema } from "@ordo-todo/hooks";
 
 import type { MemberRole } from "@ordo-todo/api-client";
 
