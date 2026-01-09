@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ShareTaskDialog } from "./ShareTaskDialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@ordo-todo/ui";
 import { Share2 } from "lucide-react";
 
 interface ShareTaskButtonProps {

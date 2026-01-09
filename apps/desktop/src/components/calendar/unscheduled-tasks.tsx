@@ -5,8 +5,7 @@ import { useAvailableTasks } from "@/hooks/api/use-tasks";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { GripVertical, AlertCircle, CalendarClock } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent, Badge } from "@ordo-todo/ui";
 import { DragStore } from "@/lib/drag-store";
 import { Task } from "@ordo-todo/api-client";
 

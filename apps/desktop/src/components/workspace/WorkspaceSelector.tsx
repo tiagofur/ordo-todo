@@ -10,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@ordo-todo/ui";
 import { WorkspaceSettingsDialog } from "./WorkspaceSettingsDialog";
 
 interface WorkspaceSelectorProps {

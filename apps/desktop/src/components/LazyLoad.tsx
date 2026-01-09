@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@ordo-todo/ui";
 
 // Create a loading component
 const LoadingSpinner = () => (

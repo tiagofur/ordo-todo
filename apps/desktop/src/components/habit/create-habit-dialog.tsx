@@ -14,11 +14,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+  Label,
+  Input,
+  Textarea,
+  Button,
+} from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 
 interface CreateHabitDialogProps {

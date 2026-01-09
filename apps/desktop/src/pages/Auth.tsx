@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/providers/auth-provider";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Separator } from "../components/ui/separator";
+import { Button, Input, Label, Separator } from "@ordo-todo/ui";
 import { CheckSquare, Chrome, Github } from "lucide-react";
 
 export function Auth() {

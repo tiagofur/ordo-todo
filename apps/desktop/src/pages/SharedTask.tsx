@@ -1,9 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useSharedTask } from "@/hooks/api/use-tasks";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Skeleton,
+} from "@ordo-todo/ui";
 import { ArrowLeft, Calendar, User, Tag, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";

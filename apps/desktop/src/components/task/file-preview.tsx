@@ -15,9 +15,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  Button,
+  Badge,
+} from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 

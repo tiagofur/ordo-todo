@@ -14,7 +14,7 @@ import { CreateProjectDialog } from "@/components/project/create-project-dialog"
 import { CreateWorkspaceDialog } from "@/components/workspace/CreateWorkspaceDialog";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { AIAssistantSidebar } from "@/components/ai/ai-assistant-sidebar";
-import { SkipLinks } from "@/components/ui/SkipLinks";
+import { SkipLinks } from "./SkipLinks";
 import { skipLinkTargets } from "@/utils/accessibility";
 import { Button } from "@ordo-todo/ui";
 import { Sparkles } from "lucide-react";
@@ -147,3 +147,4 @@ export function AppLayout() {
     </>
   );
 }
+

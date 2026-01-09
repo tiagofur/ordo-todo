@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@ordo-todo/ui';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { parseTaskInput } from '@/utils/smart-capture';
 import { cn } from '@/lib/utils';

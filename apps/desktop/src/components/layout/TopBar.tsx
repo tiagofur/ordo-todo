@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@ordo-todo/ui";
 
 export function TopBar() {
   const { t } = (useTranslation as any)();
