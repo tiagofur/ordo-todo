@@ -192,6 +192,7 @@ export interface TimeBlock {
 export interface GetTasksParams {
   projectId?: string;
   tags?: string[];
+  assignedToMe?: boolean;
 }
 
 /**

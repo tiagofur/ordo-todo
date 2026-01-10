@@ -142,6 +142,30 @@
     "noWorkspacesDescription": "Crie seu primeiro espaço de trabalho para começar a organizar seus projetos e tarefas",
     "createWorkspace": "Criar Espaço de Trabalho"
   },
+  "WorkspaceCard": {
+    "types": {
+      "PERSONAL": "Pessoal",
+      "WORK": "Trabalho",
+      "TEAM": "Equipe"
+    },
+    "status": {
+      "active": "Ativo"
+    },
+    "stats": {
+      "projects": "{count} projetos",
+      "tasks": "{count} tarefas"
+    },
+    "actions": {
+      "settings": "Configurações",
+      "delete": "Excluir",
+      "moreOptions": "Mais opções"
+    },
+    "confirmDelete": "Tem certeza que deseja excluir o espaço de trabalho \"{name}\"?",
+    "toast": {
+      "deleted": "Espaço de trabalho excluído",
+      "deleteError": "Erro ao excluir espaço de trabalho"
+    }
+  },
   "Trash": {
     "title": "Lixeira",
     "subtitle": "Restaure ou exclua permanentemente seus espaços de trabalho",
@@ -205,7 +229,8 @@
     "tasks": "tarefas",
     "noTags": "Sem tags",
     "noTagsDescription": "Crie sua primeira tag para começar a organizar suas tarefas.",
-    "createTag": "Criar Tag"
+    "createTag": "Criar Tag",
+    "tagCreated": "Tag criada"
   },
   "Habits": {
     "title": "Hábitos",
@@ -659,6 +684,7 @@
     "progress": "Progresso",
     "archived": "Arquivado",
     "actions": {
+      "moreOptions": "Mais opções",
       "archive": "Arquivar",
       "unarchive": "Desarquivar",
       "delete": "Excluir"
@@ -790,7 +816,8 @@
       "list": "Lista",
       "board": "Quadro",
       "timeline": "Linha do Tempo",
-      "files": "Arquivos"
+      "files": "Arquivos",
+      "settings": "Configurações"
     },
     "overview": {
       "progress": "Progresso",
@@ -818,39 +845,20 @@
     "confirmComplete": "Marcar este projeto como concluído?",
     "confirmUncomplete": "Marcar este projeto como incompleto?",
     "confirmDelete": "Excluir este projeto? Esta ação não pode ser desfeita.",
+    "confirmDeleteTask": "Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.",
     "toast": {
       "archived": "Projeto arquivado",
       "archiveError": "Erro ao arquivar projeto",
       "completed": "Projeto concluído",
       "uncompleted": "Projeto marcado como incompleto",
       "completeError": "Erro ao concluir projeto",
-      "deleted": "Projeto excluído"
+      "deleted": "Projeto excluído",
+      "taskDeleted": "Tarefa excluída com sucesso",
+      "taskDeleteError": "Erro ao excluir tarefa"
     },
     "backToWorkspace": "Voltar ao workspace"
   },
-  "WorkspaceCard": {
-    "types": {
-      "PERSONAL": "Pessoal",
-      "WORK": "Trabalho",
-      "TEAM": "Equipe"
-    },
-    "status": {
-      "active": "Ativo"
-    },
-    "stats": {
-      "projects": "{count} projetos",
-      "tasks": "{count} tarefas"
-    },
-    "actions": {
-      "settings": "Configurações",
-      "delete": "Excluir"
-    },
-    "toast": {
-      "deleted": "Espaço de trabalho excluído",
-      "deleteError": "Erro ao excluir espaço de trabalho"
-    },
-    "confirmDelete": "Tem certeza que deseja excluir o espaço de trabalho \"{name}\"?"
-  },
+
   "WorkspaceInfoBar": {
     "types": {
       "PERSONAL": "Pessoal",
@@ -2330,5 +2338,32 @@
       "pomodoros": "Pomodoros",
       "loading": "Carregando..."
     }
+  },
+  "UnifiedTrash": {
+    "title": "Lixeira",
+    "subtitle": "Restaure ou exclua permanentemente itens",
+    "refresh": "Atualizar",
+    "warningTitle": "Zona de Perigo",
+    "warningDescription": "Os itens na lixeira serão excluídos permanentemente após 30 dias. Se precisar manter algum, restaure agora.",
+    "tabs": {
+      "workspaces": "Espaços de Trabalho",
+      "projects": "Projetos",
+      "tasks": "Tarefas"
+    },
+    "filterByWorkspace": "Filtrar por Espaço de Trabalho",
+    "filterByProject": "Filtrar por Projeto",
+    "allWorkspaces": "Todos os Espaços",
+    "allProjects": "Todos os Projetos",
+    "viewingProjectsFor": "Vendo projetos de",
+    "viewingTasksFor": "Vendo tarefas de",
+    "selectWorkspaceFirst": "Selecione um espaço de trabalho primeiro",
+    "selectProjectFirst": "Selecione um projeto primeiro",
+    "noDeletedWorkspaces": "Nenhum espaço excluído",
+    "noDeletedProjects": "Nenhum projeto excluído",
+    "noDeletedTasks": "Nenhuma tarefa excluída",
+    "projects": "projetos",
+    "tasks": "tarefas",
+    "restore": "Restaurar",
+    "confirmDelete": "Tem certeza de que deseja excluir permanentemente este item? Esta ação NÃO pode ser desfeita."
   }
 }

@@ -152,6 +152,30 @@
     "noWorkspacesDescription": "Create your first workspace to start organizing your projects and tasks",
     "createWorkspace": "Create Workspace"
   },
+  "WorkspaceCard": {
+    "types": {
+      "PERSONAL": "Personal",
+      "WORK": "Work",
+      "TEAM": "Team"
+    },
+    "status": {
+      "active": "Active"
+    },
+    "stats": {
+      "projects": "{count} projects",
+      "tasks": "{count} tasks"
+    },
+    "actions": {
+      "settings": "Settings",
+      "delete": "Delete",
+      "moreOptions": "More options"
+    },
+    "confirmDelete": "Are you sure you want to delete the workspace \"{name}\"?",
+    "toast": {
+      "deleted": "Workspace deleted",
+      "deleteError": "Error deleting workspace"
+    }
+  },
   "Trash": {
     "title": "Trash",
     "subtitle": "Restore or permanently delete your workspaces",
@@ -215,7 +239,8 @@
     "tasks": "tasks",
     "noTags": "No tags",
     "noTagsDescription": "Create your first tag to start organizing your tasks.",
-    "createTag": "Create Tag"
+    "createTag": "Create Tag",
+    "tagCreated": "Tag created"
   },
   "Habits": {
     "title": "Habits",
@@ -669,6 +694,7 @@
     "progress": "Progress",
     "archived": "Archived",
     "actions": {
+      "moreOptions": "More options",
       "archive": "Archive",
       "unarchive": "Unarchive",
       "delete": "Delete"
@@ -800,7 +826,8 @@
       "list": "List",
       "board": "Board",
       "timeline": "Timeline",
-      "files": "Files"
+      "files": "Files",
+      "settings": "Settings"
     },
     "overview": {
       "progress": "Progress",
@@ -828,39 +855,20 @@
     "confirmComplete": "Mark this project as complete?",
     "confirmUncomplete": "Mark this project as incomplete?",
     "confirmDelete": "Delete this project? This action cannot be undone.",
+    "confirmDeleteTask": "Are you sure you want to delete this task? This action cannot be undone.",
     "toast": {
       "archived": "Project archived",
       "archiveError": "Error archiving project",
       "completed": "Project completed",
       "uncompleted": "Project marked as incomplete",
       "completeError": "Error completing project",
-      "deleted": "Project deleted"
+      "deleted": "Project deleted",
+      "taskDeleted": "Task deleted successfully",
+      "taskDeleteError": "Error deleting task"
     },
     "backToWorkspace": "Back to workspace"
   },
-  "WorkspaceCard": {
-    "types": {
-      "PERSONAL": "Personal",
-      "WORK": "Work",
-      "TEAM": "Team"
-    },
-    "status": {
-      "active": "Active"
-    },
-    "stats": {
-      "projects": "{count} projects",
-      "tasks": "{count} tasks"
-    },
-    "actions": {
-      "settings": "Settings",
-      "delete": "Delete"
-    },
-    "toast": {
-      "deleted": "Workspace deleted",
-      "deleteError": "Error deleting workspace"
-    },
-    "confirmDelete": "Are you sure you want to delete workspace \"{name}\"?"
-  },
+
   "WorkspaceInfoBar": {
     "types": {
       "PERSONAL": "Personal",
@@ -2340,5 +2348,32 @@
       "pomodoros": "Pomodoros",
       "loading": "Loading..."
     }
+  },
+  "UnifiedTrash": {
+    "title": "Trash",
+    "subtitle": "Restore or permanently delete items",
+    "refresh": "Refresh",
+    "warningTitle": "Danger Zone",
+    "warningDescription": "Items in trash will be permanently deleted after 30 days. If you need to keep any, restore them now.",
+    "tabs": {
+      "workspaces": "Workspaces",
+      "projects": "Projects",
+      "tasks": "Tasks"
+    },
+    "filterByWorkspace": "Filter by Workspace",
+    "filterByProject": "Filter by Project",
+    "allWorkspaces": "All Workspaces",
+    "allProjects": "All Projects",
+    "viewingProjectsFor": "Viewing projects for",
+    "viewingTasksFor": "Viewing tasks for",
+    "selectWorkspaceFirst": "Select a workspace first",
+    "selectProjectFirst": "Select a project first",
+    "noDeletedWorkspaces": "No deleted workspaces",
+    "noDeletedProjects": "No deleted projects",
+    "noDeletedTasks": "No deleted tasks",
+    "projects": "projects",
+    "tasks": "tasks",
+    "restore": "Restore",
+    "confirmDelete": "Are you sure you want to permanently delete this item? This action CANNOT be undone."
   }
 }

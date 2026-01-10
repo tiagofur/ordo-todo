@@ -178,6 +178,7 @@ export interface TimeBlock {
 export interface GetTasksParams {
     projectId?: string;
     tags?: string[];
+    assignedToMe?: boolean;
 }
 /**
  * Query parameters for GET /tasks/scheduled endpoint

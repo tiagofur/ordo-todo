@@ -401,7 +401,7 @@ export declare class OrdoApiClient {
      * Get all tasks (optionally filtered by project)
      * GET /tasks?projectId=xxx
      */
-    getTasks(projectId?: string, tags?: string[]): Promise<Task[]>;
+    getTasks(projectId?: string, tags?: string[], assignedToMe?: boolean): Promise<Task[]>;
     /**
      * Get tasks categorized for today view
      * GET /tasks/today

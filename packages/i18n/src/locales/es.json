@@ -152,6 +152,30 @@
     "noWorkspacesDescription": "Crea tu primer workspace para comenzar a organizar tus proyectos y tareas",
     "createWorkspace": "Crear Workspace"
   },
+  "WorkspaceCard": {
+    "types": {
+      "PERSONAL": "Personal",
+      "WORK": "Trabajo",
+      "TEAM": "Equipo"
+    },
+    "status": {
+      "active": "Activo"
+    },
+    "stats": {
+      "projects": "{count} proyectos",
+      "tasks": "{count} tareas"
+    },
+    "actions": {
+      "settings": "Configuración",
+      "delete": "Eliminar",
+      "moreOptions": "Más opciones"
+    },
+    "confirmDelete": "¿Estás seguro de que quieres eliminar el workspace \"{name}\"?",
+    "toast": {
+      "deleted": "Workspace eliminado",
+      "deleteError": "Error al eliminar workspace"
+    }
+  },
   "Trash": {
     "title": "Papelera",
     "subtitle": "Restaura o elimina permanentemente tus workspaces",
@@ -215,7 +239,8 @@
     "tasks": "tareas",
     "noTags": "No hay etiquetas",
     "noTagsDescription": "Crea tu primera etiqueta para empezar a organizar tus tareas.",
-    "createTag": "Crear Etiqueta"
+    "createTag": "Crear Etiqueta",
+    "tagCreated": "Etiqueta creada"
   },
   "Habits": {
     "title": "Hábitos",
@@ -669,6 +694,7 @@
     "progress": "Progreso",
     "archived": "Archivado",
     "actions": {
+      "moreOptions": "Más opciones",
       "archive": "Archivar",
       "unarchive": "Desarchivar",
       "delete": "Eliminar"
@@ -800,7 +826,8 @@
       "list": "Lista",
       "board": "Tablero",
       "timeline": "Línea de Tiempo",
-      "files": "Archivos"
+      "files": "Archivos",
+      "settings": "Configuración"
     },
     "overview": {
       "progress": "Progreso",
@@ -828,39 +855,20 @@
     "confirmComplete": "¿Marcar este proyecto como completado?",
     "confirmUncomplete": "¿Marcar este proyecto como incompleto?",
     "confirmDelete": "¿Eliminar este proyecto? Esta acción no se puede deshacer.",
+    "confirmDeleteTask": "¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.",
     "toast": {
       "archived": "Proyecto archivado",
       "archiveError": "Error al archivar proyecto",
       "completed": "Proyecto completado",
       "uncompleted": "Proyecto marcado como incompleto",
       "completeError": "Error al completar proyecto",
-      "deleted": "Proyecto eliminado"
+      "deleted": "Proyecto eliminado",
+      "taskDeleted": "Tarea eliminada exitosamente",
+      "taskDeleteError": "Error al eliminar la tarea"
     },
     "backToWorkspace": "Volver al workspace"
   },
-  "WorkspaceCard": {
-    "types": {
-      "PERSONAL": "Personal",
-      "WORK": "Trabajo",
-      "TEAM": "Equipo"
-    },
-    "status": {
-      "active": "Activo"
-    },
-    "stats": {
-      "projects": "{count} proyectos",
-      "tasks": "{count} tareas"
-    },
-    "actions": {
-      "settings": "Configuración",
-      "delete": "Eliminar"
-    },
-    "toast": {
-      "deleted": "Workspace eliminado",
-      "deleteError": "Error al eliminar workspace"
-    },
-    "confirmDelete": "¿Estás seguro de eliminar el workspace \"{name}\"?"
-  },
+
   "WorkspaceInfoBar": {
     "types": {
       "PERSONAL": "Personal",
@@ -2340,5 +2348,32 @@
       "pomodoros": "Pomodoros",
       "loading": "Cargando..."
     }
+  },
+  "UnifiedTrash": {
+    "title": "Papelera",
+    "subtitle": "Restaura o elimina permanentemente elementos",
+    "refresh": "Actualizar",
+    "warningTitle": "Zona de Peligro",
+    "warningDescription": "Los elementos en la papelera se eliminarán permanentemente después de 30 días. Si necesitas conservar alguno, restáuralo ahora.",
+    "tabs": {
+      "workspaces": "Espacios de Trabajo",
+      "projects": "Proyectos",
+      "tasks": "Tareas"
+    },
+    "filterByWorkspace": "Filtrar por Espacio de Trabajo",
+    "filterByProject": "Filtrar por Proyecto",
+    "allWorkspaces": "Todos los Espacios",
+    "allProjects": "Todos los Proyectos",
+    "viewingProjectsFor": "Viendo proyectos de",
+    "viewingTasksFor": "Viendo tareas de",
+    "selectWorkspaceFirst": "Selecciona un espacio de trabajo primero",
+    "selectProjectFirst": "Selecciona un proyecto primero",
+    "noDeletedWorkspaces": "No hay espacios eliminados",
+    "noDeletedProjects": "No hay proyectos eliminados",
+    "noDeletedTasks": "No hay tareas eliminadas",
+    "projects": "proyectos",
+    "tasks": "tareas",
+    "restore": "Restaurar",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente este elemento? Esta acción NO se puede deshacer."
   }
 }

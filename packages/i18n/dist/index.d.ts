@@ -176,6 +176,30 @@ export declare const locales: {
             noWorkspacesDescription: string;
             createWorkspace: string;
         };
+        WorkspaceCard: {
+            types: {
+                PERSONAL: string;
+                WORK: string;
+                TEAM: string;
+            };
+            status: {
+                active: string;
+            };
+            stats: {
+                projects: string;
+                tasks: string;
+            };
+            actions: {
+                settings: string;
+                delete: string;
+                moreOptions: string;
+            };
+            confirmDelete: string;
+            toast: {
+                deleted: string;
+                deleteError: string;
+            };
+        };
         Trash: {
             title: string;
             subtitle: string;
@@ -240,6 +264,7 @@ export declare const locales: {
             noTags: string;
             noTagsDescription: string;
             createTag: string;
+            tagCreated: string;
         };
         Habits: {
             title: string;
@@ -677,6 +702,7 @@ export declare const locales: {
             progress: string;
             archived: string;
             actions: {
+                moreOptions: string;
                 archive: string;
                 unarchive: string;
                 delete: string;
@@ -809,6 +835,7 @@ export declare const locales: {
                 board: string;
                 timeline: string;
                 files: string;
+                settings: string;
             };
             overview: {
                 progress: string;
@@ -836,6 +863,7 @@ export declare const locales: {
             confirmComplete: string;
             confirmUncomplete: string;
             confirmDelete: string;
+            confirmDeleteTask: string;
             toast: {
                 archived: string;
                 archiveError: string;
@@ -843,31 +871,10 @@ export declare const locales: {
                 uncompleted: string;
                 completeError: string;
                 deleted: string;
+                taskDeleted: string;
+                taskDeleteError: string;
             };
             backToWorkspace: string;
-        };
-        WorkspaceCard: {
-            types: {
-                PERSONAL: string;
-                WORK: string;
-                TEAM: string;
-            };
-            status: {
-                active: string;
-            };
-            stats: {
-                projects: string;
-                tasks: string;
-            };
-            actions: {
-                settings: string;
-                delete: string;
-            };
-            toast: {
-                deleted: string;
-                deleteError: string;
-            };
-            confirmDelete: string;
         };
         WorkspaceInfoBar: {
             types: {
@@ -2348,6 +2355,33 @@ export declare const locales: {
                 pomodoros: string;
                 loading: string;
             };
+        };
+        UnifiedTrash: {
+            title: string;
+            subtitle: string;
+            refresh: string;
+            warningTitle: string;
+            warningDescription: string;
+            tabs: {
+                workspaces: string;
+                projects: string;
+                tasks: string;
+            };
+            filterByWorkspace: string;
+            filterByProject: string;
+            allWorkspaces: string;
+            allProjects: string;
+            viewingProjectsFor: string;
+            viewingTasksFor: string;
+            selectWorkspaceFirst: string;
+            selectProjectFirst: string;
+            noDeletedWorkspaces: string;
+            noDeletedProjects: string;
+            noDeletedTasks: string;
+            projects: string;
+            tasks: string;
+            restore: string;
+            confirmDelete: string;
         };
     };
     readonly es: {
@@ -2502,6 +2536,30 @@ export declare const locales: {
             noWorkspacesDescription: string;
             createWorkspace: string;
         };
+        WorkspaceCard: {
+            types: {
+                PERSONAL: string;
+                WORK: string;
+                TEAM: string;
+            };
+            status: {
+                active: string;
+            };
+            stats: {
+                projects: string;
+                tasks: string;
+            };
+            actions: {
+                settings: string;
+                delete: string;
+                moreOptions: string;
+            };
+            confirmDelete: string;
+            toast: {
+                deleted: string;
+                deleteError: string;
+            };
+        };
         Trash: {
             title: string;
             subtitle: string;
@@ -2566,6 +2624,7 @@ export declare const locales: {
             noTags: string;
             noTagsDescription: string;
             createTag: string;
+            tagCreated: string;
         };
         Habits: {
             title: string;
@@ -3003,6 +3062,7 @@ export declare const locales: {
             progress: string;
             archived: string;
             actions: {
+                moreOptions: string;
                 archive: string;
                 unarchive: string;
                 delete: string;
@@ -3135,6 +3195,7 @@ export declare const locales: {
                 board: string;
                 timeline: string;
                 files: string;
+                settings: string;
             };
             overview: {
                 progress: string;
@@ -3162,6 +3223,7 @@ export declare const locales: {
             confirmComplete: string;
             confirmUncomplete: string;
             confirmDelete: string;
+            confirmDeleteTask: string;
             toast: {
                 archived: string;
                 archiveError: string;
@@ -3169,31 +3231,10 @@ export declare const locales: {
                 uncompleted: string;
                 completeError: string;
                 deleted: string;
+                taskDeleted: string;
+                taskDeleteError: string;
             };
             backToWorkspace: string;
-        };
-        WorkspaceCard: {
-            types: {
-                PERSONAL: string;
-                WORK: string;
-                TEAM: string;
-            };
-            status: {
-                active: string;
-            };
-            stats: {
-                projects: string;
-                tasks: string;
-            };
-            actions: {
-                settings: string;
-                delete: string;
-            };
-            toast: {
-                deleted: string;
-                deleteError: string;
-            };
-            confirmDelete: string;
         };
         WorkspaceInfoBar: {
             types: {
@@ -4674,6 +4715,33 @@ export declare const locales: {
                 pomodoros: string;
                 loading: string;
             };
+        };
+        UnifiedTrash: {
+            title: string;
+            subtitle: string;
+            refresh: string;
+            warningTitle: string;
+            warningDescription: string;
+            tabs: {
+                workspaces: string;
+                projects: string;
+                tasks: string;
+            };
+            filterByWorkspace: string;
+            filterByProject: string;
+            allWorkspaces: string;
+            allProjects: string;
+            viewingProjectsFor: string;
+            viewingTasksFor: string;
+            selectWorkspaceFirst: string;
+            selectProjectFirst: string;
+            noDeletedWorkspaces: string;
+            noDeletedProjects: string;
+            noDeletedTasks: string;
+            projects: string;
+            tasks: string;
+            restore: string;
+            confirmDelete: string;
         };
     };
     readonly 'pt-br': {
@@ -4820,6 +4888,30 @@ export declare const locales: {
             noWorkspacesDescription: string;
             createWorkspace: string;
         };
+        WorkspaceCard: {
+            types: {
+                PERSONAL: string;
+                WORK: string;
+                TEAM: string;
+            };
+            status: {
+                active: string;
+            };
+            stats: {
+                projects: string;
+                tasks: string;
+            };
+            actions: {
+                settings: string;
+                delete: string;
+                moreOptions: string;
+            };
+            confirmDelete: string;
+            toast: {
+                deleted: string;
+                deleteError: string;
+            };
+        };
         Trash: {
             title: string;
             subtitle: string;
@@ -4884,6 +4976,7 @@ export declare const locales: {
             noTags: string;
             noTagsDescription: string;
             createTag: string;
+            tagCreated: string;
         };
         Habits: {
             title: string;
@@ -5321,6 +5414,7 @@ export declare const locales: {
             progress: string;
             archived: string;
             actions: {
+                moreOptions: string;
                 archive: string;
                 unarchive: string;
                 delete: string;
@@ -5453,6 +5547,7 @@ export declare const locales: {
                 board: string;
                 timeline: string;
                 files: string;
+                settings: string;
             };
             overview: {
                 progress: string;
@@ -5480,6 +5575,7 @@ export declare const locales: {
             confirmComplete: string;
             confirmUncomplete: string;
             confirmDelete: string;
+            confirmDeleteTask: string;
             toast: {
                 archived: string;
                 archiveError: string;
@@ -5487,31 +5583,10 @@ export declare const locales: {
                 uncompleted: string;
                 completeError: string;
                 deleted: string;
+                taskDeleted: string;
+                taskDeleteError: string;
             };
             backToWorkspace: string;
-        };
-        WorkspaceCard: {
-            types: {
-                PERSONAL: string;
-                WORK: string;
-                TEAM: string;
-            };
-            status: {
-                active: string;
-            };
-            stats: {
-                projects: string;
-                tasks: string;
-            };
-            actions: {
-                settings: string;
-                delete: string;
-            };
-            toast: {
-                deleted: string;
-                deleteError: string;
-            };
-            confirmDelete: string;
         };
         WorkspaceInfoBar: {
             types: {
@@ -6992,6 +7067,33 @@ export declare const locales: {
                 pomodoros: string;
                 loading: string;
             };
+        };
+        UnifiedTrash: {
+            title: string;
+            subtitle: string;
+            refresh: string;
+            warningTitle: string;
+            warningDescription: string;
+            tabs: {
+                workspaces: string;
+                projects: string;
+                tasks: string;
+            };
+            filterByWorkspace: string;
+            filterByProject: string;
+            allWorkspaces: string;
+            allProjects: string;
+            viewingProjectsFor: string;
+            viewingTasksFor: string;
+            selectWorkspaceFirst: string;
+            selectProjectFirst: string;
+            noDeletedWorkspaces: string;
+            noDeletedProjects: string;
+            noDeletedTasks: string;
+            projects: string;
+            tasks: string;
+            restore: string;
+            confirmDelete: string;
         };
     };
 };

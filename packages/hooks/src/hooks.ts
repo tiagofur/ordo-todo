@@ -606,10 +606,8 @@ export function createHooks(config: CreateHooksConfig) {
 
   function useTasks(projectId?: string, tags?: string[], options?: { assignedToMe?: boolean }) {
     return useQuery({
-      queryKey: projectId
-        ? ['tasks', projectId, { tags, assignedToMe: options?.assignedToMe }]
-        : ['tasks', { tags, assignedToMe: options?.assignedToMe }],
-      queryFn: () => apiClient.getTasks(projectId, tags),
+      queryKey: queryKeys.tasks(projectId, tags, options?.assignedToMe),
+      queryFn: () => apiClient.getTasks(projectId, tags, options?.assignedToMe),
     });
   }
 
@@ -887,7 +885,6 @@ export function createHooks(config: CreateHooksConfig) {
     return useQuery({
       queryKey: queryKeys.activeTimer,
       queryFn: () => apiClient.getActiveTimer(),
-      refetchInterval: 1000,
     });
   }
 

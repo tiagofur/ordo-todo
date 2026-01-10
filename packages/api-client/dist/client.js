@@ -631,12 +631,14 @@ class OrdoApiClient {
      * Get all tasks (optionally filtered by project)
      * GET /tasks?projectId=xxx
      */
-    async getTasks(projectId, tags) {
+    async getTasks(projectId, tags, assignedToMe) {
         const params = {};
         if (projectId)
             params.projectId = projectId;
         if (tags && tags.length > 0)
             params.tags = tags;
+        if (assignedToMe !== undefined)
+            params.assignedToMe = assignedToMe;
         const response = await this.axios.get("/tasks", {
             params,
         });
