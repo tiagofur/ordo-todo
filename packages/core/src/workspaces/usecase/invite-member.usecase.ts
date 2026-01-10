@@ -3,7 +3,7 @@ import { WorkspaceInvitationRepository } from "../provider/workspace-invitation.
 import { WorkspaceRepository } from "../provider/workspace.repository";
 import { MemberRole } from "../model/workspace-member.entity";
 import { HashService } from "../../shared/services/hash.service";
-import { v4 as uuidv4 } from "uuid";
+import { generateUuid } from "../../shared/uuid.util";
 
 export class InviteMemberUseCase {
     constructor(
@@ -22,7 +22,7 @@ export class InviteMemberUseCase {
         // In a real app, we'd check permissions here.
 
         // Generate a secure random token
-        const token = uuidv4();
+        const token = generateUuid();
 
         // Hash the token before storing it in the database
         // This ensures that even if the database is compromised, tokens cannot be used

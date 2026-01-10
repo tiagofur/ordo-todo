@@ -8,7 +8,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { generateUuid } from '../utils/uuid.util';
 
 /**
  * Request Logging Interceptor
@@ -35,8 +35,8 @@ export class LoggingInterceptor implements NestInterceptor {
     const response = context.switchToHttp().getResponse();
 
     // Generate or retrieve request ID
-    const requestId = request.headers['x-request-id'] || uuidv4();
-    const correlationId = request.headers['x-correlation-id'] || uuidv4();
+    const requestId = request.headers['x-request-id'] || generateUuid();
+    const correlationId = request.headers['x-correlation-id'] || generateUuid();
 
     // Add IDs to response headers (for client correlation)
     response.setHeader('x-request-id', requestId);

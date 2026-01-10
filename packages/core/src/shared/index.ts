@@ -8,6 +8,9 @@ export * from "./id.vo";
 export * from "./entity";
 export * from "./required-string.vo";
 
+// Utilities
+export * from "./uuid.util";
+
 // Services
 export * from "./services/hash.service";
 

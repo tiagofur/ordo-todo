@@ -26,7 +26,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { generateUuid } from '../common/utils/uuid.util';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
@@ -105,7 +105,7 @@ export class AttachmentsController {
         filename: (req, file, callback) => {
           // SECURITY: Generate safe filename using UUID instead of user-provided taskId
           // This prevents path traversal attacks like taskId = "../../evil-files"
-          const safeId = uuidv4();
+          const safeId = generateUuid();
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);

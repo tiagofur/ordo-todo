@@ -10917,6 +10917,7 @@ __export(index_exports, {
   generatePalette: () => generatePalette,
   generateRandomString: () => generateRandomString,
   generateSlug: () => generateSlug,
+  generateUuid: () => generateUuid,
   getColorWithOpacity: () => getColorWithOpacity,
   getContrastColor: () => getContrastColor,
   getCurrentTime: () => getCurrentTime,
@@ -10956,6 +10957,7 @@ __export(index_exports, {
   isToday: () => isToday,
   isValidEmail: () => isValidEmail,
   isValidUrl: () => isValidUrl,
+  isValidUuid: () => isValidUuid,
   isWorkingHours: () => isWorkingHours,
   lightenColor: () => lightenColor,
   loginUserSchema: () => loginUserSchema,
@@ -11182,21 +11184,35 @@ var PersonName = class _PersonName {
   }
 };
 
+// src/shared/uuid.util.ts
+function generateUuid() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : r & 3 | 8;
+    return v.toString(16);
+  });
+}
+function isValidUuid(uuid3) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid3);
+}
+
 // src/shared/id.vo.ts
-var import_uuid = require("uuid");
-var import_uuid2 = require("uuid");
 var Id = class _Id {
   _value;
   constructor(value) {
     this._value = value;
   }
   static create(id) {
-    const value = id?.trim().toLowerCase() ?? (0, import_uuid.v4)();
+    const value = id?.trim().toLowerCase() ?? generateUuid();
     this.validate(value);
     return new _Id(value);
   }
   static validate(id) {
-    if (!(0, import_uuid2.validate)(id)) {
+    if (!isValidUuid(id)) {
       throw new Error("O id fornecido n\xE3o \xE9 um UUID v\xE1lido.");
     }
   }
@@ -12392,7 +12408,7 @@ __export(external_exports, {
   url: () => url,
   util: () => util_exports,
   uuid: () => uuid2,
-  uuidv4: () => uuidv42,
+  uuidv4: () => uuidv4,
   uuidv6: () => uuidv6,
   uuidv7: () => uuidv7,
   void: () => _void2,
@@ -24183,7 +24199,7 @@ __export(schemas_exports2, {
   unknown: () => unknown,
   url: () => url,
   uuid: () => uuid2,
-  uuidv4: () => uuidv42,
+  uuidv4: () => uuidv4,
   uuidv6: () => uuidv6,
   uuidv7: () => uuidv7,
   void: () => _void2,
@@ -24487,7 +24503,7 @@ var ZodUUID = /* @__PURE__ */ $constructor("ZodUUID", (inst, def) => {
 function uuid2(params) {
   return _uuid(ZodUUID, params);
 }
-function uuidv42(params) {
+function uuidv4(params) {
   return _uuidv4(ZodUUID, params);
 }
 function uuidv6(params) {
@@ -26906,7 +26922,6 @@ var WorkspaceInvitation = class _WorkspaceInvitation extends Entity {
 };
 
 // src/workspaces/usecase/invite-member.usecase.ts
-var import_uuid3 = require("uuid");
 var InviteMemberUseCase = class {
   constructor(workspaceRepository, invitationRepository, hashService) {
     this.workspaceRepository = workspaceRepository;
@@ -26918,7 +26933,7 @@ var InviteMemberUseCase = class {
     if (!workspace) {
       throw new Error("Workspace not found");
     }
-    const token = (0, import_uuid3.v4)();
+    const token = generateUuid();
     const tokenHash = await this.hashService.hash(token);
     const expiresAt = /* @__PURE__ */ new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
@@ -34451,6 +34466,7 @@ var UserIntegration = class extends Entity {
   generatePalette,
   generateRandomString,
   generateSlug,
+  generateUuid,
   getColorWithOpacity,
   getContrastColor,
   getCurrentTime,
@@ -34490,6 +34506,7 @@ var UserIntegration = class extends Entity {
   isToday,
   isValidEmail,
   isValidUrl,
+  isValidUuid,
   isWorkingHours,
   lightenColor,
   loginUserSchema,

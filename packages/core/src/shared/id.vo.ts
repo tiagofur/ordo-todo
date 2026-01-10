@@ -1,6 +1,5 @@
 import { ValueObject } from "./value-object";
-import { v4 as uuidv4 } from "uuid";
-import { validate as isUuid } from "uuid";
+import { generateUuid, isValidUuid } from "./uuid.util";
 
 export class Id implements ValueObject<Id, string> {
   private readonly _value: string;
@@ -10,13 +9,13 @@ export class Id implements ValueObject<Id, string> {
   }
 
   public static create(id?: string): Id {
-    const value = id?.trim().toLowerCase() ?? uuidv4();
+    const value = id?.trim().toLowerCase() ?? generateUuid();
     this.validate(value);
     return new Id(value);
   }
 
   private static validate(id: string): void {
-    if (!isUuid(id)) {
+    if (!isValidUuid(id)) {
       throw new Error("O id fornecido não é um UUID válido.");
     }
   }

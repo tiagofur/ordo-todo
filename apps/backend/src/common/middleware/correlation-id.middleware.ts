@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { generateUuid } from '../utils/uuid.util';
 
 /**
  * Correlation ID Middleware
@@ -27,7 +27,7 @@ export function correlationIdMiddleware(
   const correlationId =
     (req.headers['x-correlation-id'] as string) ||
     (req.headers['x-request-id'] as string) ||
-    uuidv4();
+    generateUuid();
 
   // Add correlation ID to request (for use in services/controllers)
   (req as any).correlationId = correlationId;
@@ -39,7 +39,7 @@ export function correlationIdMiddleware(
   res.setHeader('x-correlation-id', correlationId);
 
   // Add request ID for request/response matching
-  const requestId = (req.headers['x-request-id'] as string) || uuidv4();
+  const requestId = (req.headers['x-request-id'] as string) || generateUuid();
   req.headers['x-request-id'] = requestId;
   res.setHeader('x-request-id', requestId);
 
