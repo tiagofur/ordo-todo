@@ -50,3 +50,20 @@ apps/backend/uploads/*
 
 *storybook.log
 storybook-static
+
+# Logs
+apps/backend/logs/
+*.log
+
+# Claude/AI local settings
+.claude/
+
+# Desktop Electron build
+apps/desktop/dist-electron/
+
+# Temporary scripts
+scripts/check-deleted-tasks.ts
+scripts/test-db.js
+
+# Windows reserved names
+nul
