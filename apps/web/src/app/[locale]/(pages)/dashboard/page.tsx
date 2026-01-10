@@ -198,8 +198,8 @@ export default function DashboardPage() {
         return aPriority - bPriority;
       }
       case "duration": {
-        const aDuration = a.estimatedTime ?? Infinity;
-        const bDuration = b.estimatedTime ?? Infinity;
+        const aDuration = a.estimatedMinutes ?? Infinity;
+        const bDuration = b.estimatedMinutes ?? Infinity;
         return aDuration - bDuration;
       }
       case "created": {

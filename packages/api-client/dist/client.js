@@ -709,10 +709,10 @@ class OrdoApiClient {
     }
     /**
      * Update a task
-     * PUT /tasks/:id
+     * PATCH /tasks/:id
      */
     async updateTask(taskId, data) {
-        const response = await this.axios.put(`/tasks/${taskId}`, data);
+        const response = await this.axios.patch(`/tasks/${taskId}`, data);
         return response.data;
     }
     /**

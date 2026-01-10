@@ -22,8 +22,8 @@ export interface Task {
   scheduledEndTime: string | null;
   isTimeBlocked: boolean;
   completedAt: Date | null;
-  estimatedTime: number | null;
-  actualTime: number | null;
+  estimatedMinutes: number | null;
+  actualMinutes: number | null;
   projectId: string;
   ownerId: string;
   assigneeId: string | null;
@@ -85,7 +85,7 @@ export interface CreateTaskDto {
   scheduledEndTime?: string;
   isTimeBlocked?: boolean;
   projectId: string;
-  estimatedTime?: number;
+  estimatedMinutes?: number;
   assigneeId?: string;
 }
 
@@ -100,7 +100,7 @@ export interface UpdateTaskDto {
   scheduledTime?: string | null;
   scheduledEndTime?: string | null;
   isTimeBlocked?: boolean;
-  estimatedTime?: number;
+  estimatedMinutes?: number;
   assigneeId?: string | null;
 }
 
@@ -109,7 +109,7 @@ export interface CreateSubtaskDto {
   description?: string;
   priority?: TaskPriority;
   dueDate?: Date | string;
-  estimatedTime?: number;
+  estimatedMinutes?: number;
 }
 
 /**
@@ -128,7 +128,7 @@ export interface PublicTaskResponse {
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: Date | null;
-  estimatedTime: number | null;
+  estimatedMinutes: number | null;
   project?: {
     id: string;
     name: string;
@@ -173,7 +173,7 @@ export interface TimeBlock {
   scheduledDate: Date | null;
   scheduledTime: string | null;
   scheduledEndTime: string | null;
-  estimatedTime: number | null;
+  estimatedMinutes: number | null;
   project: {
     id: string;
     name: string;

@@ -24,10 +24,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from '@/components/ui';
+import { 
+  useTaskDetails, 
+  useUpdateTask, 
+  useAssignTagToTask, 
+  useRemoveTagFromTask, 
+  useShareTask,
+  useTags
+} from '@/lib/api-hooks';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
+import { TaskDetailPanel } from './task-detail-panel';
 
 type ViewMode = 'list' | 'grid';
 
@@ -38,7 +47,7 @@ export interface TaskCompactData {
   status: string;
   priority: string;
   dueDate?: Date | string | null;
-  estimatedTime?: number | null;
+  estimatedMinutes?: number | null;
   tags?: Array<{ id: string; name: string; color: string }>;
   project?: { id: string; name: string; color: string };
 }
@@ -89,6 +98,46 @@ interface TaskCardCompactProps {
 }
 
 type Locale = Parameters<typeof format>[2] extends { locale?: infer L } ? L : never;
+
+// Helper component to connect detail panel with data
+function ConnectedTaskDetailPanel({ 
+  taskId, 
+  open, 
+  onOpenChange 
+}: { 
+  taskId: string; 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+}) {
+  const { data: task, isLoading } = useTaskDetails(taskId);
+  const updateTask = useUpdateTask();
+  const assignTag = useAssignTagToTask();
+  const removeTag = useRemoveTagFromTask();
+  const shareTask = useShareTask();
+  
+  // Safely access workspaceId
+  const workspaceId = task?.project?.workspaceId || "";
+  const { data: availableTags } = useTags(workspaceId);
+
+  const handleUpdate = async (id: string, data: any) => {
+    await updateTask.mutateAsync({ taskId: id, data });
+  };
+
+  return (
+    <TaskDetailPanel
+      taskId={taskId}
+      open={open}
+      onOpenChange={onOpenChange}
+      task={task}
+      isLoading={isLoading}
+      availableTags={availableTags || []}
+      onUpdate={handleUpdate}
+      onAssignTag={async (id, tagId) => { await assignTag.mutateAsync({ taskId: id, tagId }); }}
+      onRemoveTag={async (id, tagId) => { await removeTag.mutateAsync({ taskId: id, tagId }); }}
+      onShare={async (id) => { await shareTask.mutateAsync(id); }}
+    />
+  );
+}
 
 export function TaskCardCompact({
   task,
@@ -423,10 +472,10 @@ export function TaskCardCompact({
                   {formatDueDate(task.dueDate)}
                 </span>
               )}
-              {task.estimatedTime && !isCompleted && (
+              {task.estimatedMinutes && !isCompleted && (
                 <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <Clock className="h-4 w-4" />
-                  {task.estimatedTime}m
+                  {task.estimatedMinutes}m
                 </span>
               )}
               {/* Tags */}
@@ -480,6 +529,15 @@ export function TaskCardCompact({
           (onToggleDetail
             ? DetailPanel
             : showDetailInternal && DetailPanel)}
+
+        {/* Internal TaskDetailPanel when no custom DetailPanel is provided */}
+        {!DetailPanel && (
+          <ConnectedTaskDetailPanel
+            taskId={task.id ? String(task.id) : ''}
+            open={showDetailInternal}
+            onOpenChange={setShowDetailInternal}
+          />
+        )}
       </>
     );
   }
@@ -600,6 +658,15 @@ export function TaskCardCompact({
           (onToggleDetail
             ? DetailPanel
             : showDetailInternal && DetailPanel)}
+
+      {/* Internal TaskDetailPanel when no custom DetailPanel is provided */}
+      {!DetailPanel && (
+        <ConnectedTaskDetailPanel
+          taskId={task.id ? String(task.id) : ''}
+          open={showDetailInternal}
+          onOpenChange={setShowDetailInternal}
+        />
+      )}
     </>
   );
 }

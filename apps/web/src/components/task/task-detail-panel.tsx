@@ -207,7 +207,7 @@ export function TaskDetailPanel({
     status: 'TODO',
     priority: 'MEDIUM',
     dueDate: '',
-    estimatedTime: '',
+    estimatedMinutes: '',
   });
 
   // Comments & Mentions Logic
@@ -274,7 +274,7 @@ export function TaskDetailPanel({
         status: task.status || 'TODO',
         priority: task.priority || 'MEDIUM',
         dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] ?? '' : '',
-        estimatedTime: task.estimatedTime?.toString() || '',
+        estimatedMinutes: task.estimatedMinutes?.toString() || '',
       });
     }
   }, [task]);
@@ -293,7 +293,7 @@ export function TaskDetailPanel({
          status: formData.status as TaskStatus,
          priority: formData.priority as TaskPriority,
          dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
-         estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
+         estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
        });
        setIsEditing(false);
      } catch (err) {
@@ -669,11 +669,11 @@ export function TaskDetailPanel({
                                <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                <Input
                                   type="number"
-                                  value={formData.estimatedTime}
+                                  value={formData.estimatedMinutes}
                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                     handleFieldChange("estimatedTime", e.target.value);
+                                     handleFieldChange("estimatedMinutes", e.target.value);
                                      if (!isEditing && taskId && onUpdate && e.target.value) {
-                                       onUpdate(taskId, { estimatedTime: parseFloat(e.target.value) });
+                                       onUpdate(taskId, { estimatedMinutes: parseFloat(e.target.value) });
                                      }
                                   }}
                                   placeholder="0"

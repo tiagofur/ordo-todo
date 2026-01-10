@@ -122,7 +122,10 @@
     "noTasksWithTag": "Sem tarefas com esta tag",
     "allClear": "Tudo limpo",
     "noTasksWithTagDescription": "Nenhuma tarefa encontrada com a tag \"{tagName}\".",
-    "noPendingTasks": "Você não tem tarefas pendentes. Bom trabalho!"
+    "noPendingTasks": "Você não tem tarefas pendentes. Bom trabalho!",
+    "confirmDeleteTask": "Tem certeza de que deseja excluir esta tarefa?",
+    "taskDeleted": "Tarefa excluída com sucesso",
+    "taskDeleteError": "Erro ao excluir a tarefa"
   },
   "Projects": {
     "title": "Projetos",

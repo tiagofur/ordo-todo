@@ -87,8 +87,8 @@ export function UnscheduledTasks() {
                             <span className="truncate max-w-[80px]">{(task as any).project.name}</span>
                           </div>
                        )}
-                       {task.estimatedTime && (
-                         <span>• {task.estimatedTime}m</span>
+                       {task.estimatedMinutes && (
+                         <span>• {task.estimatedMinutes}m</span>
                        )}
                        {task.dueDate && (
                          <span className={new Date(task.dueDate) < new Date() ? "text-destructive" : ""}>

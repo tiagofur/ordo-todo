@@ -124,13 +124,13 @@ export default function PublicTaskPage() {
                 </div>
               )}
               
-              {task.estimatedTime && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Estimated Time</p>
-                    <p className="font-medium mt-0.5">{task.estimatedTime} minutes</p>
+              {task.estimatedMinutes && (
+                <div className="bg-muted/50 p-3 rounded-lg border">
+                  <div className="flex items-center text-muted-foreground mb-1">
+                    <Clock className="w-4 h-4 mr-2" />
+                    <span className="text-xs uppercase font-semibold">Estimated Time</span>
                   </div>
+                  <p className="font-medium mt-0.5">{task.estimatedMinutes} minutes</p>
                 </div>
               )}
 

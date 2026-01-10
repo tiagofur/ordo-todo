@@ -227,8 +227,8 @@ function convertToCSV(items: any[], type: string): string {
       { key: "startDate", label: "Fecha inicio" },
       { key: "scheduledDate", label: "Fecha programada" },
       { key: "completedAt", label: "Completada" },
-      { key: "estimatedTime", label: "Tiempo estimado (min)" },
-      { key: "actualTime", label: "Tiempo real (min)" },
+      { key: "estimatedMinutes", label: "Tiempo estimado (min)" },
+      { key: "actualMinutes", label: "Tiempo real (min)" },
       { key: "createdAt", label: "Creada" },
     ],
     projects: [

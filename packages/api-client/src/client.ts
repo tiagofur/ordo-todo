@@ -1124,10 +1124,10 @@ export class OrdoApiClient {
 
   /**
    * Update a task
-   * PUT /tasks/:id
+   * PATCH /tasks/:id
    */
   async updateTask(taskId: string, data: UpdateTaskDto): Promise<Task> {
-    const response = await this.axios.put<Task>(`/tasks/${taskId}`, data);
+    const response = await this.axios.patch<Task>(`/tasks/${taskId}`, data);
     return response.data;
   }
 

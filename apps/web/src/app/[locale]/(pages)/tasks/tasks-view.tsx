@@ -10,8 +10,9 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import { useTasks, useTags, useProjects } from "@/lib/api-hooks";
+import { useTasks, useTags, useProjects, useDeleteTask } from "@/lib/api-hooks";
 import { useCreateTask } from "@/lib/api-hooks";
+import { notify } from "@/lib/notify";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { QuickFilters, useQuickFilters, FilterPreset } from "@/components/tasks/quick-filters";
@@ -43,6 +44,20 @@ export function TasksView() {
   const { data: tags } = useTags(selectedWorkspaceId || "");
   const { data: projects } = useProjects(selectedWorkspaceId || "");
   const { mutateAsync: createTask } = useCreateTask();
+  const deleteTask = useDeleteTask();
+
+  const handleDeleteTask = (taskId: string) => {
+    if (confirm(t("confirmDeleteTask") || "Are you sure you want to delete this task?")) {
+      deleteTask.mutate(taskId, {
+        onSuccess: () => {
+          notify.success(t("taskDeleted") || "Task deleted successfully");
+        },
+        onError: () => {
+          notify.error(t("taskDeleteError") || "Failed to delete task");
+        },
+      });
+    }
+  };
 
   // Backward compatibility and multiple tags support
   const urlTagId = searchParams.get("tag");
@@ -230,6 +245,7 @@ export function TasksView() {
               viewMode={viewMode}
               showProject={true}
               showGradient={true}
+              onDelete={handleDeleteTask}
             />
           ))}
         </motion.div>

@@ -110,7 +110,7 @@ export function AnalyticsLogger({ isOpen = true, className }: AnalyticsLoggerPro
           id: '5',
           event: 'task_created',
           timestamp: now - 900000,
-          data: { title: 'Review PR #234', priority: 'high', estimatedTime: 45 },
+          data: { title: 'Review PR #234', priority: 'high', estimatedMinutes: 45 },
           category: 'business',
           severity: 'medium',
           source: 'task_manager',

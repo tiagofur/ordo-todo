@@ -124,7 +124,10 @@
     "noTasksWithTag": "No tasks with this tag",
     "allClear": "All clear",
     "noTasksWithTagDescription": "No tasks found with the tag \"{tagName}\".",
-    "noPendingTasks": "You have no pending tasks. Good job!"
+    "noPendingTasks": "You have no pending tasks. Good job!",
+    "confirmDeleteTask": "Are you sure you want to delete this task?",
+    "taskDeleted": "Task deleted successfully",
+    "taskDeleteError": "Failed to delete task"
   },
   "Notes": {
     "title": "Notes",

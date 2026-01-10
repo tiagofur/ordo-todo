@@ -431,7 +431,7 @@ export declare class OrdoApiClient {
     getTaskDetails(taskId: string): Promise<TaskDetails>;
     /**
      * Update a task
-     * PUT /tasks/:id
+     * PATCH /tasks/:id
      */
     updateTask(taskId: string, data: UpdateTaskDto): Promise<Task>;
     /**
