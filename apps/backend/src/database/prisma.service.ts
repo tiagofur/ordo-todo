@@ -21,16 +21,9 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
       // Connection timeout settings
       connectionTimeoutMillis: 10000, // 10 seconds to establish connection
-      idle_in_transaction_session_timeout: 60000, // 60 seconds for idle transactions
 
-      // Query settings
-      statement_timeout: 30000, // 30 seconds max query execution time
-
-      // Logging (disable in production for performance)
-      log:
-        process.env.NODE_ENV === 'development'
-          ? (['error', 'slow'] as any)
-          : (['error'] as any),
+      // Note: idle_in_transaction_session_timeout and statement_timeout
+      // should be set at the PostgreSQL server level or via SET commands
     });
 
     // Create Prisma adapter

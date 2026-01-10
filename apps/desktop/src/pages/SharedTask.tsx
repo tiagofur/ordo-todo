@@ -178,7 +178,7 @@ export function SharedTaskPage() {
               {task.tags && task.tags.length > 0 && (
                 <div className="flex items-center gap-2 text-sm">
                   <Tag className="h-4 w-4 text-muted-foreground" />
-                  <span>Tags: {task.tags.map(tag => tag.name).join(", ")}</span>
+                  <span>Tags: {task.tags.map((tag: any) => tag.name).join(", ")}</span>
                 </div>
               )}
 
@@ -194,10 +194,10 @@ export function SharedTaskPage() {
             {task.subtasks && task.subtasks.length > 0 && (
               <div>
                 <h3 className="font-semibold mb-3">
-                  Subtareas ({task.subtasks.filter(st => st.status === "COMPLETED").length}/{task.subtasks.length})
+                  Subtareas ({task.subtasks.filter((st: any) => st.status === "COMPLETED").length}/{task.subtasks.length})
                 </h3>
                 <div className="space-y-2">
-                  {task.subtasks.map((subtask) => (
+                  {task.subtasks.map((subtask: any) => (
                     <div
                       key={subtask.id}
                       className="flex items-center gap-3 p-2 rounded-lg border"

@@ -35,7 +35,7 @@ export function useLogin() { return getHooks().useLogin(); }
 export function useLogout() { return getHooks().useLogout(); }
 
 // User
-export function useCurrentUser() { return getHooks().useCurrentUser(); }
+export function useCurrentUser(options?: { enabled?: boolean }) { return getHooks().useCurrentUser(options); }
 export function useUpdateProfile() { return getHooks().useUpdateProfile(); }
 export function useFullProfile() { return getHooks().useFullProfile(); }
 export function useUserPreferences() { return getHooks().useUserPreferences(); }
@@ -45,7 +45,7 @@ export function useExportData() { return getHooks().useExportData(); }
 export function useDeleteAccount() { return getHooks().useDeleteAccount(); }
 
 // Workspace
-export function useWorkspaces() { return getHooks().useWorkspaces(); }
+export function useWorkspaces(options?: { enabled?: boolean }) { return getHooks().useWorkspaces(options); }
 export function useWorkspace(workspaceId: string) { return getHooks().useWorkspace(workspaceId); }
 // useWorkspaceBySlug is handled by getHooks().useWorkspaceBySlug, but we export a web-specific compatible version below.
 export function useWorkspaceBySlugShared(username: string, slug: string) { return getHooks().useWorkspaceBySlug(username, slug); }

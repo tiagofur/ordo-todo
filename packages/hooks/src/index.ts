@@ -77,10 +77,15 @@ export {
 } from './use-username-validation';
 
 // Validation schemas
+// Validation schemas
 export {
   taskBaseSchema,
   createTaskSchema,
   inviteMemberSchema,
+  PROJECT_COLORS,
+  PROJECT_LIMITS,
+  createProjectSchema,
+  projectBaseSchema,
   TASK_LIMITS,
   PRIORITY_VALUES,
   TASK_STATUS_VALUES,

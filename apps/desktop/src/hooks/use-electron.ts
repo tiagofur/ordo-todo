@@ -41,6 +41,12 @@ export function useElectron() {
       case 'navigate:settings':
         navigate('/settings')
         break
+      case 'navigate:tasks-today':
+        navigate('/tasks/today')
+        break
+      case 'navigate:focus':
+        navigate('/focus')
+        break
       default:
         console.log('Unknown tray action:', action)
     }
@@ -65,10 +71,28 @@ export function useElectron() {
       case 'task:create':
         uiStore.openCreateTaskDialog()
         break
+      case 'navigate:dashboard':
+        navigate('/')
+        break
+      case 'navigate:focus':
+        navigate('/focus')
+        break
+      case 'navigate:tasks-today':
+        navigate('/tasks/today')
+        break
+      case 'command:palette':
+        // Command palette not implemented yet, show toast
+        console.log('Command palette: Feature coming soon')
+        // uiStore.openCommandPalette() // TODO: Implement command palette
+        break
+      case 'timer-window:toggle':
+        // Toggle timer window via electronAPI
+        window.electronAPI?.timerWindow.toggle?.()
+        break
       default:
         console.log('Unknown shortcut action:', action)
     }
-  }, [timerStore, uiStore])
+  }, [navigate, timerStore, uiStore])
 
   // Handle menu actions
   const handleMenuAction = useCallback((action: string, ...args: unknown[]) => {

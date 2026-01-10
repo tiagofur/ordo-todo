@@ -46,7 +46,6 @@ export function Providers({ children }: ProvidersProps) {
                   {children}
                   <Toaster richColors position="top-right" />
                 </AIFeaturesTourProvider>
-                {/* DevTools only in development */}
                 {process.env.NODE_ENV === 'development' && <DevToolsPanel />}
               </DevToolsProvider>
             </TimerProvider>

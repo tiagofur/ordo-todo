@@ -134,14 +134,15 @@ const AIFeaturesTourContext = createContext<AIFeaturesTourContextType>({
 
 export const useAIFeaturesTour = () => useContext(AIFeaturesTourContext);
 
-export function AIFeaturesTourProvider({ children }: { children: ReactNode }) {
+function AIFeaturesTourInner({ children }: { children: ReactNode }) {
   const [isVisible, setIsVisible] = useState(false);
   const [hasSeenTour, setHasSeenTour] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
   
-  // Detect if user has shared workspaces (team user)
+  // Use hooks freely here as we are mounted on client
   const { data: workspaces = [] } = useWorkspaces();
+  
   const isTeamUser = useMemo(() => {
     return workspaces.some((ws: any) => ws.members && ws.members.length > 1);
   }, [workspaces]);
@@ -163,7 +164,6 @@ export function AIFeaturesTourProvider({ children }: { children: ReactNode }) {
     const seen = localStorage.getItem(AI_FEATURES_TOUR_KEY);
     if (!seen) {
       setHasSeenTour(false);
-      // Delay showing to let the page load and workspaces to fetch
       setTimeout(() => setIsVisible(true), 2000);
     }
   }, []);
@@ -237,7 +237,7 @@ export function AIFeaturesTourProvider({ children }: { children: ReactNode }) {
                           Equipo
                         </>
                       ) : (
-                        <>
+                          <>
                           <User className="h-3 w-3" />
                           Personal
                         </>
@@ -333,3 +333,19 @@ export function AIFeaturesTourProvider({ children }: { children: ReactNode }) {
   );
 }
 
+export function AIFeaturesTourProvider({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // In SSR, render children directly without Tour context features
+  // This prevents useQuery from running on server
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
+  // On client, render the full tour logic
+  return <AIFeaturesTourInner>{children}</AIFeaturesTourInner>;
+}

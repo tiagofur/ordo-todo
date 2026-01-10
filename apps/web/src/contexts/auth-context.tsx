@@ -7,10 +7,11 @@
 
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient, setToken, removeToken, setRefreshToken, removeRefreshToken } from '@/lib/api-client';
-import { useCurrentUser, useLogin, useRegister, useLogout } from '@/lib/api-hooks';
+import { queryKeys } from '@/lib/api-hooks';
 import type { UserResponse, LoginDto, RegisterDto } from '@ordo-todo/api-client';
 
 interface AuthContextType {
@@ -23,34 +24,83 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Default context for SSR or when not mounted
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+  error: null,
+  login: async () => {},
+  register: async () => {},
+  logout: async () => {},
+};
+
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
+/**
+ * SSR-safe Auth Provider
+ * 
+ * Provides a default context during SSR so that `useAuth` can be called
+ * without throwing. All auth state is "loading" during SSR.
+ */
+export function SSRAuthProvider({ children }: AuthProviderProps) {
+  return (
+    <AuthContext.Provider value={defaultAuthContext}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+/**
+ * Full Auth Provider with React Query hooks
+ * 
+ * This provider checks if it's running on the client and only enables
+ * React Query hooks after the component mounts.
+ */
 export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
-  const [isInitializing, setIsInitializing] = useState(true);
+  const queryClient = useQueryClient();
+  const [mounted, setMounted] = useState(false);
 
-  // Query hooks
-  const { data: currentUserData, isLoading: isLoadingUser, error } = useCurrentUser();
-  const loginMutation = useLogin();
-  const registerMutation = useRegister();
-  const logoutMutation = useLogout();
+  // Mount check - hooks below use `enabled: mounted` to prevent SSR execution
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Query hooks - disabled during SSR with enabled: mounted
+  const { data: currentUserData, isLoading: isLoadingUser, error } = useQuery({
+    queryKey: queryKeys.currentUser,
+    queryFn: () => apiClient.getCurrentUser(),
+    retry: false,
+    enabled: mounted,
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: (data: LoginDto) => apiClient.login(data),
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: (data: RegisterDto) => apiClient.register(data),
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => apiClient.logout(),
+    onSuccess: () => {
+      queryClient.clear();
+    },
+  });
 
   // Handle 401 errors specifically
   const isUnauthorized = (error as any)?.response?.status === 401;
   const user = isUnauthorized ? null : (currentUserData || null);
 
-  // Handle authentication initialization
-  useEffect(() => {
-    setIsInitializing(false);
-  }, []);
-
   // Redirect to login if not authenticated and error is 401
   useEffect(() => {
-    if (!isInitializing && isUnauthorized) {
+    if (mounted && isUnauthorized) {
       // Only redirect if we're not already on an auth page
       if (typeof window !== 'undefined' && !['/login', '/register'].some(path => window.location.pathname.startsWith(path))) {
         removeToken();
@@ -58,7 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         router.push('/login');
       }
     }
-  }, [isUnauthorized, isInitializing, router]);
+  }, [isUnauthorized, mounted, router]);
 
   const login = async (data: LoginDto) => {
     const response = await loginMutation.mutateAsync(data);
@@ -96,25 +146,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     window.location.href = '/login';
   };
 
-  const value: AuthContextType = {
+  const value: AuthContextType = useMemo(() => ({
     user,
-    isLoading: isInitializing || isLoadingUser,
+    isLoading: !mounted || isLoadingUser,
     isAuthenticated: !!user,
     error,
     login,
     register,
     logout,
-  };
+  }), [user, mounted, isLoadingUser, error]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-
-  return context;
+  return useContext(AuthContext);
 }

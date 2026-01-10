@@ -27,6 +27,11 @@ const LazyFocusMode = LazyLoad(() => import("./pages/FocusMode").then((m: any) =
 const LazyWellbeing = LazyLoad(() => import("./pages/Wellbeing").then((m: any) => ({ default: m.Wellbeing || m.default })));
 const LazyWorkload = LazyLoad(() => import("./pages/Workload").then((m: any) => ({ default: m.Workload || m.default })));
 const LazyNotes = LazyLoad(() => import("./pages/Notes").then((m: any) => ({ default: m.Notes })));
+const LazyEisenhower = LazyLoad(() => import("./pages/eisenhower/Eisenhower").then((m: any) => ({ default: m.Eisenhower || m.default })));
+const LazyMeetings = LazyLoad(() => import("./pages/meetings/Meetings").then((m: any) => ({ default: m.Meetings || m.default })));
+const LazyTasksPeriod = LazyLoad(() => import("./pages/tasks-period/TasksPeriod").then((m: any) => ({ default: m.TasksPeriod || m.default })));
+const LazyTasksTrash = LazyLoad(() => import("./pages/tasks-trash/TasksTrash").then((m: any) => ({ default: m.TasksTrash || m.default })));
+const LazyReports = LazyLoad(() => import("./pages/reports/Reports").then((m: any) => ({ default: m.Reports || m.default })));
 
 // Create router configuration
 const router = createHashRouter([
@@ -56,6 +61,14 @@ const router = createHashRouter([
           {
             path: "tasks",
             element: <Tasks />,
+          },
+          {
+            path: "tasks/:period",
+            element: <LazyTasksPeriod />,
+          },
+          {
+            path: "tasks/trash",
+            element: <LazyTasksTrash />,
           },
           {
             path: "projects",
@@ -129,6 +142,18 @@ const router = createHashRouter([
           {
             path: "notes",
             element: <LazyNotes />,
+          },
+          {
+            path: "eisenhower",
+            element: <LazyEisenhower />,
+          },
+          {
+            path: "meetings",
+            element: <LazyMeetings />,
+          },
+          {
+            path: "reports",
+            element: <LazyReports />,
           },
         ],
       },

@@ -108,13 +108,15 @@ export function createHooks(config: CreateHooksConfig) {
   /**
    * Retrieves the currently authenticated user.
    * Cached with `currentUser` query key.
+   * @param options - Optional query options including `enabled` to control when query runs
    * @returns The current user profile or null if not authenticated.
    */
-  function useCurrentUser() {
+  function useCurrentUser(options?: { enabled?: boolean }) {
     return useQuery({
       queryKey: queryKeys.currentUser,
       queryFn: () => apiClient.getCurrentUser(),
       retry: false,
+      enabled: options?.enabled ?? true,
     });
   }
 
@@ -192,12 +194,14 @@ export function createHooks(config: CreateHooksConfig) {
 
   /**
    * Retrieves all workspaces the user is a member of.
+   * @param options - Optional query options including `enabled` to control when query runs
    * @returns A list of workspaces.
    */
-  function useWorkspaces() {
+  function useWorkspaces(options?: { enabled?: boolean }) {
     return useQuery({
       queryKey: queryKeys.workspaces,
       queryFn: () => apiClient.getWorkspaces(),
+      enabled: options?.enabled ?? true,
     });
   }
 

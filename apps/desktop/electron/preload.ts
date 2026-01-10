@@ -7,6 +7,9 @@ interface TrayState {
     timeRemaining: string
     currentTask: string | null
     mode: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'IDLE'
+    pendingTasksCount?: number
+    nextTaskTitle?: string | null
+    nextTaskDue?: string | null
 }
 
 interface NotificationOptions {

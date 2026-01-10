@@ -144,6 +144,25 @@ export class DesktopApiClient extends OrdoApiClient {
     const response = await this.axios.get(`/tasks/${taskId}/attachments`);
     return response.data;
   }
+
+  // ============ AI MEETING ANALYZER ============
+
+  async analyzeMeetingTranscript(transcript: string) {
+    const response = await this.axios.post('/ai/analyze-meeting', { transcript });
+    return response.data;
+  }
+
+  // ============ REPORTS ============
+
+  async generateReport(params: { type: "WEEKLY" | "MONTHLY"; scope: string }) {
+    const response = await this.axios.post('/reports/generate', params);
+    return response.data;
+  }
+
+  async getReports(params?: { scope?: string; limit?: number; offset?: number }) {
+    const response = await this.axios.get('/reports', { params });
+    return response.data;
+  }
 }
 
 export const apiClient = new DesktopApiClient({

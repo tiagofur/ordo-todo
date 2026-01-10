@@ -12,7 +12,7 @@ export interface ShortcutConfig {
 export const defaultShortcuts: ShortcutConfig[] = [
   {
     id: 'timer-toggle',
-    accelerator: 'CmdOrCtrl+Shift+S',
+    accelerator: 'CmdOrCtrl+Shift+T',
     action: 'timer:toggle',
     description: 'Iniciar/Pausar Timer',
     enabled: true,
@@ -39,10 +39,38 @@ export const defaultShortcuts: ShortcutConfig[] = [
     enabled: true,
   },
   {
-    id: 'window-focus',
+    id: 'navigate-dashboard',
+    accelerator: 'CmdOrCtrl+Shift+D',
+    action: 'navigate:dashboard',
+    description: 'Ir a Dashboard',
+    enabled: true,
+  },
+  {
+    id: 'navigate-focus',
     accelerator: 'CmdOrCtrl+Shift+F',
-    action: 'window:focus',
-    description: 'Enfocar Ventana',
+    action: 'navigate:focus',
+    description: 'Ir a Modo Focus',
+    enabled: true,
+  },
+  {
+    id: 'navigate-tasks-today',
+    accelerator: 'CmdOrCtrl+Shift+H',
+    action: 'navigate:tasks-today',
+    description: 'Ir a Tareas de Hoy',
+    enabled: true,
+  },
+  {
+    id: 'command-palette',
+    accelerator: 'CmdOrCtrl+Shift+P',
+    action: 'command:palette',
+    description: 'Abrir Command Palette',
+    enabled: true,
+  },
+  {
+    id: 'timer-window-toggle',
+    accelerator: 'CmdOrCtrl+Shift+W',
+    action: 'timer-window:toggle',
+    description: 'Mostrar/Ocultar Timer Flotante',
     enabled: true,
   },
 ]
@@ -84,17 +112,17 @@ function handleShortcutAction(mainWindow: BrowserWindow, action: string): void {
       }
       break
 
-    case 'window:focus':
-      mainWindow.show()
-      mainWindow.focus()
+    case 'timer-window:toggle':
+      // Send to renderer to handle timer window toggle
+      mainWindow.webContents.send('global-shortcut', action)
       break
 
     default:
-      // Send action to renderer process
+      // Send action to renderer process for navigation and other actions
       mainWindow.webContents.send('global-shortcut', action)
-      
-      // For task:create, also show window
-      if (action === 'task:create') {
+
+      // Show window for navigation and create actions
+      if (action.startsWith('navigate:') || action === 'task:create' || action === 'command:palette') {
         mainWindow.show()
         mainWindow.focus()
       }

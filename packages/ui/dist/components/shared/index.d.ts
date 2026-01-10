@@ -13,4 +13,5 @@ export * from './about-dialog.js';
 export * from './shortcuts-dialog.js';
 export * from './sync-status-indicator.js';
 export * from './feature-onboarding.js';
+export * from './lazy-load.js';
 //# sourceMappingURL=index.d.ts.map

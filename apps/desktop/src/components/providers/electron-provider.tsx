@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useElectron } from '@/hooks/use-electron'
+import { useTrayTasks } from '@/hooks/use-tray-tasks'
 import {
   useTimerStore,
   startTimerInterval,
@@ -22,6 +23,9 @@ export function ElectronProvider({ children }: ElectronProviderProps) {
   const { isElectron, platform } = useElectron()
   const timerStore = useTimerStore()
   const { isRunning, isPaused, start, pause, resume, skip } = timerStore
+
+  // Update tray with task information (pending count, next task)
+  useTrayTasks()
 
   // Manage timer interval based on running state
   useEffect(() => {

@@ -28,9 +28,47 @@ interface TimerContextType {
   isLoaded: boolean;
 }
 
-const TimerContext = createContext<TimerContextType | undefined>(undefined);
+// Default context for SSR
+const defaultTimerContext: TimerContextType = {
+  isRunning: false,
+  isPaused: false,
+  timeLeft: 0,
+  mode: "WORK" as TimerMode,
+  completedPomodoros: 0,
+  pauseCount: 0,
+  totalPauseTime: 0,
+  start: async () => {},
+  pause: async () => {},
+  resume: async () => {},
+  stop: async () => {},
+  skipToNext: async () => {},
+  switchTask: async () => {},
+  formatTime: () => "00:00",
+  getProgress: () => 0,
+  activeSession: null,
+  selectedTaskId: null,
+  setSelectedTaskId: () => {},
+  config: {
+    workDuration: 25,
+    shortBreakDuration: 5,
+    longBreakDuration: 15,
+    pomodorosUntilLongBreak: 4,
+    autoStartBreaks: false,
+    autoStartPomodoros: false,
+    soundEnabled: true,
+    notificationsEnabled: true,
+    defaultMode: "POMODORO",
+  },
+  isLoaded: false,
+};
 
-export function TimerProvider({ children }: { children: React.ReactNode }) {
+const TimerContext = createContext<TimerContextType>(defaultTimerContext);
+
+/**
+ * Inner component that uses React Query hooks
+ * Only rendered when mounted on client
+ */
+function TimerProviderInner({ children }: { children: React.ReactNode }) {
   const { settings: config, isLoaded } = useTimerSettings();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
@@ -39,10 +77,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     config,
     taskId: selectedTaskId,
     onSessionComplete: () => {
-      // Toast is already handled in useTimerBackend for some cases, but we can add a generic one here if needed
-      // Actually useTimerBackend calls notifySessionComplete which might handle notifications
-      // But PomodoroTimer had: toast.success("¡Sesión completada!");
-      // We can keep it here.
       notify.success("¡Sesión completada!");
     },
   });
@@ -54,7 +88,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [timer.activeSession]);
 
-  if (!isLoaded) return null;
+  if (!isLoaded) return <>{children}</>;
 
   return (
     <TimerContext.Provider
@@ -71,10 +105,26 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useTimer() {
-  const context = useContext(TimerContext);
-  if (context === undefined) {
-    throw new Error("useTimer must be used within a TimerProvider");
+export function TimerProvider({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // During SSR, just render children with default context
+  if (!mounted) {
+    return (
+      <TimerContext.Provider value={defaultTimerContext}>
+        {children}
+      </TimerContext.Provider>
+    );
   }
-  return context;
+
+  // On client, use the full provider with React Query hooks
+  return <TimerProviderInner>{children}</TimerProviderInner>;
+}
+
+export function useTimer() {
+  return useContext(TimerContext);
 }
