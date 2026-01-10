@@ -17,7 +17,7 @@ import {
   LayoutGrid,
   List
 } from "lucide-react";
-import { useProjects, useWorkspaceAuditLogs, useDeleteWorkspace, useCreateProject } from "@/lib/api-hooks";
+import { useProjects, useWorkspaceAuditLogs, useDeleteWorkspace, useCreateProject, useWorkflows, useCreateWorkflow } from "@/lib/api-hooks";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
 import { WorkspaceSettingsDialog } from "@/components/workspace/workspace-settings-dialog";
@@ -51,6 +51,8 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace.id);
   const { data: auditLogData, isLoading: isLoadingActivity } = useWorkspaceAuditLogs(workspace.id, { limit: 5 });
   const { mutateAsync: createProject } = useCreateProject();
+  const { data: workflows } = useWorkflows(workspace.id);
+  const { mutateAsync: createWorkflow } = useCreateWorkflow();
 
   const deleteWorkspace = useDeleteWorkspace();
 
@@ -298,15 +300,40 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
         open={showCreateProject}
         onOpenChange={setShowCreateProject}
         workspaceId={workspace.id}
-        onSubmit={async (data) => {
+        workflows={workflows?.map(w => ({ id: w.id, name: w.name })) || []}
+        onSubmit={async (data, templateTasks) => {
+          let workflowId = data.workflowId;
+
+          // If workflowId is "NEW" or empty, we need to determine what to do
+          if (!workflowId || workflowId === "NEW") {
+             // If we have existing workflows, use the first one
+             if (workflows && workflows.length > 0) {
+                workflowId = workflows[0].id;
+             } else {
+                // Otherwise create a default workflow
+                const newWorkflow = await createWorkflow({
+                  name: "Default Workflow",
+                  workspaceId: workspace.id,
+                });
+                workflowId = newWorkflow.id;
+             }
+          }
+
           await createProject({
             name: data.name,
             description: data.description,
             color: data.color,
             workspaceId: data.workspaceId,
-            workflowId: data.workflowId || 'NEW',
+            workflowId: workflowId,
           });
           setShowCreateProject(false);
+        }}
+        onCreateWorkflow={async (wsId) => {
+          const newWorkflow = await createWorkflow({
+            name: "Default Workflow",
+            workspaceId: wsId,
+          });
+          return newWorkflow.id;
         }}
       />
 

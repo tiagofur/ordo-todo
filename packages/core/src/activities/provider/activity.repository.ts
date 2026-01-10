@@ -1,5 +1,5 @@
 import { Activity, ActivityMetadata } from '../model/activity.entity';
-import { ActivityType } from '@prisma/client';
+import { ActivityType } from '../model/activity-type.enum';
 
 /**
  * Input for creating an activity log

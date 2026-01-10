@@ -105,27 +105,27 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   private mapRoleToDomain(role: PrismaMemberRole): MemberRole {
     switch (role) {
       case 'OWNER':
-        return 'OWNER';
+        return MemberRole.OWNER;
       case 'ADMIN':
-        return 'ADMIN';
+        return MemberRole.ADMIN;
       case 'MEMBER':
-        return 'MEMBER';
+        return MemberRole.MEMBER;
       case 'VIEWER':
-        return 'VIEWER';
+        return MemberRole.VIEWER;
       default:
-        return 'MEMBER';
+        return MemberRole.MEMBER;
     }
   }
 
   private mapRoleToPrisma(role: MemberRole): PrismaMemberRole {
     switch (role) {
-      case 'OWNER':
+      case MemberRole.OWNER:
         return 'OWNER';
-      case 'ADMIN':
+      case MemberRole.ADMIN:
         return 'ADMIN';
-      case 'MEMBER':
+      case MemberRole.MEMBER:
         return 'MEMBER';
-      case 'VIEWER':
+      case MemberRole.VIEWER:
         return 'VIEWER';
       default:
         return 'MEMBER';

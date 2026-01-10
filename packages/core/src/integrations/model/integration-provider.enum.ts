@@ -1,0 +1,9 @@
+export enum IntegrationProvider {
+    GOOGLE_CALENDAR = 'GOOGLE_CALENDAR',
+    GOOGLE_TASKS = 'GOOGLE_TASKS',
+    SLACK = 'SLACK',
+    GITHUB = 'GITHUB',
+    MICROSOFT_TEAMS = 'MICROSOFT_TEAMS',
+    NOTION = 'NOTION',
+    ZAPIER = 'ZAPIER',
+}

@@ -37,15 +37,15 @@ export class PrismaWorkspaceInvitationRepository implements WorkspaceInvitationR
   private mapRoleToDomain(role: PrismaMemberRole): MemberRole {
     switch (role) {
       case 'OWNER':
-        return 'OWNER';
+        return MemberRole.OWNER;
       case 'ADMIN':
-        return 'ADMIN';
+        return MemberRole.ADMIN;
       case 'MEMBER':
-        return 'MEMBER';
+        return MemberRole.MEMBER;
       case 'VIEWER':
-        return 'VIEWER';
+        return MemberRole.VIEWER;
       default:
-        return 'MEMBER';
+        return MemberRole.MEMBER;
     }
   }
 

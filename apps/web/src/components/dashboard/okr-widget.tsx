@@ -17,7 +17,7 @@ export function OkrWidget({ accentColor = "#3B82F6" }: OkrWidgetProps) {
 
   const objectives = (summary?.objectives ?? []).slice(0, 3);
   
-  if (isLoading) {
+  if (isLoading || !summary) {
     return (
       <div className="h-full w-full rounded-2xl border border-border/50 bg-card p-4 flex items-center justify-center min-h-[200px]">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />

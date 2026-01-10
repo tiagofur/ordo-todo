@@ -136,8 +136,8 @@ export default function SignUpPage() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      toast.error("La contraseña debe tener al menos 6 caracteres");
+    if (formData.password.length < 8) {
+      toast.error("La contraseña debe tener al menos 8 caracteres");
       return;
     }
 
@@ -285,7 +285,7 @@ export default function SignUpPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                 />
                 <button
                   type="button"

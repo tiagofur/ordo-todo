@@ -557,10 +557,19 @@ export const apiClient = {
     axiosInstance.patch(`/tasks/${id}/complete`).then((res) => res.data),
   deleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
-  getDeletedTasks: (projectId: string): Promise<Task[]> =>
-    axiosInstance
+  getDeletedTasks: (projectId: string): Promise<Task[]> => {
+    console.log('[apiClient] getDeletedTasks called with projectId:', projectId);
+    return axiosInstance
       .get("/tasks/deleted", { params: { projectId } })
-      .then((res) => res.data),
+      .then((res) => {
+        console.log('[apiClient] getDeletedTasks response:', res.data);
+        return res.data;
+      })
+      .catch((error) => {
+        console.error('[apiClient] getDeletedTasks error:', error);
+        throw error;
+      });
+  },
   restoreTask: (id: string): Promise<Task> =>
     axiosInstance.post(`/tasks/${id}/restore`).then((res) => res.data),
   permanentDeleteTask: (id: string): Promise<void> =>

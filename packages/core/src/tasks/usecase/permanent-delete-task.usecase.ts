@@ -1,10 +1,10 @@
 import { TaskRepository } from "../provider/task.repository";
 
 export class PermanentDeleteTaskUseCase {
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(private taskRepository: TaskRepository) { }
 
   async execute(id: string): Promise<void> {
-    const task = await this.taskRepository.findById(id);
+    const task = await this.taskRepository.findByIdIncludeDeleted(id);
     if (!task) {
       throw new Error("Task not found");
     }

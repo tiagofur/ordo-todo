@@ -1,6 +1,4 @@
 import { z } from 'zod';
-import { MemberRole as MemberRole$1, ActivityType, RecurrencePattern, SubscriptionPlan, SubscriptionStatus, IntegrationProvider } from '@prisma/client';
-export { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
 
 interface ValueObject<T, V = unknown> {
     value: V;
@@ -498,7 +496,7 @@ declare const FILE_LIMITS: {
 declare const USER_LIMITS: {
     readonly NAME_MIN_LENGTH: 2;
     readonly NAME_MAX_LENGTH: 100;
-    readonly PASSWORD_MIN_LENGTH: 6;
+    readonly PASSWORD_MIN_LENGTH: 8;
     readonly PASSWORD_MAX_LENGTH: 128;
     readonly BIO_MAX_LENGTH: 500;
 };
@@ -1186,6 +1184,13 @@ type ProjectFilter = z.infer<typeof projectFilterSchema>;
 type ArchiveProject = z.infer<typeof archiveProjectSchema>;
 type DuplicateProject = z.infer<typeof duplicateProjectSchema>;
 
+declare enum MemberRole {
+    OWNER = "OWNER",
+    ADMIN = "ADMIN",
+    MEMBER = "MEMBER",
+    VIEWER = "VIEWER"
+}
+
 /**
  * Workspace validation schemas
  * Shared across all applications for consistent workspace validation
@@ -1195,10 +1200,11 @@ type DuplicateProject = z.infer<typeof duplicateProjectSchema>;
  * Workspace type enum
  */
 declare const WORKSPACE_TYPES: readonly ["PERSONAL", "WORK", "TEAM"];
+
 /**
  * Member role enum
  */
-declare const MEMBER_ROLES: readonly ["OWNER", "ADMIN", "MEMBER", "VIEWER"];
+declare const MEMBER_ROLES: readonly [MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER];
 /**
  * Base workspace schema
  */
@@ -1270,10 +1276,10 @@ declare const workspaceSettingsSchema: z.ZodObject<{
 declare const inviteMemberSchema: z.ZodObject<{
     email: z.ZodString;
     role: z.ZodEnum<{
-        OWNER: "OWNER";
-        ADMIN: "ADMIN";
-        MEMBER: "MEMBER";
-        VIEWER: "VIEWER";
+        OWNER: MemberRole.OWNER;
+        ADMIN: MemberRole.ADMIN;
+        MEMBER: MemberRole.MEMBER;
+        VIEWER: MemberRole.VIEWER;
     }>;
     message: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
@@ -1282,10 +1288,10 @@ declare const inviteMemberSchema: z.ZodObject<{
  */
 declare const updateMemberRoleSchema: z.ZodObject<{
     role: z.ZodEnum<{
-        OWNER: "OWNER";
-        ADMIN: "ADMIN";
-        MEMBER: "MEMBER";
-        VIEWER: "VIEWER";
+        OWNER: MemberRole.OWNER;
+        ADMIN: MemberRole.ADMIN;
+        MEMBER: MemberRole.MEMBER;
+        VIEWER: MemberRole.VIEWER;
     }>;
 }, z.core.$strip>;
 /**
@@ -1941,6 +1947,21 @@ interface TaskRepository {
      */
     findById(id: string): Promise<Task | null>;
     /**
+     * Finds a task by its unique ID, including soft-deleted tasks.
+     *
+     * @param id - The unique identifier of the task
+     * @returns Promise that resolves to the task if found, null otherwise
+     *
+     * @example
+     * ```typescript
+     * const task = await repository.findByIdIncludeDeleted('task-123');
+     * if (task && task.props.isDeleted) {
+     *   console.log('Task is in trash');
+     * }
+     * ```
+     */
+    findByIdIncludeDeleted(id: string): Promise<Task | null>;
+    /**
      * Finds all tasks owned by a specific user.
      *
      * @param ownerId - The unique identifier of the task owner
@@ -2380,7 +2401,6 @@ declare class Workspace extends Entity<WorkspaceProps> {
     }): Workspace;
 }
 
-type MemberRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 interface WorkspaceMemberProps extends EntityProps {
     workspaceId: string;
     userId: string;
@@ -3074,7 +3094,7 @@ interface WorkspaceAuditLogRepository {
 interface WorkspaceMemberInput {
     workspaceId: string;
     userId: string;
-    role: MemberRole$1;
+    role: MemberRole;
 }
 /**
  * Repository interface for WorkspaceMember domain
@@ -3103,11 +3123,11 @@ interface WorkspaceMemberRepository {
     /**
      * Get members by role in workspace
      */
-    findByWorkspaceAndRole(workspaceId: string, role: MemberRole$1): Promise<WorkspaceMember[]>;
+    findByWorkspaceAndRole(workspaceId: string, role: MemberRole): Promise<WorkspaceMember[]>;
     /**
      * Update member role
      */
-    updateRole(id: string, role: MemberRole$1): Promise<WorkspaceMember>;
+    updateRole(id: string, role: MemberRole): Promise<WorkspaceMember>;
     /**
      * Remove member from workspace
      */
@@ -11597,6 +11617,24 @@ declare class AskQuestionUseCase implements UseCase<AskQuestionInput, any> {
     execute(input: AskQuestionInput): Promise<any>;
 }
 
+declare enum ActivityType {
+    TASK_CREATED = "TASK_CREATED",
+    TASK_UPDATED = "TASK_UPDATED",
+    TASK_COMPLETED = "TASK_COMPLETED",
+    TASK_DELETED = "TASK_DELETED",
+    COMMENT_ADDED = "COMMENT_ADDED",
+    COMMENT_EDITED = "COMMENT_EDITED",
+    COMMENT_DELETED = "COMMENT_DELETED",
+    ATTACHMENT_ADDED = "ATTACHMENT_ADDED",
+    ATTACHMENT_DELETED = "ATTACHMENT_DELETED",
+    SUBTASK_ADDED = "SUBTASK_ADDED",
+    SUBTASK_COMPLETED = "SUBTASK_COMPLETED",
+    STATUS_CHANGED = "STATUS_CHANGED",
+    PRIORITY_CHANGED = "PRIORITY_CHANGED",
+    ASSIGNEE_CHANGED = "ASSIGNEE_CHANGED",
+    DUE_DATE_CHANGED = "DUE_DATE_CHANGED"
+}
+
 /**
  * Metadata structure for activity logs
  */
@@ -12396,6 +12434,14 @@ declare class ProcessedImage {
     };
 }
 
+declare enum RecurrencePattern {
+    DAILY = "DAILY",
+    WEEKLY = "WEEKLY",
+    MONTHLY = "MONTHLY",
+    YEARLY = "YEARLY",
+    CUSTOM = "CUSTOM"
+}
+
 /**
  * Properties for Recurrence entity
  */
@@ -12556,6 +12602,22 @@ declare class GetNextOccurrenceUseCase implements UseCase<GetNextOccurrenceInput
     private readonly recurrenceRepo;
     constructor(recurrenceRepo: RecurrenceRepository);
     execute(input: GetNextOccurrenceInput): Promise<Date | null>;
+}
+
+declare enum SubscriptionPlan {
+    FREE = "FREE",
+    PRO = "PRO",
+    TEAM = "TEAM",
+    ENTERPRISE = "ENTERPRISE"
+}
+declare enum SubscriptionStatus {
+    ACTIVE = "ACTIVE",
+    CANCELED = "CANCELED",
+    INCOMPLETE = "INCOMPLETE",
+    INCOMPLETE_EXPIRED = "INCOMPLETE_EXPIRED",
+    PAST_DUE = "PAST_DUE",
+    TRIALING = "TRIALING",
+    UNPAID = "UNPAID"
 }
 
 /**
@@ -12951,6 +13013,16 @@ interface AdminUserRepository {
     findAll(): Promise<AdminUser[]>;
 }
 
+declare enum IntegrationProvider {
+    GOOGLE_CALENDAR = "GOOGLE_CALENDAR",
+    GOOGLE_TASKS = "GOOGLE_TASKS",
+    SLACK = "SLACK",
+    GITHUB = "GITHUB",
+    MICROSOFT_TEAMS = "MICROSOFT_TEAMS",
+    NOTION = "NOTION",
+    ZAPIER = "ZAPIER"
+}
+
 /**
  * Properties for UserIntegration entity
  */
@@ -13073,4 +13145,4 @@ interface UserIntegrationRepository {
     findExpiringSoon(): Promise<UserIntegration[]>;
 }
 
-export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, Account, type AccountInput, type AccountProps, type AccountRepository, Achievement, type AchievementProps, ActionItem, type ActionItemProps, Activity, type ActivityMetadata, type ActivityProps, type ActivityRepository, AddMemberToWorkspaceUseCase, type AddMentionInput, AddMentionUseCase, AdminUser, type AdminUserInput, type AdminUserProps, type AdminUserRepository, AmbientTrack, type AmbientTrackProps, type AnalyticsRepository, type AnalyzeTranscriptInput, AnalyzeTranscriptUseCase, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, type AskQuestionInput, AskQuestionUseCase, AssignTagToTaskUseCase, type AssignTags, Attachment, type AttachmentProps, type AttachmentRepository, type AuditAction, BlogComment, type BlogCommentProps, BlogPost, type BlogPostProps, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, ChangelogEntry, type ChangelogEntryProps, type ChangelogType, ChatConversation, type ChatConversationProps, ChatMessage, type ChatMessageProps, type ChatRole, Comment, type CommentBase, type CommentFilter, type CommentProps, type CommentRepository, type CompleteTaskInput, CompleteTaskUseCase, ContactSubmission, type ContactSubmissionProps, type CountUnreadNotificationsInput, type CountUnreadNotificationsOutput, CountUnreadNotificationsUseCase, type CreateActivityInput, type CreateAttachmentInput, CreateAttachmentUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateCommentInput, CreateCommentUseCase, type CreateMeetingInput, CreateMeetingUseCase, type CreateNoteInput, CreateNoteUseCase, type CreateNotificationInput, CreateNotificationUseCase, type CreateProjectDTO, CreateProjectUseCase, CreateRecurrenceUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, type CreateUserProps, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, CustomField, CustomFieldType, CustomFieldValue, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, type DeleteAttachmentInput, DeleteAttachmentUseCase, type DeleteCommentInput, DeleteCommentUseCase, type DeleteNoteInput, DeleteNoteUseCase, type DeleteNotificationInput, DeleteNotificationUseCase, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, type ExecuteSearchInput, ExecuteSearchUseCase, type ExtractActionItemsInput, ExtractActionItemsUseCase, FAQ, type FAQProps, FILE_LIMITS, type FindAllNotesInput, FindAllNotesUseCase, type FindNoteInput, FindNoteUseCase, FocusMode, type FocusModeProps, FocusPreferences, type FocusPreferencesProps, type FocusRepository, type FocusScoreInput, FocusStats, type FocusStatsProps, type GenerateSummaryInput, GenerateSummaryUseCase, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, type GetAttachmentByIdInput, GetAttachmentByIdUseCase, type GetAttachmentsByTaskInput, GetAttachmentsByTaskUseCase, type GetAttachmentsByUserInput, GetAttachmentsByUserUseCase, type GetCommentsByTaskInput, GetCommentsByTaskUseCase, type GetCommentsByUserInput, GetCommentsByUserUseCase, type GetConversationsOptions, type GetConversationsResult, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetFocusStatsInput, GetFocusStatsUseCase, type GetMeetingInput, GetMeetingUseCase, type GetNextOccurrenceInput, GetNextOccurrenceUseCase, type GetNotificationByIdInput, GetNotificationByIdUseCase, type GetNotificationsByTypeInput, GetNotificationsByTypeUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetRecommendedTracksInput, GetRecommendedTracksUseCase, type GetSuggestionsInput, GetSuggestionsUseCase, type GetTaskActivitiesInput, GetTaskActivitiesUseCase, type GetUnreadNotificationsInput, GetUnreadNotificationsUseCase, type GetUserPreferencesInput, GetUserPreferencesUseCase, type GetUserSubscriptionInput, GetUserSubscriptionUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IBlogRepository, type IChangelogRepository, type IChatRepository, type ICollaborationRepository, type IContactRepository, type ICustomFieldRepository, type IFAQRepository, type IGamificationRepository, type IHabitRepository, type IKBRepository, type INewsletterRepository, type IObjectiveRepository, type IRoadmapRepository, type ITaskTemplateRepository, Id, ImageSpecs, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, KBArticle, type KBArticleProps, KBCategory, type KBCategoryProps, KeyDecision, type KeyDecisionProps, KeyResult, type KeyResultProps, KeyResultTask, type KeyResultTaskProps, type LearnFromSessionInput, LearnFromSessionUseCase, type ListMeetingsInput, ListMeetingsUseCase, ListWorkflowsUseCase, type LogActivityInput, LogActivityUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MarkAllAsReadInput, type MarkAllAsReadOutput, MarkAllAsReadUseCase, type MarkAsReadInput, MarkAsReadUseCase, type MarkAsUnreadInput, MarkAsUnreadUseCase, type MarkAsUploadedInput, MarkAsUploadedUseCase, Meeting, MeetingAnalysis, type MeetingAnalysisProps, type MeetingAnalysisService, MeetingParticipant, type MeetingParticipantProps, type MeetingProps, type MeetingRepository, MeetingTopic, type MeetingTopicProps, type MemberRole, type MemberRoleValue, type MemberWithUser, type MemberWorkload, type MetricType, type MetricsSnapshot, MockAIService, NOTIFICATION_LIMITS, NewsletterSubscriber, type NewsletterSubscriberProps, Note, type NoteProps, type NoteRepository, Notification, type NotificationProps, type NotificationRepository, NotificationType, type OKRPeriod, Objective, type ObjectiveProps, type ObjectiveStatus, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, type Priority, ProcessedImage, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecordTrackUsageInput, RecordTrackUsageUseCase, Recurrence, type RecurrenceInput, type RecurrenceProps, type RecurrenceRepository, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, type RemoveMentionInput, RemoveMentionUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, ResourceType, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, RoadmapItem, type RoadmapItemProps, type RoadmapStatus, RoadmapVote, type RoadmapVoteProps, type SearchEntityType, type SearchFilters, type SearchIntent, SearchQuery, type SearchQueryProps, type SearchRepository, SearchResult, type SearchResultEntityType, type SearchResultProps, SearchResults, type SearchResultsProps, type SearchService, type Sentiment, Session, type SessionFilters, type SessionInput, type SessionProps, type SessionRepository, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, Subscription, type SubscriptionInput, type SubscriptionProps, type SubscriptionRepository, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, TaskDependency, type TaskDependencyInput, type TaskDependencyProps, type TaskDependencyRepository, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRecurrenceInfo, type TaskRepository, type TaskStatus, type TaskStatusValue, TaskTemplate, type TaskTemplateProps, type TeamWorkloadSummary, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type ToggleFavoriteTrackInput, ToggleFavoriteTrackUseCase, type TrackCategory, type TrackUsageRecord, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateCommentInput, UpdateCommentUseCase, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMeetingAnalysisInput, UpdateMeetingAnalysisUseCase, type UpdateMemberRole, type UpdateNoteInput, UpdateNoteUseCase, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserPreferencesInput, UpdateUserPreferencesUseCase, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UpgradePlanInput, UpgradePlanUseCase, type UseCase, User, UserAchievement, type UserAchievementProps, UserByEmail, UserIntegration, type UserIntegrationInput, type UserIntegrationProps, type UserIntegrationRepository, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, type WorkloadSuggestion, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberInput, type WorkspaceMemberProps, type WorkspaceMemberRepository, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateVoteWeight, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, generateUuid, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isValidUuid, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };
+export { type AIChatContext, AIProfile, type AIProfileProps, type AIProfileRepository, type AIService, type AcceptInvitation, AcceptInvitationUseCase, Account, type AccountInput, type AccountProps, type AccountRepository, Achievement, type AchievementProps, ActionItem, type ActionItemProps, Activity, type ActivityMetadata, type ActivityProps, type ActivityRepository, ActivityType, AddMemberToWorkspaceUseCase, type AddMentionInput, AddMentionUseCase, AdminUser, type AdminUserInput, type AdminUserProps, type AdminUserRepository, AmbientTrack, type AmbientTrackProps, type AnalyticsRepository, type AnalyzeTranscriptInput, AnalyzeTranscriptUseCase, type ArchiveProject, ArchiveProjectUseCase, ArchiveWorkspaceUseCase, type AskQuestionInput, AskQuestionUseCase, AssignTagToTaskUseCase, type AssignTags, Attachment, type AttachmentProps, type AttachmentRepository, type AuditAction, BlogComment, type BlogCommentProps, BlogPost, type BlogPostProps, type BulkUpdateTasks, COMMENT_LIMITS, CalculateFocusScoreUseCase, type ChangePassword, ChangeUserName, ChangelogEntry, type ChangelogEntryProps, type ChangelogType, ChatConversation, type ChatConversationProps, ChatMessage, type ChatMessageProps, type ChatRole, Comment, type CommentBase, type CommentFilter, type CommentProps, type CommentRepository, type CompleteTaskInput, CompleteTaskUseCase, ContactSubmission, type ContactSubmissionProps, type CountUnreadNotificationsInput, type CountUnreadNotificationsOutput, CountUnreadNotificationsUseCase, type CreateActivityInput, type CreateAttachmentInput, CreateAttachmentUseCase, type CreateAuditLogInput, CreateAuditLogUseCase, type CreateCommentDTO, type CreateCommentInput, CreateCommentUseCase, type CreateMeetingInput, CreateMeetingUseCase, type CreateNoteInput, CreateNoteUseCase, type CreateNotificationInput, CreateNotificationUseCase, type CreateProjectDTO, CreateProjectUseCase, CreateRecurrenceUseCase, type CreateTagDTO, CreateTagUseCase, type CreateTaskDTO, type CreateTaskInput, CreateTaskUseCase, type CreateUserProps, CreateWorkflowUseCase, type CreateWorkspaceDTO, CreateWorkspaceUseCase, type CryptoProvider, CustomField, CustomFieldType, CustomFieldValue, DEFAULT_POMODORO_SETTINGS, DailyMetrics, type DailyMetricsProps, type DeleteAttachmentInput, DeleteAttachmentUseCase, type DeleteCommentInput, DeleteCommentUseCase, type DeleteNoteInput, DeleteNoteUseCase, type DeleteNotificationInput, DeleteNotificationUseCase, DeleteProjectUseCase, DeleteWorkflowUseCase, type DuplicateProject, Email, Entity, type EntityMode, type EntityProps, type ExecuteSearchInput, ExecuteSearchUseCase, type ExtractActionItemsInput, ExtractActionItemsUseCase, FAQ, type FAQProps, FILE_LIMITS, type FindAllNotesInput, FindAllNotesUseCase, type FindNoteInput, FindNoteUseCase, FocusMode, type FocusModeProps, FocusPreferences, type FocusPreferencesProps, type FocusRepository, type FocusScoreInput, FocusStats, type FocusStatsProps, type GenerateSummaryInput, GenerateSummaryUseCase, type GenerateWeeklyReportInput, type GenerateWeeklyReportOutput, GenerateWeeklyReportUseCase, type GetAttachmentByIdInput, GetAttachmentByIdUseCase, type GetAttachmentsByTaskInput, GetAttachmentsByTaskUseCase, type GetAttachmentsByUserInput, GetAttachmentsByUserUseCase, type GetCommentsByTaskInput, GetCommentsByTaskUseCase, type GetCommentsByUserInput, GetCommentsByUserUseCase, type GetConversationsOptions, type GetConversationsResult, GetDailyMetricsUseCase, GetDeletedProjectsUseCase, GetDeletedTasksUseCase, GetDeletedWorkspacesUseCase, type GetFocusStatsInput, GetFocusStatsUseCase, type GetMeetingInput, GetMeetingUseCase, type GetNextOccurrenceInput, GetNextOccurrenceUseCase, type GetNotificationByIdInput, GetNotificationByIdUseCase, type GetNotificationsByTypeInput, GetNotificationsByTypeUseCase, type GetOptimalScheduleInput, GetOptimalScheduleUseCase, type GetRecommendedTracksInput, GetRecommendedTracksUseCase, type GetSuggestionsInput, GetSuggestionsUseCase, type GetTaskActivitiesInput, GetTaskActivitiesUseCase, type GetUnreadNotificationsInput, GetUnreadNotificationsUseCase, type GetUserPreferencesInput, GetUserPreferencesUseCase, type GetUserSubscriptionInput, GetUserSubscriptionUseCase, type GetWorkspaceAuditLogsInput, type GetWorkspaceAuditLogsOutput, GetWorkspaceAuditLogsUseCase, type GetWorkspaceSettingsInput, GetWorkspaceSettingsUseCase, Habit, type HabitCompletionProps, type HabitFrequency, type HabitProps, HashPassword, type HashService, type IBlogRepository, type IChangelogRepository, type IChatRepository, type ICollaborationRepository, type IContactRepository, type ICustomFieldRepository, type IFAQRepository, type IGamificationRepository, type IHabitRepository, type IKBRepository, type INewsletterRepository, type IObjectiveRepository, type IRoadmapRepository, type ITaskTemplateRepository, Id, ImageSpecs, IntegrationProvider, type InviteMemberDTO, InviteMemberUseCase, type InviteStatus, KBArticle, type KBArticleProps, KBCategory, type KBCategoryProps, KeyDecision, type KeyDecisionProps, KeyResult, type KeyResultProps, KeyResultTask, type KeyResultTaskProps, type LearnFromSessionInput, LearnFromSessionUseCase, type ListMeetingsInput, ListMeetingsUseCase, ListWorkflowsUseCase, type LogActivityInput, LogActivityUseCase, type LoggedUser, type LoginUserDTO, MEMBER_ROLES, type MarkAllAsReadInput, type MarkAllAsReadOutput, MarkAllAsReadUseCase, type MarkAsReadInput, MarkAsReadUseCase, type MarkAsUnreadInput, MarkAsUnreadUseCase, type MarkAsUploadedInput, MarkAsUploadedUseCase, Meeting, MeetingAnalysis, type MeetingAnalysisProps, type MeetingAnalysisService, MeetingParticipant, type MeetingParticipantProps, type MeetingProps, type MeetingRepository, MeetingTopic, type MeetingTopicProps, MemberRole, type MemberRoleValue, type MemberWithUser, type MemberWorkload, type MetricType, type MetricsSnapshot, MockAIService, NOTIFICATION_LIMITS, NewsletterSubscriber, type NewsletterSubscriberProps, Note, type NoteProps, type NoteRepository, Notification, type NotificationProps, type NotificationRepository, NotificationType, type OKRPeriod, Objective, type ObjectiveProps, type ObjectiveStatus, type OptimalScheduleOutput, PAGINATION_LIMITS, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, PROJECT_STATUS, PROJECT_STATUS_VALUES, type PaginatedSessions, type PaginationParams, type PauseRecord, PauseTimerUseCase, PermanentDeleteProjectUseCase, PermanentDeleteTaskUseCase, PermanentDeleteWorkspaceUseCase, PersonName, type PredictTaskDurationInput, type PredictTaskDurationOutput, PredictTaskDurationUseCase, type Priority, ProcessedImage, ProductivityReport, type ProductivityReportProps, type ProductivityReportRepository, Project, type ProjectBase, type ProjectColor, type ProjectFilter, type ProjectProps, type ProjectRepository, type ProjectStatusValue, type RecordTrackUsageInput, RecordTrackUsageUseCase, Recurrence, type RecurrenceInput, RecurrencePattern, type RecurrenceProps, type RecurrenceRepository, RegisterUser, type RegisterUserDTO, RemoveMemberFromWorkspaceUseCase, type RemoveMentionInput, RemoveMentionUseCase, RemoveTagFromTaskUseCase, type ReorderTasks, type ReportScope, RequiredString, type RequiredStringOptions, type ResetPassword, type ResetPasswordRequest, ResourceType, RestoreProjectUseCase, RestoreTaskUseCase, RestoreWorkspaceUseCase, ResumeTimerUseCase, RoadmapItem, type RoadmapItemProps, type RoadmapStatus, RoadmapVote, type RoadmapVoteProps, type SearchEntityType, type SearchFilters, type SearchIntent, SearchQuery, type SearchQueryProps, type SearchRepository, SearchResult, type SearchResultEntityType, type SearchResultProps, SearchResults, type SearchResultsProps, type SearchService, type Sentiment, Session, type SessionFilters, type SessionInput, type SessionProps, type SessionRepository, type SessionStats, type SessionType, SoftDeleteProjectUseCase, SoftDeleteTaskUseCase, SoftDeleteWorkspaceUseCase, StartTimerUseCase, StopTimerUseCase, Subscription, type SubscriptionInput, SubscriptionPlan, type SubscriptionProps, type SubscriptionRepository, SubscriptionStatus, SwitchTaskUseCase, TAG_COLORS, TAG_LIMITS, TASK_LIMITS, TASK_PRIORITIES, TASK_STATUS, TASK_STATUS_VALUES, TIMER_LIMITS, TIMER_MODES, TIMER_MODE_VALUES, Tag, type TagBase, type TagColor, type TagFilter, type TagProps, type TagRepository, Task, type TaskBase, TaskDependency, type TaskDependencyInput, type TaskDependencyProps, type TaskDependencyRepository, type TaskFilter, type TaskPriority, type TaskPriorityValue, type TaskProps, type TaskRecurrenceInfo, type TaskRepository, type TaskStatus, type TaskStatusValue, TaskTemplate, type TaskTemplateProps, type TeamWorkloadSummary, type TimeOfDay, TimeSession, type TimeSessionProps, type TimerMode, type TimerRepository, type ToggleFavoriteTrackInput, ToggleFavoriteTrackUseCase, type TrackCategory, type TrackUsageRecord, type TransferOwnership, USER_LIMITS, type UpdateCommentDTO, type UpdateCommentInput, UpdateCommentUseCase, type UpdateDailyMetricsInput, UpdateDailyMetricsUseCase, type UpdateMeetingAnalysisInput, UpdateMeetingAnalysisUseCase, type UpdateMemberRole, type UpdateNoteInput, UpdateNoteUseCase, type UpdateProjectDTO, UpdateProjectUseCase, type UpdateTagDTO, UpdateTagUseCase, type UpdateTaskDTO, type UpdateUserPreferencesInput, UpdateUserPreferencesUseCase, type UpdateUserProfile, UpdateWorkflowUseCase, type UpdateWorkspaceDTO, type UpdateWorkspaceSettingsInput, UpdateWorkspaceSettingsUseCase, type UpgradePlanInput, UpgradePlanUseCase, type UseCase, User, UserAchievement, type UserAchievementProps, UserByEmail, UserIntegration, type UserIntegrationInput, type UserIntegrationProps, type UserIntegrationRepository, UserLogin, type UserPreferences, type UserProps, type UserRepository, type UsernameValidation, type ValueObject, type ViewType, WORKSPACE_COLORS, WORKSPACE_LIMITS, WORKSPACE_TYPES, type WeeklyReportContext, type WeeklyReportData, Workflow, type WorkflowProps, type WorkflowRepository, type WorkloadSuggestion, Workspace, WorkspaceAuditLog, type WorkspaceAuditLogProps, type WorkspaceAuditLogRepository, type WorkspaceBase, type WorkspaceColor, type WorkspaceFilter, WorkspaceInvitation, type WorkspaceInvitationProps, type WorkspaceInvitationRepository, WorkspaceMember, type WorkspaceMemberInput, type WorkspaceMemberProps, type WorkspaceMemberRepository, type WorkspaceProps, type WorkspaceRepository, WorkspaceSettings, type WorkspaceSettingsDTO, type WorkspaceSettingsProps, type WorkspaceSettingsRepository, type WorkspaceTier, type WorkspaceType, type WorkspaceTypeValue, acceptInvitationSchema, addAlpha, addDays, addHours, addMinutes, aiService, archiveProjectSchema, assignTagsSchema, bulkUpdateTasksSchema, calculateAverageCompletionTime, calculateAverageTime, calculateBurndownRate, calculateCompletionRate, calculateEfficiency, calculateEstimatedCompletion, calculateFocusScore, calculatePercentile, calculateProductivityScore, calculateProgress, calculateProjectHealth, calculateStreak, calculateTimeUtilization, calculateTotalTimeWorked, calculateVelocity, calculateVoteWeight, calculateWeightedAverage, camelToTitle, capitalize, capitalizeWords, categorizeTasksByAvailability, changePasswordSchema, commentBaseSchema, commentFilterSchema, countWords, createCommentSchema, createProjectSchema, createTagSchema, createTaskSchema, createWorkspaceSchema, darkenColor, duplicateProjectSchema, endOfDay, endOfWeek, formatDate, formatDateShort, formatDuration, formatDurationFromSeconds, formatFileSize, formatNumber, formatRelativeTime, formatScheduledDateTime, formatTimeOfDay, formatTimerDisplay, formatTimerDisplayExtended, generateId, generatePalette, generateRandomString, generateSlug, generateUuid, getColorWithOpacity, getContrastColor, getCurrentTime, getDaysDiff, getInitials, getPriorityColor, getPriorityConfig, getPriorityLabel, getTaskStatusColor, getTaskStatusConfig, getTaskStatusLabel, getTimerModeColor, getTimerModeConfig, getTimerModeDefaultDuration, getTimerModeLabel, getWorkableTasks, hexToRgb, hexToRgba, highlightSearchTerms, hoursToMinutes, inviteMemberSchema, isAfter, isAllowedFileType, isAlphanumeric, isBefore, isDarkColor, isDueToday, isFuture, isImageFile, isLightColor, isOverdue, isPast, isScheduledForToday, isTaskAvailable, isTaskCompleted, isTaskInProgress, isToday, isValidEmail, isValidUrl, isValidUuid, isWorkingHours, lightenColor, loginUserSchema, minutesToHours, minutesToSeconds, mixColors, normalizeWhitespace, parseDuration, pluralize, projectBaseSchema, projectFilterSchema, randomColor, registerUserSchema, reorderTasksSchema, resetPasswordRequestSchema, resetPasswordSchema, rgbToHex, sanitizeHtml, secondsToMinutes, shouldTakeLongBreak, snakeToTitle, startOfDay, startOfToday, startOfWeek, stripHtmlTags, tagBaseSchema, tagFilterSchema, taskBaseSchema, taskDatesSchema, taskFilterSchema, transferOwnershipSchema, truncate, updateCommentSchema, updateMemberRoleSchema, updateProjectSchema, updateTagSchema, updateTaskSchema, updateUserProfileSchema, updateWorkspaceSchema, userPreferencesSchema, usernameValidationSchema, workspaceBaseSchema, workspaceFilterSchema, workspaceSettingsSchema };

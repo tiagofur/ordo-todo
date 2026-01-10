@@ -4,8 +4,9 @@ import {
   WorkspaceMember,
   WorkspaceMemberRepository,
   WorkspaceMemberInput,
+  MemberRole as CoreMemberRole,
 } from '@ordo-todo/core';
-import { MemberRole } from '@prisma/client';
+import { MemberRole as PrismaMemberRole } from '@prisma/client';
 
 @Injectable()
 export class PrismaWorkspaceMemberRepository implements WorkspaceMemberRepository {
@@ -16,7 +17,7 @@ export class PrismaWorkspaceMemberRepository implements WorkspaceMemberRepositor
       data: {
         workspaceId: input.workspaceId,
         userId: input.userId,
-        role: input.role,
+        role: this.toPrismaRole(input.role),
       },
     });
 
@@ -65,19 +66,19 @@ export class PrismaWorkspaceMemberRepository implements WorkspaceMemberRepositor
 
   async findByWorkspaceAndRole(
     workspaceId: string,
-    role: MemberRole,
+    role: CoreMemberRole,
   ): Promise<WorkspaceMember[]> {
     const members = await this.prisma.workspaceMember.findMany({
-      where: { workspaceId, role },
+      where: { workspaceId, role: this.toPrismaRole(role) },
     });
 
     return members.map((m) => this.toDomain(m));
   }
 
-  async updateRole(id: string, role: MemberRole): Promise<WorkspaceMember> {
+  async updateRole(id: string, role: CoreMemberRole): Promise<WorkspaceMember> {
     const data = await this.prisma.workspaceMember.update({
       where: { id },
-      data: { role },
+      data: { role: this.toPrismaRole(role) },
     });
 
     return this.toDomain(data);
@@ -124,7 +125,7 @@ export class PrismaWorkspaceMemberRepository implements WorkspaceMemberRepositor
 
   async findOwner(workspaceId: string): Promise<WorkspaceMember | null> {
     const owner = await this.prisma.workspaceMember.findFirst({
-      where: { workspaceId, role: MemberRole.OWNER },
+      where: { workspaceId, role: PrismaMemberRole.OWNER },
     });
 
     return owner ? this.toDomain(owner) : null;
@@ -134,7 +135,7 @@ export class PrismaWorkspaceMemberRepository implements WorkspaceMemberRepositor
     const admins = await this.prisma.workspaceMember.findMany({
       where: {
         workspaceId,
-        role: { in: [MemberRole.OWNER, MemberRole.ADMIN] },
+        role: { in: [PrismaMemberRole.OWNER, PrismaMemberRole.ADMIN] },
       },
     });
 
@@ -146,8 +147,38 @@ export class PrismaWorkspaceMemberRepository implements WorkspaceMemberRepositor
       id: prismaMember.id,
       workspaceId: prismaMember.workspaceId,
       userId: prismaMember.userId,
-      role: prismaMember.role as MemberRole,
+      role: this.toCoreRole(prismaMember.role),
       joinedAt: prismaMember.joinedAt,
     });
+  }
+
+  private toCoreRole(role: PrismaMemberRole): CoreMemberRole {
+    switch (role) {
+      case PrismaMemberRole.OWNER:
+        return CoreMemberRole.OWNER;
+      case PrismaMemberRole.ADMIN:
+        return CoreMemberRole.ADMIN;
+      case PrismaMemberRole.MEMBER:
+        return CoreMemberRole.MEMBER;
+      case PrismaMemberRole.VIEWER:
+        return CoreMemberRole.VIEWER;
+      default:
+        return CoreMemberRole.MEMBER;
+    }
+  }
+
+  private toPrismaRole(role: CoreMemberRole): PrismaMemberRole {
+    switch (role) {
+      case CoreMemberRole.OWNER:
+        return PrismaMemberRole.OWNER;
+      case CoreMemberRole.ADMIN:
+        return PrismaMemberRole.ADMIN;
+      case CoreMemberRole.MEMBER:
+        return PrismaMemberRole.MEMBER;
+      case CoreMemberRole.VIEWER:
+        return PrismaMemberRole.VIEWER;
+      default:
+        return PrismaMemberRole.MEMBER;
+    }
   }
 }

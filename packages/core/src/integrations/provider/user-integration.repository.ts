@@ -1,5 +1,5 @@
-import { UserIntegration } from '../model/user-integration.entity';
-import { IntegrationProvider } from '@prisma/client';
+import { UserIntegration, UserIntegrationProps } from '../model/user-integration.entity';
+import { IntegrationProvider } from '../model/integration-provider.enum';
 
 export interface UserIntegrationInput {
   userId: string;

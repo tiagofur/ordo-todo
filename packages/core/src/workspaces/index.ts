@@ -1,3 +1,4 @@
+export * from "./model/member-role.enum";
 export * from "./model/workspace.entity";
 export * from "./model/workspace-member.entity";
 export * from "./model/workspace-settings.entity";

@@ -1,5 +1,8 @@
 import { Entity } from '../../shared/entity';
-import { IntegrationProvider } from '@prisma/client';
+import { IntegrationProvider } from './integration-provider.enum';
+
+// Re-export IntegrationProvider for convenience
+export { IntegrationProvider };
 
 /**
  * Properties for UserIntegration entity

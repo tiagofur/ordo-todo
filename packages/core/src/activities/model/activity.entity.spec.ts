@@ -1,5 +1,5 @@
 import { Activity } from './activity.entity';
-import { ActivityType } from '@prisma/client';
+import { ActivityType } from './activity-type.enum';
 
 describe('Activity Entity', () => {
   const validProps = {

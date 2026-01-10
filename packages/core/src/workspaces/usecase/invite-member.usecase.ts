@@ -1,7 +1,7 @@
 import { WorkspaceInvitation } from "../model/workspace-invitation.entity";
 import { WorkspaceInvitationRepository } from "../provider/workspace-invitation.repository";
 import { WorkspaceRepository } from "../provider/workspace.repository";
-import { MemberRole } from "../model/workspace-member.entity";
+import { MemberRole } from "../model/member-role.enum";
 import { HashService } from "../../shared/services/hash.service";
 import { generateUuid } from "../../shared/uuid.util";
 

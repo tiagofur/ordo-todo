@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useTimerBackend, TimerMode, TimerType } from "@/hooks/use-timer-backend";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
+import { useAuth } from "@/contexts/auth-context";
 import { notify } from "@/lib/notify";
 
 interface TimerContextType {
@@ -107,6 +108,7 @@ function TimerProviderInner({ children }: { children: React.ReactNode }) {
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -121,7 +123,17 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // On client, use the full provider with React Query hooks
+  // Wait for auth to be determined before making API calls
+  // If not authenticated, don't make timer API calls
+  if (isAuthLoading || !isAuthenticated) {
+    return (
+      <TimerContext.Provider value={defaultTimerContext}>
+        {children}
+      </TimerContext.Provider>
+    );
+  }
+
+  // On client, only use the full provider with React Query hooks when authenticated
   return <TimerProviderInner>{children}</TimerProviderInner>;
 }
 

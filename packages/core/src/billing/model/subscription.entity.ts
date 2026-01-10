@@ -1,5 +1,7 @@
 import { Entity } from '../../shared/entity';
-import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
+import { SubscriptionPlan, SubscriptionStatus } from './subscription-enums';
+
+// Re-export subscription enums for convenience
 export { SubscriptionPlan, SubscriptionStatus };
 
 /**

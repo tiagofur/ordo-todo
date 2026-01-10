@@ -1,5 +1,8 @@
 import { Entity } from '../../shared/entity';
-import { RecurrencePattern } from '@prisma/client';
+import { RecurrencePattern } from './recurrence-pattern.enum';
+
+// Re-export RecurrencePattern for convenience
+export { RecurrencePattern };
 
 /**
  * Properties for Recurrence entity

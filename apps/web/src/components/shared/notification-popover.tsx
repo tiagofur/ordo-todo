@@ -29,17 +29,27 @@ export function NotificationPopover() {
     markAllAsRead.mutate();
   };
 
-  const formatTime = (date: string | Date) => {
+  const formatTime = (date: string | Date | null | undefined) => {
+    if (!date) return '';
+
     const localeMap: Record<string, typeof enUS> = {
       es: es,
       'pt-br': ptBR,
       en: enUS
     };
-    
-    return formatDistanceToNow(new Date(date), { 
-      addSuffix: true, 
-      locale: localeMap[locale] || enUS 
-    });
+
+    try {
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return '';
+
+      return formatDistanceToNow(dateObj, {
+        addSuffix: true,
+        locale: localeMap[locale] || enUS
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error, 'date value:', date);
+      return '';
+    }
   };
 
   return (

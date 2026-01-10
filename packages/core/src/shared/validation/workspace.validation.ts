@@ -11,10 +11,12 @@ import { WORKSPACE_LIMITS } from "../constants/limits.constants";
  */
 export const WORKSPACE_TYPES = ["PERSONAL", "WORK", "TEAM"] as const;
 
+import { MemberRole } from "../../workspaces/model/member-role.enum";
+
 /**
  * Member role enum
  */
-export const MEMBER_ROLES = ["OWNER", "ADMIN", "MEMBER", "VIEWER"] as const;
+export const MEMBER_ROLES = [MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER] as const;
 
 /**
  * Base workspace schema

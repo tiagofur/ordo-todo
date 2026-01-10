@@ -1,6 +1,7 @@
 import { UseCase } from '../../shared/use-case';
 import { SubscriptionRepository, SubscriptionInput } from '../provider/subscription.repository';
-import { Subscription, SubscriptionPlan } from '../model/subscription.entity';
+import { Subscription } from '../model/subscription.entity';
+import { SubscriptionPlan } from '../model/subscription-enums';
 
 export interface UpgradePlanInput {
   subscriptionId: string;
@@ -9,7 +10,7 @@ export interface UpgradePlanInput {
 }
 
 export class UpgradePlanUseCase implements UseCase<UpgradePlanInput, Subscription> {
-  constructor(private readonly subscriptionRepo: SubscriptionRepository) {}
+  constructor(private readonly subscriptionRepo: SubscriptionRepository) { }
 
   async execute(input: UpgradePlanInput): Promise<Subscription> {
     const subscription = await this.subscriptionRepo.findById(input.subscriptionId);

@@ -367,7 +367,17 @@ export function usePermanentDeleteProject() {
 export function useDeletedTasks(projectId: string) {
   return useQuery({
     queryKey: ["tasks", "deleted", projectId],
-    queryFn: () => apiClient.getDeletedTasks(projectId),
+    queryFn: async () => {
+      console.log('[useDeletedTasks] Fetching deleted tasks for projectId:', projectId);
+      try {
+        const result = await apiClient.getDeletedTasks(projectId);
+        console.log('[useDeletedTasks] Result:', result);
+        return result;
+      } catch (error) {
+        console.error('[useDeletedTasks] Error:', error);
+        throw error;
+      }
+    },
     enabled: !!projectId,
   });
 }

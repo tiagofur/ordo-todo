@@ -1,5 +1,5 @@
 import { Entity, EntityProps } from "../../shared/entity";
-import { MemberRole } from "./workspace-member.entity";
+import { MemberRole } from "./member-role.enum";
 
 export type InviteStatus = "PENDING" | "ACCEPTED" | "EXPIRED" | "CANCELLED";
 
@@ -21,7 +21,7 @@ export class WorkspaceInvitation extends Entity<WorkspaceInvitationProps> {
         super({
             ...props,
             status: props.status ?? "PENDING",
-            role: props.role ?? "MEMBER",
+            role: props.role ?? MemberRole.MEMBER,
             createdAt: props.createdAt ?? new Date(),
             updatedAt: props.updatedAt ?? new Date(),
         });

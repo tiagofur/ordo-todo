@@ -12,7 +12,7 @@ import {
   WorkspaceType,
   WorkspaceTier,
   WorkspaceMember,
-  MemberRole,
+  MemberRole as CoreMemberRole,
 } from "@ordo-todo/core";
 
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
@@ -73,30 +73,30 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
   }
 
-  private mapRoleToDomain(role: PrismaMemberRole): MemberRole {
+  private mapRoleToDomain(role: PrismaMemberRole): CoreMemberRole {
     switch (role) {
       case "OWNER":
-        return "OWNER";
+        return CoreMemberRole.OWNER;
       case "ADMIN":
-        return "ADMIN";
+        return CoreMemberRole.ADMIN;
       case "MEMBER":
-        return "MEMBER";
+        return CoreMemberRole.MEMBER;
       case "VIEWER":
-        return "VIEWER";
+        return CoreMemberRole.VIEWER;
       default:
-        return "MEMBER";
+        return CoreMemberRole.MEMBER;
     }
   }
 
-  private mapRoleToPrisma(role: MemberRole): PrismaMemberRole {
+  private mapRoleToPrisma(role: CoreMemberRole): PrismaMemberRole {
     switch (role) {
-      case "OWNER":
+      case CoreMemberRole.OWNER:
         return "OWNER";
-      case "ADMIN":
+      case CoreMemberRole.ADMIN:
         return "ADMIN";
-      case "MEMBER":
+      case CoreMemberRole.MEMBER:
         return "MEMBER";
-      case "VIEWER":
+      case CoreMemberRole.VIEWER:
         return "VIEWER";
       default:
         return "MEMBER";
@@ -333,7 +333,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
   async listMembersWithUser(workspaceId: string): Promise<
     Array<{
       userId: string;
-      role: MemberRole;
+      role: CoreMemberRole;
       user: {
         id: string;
         name: string | null;

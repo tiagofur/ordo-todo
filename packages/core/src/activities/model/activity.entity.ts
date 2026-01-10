@@ -1,5 +1,8 @@
 import { Entity } from '../../shared/entity';
-import { ActivityType } from '@prisma/client';
+import { ActivityType } from './activity-type.enum';
+
+// Re-export ActivityType for convenience
+export { ActivityType };
 
 /**
  * Metadata structure for activity logs

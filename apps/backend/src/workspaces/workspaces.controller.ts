@@ -20,7 +20,8 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { MemberRole } from '@prisma/client';
+import { MemberRole as CoreMemberRole } from '@ordo-todo/core';
+import { MemberRole as PrismaMemberRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { WorkspaceGuard } from '../common/guards/workspace.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -194,10 +195,10 @@ export class WorkspacesController {
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(
-    MemberRole.OWNER,
-    MemberRole.ADMIN,
-    MemberRole.MEMBER,
-    MemberRole.VIEWER,
+    CoreMemberRole.OWNER,
+    CoreMemberRole.ADMIN,
+    CoreMemberRole.MEMBER,
+    CoreMemberRole.VIEWER,
   )
   @ApiOperation({
     summary: 'Get workspace by ID',
@@ -275,10 +276,10 @@ export class WorkspacesController {
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(
-    MemberRole.OWNER,
-    MemberRole.ADMIN,
-    MemberRole.MEMBER,
-    MemberRole.VIEWER,
+    CoreMemberRole.OWNER,
+    CoreMemberRole.ADMIN,
+    CoreMemberRole.MEMBER,
+    CoreMemberRole.VIEWER,
   )
   @ApiOperation({
     summary: 'Get workspace members',
@@ -323,7 +324,7 @@ export class WorkspacesController {
   @Post(':id/members')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Add member to workspace',
@@ -364,7 +365,7 @@ export class WorkspacesController {
   @Delete(':id/members/:userId')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Remove member from workspace',
@@ -391,7 +392,7 @@ export class WorkspacesController {
   @Post(':id/invitations')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Invite user to workspace',
@@ -428,7 +429,7 @@ export class WorkspacesController {
       workspaceId,
       user.id,
       inviteMemberDto.email,
-      inviteMemberDto.role || 'MEMBER',
+      this.mapStringToMemberRole(inviteMemberDto.role || 'MEMBER'),
     );
   }
 
@@ -439,7 +440,7 @@ export class WorkspacesController {
   @Get(':id/invitations')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @ApiOperation({
     summary: 'Get workspace invitations',
     description: 'Returns all pending invitations for the workspace.',
@@ -513,7 +514,7 @@ export class WorkspacesController {
   @Get(':id/settings')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @ApiOperation({
     summary: 'Get workspace settings',
     description: 'Returns workspace settings and preferences.',
@@ -551,7 +552,7 @@ export class WorkspacesController {
   @Put(':id/settings')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @ApiOperation({
     summary: 'Update workspace settings',
     description: 'Updates workspace settings and preferences.',
@@ -598,7 +599,7 @@ export class WorkspacesController {
   @Get(':id/audit-logs')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @ApiOperation({
     summary: 'Get workspace audit logs',
     description: 'Returns audit log of workspace activities.',
@@ -654,7 +655,7 @@ export class WorkspacesController {
   @Post(':id/audit-logs')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create audit log entry',
@@ -750,7 +751,7 @@ export class WorkspacesController {
   @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER, MemberRole.ADMIN)
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
   @ApiOperation({
     summary: 'Update workspace',
     description:
@@ -796,7 +797,7 @@ export class WorkspacesController {
   @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER)
+  @Roles(CoreMemberRole.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete workspace (soft delete)',
@@ -818,7 +819,7 @@ export class WorkspacesController {
   @Post(':id/restore')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER)
+  @Roles(CoreMemberRole.OWNER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Restore deleted workspace',
@@ -856,7 +857,7 @@ export class WorkspacesController {
   @Delete(':id/permanent')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER)
+  @Roles(CoreMemberRole.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Permanently delete workspace',
@@ -882,7 +883,7 @@ export class WorkspacesController {
   @Post(':id/archive')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
-  @Roles(MemberRole.OWNER)
+  @Roles(CoreMemberRole.OWNER)
   @ApiOperation({
     summary: 'Archive workspace',
     description: 'Marks workspace as archived.',
@@ -907,5 +908,18 @@ export class WorkspacesController {
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   archive(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.workspacesService.archive(id, user.id);
+  }
+
+  private mapStringToMemberRole(
+    role: 'ADMIN' | 'MEMBER' | 'VIEWER',
+  ): Exclude<CoreMemberRole, CoreMemberRole.OWNER> {
+    switch (role) {
+      case 'ADMIN':
+        return CoreMemberRole.ADMIN;
+      case 'MEMBER':
+        return CoreMemberRole.MEMBER;
+      case 'VIEWER':
+        return CoreMemberRole.VIEWER;
+    }
   }
 }

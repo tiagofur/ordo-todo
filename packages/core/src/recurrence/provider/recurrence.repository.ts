@@ -1,5 +1,5 @@
 import { Recurrence } from '../model/recurrence.entity';
-import { RecurrencePattern } from '@prisma/client';
+import { RecurrencePattern } from '../model/recurrence-pattern.enum';
 
 /**
  * Input for creating/updating recurrence

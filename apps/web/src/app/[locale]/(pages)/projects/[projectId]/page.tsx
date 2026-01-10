@@ -28,6 +28,7 @@ import {
   useDeleteProject,
   useCreateTask,
   useUpdateProject,
+  useDeleteTask,
 } from "@/lib/api-hooks";
 import { AppLayout } from "@/components/shared/app-layout";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -65,6 +66,7 @@ export default function ProjectDetailPage() {
   const archiveProject = useArchiveProject();
   const completeProject = useCompleteProject();
   const deleteProject = useDeleteProject();
+  const deleteTask = useDeleteTask();
 
   const handleArchive = () => {
     if (!project) return;
@@ -112,6 +114,19 @@ export default function ProjectDetailPage() {
         onSuccess: () => {
           notify.success(t("toast.deleted"));
           router.push("/projects");
+        },
+      });
+    }
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    if (confirm(t("confirmDeleteTask") || "Are you sure you want to delete this task?")) {
+      deleteTask.mutate(taskId, {
+        onSuccess: () => {
+          notify.success(t("toast.taskDeleted") || "Task deleted successfully");
+        },
+        onError: () => {
+          notify.error(t("toast.taskDeleteError") || "Failed to delete task");
         },
       });
     }
@@ -427,6 +442,7 @@ export default function ProjectDetailPage() {
                       viewMode="grid"
                       showProject={false}
                       showGradient={true}
+                      onDelete={handleDeleteTask}
                     />
                   ))}
                 </div>
@@ -524,6 +540,7 @@ export default function ProjectDetailPage() {
                           viewMode={viewMode}
                           showProject={false}
                           showGradient={true}
+                          onDelete={handleDeleteTask}
                         />
                       ))}
                     </div>
@@ -551,6 +568,7 @@ export default function ProjectDetailPage() {
                           viewMode={viewMode}
                           showProject={false}
                           showGradient={true}
+                          onDelete={handleDeleteTask}
                         />
                       ))}
                     </div>
@@ -578,6 +596,7 @@ export default function ProjectDetailPage() {
                           viewMode={viewMode}
                           showProject={false}
                           showGradient={true}
+                          onDelete={handleDeleteTask}
                         />
                       ))}
                     </div>

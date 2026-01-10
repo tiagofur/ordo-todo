@@ -45,7 +45,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) {}
+  ) { }
 
   /**
    * Creates a new task with automatic priority calculation and notifications
@@ -233,30 +233,40 @@ export class TasksService {
     tags?: string[],
     assignedToMe?: boolean,
   ) {
-    this.logger.debug(
-      `Finding tasks for user ${userId} with tags: ${JSON.stringify(tags)}, assignedToMe: ${assignedToMe}`,
-    );
-    const tasks = await this.taskRepository.findByWorkspaceMemberships(userId, {
-      projectId,
-      tags,
-    });
-    this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
-    // Filter only main tasks (no parentTaskId)
-    // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
-    let filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
-
-    // Apply "My Tasks" filter - show only tasks assigned to the current user
-    if (assignedToMe) {
-      filteredTasks = filteredTasks.filter(
-        (t) => t.props.assigneeId === userId,
-      );
+    try {
       this.logger.debug(
-        `Filtered to ${filteredTasks.length} tasks assigned to user`,
+        `Finding tasks for user ${userId} with tags: ${JSON.stringify(
+          tags,
+        )}, assignedToMe: ${assignedToMe}`,
       );
-    }
+      const tasks = await this.taskRepository.findByWorkspaceMemberships(userId, {
+        projectId,
+        tags,
+      });
+      this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
+      // Filter only main tasks (no parentTaskId)
+      // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
+      let filteredTasks = tasks.filter((t) => !t.props.parentTaskId);
 
-    this.logger.debug(`Returning ${filteredTasks.length} main tasks`);
-    return filteredTasks.map((t) => t.props);
+      // Apply "My Tasks" filter - show only tasks assigned to the current user
+      if (assignedToMe) {
+        filteredTasks = filteredTasks.filter(
+          (t) => t.props.assigneeId === userId,
+        );
+        this.logger.debug(
+          `Filtered to ${filteredTasks.length} tasks assigned to user`,
+        );
+      }
+
+      this.logger.debug(`Returning ${filteredTasks.length} main tasks`);
+      return filteredTasks.map((t) => t.props);
+    } catch (error) {
+      this.logger.error(
+        `Error finding tasks for user ${userId}, project ${projectId}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   /**
@@ -701,10 +711,34 @@ export class TasksService {
    * @see {@link ../tasks.controller.ts | Tasks Controller}
    */
   async remove(id: string) {
+    this.logger.log(`[Soft Delete] Starting soft delete for task: ${id}`);
+
+    // Check if task exists before deleting
+    const existingTask = await this.prisma.task.findUnique({
+      where: { id },
+      select: { id: true, title: true, isDeleted: true, projectId: true }
+    });
+
+    if (!existingTask) {
+      this.logger.error(`[Soft Delete] Task not found: ${id}`);
+      throw new NotFoundException('Task not found');
+    }
+
+    this.logger.log(`[Soft Delete] Task found: ${existingTask.title}, current isDeleted: ${existingTask.isDeleted}, projectId: ${existingTask.projectId}`);
+
     const softDeleteTaskUseCase = new SoftDeleteTaskUseCase(
       this.taskRepository,
     );
     await softDeleteTaskUseCase.execute(id);
+
+    // Verify the delete was successful
+    const deletedTask = await this.prisma.task.findUnique({
+      where: { id },
+      select: { id: true, isDeleted: true, deletedAt: true }
+    });
+
+    this.logger.log(`[Soft Delete] Task after delete: isDeleted=${deletedTask?.isDeleted}, deletedAt=${deletedTask?.deletedAt}`);
+
     return { success: true };
   }
 
@@ -715,10 +749,21 @@ export class TasksService {
    * @returns List of deleted tasks
    */
   async getDeleted(projectId: string) {
+    this.logger.log(`[Get Deleted Tasks] Fetching deleted tasks for projectId: ${projectId}`);
+
     const getDeletedTasksUseCase = new GetDeletedTasksUseCase(
       this.taskRepository,
     );
-    return getDeletedTasksUseCase.execute(projectId);
+    const result = await getDeletedTasksUseCase.execute(projectId);
+
+    this.logger.log(`[Get Deleted Tasks] Found ${result.length} deleted tasks for projectId: ${projectId}`);
+    if (result.length > 0) {
+      result.forEach(task => {
+        this.logger.log(`[Get Deleted Tasks] - Task: ${task.props.title}, isDeleted: ${task.props.isDeleted}, deletedAt: ${task.props.deletedAt}`);
+      });
+    }
+
+    return result.map((t) => t.props);
   }
 
   /**

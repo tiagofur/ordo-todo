@@ -1,5 +1,5 @@
 import { WorkspaceMember } from '../model/workspace-member.entity';
-import { MemberRole } from '@prisma/client';
+import { MemberRole } from '../model/member-role.enum';
 
 /**
  * Input for creating workspace member

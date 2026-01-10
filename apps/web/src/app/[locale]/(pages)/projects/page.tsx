@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import { FolderKanban, Plus } from "lucide-react";
-import { useProjects, useCreateProject } from "@/lib/api-hooks";
+import { useProjects, useCreateProject, useWorkflows, useCreateWorkflow } from "@/lib/api-hooks";
 import { ProjectCard } from "@/components/project/project-card";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { motion } from "framer-motion";
@@ -26,6 +26,9 @@ export default function ProjectsPage() {
 
   const { data: projects, isLoading } = useProjects(selectedWorkspaceId as string);
   const { mutateAsync: createProject } = useCreateProject();
+
+  const { data: workflows } = useWorkflows(selectedWorkspaceId || "");
+  const { mutateAsync: createWorkflow } = useCreateWorkflow();
 
   return (
     <AppLayout>
@@ -97,7 +100,7 @@ export default function ProjectsPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
             className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          >
+            >
             {projects.map((project: any, index: number) => (
               <ProjectCard
                 key={project.id}
@@ -140,15 +143,37 @@ export default function ProjectsPage() {
           open={showCreateProject}
           onOpenChange={setShowCreateProject}
           workspaceId={selectedWorkspaceId || undefined}
+          workflows={workflows?.map(w => ({ id: w.id, name: w.name })) || []}
           onSubmit={async (data) => {
+            let workflowId = data.workflowId;
+
+            if (!workflowId || workflowId === "NEW") {
+               if (workflows && workflows.length > 0) {
+                  workflowId = workflows[0].id;
+               } else if (selectedWorkspaceId) {
+                  const newWorkflow = await createWorkflow({
+                    name: "Default Workflow",
+                    workspaceId: selectedWorkspaceId,
+                  });
+                  workflowId = newWorkflow.id;
+               }
+            }
+
             await createProject({
               name: data.name,
               description: data.description,
               color: data.color,
               workspaceId: data.workspaceId,
-              workflowId: data.workflowId || 'NEW', // Default to NEW if undefined, assuming backend handles it
+              workflowId: workflowId || "", // Should be valid now
             });
             setShowCreateProject(false);
+          }}
+          onCreateWorkflow={async (wsId) => {
+             const newWorkflow = await createWorkflow({
+               name: "Default Workflow",
+               workspaceId: wsId,
+             });
+             return newWorkflow.id;
           }}
         />
       </div>

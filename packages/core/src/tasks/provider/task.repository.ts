@@ -49,6 +49,22 @@ export interface TaskRepository {
   findById(id: string): Promise<Task | null>;
 
   /**
+   * Finds a task by its unique ID, including soft-deleted tasks.
+   *
+   * @param id - The unique identifier of the task
+   * @returns Promise that resolves to the task if found, null otherwise
+   *
+   * @example
+   * ```typescript
+   * const task = await repository.findByIdIncludeDeleted('task-123');
+   * if (task && task.props.isDeleted) {
+   *   console.log('Task is in trash');
+   * }
+   * ```
+   */
+  findByIdIncludeDeleted(id: string): Promise<Task | null>;
+
+  /**
    * Finds all tasks owned by a specific user.
    *
    * @param ownerId - The unique identifier of the task owner

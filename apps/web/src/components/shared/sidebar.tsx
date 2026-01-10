@@ -22,8 +22,9 @@ import {
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
-import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
-import { useCreateWorkspace } from "@/lib/api-hooks";
+import { WorkspaceSelector, type WorkspaceSelectorItem } from "@/components/workspace/workspace-selector";
+import { useWorkspaces, useCreateWorkspace } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TimerWidget } from "@/components/timer/timer-widget";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
@@ -40,15 +41,44 @@ export function Sidebar() {
   const params = useParams();
   const workspaceSlug = params?.slug as string;
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+
+  // Workspace data and state
+  const { data: workspaces, isLoading: isLoadingWorkspaces } = useWorkspaces();
+  const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const createWorkspace = useCreateWorkspace();
 
   const handleCreateWorkspace = async (data: any) => {
     try {
-      await createWorkspace.mutateAsync(data);
+      const result = await createWorkspace.mutateAsync(data);
+
+      // Auto-select the newly created workspace
+      if (result?.id) {
+        setSelectedWorkspaceId(result.id);
+      }
+
       setShowCreateWorkspace(false);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  // Convert workspaces to selector items
+  const workspaceItems: WorkspaceSelectorItem[] = (workspaces || []).map((ws) => ({
+    id: ws.id,
+    slug: ws.slug,
+    name: ws.name,
+    type: ws.type,
+    color: ws.color,
+    stats: {
+      projectCount: ws.stats?.projectCount || 0,
+      taskCount: ws.stats?.taskCount || 0,
+    },
+  }));
+
+  const handleSelectWorkspace = (workspace: WorkspaceSelectorItem) => {
+    setSelectedWorkspaceId(workspace.id);
+    // Navigate to the selected workspace
+    // You can add navigation logic here if needed
   };
 
   const navItems: NavItem[] = [
@@ -89,30 +119,18 @@ export function Sidebar() {
       icon: Briefcase,
       color: "orange",
     },
-    {
-      name: t("workspacesTrash"),
-      href: "/workspaces/trash",
-      icon: Trash2,
-      color: "red",
-    },
-    {
-      name: t("projectsTrash"),
-      href: "/projects/trash",
-      icon: Trash2,
-      color: "purple",
-    },
-    {
-      name: t("tasksTrash"),
-      href: "/tasks/trash",
-      icon: Trash2,
-      color: "pink",
-    },
     { name: t("tags"), href: "/tags", icon: Tags, color: "green" },
     {
       name: t("analytics"),
       href: "/analytics",
       icon: BarChart3,
       color: "cyan",
+    },
+    {
+      name: t("trash"),
+      href: "/trash",
+      icon: Trash2,
+      color: "red",
     },
   ];
 
@@ -129,6 +147,10 @@ export function Sidebar() {
         renderTimerWidget={() => <TimerWidget />}
         renderWorkspaceSelector={() => (
           <WorkspaceSelector
+            workspaces={workspaceItems}
+            selectedWorkspaceId={selectedWorkspaceId}
+            isLoading={isLoadingWorkspaces}
+            onSelect={handleSelectWorkspace}
             onCreateClick={() => setShowCreateWorkspace(true)}
           />
         )}

@@ -1,5 +1,5 @@
 import { Subscription } from '../model/subscription.entity';
-import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
+import { SubscriptionPlan, SubscriptionStatus } from '../model/subscription-enums';
 
 /**
  * Input for creating/updating subscription

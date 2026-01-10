@@ -82,7 +82,7 @@ export const FILE_LIMITS = {
 export const USER_LIMITS = {
     NAME_MIN_LENGTH: 2,
     NAME_MAX_LENGTH: 100,
-    PASSWORD_MIN_LENGTH: 6,
+    PASSWORD_MIN_LENGTH: 8,
     PASSWORD_MAX_LENGTH: 128,
     BIO_MAX_LENGTH: 500,
 } as const;

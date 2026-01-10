@@ -28,6 +28,7 @@ import {
   CreateAuditLogUseCase,
   GetWorkspaceAuditLogsUseCase,
   CreateWorkflowUseCase,
+  MemberRole,
 } from '@ordo-todo/core';
 import type { WorkspaceInvitationRepository } from '@ordo-todo/core';
 import type { Workspace } from '@ordo-todo/core';
@@ -364,7 +365,7 @@ export class WorkspacesService {
     const member = await addMemberToWorkspaceUseCase.execute(
       workspaceId,
       addMemberDto.userId,
-      addMemberDto.role ?? 'MEMBER',
+      this.mapStringToMemberRole(addMemberDto.role) ?? MemberRole.MEMBER,
     );
 
     // Log member addition
@@ -416,7 +417,7 @@ export class WorkspacesService {
     workspaceId: string,
     userId: string,
     email: string,
-    role: 'ADMIN' | 'MEMBER' | 'VIEWER',
+    role: Exclude<MemberRole, MemberRole.OWNER>,
   ) {
     const inviteMemberUseCase = new InviteMemberUseCase(
       this.workspaceRepository,
@@ -630,7 +631,7 @@ export class WorkspacesService {
         const addMemberUseCase = new AddMemberToWorkspaceUseCase(
           this.workspaceRepository,
         );
-        await addMemberUseCase.execute(workspaceId, ownerId, 'OWNER');
+        await addMemberUseCase.execute(workspaceId, ownerId, MemberRole.OWNER);
       }
     } catch {
       // Ignore errors - the owner will still appear via virtual member
@@ -717,5 +718,21 @@ export class WorkspacesService {
     });
 
     return log.props;
+  }
+
+  private mapStringToMemberRole(
+    role?: 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER',
+  ): MemberRole | undefined {
+    if (!role) return undefined;
+    switch (role) {
+      case 'OWNER':
+        return MemberRole.OWNER;
+      case 'ADMIN':
+        return MemberRole.ADMIN;
+      case 'MEMBER':
+        return MemberRole.MEMBER;
+      case 'VIEWER':
+        return MemberRole.VIEWER;
+    }
   }
 }

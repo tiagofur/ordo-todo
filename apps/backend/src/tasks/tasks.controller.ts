@@ -177,6 +177,27 @@ export class TasksController {
   }
 
   /**
+   * Get soft-deleted tasks for a project
+   * Must be BEFORE @Get(':id') to avoid route conflicts!
+   */
+  @Get('deleted')
+  @UseGuards(TaskGuard)
+  @Roles(
+    MemberRole.OWNER,
+    MemberRole.ADMIN,
+    MemberRole.MEMBER,
+    MemberRole.VIEWER,
+  )
+  @CacheTTL(CACHE_TTL.TASKS)
+  @ApiOperation({ summary: 'Get soft-deleted tasks for a project' })
+  @ApiQuery({ name: 'projectId', required: false, description: 'Filter by project ID' })
+  @ApiResponseDecorator({ status: 200, description: 'Deleted tasks retrieved' })
+  @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
+  getDeleted(@Query('projectId') projectId: string) {
+    return this.tasksService.getDeleted(projectId);
+  }
+
+  /**
    * Get a single task by ID
    * Requires any role in workspace (TaskGuard verifies workspace membership)
    *
@@ -245,19 +266,6 @@ export class TasksController {
       tagList,
       filterAssignedToMe,
     );
-  }
-
-  @Get('deleted')
-  @UseGuards(TaskGuard)
-  @Roles(
-    MemberRole.OWNER,
-    MemberRole.ADMIN,
-    MemberRole.MEMBER,
-    MemberRole.VIEWER,
-  )
-  @CacheTTL(CACHE_TTL.TASKS)
-  getDeleted(@Query('projectId') projectId: string) {
-    return this.tasksService.getDeleted(projectId);
   }
 
   @Delete(':id')

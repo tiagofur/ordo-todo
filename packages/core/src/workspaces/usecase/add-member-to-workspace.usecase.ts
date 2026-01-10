@@ -1,10 +1,11 @@
-import { WorkspaceMember, MemberRole } from "../model/workspace-member.entity";
+import { WorkspaceMember } from "../model/workspace-member.entity";
+import { MemberRole } from "../model/member-role.enum";
 import { WorkspaceRepository } from "../provider/workspace.repository";
 
 export class AddMemberToWorkspaceUseCase {
     constructor(private workspaceRepository: WorkspaceRepository) { }
 
-    async execute(workspaceId: string, userId: string, role: MemberRole = "MEMBER"): Promise<WorkspaceMember> {
+    async execute(workspaceId: string, userId: string, role: MemberRole = MemberRole.MEMBER): Promise<WorkspaceMember> {
         // Check if workspace exists
         const workspace = await this.workspaceRepository.findById(workspaceId);
         if (!workspace) {
