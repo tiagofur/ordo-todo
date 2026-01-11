@@ -917,6 +917,12 @@
           "WORK": "Trabalho",
           "TEAM": "Equipe"
         }
+      },
+      "color": {
+         "label": "Cor"
+      },
+      "icon": {
+         "label": "Ícone"
       }
     },
     "dangerZone": {

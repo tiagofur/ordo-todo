@@ -140,8 +140,17 @@ export function WorkspaceCard({
     onOpenSettings?.(workspace.id);
   };
 
-  const typeInfo = typeConfig[workspace.type];
+  const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
   const TypeIcon = typeInfo.icon;
+
+  // Use custom color if available, otherwise fallback to type default
+  const displayColor = workspace.color || typeInfo.hexColor;
+  
+  // Use 15% opacity of the custom color for background (hex + 26 = ~15% alpha)
+  // This works well for both light and dark modes compared to solid opaque colors
+  const displayBg = workspace.color 
+    ? `${workspace.color}26` 
+    : typeInfo.bgSolid;
 
   return (
     <>
@@ -158,7 +167,7 @@ export function WorkspaceCard({
         )}
         style={{
           borderLeftWidth: '4px',
-          borderLeftColor: typeInfo.hexColor,
+          borderLeftColor: displayColor,
         }}
       >
         <div className="relative z-10 flex flex-col h-full">
@@ -168,11 +177,15 @@ export function WorkspaceCard({
               <div
                 className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                 style={{
-                  backgroundColor: typeInfo.bgSolid,
-                  color: typeInfo.hexColor,
+                  backgroundColor: displayBg,
+                  color: displayColor,
                 }}
               >
-                <TypeIcon className="h-7 w-7" />
+                {workspace.icon ? (
+                  <span className="text-2xl leading-none select-none">{workspace.icon}</span>
+                ) : (
+                  <TypeIcon className="h-7 w-7" />
+                )}
               </div>
 
               <div className="flex-1">
@@ -184,8 +197,8 @@ export function WorkspaceCard({
                   <span
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200"
                     style={{
-                      backgroundColor: typeInfo.bgSolid,
-                      color: typeInfo.hexColor,
+                      backgroundColor: displayBg,
+                      color: displayColor,
                     }}
                   >
                     {t.types[workspace.type]}

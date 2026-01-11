@@ -862,7 +862,18 @@ export const apiClient = {
   getNotes: (workspaceId: string): Promise<Note[]> =>
     axiosInstance
       .get("/notes", { params: { workspaceId } })
-      .then((res) => res.data),
+      .then((res) => {
+        // Handle paginated response: { data: [...], meta: {...} }
+        if (res.data && res.data.data && Array.isArray(res.data.data)) {
+          return res.data.data;
+        }
+        // Handle direct array response
+        if (res.data && Array.isArray(res.data)) {
+          return res.data;
+        }
+        // Default to empty array if response is unexpected
+        return [];
+      }),
   getNote: (id: string): Promise<Note> =>
     axiosInstance.get(`/notes/${id}`).then((res) => res.data),
   createNote: (data: CreateNoteDto): Promise<Note> =>

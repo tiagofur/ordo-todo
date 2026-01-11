@@ -47,6 +47,9 @@ export function Sidebar() {
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
   const createWorkspace = useCreateWorkspace();
 
+  const selectedWorkspace = workspaces?.find((w) => w.id === selectedWorkspaceId);
+  const effectiveSlug = workspaceSlug || selectedWorkspace?.slug;
+
   const handleCreateWorkspace = async (data: any) => {
     try {
       const result = await createWorkspace.mutateAsync(data);
@@ -84,9 +87,9 @@ export function Sidebar() {
   const navItems: NavItem[] = [
     { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
     { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-    ...(workspaceSlug ? [{
+    ...(effectiveSlug ? [{
       name: t("notes"),
-      href: `/workspaces/${workspaceSlug}/notes`,
+      href: `/workspaces/${effectiveSlug}/notes`,
       icon: StickyNote,
       color: "yellow" as const
     }] : []),

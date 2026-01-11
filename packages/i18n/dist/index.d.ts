@@ -150,6 +150,9 @@ export declare const locales: {
             allClear: string;
             noTasksWithTagDescription: string;
             noPendingTasks: string;
+            confirmDeleteTask: string;
+            taskDeleted: string;
+            taskDeleteError: string;
         };
         Notes: {
             title: string;
@@ -950,6 +953,12 @@ export declare const locales: {
                         WORK: string;
                         TEAM: string;
                     };
+                };
+                color: {
+                    label: string;
+                };
+                icon: {
+                    label: string;
                 };
             };
             dangerZone: {
@@ -2510,6 +2519,9 @@ export declare const locales: {
             allClear: string;
             noTasksWithTagDescription: string;
             noPendingTasks: string;
+            confirmDeleteTask: string;
+            taskDeleted: string;
+            taskDeleteError: string;
         };
         Notes: {
             title: string;
@@ -3310,6 +3322,12 @@ export declare const locales: {
                         WORK: string;
                         TEAM: string;
                     };
+                };
+                color: {
+                    label: string;
+                };
+                icon: {
+                    label: string;
                 };
             };
             dangerZone: {
@@ -4869,6 +4887,9 @@ export declare const locales: {
             allClear: string;
             noTasksWithTagDescription: string;
             noPendingTasks: string;
+            confirmDeleteTask: string;
+            taskDeleted: string;
+            taskDeleteError: string;
         };
         Projects: {
             title: string;
@@ -5643,6 +5664,12 @@ export declare const locales: {
                         WORK: string;
                         TEAM: string;
                     };
+                };
+                color: {
+                    label: string;
+                };
+                icon: {
+                    label: string;
                 };
             };
             dangerZone: {

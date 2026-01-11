@@ -124,7 +124,10 @@
     "noTasksWithTag": "No hay tareas con esta etiqueta",
     "allClear": "Todo en orden",
     "noTasksWithTagDescription": "No se encontraron tareas con la etiqueta \"{tagName}\".",
-    "noPendingTasks": "No tienes tareas pendientes. ¡Buen trabajo!"
+    "noPendingTasks": "No tienes tareas pendientes. ¡Buen trabajo!",
+    "confirmDeleteTask": "¿Estás seguro de que quieres eliminar esta tarea?",
+    "taskDeleted": "Tarea eliminada exitosamente",
+    "taskDeleteError": "Error al eliminar la tarea"
   },
   "Notes": {
     "title": "Notas",
@@ -943,6 +946,12 @@
           "WORK": "Trabajo",
           "TEAM": "Equipo"
         }
+      },
+      "color": {
+         "label": "Color"
+      },
+      "icon": {
+         "label": "Icono"
       }
     },
     "dangerZone": {

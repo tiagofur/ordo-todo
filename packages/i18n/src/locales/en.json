@@ -946,6 +946,12 @@
           "WORK": "Work",
           "TEAM": "Team"
         }
+      },
+      "color": {
+         "label": "Color"
+      },
+      "icon": {
+         "label": "Icon"
       }
     },
     "dangerZone": {

@@ -946,6 +946,12 @@
           "WORK": "Trabajo",
           "TEAM": "Equipo"
         }
+      },
+      "color": {
+         "label": "Color"
+      },
+      "icon": {
+         "label": "Icono"
       }
     },
     "dangerZone": {
