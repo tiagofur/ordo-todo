@@ -12,4 +12,5 @@ export { Profile } from "./Profile";
 export { Auth } from "./Auth";
 export { Wellbeing } from "./Wellbeing";
 export { Workload } from "./Workload";
+export { Notes } from "./Notes";
 

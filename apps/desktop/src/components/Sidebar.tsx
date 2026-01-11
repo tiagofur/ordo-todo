@@ -8,6 +8,7 @@ import {
   Briefcase,
   Calendar,
   Sparkles,
+  StickyNote,
 } from "lucide-react";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
@@ -28,6 +29,7 @@ export default function Sidebar({ className }: SidebarProps) {
     { name: t("Sidebar.habits", "Habits"), href: "/habits", icon: Sparkles, color: "green" },
     { name: t("Sidebar.calendar", "Calendar"), href: "/calendar", icon: Calendar, color: "blue" },
     { name: t("Sidebar.projects", "Projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("Sidebar.notes", "Notes"), href: "/notes", icon: StickyNote, color: "yellow" },
     { name: t("Sidebar.workspaces", "Workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
     { name: t("Sidebar.tags", "Tags"), href: "/tags", icon: Tags, color: "green" },
     { name: t("Sidebar.analytics", "Analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },

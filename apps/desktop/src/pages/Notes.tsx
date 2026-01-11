@@ -8,10 +8,10 @@ import { Button } from "@ordo-todo/ui";
 export function Notes() {
   const { t } = useTranslation();
   const selectedWorkspaceId = useWorkspaceStore((state) => state.selectedWorkspaceId);
-  
+
   // Fetch workspace details (optional, for title?)
   const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspace(selectedWorkspaceId || "");
-  
+
   // Fetch notes
   const { data: notes, isLoading: isLoadingNotes } = useNotes(selectedWorkspaceId || "");
 
@@ -39,7 +39,7 @@ export function Notes() {
         <div className="border-b p-4 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-between">
              <h1 className="text-xl font-semibold flex items-center gap-2">
                 <StickyNote className="h-5 w-5 text-yellow-500" />
-                {t('Notes.title', 'Notas')} 
+                {t('Notes.title', 'Notas')}
                 <span className="text-muted-foreground text-sm font-normal">
                     — {workspace?.name}
                 </span>
