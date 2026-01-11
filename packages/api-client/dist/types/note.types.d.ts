@@ -15,7 +15,7 @@ export interface Note {
     updatedAt: string;
 }
 export interface CreateNoteDto {
-    content: string;
+    content?: string;
     x?: number;
     y?: number;
     color?: string;

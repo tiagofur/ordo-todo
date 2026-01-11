@@ -1,22 +1,21 @@
 import {
-  IsInt,
+  IsNumber,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsHexColor,
-  IsUUID,
 } from 'class-validator';
 
 export class CreateNoteDto {
   @IsString()
-  @IsNotEmpty()
-  content: string;
+  @IsOptional()
+  content?: string;
 
-  @IsInt()
+  @IsNumber()
   @IsOptional()
   x?: number;
 
-  @IsInt()
+  @IsNumber()
   @IsOptional()
   y?: number;
 
@@ -25,16 +24,15 @@ export class CreateNoteDto {
   @IsHexColor()
   color?: string;
 
-  @IsInt()
+  @IsNumber()
   @IsOptional()
   width?: number;
 
-  @IsInt()
+  @IsNumber()
   @IsOptional()
   height?: number;
 
   @IsString()
-  @IsUUID()
   @IsNotEmpty()
   workspaceId: string;
 }

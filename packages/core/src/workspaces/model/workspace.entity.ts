@@ -1,13 +1,11 @@
 import { Entity, EntityProps } from "../../shared/entity";
 
-export type WorkspaceType = "PERSONAL" | "WORK" | "TEAM";
 export type WorkspaceTier = "FREE" | "PRO" | "ENTERPRISE";
 
 export interface WorkspaceProps extends EntityProps {
     name: string;
     slug: string;
     description?: string;
-    type: WorkspaceType;
     tier: WorkspaceTier;
     color: string;
     icon?: string;

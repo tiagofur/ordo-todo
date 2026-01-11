@@ -114,7 +114,7 @@ export class WorkspacesService {
       userId,
       {
         name: workspace.props.name,
-        type: workspace.props.type,
+        color: workspace.props.color,
       },
     );
 
@@ -144,7 +144,6 @@ export class WorkspacesService {
           name: workspace.props.name,
           slug: workspace.props.slug,
           description: workspace.props.description,
-          type: workspace.props.type,
           tier: workspace.props.tier,
           color: workspace.props.color,
           icon: workspace.props.icon,

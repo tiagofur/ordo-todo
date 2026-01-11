@@ -21,7 +21,11 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { data: user, isLoading, refetch } = useCurrentUser();
+  // Check if we have a token before attempting to fetch user
+  // This prevents unnecessary 401 errors in the console on initial load
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
+  
+  const { data: user, isLoading, refetch } = useCurrentUser({ enabled: hasToken });
   const loginMutation = useLogin();
   const registerMutation = useRegister();
   const logoutMutation = useLogout();

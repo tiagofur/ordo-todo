@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
-import type { WorkspaceType } from "@ordo-todo/api-client";
 
 import { WorkspaceMembersSettings } from "./workspace-members-settings";
 import { WorkspaceConfigurationSettings } from "./workspace-configuration-settings";
@@ -37,7 +36,8 @@ export function WorkspaceSettingsDialog({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type: "PERSONAL" as WorkspaceType,
+    color: "#2563EB",
+    icon: "🏠",
   });
 
   // Update form when workspace data loads
@@ -46,7 +46,8 @@ export function WorkspaceSettingsDialog({
       setFormData({
         name: workspace.name,
         description: workspace.description || "",
-        type: workspace.type,
+        color: workspace.color || "#2563EB",
+        icon: workspace.icon || "🏠",
       });
     }
   }, [workspace]);
@@ -163,40 +164,62 @@ export function WorkspaceSettingsDialog({
                       />
                     </div>
 
-                    {/* Type */}
+                    {/* Color */}
                     <div className="space-y-2">
-                      <Label htmlFor="type" className="text-sm font-semibold text-foreground">
-                        {t('form.type.label')}
+                      <Label className="text-sm font-semibold text-foreground">
+                        {t('form.color.label') || "Color"}
                       </Label>
-                      <Select
-                        value={formData.type}
-                        onValueChange={(value) => setFormData({ ...formData, type: value as any })}
-                        disabled={!permissions.canEdit}
-                      >
-                        <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="PERSONAL">
-                            <span className="flex items-center gap-2">
-                              👤 {t('form.type.options.PERSONAL')}
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="WORK">
-                            <span className="flex items-center gap-2">
-                              💼 {t('form.type.options.WORK')}
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="TEAM">
-                            <span className="flex items-center gap-2">
-                              👥 {t('form.type.options.TEAM')}
-                            </span>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-[0.8rem] text-muted-foreground">
-                        {t('form.type.helper')}
-                      </p>
+                      <div className="grid grid-cols-9 gap-2">
+                        {[
+                          { name: "Azul", value: "#2563EB" },
+                          { name: "Púrpura", value: "#7C3AED" },
+                          { name: "Rosa", value: "#DB2777" },
+                          { name: "Rojo", value: "#DC2626" },
+                          { name: "Naranja", value: "#EA580C" },
+                          { name: "Amarillo", value: "#CA8A04" },
+                          { name: "Verde", value: "#16A34A" },
+                          { name: "Turquesa", value: "#0891B2" },
+                          { name: "Gris", value: "#6B7280" },
+                        ].map((color) => (
+                          <button
+                            key={color.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, color: color.value })}
+                            disabled={!permissions.canEdit}
+                            className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                              backgroundColor: color.value,
+                              borderColor: formData.color === color.value ? color.value : "transparent",
+                              opacity: formData.color === color.value ? 1 : 0.6,
+                            }}
+                            title={color.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Icon */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-foreground">
+                        {t('form.icon.label') || "Icono"}
+                      </Label>
+                      <div className="grid grid-cols-10 gap-2">
+                        {["🏠", "💼", "👥", "🚀", "🎯", "📊", "💡", "🔥", "⭐", "📁"].map((icon) => (
+                          <button
+                            key={icon}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, icon })}
+                            disabled={!permissions.canEdit}
+                            className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                              borderColor: formData.icon === icon ? formData.color : "transparent",
+                              backgroundColor: formData.icon === icon ? `${formData.color}15` : "transparent",
+                            }}
+                          >
+                            {icon}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

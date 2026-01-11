@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, IsString, Min, Max, IsEnum } from 'class-validator';
+import { IsOptional, IsInt, IsString, Min, Max, IsEnum, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum SortOrder {
@@ -13,6 +13,10 @@ export enum SortField {
 }
 
 export class QueryNoteDto {
+  @IsString()
+  @IsNotEmpty()
+  workspaceId: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

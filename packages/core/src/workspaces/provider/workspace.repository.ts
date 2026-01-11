@@ -131,7 +131,6 @@ export interface WorkspaceRepository {
     name: string;
     slug: string;
     description: string | null;
-    type: string;
     tier: string;
     color: string;
     icon: string | null;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, ChevronDown, Plus, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useWorkspaceStore } from "../../stores/workspace-store";
@@ -20,8 +20,22 @@ interface WorkspaceSelectorProps {
 export function WorkspaceSelector({ onCreateClick }: WorkspaceSelectorProps) {
   const { t } = (useTranslation as any)();
   const { selectedWorkspaceId, setSelectedWorkspaceId } = useWorkspaceStore();
-  const { data: workspaces } = useWorkspaces();
+  const { data: workspaces, isLoading } = useWorkspaces();
   const [showSettings, setShowSettings] = useState(false);
+
+  // Validate selected workspace ID and auto-switch if stale
+  useEffect(() => {
+    if (!isLoading && workspaces && workspaces.length > 0) {
+      const isValid = workspaces.some((w) => w.id === selectedWorkspaceId);
+      if (!isValid && selectedWorkspaceId !== null) {
+        console.warn(`[WorkspaceSelector] Stale workspace ID detected: ${selectedWorkspaceId}. Resetting to first available.`);
+        setSelectedWorkspaceId(workspaces[0].id as string);
+      } else if (!selectedWorkspaceId) {
+        // Auto-select first workspace if none selected
+        setSelectedWorkspaceId(workspaces[0].id as string);
+      }
+    }
+  }, [workspaces, selectedWorkspaceId, setSelectedWorkspaceId, isLoading]);
 
   const selectedWorkspace = workspaces?.find((w) => w.id === selectedWorkspaceId);
 

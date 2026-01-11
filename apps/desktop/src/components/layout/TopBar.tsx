@@ -10,8 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@ordo-todo/ui";
+import { ConnectionStatusIndicator } from "@/components/shared/connection-status-indicator";
+import type { SocketConnectionState } from "@/hooks/use-notifications-socket";
 
-export function TopBar() {
+interface TopBarProps {
+  connectionState?: SocketConnectionState;
+  onReconnect?: () => void;
+}
+
+export function TopBar({ connectionState, onReconnect }: TopBarProps) {
   const { t } = (useTranslation as any)();
   const { user, logout } = useAuth();
 
@@ -31,6 +38,16 @@ export function TopBar() {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+        {/* Connection Status Indicator */}
+        {connectionState && (
+          <ConnectionStatusIndicator
+            connected={connectionState.connected}
+            connecting={connectionState.connecting}
+            error={connectionState.error}
+            onReconnect={onReconnect}
+          />
+        )}
+
         {/* Notifications */}
         <button className="relative flex h-10 w-10 items-center justify-center rounded-lg hover:bg-accent">
           <Bell className="h-5 w-5" />

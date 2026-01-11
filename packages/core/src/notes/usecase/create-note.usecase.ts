@@ -14,13 +14,9 @@ export interface CreateNoteInput {
 }
 
 export class CreateNoteUseCase implements UseCase<CreateNoteInput, Note> {
-  constructor(private readonly repository: NoteRepository) {}
+  constructor(private readonly repository: NoteRepository) { }
 
   async execute(input: CreateNoteInput): Promise<Note> {
-    if (!input.content || input.content.trim().length === 0) {
-      throw new Error("Note content is required");
-    }
-
     if (!input.workspaceId) {
       throw new Error("Workspace ID is required");
     }
@@ -29,10 +25,10 @@ export class CreateNoteUseCase implements UseCase<CreateNoteInput, Note> {
       content: input.content,
       workspaceId: input.workspaceId,
       authorId: input.authorId,
-      x: input.x ?? 100,
-      y: input.y ?? 100,
-      width: input.width ?? 300,
-      height: input.height ?? 300,
+      x: input.x !== undefined ? Math.round(input.x) : 100,
+      y: input.y !== undefined ? Math.round(input.y) : 100,
+      width: input.width !== undefined ? Math.round(input.width) : 300,
+      height: input.height !== undefined ? Math.round(input.height) : 300,
       color: input.color ?? "#feff9c",
     });
 

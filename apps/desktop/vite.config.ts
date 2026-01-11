@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import electron from 'vite-plugin-electron/simple'
+import renderer from 'vite-plugin-electron-renderer'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { resolve } from 'path'
 
@@ -28,10 +29,14 @@ export default defineConfig({
                 // Shortcut of `build.rollupOptions.input`
                 input: 'electron/preload.ts',
             },
-            // Optional: Use Node.js API in the Renderer process
-            renderer: {},
         }),
+        renderer(),
     ],
+    // Polyfill for @electron/remote
+    define: {
+        'process.env': '{}',
+        'global': 'globalThis',
+    },
     resolve: {
         alias: {
             '@': resolve(__dirname, './src'),
@@ -53,6 +58,8 @@ export default defineConfig({
             transformMixedEsModules: true,
         },
         rollupOptions: {
+            // Externalize only non-electron modules that shouldn't be bundled
+            external: [],
             plugins: process.env.ANALYZE_BUNDLE ? [
                 visualizer({
                     filename: 'dist/bundle-analysis.html',
@@ -61,9 +68,8 @@ export default defineConfig({
                     brotliSize: true,
                 }),
             ] : [],
-            // Apply bundle splitting optimization
             output: {
-                manualChunks(id) {
+                manualChunks: (id: string) => {
                     // Node modules in vendor chunks
                     if (id.includes('node_modules')) {
                         // React ecosystem
@@ -139,7 +145,7 @@ export default defineConfig({
                 },
                 chunkFileNames: 'assets/[name]-[hash].js',
                 entryFileNames: 'assets/[name]-[hash].js',
-                assetFileNames: (assetInfo) => {
+                assetFileNames: (assetInfo: any) => {
                     const extType = assetInfo.name?.split('.').pop();
                     if (/\.(woff2?|eot|ttf|otf)$/.test(assetInfo.name || '')) {
                         return 'assets/fonts/[name]-[hash][extname]';

@@ -11,23 +11,29 @@ import { useProject, useArchiveProject, useDeleteProject, useTasks } from "@/lib
 type ViewMode = "list" | "grid" | "kanban";
 
 export function ProjectDetail() {
-  const { projectId } = useParams();
+  const { projectId, id, projectSlug } = useParams();
   const navigate = useNavigate();
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
 
-  const { data: projectData, isLoading: isLoadingProject } = useProject(projectId!);
+  // Determine which project ID to use
+  // Routes can be:
+  // 1. /projects/:id (old Desktop route)
+  // 2. /:username/:slug/projects/:projectSlug (new route)
+  const actualProjectId = projectId || id || projectSlug || "";
+
+  const { data: projectData, isLoading: isLoadingProject } = useProject(actualProjectId);
   const { data: tasksData } = useTasks();
   const archiveProject = useArchiveProject();
   const deleteProjectMutation = useDeleteProject();
 
   const project = projectData;
   const allTasks = Array.isArray(tasksData) ? tasksData : [];
-  const projectTasks = allTasks.filter((t: any) => t.projectId === projectId);
+  const projectTasks = allTasks.filter((t: any) => t.projectId === actualProjectId);
 
   const handleArchive = () => {
     if (confirm("¿Estás seguro de archivar este proyecto?")) {
-      archiveProject.mutate(projectId!, {
+      archiveProject.mutate(actualProjectId, {
         onSuccess: () => {
           toast.success("Proyecto archivado");
           navigate("/projects");
@@ -38,7 +44,7 @@ export function ProjectDetail() {
 
   const handleDelete = () => {
     if (confirm(`¿Eliminar proyecto y ${projectTasks.length} tareas?`)) {
-      deleteProjectMutation.mutate(projectId!, {
+      deleteProjectMutation.mutate(actualProjectId, {
         onSuccess: () => {
           toast.success("Proyecto eliminado");
           navigate("/projects");
@@ -133,7 +139,7 @@ export function ProjectDetail() {
           </Button>
         </div>
       ) : viewMode === "kanban" ? (
-        <ProjectBoard projectId={projectId!} />
+        <ProjectBoard projectId={actualProjectId!} />
       ) : (
         <div className="space-y-8">
           {todoTasks.length > 0 && (
@@ -163,7 +169,7 @@ export function ProjectDetail() {
         </div>
       )}
 
-      <CreateTaskDialog open={showCreateTask} onOpenChange={setShowCreateTask} projectId={projectId} />
+      <CreateTaskDialog open={showCreateTask} onOpenChange={setShowCreateTask} projectId={actualProjectId} />
     </div>
   );
 }

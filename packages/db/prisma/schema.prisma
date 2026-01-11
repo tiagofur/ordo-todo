@@ -429,7 +429,6 @@ model Workspace {
   name        String
   slug        String
   description String?
-  type        WorkspaceType
   tier        WorkspaceTier @default(FREE) // NUEVO: Preparado para monetización futura
   color       String        @default("#2563EB")
   icon        String?
@@ -543,12 +542,6 @@ model WorkspaceAuditLog {
 
   @@index([workspaceId, createdAt])
   @@index([actorId])
-}
-
-enum WorkspaceType {
-  PERSONAL
-  WORK
-  TEAM
 }
 
 model WorkspaceMember {

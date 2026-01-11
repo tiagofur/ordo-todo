@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsEnum, IsOptional } from 'class-validator';
+import { IsString, MinLength, IsOptional } from 'class-validator';
 
 export class CreateWorkspaceDto {
   @IsString()
@@ -12,9 +12,6 @@ export class CreateWorkspaceDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @IsEnum(['PERSONAL', 'WORK', 'TEAM'])
-  type: 'PERSONAL' | 'WORK' | 'TEAM';
 
   @IsString()
   @IsOptional()

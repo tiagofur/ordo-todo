@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  NotFoundException,
   BadRequestException,
   Logger,
 } from '@nestjs/common';
@@ -22,7 +23,7 @@ export class WorkspaceGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private prisma: PrismaService,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -66,7 +67,23 @@ export class WorkspaceGuard implements CanActivate {
 
     // 4. Auto-repair for legacy workspaces (owner without membership)
     if (!membership) {
-      membership = await this.handleLegacyWorkspace(workspaceId, user.id);
+      // Check if workspace exists and if user is owner
+      const workspace = await this.prisma.workspace.findUnique({
+        where: { id: workspaceId },
+        select: { id: true, ownerId: true },
+      });
+
+      if (!workspace) {
+        this.logger.warn(`WorkspaceGuard: Workspace ${workspaceId} not found`);
+        throw new NotFoundException('Workspace not found');
+      }
+
+      if (workspace.ownerId === user.id) {
+        this.logger.log(
+          `WorkspaceGuard: Auto-repairing legacy workspace ${workspaceId} - adding owner as member`,
+        );
+        membership = await this.handleLegacyWorkspace(workspaceId, user.id);
+      }
     }
 
     if (!membership) {

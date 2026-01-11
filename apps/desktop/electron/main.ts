@@ -1,30 +1,49 @@
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
+import * as remoteMain from '@electron/remote/main' // Import remote main
 import { createTray, destroyTray, updateTrayMenu } from './tray'
 import { registerGlobalShortcuts, unregisterAllShortcuts } from './shortcuts'
 import { createApplicationMenu } from './menu'
 import { setupIpcHandlers, cleanupIpcHandlers, getStore } from './ipc-handlers'
 import { getWindowState, trackWindowState } from './window-state'
 import {
-  createTimerWindow,
-  destroyTimerWindow,
-  setupTimerWindowIpcHandlers,
-  cleanupTimerWindowIpcHandlers,
+    createTimerWindow,
+    destroyTimerWindow,
+    setupTimerWindowIpcHandlers,
+    cleanupTimerWindowIpcHandlers,
 } from './timer-window'
 import {
-  registerDeepLinkProtocol,
-  processPendingDeepLink,
-  unregisterDeepLinkProtocol,
+    registerDeepLinkProtocol,
+    processPendingDeepLink,
+    unregisterDeepLinkProtocol,
 } from './deep-links'
 import { initAutoUpdater, cleanupAutoUpdater } from './auto-updater'
 import { initAutoLaunch, cleanupAutoLaunch, wasStartedAtLogin } from './auto-launch'
 
 // Extend App interface for isQuitting flag
 interface ExtendedApp extends Electron.App {
-  isQuitting?: boolean
+    isQuitting?: boolean
 }
 
 const extApp = app as ExtendedApp
+
+// Single Instance Lock
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+    app.quit()
+} else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+        // Someone tried to run a second instance, we should focus our window.
+        if (win) {
+            if (win.isMinimized()) win.restore()
+            win.focus()
+            win.show()
+        }
+    })
+}
+
+remoteMain.initialize() // Initialize remote module
 
 // The built directory structure
 //
@@ -74,6 +93,8 @@ function createWindow() {
         },
     })
 
+    remoteMain.enable(win.webContents) // Enable remote for this window
+
     // Track window state changes
     trackWindowState(win)
 
@@ -113,7 +134,7 @@ function createWindow() {
     win.on('close', (event) => {
         const store = getStore()
         const minimizeToTray = store.get('settings.minimizeToTray', true)
-        
+
         if (minimizeToTray && !extApp.isQuitting) {
             event.preventDefault()
             win?.hide()
@@ -123,7 +144,7 @@ function createWindow() {
     // Test active push message to Renderer-process
     win.webContents.on('did-finish-load', () => {
         win?.webContents.send('main-process-message', new Date().toLocaleString())
-        
+
         // Send initial tray state
         updateTrayMenu(win!, {
             timerActive: false,
@@ -147,7 +168,7 @@ function createWindow() {
     win.once('ready-to-show', () => {
         const store = getStore()
         const startMinimized = store.get('settings.startMinimized', false)
-        
+
         // Don't show if started at login (auto-launch) or if startMinimized is enabled
         if (!startMinimized && !startHidden) {
             win?.show()
@@ -170,7 +191,18 @@ app.on('before-quit', () => {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows
-app.whenReady().then(createWindow)
+app.whenReady().then(async () => {
+    if (!app.isPackaged) {
+        try {
+            const { default: installExtension, REACT_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
+            await installExtension(REACT_DEVELOPER_TOOLS)
+            console.log('Added Extension: React Developer Tools')
+        } catch (error) {
+            console.log('An error occurred: ', error)
+        }
+    }
+    createWindow()
+})
 
 // Cleanup on quit
 app.on('will-quit', () => {

@@ -2,16 +2,18 @@ import { DndContext, useSensor, useSensors, PointerSensor, DragEndEvent } from '
 import { NoteItem } from './NoteItem';
 import { useCreateNote, useUpdateNote } from '@/hooks/api';
 import { Button } from '@ordo-todo/ui';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import type { Note } from '@ordo-todo/api-client';
 import { useTranslation } from 'react-i18next';
 
 interface NoteBoardProps {
   workspaceId: string;
-  notes: Note[];
+  notes: Note[] | null | undefined;
 }
 
 export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
+  // Ensure notes is always an array
+  const safeNotes = Array.isArray(notes) ? notes : [];
   const { t } = useTranslation();
   const createNote = useCreateNote();
   const updateNote = useUpdateNote();
@@ -27,7 +29,7 @@ export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
     const noteId = active.id as string;
-    const note = notes.find((n) => n.id === noteId);
+    const note = safeNotes.find((n) => n.id === noteId);
 
     if (note) {
       updateNote.mutate({
@@ -55,10 +57,20 @@ export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="relative w-full h-full p-4 overflow-auto bg-dot-pattern">
-        <div className="absolute top-4 right-4 z-50">
-           <Button onClick={handleAddNote} className="shadow-lg">
-             <Plus className="mr-2 h-4 w-4" />
-             {t('Notes.add', 'Agregar Nota')}
+        <div className="absolute top-8 right-8 z-50">
+           <Button 
+             onClick={handleAddNote} 
+             disabled={createNote.isPending}
+             className="bg-yellow-500 hover:bg-yellow-600 text-white shadow-xl shadow-yellow-500/20 border-none px-6 py-6 rounded-2xl transition-all hover:scale-105 active:scale-95"
+           >
+             {createNote.isPending ? (
+               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+             ) : (
+               <Plus className="mr-2 h-5 w-5" />
+             )}
+             <span className="text-base font-semibold">
+               {t('Notes.add', 'Agregar Nota')}
+             </span>
            </Button>
         </div>
         

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target, Heart, Users } from "lucide-react";
+import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target, Heart, Users, Sparkles, StickyNote, LayoutGrid, MessageSquare, Trash2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ const colorClasses = {
   orange: "group-hover:bg-orange-500/10 group-hover:text-orange-500",
   green: "group-hover:bg-green-500/10 group-hover:text-green-500",
   blue: "group-hover:bg-blue-500/10 group-hover:text-blue-500",
+  yellow: "group-hover:bg-yellow-500/10 group-hover:text-yellow-500",
+  red: "group-hover:bg-red-500/10 group-hover:text-red-500",
 };
 
 const activeColorClasses = {
@@ -23,6 +25,8 @@ const activeColorClasses = {
   orange: "bg-orange-500 text-white shadow-lg shadow-orange-500/20",
   green: "bg-green-500 text-white shadow-lg shadow-green-500/20",
   blue: "bg-blue-500 text-white shadow-lg shadow-blue-500/20",
+  yellow: "bg-yellow-500 text-white shadow-lg shadow-yellow-500/20",
+  red: "bg-red-500 text-white shadow-lg shadow-red-500/20",
 };
 
 export function Sidebar() {
@@ -33,14 +37,19 @@ export function Sidebar() {
   const navigation = [
     { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
     { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-    { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
-    { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("Sidebar.notes"), href: "/notes", icon: StickyNote, color: "yellow" },
+    { name: t("Sidebar.habits"), href: "/habits", icon: Sparkles, color: "green" },
     { name: t("Sidebar.goals"), href: "/goals", icon: Target, color: "pink" },
+    { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+    { name: t("Sidebar.eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
+    { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+    { name: t("Sidebar.meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
+    { name: t("Sidebar.wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
+    { name: t("Sidebar.workload"), href: "/workload", icon: Users, color: "orange" },
     { name: t("Sidebar.workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
     { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
     { name: t("Sidebar.analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
-    { name: t("Sidebar.wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
-    { name: t("Sidebar.workload"), href: "/workload", icon: Users, color: "orange" },
+    { name: t("Sidebar.trash"), href: "/tasks/trash", icon: Trash2, color: "red" },
   ];
 
   return (

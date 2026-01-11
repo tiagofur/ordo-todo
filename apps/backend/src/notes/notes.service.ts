@@ -27,6 +27,7 @@ export class NotesService {
     const createNoteUseCase = new CreateNoteUseCase(this.noteRepository);
     const note = await createNoteUseCase.execute({
       ...createNoteDto,
+      content: createNoteDto.content || '',
       authorId,
     });
     return note.props;

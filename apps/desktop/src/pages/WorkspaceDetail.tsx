@@ -36,30 +36,31 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
 
-const typeConfig = {
-  PERSONAL: { label: "Personal", color: "cyan", hexColor: "#06b6d4", icon: Briefcase },
-  WORK: { label: "Work", color: "purple", hexColor: "#a855f7", icon: FolderKanban },
-  TEAM: { label: "Team", color: "pink", hexColor: "#ec4899", icon: CheckSquare },
-};
-
 export function WorkspaceDetail() {
-  const { workspaceSlug, username, slug } = useParams();
+  const { workspaceSlug, username, slug, id } = useParams();
   const navigate = useNavigate();
   const { t } = (useTranslation as any)();
 
-  // Determine which hook to use based on available params
-  // If we have username and slug (new route), use by username and slug
-  // Otherwise use the old by-slug method
+  // Determine which method to use based on available params:
+  // 1. If we have an ID parameter (old Desktop route: /workspaces/:id), use useWorkspace(id)
+  // 2. If we have username + slug (new route: /:username/:slug), use by username/slug
+  // 3. Otherwise use the old by-slug method
+  const workspaceId = id || workspaceSlug;
   const actualSlug = slug || workspaceSlug || "";
-  const { data: workspace, isLoading: isLoadingWorkspace } = useDesktopWorkspaceBySlug(actualSlug, username);
-  
+
+  // Use the appropriate hook based on what we have
+  // Priority: ID > username+slug > slug only
+  const { data: workspace, isLoading: isLoadingWorkspace } = workspaceId
+    ? useWorkspace(workspaceId)  // ID-based lookup (old Desktop route)
+    : useDesktopWorkspaceBySlug(actualSlug, username);  // Slug-based lookup (new route)
+
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace?.id);
   const { data: activityData, isLoading: isLoadingActivity } = useWorkspaceAuditLogs(workspace?.id || "", { limit: 5 });
-  
+
   const deleteWorkspace = useDeleteWorkspace();
 
   const handleDelete = () => {
@@ -92,40 +93,41 @@ export function WorkspaceDetail() {
     );
   }
 
-  const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
-  const TypeIcon = typeInfo.icon;
+  // Use custom color and icon from workspace
+  const workspaceColor = workspace.color || "#2563EB";
+  const workspaceIcon = workspace.icon || "🏠";
   const logs = Array.isArray(activityData) ? activityData : [];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header Section */}
       <div className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm">
-        <div 
-          className="absolute left-0 top-0 bottom-0 w-1.5" 
-          style={{ backgroundColor: typeInfo.hexColor }} 
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1.5"
+          style={{ backgroundColor: workspaceColor }}
         />
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm transition-transform hover:scale-105"
               style={{
-                backgroundColor: `${typeInfo.hexColor}15`,
-                color: typeInfo.hexColor,
+                backgroundColor: `${workspaceColor}15`,
+                color: workspaceColor,
               }}
             >
-              <TypeIcon className="h-8 w-8" />
+              <span className="text-3xl">{workspaceIcon}</span>
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">{workspace.name}</h1>
               <div className="flex items-center gap-2 mt-1">
-                <span 
+                <span
                   className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   style={{
-                    backgroundColor: `${typeInfo.hexColor}20`,
-                    color: typeInfo.hexColor,
+                    backgroundColor: `${workspaceColor}20`,
+                    color: workspaceColor,
                   }}
                 >
-                  {typeInfo.label}
+                  Activo
                 </span>
                 {workspace.description && (
                   <span className="text-muted-foreground text-sm border-l pl-2 ml-2">
@@ -137,12 +139,12 @@ export function WorkspaceDetail() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button 
+            <Button
               onClick={() => setShowCreateProject(true)}
               className="gap-2 shadow-md transition-all hover:scale-105"
-              style={{ 
-                backgroundColor: typeInfo.hexColor,
-                borderColor: typeInfo.hexColor,
+              style={{
+                backgroundColor: workspaceColor,
+                borderColor: workspaceColor,
               }}
             >
               <Plus className="h-4 w-4" />

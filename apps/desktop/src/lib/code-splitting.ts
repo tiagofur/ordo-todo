@@ -90,6 +90,9 @@ class ChunkPreloader {
   private loadChunk(chunkName: string, mode: 'preload' | 'prefetch') {
     const link = document.createElement('link');
     link.rel = mode;
+    if (mode === 'preload') {
+      link.as = 'script';
+    }
     link.href = `/assets/${chunkName}.js`;
     document.head.appendChild(link);
   }
@@ -235,7 +238,9 @@ export function createLazyComponent<T extends ComponentType<any>>(
 
 // Initialize code splitting based on strategy
 export function initializeCodeSplitting() {
-  if (typeof window === 'undefined') return;
+  // Only initialize preloading in production
+  // In development, Vite handles modules on-demand and manual preloading of /assets/*.js fails
+  if (typeof window === 'undefined' || import.meta.env.DEV) return;
 
   // Preload critical chunks
   const criticalChunks = Object.values(routeChunks)

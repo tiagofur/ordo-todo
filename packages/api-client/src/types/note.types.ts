@@ -16,7 +16,7 @@ export interface Note {
 }
 
 export interface CreateNoteDto {
-    content: string;
+    content?: string;
     x?: number;
     y?: number;
     color?: string;

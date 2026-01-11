@@ -15,7 +15,7 @@ export interface UpdateNoteInput {
 }
 
 export class UpdateNoteUseCase implements UseCase<UpdateNoteInput, Note> {
-  constructor(private readonly repository: NoteRepository) {}
+  constructor(private readonly repository: NoteRepository) { }
 
   async execute(input: UpdateNoteInput): Promise<Note> {
     // First find the note to verify ownership
@@ -33,10 +33,10 @@ export class UpdateNoteUseCase implements UseCase<UpdateNoteInput, Note> {
     // Update only provided fields
     const updatedNote = note.update({
       content: input.content,
-      x: input.x,
-      y: input.y,
-      width: input.width,
-      height: input.height,
+      x: input.x !== undefined ? Math.round(input.x) : undefined,
+      y: input.y !== undefined ? Math.round(input.y) : undefined,
+      width: input.width !== undefined ? Math.round(input.width) : undefined,
+      height: input.height !== undefined ? Math.round(input.height) : undefined,
       color: input.color,
     });
 

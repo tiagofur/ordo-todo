@@ -2535,10 +2535,19 @@ export class OrdoApiClient {
    * GET /notes?workspaceId=...
    */
   async getNotes(workspaceId: string): Promise<Note[]> {
-    const response = await this.axios.get<Note[]>("/notes", {
+    const response = await this.axios.get<any>("/notes", {
       params: { workspaceId },
     });
-    return response.data;
+    // Handle paginated response: { data: [...], meta: {...} }
+    if (response.data && response.data.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    // Handle direct array response
+    if (response.data && Array.isArray(response.data)) {
+      return response.data;
+    }
+    // Default to empty array if response is unexpected
+    return [];
   }
 
   /**

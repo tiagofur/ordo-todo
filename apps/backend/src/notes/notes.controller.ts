@@ -32,7 +32,7 @@ import {
 @Controller('notes')
 @UseGuards(JwtAuthGuard)
 export class NotesController {
-  constructor(private readonly notesService: NotesService) {}
+  constructor(private readonly notesService: NotesService) { }
 
   @Post()
   @UseInterceptors(CacheInvalidateInterceptor)
@@ -145,11 +145,10 @@ export class NotesController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not a workspace member' })
   findAll(
-    @Query('workspaceId') workspaceId: string,
     @Query() query: QueryNoteDto,
     @CurrentUser() user: RequestUser,
   ) {
-    return this.notesService.findAll(workspaceId, user.id, query);
+    return this.notesService.findAll(query.workspaceId, user.id, query);
   }
 
   @Get(':id')

@@ -102,7 +102,7 @@ export function TaskDetailPanel({
         scheduledTime: task.scheduledTime || "",
         scheduledEndTime: (task as any).scheduledEndTime || "",
         isTimeBlocked: task.isTimeBlocked || false,
-        estimatedTime: task.estimatedTime?.toString() || "",
+        estimatedTime: (task as any).estimatedMinutes?.toString() || "",
       });
     }
   }, [task]);
@@ -118,7 +118,7 @@ export function TaskDetailPanel({
         status: formData.status as any,
         priority: formData.priority as any,
         dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
-        estimatedTime: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
+        estimatedMinutes: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
       }
     }, {
         onSuccess: () => {
@@ -407,7 +407,7 @@ export function TaskDetailPanel({
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground">Estimación (horas)</Label>
+                        <Label className="text-xs text-muted-foreground">Estimación (minutos)</Label>
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-muted-foreground" />
                           <Input
@@ -416,9 +416,9 @@ export function TaskDetailPanel({
                             onChange={(e) => {
                               handleFieldChange("estimatedTime", e.target.value);
                               if (!isEditing && e.target.value) {
-                                updateTask.mutate({ 
-                                  taskId, 
-                                  data: { estimatedTime: parseFloat(e.target.value) }
+                                updateTask.mutate({
+                                  taskId,
+                                  data: { estimatedMinutes: parseFloat(e.target.value) }
                                 });
                               }
                             }}

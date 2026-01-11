@@ -98,7 +98,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         priority: data.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
         projectId: data.projectId,
-        estimatedTime: estimatedMinutes ? Math.round(estimatedMinutes) : undefined,
+        estimatedMinutes: estimatedMinutes ? Math.round(estimatedMinutes) : undefined,
       });
 
       // Save custom field values if any

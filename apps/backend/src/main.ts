@@ -21,6 +21,28 @@ async function bootstrap() {
     logger: WinstonModule.createLogger(loggerConfig),
   });
 
+  const configService = app.get(ConfigService);
+  const httpAdapter = app.get(HttpAdapterHost);
+
+  // CORS - MUST be configured before helmet and other middleware
+  const corsOrigins = configService.get<string>('CORS_ORIGINS')!.split(',');
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // Check if origin is in allowed list
+      if (corsOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
   // Security headers
   app.use(
     helmet({
@@ -31,7 +53,7 @@ async function bootstrap() {
           styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for styled-components
           scriptSrc: ["'self'"],
           imgSrc: ["'self'", 'data:', 'https:'],
-          connectSrc: ["'self'"],
+          connectSrc: ["'self'", ...corsOrigins], // Allow CORS origins
           fontSrc: ["'self'"],
           objectSrc: ["'none'"],
           mediaSrc: ["'self'"],
@@ -69,22 +91,10 @@ async function bootstrap() {
   // Apply logging interceptor globally
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  const configService = app.get(ConfigService);
-  const httpAdapter = app.get(HttpAdapterHost);
-
   // Serve static files from uploads directory
   // Use process.cwd() to get project root, works in both dev and prod
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
-  });
-
-  // CORS
-  const corsOrigins = configService.get<string>('CORS_ORIGINS')!.split(',');
-  app.enableCors({
-    origin: corsOrigins,
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   // Global prefix

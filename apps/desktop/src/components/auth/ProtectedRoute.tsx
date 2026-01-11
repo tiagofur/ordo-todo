@@ -1,9 +1,11 @@
 import { Navigate, useLocation, Outlet } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/api";
 import { Loader2 } from "lucide-react";
+import { TimerProvider } from "@/contexts/timer-context";
 
 export function ProtectedRoute() {
-  const { data: user, isLoading } = useCurrentUser();
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
+  const { data: user, isLoading } = useCurrentUser({ enabled: hasToken });
   const location = useLocation();
 
   // Show loading spinner while checking auth
@@ -23,5 +25,9 @@ export function ProtectedRoute() {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <TimerProvider>
+      <Outlet />
+    </TimerProvider>
+  );
 }

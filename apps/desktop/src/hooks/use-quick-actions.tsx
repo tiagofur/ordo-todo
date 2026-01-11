@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { app, BrowserWindow } from '@electron/remote';
 import {
   Plus,
   Search,
@@ -24,8 +23,6 @@ export function useQuickActions() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const mainWindow = BrowserWindow.getFocusedWindow();
 
   const actions: QuickAction[] = [
     // Task Actions

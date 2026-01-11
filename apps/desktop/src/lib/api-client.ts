@@ -8,7 +8,7 @@
 import { OrdoApiClient } from '@ordo-todo/api-client';
 import { ElectronStoreTokenStorage } from './storage';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3101/api/v1';
 
 /**
  * Desktop-specific API client with Electron storage
@@ -165,15 +165,29 @@ export class DesktopApiClient extends OrdoApiClient {
   }
 }
 
+import { QueryClient } from '@tanstack/react-query';
+
+let queryClientInstance: QueryClient | null = null;
+
+export const registerQueryClient = (client: QueryClient) => {
+  queryClientInstance = client;
+};
+
 export const apiClient = new DesktopApiClient({
   baseURL: API_URL,
   tokenStorage: new ElectronStoreTokenStorage(),
   onTokenRefresh: (response) => {
     console.log('[API Client] Token refreshed successfully');
   },
-  onAuthError: () => {
-    console.log('[API Client] Auth error - token expired');
-    // Auth context will handle logout and redirect to login
+  onAuthError: async () => {
+    console.log('[API Client] Auth error - token expired or invalid');
+    await apiClient.logout();
+
+    if (queryClientInstance) {
+      queryClientInstance.clear();
+    }
+
+    // Auth context will handle logout and redirect to login because of the clear() and logout()
   },
 });
 

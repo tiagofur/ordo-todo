@@ -17549,9 +17549,6 @@ var CreateNoteUseCase = class {
     this.repository = repository;
   }
   async execute(input) {
-    if (!input.content || input.content.trim().length === 0) {
-      throw new Error("Note content is required");
-    }
     if (!input.workspaceId) {
       throw new Error("Workspace ID is required");
     }
@@ -17559,10 +17556,10 @@ var CreateNoteUseCase = class {
       content: input.content,
       workspaceId: input.workspaceId,
       authorId: input.authorId,
-      x: input.x ?? 100,
-      y: input.y ?? 100,
-      width: input.width ?? 300,
-      height: input.height ?? 300,
+      x: input.x !== void 0 ? Math.round(input.x) : 100,
+      y: input.y !== void 0 ? Math.round(input.y) : 100,
+      width: input.width !== void 0 ? Math.round(input.width) : 300,
+      height: input.height !== void 0 ? Math.round(input.height) : 300,
       color: input.color ?? "#feff9c"
     });
     await this.repository.save(note);
@@ -17609,10 +17606,10 @@ var UpdateNoteUseCase = class {
     }
     const updatedNote = note.update({
       content: input.content,
-      x: input.x,
-      y: input.y,
-      width: input.width,
-      height: input.height,
+      x: input.x !== void 0 ? Math.round(input.x) : void 0,
+      y: input.y !== void 0 ? Math.round(input.y) : void 0,
+      width: input.width !== void 0 ? Math.round(input.width) : void 0,
+      height: input.height !== void 0 ? Math.round(input.height) : void 0,
       color: input.color
     });
     await this.repository.update(updatedNote);

@@ -16,14 +16,14 @@ import { Label } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { Building2, Home, Users } from 'lucide-react';
 import { createWorkspaceSchema, generateSlug } from '@ordo-todo/core';
 
 export interface CreateWorkspaceFormData {
   name: string;
   slug: string;
   description?: string;
-  type: 'PERSONAL' | 'WORK' | 'TEAM';
+  color: string;
+  icon: string;
 }
 
 interface CreateWorkspaceDialogProps {
@@ -35,19 +35,12 @@ interface CreateWorkspaceDialogProps {
     title?: string;
     description?: string;
     form?: {
-      type?: string;
+      color?: string;
+      icon?: string;
       name?: string;
       namePlaceholder?: string;
       description?: string;
       descriptionPlaceholder?: string;
-    };
-    types?: {
-      personal?: string;
-      personalDesc?: string;
-      work?: string;
-      workDesc?: string;
-      team?: string;
-      teamDesc?: string;
     };
     buttons?: {
       cancel?: string;
@@ -64,19 +57,12 @@ const DEFAULT_LABELS = {
   title: 'Create Workspace',
   description: 'Create a new workspace to organize your projects and tasks.',
   form: {
-    type: 'Workspace Type',
+    color: 'Color',
+    icon: 'Icon',
     name: 'Name',
     namePlaceholder: 'Enter workspace name',
     description: 'Description',
     descriptionPlaceholder: 'Optional description...',
-  },
-  types: {
-    personal: 'Personal',
-    personalDesc: 'For personal projects',
-    work: 'Work',
-    workDesc: 'For professional work',
-    team: 'Team',
-    teamDesc: 'For team collaboration',
   },
   buttons: {
     cancel: 'Cancel',
@@ -99,12 +85,12 @@ export function CreateWorkspaceDialog({
     ...DEFAULT_LABELS,
     ...labels,
     form: { ...DEFAULT_LABELS.form, ...labels.form },
-    types: { ...DEFAULT_LABELS.types, ...labels.types },
     buttons: { ...DEFAULT_LABELS.buttons, ...labels.buttons },
     validation: { ...DEFAULT_LABELS.validation, ...labels.validation },
   };
 
-  const [selectedType, setSelectedType] = useState<'PERSONAL' | 'WORK' | 'TEAM'>('PERSONAL');
+  const [selectedColor, setSelectedColor] = useState('#2563EB');
+  const [selectedIcon, setSelectedIcon] = useState('🏠');
 
   const formSchema = createWorkspaceSchema.extend({
     name: z.string().min(1, t.validation.nameRequired),
@@ -116,13 +102,9 @@ export function CreateWorkspaceDialog({
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      type: 'PERSONAL',
-    },
   });
 
   const handleFormSubmit = async (data: FormData) => {
@@ -131,46 +113,30 @@ export function CreateWorkspaceDialog({
       await onSubmit({
         ...data,
         slug,
-        type: selectedType,
+        color: selectedColor,
+        icon: selectedIcon,
       });
       reset();
+      setSelectedColor('#2563EB');
+      setSelectedIcon('🏠');
     } catch (error) {
       console.error(error);
     }
   };
 
-  const workspaceTypes = [
-    {
-      value: 'PERSONAL' as const,
-      label: t.types.personal,
-      description: t.types.personalDesc,
-      icon: Home,
-      color: '#06b6d4',
-      bgColor: 'bg-cyan-500/10',
-      textColor: 'text-cyan-500',
-      borderColor: 'border-cyan-500',
-    },
-    {
-      value: 'WORK' as const,
-      label: t.types.work,
-      description: t.types.workDesc,
-      icon: Building2,
-      color: '#a855f7',
-      bgColor: 'bg-purple-500/10',
-      textColor: 'text-purple-500',
-      borderColor: 'border-purple-500',
-    },
-    {
-      value: 'TEAM' as const,
-      label: t.types.team,
-      description: t.types.teamDesc,
-      icon: Users,
-      color: '#ec4899',
-      bgColor: 'bg-pink-500/10',
-      textColor: 'text-pink-500',
-      borderColor: 'border-pink-500',
-    },
+  const workspaceColors = [
+    { name: 'Azul', value: '#2563EB' },
+    { name: 'Púrpura', value: '#7C3AED' },
+    { name: 'Rosa', value: '#DB2777' },
+    { name: 'Rojo', value: '#DC2626' },
+    { name: 'Naranja', value: '#EA580C' },
+    { name: 'Amarillo', value: '#CA8A04' },
+    { name: 'Verde', value: '#16A34A' },
+    { name: 'Turquesa', value: '#0891B2' },
+    { name: 'Gris', value: '#6B7280' },
   ];
+
+  const workspaceIcons = ['🏠', '💼', '👥', '🚀', '🎯', '📊', '💡', '🔥', '⭐', '📁'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -186,59 +152,49 @@ export function CreateWorkspaceDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-            {/* Workspace Type */}
+            {/* Color */}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-foreground">
-                {t.form.type}
+                {t.form.color}
               </Label>
-              <div className="grid grid-cols-3 gap-3">
-                {workspaceTypes.map((type) => {
-                  const Icon = type.icon;
-                  const isSelected = selectedType === type.value;
-                  return (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => {
-                        setSelectedType(type.value);
-                        setValue('type', type.value);
-                      }}
-                      className={`flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all duration-200 ${
-                        isSelected
-                          ? `${type.borderColor} ${type.bgColor} shadow-lg`
-                          : 'border-border hover:bg-accent'
-                      }`}
-                    >
-                      <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-200 ${
-                          isSelected ? type.bgColor : 'bg-muted'
-                        }`}
-                        style={
-                          isSelected ? { backgroundColor: `${type.color}20` } : {}
-                        }
-                      >
-                        <Icon
-                          className={`w-6 h-6 transition-all duration-200 ${
-                            isSelected ? type.textColor : 'text-muted-foreground'
-                          }`}
-                          style={isSelected ? { color: type.color } : {}}
-                        />
-                      </div>
-                      <div className="text-center space-y-1">
-                        <p
-                          className={`text-sm font-semibold ${
-                            isSelected ? 'text-foreground' : 'text-muted-foreground'
-                          }`}
-                        >
-                          {type.label}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground leading-tight px-1">
-                          {type.description}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-9 gap-2">
+                {workspaceColors.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setSelectedColor(color.value)}
+                    className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
+                    style={{
+                      backgroundColor: color.value,
+                      borderColor: selectedColor === color.value ? color.value : 'transparent',
+                      opacity: selectedColor === color.value ? 1 : 0.6,
+                    }}
+                    title={color.name}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Icon */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-foreground">
+                {t.form.icon}
+              </Label>
+              <div className="grid grid-cols-10 gap-2">
+                {workspaceIcons.map((icon) => (
+                  <button
+                    key={icon}
+                    type="button"
+                    onClick={() => setSelectedIcon(icon)}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110"
+                    style={{
+                      borderColor: selectedIcon === icon ? selectedColor : 'transparent',
+                      backgroundColor: selectedIcon === icon ? `${selectedColor}15` : 'transparent',
+                    }}
+                  >
+                    {icon}
+                  </button>
+                ))}
               </div>
             </div>
 

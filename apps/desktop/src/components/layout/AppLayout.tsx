@@ -18,15 +18,16 @@ import { SkipLinks } from "./SkipLinks";
 import { skipLinkTargets } from "@/utils/accessibility";
 import { Button } from "@ordo-todo/ui";
 import { Sparkles } from "lucide-react";
+import { ConnectionStatusIndicator } from "@/components/shared/connection-status-indicator";
 
 export function AppLayout() {
   const { user, isLoading } = useAuth();
-  
+
   // Initialize Electron features
   useElectron();
-  
-  // Initialize Real-time Notifications
-  useNotificationsSocket();
+
+  // Initialize Real-time Notifications with connection state
+  const { connectionState, reconnect } = useNotificationsSocket();
   
   // Manage timer interval
   const { isRunning, isPaused } = useTimerStore();
@@ -87,7 +88,10 @@ export function AppLayout() {
 
         {/* Main Content */}
         <div className="flex flex-1 flex-col overflow-hidden pl-64 relative">
-          <TopBar />
+          <TopBar
+            connectionState={connectionState}
+            onReconnect={reconnect}
+          />
           
           {/* AI Toggle Button - Absolute positioned or valid in TopBar? 
               Web put it in TopBar. Let's see if we can perform a quick floating action or modify Sidebar/TopBar.

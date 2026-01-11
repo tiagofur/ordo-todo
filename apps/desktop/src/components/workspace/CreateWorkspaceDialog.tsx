@@ -17,8 +17,8 @@ import { toast } from "sonner";
 const createWorkspaceSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   description: z.string().optional(),
-  type: z.enum(["PERSONAL", "WORK", "TEAM"]),
   color: z.string().optional(),
+  icon: z.string().optional(),
 });
 
 type CreateWorkspaceForm = z.infer<typeof createWorkspaceSchema>;
@@ -39,57 +39,50 @@ interface CreateWorkspaceDialogProps {
 }
 
 export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
-  const [selectedType, setSelectedType] = useState<"PERSONAL" | "WORK" | "TEAM">("PERSONAL");
+  const [selectedColor, setSelectedColor] = useState("#2563EB");
+  const [selectedIcon, setSelectedIcon] = useState("🏠");
   const createWorkspaceMutation = useCreateWorkspace();
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<CreateWorkspaceForm>({
     resolver: zodResolver(createWorkspaceSchema),
-    defaultValues: {
-      type: "PERSONAL",
-    },
   });
 
   const onSubmit = async (data: CreateWorkspaceForm) => {
     try {
       await createWorkspaceMutation.mutateAsync({
         ...data,
-        type: selectedType,
+        color: selectedColor,
+        icon: selectedIcon,
         slug: generateSlug(data.name),
       });
       toast.success("Workspace creado exitosamente");
       reset();
+      setSelectedColor("#2563EB");
+      setSelectedIcon("🏠");
       onOpenChange(false);
     } catch (error: any) {
       toast.error(error.message || "Error al crear workspace");
     }
   };
 
-  const workspaceTypes = [
-    {
-      value: "PERSONAL" as const,
-      label: "Personal",
-      description: "Para tus tareas personales",
-      color: "bg-blue-500",
-    },
-    {
-      value: "WORK" as const,
-      label: "Trabajo",
-      description: "Para proyectos laborales",
-      color: "bg-purple-500",
-    },
-    {
-      value: "TEAM" as const,
-      label: "Equipo",
-      description: "Para colaboración en equipo",
-      color: "bg-green-500",
-    },
+  const workspaceColors = [
+    { name: "Azul", value: "#2563EB" },
+    { name: "Púrpura", value: "#7C3AED" },
+    { name: "Rosa", value: "#DB2777" },
+    { name: "Rojo", value: "#DC2626" },
+    { name: "Naranja", value: "#EA580C" },
+    { name: "Amarillo", value: "#CA8A04" },
+    { name: "Verde", value: "#16A34A" },
+    { name: "Turquesa", value: "#0891B2" },
+    { name: "Gris", value: "#6B7280" },
   ];
+
+  const workspaceIcons = ["🏠", "💼", "👥", "🚀", "🎯", "📊", "💡", "🔥", "⭐", "📁"];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -102,29 +95,43 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Workspace Type */}
+          {/* Color */}
           <div className="space-y-2">
-            <Label>Tipo de Workspace</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {workspaceTypes.map((type) => (
+            <Label>Color</Label>
+            <div className="grid grid-cols-9 gap-2">
+              {workspaceColors.map((color) => (
                 <button
-                  key={type.value}
+                  key={color.value}
                   type="button"
-                  onClick={() => {
-                    setSelectedType(type.value);
-                    setValue("type", type.value);
+                  onClick={() => setSelectedColor(color.value)}
+                  className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
+                  style={{
+                    backgroundColor: color.value,
+                    borderColor: selectedColor === color.value ? color.value : "transparent",
+                    opacity: selectedColor === color.value ? 1 : 0.6,
                   }}
-                  className={`flex flex-col items-center gap-2 rounded-lg border p-3 transition-colors ${
-                    selectedType === type.value
-                      ? "border-primary bg-primary/5"
-                      : "hover:bg-accent"
-                  }`}
+                  title={color.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Icon */}
+          <div className="space-y-2">
+            <Label>Icono</Label>
+            <div className="grid grid-cols-10 gap-2">
+              {workspaceIcons.map((icon) => (
+                <button
+                  key={icon}
+                  type="button"
+                  onClick={() => setSelectedIcon(icon)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110"
+                  style={{
+                    borderColor: selectedIcon === icon ? selectedColor : "transparent",
+                    backgroundColor: selectedIcon === icon ? `${selectedColor}15` : "transparent",
+                  }}
                 >
-                  <div className={`h-8 w-8 rounded-lg ${type.color}`} />
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{type.label}</p>
-                    <p className="text-xs text-muted-foreground">{type.description}</p>
-                  </div>
+                  {icon}
                 </button>
               ))}
             </div>

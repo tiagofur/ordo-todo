@@ -22,7 +22,6 @@ interface WorkspaceCardProps {
     slug: string;
     name: string;
     description?: string | null;
-    type: "PERSONAL" | "WORK" | "TEAM";
     color: string;
     icon?: string | null;
     owner?: {
@@ -35,27 +34,25 @@ interface WorkspaceCardProps {
   index?: number;
 }
 
-const typeConfig = {
-  PERSONAL: { label: "PERSONAL", color: "cyan", hexColor: "#06b6d4", icon: Briefcase },
-  WORK: { label: "WORK", color: "purple", hexColor: "#a855f7", icon: FolderKanban },
-  TEAM: { label: "TEAM", color: "pink", hexColor: "#ec4899", icon: CheckSquare },
-};
-
 export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   const { t } = (useTranslation as any)();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
   const { setSelectedWorkspaceId } = useWorkspaceStore();
-  
+
   const deleteWorkspaceMutation = useDeleteWorkspace();
 
   const handleCardClick = () => {
-    // Navigate to workspace detail page using username/slug pattern
+    // Store the selected workspace ID
+    setSelectedWorkspaceId(workspace.id);
+
+    // Navigate to workspace detail page
+    // Try username/slug pattern first, fallback to ID route
     if (workspace.owner?.username) {
       navigate(`/${workspace.owner.username}/${workspace.slug}`);
     } else {
-      // Fallback to old route if owner username not available
-      navigate(`/workspaces/${workspace.slug}`);
+      // Fallback to ID route (Desktop supports both)
+      navigate(`/workspaces/${workspace.id}`);
     }
   };
 
@@ -76,8 +73,9 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
     setShowSettings(true);
   };
 
-  const typeInfo = typeConfig[workspace.type] || typeConfig.PERSONAL;
-  const TypeIcon = typeInfo.icon;
+  // Use custom color and icon from workspace
+  const workspaceColor = workspace.color || "#2563EB";
+  const workspaceIcon = workspace.icon || "🏠";
 
   return (
     <>
@@ -93,7 +91,7 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
         )}
         style={{
           borderLeftWidth: "4px",
-          borderLeftColor: typeInfo.hexColor,
+          borderLeftColor: workspaceColor,
         }}
       >
         <div className="relative z-10 flex flex-col h-full">
@@ -103,11 +101,11 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
               <div
                 className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                 style={{
-                  backgroundColor: `${typeInfo.hexColor}15`,
-                  color: typeInfo.hexColor,
+                  backgroundColor: `${workspaceColor}15`,
+                  color: workspaceColor,
                 }}
               >
-                <TypeIcon className="h-7 w-7" />
+                <span className="text-2xl">{workspaceIcon}</span>
               </div>
 
               <div className="flex-1">
@@ -119,8 +117,8 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
                   <div
                     className="text-xs font-medium px-2 py-1 rounded-full"
                     style={{
-                      backgroundColor: `${workspace.color}15`,
-                      color: workspace.color || typeInfo.hexColor,
+                      backgroundColor: `${workspaceColor}15`,
+                      color: workspaceColor,
                     }}
                   >
                     Activo
@@ -179,7 +177,7 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
         {/* Decorative gradient overlay */}
         <div
           className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
-          style={{ backgroundColor: workspace.color || typeInfo.hexColor }}
+          style={{ backgroundColor: workspaceColor }}
         />
       </motion.div>
 

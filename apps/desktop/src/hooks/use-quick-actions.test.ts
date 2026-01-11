@@ -1,18 +1,5 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useQuickActions } from './use-quick-actions';
-import { createMockTask, createMockProject } from '@/test/setup';
-
-// Mock electron remote
-vi.mock('@electron/remote', () => ({
-  BrowserWindow: {
-    getFocusedWindow: vi.fn(() => ({
-      focus: vi.fn(),
-    })),
-  },
-  app: {
-    getPath: vi.fn(() => '/mock/path'),
-  },
-}));
 
 describe('useQuickActions', () => {
   beforeEach(() => {

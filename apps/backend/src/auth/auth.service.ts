@@ -31,7 +31,7 @@ export class AuthService {
     @Inject(forwardRef(() => WorkspacesService))
     private readonly workspacesService: WorkspacesService,
     private readonly tokenBlacklistService: TokenBlacklistService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     try {
@@ -160,6 +160,8 @@ export class AuthService {
         },
       };
     } catch (error) {
+      this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
+
       // Re-throw if it's already an UnauthorizedException
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -283,7 +285,7 @@ export class AuthService {
               slug: 'my-workspace',
               description: 'Your personal workspace',
               color: '#2563EB',
-              type: 'PERSONAL',
+              icon: '🏠',
             },
             user.id,
           );

@@ -115,6 +115,7 @@
     "electron": "39.2.4",
     "electron-builder": "^26.0.12",
     "electron-builder-notarize": "^1.5.2",
+    "electron-devtools-installer": "^4.0.0",
     "globals": "^15.12.0",
     "icon-gen": "^5.0.0",
     "jsdom": "^27.3.0",
