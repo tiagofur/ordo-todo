@@ -71,6 +71,14 @@ function getIconPath(): string {
 }
 
 function createWindow() {
+    // Prevent creating duplicate windows
+    if (win && !win.isDestroyed()) {
+        console.log('[Main] Window already exists, focusing instead of creating new one')
+        win.show()
+        win.focus()
+        return
+    }
+
     const windowState = getWindowState()
 
     // Check if we should start hidden (auto-launch)
@@ -85,7 +93,15 @@ function createWindow() {
         minWidth: 800,
         minHeight: 600,
         show: false, // Don't show until ready
-        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+        // Cross-platform window chrome:
+        // - macOS: hiddenInset shows native traffic lights, frame: true
+        // - Windows/Linux: frameless with custom TitleBar controls
+        titleBarStyle: 'hiddenInset',
+        frame: process.platform === 'darwin', // Frame on macOS, frameless on Windows/Linux
+        // macOS-specific: position traffic lights with proper spacing
+        ...(process.platform === 'darwin' && {
+            trafficLightPosition: { x: 16, y: 16 },
+        }),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -112,11 +128,12 @@ function createWindow() {
     // Create system tray
     createTray(win)
 
-    // Create timer floating window
-    createTimerWindow(win)
-
-    // Setup timer window IPC handlers
-    setupTimerWindowIpcHandlers()
+    // Timer floating window - DISABLED
+    // The timer window causes issues: blank window appearing on startup,
+    // JavaScript errors when closed. Needs deeper investigation.
+    // TODO: Fix timer window route loading and provider context issues
+    // createTimerWindow(win)
+    // setupTimerWindowIpcHandlers()
 
     // Register deep link protocol
     registerDeepLinkProtocol(win)
@@ -143,10 +160,13 @@ function createWindow() {
 
     // Test active push message to Renderer-process
     win.webContents.on('did-finish-load', () => {
-        win?.webContents.send('main-process-message', new Date().toLocaleString())
+        // Check if window still exists before sending messages
+        if (!win || win.isDestroyed()) return
+
+        win.webContents.send('main-process-message', new Date().toLocaleString())
 
         // Send initial tray state
-        updateTrayMenu(win!, {
+        updateTrayMenu(win, {
             timerActive: false,
             isPaused: false,
             timeRemaining: '25:00',
@@ -179,9 +199,10 @@ function createWindow() {
     })
 
     // Open DevTools in development
-    if (!app.isPackaged) {
-        win.webContents.openDevTools()
-    }
+    // TEMPORARILY DISABLED to debug second window issue
+    // if (!app.isPackaged) {
+    //     win.webContents.openDevTools()
+    // }
 }
 
 // Handle app quit properly
@@ -192,15 +213,17 @@ app.on('before-quit', () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows
 app.whenReady().then(async () => {
-    if (!app.isPackaged) {
-        try {
-            const { default: installExtension, REACT_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
-            await installExtension(REACT_DEVELOPER_TOOLS)
-            console.log('Added Extension: React Developer Tools')
-        } catch (error) {
-            console.log('An error occurred: ', error)
-        }
-    }
+    // React DevTools extension - DISABLED
+    // This may be causing the blank window issue on minimize/restore
+    // if (!app.isPackaged) {
+    //     try {
+    //         const { default: installExtension, REACT_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
+    //         await installExtension(REACT_DEVELOPER_TOOLS)
+    //         console.log('Added Extension: React Developer Tools')
+    //     } catch (error) {
+    //         console.log('An error occurred: ', error)
+    //     }
+    // }
     createWindow()
 })
 
@@ -208,8 +231,8 @@ app.whenReady().then(async () => {
 app.on('will-quit', () => {
     unregisterAllShortcuts()
     destroyTray()
-    destroyTimerWindow()
-    cleanupTimerWindowIpcHandlers()
+    // destroyTimerWindow() // Disabled - timer window creation is disabled
+    // cleanupTimerWindowIpcHandlers() // Disabled - timer window creation is disabled
     cleanupIpcHandlers()
     cleanupAutoUpdater()
     cleanupAutoLaunch()
@@ -228,8 +251,8 @@ app.on('activate', () => {
     // dock icon is clicked and there are no other windows open
     if (BrowserWindow.getAllWindows().length === 0) {
         createWindow()
-    } else {
-        // Show the window if hidden
-        win?.show()
+    } else if (win && !win.isDestroyed()) {
+        // Show the window if hidden and not destroyed
+        win.show()
     }
 })

@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  CheckSquare, Mail, Lock, User, Github, Chrome, ArrowRight, 
-  Sparkles, Check, X, Eye, EyeOff 
+import {
+  CheckSquare, Mail, Lock, User, Github, Chrome, ArrowRight,
+  Sparkles, Check, X, Eye, EyeOff
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../components/providers/auth-provider";
@@ -21,13 +21,13 @@ interface PasswordChecks {
 export function Auth() {
   const navigate = useNavigate();
   const { login, signup, signInWithGoogle, signInWithGitHub } = useAuth();
-  
+
   // State
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   // Form Data
   const [formData, setFormData] = useState({
     name: "",
@@ -53,36 +53,43 @@ export function Auth() {
     setShowConfirmPassword(false);
   };
 
-  // Password Strength Logic (Copied from Web)
+  // Password Strength Logic - matches backend RegisterDto validation
+  // Backend requires: 8+ chars, lowercase, uppercase, number, and special char (@$!%*?&)
   const passwordStrength = useMemo(() => {
     const password = formData.password;
-    if (!password) return { 
-      score: 0, 
-      label: "", 
-      color: "", 
-      textColor: "", 
-      checks: { length: false, lowercase: false, uppercase: false, number: false, special: false } as PasswordChecks 
+    if (!password) return {
+      score: 0,
+      label: "",
+      color: "",
+      textColor: "",
+      checks: { length: false, lowercase: false, uppercase: false, number: false, special: false } as PasswordChecks,
+      isValid: false
     };
 
-    let score = 0;
+    // Match exactly the backend's regex validators
     const checks: PasswordChecks = {
       length: password.length >= 8,
       lowercase: /[a-z]/.test(password),
       uppercase: /[A-Z]/.test(password),
       number: /[0-9]/.test(password),
-      special: /[^a-zA-Z0-9]/.test(password),
+      // Backend uses: /^(?=.*[@$!%*?&])/ - must contain one of these specific special chars
+      special: /[@$!%*?&]/.test(password),
     };
 
+    let score = 0;
     score += checks.length ? 1 : 0;
     score += checks.lowercase ? 1 : 0;
     score += checks.uppercase ? 1 : 0;
     score += checks.number ? 1 : 0;
     score += checks.special ? 1 : 0;
 
-    if (score <= 2) return { score, label: "Débil", color: "bg-red-500", textColor: "text-red-600", checks };
-    if (score <= 3) return { score, label: "Media", color: "bg-yellow-500", textColor: "text-yellow-600", checks };
-    if (score <= 4) return { score, label: "Buena", color: "bg-cyan-500", textColor: "text-cyan-600", checks };
-    return { score, label: "Excelente", color: "bg-green-500", textColor: "text-green-600", checks };
+    // All 5 criteria must be met for the password to be valid
+    const isValid = checks.length && checks.lowercase && checks.uppercase && checks.number && checks.special;
+
+    if (score <= 2) return { score, label: "Débil", color: "bg-red-500", textColor: "text-red-600", checks, isValid };
+    if (score <= 3) return { score, label: "Media", color: "bg-yellow-500", textColor: "text-yellow-600", checks, isValid };
+    if (score <= 4) return { score, label: "Buena", color: "bg-cyan-500", textColor: "text-cyan-600", checks, isValid };
+    return { score, label: "Excelente", color: "bg-green-500", textColor: "text-green-600", checks, isValid };
   }, [formData.password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,29 +98,30 @@ export function Auth() {
 
     try {
       if (isLogin) {
-        await login({ 
-            email: formData.email, 
-            password: formData.password 
+        await login({
+          email: formData.email,
+          password: formData.password
         });
         toast.success("Sesión iniciada exitosamente");
       } else {
         // Register validations
         if (formData.password !== formData.confirmPassword) {
-            toast.error("Las contraseñas no coinciden");
-            setIsLoading(false);
-            return;
+          toast.error("Las contraseñas no coinciden");
+          setIsLoading(false);
+          return;
         }
-        if (passwordStrength.score < 2) {
-            toast.error("La contraseña es muy débil");
-            setIsLoading(false);
-            return;
+        // Password must meet all 5 criteria to match backend validation
+        if (!passwordStrength.isValid) {
+          toast.error("La contraseña debe tener: 8+ caracteres, mayúscula, minúscula, número y símbolo (@$!%*?&)");
+          setIsLoading(false);
+          return;
         }
 
-        await signup({ 
-            email: formData.email, 
-            password: formData.password, 
-            username: formData.username, 
-            name: formData.name 
+        await signup({
+          email: formData.email,
+          password: formData.password,
+          username: formData.username,
+          name: formData.name
         });
         toast.success("Cuenta creada exitosamente");
       }
@@ -176,9 +184,9 @@ export function Auth() {
             {isLogin ? "Bienvenido de nuevo" : "Crear Cuenta"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isLogin 
-                ? "Inicia sesión para continuar con Ordo" 
-                : "Comienza a organizar tus tareas hoy mismo"}
+            {isLogin
+              ? "Inicia sesión para continuar con Ordo"
+              : "Comienza a organizar tus tareas hoy mismo"}
           </p>
         </div>
 
@@ -189,50 +197,50 @@ export function Auth() {
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             <AnimatePresence mode="popLayout">
-                {!isLogin && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-4"
-                    >
-                        {/* Name Input */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">Nombre Completo</label>
-                            <div className="relative group">
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500">
-                                    <User className="h-5 w-5" />
-                                </div>
-                                <input
-                                    type="text"
-                                    required={!isLogin}
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
-                                    placeholder="Tu nombre completo"
-                                />
-                            </div>
-                        </div>
+              {!isLogin && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-4"
+                >
+                  {/* Name Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Nombre Completo</label>
+                    <div className="relative group">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500">
+                        <User className="h-5 w-5" />
+                      </div>
+                      <input
+                        type="text"
+                        required={!isLogin}
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
+                        placeholder="Tu nombre completo"
+                      />
+                    </div>
+                  </div>
 
-                         {/* Username Input */}
-                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground">Nombre de Usuario</label>
-                            <div className="relative group">
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
-                                    <User className="h-5 w-5" />
-                                </div>
-                                <input
-                                    type="text"
-                                    required={!isLogin}
-                                    value={formData.username}
-                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                    className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-                                    placeholder="usuario123"
-                                />
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
+                  {/* Username Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Nombre de Usuario</label>
+                    <div className="relative group">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
+                        <User className="h-5 w-5" />
+                      </div>
+                      <input
+                        type="text"
+                        required={!isLogin}
+                        value={formData.username}
+                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                        className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                        placeholder="usuario123"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
 
             {/* Email Input */}
@@ -276,91 +284,112 @@ export function Auth() {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-              
+
               {!isLogin && formData.password && (
                 <div className="mt-2 space-y-2 rounded-lg bg-muted/30 p-3 text-xs">
-                    <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div 
-                                className={`h-full transition-all duration-300 ${passwordStrength.color}`} 
-                                style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                            />
-                        </div>
-                        <span className={passwordStrength.textColor}>{passwordStrength.label}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${passwordStrength.color}`}
+                        style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                      />
                     </div>
+                    <span className={passwordStrength.textColor}>{passwordStrength.label}</span>
+                  </div>
+                  {/* Password requirements checklist */}
+                  <div className="grid grid-cols-2 gap-1 pt-1">
+                    <div className={`flex items-center gap-1 ${passwordStrength.checks.length ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordStrength.checks.length ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      <span>8+ caracteres</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordStrength.checks.lowercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordStrength.checks.lowercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      <span>Minúscula (a-z)</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordStrength.checks.uppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordStrength.checks.uppercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      <span>Mayúscula (A-Z)</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordStrength.checks.number ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordStrength.checks.number ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      <span>Número (0-9)</span>
+                    </div>
+                    <div className={`col-span-2 flex items-center gap-1 ${passwordStrength.checks.special ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordStrength.checks.special ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      <span>Símbolo (@$!%*?&)</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
             <AnimatePresence mode="popLayout">
-                {!isLogin && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-2"
+              {!isLogin && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-2"
+                >
+                  <label className="text-sm font-medium text-foreground">Confirmar Contraseña</label>
+                  <div className="relative group">
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${passwordsMatch ? "text-green-500" : passwordsMismatch ? "text-red-500" : "text-orange-500"}`}>
+                      <Lock className="h-5 w-5" />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      required={!isLogin}
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      className={`h-12 w-full rounded-xl border bg-background pl-11 pr-11 text-sm transition-all focus:outline-none focus:ring-2 ${passwordsMatch
+                        ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                        : "border-input focus:border-orange-500 focus:ring-orange-500/20"
+                        }`}
+                      placeholder="Repite tu contraseña"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                         <label className="text-sm font-medium text-foreground">Confirmar Contraseña</label>
-                         <div className="relative group">
-                            <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${passwordsMatch ? "text-green-500" : passwordsMismatch ? "text-red-500" : "text-orange-500"}`}>
-                                <Lock className="h-5 w-5" />
-                            </div>
-                            <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                required={!isLogin}
-                                value={formData.confirmPassword}
-                                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                className={`h-12 w-full rounded-xl border bg-background pl-11 pr-11 text-sm transition-all focus:outline-none focus:ring-2 ${
-                                    passwordsMatch 
-                                        ? "border-green-500 focus:border-green-500 focus:ring-green-500/20" 
-                                        : "border-input focus:border-orange-500 focus:ring-orange-500/20"
-                                }`}
-                                placeholder="Repite tu contraseña"
-                            />
-                             <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
+                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
 
             {/* Remember Me (Login Only) */}
             {isLogin && (
-                 <div className="flex items-center space-x-2">
-                    <input
-                        id="remember"
-                        type="checkbox"
-                        checked={formData.rememberMe}
-                        onChange={(e) => setFormData({...formData, rememberMe: e.target.checked})}
-                        className="h-4 w-4 rounded border-input text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
-                    />
-                    <label htmlFor="remember" className="text-sm font-medium text-muted-foreground cursor-pointer">
-                        Recordarme
-                    </label>
-                </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="remember"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                  className="h-4 w-4 rounded border-input text-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                />
+                <label htmlFor="remember" className="text-sm font-medium text-muted-foreground cursor-pointer">
+                  Recordarme
+                </label>
+              </div>
             )}
 
-            <Button 
-                type="submit" 
-                className={`w-full h-12 text-lg font-medium transition-all duration-300 ${
-                    isLogin 
-                        ? 'bg-purple-500 hover:bg-purple-600 shadow-purple-500/30' 
-                        : 'bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/30'
+            <Button
+              type="submit"
+              className={`w-full h-12 text-lg font-medium transition-all duration-300 ${isLogin
+                ? 'bg-purple-500 hover:bg-purple-600 shadow-purple-500/30'
+                : 'bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/30'
                 } text-white shadow-lg  hover:scale-[1.02]`}
-                disabled={isLoading}
+              disabled={isLoading}
             >
               {isLoading ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                 <span className="flex items-center justify-center gap-2">
-                    {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
-                    <ArrowRight className="h-4 w-4" />
-                 </span>
+                <span className="flex items-center justify-center gap-2">
+                  {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+                  <ArrowRight className="h-4 w-4" />
+                </span>
               )}
             </Button>
           </form>
@@ -383,7 +412,7 @@ export function Auth() {
               Google
             </button>
             <button
-               onClick={handleGitHubSignIn}
+              onClick={handleGitHubSignIn}
               type="button"
               className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-purple-500/10 hover:border-purple-500/30 hover:text-purple-600"
             >
@@ -395,13 +424,12 @@ export function Auth() {
           {/* Toggle Login/Signup */}
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-               {isLogin ? "¿No tienes una cuenta? " : "¿Ya tienes una cuenta? "}
+              {isLogin ? "¿No tienes una cuenta? " : "¿Ya tienes una cuenta? "}
               <button
                 type="button"
                 onClick={toggleMode}
-                className={`inline-flex items-center gap-1 font-semibold transition-colors ${
-                    isLogin ? 'text-purple-500 hover:text-purple-600' : 'text-cyan-500 hover:text-cyan-600'
-                }`}
+                className={`inline-flex items-center gap-1 font-semibold transition-colors ${isLogin ? 'text-purple-500 hover:text-purple-600' : 'text-cyan-500 hover:text-cyan-600'
+                  }`}
               >
                 {isLogin ? "Regístrate gratis" : "Inicia sesión"}
                 {isLogin ? <Sparkles className="h-3 w-3" /> : <ArrowRight className="h-3 w-3" />}

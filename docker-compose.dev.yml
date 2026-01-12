@@ -38,7 +38,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./packages/db/prisma:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ordo']
+      test: [ 'CMD-SHELL', 'pg_isready -U ordo' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,7 +56,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      test: [ 'CMD', 'redis-cli', '--raw', 'incr', 'ping' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -66,8 +66,8 @@ services:
   # Backend API
   backend:
     build:
-      context: ./apps/backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
       target: development
     container_name: ordo-backend-dev
     restart: unless-stopped
@@ -90,8 +90,10 @@ services:
       - '3101:3101'
       - '9229:9229' # Node.js debugger
     volumes:
-      - ./apps/backend:/app
+      - .:/app
       - /app/node_modules
+      - /app/apps/backend/node_modules
+      - /app/packages/db/node_modules
       - ./uploads:/app/uploads
     depends_on:
       postgres:
@@ -99,7 +101,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3101/health/live']
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:3101/health/live' ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -110,25 +112,26 @@ services:
   # Web Application
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/web/Dockerfile
       target: development
     container_name: ordo-web-dev
     restart: unless-stopped
     environment:
       NODE_ENV: development
       NEXT_PUBLIC_API_URL: http://localhost:3101/api/v1
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3100
     ports:
-      - '3000:3000'
+      - '3100:3100'
     volumes:
-      - ./apps/web:/app
+      - .:/app
       - /app/node_modules
-      - /app/.next
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
     depends_on:
       - backend
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:3100' ]
       interval: 30s
       timeout: 10s
       retries: 3

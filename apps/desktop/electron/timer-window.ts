@@ -37,16 +37,20 @@ export function createTimerWindow(parent: BrowserWindow): BrowserWindow {
     x,
     y,
     frame: false,
-    transparent: true,
+    // Cross-platform: Use solid background instead of transparent + vibrancy
+    // transparent: true + vibrancy only works on macOS, causes white window on Windows/Linux
+    transparent: false,
+    backgroundColor: '#18181b', // zinc-900 - matches dark theme
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: false,
     movable: true,
     focusable: true,
-    show: false,
+    show: false, // Don't show until explicitly requested
     hasShadow: true,
-    vibrancy: process.platform === 'darwin' ? 'popover' : undefined,
-    visualEffectState: 'active',
+    // Removed macOS-only properties:
+    // - vibrancy: Only works on macOS
+    // - visualEffectState: Only works on macOS
     titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -65,6 +69,13 @@ export function createTimerWindow(parent: BrowserWindow): BrowserWindow {
       hash: '/timer-floating',
     })
   }
+
+  // Wait for content to be ready before allowing show
+  timerWindow.once('ready-to-show', () => {
+    // Window is ready but don't show automatically
+    // Will be shown via IPC when timer starts or user toggles
+    console.log('[Timer Window] Ready to show')
+  })
 
   // Prevent close, just hide
   timerWindow.on('close', (event) => {

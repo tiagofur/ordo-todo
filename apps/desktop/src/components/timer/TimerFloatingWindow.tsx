@@ -131,7 +131,7 @@ export function TimerFloatingWindow() {
       <div
         className={cn(
           'w-full h-full rounded-full shadow-2xl overflow-hidden',
-          'backdrop-blur-xl border-2 border-white/30',
+          'border-2 border-zinc-700',
           modeStyles.bg,
           'transition-all duration-300'
         )}

@@ -8,7 +8,7 @@ import { TimerFloatingWindow } from '@/components/timer/TimerFloatingWindow'
  */
 export function TimerFloating() {
   return (
-    <div className="w-screen h-screen overflow-hidden bg-transparent">
+    <div className="w-screen h-screen overflow-hidden bg-zinc-900">
       <TimerFloatingWindow />
     </div>
   )

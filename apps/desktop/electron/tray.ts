@@ -29,11 +29,11 @@ let currentState: TrayState = { ...defaultState }
 
 function getIconPath(): string {
   const iconName = process.platform === 'win32' ? 'icon.ico' : 'icon.png'
-  
+
   if (app.isPackaged) {
     return path.join(process.resourcesPath, 'build', iconName)
   }
-  
+
   // Development path
   return path.join(__dirname, '..', 'build', iconName)
 }
@@ -58,7 +58,7 @@ function getModeLabel(mode: TrayState['mode']): string {
 
 export function createTray(mainWindow: BrowserWindow): Tray {
   const iconPath = getIconPath()
-  
+
   try {
     const icon = nativeImage.createFromPath(iconPath)
     tray = new Tray(icon.resize({ width: 16, height: 16 }))
@@ -73,6 +73,9 @@ export function createTray(mainWindow: BrowserWindow): Tray {
 
   // Click to show/hide window
   tray.on('click', () => {
+    // Check if window still exists
+    if (!mainWindow || mainWindow.isDestroyed()) return
+
     if (mainWindow.isVisible()) {
       mainWindow.hide()
     } else {
@@ -86,6 +89,8 @@ export function createTray(mainWindow: BrowserWindow): Tray {
 
 export function updateTrayMenu(mainWindow: BrowserWindow, state: TrayState): void {
   if (!tray) return
+  // Check if window still exists
+  if (!mainWindow || mainWindow.isDestroyed()) return
 
   currentState = state
   const modeEmoji = getModeEmoji(state.mode)
@@ -259,6 +264,9 @@ export function updateTrayMenu(mainWindow: BrowserWindow, state: TrayState): voi
 }
 
 export function updateTrayState(mainWindow: BrowserWindow, partialState: Partial<TrayState>): void {
+  // Check if window still exists
+  if (!mainWindow || mainWindow.isDestroyed()) return
+
   const newState = { ...currentState, ...partialState }
   updateTrayMenu(mainWindow, newState)
 }

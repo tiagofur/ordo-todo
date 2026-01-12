@@ -31,7 +31,15 @@ RUN npm ci --legacy-peer-deps --ignore-scripts
 RUN cd packages/db && DATABASE_URL=postgresql://localhost npx prisma generate --schema=prisma/schema.prisma
 
 # =============================================================================
-# Stage 2: Builder
+# Stage 2: Development
+# =============================================================================
+FROM deps AS development
+WORKDIR /app
+# We'll rely on docker-compose for volumes and port mapping
+CMD ["npm", "run", "dev", "--workspace=@ordo-todo/backend"]
+
+# =============================================================================
+# Stage 3: Builder
 # =============================================================================
 FROM node:20-alpine AS builder
 WORKDIR /app

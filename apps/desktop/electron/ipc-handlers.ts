@@ -2,13 +2,13 @@ import { ipcMain, BrowserWindow, app } from 'electron'
 import Store from 'electron-store'
 import { updateTrayState, TrayState } from './tray'
 import { notifications, showNotification, NotificationOptions } from './notifications'
-import { 
-  registerGlobalShortcuts, 
-  unregisterAllShortcuts, 
+import {
+  registerGlobalShortcuts,
+  unregisterAllShortcuts,
   getRegisteredShortcuts,
   updateShortcut,
   defaultShortcuts,
-  ShortcutConfig 
+  ShortcutConfig
 } from './shortcuts'
 import {
   initDatabase,
@@ -87,9 +87,39 @@ const store = new Store<StoreSchema>({
 
 export function setupIpcHandlers(mainWindow: BrowserWindow): void {
   // ============================================
+  // Cleanup existing handlers to prevent "second handler" error during hot-reload
+  // ============================================
+  const handlerNames = [
+    'minimize-window', 'maximize-window', 'close-window', 'is-maximized',
+    'window:setAlwaysOnTop', 'window:isAlwaysOnTop', 'window:show', 'window:hide',
+    'tray:update',
+    'notification:show', 'notification:pomodoroComplete', 'notification:shortBreakComplete',
+    'notification:longBreakComplete', 'notification:taskDue', 'notification:taskReminder',
+    'shortcuts:getAll', 'shortcuts:getDefaults', 'shortcuts:update', 'shortcuts:reset',
+    'store:get', 'store:set', 'store:delete', 'store:clear',
+    'app:getVersion', 'app:getName', 'app:getPath', 'app:isPackaged',
+    'db:task:create', 'db:task:update', 'db:task:delete', 'db:task:getById',
+    'db:task:getByWorkspace', 'db:task:getByProject', 'db:task:getPending', 'db:task:getUnsynced',
+    'db:workspace:create', 'db:workspace:getAll', 'db:workspace:getById',
+    'db:project:create', 'db:project:getByWorkspace',
+    'db:session:create', 'db:session:getByWorkspace',
+    'sync:setAuthToken', 'sync:startAuto', 'sync:stopAuto', 'sync:setOnlineStatus',
+    'sync:getState', 'sync:force', 'sync:getQueueStats',
+  ];
+
+  // Remove any existing handlers
+  handlerNames.forEach(name => {
+    try {
+      ipcMain.removeHandler(name);
+    } catch {
+      // Handler might not exist, ignore
+    }
+  });
+
+  // ============================================
   // Initialize Database & Sync Engine
   // ============================================
-  
+
   try {
     initDatabase()
     initSyncEngine(mainWindow, process.env.VITE_API_URL || 'http://localhost:3001/api/v1')
@@ -101,7 +131,7 @@ export function setupIpcHandlers(mainWindow: BrowserWindow): void {
   // ============================================
   // Window Controls
   // ============================================
-  
+
   ipcMain.handle('minimize-window', () => {
     mainWindow.minimize()
   })
@@ -377,7 +407,7 @@ export function cleanupIpcHandlers(): void {
   // Remove all handlers
   ipcMain.removeAllListeners()
   unregisterAllShortcuts()
-  
+
   // Cleanup database and sync engine
   cleanupSyncEngine()
   closeDatabase()

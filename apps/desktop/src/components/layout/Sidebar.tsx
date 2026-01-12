@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target, Heart, Users, Sparkles, StickyNote, LayoutGrid, MessageSquare, Trash2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -33,6 +33,18 @@ export function Sidebar() {
   const { t } = (useTranslation as any)();
   const location = useLocation();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+  const [platform, setPlatform] = useState<string>('unknown');
+
+  // Detect platform for proper spacing
+  useEffect(() => {
+    if (window.electronAPI?.platform) {
+      setPlatform(window.electronAPI.platform);
+    }
+  }, []);
+
+  // macOS: add padding for traffic lights (48px)
+  // Windows/Linux: add padding for custom TitleBar (40px)
+  const topPadding = platform === 'darwin' ? 'pt-12' : 'pt-10';
 
   const navigation = [
     { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
@@ -54,7 +66,7 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-background">
+      <aside className={cn("fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-background", topPadding)}>
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center border-b border-border/50 px-6">
@@ -81,9 +93,9 @@ export function Sidebar() {
                     isActive
                       ? activeColorClasses[item.color as keyof typeof activeColorClasses]
                       : cn(
-                          "text-muted-foreground hover:text-foreground",
-                          colorClasses[item.color as keyof typeof colorClasses]
-                        )
+                        "text-muted-foreground hover:text-foreground",
+                        colorClasses[item.color as keyof typeof colorClasses]
+                      )
                   )}
                 >
                   <item.icon className={cn(
@@ -115,9 +127,9 @@ export function Sidebar() {
                 location.pathname === "/settings" || location.pathname?.startsWith("/settings/")
                   ? activeColorClasses.blue
                   : cn(
-                      "text-muted-foreground hover:text-foreground",
-                      colorClasses.blue
-                    )
+                    "text-muted-foreground hover:text-foreground",
+                    colorClasses.blue
+                  )
               )}
             >
               <Settings className={cn(
