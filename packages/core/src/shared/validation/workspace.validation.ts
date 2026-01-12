@@ -6,17 +6,17 @@
 import { z } from "zod";
 import { WORKSPACE_LIMITS } from "../constants/limits.constants";
 
-/**
- * Workspace type enum
- */
-export const WORKSPACE_TYPES = ["PERSONAL", "WORK", "TEAM"] as const;
-
 import { MemberRole } from "../../workspaces/model/member-role.enum";
 
 /**
  * Member role enum
  */
-export const MEMBER_ROLES = [MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER, MemberRole.VIEWER] as const;
+export const MEMBER_ROLES = [
+  MemberRole.OWNER,
+  MemberRole.ADMIN,
+  MemberRole.MEMBER,
+  MemberRole.VIEWER,
+] as const;
 
 /**
  * Base workspace schema
@@ -44,7 +44,6 @@ export const workspaceBaseSchema = z.object({
       `Description must be less than ${WORKSPACE_LIMITS.DESCRIPTION_MAX_LENGTH} characters`,
     )
     .optional(),
-  type: z.enum(WORKSPACE_TYPES),
   color: z.string().optional(),
   icon: z.string().optional(),
 });
@@ -106,15 +105,12 @@ export const transferOwnershipSchema = z.object({
  * Workspace filter schema
  */
 export const workspaceFilterSchema = z.object({
-  type: z.enum(WORKSPACE_TYPES).optional(),
   search: z.string().optional(),
 });
 
 /**
  * Type exports
- * Note: WorkspaceType is defined in workspaces domain, so we use WorkspaceTypeValue here
  */
-export type WorkspaceTypeValue = (typeof WORKSPACE_TYPES)[number];
 export type MemberRoleValue = (typeof MEMBER_ROLES)[number];
 export type WorkspaceBase = z.infer<typeof workspaceBaseSchema>;
 export type CreateWorkspaceDTO = z.infer<typeof createWorkspaceSchema>;

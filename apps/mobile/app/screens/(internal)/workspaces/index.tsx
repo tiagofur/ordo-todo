@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { router } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { useWorkspaces } from "@/app/lib/shared-hooks";
@@ -11,12 +18,6 @@ import type { Workspace } from "@ordo-todo/api-client";
 import { useWorkspaceStore } from "@/app/lib/stores";
 import { useTranslation } from "react-i18next";
 
-const TYPE_CONFIG = {
-  PERSONAL: { label: "Personal", color: "#06b6d4", icon: "briefcase" as const },
-  WORK: { label: "Trabajo", color: "#a855f7", icon: "folder" as const },
-  TEAM: { label: "Equipo", color: "#ec4899", icon: "users" as const },
-};
-
 export default function WorkspacesScreen() {
   const colors = useThemeColors();
   const { data: workspaces, isLoading } = useWorkspaces();
@@ -25,10 +26,12 @@ export default function WorkspacesScreen() {
 
   const handleWorkspacePress = (workspace: Workspace) => {
     setSelectedWorkspaceId(workspace.id);
-    
+
     // Navigate using username/slug pattern
     if (workspace.owner?.username) {
-      router.push(`/screens/(internal)/${workspace.owner.username}/${workspace.slug}`);
+      router.push(
+        `/screens/(internal)/${workspace.owner.username}/${workspace.slug}`,
+      );
     } else {
       // Fallback
       router.push(`/screens/(internal)/workspaces/${workspace.id}`);
@@ -37,7 +40,13 @@ export default function WorkspacesScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.container,
+          styles.center,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -53,7 +62,7 @@ export default function WorkspacesScreen() {
         end={{ x: 1, y: 1 }}
       >
         <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>{t('Mobile.workspaces.title')} 🏢</Text>
+          <Text style={styles.greeting}>{t("Mobile.workspaces.title")} 🏢</Text>
         </Animated.View>
       </LinearGradient>
 
@@ -61,36 +70,53 @@ export default function WorkspacesScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {workspaces?.length === 0 ? (
           <View style={styles.emptyState}>
-            <Feather name="briefcase" size={64} color={colors.textMuted} style={{ opacity: 0.5 }} />
+            <Feather
+              name="briefcase"
+              size={64}
+              color={colors.textMuted}
+              style={{ opacity: 0.5 }}
+            />
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              {t('Mobile.workspaces.noWorkspaces')}
+              {t("Mobile.workspaces.noWorkspaces")}
             </Text>
           </View>
         ) : (
           workspaces?.map((workspace: Workspace, index: number) => {
-            const typeInfo = TYPE_CONFIG[workspace.type as keyof typeof TYPE_CONFIG] || TYPE_CONFIG.PERSONAL;
+            const workspaceColor = workspace.color || "#06b6d4";
             return (
               <Animated.View
                 key={workspace.id}
                 entering={FadeInDown.delay(200 + index * 100).springify()}
               >
-                <Card onPress={() => handleWorkspacePress(workspace)} style={styles.workspaceCard}>
+                <Card
+                  onPress={() => handleWorkspacePress(workspace)}
+                  style={styles.workspaceCard}
+                >
                   <View style={styles.cardHeader}>
                     <View
                       style={[
                         styles.iconBox,
-                        { backgroundColor: `${typeInfo.color}20` },
+                        { backgroundColor: `${workspaceColor}20` },
                       ]}
                     >
-                      <Feather name={typeInfo.icon} size={24} color={typeInfo.color} />
+                      <Feather
+                        name="briefcase"
+                        size={24}
+                        color={workspaceColor}
+                      />
                     </View>
                     <View style={styles.cardInfo}>
-                      <Text style={[styles.workspaceName, { color: colors.text }]}>
+                      <Text
+                        style={[styles.workspaceName, { color: colors.text }]}
+                      >
                         {workspace.name}
                       </Text>
                       {workspace.description && (
                         <Text
-                          style={[styles.workspaceDescription, { color: colors.textSecondary }]}
+                          style={[
+                            styles.workspaceDescription,
+                            { color: colors.textSecondary },
+                          ]}
                           numberOfLines={2}
                         >
                           {workspace.description}
@@ -100,13 +126,10 @@ export default function WorkspacesScreen() {
                   </View>
 
                   <View style={styles.cardFooter}>
-                    <View style={[styles.badge, { backgroundColor: `${typeInfo.color}15` }]}>
-                      <Text style={[styles.badgeText, { color: typeInfo.color }]}>
-                        {typeInfo.label}
-                      </Text>
-                    </View>
                     {workspace.owner?.username && (
-                      <Text style={[styles.username, { color: colors.textMuted }]}>
+                      <Text
+                        style={[styles.username, { color: colors.textMuted }]}
+                      >
                         @{workspace.owner.username}
                       </Text>
                     )}
@@ -194,7 +217,7 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
   },
   badge: {

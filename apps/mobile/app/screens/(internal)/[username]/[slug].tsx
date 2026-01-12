@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { useWorkspaceBySlug, useProjects } from "@/app/lib/shared-hooks";
@@ -11,12 +18,6 @@ import { useWorkspaceStore } from "@/app/lib/stores";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-const TYPE_CONFIG = {
-  PERSONAL: { color: "#06b6d4", icon: "briefcase" as const },
-  WORK: { color: "#a855f7", icon: "folder" as const },
-  TEAM: { color: "#ec4899", icon: "users" as const },
-};
-
 export default function WorkspaceDetailScreen() {
   const colors = useThemeColors();
   const { username, slug } = useLocalSearchParams();
@@ -24,8 +25,13 @@ export default function WorkspaceDetailScreen() {
   const { t } = useTranslation();
 
   // Use workspace by slug (the backend endpoint supports username/slug)
-  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(username as string, slug as string);
-  const { data: projects, isLoading: isLoadingProjects } = useProjects(workspace?.id || "");
+  const { data: workspace, isLoading: isLoadingWorkspace } = useWorkspaceBySlug(
+    username as string,
+    slug as string,
+  );
+  const { data: projects, isLoading: isLoadingProjects } = useProjects(
+    workspace?.id || "",
+  );
 
   // Update store when workspace is loaded
   useEffect(() => {
@@ -37,7 +43,9 @@ export default function WorkspaceDetailScreen() {
   const handleProjectPress = (project: Project) => {
     // Navigate using username/slug/projects/projectSlug pattern
     if (project.slug) {
-      router.push(`/screens/(internal)/${username}/${slug}/projects/${project.slug}`);
+      router.push(
+        `/screens/(internal)/${username}/${slug}/projects/${project.slug}`,
+      );
     }
   };
 
@@ -47,7 +55,13 @@ export default function WorkspaceDetailScreen() {
 
   if (isLoadingWorkspace) {
     return (
-      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.container,
+          styles.center,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -55,24 +69,39 @@ export default function WorkspaceDetailScreen() {
 
   if (!workspace) {
     return (
-      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.container,
+          styles.center,
+          { backgroundColor: colors.background },
+        ]}
+      >
         <Feather name="alert-circle" size={64} color={colors.error} />
-        <Text style={[styles.errorText, { color: colors.error }]}>{t('Mobile.common.error')}</Text>
-        <Pressable onPress={handleBack} style={[styles.button, { backgroundColor: colors.primary }]}>
-          <Text style={styles.buttonText}>{t('Mobile.common.back')}</Text>
+        <Text style={[styles.errorText, { color: colors.error }]}>
+          {t("Mobile.common.error")}
+        </Text>
+        <Pressable
+          onPress={handleBack}
+          style={[styles.button, { backgroundColor: colors.primary }]}
+        >
+          <Text style={styles.buttonText}>{t("Mobile.common.back")}</Text>
         </Pressable>
       </View>
     );
   }
 
-  const typeInfo = TYPE_CONFIG[workspace.type as keyof typeof TYPE_CONFIG] || TYPE_CONFIG.PERSONAL;
-  const stats = workspace.stats || { projectCount: 0, taskCount: 0, memberCount: 0 };
+  const stats = workspace.stats || {
+    projectCount: 0,
+    taskCount: 0,
+    memberCount: 0,
+  };
+  const workspaceColor = workspace.color || "#06b6d4";
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <LinearGradient
-        colors={[typeInfo.color, `${typeInfo.color}dd`]}
+        colors={[workspaceColor, `${workspaceColor}dd`]}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -81,21 +110,31 @@ export default function WorkspaceDetailScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </Pressable>
 
-        <Animated.View entering={FadeInDown.delay(100)} style={styles.headerContent}>
+        <Animated.View
+          entering={FadeInDown.delay(100)}
+          style={styles.headerContent}
+        >
           <View style={styles.iconContainer}>
-            <Feather name={typeInfo.icon} size={32} color="#fff" />
+            <Feather name="briefcase" size={32} color="#fff" />
           </View>
           <Text style={styles.workspaceName}>{workspace.name}</Text>
           {workspace.description && (
-            <Text style={styles.workspaceDescription}>{workspace.description}</Text>
+            <Text style={styles.workspaceDescription}>
+              {workspace.description}
+            </Text>
           )}
           {workspace.owner?.username && (
-            <Text style={styles.ownerUsername}>@{workspace.owner.username}</Text>
+            <Text style={styles.ownerUsername}>
+              @{workspace.owner.username}
+            </Text>
           )}
         </Animated.View>
 
         {/* Stats */}
-        <Animated.View entering={FadeInDown.delay(200)} style={styles.statsContainer}>
+        <Animated.View
+          entering={FadeInDown.delay(200)}
+          style={styles.statsContainer}
+        >
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>{stats.projectCount}</Text>
             <Text style={styles.statLabel}>Proyectos</Text>
@@ -113,15 +152,26 @@ export default function WorkspaceDetailScreen() {
 
       {/* Projects Section */}
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Proyectos</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Proyectos
+        </Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {isLoadingProjects ? (
-          <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
+          <ActivityIndicator
+            size="small"
+            color={colors.primary}
+            style={{ marginTop: 20 }}
+          />
         ) : projects?.length === 0 ? (
           <View style={styles.emptyState}>
-            <Feather name="folder" size={48} color={colors.textMuted} style={{ opacity: 0.5 }} />
+            <Feather
+              name="folder"
+              size={48}
+              color={colors.textMuted}
+              style={{ opacity: 0.5 }}
+            />
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
               No hay proyectos en este workspace
             </Text>
@@ -132,15 +182,24 @@ export default function WorkspaceDetailScreen() {
               key={project.id}
               entering={FadeInDown.delay(300 + index * 100).springify()}
             >
-              <Card onPress={() => handleProjectPress(project)} style={styles.projectCard}>
+              <Card
+                onPress={() => handleProjectPress(project)}
+                style={styles.projectCard}
+              >
                 <View style={styles.projectHeader}>
                   <View
                     style={[
                       styles.projectIcon,
-                      { backgroundColor: `${project.color || typeInfo.color}20` },
+                      {
+                        backgroundColor: `${project.color || workspaceColor}20`,
+                      },
                     ]}
                   >
-                    <Feather name="folder" size={20} color={project.color || typeInfo.color} />
+                    <Feather
+                      name="folder"
+                      size={20}
+                      color={project.color || workspaceColor}
+                    />
                   </View>
                   <View style={styles.projectInfo}>
                     <Text style={[styles.projectName, { color: colors.text }]}>
@@ -148,14 +207,21 @@ export default function WorkspaceDetailScreen() {
                     </Text>
                     {project.description && (
                       <Text
-                        style={[styles.projectDescription, { color: colors.textSecondary }]}
+                        style={[
+                          styles.projectDescription,
+                          { color: colors.textSecondary },
+                        ]}
                         numberOfLines={2}
                       >
                         {project.description}
                       </Text>
                     )}
                   </View>
-                  <Feather name="chevron-right" size={20} color={colors.textMuted} />
+                  <Feather
+                    name="chevron-right"
+                    size={20}
+                    color={colors.textMuted}
+                  />
                 </View>
               </Card>
             </Animated.View>

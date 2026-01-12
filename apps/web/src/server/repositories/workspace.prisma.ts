@@ -1,7 +1,6 @@
 import {
   PrismaClient,
   Workspace as PrismaWorkspace,
-  WorkspaceType as PrismaWorkspaceType,
   WorkspaceTier as PrismaWorkspaceTier,
   WorkspaceMember as PrismaWorkspaceMember,
   MemberRole as PrismaMemberRole,
@@ -9,14 +8,13 @@ import {
 import {
   Workspace,
   WorkspaceRepository,
-  WorkspaceType,
   WorkspaceTier,
   WorkspaceMember,
   MemberRole as CoreMemberRole,
 } from "@ordo-todo/core";
 
 export class PrismaWorkspaceRepository implements WorkspaceRepository {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly prisma: PrismaClient) {}
 
   private toDomain(prismaWorkspace: PrismaWorkspace): Workspace {
     return new Workspace({
@@ -24,7 +22,6 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       name: prismaWorkspace.name,
       slug: prismaWorkspace.slug,
       description: prismaWorkspace.description ?? undefined,
-      type: this.mapTypeToDomain(prismaWorkspace.type),
       tier: this.mapTierToDomain(prismaWorkspace.tier),
       color: prismaWorkspace.color,
       icon: prismaWorkspace.icon ?? undefined,
@@ -45,32 +42,6 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       role: this.mapRoleToDomain(prismaMember.role),
       joinedAt: prismaMember.joinedAt,
     });
-  }
-
-  private mapTypeToDomain(type: PrismaWorkspaceType): WorkspaceType {
-    switch (type) {
-      case "PERSONAL":
-        return "PERSONAL";
-      case "WORK":
-        return "WORK";
-      case "TEAM":
-        return "TEAM";
-      default:
-        return "PERSONAL";
-    }
-  }
-
-  private mapTypeToPrisma(type: WorkspaceType): PrismaWorkspaceType {
-    switch (type) {
-      case "PERSONAL":
-        return "PERSONAL";
-      case "WORK":
-        return "WORK";
-      case "TEAM":
-        return "TEAM";
-      default:
-        return "PERSONAL";
-    }
   }
 
   private mapRoleToDomain(role: PrismaMemberRole): CoreMemberRole {
@@ -135,7 +106,6 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       name: workspace.props.name,
       slug: workspace.props.slug,
       description: workspace.props.description,
-      type: this.mapTypeToPrisma(workspace.props.type),
       tier: this.mapTierToPrisma(workspace.props.tier),
       color: workspace.props.color,
       icon: workspace.props.icon,
@@ -215,7 +185,6 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       name: workspace.props.name,
       slug: workspace.props.slug,
       description: workspace.props.description,
-      type: this.mapTypeToPrisma(workspace.props.type),
       tier: this.mapTierToPrisma(workspace.props.tier),
       color: workspace.props.color,
       icon: workspace.props.icon,
@@ -366,7 +335,6 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     name: string;
     slug: string;
     description: string | null;
-    type: string;
     tier: string;
     color: string;
     icon: string | null;
@@ -375,7 +343,7 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       id: string;
       username: string;
       name: string | null;
-      email: string | null;
+      email: string;
     };
     isArchived: boolean;
     createdAt: Date;
@@ -432,7 +400,6 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
       name: workspace.name,
       slug: workspace.slug,
       description: workspace.description,
-      type: workspace.type,
       tier: workspace.tier,
       color: workspace.color,
       icon: workspace.icon,

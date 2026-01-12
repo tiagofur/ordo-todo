@@ -27,8 +27,8 @@ type CreateWorkspaceForm = z.infer<typeof createWorkspaceSchema>;
 const generateSlug = (name: string): string => {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
     .slice(0, 50);
 };
 
@@ -38,7 +38,10 @@ interface CreateWorkspaceDialogProps {
   workspaceId?: string; // Prop was unused in original likely, but kept for compatibility if needed
 }
 
-export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
+export function CreateWorkspaceDialog({
+  open,
+  onOpenChange,
+}: CreateWorkspaceDialogProps) {
   const [selectedColor, setSelectedColor] = useState("#2563EB");
   const [selectedIcon, setSelectedIcon] = useState("🏠");
   const createWorkspaceMutation = useCreateWorkspace();
@@ -82,7 +85,18 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
     { name: "Gris", value: "#6B7280" },
   ];
 
-  const workspaceIcons = ["🏠", "💼", "👥", "🚀", "🎯", "📊", "💡", "🔥", "⭐", "📁"];
+  const workspaceIcons = [
+    "🏠",
+    "💼",
+    "👥",
+    "🚀",
+    "🎯",
+    "📊",
+    "💡",
+    "🔥",
+    "⭐",
+    "📁",
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,7 +121,10 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                   className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
                   style={{
                     backgroundColor: color.value,
-                    borderColor: selectedColor === color.value ? color.value : "transparent",
+                    borderColor:
+                      selectedColor === color.value
+                        ? color.value
+                        : "transparent",
                     opacity: selectedColor === color.value ? 1 : 0.6,
                   }}
                   title={color.name}
@@ -127,8 +144,12 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
                   onClick={() => setSelectedIcon(icon)}
                   className="flex h-10 w-10 items-center justify-center rounded-lg border-2 text-2xl transition-all hover:scale-110"
                   style={{
-                    borderColor: selectedIcon === icon ? selectedColor : "transparent",
-                    backgroundColor: selectedIcon === icon ? `${selectedColor}15` : "transparent",
+                    borderColor:
+                      selectedIcon === icon ? selectedColor : "transparent",
+                    backgroundColor:
+                      selectedIcon === icon
+                        ? `${selectedColor}15`
+                        : "transparent",
                   }}
                 >
                   {icon}
@@ -175,7 +196,9 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
               disabled={createWorkspaceMutation.isPending}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {createWorkspaceMutation.isPending ? "Creando..." : "Crear Workspace"}
+              {createWorkspaceMutation.isPending
+                ? "Creando..."
+                : "Crear Workspace"}
             </button>
           </DialogFooter>
         </form>
