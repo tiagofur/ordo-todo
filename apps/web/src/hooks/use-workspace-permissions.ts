@@ -19,7 +19,7 @@
  */
 
 import { useMemo } from 'react';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@ordo-todo/auth-provider';
 import { useWorkspaceMembers } from '@/lib/api-hooks';
 import type { Workspace, MemberRole } from '@ordo-todo/api-client';
 

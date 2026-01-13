@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { AuthProvider } from "@/contexts/auth-context";
+import { AuthProvider } from "@ordo-todo/auth-provider";
 import { Toaster } from "@ordo-todo/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { TimerSettingsProvider } from "./timer-settings-provider";
 import { DevToolsProvider } from "./devtools-provider";
 import { DevToolsPanel } from "@/components/devtools";
 import { AIFeaturesTourProvider } from "@/components/onboarding/ai-features-tour";
+import { sharedApiClient } from "@/lib/shared-api-client";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ export function Providers({ children }: ProvidersProps) {
             retry: 1,
           },
         },
-      })
+      }),
   );
 
   return (
@@ -38,7 +39,7 @@ export function Providers({ children }: ProvidersProps) {
       disableTransitionOnChange={false}
     >
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+        <AuthProvider platform="web" apiClient={sharedApiClient}>
           <TimerSettingsProvider>
             <TimerProvider>
               <DevToolsProvider>
@@ -46,7 +47,7 @@ export function Providers({ children }: ProvidersProps) {
                   {children}
                   <Toaster richColors position="top-right" />
                 </AIFeaturesTourProvider>
-                {process.env.NODE_ENV === 'development' && <DevToolsPanel />}
+                {process.env.NODE_ENV === "development" && <DevToolsPanel />}
               </DevToolsProvider>
             </TimerProvider>
           </TimerSettingsProvider>

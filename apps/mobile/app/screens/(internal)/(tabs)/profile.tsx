@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   Pressable,
+  Switch,
 } from "react-native";
 import Animated, {
   FadeIn,
@@ -23,13 +24,71 @@ import useSession from "../../../data/hooks/use-session.hook";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import Card from "@/app/components/shared/card.component";
 import { useTranslation } from "react-i18next";
-
-// Profile options will be built with translations in the component
+import { 
+  checkBiometricCapabilities, 
+  isBiometricLoginEnabled, 
+  enableBiometricLogin, 
+  disableBiometricLogin,
+  getBiometricIconName,
+  getBiometricTypeName
+} from "@/app/lib/biometric-auth";
 
 export default function Profile() {
   const { user, endSession } = useSession();
   const colors = useThemeColors();
   const { t } = useTranslation();
+
+  const [isBioAvailable, setIsBioAvailable] = useState(false);
+  const [isBioEnabled, setIsBioEnabled] = useState(false);
+  const [bioType, setBioType] = useState<any>('fingerprint');
+
+  useEffect(() => {
+    checkBio();
+  }, []);
+
+  async function checkBio() {
+    try {
+      const caps = await checkBiometricCapabilities();
+      const enabled = await isBiometricLoginEnabled();
+      setIsBioAvailable(caps.available && caps.enrolled);
+      setIsBioEnabled(enabled);
+      if (caps.biometricTypes.length > 0) {
+        setBioType(caps.biometricTypes[0]);
+      }
+    } catch (e) {
+      console.warn("Error checking biometrics", e);
+    }
+  }
+
+  const handleToggleBio = async (value: boolean) => {
+      try {
+        if (value) {
+            // Enable
+            const client = apiClient as any;
+            const token = await client.tokenStorage?.getRefreshToken();
+            
+            if (!token) {
+                Alert.alert("Error", "No se pudo obtener el token de sesión. Por favor inicia sesión nuevamente.");
+                return;
+            }
+            
+            const success = await enableBiometricLogin(token);
+            if (success) {
+              setIsBioEnabled(true);
+              Alert.alert("Éxito", "Inicio de sesión biométrico habilitado");
+            } else {
+              setIsBioEnabled(false); // revert
+            }
+        } else {
+            // Disable
+            await disableBiometricLogin();
+            setIsBioEnabled(false);
+        }
+      } catch (e) {
+        console.error("Error toggling biometrics", e);
+        setIsBioEnabled(false);
+      }
+  };
 
   const { data: stats } = useQuery({
     queryKey: ['dashboard-stats'],
@@ -38,15 +97,36 @@ export default function Profile() {
   });
 
   // Build profile options with translations
-  const PROFILE_OPTIONS = useMemo(() => [
-    { icon: "heart", label: "Bienestar", color: "#ec4899", route: "/screens/(internal)/wellbeing" },
-    { icon: "users", label: "Carga de Trabajo", color: "#f97316", route: "/screens/(internal)/workload" },
-    { icon: "bell", label: t('Mobile.profileOptions.notifications'), color: "#667EEA", hasSwitch: true },
-    { icon: "moon", label: t('Mobile.profileOptions.darkMode'), color: "#9F7AEA", hasSwitch: true },
-    { icon: "settings", label: t('Mobile.profileOptions.settings'), color: "#4299E1" },
-    { icon: "help-circle", label: t('Mobile.profileOptions.help'), color: "#48BB78" },
-    { icon: "info", label: t('Mobile.profileOptions.about'), color: "#ED8936" },
-  ], [t]);
+  const PROFILE_OPTIONS = useMemo(() => {
+    const opts: any[] = [
+      { icon: "heart", label: "Bienestar", color: "#ec4899", route: "/screens/(internal)/wellbeing" },
+      { icon: "users", label: "Carga de Trabajo", color: "#f97316", route: "/screens/(internal)/workload" },
+      { icon: "bell", label: t('Mobile.profileOptions.notifications'), color: "#667EEA", hasSwitch: true, value: false },
+      { icon: "moon", label: t('Mobile.profileOptions.darkMode'), color: "#9F7AEA", hasSwitch: true, value: false, onToggle: () => {} },
+    ];
+
+    if (isBioAvailable) {
+      // Use mapped icon if needed, or trust getBiometricIconName return
+      const iconName = getBiometricIconName(bioType);
+      
+      opts.push({
+        icon: iconName, 
+        label: `Usar ${getBiometricTypeName(bioType)}`, 
+        color: "#38B2AC", 
+        hasSwitch: true, 
+        value: isBioEnabled,
+        onToggle: handleToggleBio
+      });
+    }
+
+    opts.push(
+      { icon: "settings", label: t('Mobile.profileOptions.settings'), color: "#4299E1" },
+      { icon: "help-circle", label: t('Mobile.profileOptions.help'), color: "#48BB78" },
+      { icon: "info", label: t('Mobile.profileOptions.about'), color: "#ED8936" }
+    );
+
+    return opts;
+  }, [t, isBioAvailable, isBioEnabled, bioType]);
 
   const profileStats = useMemo(() => [
     { 
@@ -176,8 +256,11 @@ export default function Profile() {
             >
               <Card
                 onPress={() => {
-                  if ((option as any).route) {
-                    router.push((option as any).route);
+                  if (option.hasSwitch) {
+                      // Toggle action is handled by switch, but maybe tap on card too?
+                      if (option.onToggle) option.onToggle(!option.value);
+                  } else if (option.route) {
+                    router.push(option.route);
                   } else {
                     console.log(option.label);
                   }
@@ -193,8 +276,16 @@ export default function Profile() {
                         { backgroundColor: `${option.color}15` },
                       ]}
                     >
+                      {/* Handle Feather vs MaterialCommunityIcons mismatch if necessary. 
+                          For now, we rely on Feather having fingerprint. 
+                          If getBiometricIconName returns 'face-recognition', Feather doesn't have it.
+                          We should use a generic icon or handle separate lib. 
+                          For simplicity here, we stick to Feather or generic fallback if icon not found by Feather. 
+                          Feather has 'smartphone', 'shield', 'lock'. 
+                          Let's force 'lock' if not mapped well, or trust the user.
+                      */}
                       <Feather
-                        name={option.icon as any}
+                        name={option.icon === 'face-recognition' ? 'user-check' : (option.icon === 'eye-check' ? 'eye' : option.icon) as any}
                         size={20}
                         color={option.color}
                       />
@@ -203,11 +294,21 @@ export default function Profile() {
                       {option.label}
                     </Text>
                   </View>
-                  <Feather
-                    name="chevron-right"
-                    size={20}
-                    color={colors.textMuted}
-                  />
+                  
+                  {option.hasSwitch ? (
+                      <Switch 
+                        value={option.value} 
+                        onValueChange={option.onToggle}
+                        trackColor={{ false: "#767577", true: option.color }}
+                        // thumbColor={"#f4f3f4"} 
+                      />
+                  ) : (
+                      <Feather
+                        name="chevron-right"
+                        size={20}
+                        color={colors.textMuted}
+                      />
+                  )}
                 </View>
               </Card>
             </Animated.View>

@@ -2,6 +2,7 @@
  * Workspace-related types and DTOs
  */
 
+export type WorkspaceTier = "FREE" | "PRO" | "ENTERPRISE";
 export type MemberRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 export type ViewType = "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
 
@@ -12,6 +13,7 @@ export interface Workspace {
   description: string | null;
   color: string;
   icon: string | null;
+  tier: WorkspaceTier;
   ownerId: string | null;
   owner?: {
     id: string;

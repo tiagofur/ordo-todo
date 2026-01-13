@@ -1,4 +1,4 @@
-const { PrismaClient, Theme, Priority, WorkspaceType, TaskStatus } = require('@prisma/client');
+const { PrismaClient, Theme, Priority, TaskStatus } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
@@ -41,7 +41,6 @@ async function main() {
                 slug: "personal",
                 description: "My personal workspace",
                 color: "#6366f1",
-                type: 'PERSONAL',
                 ownerId: user.id,
             },
         });
@@ -104,7 +103,7 @@ async function main() {
                     priority: 'MEDIUM',
                     estimatedMinutes: 25,
                     position: 0,
-                    creatorId: user.id,
+                    ownerId: user.id,
                     projectId: project.id,
                 },
             }),
@@ -115,7 +114,7 @@ async function main() {
                     priority: 'HIGH',
                     estimatedMinutes: 50,
                     position: 1,
-                    creatorId: user.id,
+                    ownerId: user.id,
                     projectId: project.id,
                 },
             }),
@@ -168,7 +167,9 @@ main()
         await prisma.$disconnect();
     })
     .catch(async (e) => {
-        console.error(e);
+        console.error("❌ Seed error:", e);
+        if (e.code) console.error("Error Code:", e.code);
+        if (e.meta) console.error("Error Meta:", JSON.stringify(e.meta, null, 2));
         await prisma.$disconnect();
         process.exit(1);
     });

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { TopBar as TopBarUI } from "@ordo-todo/ui";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@ordo-todo/auth-provider";
 import { SyncStatusIndicator } from "@/components/shared/sync-status-indicator";
 import { NotificationPopover } from "@/components/shared/notification-popover";
 import { SmartSearch } from "@/components/search/smart-search";

@@ -1,0 +1,23 @@
+/**
+ * Auth Event Types for Audit Logging
+ *
+ * Defines the types of authentication events that are logged for security auditing.
+ */
+
+export enum AuthEventType {
+  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+  LOGIN_FAILED = 'LOGIN_FAILED',
+  REGISTER_SUCCESS = 'REGISTER_SUCCESS',
+  REGISTER_FAILED = 'REGISTER_FAILED',
+  LOGOUT = 'LOGOUT',
+  REFRESH_TOKEN = 'REFRESH_TOKEN',
+  OAUTH_SUCCESS = 'OAUTH_SUCCESS',
+  OAUTH_FAILED = 'OAUTH_FAILED',
+  PASSWORD_RESET_REQUEST = 'PASSWORD_RESET_REQUEST',
+  PASSWORD_RESET_SUCCESS = 'PASSWORD_RESET_SUCCESS',
+  ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
+  ACCOUNT_UNLOCKED = 'ACCOUNT_UNLOCKED',
+  TOKEN_REVOKED = 'TOKEN_REVOKED',
+}
+
+export default AuthEventType;

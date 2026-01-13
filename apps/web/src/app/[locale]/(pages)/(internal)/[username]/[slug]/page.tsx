@@ -6,7 +6,7 @@ import { WorkspaceDashboard } from "@/components/workspace/workspace-dashboard";
 import { useWorkspaceByUsernameAndSlug } from "@/lib/api-hooks";
 import { Button } from "@ordo-todo/ui";
 import { useTranslations } from "next-intl";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@ordo-todo/auth-provider";
 
 export default function WorkspaceDetailPage() {
   const params = useParams();

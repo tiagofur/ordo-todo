@@ -1,6 +1,6 @@
 import { AxiosInstance, AxiosError } from "axios";
 import type { TokenStorage } from "./utils/storage";
-import type { RegisterDto, LoginDto, AuthResponse, RefreshTokenDto, User, UpdateProfileDto, UserResponse, UserProfileResponse, UserPreferences, UpdatePreferencesDto, UserIntegration, Workspace, WorkspaceWithMembers, WorkspaceMember, WorkspaceInvitation, WorkspaceSettings, WorkspaceAuditLog, WorkspaceAuditLogsResponse, CreateWorkspaceDto, UpdateWorkspaceDto, UpdateWorkspaceSettingsDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, Workflow, CreateWorkflowDto, UpdateWorkflowDto, Project, CreateProjectDto, UpdateProjectDto, Task, TaskDetails, TaskShareResponse, PublicTaskResponse, TodayTasksResponse, TimeBlock, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, Tag, CreateTagDto, UpdateTagDto, TimeSession, StartTimerDto, StopTimerDto, ActiveTimerResponse, GetSessionsParams, PaginatedSessionsResponse, GetTimerStatsParams, TimerStatsResponse, TaskTimeResponse, CreateTimerSessionDto, UpdateTimerSessionDto, DailyMetrics, GetDailyMetricsParams, ProductivityStreak, Comment, CreateCommentDto, UpdateCommentDto, Attachment, CreateAttachmentDto, AIProfile, OptimalScheduleResponse, PredictDurationResponse, WeeklyReportResponse, ProductivityReport, Notification, UnreadCountResponse, CreateConversationDto, SendMessageDto, ConversationResponse, ConversationDetail, SendMessageResponse, AIInsightsResponse, Habit, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, HabitStats, TodayHabitsResponse, CompleteHabitResponse, Objective, KeyResult, KeyResultTask, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, ObjectiveDashboardSummary, CustomField, CustomFieldValue, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, BurnoutAnalysis, WorkPatterns, RestRecommendation, BurnoutIntervention, WeeklyWellbeingSummary, WorkspaceWorkload, MemberWorkload, WorkloadSuggestion, Note, CreateNoteDto as ClientCreateNoteDto, // Alias if needed, but names match
+import type { RegisterDto, LoginDto, AuthResponse, RefreshTokenDto, SessionInfo, User, UpdateProfileDto, UserResponse, UserProfileResponse, UserPreferences, UpdatePreferencesDto, UserIntegration, Workspace, WorkspaceWithMembers, WorkspaceMember, WorkspaceInvitation, WorkspaceSettings, WorkspaceAuditLog, WorkspaceAuditLogsResponse, CreateWorkspaceDto, UpdateWorkspaceDto, UpdateWorkspaceSettingsDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, Workflow, CreateWorkflowDto, UpdateWorkflowDto, Project, CreateProjectDto, UpdateProjectDto, Task, TaskDetails, TaskShareResponse, PublicTaskResponse, TodayTasksResponse, TimeBlock, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, Tag, CreateTagDto, UpdateTagDto, TimeSession, StartTimerDto, StopTimerDto, ActiveTimerResponse, GetSessionsParams, PaginatedSessionsResponse, GetTimerStatsParams, TimerStatsResponse, TaskTimeResponse, CreateTimerSessionDto, UpdateTimerSessionDto, DailyMetrics, GetDailyMetricsParams, ProductivityStreak, Comment, CreateCommentDto, UpdateCommentDto, Attachment, CreateAttachmentDto, AIProfile, OptimalScheduleResponse, PredictDurationResponse, WeeklyReportResponse, ProductivityReport, Notification, UnreadCountResponse, CreateConversationDto, SendMessageDto, ConversationResponse, ConversationDetail, SendMessageResponse, AIInsightsResponse, Habit, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, HabitStats, TodayHabitsResponse, CompleteHabitResponse, Objective, KeyResult, KeyResultTask, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, ObjectiveDashboardSummary, CustomField, CustomFieldValue, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, BurnoutAnalysis, WorkPatterns, RestRecommendation, BurnoutIntervention, WeeklyWellbeingSummary, WorkspaceWorkload, MemberWorkload, WorkloadSuggestion, Note, CreateNoteDto as ClientCreateNoteDto, // Alias if needed, but names match
 UpdateNoteDto as ClientUpdateNoteDto } from "./types";
 /**
  * Retry configuration for failed requests
@@ -197,6 +197,28 @@ export declare class OrdoApiClient {
      * GET /auth/google/callback?code=xxx
      */
     googleOAuthCallback(code: string): Promise<AuthResponse>;
+    /**
+     * Get active sessions
+     * GET /sessions
+     */
+    getSessions(): Promise<SessionInfo[]>;
+    /**
+     * Get active session count
+     * GET /sessions/count
+     */
+    getSessionCount(): Promise<{
+        count: number;
+    }>;
+    /**
+     * Revoke a specific session
+     * DELETE /sessions/:id
+     */
+    revokeSession(sessionId: string): Promise<void>;
+    /**
+     * Revoke all other sessions
+     * DELETE /sessions/others/all
+     */
+    revokeAllOtherSessions(): Promise<void>;
     /**
      * Get GitHub OAuth authorization URL
      * GET /auth/github

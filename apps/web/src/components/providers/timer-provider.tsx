@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useTimerBackend, TimerMode, TimerType } from "@/hooks/use-timer-backend";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@ordo-todo/auth-provider";
 import { notify } from "@/lib/notify";
 
 interface TimerContextType {

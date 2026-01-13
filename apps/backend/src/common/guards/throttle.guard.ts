@@ -7,6 +7,7 @@ import {
 import { ThrottlerGuard, ThrottlerStorage } from '@nestjs/throttler';
 import type { ThrottlerModuleOptions } from '@nestjs/throttler';
 import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 /**
  * Custom Rate Limiting Guard with Different Limits for Different Endpoints
@@ -37,6 +38,7 @@ export class CustomThrottleGuard extends ThrottlerGuard {
    * - POST /auth/register: 3 requests per minute
    * - POST /auth/login: 5 requests per minute
    * - POST /auth/refresh: 10 requests per minute
+   * - POST /auth/check-username: 10 requests per hour
    * - Other public endpoints: 20 requests per minute
    * - Authenticated endpoints: 100 requests per minute
    *
@@ -54,8 +56,17 @@ export class CustomThrottleGuard extends ThrottlerGuard {
       return true;
     }
 
+    // Check if endpoint is public - apply rate limiting even to public endpoints!
+    // We want rate limiting on login/register to prevent brute force
+    // IS_PUBLIC_KEY is used to skip JWT auth, but we still want rate limiting
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
     // Determine rate limit based on route
-    const rateLimit = this.getRateLimitForRoute(route, method);
+    // Public endpoints (login, register) need strict rate limiting
+    const rateLimit = this.getRateLimitForRoute(route, method, isPublic);
 
     // Apply rate limit if route matches
     if (rateLimit !== null) {
@@ -71,18 +82,20 @@ export class CustomThrottleGuard extends ThrottlerGuard {
    *
    * @param route - Request route path
    * @param method - HTTP method (GET, POST, etc.)
+   * @param isPublic - Whether the route is public (has @Public decorator)
    * @returns Rate limit object or null (null = use default)
    */
   private getRateLimitForRoute(
     route: string,
     method: string,
+    isPublic: boolean,
   ): { limit: number; ttl: number; message: string } | null {
     // Auth endpoints - stricter limits
     if (route.includes('/auth/register')) {
       return {
         limit: 3,
-        ttl: 60000, // 1 minute
-        message: 'Too many registration attempts. Please try again later.',
+        ttl: 3600000, // 1 hour (stricter for registration)
+        message: 'Too many registration attempts. Please try again in 1 hour.',
       };
     }
 
@@ -90,7 +103,15 @@ export class CustomThrottleGuard extends ThrottlerGuard {
       return {
         limit: 5,
         ttl: 60000, // 1 minute
-        message: 'Too many login attempts. Please try again later.',
+        message: 'Too many login attempts. Please try again in 1 minute.',
+      };
+    }
+
+    if (route.includes('/auth/check-username')) {
+      return {
+        limit: 10,
+        ttl: 3600000, // 1 hour (prevent username enumeration)
+        message: 'Too many username checks. Please try again later.',
       };
     }
 

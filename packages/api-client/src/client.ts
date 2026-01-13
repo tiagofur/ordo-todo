@@ -6,6 +6,7 @@ import type {
   LoginDto,
   AuthResponse,
   RefreshTokenDto,
+  SessionInfo,
   // User
   User,
   UpdateProfileDto,
@@ -284,6 +285,7 @@ export class OrdoApiClient {
   private onTokenRefresh?: (tokens: AuthResponse) => void | Promise<void>;
   private onAuthError?: () => void | Promise<void>;
   private retryConfig?: RetryConfig;
+  // public testProp: string = 'test';
 
   constructor(config: ClientConfig) {
     this.tokenStorage = config.tokenStorage;
@@ -608,6 +610,42 @@ export class OrdoApiClient {
     }
 
     return response.data;
+  }
+
+  // ============ SESSION ENDPOINTS (4) ============
+
+  /**
+   * Get active sessions
+   * GET /sessions
+   */
+  async getSessions(): Promise<SessionInfo[]> {
+    const response = await this.axios.get<SessionInfo[]>("/sessions");
+    return response.data;
+  }
+
+  /**
+   * Get active session count
+   * GET /sessions/count
+   */
+  async getSessionCount(): Promise<{ count: number }> {
+    const response = await this.axios.get<{ count: number }>("/sessions/count");
+    return response.data;
+  }
+
+  /**
+   * Revoke a specific session
+   * DELETE /sessions/:id
+   */
+  async revokeSession(sessionId: string): Promise<void> {
+    await this.axios.delete(`/sessions/${sessionId}`);
+  }
+
+  /**
+   * Revoke all other sessions
+   * DELETE /sessions/others/all
+   */
+  async revokeAllOtherSessions(): Promise<void> {
+    await this.axios.delete("/sessions/others/all");
   }
 
   /**

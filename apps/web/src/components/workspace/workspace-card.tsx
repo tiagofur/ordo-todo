@@ -16,10 +16,6 @@ interface WorkspaceCardProps {
   index?: number;
 }
 
-/**
- * WorkspaceCard Container - Handles business logic and state for workspace display.
- * Uses UIWorkspaceCard from @ordo-todo/ui for presentation.
- */
 export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   const t = useTranslations('WorkspaceCard');
   const router = useRouter();
@@ -29,12 +25,10 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   const permissions = useWorkspacePermissions(workspace);
 
   const handleCardClick = () => {
-    // Navigate to workspace detail page using username/slug pattern
     if (workspace.owner?.username) {
-      router.push(`/${workspace.owner.username}/${workspace.slug}`);
+      router.push('/' + workspace.owner.username + '/' + workspace.slug);
     } else {
-      // Fallback to old route if owner username is not available
-      router.push(`/workspaces/${workspace.slug}`);
+      router.push('/workspaces/' + workspace.slug);
     }
   };
 
@@ -53,14 +47,12 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
     setShowSettings(true);
   };
 
-  // Adapt data for UI component
   const workspaceData = {
     ...workspace,
     projectsCount: workspace.stats?.projectCount,
     tasksCount: workspace.stats?.taskCount,
   };
 
-  // Permissions-based actions logic
   const canModify = permissions.canViewSettings || permissions.canDelete;
 
   return (
@@ -72,11 +64,6 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
         onDelete={permissions.canDelete ? handleDelete : undefined}
         onOpenSettings={permissions.canViewSettings ? handleSettings : undefined}
         labels={{
-          types: {
-            PERSONAL: t('types.PERSONAL'),
-            WORK: t('types.WORK'),
-            TEAM: t('types.TEAM'),
-          },
           status: {
             active: t('status.active'),
           },

@@ -79,6 +79,9 @@ model User {
   newsletterSubscription NewsletterSubscriber?
   roadmapVotes           RoadmapVote[]
 
+  // Auth Audit Logs
+  authAuditLogs AuthAuditLog[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1584,3 +1587,46 @@ model Meeting {
   @@index([date])
   @@index([userId, date])
 }
+
+// ============ AUTH AUDIT LOGS ============
+
+model AuthAuditLog {
+  id String @id @default(cuid())
+
+  type      AuthEventType
+  userId    String?
+  email     String?
+  ip        String?
+  userAgent String?
+  metadata  Json?
+
+  // Optional link to user (if authenticated)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum AuthEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  REGISTER_SUCCESS
+  REGISTER_FAILED
+  LOGOUT
+  TOKEN_REFRESH
+  TOKEN_REFRESH_FAILED
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_SUCCESS
+  PASSWORD_CHANGE
+  OAUTH_SUCCESS
+  OAUTH_FAILED
+  ACCOUNT_LOCKED
+  ACCOUNT_UNLOCKED
+  SESSION_REVOKED
+  SESSION_REVOKED_ALL
+}
+

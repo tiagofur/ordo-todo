@@ -1,17 +1,17 @@
 /**
  * Workspace-related types and DTOs
  */
-export type WorkspaceType = 'PERSONAL' | 'WORK' | 'TEAM';
-export type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
-export type ViewType = 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+export type WorkspaceTier = "FREE" | "PRO" | "ENTERPRISE";
+export type MemberRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+export type ViewType = "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
 export interface Workspace {
     id: string;
     name: string;
     slug: string;
     description: string | null;
-    type: WorkspaceType;
     color: string;
     icon: string | null;
+    tier: WorkspaceTier;
     ownerId: string | null;
     owner?: {
         id: string;
@@ -47,7 +47,6 @@ export interface CreateWorkspaceDto {
     name: string;
     slug?: string;
     description?: string;
-    type: WorkspaceType;
     color?: string;
     icon?: string;
 }
@@ -66,7 +65,7 @@ export interface WorkspaceInvitation {
     workspaceId: string;
     email: string;
     role: MemberRole;
-    status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED';
+    status: "PENDING" | "ACCEPTED" | "EXPIRED" | "CANCELLED";
     expiresAt: Date;
     invitedById?: string;
     createdAt: Date;
@@ -86,7 +85,7 @@ export interface AcceptInvitationDto {
 export interface WorkspaceSettings {
     id: string;
     workspaceId: string;
-    defaultView: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+    defaultView: "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
     defaultDueTime: number;
     timezone: string;
     locale: string;
@@ -94,7 +93,7 @@ export interface WorkspaceSettings {
     updatedAt: Date;
 }
 export interface UpdateWorkspaceSettingsDto {
-    defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+    defaultView?: "LIST" | "KANBAN" | "CALENDAR" | "TIMELINE" | "FOCUS";
     defaultDueTime?: number;
     timezone?: string;
     locale?: string;

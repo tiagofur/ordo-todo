@@ -1,0 +1,37 @@
+{
+  "name": "@ordo-todo/validations",
+  "version": "1.0.0",
+  "description": "Shared validation schemas using Zod for Ordo-Todo applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "ordo-todo",
+    "validation",
+    "zod",
+    "schemas",
+    "typescript"
+  ],
+  "dependencies": {
+    "zod": "^4.3.5"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "typescript": "^5.9.3"
+  }
+}

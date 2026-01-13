@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: ordo-todo-db
     restart: unless-stopped
     ports:
-      - "3433:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: ordo
-      POSTGRES_PASSWORD: ordo_dev_password
+      POSTGRES_PASSWORD: ordo_dev_2024
       POSTGRES_DB: ordo_todo
     volumes:
       - postgres_data:/var/lib/postgresql/data

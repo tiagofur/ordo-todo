@@ -207,49 +207,36 @@ function getEntityId(url: string): string | undefined {
   return match ? match[2] : undefined;
 }
 
-// Token management
-const TOKEN_KEY = "ordo_auth_token";
-const REFRESH_TOKEN_KEY = "ordo_refresh_token";
+// Tokens are now managed via httpOnly cookies - no localStorage needed
+// The backend sets cookies on login/register/refresh and clears them on logout
 
-export const setToken = (token: string) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(TOKEN_KEY, token);
+// CSRF Protection
+let csrfToken: string | null = null;
+
+export const getCsrfToken = async (): Promise<string> => {
+  if (csrfToken) {
+    return csrfToken;
+  }
+
+  try {
+    const response = await axios.get<{ csrfToken: string }>(
+      `${config.api.baseURL}/auth/csrf-token`,
+      { withCredentials: true },
+    );
+
+    csrfToken = response.data.csrfToken;
+    return csrfToken;
+  } catch (error) {
+    console.error("[API] Failed to fetch CSRF token:", error);
+    throw error;
   }
 };
 
-export const getToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem(TOKEN_KEY);
-  }
-  return null;
+export const invalidateCsrfToken = () => {
+  csrfToken = null;
 };
 
-export const removeToken = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(TOKEN_KEY);
-  }
-};
-
-export const setRefreshToken = (token: string) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  }
-};
-
-export const getRefreshToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  }
-  return null;
-};
-
-export const removeRefreshToken = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-  }
-};
-
-// Refresh token logic
+// Refresh token logic - tokens are now in httpOnly cookies
 let isRefreshing = false;
 let refreshPromise: Promise<AuthResponse> | null = null;
 
@@ -262,31 +249,20 @@ async function handleTokenRefresh(): Promise<AuthResponse> {
 
   refreshPromise = (async () => {
     try {
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
-
+      // Call refresh endpoint - cookies are automatically sent by browser
       // We cannot use axiosInstance here because it has interceptors that might cause infinite loops
       // Create a fresh instance for the refresh call
       const response = await axios.post<AuthResponse>(
         `${config.api.baseURL}/auth/refresh`,
+        {},
         {
-          refreshToken,
+          withCredentials: true, // Ensure cookies are sent
         },
       );
 
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-      setToken(accessToken);
-      if (newRefreshToken) {
-        setRefreshToken(newRefreshToken);
-      }
-
+      // Backend sets new cookies automatically in the response
       return response.data;
     } catch (error) {
-      removeToken();
-      removeRefreshToken();
       throw error;
     } finally {
       isRefreshing = false;
@@ -298,11 +274,26 @@ async function handleTokenRefresh(): Promise<AuthResponse> {
 }
 
 axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    // Cookies are sent automatically by browser (httpOnly cookies)
+    // No need to manually add Authorization header
+
+    // Add CSRF token to state-changing requests (POST, PUT, PATCH, DELETE)
+    const method = config.method?.toLowerCase();
+    if (["post", "put", "patch", "delete"].includes(method ?? "")) {
+      // Skip CSRF token for login/register/refresh/logout endpoints
+      // These endpoints have their own CSRF validation
+      const skipCsrf = config.url?.startsWith("/auth/");
+      if (!skipCsrf) {
+        try {
+          const token = await getCsrfToken();
+          config.headers["x-csrf-token"] = token;
+        } catch (error) {
+          console.error("[API] Failed to get CSRF token:", error);
+        }
+      }
     }
+
     return config;
   },
   (error) => Promise.reject(error),
@@ -367,25 +358,36 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       const originalRequest = error.config as any;
 
-      // If we haven't retried this request yet and we have a refresh token
-      if (!originalRequest._retry && getRefreshToken()) {
+      // If we haven't retried this request yet
+      if (!originalRequest._retry) {
         originalRequest._retry = true;
 
         try {
-          const { accessToken } = await handleTokenRefresh();
+          await handleTokenRefresh();
 
-          // Update header and retry
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          // Retry the original request (cookies are automatically updated)
           return axiosInstance(originalRequest);
         } catch (refreshError) {
-          // If refresh fails, we will be logged out by handleTokenRefresh logic
+          // If refresh fails, logout to clear cookies on backend
+          await axiosInstance
+            .post("/auth/logout", {}, { withCredentials: true })
+            .catch(() => {});
+          // Redirect to login page
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
           return Promise.reject(refreshError);
         }
+      } else {
+        // Already retried and failed, logout to clear cookies on backend
+        await axiosInstance
+          .post("/auth/logout", {}, { withCredentials: true })
+          .catch(() => {});
+        // Redirect to login page
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
-
-      // If no refresh token or already retried, logout
-      removeToken();
-      removeRefreshToken();
     }
     return Promise.reject(error);
   },
@@ -399,18 +401,22 @@ export const apiClient = {
   login: (data: LoginDto): Promise<AuthResponse> =>
     axiosInstance.post("/auth/login", data).then((res) => res.data),
   logout: (): Promise<void> => {
-    removeRefreshToken();
+    // Backend will clear httpOnly cookies
+    invalidateCsrfToken();
     return axiosInstance.post("/auth/logout").then((res) => res.data);
   },
   refreshToken: (data: RefreshTokenDto): Promise<AuthResponse> =>
     axiosInstance.post("/auth/refresh", data).then((res) => res.data),
-  checkUsernameAvailability: (username: string): Promise<{ available: boolean }> =>
+  checkUsernameAvailability: (
+    username: string,
+  ): Promise<{ available: boolean }> =>
     axiosInstance
       .post("/auth/check-username", { username })
       .then((res) => res.data),
 
   // User
-  getCurrentUser: (): Promise<User> => axiosInstance.get("/users/me").then((res) => res.data),
+  getCurrentUser: (): Promise<User> =>
+    axiosInstance.get("/users/me").then((res) => res.data),
   getFullProfile: (): Promise<UserProfileResponse> =>
     axiosInstance.get("/users/me/profile").then((res) => res.data),
   updateProfile: (data: UpdateProfileDto): Promise<User> =>
@@ -430,12 +436,16 @@ export const apiClient = {
 
   // Workspace
   // Workspace
-  getWorkspaces: (): Promise<Workspace[]> => axiosInstance.get("/workspaces").then((res) => res.data),
+  getWorkspaces: (): Promise<Workspace[]> =>
+    axiosInstance.get("/workspaces").then((res) => res.data),
   getWorkspace: (id: string): Promise<Workspace> =>
     axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
   getWorkspaceBySlug: (slug: string): Promise<Workspace> =>
     axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
-  getWorkspaceByUsernameAndSlug: (username: string, slug: string): Promise<Workspace> =>
+  getWorkspaceByUsernameAndSlug: (
+    username: string,
+    slug: string,
+  ): Promise<Workspace> =>
     axiosInstance
       .get(`/workspaces/${username}/${slug}`)
       .then((res) => res.data),
@@ -451,7 +461,10 @@ export const apiClient = {
     axiosInstance.post(`/workspaces/${id}/restore`).then((res) => res.data),
   permanentDeleteWorkspace: (id: string): Promise<void> =>
     axiosInstance.delete(`/workspaces/${id}/permanent`).then((res) => res.data),
-  addWorkspaceMember: (id: string, data: AddMemberDto): Promise<WorkspaceMember> =>
+  addWorkspaceMember: (
+    id: string,
+    data: AddMemberDto,
+  ): Promise<WorkspaceMember> =>
     axiosInstance
       .post(`/workspaces/${id}/members`, data)
       .then((res) => res.data),
@@ -463,7 +476,10 @@ export const apiClient = {
     axiosInstance.get(`/workspaces/${id}/members`).then((res) => res.data),
   getWorkspaceInvitations: (id: string): Promise<WorkspaceInvitation[]> =>
     axiosInstance.get(`/workspaces/${id}/invitations`).then((res) => res.data),
-  inviteWorkspaceMember: (id: string, data: InviteMemberDto): Promise<WorkspaceInvitation> =>
+  inviteWorkspaceMember: (
+    id: string,
+    data: InviteMemberDto,
+  ): Promise<WorkspaceInvitation> =>
     axiosInstance
       .post(`/workspaces/${id}/invite`, data)
       .then((res) => res.data),
@@ -513,7 +529,10 @@ export const apiClient = {
     axiosInstance.get("/projects/all").then((res) => res.data),
   getProject: (id: string): Promise<Project> =>
     axiosInstance.get(`/projects/${id}`).then((res) => res.data),
-  getProjectBySlug: (workspaceSlug: string, projectSlug: string): Promise<Project> =>
+  getProjectBySlug: (
+    workspaceSlug: string,
+    projectSlug: string,
+  ): Promise<Project> =>
     axiosInstance
       .get(`/projects/by-slug/${workspaceSlug}/${projectSlug}`)
       .then((res) => res.data),
@@ -537,7 +556,11 @@ export const apiClient = {
     axiosInstance.delete(`/projects/${id}/permanent`).then((res) => res.data),
 
   // Task
-  getTasks: (projectId?: string, tags?: string[], assignedToMe?: boolean): Promise<Task[]> =>
+  getTasks: (
+    projectId?: string,
+    tags?: string[],
+    assignedToMe?: boolean,
+  ): Promise<Task[]> =>
     axiosInstance
       .get("/tasks", { params: { projectId, tags, assignedToMe } })
       .then((res) => res.data),
@@ -558,15 +581,18 @@ export const apiClient = {
   deleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
   getDeletedTasks: (projectId: string): Promise<Task[]> => {
-    console.log('[apiClient] getDeletedTasks called with projectId:', projectId);
+    console.log(
+      "[apiClient] getDeletedTasks called with projectId:",
+      projectId,
+    );
     return axiosInstance
       .get("/tasks/deleted", { params: { projectId } })
       .then((res) => {
-        console.log('[apiClient] getDeletedTasks response:', res.data);
+        console.log("[apiClient] getDeletedTasks response:", res.data);
         return res.data;
       })
       .catch((error) => {
-        console.error('[apiClient] getDeletedTasks error:', error);
+        console.error("[apiClient] getDeletedTasks error:", error);
         throw error;
       });
   },
@@ -574,7 +600,10 @@ export const apiClient = {
     axiosInstance.post(`/tasks/${id}/restore`).then((res) => res.data),
   permanentDeleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}/permanent`).then((res) => res.data),
-  createSubtask: (parentTaskId: string, data: CreateSubtaskDto): Promise<Task> =>
+  createSubtask: (
+    parentTaskId: string,
+    data: CreateSubtaskDto,
+  ): Promise<Task> =>
     axiosInstance
       .post(`/tasks/${parentTaskId}/subtasks`, data)
       .then((res) => res.data),
@@ -622,7 +651,8 @@ export const apiClient = {
     newTaskId: string;
     type?: string;
     splitReason?: string;
-  }): Promise<TimeSession> => axiosInstance.post("/timers/switch-task", data).then((res) => res.data),
+  }): Promise<TimeSession> =>
+    axiosInstance.post("/timers/switch-task", data).then((res) => res.data),
   getSessionHistory: (params?: {
     taskId?: string;
     type?: string;
@@ -633,7 +663,10 @@ export const apiClient = {
     completedOnly?: boolean;
   }): Promise<PaginatedSessionsResponse> =>
     axiosInstance.get("/timers/history", { params }).then((res) => res.data),
-  getTimerStats: (params?: { startDate?: string; endDate?: string }): Promise<TimerStatsResponse> =>
+  getTimerStats: (params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<TimerStatsResponse> =>
     axiosInstance.get("/timers/stats", { params }).then((res) => res.data),
   getTaskTimeSessions: (taskId: string): Promise<TaskTimeResponse> =>
     axiosInstance.get(`/timers/task/${taskId}`).then((res) => res.data),
@@ -663,8 +696,11 @@ export const apiClient = {
       .then((res) => res.data),
 
   // AI
-  getAIProfile: (): Promise<AIProfile> => axiosInstance.get("/ai/profile").then((res) => res.data),
-  getOptimalSchedule: (params?: { topN?: number }): Promise<OptimalScheduleResponse> =>
+  getAIProfile: (): Promise<AIProfile> =>
+    axiosInstance.get("/ai/profile").then((res) => res.data),
+  getOptimalSchedule: (params?: {
+    topN?: number;
+  }): Promise<OptimalScheduleResponse> =>
     axiosInstance
       .get("/ai/optimal-schedule", { params })
       .then((res) => res.data),
@@ -683,7 +719,11 @@ export const apiClient = {
     axiosInstance
       .post("/ai/reports/weekly", null, { params: { weekStart } })
       .then((res) => res.data),
-  getReports: (params?: { scope?: string; limit?: number; offset?: number }): Promise<ProductivityReport[]> =>
+  getReports: (params?: {
+    scope?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ProductivityReport[]> =>
     axiosInstance.get("/ai/reports", { params }).then((res) => res.data),
   getReport: (id: string): Promise<ProductivityReport> =>
     axiosInstance.get(`/ai/reports/${id}`).then((res) => res.data),
@@ -743,13 +783,21 @@ export const apiClient = {
       .then((res) => res.data),
   getConversation: (id: string): Promise<ConversationDetail> =>
     axiosInstance.get(`/chat/conversations/${id}`).then((res) => res.data),
-  createConversation: (data: CreateConversationDto): Promise<ConversationResponse> =>
+  createConversation: (
+    data: CreateConversationDto,
+  ): Promise<ConversationResponse> =>
     axiosInstance.post("/chat/conversations", data).then((res) => res.data),
-  sendMessage: (conversationId: string, data: SendMessageDto): Promise<SendMessageResponse> =>
+  sendMessage: (
+    conversationId: string,
+    data: SendMessageDto,
+  ): Promise<SendMessageResponse> =>
     axiosInstance
       .post(`/chat/conversations/${conversationId}/messages`, data)
       .then((res) => res.data),
-  updateConversation: (id: string, title: string): Promise<ConversationResponse> =>
+  updateConversation: (
+    id: string,
+    title: string,
+  ): Promise<ConversationResponse> =>
     axiosInstance
       .patch(`/chat/conversations/${id}`, { title })
       .then((res) => res.data),
@@ -763,7 +811,10 @@ export const apiClient = {
     axiosInstance.get("/chat/insights").then((res) => res.data),
 
   // Time Blocking
-  getTimeBlocks: (start?: Date | string, end?: Date | string): Promise<TimeBlock[]> => {
+  getTimeBlocks: (
+    start?: Date | string,
+    end?: Date | string,
+  ): Promise<TimeBlock[]> => {
     const params: Record<string, string> = {};
     if (start)
       params.start = start instanceof Date ? start.toISOString() : start;
@@ -800,7 +851,8 @@ export const apiClient = {
     axiosInstance.patch(`/habits/${id}/resume`).then((res) => res.data),
 
   // Objectives (OKRs)
-  getObjectives: (): Promise<Objective[]> => axiosInstance.get("/objectives").then((res) => res.data),
+  getObjectives: (): Promise<Objective[]> =>
+    axiosInstance.get("/objectives").then((res) => res.data),
   getCurrentPeriodObjectives: (): Promise<Objective[]> =>
     axiosInstance.get("/objectives/current-period").then((res) => res.data),
   getObjectivesDashboardSummary: (): Promise<ObjectiveDashboardSummary> =>
@@ -814,7 +866,10 @@ export const apiClient = {
   deleteObjective: (id: string): Promise<void> =>
     axiosInstance.delete(`/objectives/${id}`).then((res) => res.data),
 
-  addKeyResult: (objectiveId: string, data: CreateKeyResultDto): Promise<KeyResult> =>
+  addKeyResult: (
+    objectiveId: string,
+    data: CreateKeyResultDto,
+  ): Promise<KeyResult> =>
     axiosInstance
       .post(`/objectives/${objectiveId}/key-results`, data)
       .then((res) => res.data),
@@ -827,10 +882,7 @@ export const apiClient = {
       .put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data)
       .then((res) => res.data),
 
-  deleteKeyResult: (
-    objectiveId: string,
-    keyResultId: string,
-  ): Promise<void> =>
+  deleteKeyResult: (objectiveId: string, keyResultId: string): Promise<void> =>
     axiosInstance
       .delete(`/objectives/${objectiveId}/key-results/${keyResultId}`)
       .then((res) => res.data),
@@ -841,10 +893,7 @@ export const apiClient = {
     data: LinkTaskDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .post(
-        `/objectives/${objectiveId}/key-results/${keyResultId}/tasks`,
-        data,
-      )
+      .post(`/objectives/${objectiveId}/key-results/${keyResultId}/tasks`, data)
       .then((res) => res.data),
 
   unlinkTaskFromKeyResult: (
@@ -860,20 +909,18 @@ export const apiClient = {
 
   // Notes
   getNotes: (workspaceId: string): Promise<Note[]> =>
-    axiosInstance
-      .get("/notes", { params: { workspaceId } })
-      .then((res) => {
-        // Handle paginated response: { data: [...], meta: {...} }
-        if (res.data && res.data.data && Array.isArray(res.data.data)) {
-          return res.data.data;
-        }
-        // Handle direct array response
-        if (res.data && Array.isArray(res.data)) {
-          return res.data;
-        }
-        // Default to empty array if response is unexpected
-        return [];
-      }),
+    axiosInstance.get("/notes", { params: { workspaceId } }).then((res) => {
+      // Handle paginated response: { data: [...], meta: {...} }
+      if (res.data && res.data.data && Array.isArray(res.data.data)) {
+        return res.data.data;
+      }
+      // Handle direct array response
+      if (res.data && Array.isArray(res.data)) {
+        return res.data;
+      }
+      // Default to empty array if response is unexpected
+      return [];
+    }),
   getNote: (id: string): Promise<Note> =>
     axiosInstance.get(`/notes/${id}`).then((res) => res.data),
   createNote: (data: CreateNoteDto): Promise<Note> =>
@@ -888,11 +935,17 @@ export const apiClient = {
     axiosInstance
       .get(`/projects/${projectId}/custom-fields`)
       .then((res) => res.data),
-  createCustomField: (projectId: string, data: CreateCustomFieldDto): Promise<CustomField> =>
+  createCustomField: (
+    projectId: string,
+    data: CreateCustomFieldDto,
+  ): Promise<CustomField> =>
     axiosInstance
       .post(`/projects/${projectId}/custom-fields`, data)
       .then((res) => res.data),
-  updateCustomField: (fieldId: string, data: UpdateCustomFieldDto): Promise<CustomField> =>
+  updateCustomField: (
+    fieldId: string,
+    data: UpdateCustomFieldDto,
+  ): Promise<CustomField> =>
     axiosInstance
       .patch(`/custom-fields/${fieldId}`, data)
       .then((res) => res.data),
@@ -900,7 +953,10 @@ export const apiClient = {
     axiosInstance.delete(`/custom-fields/${fieldId}`).then((res) => res.data),
   getTaskCustomValues: (taskId: string): Promise<Record<string, any>> =>
     axiosInstance.get(`/tasks/${taskId}/custom-values`).then((res) => res.data),
-  setTaskCustomValues: (taskId: string, data: SetMultipleCustomFieldValuesDto): Promise<void> =>
+  setTaskCustomValues: (
+    taskId: string,
+    data: SetMultipleCustomFieldValuesDto,
+  ): Promise<void> =>
     axiosInstance
       .patch(`/tasks/${taskId}/custom-values`, data)
       .then((res) => res.data),
@@ -1009,3 +1065,9 @@ export const apiClient = {
   getProductivityStreak: () =>
     axiosInstance.get("/analytics/streak").then((res) => res.data),
 };
+  
+// Export apiClient instance for easy importing
+export { apiClient as default, apiClient };
+  
+// Export apiClient instance for easy importing
+export { apiClient as default, apiClient };

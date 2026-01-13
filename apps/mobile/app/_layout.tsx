@@ -4,11 +4,12 @@ import { ThemeProvider } from "./data/contexts/theme.context";
 import ToastContainer from "./components/shared/toast-container.component";
 import { MobileFeaturesProvider } from "./data/contexts/mobile-features.context";
 import { QueryProvider } from "./providers/query-provider";
-import { AuthProvider } from "./contexts/auth.context";
+import { AuthProvider } from "@ordo-todo/auth-provider";
 import { I18nProvider } from "./providers/i18n-provider";
 import { initializeStores } from "./lib/stores";
 import { ErrorBoundary } from "./components/shared/error-boundary";
 import { PushNotificationsProvider } from "./providers/push-notifications-provider";
+import { sharedApiClient } from "./lib/shared-api-client";
 
 // Initialize shared stores persistence with AsyncStorage
 initializeStores();
@@ -20,7 +21,7 @@ export default function RootLayout() {
         <I18nProvider>
           <ThemeProvider>
             <MessageProvider>
-              <AuthProvider>
+              <AuthProvider platform="mobile" apiClient={sharedApiClient}>
                 <MobileFeaturesProvider>
                   <PushNotificationsProvider>
                     <Stack

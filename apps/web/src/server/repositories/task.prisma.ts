@@ -12,7 +12,7 @@ import {
 } from "@ordo-todo/core";
 
 export class PrismaTaskRepository implements TaskRepository {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly prisma: PrismaClient) {}
 
   private toDomain(prismaTask: PrismaTask & { subTasks?: PrismaTask[] }): Task {
     return new Task({
@@ -126,6 +126,15 @@ export class PrismaTaskRepository implements TaskRepository {
     return this.toDomain(task);
   }
 
+  async findByIdIncludeDeleted(id: string): Promise<Task | null> {
+    const task = await this.prisma.task.findFirst({
+      where: { id },
+      include: { subTasks: true },
+    });
+    if (!task) return null;
+    return this.toDomain(task);
+  }
+
   async findByOwnerId(ownerId: string): Promise<Task[]> {
     const tasks = await this.prisma.task.findMany({
       where: {
@@ -138,14 +147,11 @@ export class PrismaTaskRepository implements TaskRepository {
 
   async findByWorkspaceMemberships(
     userId: string,
-    filters?: { projectId?: string; tags?: string[] }
+    filters?: { projectId?: string; tags?: string[] },
   ): Promise<Task[]> {
     const tasks = await this.prisma.task.findMany({
       where: {
-        OR: [
-          { ownerId: userId },
-          { assigneeId: userId },
-        ],
+        OR: [{ ownerId: userId }, { assigneeId: userId }],
         isDeleted: false,
         ...(filters?.projectId && { projectId: filters.projectId }),
       },

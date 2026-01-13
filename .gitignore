@@ -54,9 +54,7 @@ storybook-static
 # Logs
 apps/backend/logs/
 *.log
-
-# Claude/AI local settings
-.claude/
+*.txt
 
 # Desktop Electron build
 apps/desktop/dist-electron/

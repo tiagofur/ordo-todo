@@ -9,7 +9,7 @@ export default defineConfig({
   datasource: {
     url:
       process.env.DATABASE_URL ||
-      "postgresql://ordo:ordo_dev_password@localhost:5433/ordo_todo",
+      "postgresql://ordo:ordo_dev_2024@localhost:5432/ordo_todo",
   },
   migrations: {
     seed: "node prisma/seed.js",

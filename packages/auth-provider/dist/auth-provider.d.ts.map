@@ -1,0 +1,1 @@
+{"version":3,"file":"auth-provider.d.ts","sourceRoot":"","sources":["../src/auth-provider.tsx"],"names":[],"mappings":"AAcA,OAAO,KAAK,EACV,eAAe,EACf,iBAAiB,EAGlB,MAAM,SAAS,CAAC;AAMjB,QAAA,MAAM,kBAAkB,EAAE,eAQzB,CAAC;AAEF,wBAAgB,YAAY,CAAC,EAC3B,QAAQ,EACR,QAAQ,EACR,OAAO,EACP,SAAS,EACT,SAAS,GACV,EAAE,iBAAiB,2CA4GnB;AAED,wBAAgB,OAAO,IAAI,eAAe,CAMzC;AAED,OAAO,EAAE,kBAAkB,EAAE,CAAC"}

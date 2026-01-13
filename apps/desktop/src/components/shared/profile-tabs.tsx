@@ -25,19 +25,32 @@ import {
   Loader2
 } from "lucide-react";
 import { useUsernameValidation } from "@ordo-todo/hooks";
-import * as Tabs from "@radix-ui/react-tabs";
-import { cn } from "@ordo-todo/ui";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ordo-todo/ui";
-import { Label } from "@ordo-todo/ui";
-import { Input } from "@ordo-todo/ui";
-import { Switch } from "@ordo-todo/ui";
-import { Button } from "@ordo-todo/ui";
-import { Slider } from "@ordo-todo/ui";
-import { Badge } from "@ordo-todo/ui";
-import { Avatar, AvatarFallback, AvatarImage } from "@ordo-todo/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@ordo-todo/ui";
-import { Textarea } from "@ordo-todo/ui";
 import {
+  cn,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+  Input,
+  Switch,
+  Button,
+  Slider,
+  Badge,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -48,6 +61,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@ordo-todo/ui";
+
 
 const TIMEZONES = [
   { value: "America/Mexico_City", label: "Mexico City (GMT-6)" },
@@ -359,103 +373,40 @@ export function ProfileTabs({
   }
 
   return (
-    <Tabs.Root defaultValue="profile" className="mt-6">
-      <Tabs.List className="grid w-full grid-cols-4 lg:grid-cols-7 mb-6 h-auto p-1">
-        <Tabs.Trigger
-          value="profile"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+    <Tabs defaultValue="profile" className="mt-6">
+      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-6 h-auto p-1">
+        <TabsTrigger value="profile" className="flex items-center gap-2">
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Profile</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="ai"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="ai" className="flex items-center gap-2">
           <Brain className="h-4 w-4" />
           <span className="hidden sm:inline">AI</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="security"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="security" className="flex items-center gap-2">
           <Shield className="h-4 w-4" />
           <span className="hidden sm:inline">Security</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="privacy"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="privacy" className="flex items-center gap-2">
           <Lock className="h-4 w-4" />
           <span className="hidden sm:inline">Privacy</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="integrations"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="integrations" className="flex items-center gap-2">
           <Link2 className="h-4 w-4" />
           <span className="hidden sm:inline">Integrations</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="subscription"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="subscription" className="flex items-center gap-2">
           <CreditCard className="h-4 w-4" />
           <span className="hidden sm:inline">Subscription</span>
-        </Tabs.Trigger>
-        <Tabs.Trigger
-          value="account"
-          className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
-            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:pointer-events-none disabled:opacity-50",
-            "flex items-center gap-2"
-          )}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="account" className="flex items-center gap-2">
           <Settings2 className="h-4 w-4" />
           <span className="hidden sm:inline">Account</span>
-        </Tabs.Trigger>
-      </Tabs.List>
+        </TabsTrigger>
+      </TabsList>
 
       {/* Profile Tab */}
-      <Tabs.Content value="profile" className="mt-2">
+      <TabsContent value="profile" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
@@ -686,10 +637,10 @@ export function ProfileTabs({
             </div>
           </CardContent>
         </Card>
-      </Tabs.Content>
+      </TabsContent>
 
       {/* AI & Productivity Tab */}
-      <Tabs.Content value="ai" className="mt-2">
+      <TabsContent value="ai" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -834,10 +785,10 @@ export function ProfileTabs({
             </div>
           </CardContent>
         </Card>
-      </Tabs.Content>
+      </TabsContent>
 
       {/* Security Tab */}
-      <Tabs.Content value="security" className="mt-2">
+      <TabsContent value="security" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -906,10 +857,10 @@ export function ProfileTabs({
             </div>
           </CardContent>
         </Card>
-      </Tabs.Content>
+      </TabsContent>
 
       {/* Privacy Tab */}
-      <Tabs.Content value="privacy" className="mt-2">
+      <TabsContent value="privacy" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -996,10 +947,10 @@ export function ProfileTabs({
             </div>
           </CardContent>
         </Card>
-      </Tabs.Content>
+      </TabsContent>
 
       {/* Integrations Tab */}
-      <Tabs.Content value="integrations" className="mt-2">
+      <TabsContent value="integrations" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1029,10 +980,10 @@ export function ProfileTabs({
             ))}
           </CardContent>
         </Card>
-      </Tabs.Content>
+      </TabsContent>
 
       {/* Subscription Tab */}
-      <Tabs.Content value="subscription" className="mt-2">
+      <TabsContent value="subscription" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1092,10 +1043,10 @@ export function ProfileTabs({
             </div>
           </CardContent>
         </Card>
-      </Tabs.Content>
+      </TabsContent>
 
       {/* Account Tab */}
-      <Tabs.Content value="account" className="mt-2">
+      <TabsContent value="account" className="mt-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1167,7 +1118,7 @@ export function ProfileTabs({
             </div>
           </CardContent>
         </Card>
-      </Tabs.Content>
-    </Tabs.Root>
+      </TabsContent>
+    </Tabs>
   );
 }

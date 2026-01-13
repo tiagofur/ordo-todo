@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Strategy, StrategyOptions, Profile } from 'passport-github2';
@@ -16,6 +16,7 @@ export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
       clientSecret: configService.get<string>('GITHUB_CLIENT_SECRET') || '',
       callbackURL: configService.get<string>('GITHUB_CALLBACK_URL') || '',
       scope: ['user:email'],
+      state: true as unknown as string, // ENABLE STATE PARAMETER FOR CSRF PROTECTION
     } as StrategyOptions);
   }
 
@@ -24,8 +25,16 @@ export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
     refreshToken: string,
     profile: Profile,
     done: VerifyCallback,
+    params: any, // OAuth params including state
   ) {
     try {
+      // Validate state parameter to prevent CSRF attacks
+      if (!params.state) {
+        throw new BadRequestException(
+          'Missing OAuth state parameter - possible CSRF attack',
+        );
+      }
+
       const { id: githubId, username } = profile;
       const email = profile.emails?.[0]?.value;
       const displayName = profile.displayName || username || '';

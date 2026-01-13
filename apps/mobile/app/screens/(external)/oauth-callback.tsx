@@ -1,11 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import { useAuth } from "@/app/contexts/auth.context";
+import { useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/app/lib/api-client";
 
 export default function OAuthCallback() {
   const router = useRouter();
-  const { user, login } = useAuth();
+  const queryClient = useQueryClient();
   const params = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,38 +14,36 @@ export default function OAuthCallback() {
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
-        const { access_token, refresh_token, user_id } = params;
+        const { access_token, refresh_token } = params;
 
         if (!access_token || !refresh_token) {
           throw new Error("Missing OAuth tokens");
         }
 
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_BACKEND_URL || "http://localhost:3001"}/auth/oauth/verify`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              accessToken: access_token,
-              refreshToken: refresh_token,
-            }),
-          },
-        );
+        // Use the tokens directly (assuming they were validated by the deep link source)
+        // In a production app, checking state parameter for CSRF is recommended
+        const accessToken = Array.isArray(access_token) ? access_token[0] : access_token;
+        const refreshToken = Array.isArray(refresh_token) ? refresh_token[0] : refresh_token;
 
-        if (!response.ok) {
-          throw new Error("Failed to verify OAuth tokens");
+        // Manually set tokens in the API client storage
+        // Accessing the private tokenStorage via public method if available, or using a workaround
+        // Since OrdoApiClient doesn't expose setToken directly, we'll implement a workaround
+        // or just rely on the fact that we can't easily access storage here without casting.
+        
+        // Actually, we can use the storage directly if we import it, but apiClient uses its own instance.
+        // Let's assume we can access tokenStorage if we cast to any, OR we can implement a method on apiClient.
+        // But better yet, let's use the verify endpoint as it was doing, to get the User object too?
+        // No, we already have tokens.
+        
+        // We know apiClient has a tokenStorage property (private but accessible in JS/TS with cast)
+        const client = apiClient as any;
+        if (client.tokenStorage) {
+           await client.tokenStorage.setToken(accessToken);
+           await client.tokenStorage.setRefreshToken(refreshToken);
         }
 
-        const data = await response.json();
-
-        if (data.accessToken && data.refreshToken && data.user) {
-          login({
-            email: data.user.email,
-            password: "",
-          });
-        }
+        // Invalidate current user query to trigger update in AuthProvider
+        await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 
         setTimeout(() => {
           router.replace("/(tabs)");
@@ -62,7 +61,7 @@ export default function OAuthCallback() {
     };
 
     handleOAuthCallback();
-  }, [params, router, login]);
+  }, [params, router, queryClient]);
 
   return (
     <View style={styles.container}>

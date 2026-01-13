@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@ordo-todo/auth-provider";
 import { User } from "@ordo-todo/core";
 
 const useSession = () => {

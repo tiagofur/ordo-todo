@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
 import { useTranslation } from "react-i18next";
-import { TimerWidget } from "./timer/TimerWidget";
+import { TimerWidget } from "./timer/timer-widget";
 import { WorkspaceSelector } from "./workspace/WorkspaceSelector";
 import { useUIStore } from "@/stores/ui-store";
 

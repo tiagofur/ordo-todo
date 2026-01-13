@@ -17,6 +17,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuthDto } from './dto/oauth.dto';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import type { StringValue } from 'ms';
+import { AuthAuditService } from './auth-audit.service';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,7 @@ export class AuthService {
     @Inject(forwardRef(() => WorkspacesService))
     private readonly workspacesService: WorkspacesService,
     private readonly tokenBlacklistService: TokenBlacklistService,
+    private readonly authAuditService: AuthAuditService,
   ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -65,15 +67,46 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     try {
-      const loginUseCase = new UserLogin(
-        this.userRepository,
-        this.cryptoProvider,
+      const user = await this.userRepository.findByEmail(loginDto.email);
+
+      if (!user) {
+        await this.authAuditService.loginFailed(
+          loginDto.email,
+          this.getRequestIp(),
+          this.getRequestUserAgent(),
+          'User not found',
+        );
+
+        throw new UnauthorizedException('Invalid email or password');
+      }
+
+      // Check if user has a password (OAuth users may not have one)
+      if (!user.password) {
+        await this.authAuditService.loginFailed(
+          loginDto.email,
+          this.getRequestIp(),
+          this.getRequestUserAgent(),
+          'No password set (OAuth user)',
+        );
+
+        throw new UnauthorizedException('Invalid email or password');
+      }
+
+      const isValid = await this.cryptoProvider.compare(
+        loginDto.password,
+        user.password,
       );
 
-      const user = await loginUseCase.execute({
-        email: loginDto.email,
-        password: loginDto.password,
-      });
+      if (!isValid) {
+        await this.authAuditService.loginFailed(
+          loginDto.email,
+          this.getRequestIp(),
+          this.getRequestUserAgent(),
+          'Invalid password',
+        );
+
+        throw new UnauthorizedException('Invalid email or password');
+      }
 
       const payload = {
         sub: user.id,
@@ -88,6 +121,13 @@ export class AuthService {
           '7d') as StringValue,
       });
 
+      await this.authAuditService.loginSuccess(
+        user.id,
+        user.email,
+        this.getRequestIp(),
+        this.getRequestUserAgent(),
+      );
+
       return {
         accessToken,
         refreshToken,
@@ -99,12 +139,7 @@ export class AuthService {
         },
       };
     } catch (error) {
-      if (
-        error.message.includes('não encontrado') ||
-        error.message.includes('incorreta')
-      ) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
+      this.logger.error('Login failed', error);
       throw error;
     }
   }
@@ -128,6 +163,16 @@ export class AuthService {
       const payload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>('JWT_SECRET')!,
       });
+
+      // Check if refresh token is already blacklisted (token reuse detection)
+      if (await this.tokenBlacklistService.isBlacklisted(refreshToken)) {
+        throw new UnauthorizedException(
+          'Refresh token has been revoked or reused',
+        );
+      }
+
+      // Blacklist the refresh token BEFORE generating a new one (token rotation)
+      await this.tokenBlacklistService.blacklist(refreshToken);
 
       // Validate that the user still exists
       const user = await this.validateUser(payload.email);
@@ -322,6 +367,14 @@ export class AuthService {
         name: user.name || '',
       },
     };
+  }
+
+  private getRequestIp(): string {
+    return 'unknown'; // TODO: Get real IP from request
+  }
+
+  private getRequestUserAgent(): string {
+    return 'unknown'; // TODO: Get real user agent from request headers
   }
 
   /**

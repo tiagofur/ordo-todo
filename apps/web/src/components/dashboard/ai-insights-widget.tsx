@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { useAIInsights } from '@/lib/api-hooks';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@ordo-todo/auth-provider';
 
 interface Insight {
   type: 'PRODUCTIVITY_PEAK' | 'UPCOMING_DEADLINES' | 'SUGGESTED_BREAKS' | 

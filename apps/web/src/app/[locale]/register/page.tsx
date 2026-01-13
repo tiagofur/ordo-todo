@@ -19,7 +19,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@ordo-todo/auth-provider";
 import { UsernameInput } from "@ordo-todo/ui";
 import { useUsernameValidation, generateUsernameSuggestions } from "@ordo-todo/hooks";
 import { apiClient } from "@/lib/api-client";

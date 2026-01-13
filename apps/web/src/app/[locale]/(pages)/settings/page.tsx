@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { AppLayout } from "@/components/shared/app-layout";
-import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon, Sparkles, Brain, Heart, Headphones, Rocket, Play } from "lucide-react";
+import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon, Sparkles, Brain, Heart, Headphones, Rocket, Play, Shield } from "lucide-react";
 import { Label, Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { useAIFeaturesTour } from "@/components/onboarding/ai-features-tour";
+import { SessionsManager } from "@/components/settings/sessions-manager";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -574,6 +575,18 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
+          </section>
+
+          {/* Security & Sessions */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+              <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+                <Shield className="h-5 w-5" />
+              </div>
+              <h2 className="text-lg font-semibold">{t("security") || "Seguridad"}</h2>
+            </div>
+            
+            <SessionsManager />
           </section>
 
           {/* Keyboard Shortcuts */}

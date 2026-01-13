@@ -39,7 +39,7 @@ interface TimeBlockData {
   scheduledDate: Date | string | null;
   scheduledTime: string | null;
   scheduledEndTime: string | null;
-  estimatedTime: number | null;
+  estimatedMinutes: number | null;
   project: { id: string; name: string; color: string } | null;
 }
 
@@ -53,7 +53,7 @@ function getBlockStyle(block: TimeBlockData): { top: number; height: number } {
   const startTime = parseTime(block.scheduledTime);
   const endTime = block.scheduledEndTime
     ? parseTime(block.scheduledEndTime)
-    : startTime + (block.estimatedTime || 60) / 60;
+    : startTime + (block.estimatedMinutes || 60) / 60;
 
   const startOffset = (startTime - 6) * 60; // px from top
   const duration = Math.max((endTime - startTime) * 60, 30);

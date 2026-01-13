@@ -215,9 +215,15 @@ export function invalidateAllTasksShared(queryClient: any) { return getHooks().i
 export { getHooks as hooks };
 
 // Helper to check if user is authenticated
+// Note: Since tokens are now in httpOnly cookies, we can't check them directly.
+// Instead, we rely on React Query cache or make an API call.
+// For hooks that need this, they should use the 'enabled' option with user data from useCurrentUser.
 const isAuthenticated = () => {
+  // This is a best-effort check - actual auth state should come from useAuth() or useCurrentUser()
+  // When using httpOnly cookies, the browser will automatically include credentials
+  // For SSR safety, return true and let the API call determine auth state
   if (typeof window === "undefined") return false;
-  return !!localStorage.getItem("ordo_auth_token");
+  return true; // Let the API determine auth state via cookies
 };
 
 // ============ WEB-SPECIFIC HOOKS ============

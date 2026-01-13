@@ -1,28 +1,26 @@
-import { type ReactNode } from 'react';
+import { type ReactNode } from "react";
 import {
   MoreVertical,
   Trash2,
   Settings as SettingsIcon,
-  Briefcase,
   FolderKanban,
   CheckSquare,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.js';
-import { cn } from '../../utils/index.js';
-import { motion } from 'framer-motion';
+} from "../ui/dropdown-menu.js";
+import { cn } from "../../utils/index.js";
+import { motion } from "framer-motion";
 
 export interface WorkspaceData {
   id: string;
   slug: string;
   name: string;
   description?: string | null;
-  type: 'PERSONAL' | 'WORK' | 'TEAM';
   color: string;
   icon?: string | null;
   projectsCount?: number;
@@ -35,14 +33,8 @@ interface WorkspaceCardProps {
   onWorkspaceClick?: (workspace: WorkspaceData) => void;
   onDelete?: (workspaceId: string) => void;
   onOpenSettings?: (workspaceId: string) => void;
-  /** Render a settings dialog/modal - controlled externally */
   renderSettingsDialog?: () => ReactNode;
   labels?: {
-    types?: {
-      PERSONAL?: string;
-      WORK?: string;
-      TEAM?: string;
-    };
     status?: {
       active?: string;
     };
@@ -60,52 +52,24 @@ interface WorkspaceCardProps {
   className?: string;
 }
 
-const typeConfig = {
-  PERSONAL: {
-    label: 'PERSONAL',
-    hexColor: '#06b6d4',
-    bgSolid: '#daedf4', // 15% Cyan on white
-    bgSolidDark: '#083344', // 20% Cyan on black/dark
-    icon: Briefcase,
-  },
-  WORK: {
-    label: 'WORK',
-    hexColor: '#a855f7',
-    bgSolid: '#f3e8ff', // 15% Purple on white
-    bgSolidDark: '#3b0764', // 20% Purple on black/dark
-    icon: FolderKanban,
-  },
-  TEAM: {
-    label: 'TEAM',
-    hexColor: '#ec4899',
-    bgSolid: '#fce7f3', // 15% Pink on white
-    bgSolidDark: '#500724', // 20% Pink on black/dark
-    icon: CheckSquare,
-  },
-};
-
 const DEFAULT_LABELS = {
-  types: {
-    PERSONAL: 'Personal',
-    WORK: 'Work',
-    TEAM: 'Team',
-  },
   status: {
-    active: 'Active',
+    active: "Active",
   },
   stats: {
-    projects: (count: number) => `${count} projects`,
-    tasks: (count: number) => `${count} tasks`,
+    projects: (count: number) => \`\${count} projects\`,
+    tasks: (count: number) => \`\${count} tasks\`,
   },
   actions: {
-    settings: 'Settings',
-    delete: 'Delete',
-    moreOptions: 'More options',
+    settings: "Settings",
+    delete: "Delete",
+    moreOptions: "More options",
   },
 };
 
 /**
  * WorkspaceCard - Platform-agnostic workspace display card
+ * Simplified to use custom icon and color directly (no tier/type logic)
  */
 export function WorkspaceCard({
   workspace,
@@ -119,8 +83,6 @@ export function WorkspaceCard({
 }: WorkspaceCardProps) {
   const t = {
     ...DEFAULT_LABELS,
-    ...labels,
-    types: { ...DEFAULT_LABELS.types, ...labels.types },
     status: { ...DEFAULT_LABELS.status, ...labels.status },
     stats: { ...DEFAULT_LABELS.stats, ...labels.stats },
     actions: { ...DEFAULT_LABELS.actions, ...labels.actions },
@@ -140,17 +102,9 @@ export function WorkspaceCard({
     onOpenSettings?.(workspace.id);
   };
 
-  const typeInfo = typeConfig[workspace.type as keyof typeof typeConfig] || typeConfig.PERSONAL;
-  const TypeIcon = typeInfo.icon;
-
-  // Use custom color if available, otherwise fallback to type default
-  const displayColor = workspace.color || typeInfo.hexColor;
-  
-  // Use 15% opacity of the custom color for background (hex + 26 = ~15% alpha)
-  // This works well for both light and dark modes compared to solid opaque colors
-  const displayBg = workspace.color 
-    ? `${workspace.color}26` 
-    : typeInfo.bgSolid;
+  const displayColor = workspace.color || '#2563EB';
+  const displayBg = workspace.color ? \`\${workspace.color}26\` : '#daedf4';
+  const WorkspaceIcon = workspace.icon ? null : FolderKanban;
 
   return (
     <>
@@ -162,7 +116,7 @@ export function WorkspaceCard({
         onClick={handleCardClick}
         className={cn(
           'group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 cursor-pointer shadow-sm',
-          'hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-900', // Solid colors
+          'hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-900',
           className
         )}
         style={{
@@ -182,9 +136,11 @@ export function WorkspaceCard({
                 }}
               >
                 {workspace.icon ? (
-                  <span className="text-2xl leading-none select-none">{workspace.icon}</span>
+                  <span className="text-2xl leading-none select-none">
+                    {workspace.icon}
+                  </span>
                 ) : (
-                  <TypeIcon className="h-7 w-7" />
+                  <WorkspaceIcon className="h-7 w-7" />
                 )}
               </div>
 
@@ -193,19 +149,7 @@ export function WorkspaceCard({
                   {workspace.name}
                 </h3>
                 <div className="flex items-center justify-between">
-                  {/* Badge with solid background */}
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200"
-                    style={{
-                      backgroundColor: displayBg,
-                      color: displayColor,
-                    }}
-                  >
-                    {t.types[workspace.type]}
-                  </span>
-                  <div
-                    className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground"
-                  >
+                  <div className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
                     {t.status.active}
                   </div>
                 </div>

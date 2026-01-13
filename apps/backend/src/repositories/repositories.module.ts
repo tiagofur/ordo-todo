@@ -42,6 +42,7 @@ import { PrismaUserIntegrationRepository } from './prisma-user-integration.repos
 import { PrismaAdminUserRepository } from './prisma-admin-user.repository';
 import { PrismaSessionRepository } from './prisma-session.repository';
 import { PrismaAccountRepository } from './prisma-account.repository';
+import { AuthAuditLogRepository } from './auth-audit-log.repository';
 
 @Module({
   imports: [DatabaseModule],
@@ -282,6 +283,12 @@ import { PrismaAccountRepository } from './prisma-account.repository';
         new PrismaAccountRepository(prisma),
       inject: [PrismaService],
     },
+    {
+      provide: 'AuthAuditLogRepository',
+      useFactory: (prisma: PrismaService) =>
+        new AuthAuditLogRepository(prisma),
+      inject: [PrismaService],
+    },
   ],
   exports: [
     'UserRepository',
@@ -325,6 +332,7 @@ import { PrismaAccountRepository } from './prisma-account.repository';
     'AdminUserRepository',
     'SessionRepository',
     'AccountRepository',
+    'AuthAuditLogRepository',
   ],
 })
-export class RepositoriesModule {}
+export class RepositoriesModule { }

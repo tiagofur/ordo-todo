@@ -1,4 +1,4 @@
-import { PrismaClient, Theme, Priority, WorkspaceType, TaskStatus } from "@prisma/client";
+import { PrismaClient, Theme, Priority, TaskStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -41,7 +41,6 @@ async function main() {
                 slug: "personal",
                 description: "My personal workspace",
                 color: "#6366f1",
-                type: WorkspaceType.PERSONAL,
                 ownerId: user.id,
             },
         });

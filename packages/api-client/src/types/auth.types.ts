@@ -28,3 +28,16 @@ export interface AuthResponse {
 export interface RefreshTokenDto {
   refreshToken: string;
 }
+
+export interface SessionInfo {
+  id: string;
+  deviceName: string;
+  deviceType: 'web' | 'mobile' | 'desktop';
+  os: string;
+  browser?: string;
+  ip: string;
+  location?: string;
+  lastActive: string;
+  createdAt: string;
+  isCurrent: boolean;
+}

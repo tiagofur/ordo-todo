@@ -64,6 +64,7 @@ class OrdoApiClient {
     onTokenRefresh;
     onAuthError;
     retryConfig;
+    // public testProp: string = 'test';
     constructor(config) {
         this.tokenStorage = config.tokenStorage;
         this.onTokenRefresh = config.onTokenRefresh;
@@ -317,6 +318,37 @@ class OrdoApiClient {
             await this.tokenStorage.setRefreshToken(response.data.refreshToken);
         }
         return response.data;
+    }
+    // ============ SESSION ENDPOINTS (4) ============
+    /**
+     * Get active sessions
+     * GET /sessions
+     */
+    async getSessions() {
+        const response = await this.axios.get("/sessions");
+        return response.data;
+    }
+    /**
+     * Get active session count
+     * GET /sessions/count
+     */
+    async getSessionCount() {
+        const response = await this.axios.get("/sessions/count");
+        return response.data;
+    }
+    /**
+     * Revoke a specific session
+     * DELETE /sessions/:id
+     */
+    async revokeSession(sessionId) {
+        await this.axios.delete(`/sessions/${sessionId}`);
+    }
+    /**
+     * Revoke all other sessions
+     * DELETE /sessions/others/all
+     */
+    async revokeAllOtherSessions() {
+        await this.axios.delete("/sessions/others/all");
     }
     /**
      * Get GitHub OAuth authorization URL
