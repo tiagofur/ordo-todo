@@ -1,7 +1,7 @@
 import { AxiosInstance, AxiosError } from "axios";
 import type { TokenStorage } from "./utils/storage";
 import type { RegisterDto, LoginDto, AuthResponse, RefreshTokenDto, SessionInfo, User, UpdateProfileDto, UserResponse, UserProfileResponse, UserPreferences, UpdatePreferencesDto, UserIntegration, Workspace, WorkspaceWithMembers, WorkspaceMember, WorkspaceInvitation, WorkspaceSettings, WorkspaceAuditLog, WorkspaceAuditLogsResponse, CreateWorkspaceDto, UpdateWorkspaceDto, UpdateWorkspaceSettingsDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, Workflow, CreateWorkflowDto, UpdateWorkflowDto, Project, CreateProjectDto, UpdateProjectDto, Task, TaskDetails, TaskShareResponse, PublicTaskResponse, TodayTasksResponse, TimeBlock, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, Tag, CreateTagDto, UpdateTagDto, TimeSession, StartTimerDto, StopTimerDto, ActiveTimerResponse, GetSessionsParams, PaginatedSessionsResponse, GetTimerStatsParams, TimerStatsResponse, TaskTimeResponse, CreateTimerSessionDto, UpdateTimerSessionDto, DailyMetrics, GetDailyMetricsParams, ProductivityStreak, Comment, CreateCommentDto, UpdateCommentDto, Attachment, CreateAttachmentDto, AIProfile, OptimalScheduleResponse, PredictDurationResponse, WeeklyReportResponse, ProductivityReport, Notification, UnreadCountResponse, CreateConversationDto, SendMessageDto, ConversationResponse, ConversationDetail, SendMessageResponse, AIInsightsResponse, Habit, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, HabitStats, TodayHabitsResponse, CompleteHabitResponse, Objective, KeyResult, KeyResultTask, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, ObjectiveDashboardSummary, CustomField, CustomFieldValue, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, BurnoutAnalysis, WorkPatterns, RestRecommendation, BurnoutIntervention, WeeklyWellbeingSummary, WorkspaceWorkload, MemberWorkload, WorkloadSuggestion, Note, CreateNoteDto as ClientCreateNoteDto, // Alias if needed, but names match
-UpdateNoteDto as ClientUpdateNoteDto } from "./types";
+UpdateNoteDto as ClientUpdateNoteDto, SearchResponse, SuggestionsResponse, AIAnswerResponse, QuickSearchResponse } from "./types";
 /**
  * Retry configuration for failed requests
  */
@@ -219,6 +219,31 @@ export declare class OrdoApiClient {
      * DELETE /sessions/others/all
      */
     revokeAllOtherSessions(): Promise<void>;
+    /**
+     * Semantic search across all user content
+     * GET /search
+     */
+    semanticSearch(query: string, options?: {
+        types?: string;
+        projectId?: string;
+        includeCompleted?: boolean;
+        limit?: number;
+    }): Promise<SearchResponse>;
+    /**
+     * Get search suggestions based on partial input
+     * GET /search/suggestions
+     */
+    searchSuggestions(query: string): Promise<SuggestionsResponse>;
+    /**
+     * Ask natural language questions about your data
+     * GET /search/ask
+     */
+    askAI(question: string): Promise<AIAnswerResponse>;
+    /**
+     * Quick search for autocomplete
+     * GET /search/quick
+     */
+    quickSearch(query: string): Promise<QuickSearchResponse>;
     /**
      * Get GitHub OAuth authorization URL
      * GET /auth/github

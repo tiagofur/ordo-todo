@@ -347,6 +347,18 @@ export class AuthController {
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
 
+    // Check if this is a desktop OAuth flow
+    const platform = req.query.state?.includes('desktop') ? 'desktop' : 'web';
+
+    if (platform === 'desktop') {
+      // For desktop, redirect to deep link with tokens
+      const params = new URLSearchParams({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      return res.redirect(`ordo://auth/callback?${params.toString()}`);
+    }
+
     // SECURITY: Set tokens in httpOnly cookies (not accessible via JavaScript)
     res.cookie('access_token', accessToken, {
       httpOnly: true,
@@ -401,6 +413,18 @@ export class AuthController {
   })
   async githubAuthCallback(@Req() req, @Res() res: Response) {
     const { accessToken, refreshToken, user } = req.user;
+
+    // Check if this is a desktop OAuth flow
+    const platform = req.query.state?.includes('desktop') ? 'desktop' : 'web';
+
+    if (platform === 'desktop') {
+      // For desktop, redirect to deep link with tokens
+      const params = new URLSearchParams({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      return res.redirect(`ordo://auth/callback?${params.toString()}`);
+    }
 
     // SECURITY: Set tokens in httpOnly cookies (not accessible via JavaScript)
     res.cookie('access_token', accessToken, {

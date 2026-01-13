@@ -46,6 +46,7 @@ export default defineConfig({
             '@ordo-todo/api-client': resolve(__dirname, '../../packages/api-client/src'),
             '@ordo-todo/core': resolve(__dirname, '../../packages/core/src'),
             '@ordo-todo/stores': resolve(__dirname, '../../packages/stores/src'),
+            '@ordo-todo/auth-provider': resolve(__dirname, '../../packages/auth-provider/src'),
         },
     },
     build: {
@@ -169,6 +170,7 @@ export default defineConfig({
             '@ordo-todo/hooks',
             '@ordo-todo/core',
             '@ordo-todo/stores',
+            '@ordo-todo/auth-provider',
         ],
     },
     base: './',

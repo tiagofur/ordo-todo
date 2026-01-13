@@ -31,6 +31,8 @@ const defaultAuthContext: AuthContextType = {
   login: async () => {},
   register: async () => {},
   logout: async () => {},
+  signInWithGoogle: async () => {},
+  signInWithGitHub: async () => {},
 };
 
 export function AuthProvider({
@@ -39,6 +41,7 @@ export function AuthProvider({
   onError,
   onSuccess,
   apiClient,
+  onOAuthLogin,
 }: AuthProviderProps) {
   const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
@@ -133,6 +136,34 @@ export function AuthProvider({
     }
   };
 
+  const signInWithGoogle = async () => {
+    if (onOAuthLogin) {
+      try {
+        await onOAuthLogin("google");
+        onSuccess?.("login");
+      } catch (error) {
+        onError?.(error as Error);
+        throw error;
+      }
+    } else {
+      console.warn("OAuth login not configured for this platform");
+    }
+  };
+
+  const signInWithGitHub = async () => {
+    if (onOAuthLogin) {
+      try {
+        await onOAuthLogin("github");
+        onSuccess?.("login");
+      } catch (error) {
+        onError?.(error as Error);
+        throw error;
+      }
+    } else {
+      console.warn("OAuth login not configured for this platform");
+    }
+  };
+
   const value: AuthContextType = useMemo(
     () => ({
       user,
@@ -142,6 +173,8 @@ export function AuthProvider({
       login,
       register,
       logout,
+      signInWithGoogle,
+      signInWithGitHub,
     }),
     [user, mounted, isLoadingUser, error],
   );

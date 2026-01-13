@@ -14,7 +14,11 @@ export interface AuthContextType {
   login: (data: LoginDto) => Promise<void>;
   register: (data: RegisterDto) => Promise<void>;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithGitHub: () => Promise<void>;
 }
+
+export type OAuthProvider = "google" | "github";
 
 export interface AuthProviderProps {
   children: ReactNode;
@@ -22,6 +26,8 @@ export interface AuthProviderProps {
   onError?: (error: Error) => void;
   onSuccess?: (event: "login" | "register" | "logout") => void;
   apiClient: ApiClient;
+  /** Optional callback for OAuth login - each platform implements this differently */
+  onOAuthLogin?: (provider: OAuthProvider) => Promise<void>;
 }
 
 export interface ApiClient {

@@ -57,8 +57,8 @@ const DEFAULT_LABELS = {
     active: "Active",
   },
   stats: {
-    projects: (count: number) => \`\${count} projects\`,
-    tasks: (count: number) => \`\${count} tasks\`,
+    projects: (count: number) => `${count} projects`,
+    tasks: (count: number) => `${count} tasks`,
   },
   actions: {
     settings: "Settings",
@@ -103,8 +103,7 @@ export function WorkspaceCard({
   };
 
   const displayColor = workspace.color || '#2563EB';
-  const displayBg = workspace.color ? \`\${workspace.color}26\` : '#daedf4';
-  const WorkspaceIcon = workspace.icon ? null : FolderKanban;
+  const displayBg = workspace.color ? `${workspace.color}26` : '#daedf4';
 
   return (
     <>
@@ -140,7 +139,7 @@ export function WorkspaceCard({
                     {workspace.icon}
                   </span>
                 ) : (
-                  <WorkspaceIcon className="h-7 w-7" />
+                  <FolderKanban className="h-7 w-7" />
                 )}
               </div>
 

@@ -1,5 +1,5 @@
-import { type ReactNode, type ElementType } from 'react';
-import type { NavItem } from './sidebar.js';
+import { type ReactNode, type ElementType } from "react";
+import type { NavItem } from "./sidebar.js";
 export type { NavItem };
 interface MobileSidebarProps {
     /** Controls sheet open/close state */

@@ -2,9 +2,10 @@ import { Outlet, Navigate } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import TitleBar from "../TitleBar";
-import { useAuth } from "../providers/auth-provider";
+import { useAuth } from "@ordo-todo/auth-provider";
 import { useElectron } from "@/hooks/use-electron";
 import { useNotificationsSocket } from "@/hooks/use-notifications-socket";
+import { useOAuthCallback } from "@/hooks/use-oauth-callback";
 import { useTimerStore, startTimerInterval, stopTimerInterval } from "@/stores/timer-store";
 import { useUIStore } from "@/stores/ui-store";
 import { useEffect, useState } from "react";
@@ -27,6 +28,9 @@ export function AppLayout() {
 
   // Initialize Electron features
   useElectron();
+  
+  // Handle OAuth callback from deep links
+  useOAuthCallback();
 
   // Initialize Real-time Notifications with connection state
   const { connectionState, reconnect } = useNotificationsSocket();

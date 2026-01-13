@@ -351,6 +351,53 @@ class OrdoApiClient {
         await this.axios.delete("/sessions/others/all");
     }
     /**
+     * Semantic search across all user content
+     * GET /search
+     */
+    async semanticSearch(query, options) {
+        const params = { q: query };
+        if (options?.types)
+            params.types = options.types;
+        if (options?.projectId)
+            params.projectId = options.projectId;
+        if (options?.includeCompleted !== undefined)
+            params.includeCompleted = options.includeCompleted;
+        if (options?.limit)
+            params.limit = options.limit;
+        const response = await this.axios.get("/search", { params });
+        return response.data;
+    }
+    /**
+     * Get search suggestions based on partial input
+     * GET /search/suggestions
+     */
+    async searchSuggestions(query) {
+        const response = await this.axios.get("/search/suggestions", {
+            params: { q: query },
+        });
+        return response.data;
+    }
+    /**
+     * Ask natural language questions about your data
+     * GET /search/ask
+     */
+    async askAI(question) {
+        const response = await this.axios.get("/search/ask", {
+            params: { q: question },
+        });
+        return response.data;
+    }
+    /**
+     * Quick search for autocomplete
+     * GET /search/quick
+     */
+    async quickSearch(query) {
+        const response = await this.axios.get("/search/quick", {
+            params: { q: query },
+        });
+        return response.data;
+    }
+    /**
      * Get GitHub OAuth authorization URL
      * GET /auth/github
      */

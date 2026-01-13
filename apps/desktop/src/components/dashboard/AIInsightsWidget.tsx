@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAIInsights } from "@/hooks/api";
-import { useAuth } from "@/components/providers/auth-provider";
+import { useAuth } from "@ordo-todo/auth-provider";
 
 interface Insight {
   type: "PRODUCTIVITY_PEAK" | "UPCOMING_DEADLINES" | "SUGGESTED_BREAKS" |

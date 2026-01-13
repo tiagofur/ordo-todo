@@ -111,12 +111,12 @@ const nextConfig: NextConfig = {
 
     // Force single instance of core libraries
     const rootNodeModules = path.resolve(__dirname, '../../node_modules');
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@tanstack/react-query': path.resolve(rootNodeModules, '@tanstack/react-query'),
-      'react': path.resolve(rootNodeModules, 'react'),
-      'react-dom': path.resolve(rootNodeModules, 'react-dom'),
-    };
+    // config.resolve.alias = {
+    //   ...config.resolve.alias,
+    //   '@tanstack/react-query': path.resolve(rootNodeModules, '@tanstack/react-query'),
+    //   'react': path.resolve(rootNodeModules, 'react'),
+    //   'react-dom': path.resolve(rootNodeModules, 'react-dom'),
+    // };
 
     return config;
   },

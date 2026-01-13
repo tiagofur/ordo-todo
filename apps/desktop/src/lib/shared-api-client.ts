@@ -1,6 +1,6 @@
 import { apiClient } from "./api-client";
+import type { ApiClient } from "@ordo-todo/auth-provider";
 import type {
-  ApiClient,
   UserResponse,
   LoginDto,
   RegisterDto,

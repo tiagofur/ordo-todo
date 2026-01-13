@@ -24,3 +24,5 @@ export * from './workload.types';
 export * from './note.types';
 
 
+// Search types
+export * from './search.types';

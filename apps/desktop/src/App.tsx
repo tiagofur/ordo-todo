@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@ordo-todo/auth-provider";
 import { apiClient, registerQueryClient } from "./lib/api-client";
 import { sharedApiClient } from "./lib/shared-api-client";
+import { createDesktopOAuthHandler } from "./lib/oauth";
 import { router } from "./routes";
 import "./App.css";
 
@@ -20,10 +21,17 @@ const queryClient = new QueryClient({
 // Register it with the api client to handle auth errors globally
 registerQueryClient(queryClient);
 
+// Create OAuth handler for desktop
+const oauthHandler = createDesktopOAuthHandler();
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider platform="desktop" apiClient={sharedApiClient}>
+      <AuthProvider 
+        platform="desktop" 
+        apiClient={sharedApiClient}
+        onOAuthLogin={oauthHandler}
+      >
         <RouterProvider router={router} />
         <Toaster richColors position="top-right" />
       </AuthProvider>

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Loader2, FileText, FolderGit2, Repeat, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@ordo-todo/ui';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@ordo-todo/api-client';
+import { apiClient } from '@/lib/api-client';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
 interface SearchResult {

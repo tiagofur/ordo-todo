@@ -1,7 +1,7 @@
 import { Bell, Search, User, Settings, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../providers/auth-provider";
+import { useAuth } from "@ordo-todo/auth-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,

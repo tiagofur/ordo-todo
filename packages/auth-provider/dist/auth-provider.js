@@ -16,9 +16,11 @@ const defaultAuthContext = {
     login: async () => { },
     register: async () => { },
     logout: async () => { },
+    signInWithGoogle: async () => { },
+    signInWithGitHub: async () => { },
 };
 exports.defaultAuthContext = defaultAuthContext;
-function AuthProvider({ children, platform, onError, onSuccess, apiClient, }) {
+function AuthProvider({ children, platform, onError, onSuccess, apiClient, onOAuthLogin, }) {
     const queryClient = (0, react_query_1.useQueryClient)();
     const [mounted, setMounted] = (0, react_1.useState)(false);
     (0, react_1.useEffect)(() => {
@@ -104,6 +106,36 @@ function AuthProvider({ children, platform, onError, onSuccess, apiClient, }) {
             throw error;
         }
     };
+    const signInWithGoogle = async () => {
+        if (onOAuthLogin) {
+            try {
+                await onOAuthLogin("google");
+                onSuccess?.("login");
+            }
+            catch (error) {
+                onError?.(error);
+                throw error;
+            }
+        }
+        else {
+            console.warn("OAuth login not configured for this platform");
+        }
+    };
+    const signInWithGitHub = async () => {
+        if (onOAuthLogin) {
+            try {
+                await onOAuthLogin("github");
+                onSuccess?.("login");
+            }
+            catch (error) {
+                onError?.(error);
+                throw error;
+            }
+        }
+        else {
+            console.warn("OAuth login not configured for this platform");
+        }
+    };
     const value = (0, react_1.useMemo)(() => ({
         user,
         isLoading: !mounted || isLoadingUser,
@@ -112,6 +144,8 @@ function AuthProvider({ children, platform, onError, onSuccess, apiClient, }) {
         login,
         register,
         logout,
+        signInWithGoogle,
+        signInWithGitHub,
     }), [user, mounted, isLoadingUser, error]);
     return (0, jsx_runtime_1.jsx)(AuthContext.Provider, { value: value, children: children });
 }

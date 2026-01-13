@@ -18,7 +18,7 @@ import {
 import { Button, Label } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { sharedApiClient } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SessionInfo } from "@ordo-todo/api-client";
 
@@ -58,7 +58,7 @@ export function SessionsManager() {
   const { data: sessions, isLoading, error } = useQuery<SessionInfo[]>({
     queryKey: ['sessions'],
     queryFn: async () => {
-      const response = await sharedApiClient.getSessions ? sharedApiClient.getSessions() : (sharedApiClient as any).axios.get('/sessions').then((r: any) => r.data);
+      const response = await apiClient.getSessions();
       return response as SessionInfo[];
     },
     staleTime: 30000, // 30 seconds
@@ -67,11 +67,7 @@ export function SessionsManager() {
   // Revoke single session
   const revokeSessionMutation = useMutation({
     mutationFn: async (sessionId: string) => {
-      if (sharedApiClient.revokeSession) {
-        await sharedApiClient.revokeSession(sessionId);
-      } else {
-        await (sharedApiClient as any).axios.delete(`/sessions/${sessionId}`);
-      }
+      await apiClient.revokeSession(sessionId);
     },
     onMutate: (sessionId) => {
       setRevokingSessionId(sessionId);
@@ -91,13 +87,9 @@ export function SessionsManager() {
   // Revoke all other sessions
   const revokeOthersMutation = useMutation({
     mutationFn: async () => {
-      if (sharedApiClient.revokeAllOtherSessions) {
-        await sharedApiClient.revokeAllOtherSessions();
-      } else {
-        await (sharedApiClient as any).axios.delete('/sessions/others/all');
-      }
+      await apiClient.revokeAllOtherSessions();
     },
-    onSuccess: (_, __, context) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
       setRevokeAllConfirm(false);
       toast.success('Todas las otras sesiones han sido cerradas');

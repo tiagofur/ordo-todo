@@ -27,13 +27,8 @@ import {
   Button,
 } from "@ordo-todo/ui";
 
-import { inviteMemberSchema } from "@ordo-todo/core";
+import { inviteMemberSchema, MemberRole, type InviteMemberDTO } from "@ordo-todo/core";
 import { useInviteMember } from "@/hooks/api";
-
-// Use the core schema directly
-const formSchema = inviteMemberSchema;
-
-type InviteFormValues = z.infer<typeof formSchema>;
 
 interface InviteMemberDialogProps {
   workspaceId: string;
@@ -52,15 +47,15 @@ export function InviteMemberDialog({
   const [invitedToken, setInvitedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const form = useForm<InviteFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<InviteMemberDTO>({
+    resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
       email: "",
-      role: "MEMBER",
+      role: MemberRole.MEMBER,
     },
   });
 
-  const onSubmit = async (data: InviteFormValues) => {
+  const onSubmit = async (data: InviteMemberDTO) => {
     try {
       const result: any = await inviteMemberMutation.mutateAsync({
         workspaceId,
@@ -143,9 +138,9 @@ export function InviteMemberDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="ADMIN">{t("InviteMemberDialog.roles.admin")}</SelectItem>
-                        <SelectItem value="MEMBER">{t("InviteMemberDialog.roles.member")}</SelectItem>
-                        <SelectItem value="VIEWER">{t("InviteMemberDialog.roles.viewer")}</SelectItem>
+                        <SelectItem value={MemberRole.ADMIN}>{t("InviteMemberDialog.roles.admin")}</SelectItem>
+                        <SelectItem value={MemberRole.MEMBER}>{t("InviteMemberDialog.roles.member")}</SelectItem>
+                        <SelectItem value={MemberRole.VIEWER}>{t("InviteMemberDialog.roles.viewer")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

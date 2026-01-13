@@ -1,10 +1,9 @@
-import { type ReactNode } from 'react';
+import { type ReactNode } from "react";
 export interface WorkspaceData {
     id: string;
     slug: string;
     name: string;
     description?: string | null;
-    type: 'PERSONAL' | 'WORK' | 'TEAM';
     color: string;
     icon?: string | null;
     projectsCount?: number;
@@ -16,14 +15,8 @@ interface WorkspaceCardProps {
     onWorkspaceClick?: (workspace: WorkspaceData) => void;
     onDelete?: (workspaceId: string) => void;
     onOpenSettings?: (workspaceId: string) => void;
-    /** Render a settings dialog/modal - controlled externally */
     renderSettingsDialog?: () => ReactNode;
     labels?: {
-        types?: {
-            PERSONAL?: string;
-            WORK?: string;
-            TEAM?: string;
-        };
         status?: {
             active?: string;
         };
@@ -42,6 +35,7 @@ interface WorkspaceCardProps {
 }
 /**
  * WorkspaceCard - Platform-agnostic workspace display card
+ * Simplified to use custom icon and color directly (no tier/type logic)
  */
 export declare function WorkspaceCard({ workspace, index, onWorkspaceClick, onDelete, onOpenSettings, renderSettingsDialog, labels, className, }: WorkspaceCardProps): import("react/jsx-runtime").JSX.Element;
 export {};

@@ -371,7 +371,7 @@ axiosInstance.interceptors.response.use(
           // If refresh fails, logout to clear cookies on backend
           await axiosInstance
             .post("/auth/logout", {}, { withCredentials: true })
-            .catch(() => {});
+            .catch(() => { });
           // Redirect to login page
           if (typeof window !== "undefined") {
             window.location.href = "/login";
@@ -382,7 +382,7 @@ axiosInstance.interceptors.response.use(
         // Already retried and failed, logout to clear cookies on backend
         await axiosInstance
           .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => {});
+          .catch(() => { });
         // Redirect to login page
         if (typeof window !== "undefined") {
           window.location.href = "/login";
@@ -1064,10 +1064,14 @@ export const apiClient = {
   // Analytics - Productivity Streak
   getProductivityStreak: () =>
     axiosInstance.get("/analytics/streak").then((res) => res.data),
+
+  // Sessions Management
+  getSessions: (): Promise<any[]> =>
+    axiosInstance.get("/sessions").then((res) => res.data),
+  revokeSession: (sessionId: string): Promise<void> =>
+    axiosInstance.delete(`/sessions/${sessionId}`).then((res) => res.data),
+  revokeAllOtherSessions: (): Promise<void> =>
+    axiosInstance.delete("/sessions/others/all").then((res) => res.data),
 };
-  
-// Export apiClient instance for easy importing
-export { apiClient as default, apiClient };
-  
-// Export apiClient instance for easy importing
-export { apiClient as default, apiClient };
+// Export apiClient as default for convenient importing
+export default apiClient;

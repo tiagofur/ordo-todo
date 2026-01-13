@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "../workspace/WorkspaceSelector";
 import { CreateWorkspaceDialog } from "../workspace/CreateWorkspaceDialog";
-import { TimerWidget } from "../timer/TimerWidget";
+import { TimerWidget } from "../dashboard/TimerWidget";
 
 const colorClasses = {
   cyan: "group-hover:bg-cyan-500/10 group-hover:text-cyan-500",

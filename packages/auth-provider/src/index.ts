@@ -5,4 +5,5 @@ export type {
   PlatformType,
   AuthEvent,
   ApiClient,
+  OAuthProvider,
 } from "./types";

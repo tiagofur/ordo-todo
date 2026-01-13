@@ -48,7 +48,12 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   };
 
   const workspaceData = {
-    ...workspace,
+    id: workspace.id,
+    slug: workspace.slug,
+    name: workspace.name,
+    description: workspace.description,
+    color: workspace.color,
+    icon: workspace.icon,
     projectsCount: workspace.stats?.projectCount,
     tasksCount: workspace.stats?.taskCount,
   };

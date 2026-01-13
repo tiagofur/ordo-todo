@@ -135,6 +135,12 @@ import type {
   Note,
   CreateNoteDto as ClientCreateNoteDto, // Alias if needed, but names match
   UpdateNoteDto as ClientUpdateNoteDto,
+  // Search types
+  SearchResponse,
+  SuggestionsResponse,
+  AIAnswerResponse,
+  QuickSearchResponse,
+
 } from "./types";
 
 
@@ -646,6 +652,62 @@ export class OrdoApiClient {
    */
   async revokeAllOtherSessions(): Promise<void> {
     await this.axios.delete("/sessions/others/all");
+  }
+  
+  /**
+   * Semantic search across all user content
+   * GET /search
+   */
+  async semanticSearch(
+    query: string,
+    options?: {
+      types?: string;
+      projectId?: string;
+      includeCompleted?: boolean;
+      limit?: number;
+    }
+  ): Promise<SearchResponse> {
+    const params: any = { q: query };
+    if (options?.types) params.types = options.types;
+    if (options?.projectId) params.projectId = options.projectId;
+    if (options?.includeCompleted !== undefined) params.includeCompleted = options.includeCompleted;
+    if (options?.limit) params.limit = options.limit;
+
+    const response = await this.axios.get<SearchResponse>("/search", { params });
+    return response.data;
+  }
+
+  /**
+   * Get search suggestions based on partial input
+   * GET /search/suggestions
+   */
+  async searchSuggestions(query: string): Promise<SuggestionsResponse> {
+    const response = await this.axios.get<SuggestionsResponse>("/search/suggestions", {
+      params: { q: query },
+    });
+    return response.data;
+  }
+
+  /**
+   * Ask natural language questions about your data
+   * GET /search/ask
+   */
+  async askAI(question: string): Promise<AIAnswerResponse> {
+    const response = await this.axios.get<AIAnswerResponse>("/search/ask", {
+      params: { q: question },
+    });
+    return response.data;
+  }
+
+  /**
+   * Quick search for autocomplete
+   * GET /search/quick
+   */
+  async quickSearch(query: string): Promise<QuickSearchResponse> {
+    const response = await this.axios.get<QuickSearchResponse>("/search/quick", {
+      params: { q: query },
+    });
+    return response.data;
   }
 
   /**

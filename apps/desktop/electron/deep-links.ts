@@ -6,7 +6,7 @@ let mainWindow: BrowserWindow | null = null
 let pendingDeepLink: string | null = null
 
 export interface DeepLinkData {
-  type: 'task' | 'project' | 'workspace' | 'timer' | 'settings' | 'unknown'
+  type: 'task' | 'project' | 'workspace' | 'timer' | 'settings' | 'auth' | 'unknown'
   id?: string
   action?: string
   params?: Record<string, string>
@@ -57,7 +57,7 @@ export function parseDeepLink(url: string): DeepLinkData {
 }
 
 function validateType(type: string): DeepLinkData['type'] {
-  const validTypes = ['task', 'project', 'workspace', 'timer', 'settings']
+  const validTypes = ['task', 'project', 'workspace', 'timer', 'settings', 'auth']
   return validTypes.includes(type) ? (type as DeepLinkData['type']) : 'unknown'
 }
 

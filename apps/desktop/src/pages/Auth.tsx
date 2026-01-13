@@ -5,7 +5,7 @@ import {
   Sparkles, Check, X, Eye, EyeOff
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "../components/providers/auth-provider";
+import { useAuth } from "@ordo-todo/auth-provider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Input, Label, Separator } from "@ordo-todo/ui";
 
@@ -20,7 +20,9 @@ interface PasswordChecks {
 
 export function Auth() {
   const navigate = useNavigate();
-  const { login, signup, signInWithGoogle, signInWithGitHub } = useAuth();
+  const { login, register, signInWithGoogle, signInWithGitHub } = useAuth();
+
+  const signup = register;
 
   // State
   const [isLogin, setIsLogin] = useState(true);

@@ -15057,8 +15057,12 @@ var MemberRole = /* @__PURE__ */ ((MemberRole2) => {
 })(MemberRole || {});
 
 // src/shared/validation/workspace.validation.ts
-var WORKSPACE_TYPES = ["PERSONAL", "WORK", "TEAM"];
-var MEMBER_ROLES = ["OWNER" /* OWNER */, "ADMIN" /* ADMIN */, "MEMBER" /* MEMBER */, "VIEWER" /* VIEWER */];
+var MEMBER_ROLES = [
+  "OWNER" /* OWNER */,
+  "ADMIN" /* ADMIN */,
+  "MEMBER" /* MEMBER */,
+  "VIEWER" /* VIEWER */
+];
 var workspaceBaseSchema = external_exports.object({
   name: external_exports.string().min(WORKSPACE_LIMITS.NAME_MIN_LENGTH, "Workspace name is required").max(
     WORKSPACE_LIMITS.NAME_MAX_LENGTH,
@@ -15072,7 +15076,6 @@ var workspaceBaseSchema = external_exports.object({
     WORKSPACE_LIMITS.DESCRIPTION_MAX_LENGTH,
     `Description must be less than ${WORKSPACE_LIMITS.DESCRIPTION_MAX_LENGTH} characters`
   ).optional(),
-  type: external_exports.enum(WORKSPACE_TYPES),
   color: external_exports.string().optional(),
   icon: external_exports.string().optional()
 });
@@ -15100,7 +15103,6 @@ var transferOwnershipSchema = external_exports.object({
   newOwnerId: external_exports.string().min(1, "New owner is required")
 });
 var workspaceFilterSchema = external_exports.object({
-  type: external_exports.enum(WORKSPACE_TYPES).optional(),
   search: external_exports.string().optional()
 });
 
@@ -23467,7 +23469,6 @@ export {
   UserLogin,
   WORKSPACE_COLORS,
   WORKSPACE_LIMITS,
-  WORKSPACE_TYPES,
   Workflow,
   Workspace,
   WorkspaceAuditLog,

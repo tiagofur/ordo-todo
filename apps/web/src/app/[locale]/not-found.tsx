@@ -1,6 +1,8 @@
+"use client";
+
 import { Link } from "@/i18n/navigation";
 import { FileQuestion } from "lucide-react";
-import { Button } from "@ordo-todo/ui";
+
 
 /**
  * Custom 404 Not Found page.
@@ -24,16 +26,18 @@ export default function NotFound() {
       </p>
       
       <div className="flex gap-4">
-        <Button asChild variant="outline">
-          <Link href="/dashboard">
-            Ir al Dashboard
-          </Link>
-        </Button>
-        <Button asChild>
-          <Link href="/">
-            Volver al Inicio
-          </Link>
-        </Button>
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+        >
+          Ir al Dashboard
+        </Link>
+        <Link 
+          href="/"
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
+        >
+          Volver al Inicio
+        </Link>
       </div>
     </div>
   );

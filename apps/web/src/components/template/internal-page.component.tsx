@@ -4,7 +4,7 @@ import Menu from "./menu.component";
 import TopBar from "./top-bar.component";
 import { useScreenSize } from "@/data/hooks/use-screen-size.hook";
 import { AIAssistantSidebar } from "@/components/ai/ai-assistant-sidebar";
-import { Sidebar } from "@/components/shared/sidebar";
+import { DesktopSidebar } from "@/components/shared/desktop-sidebar";
 import { useNotificationsSocket } from "@/hooks/use-notifications-socket";
 
 export default function InternalPage(props: any) {
@@ -30,7 +30,7 @@ export default function InternalPage(props: any) {
 
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <Sidebar />
+        <DesktopSidebar />
       </div>
 
       <div className="flex-1 flex flex-col overflow-y-auto relative md:pl-64 transition-all duration-300">

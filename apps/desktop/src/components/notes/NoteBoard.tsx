@@ -75,7 +75,7 @@ export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
         </div>
         
         <div className="relative min-w-full min-h-full w-[2000px] h-[2000px]">
-            {notes.map((note) => (
+            {safeNotes.map((note) => (
             <NoteItem key={note.id} note={note} />
             ))}
         </div>

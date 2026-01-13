@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { Sidebar } from "./sidebar";
-import { MobileSidebar } from "./mobile-sidebar";
+import { DesktopSidebar } from "./desktop-sidebar";
+import { MobileSidebar } from "./sidebar";
 import { TopBar } from "./topbar";
 import { ErrorBoundary } from "./error-boundary";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -24,7 +24,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop Sidebar */}
-      <Sidebar />
+      <DesktopSidebar />
 
       {/* Mobile Sidebar (Sheet) */}
       <MobileSidebar open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} />

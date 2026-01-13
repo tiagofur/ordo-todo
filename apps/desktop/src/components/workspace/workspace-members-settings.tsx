@@ -31,6 +31,8 @@ import { toast } from "sonner";
 
 interface WorkspaceMembersSettingsProps {
   workspaceId: string;
+  owner?: { id: string; name?: string | null; email?: string | null; image?: string | null };
+  workspaceCreatedAt?: string | Date;
 }
 
 export function WorkspaceMembersSettings({ workspaceId }: WorkspaceMembersSettingsProps) {

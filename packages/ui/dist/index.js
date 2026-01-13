@@ -1,9 +1,11 @@
-"use client";
 /**
  * Shared UI Package for Ordo-Todo
  *
  * This package provides shared UI components, utilities, colors, and constants
  * that can be used across web, mobile, and desktop applications.
+ *
+ * NOTE: Individual components that need client-side interactivity
+ * should include "use client" directive in their own files.
  *
  * @example
  * ```tsx
