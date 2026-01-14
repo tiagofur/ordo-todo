@@ -212,7 +212,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     notifyShortBreakComplete: () => ipcRenderer.invoke('notification:shortBreakComplete'),
     notifyLongBreakComplete: () => ipcRenderer.invoke('notification:longBreakComplete'),
     notifyTaskDue: (taskTitle: string) => ipcRenderer.invoke('notification:taskDue', taskTitle),
-    notifyTaskReminder: (taskTitle: string, dueIn: string) => 
+    notifyTaskReminder: (taskTitle: string, dueIn: string) =>
         ipcRenderer.invoke('notification:taskReminder', taskTitle, dueIn),
 
     // ============================================
@@ -220,7 +220,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // ============================================
     getShortcuts: () => ipcRenderer.invoke('shortcuts:getAll'),
     getDefaultShortcuts: () => ipcRenderer.invoke('shortcuts:getDefaults'),
-    updateShortcut: (id: string, updates: Partial<ShortcutConfig>) => 
+    updateShortcut: (id: string, updates: Partial<ShortcutConfig>) =>
         ipcRenderer.invoke('shortcuts:update', id, updates),
     resetShortcuts: () => ipcRenderer.invoke('shortcuts:reset'),
 
@@ -283,7 +283,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         },
         session: {
             create: (session: unknown) => ipcRenderer.invoke('db:session:create', session),
-            getByWorkspace: (workspaceId: string, startDate?: number, endDate?: number) => 
+            getByWorkspace: (workspaceId: string, startDate?: number, endDate?: number) =>
                 ipcRenderer.invoke('db:session:getByWorkspace', workspaceId, startDate, endDate),
         },
     },
@@ -302,6 +302,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
         onStateChanged: (callback: (state: SyncState) => void) => {
             ipcRenderer.on('sync-state-changed', (_event, state) => callback(state))
         },
+    },
+
+    // ============================================
+    // Auth (SafeStorage)
+    // ============================================
+    auth: {
+        getToken: (key: string) => ipcRenderer.invoke('auth:get-token', key),
+        setToken: (key: string, token: string) => ipcRenderer.invoke('auth:set-token', key, token),
+        deleteToken: (key: string) => ipcRenderer.invoke('auth:delete-token', key),
     },
 
     // ============================================
@@ -460,6 +469,13 @@ declare global {
                 force: () => Promise<SyncState>
                 getQueueStats: () => Promise<SyncQueueStats>
                 onStateChanged: (callback: (state: SyncState) => void) => void
+            }
+
+            // Auth (SafeStorage)
+            auth: {
+                getToken: (key: string) => Promise<string | null>
+                setToken: (key: string, token: string) => Promise<boolean>
+                deleteToken: (key: string) => Promise<boolean>
             }
 
             // Timer Floating Window

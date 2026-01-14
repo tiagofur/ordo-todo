@@ -5,30 +5,30 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
  * Storage implementation of TokenStorage for Desktop Renderer.
- * Uses localStorage to avoid 'path' module issues in renderer process.
+ * Uses secure IPC communication with Main process (SafeStorage).
  */
 export class ElectronStoreTokenStorage implements TokenStorage {
-  getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+  async getToken(): Promise<string | null> {
+    return window.electronAPI.auth.getToken(TOKEN_KEY);
   }
 
-  setToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
+  async setToken(token: string): Promise<void> {
+    await window.electronAPI.auth.setToken(TOKEN_KEY, token);
   }
 
-  removeToken(): void {
-    localStorage.removeItem(TOKEN_KEY);
+  async removeToken(): Promise<void> {
+    await window.electronAPI.auth.deleteToken(TOKEN_KEY);
   }
 
-  getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  async getRefreshToken(): Promise<string | null> {
+    return window.electronAPI.auth.getToken(REFRESH_TOKEN_KEY);
   }
 
-  setRefreshToken(token: string): void {
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  async setRefreshToken(token: string): Promise<void> {
+    await window.electronAPI.auth.setToken(REFRESH_TOKEN_KEY, token);
   }
 
-  removeRefreshToken(): void {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  async removeRefreshToken(): Promise<void> {
+    await window.electronAPI.auth.deleteToken(REFRESH_TOKEN_KEY);
   }
 }

@@ -114,6 +114,11 @@ const mockElectronAPI = {
     requestPermission: vi.fn().mockResolvedValue(true),
     showNotification: vi.fn(),
   },
+  auth: {
+    getToken: vi.fn().mockResolvedValue(null),
+    setToken: vi.fn().mockResolvedValue(true),
+    deleteToken: vi.fn().mockResolvedValue(true),
+  },
   system: {
     getSystemInfo: vi.fn().mockResolvedValue({
       platform: 'darwin',
@@ -188,13 +193,23 @@ global.URL.createObjectURL = vi.fn(() => 'mocked-url');
 global.URL.revokeObjectURL = vi.fn();
 
 // Mock File
-global.File = vi.fn().mockImplementation((content, name, options) => ({
-  content,
-  name,
-  type: options?.type || 'text/plain',
-  size: content.length,
-  lastModified: Date.now(),
-}));
+// Mock File
+class MockFile {
+  content: any[];
+  name: string;
+  type: string;
+  size: number;
+  lastModified: number;
+
+  constructor(content: any[], name: string, options: any = {}) {
+    this.content = content;
+    this.name = name;
+    this.type = options?.type || 'text/plain';
+    this.size = new Blob(content).size; // handle partial content length correctly if possible
+    this.lastModified = Date.now();
+  }
+}
+global.File = MockFile as any;
 
 // Mock FileReader
 global.FileReader = vi.fn().mockImplementation(() => ({
@@ -210,6 +225,20 @@ Object.assign(global.FileReader, {
   LOADING: 1,
   DONE: 2,
 });
+
+// Mock DragEvent
+class MockDragEvent extends Event {
+  dataTransfer: any;
+  constructor(type: string, params: any = {}) {
+    super(type, params);
+    this.dataTransfer = params.dataTransfer || {
+      files: [],
+      items: [],
+      types: [],
+    };
+  }
+}
+global.DragEvent = MockDragEvent as any;
 
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {

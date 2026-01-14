@@ -105,6 +105,7 @@ export function setupIpcHandlers(mainWindow: BrowserWindow): void {
     'db:session:create', 'db:session:getByWorkspace',
     'sync:setAuthToken', 'sync:startAuto', 'sync:stopAuto', 'sync:setOnlineStatus',
     'sync:getState', 'sync:force', 'sync:getQueueStats',
+    'auth:set-token', 'auth:get-token', 'auth:delete-token',
   ];
 
   // Remove any existing handlers
@@ -396,6 +397,54 @@ export function setupIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('sync:getQueueStats', () => {
     return getSyncQueueStats()
+  })
+
+  // ============================================
+  // Auth (SafeStorage)
+  // ============================================
+
+  ipcMain.handle('auth:set-token', (_, key: string, token: string) => {
+    try {
+      if (app.isPackaged && process.platform !== 'linux' && require('electron').safeStorage.isEncryptionAvailable()) {
+        const encrypted = require('electron').safeStorage.encryptString(token)
+        store.set(`auth.${key}`, encrypted.toString('hex'))
+      } else {
+        // Fallback for dev/linux if needed (or just dev mode simplicity)
+        // In PROD this should ideally be strict, but for now fallback makes dev easier
+        store.set(`auth.${key}`, token)
+      }
+      return true
+    } catch (error) {
+      console.error('SafeStorage error:', error)
+      return false
+    }
+  })
+
+  ipcMain.handle('auth:get-token', (_, key: string) => {
+    try {
+      const stored = store.get(`auth.${key}`) as string
+      if (!stored) return null
+
+      if (app.isPackaged && process.platform !== 'linux' && require('electron').safeStorage.isEncryptionAvailable()) {
+        try {
+          const buffer = Buffer.from(stored, 'hex')
+          return require('electron').safeStorage.decryptString(buffer)
+        } catch {
+          // If decryption fails (maybe stored as plain text before?), try plain
+          return stored
+        }
+      } else {
+        return stored
+      }
+    } catch (error) {
+      console.error('SafeStorage read error:', error)
+      return null
+    }
+  })
+
+  ipcMain.handle('auth:delete-token', (_, key: string) => {
+    store.delete(`auth.${key}` as any)
+    return true
   })
 }
 

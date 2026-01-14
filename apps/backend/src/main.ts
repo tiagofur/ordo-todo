@@ -15,11 +15,15 @@ import {
   CorrelationIdMiddleware,
   correlationIdMiddleware,
 } from './common/middleware/correlation-id.middleware';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: WinstonModule.createLogger(loggerConfig),
   });
+
+  // Parse cookies
+  app.use(cookieParser());
 
   const configService = app.get(ConfigService);
   const httpAdapter = app.get(HttpAdapterHost);
