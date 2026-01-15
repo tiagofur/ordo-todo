@@ -51,7 +51,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         onSearchClick={() => setIsSearchOpen(true)}
         onAICopilotClick={() => {
           // Open AI Copilot - navigate to chat
-          router.push("/chat");
+          router.push("/ai-chat");
         }}
         renderNotifications={() => <NotificationPopover />}
         renderSyncStatus={() => <SyncStatusIndicator size="sm" />}

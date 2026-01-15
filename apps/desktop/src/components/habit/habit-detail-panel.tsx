@@ -130,7 +130,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-habits" />
           </div>
         ) : habit ? (
           <div className="space-y-6">
@@ -165,7 +165,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                         {t("Habits.status.paused", "Pausado")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-habits/10 text-habits">
                         <CheckCircle2 className="h-3 w-3" />
                         {t("Habits.status.active", "Ativo")}
                       </span>
@@ -232,14 +232,14 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
               </div>
 
               <div className="p-4 rounded-xl border bg-card">
-                <div className="flex items-center gap-2 text-emerald-500 mb-2">
+                <div className="flex items-center gap-2 text-habits mb-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="text-xs font-medium">
                     {t("Habits.stats.completionRate", "Taxa de sucesso")}
                   </span>
                 </div>
                 <p className="text-2xl font-bold">{stats?.completionRate || 0}%</p>
-                <p className="text-xs text-muted-foreground">taxa de sucesso</p>
+                <p className="text-xs text-muted-foreground">{t("Habits.stats.thisWeek", "Esta semana")}</p>
               </div>
             </div>
 
@@ -263,8 +263,10 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                   <div
                     key={day.date}
                     className={cn(
-                      "aspect-square rounded-sm transition-colors",
-                      day.completed ? "bg-emerald-500" : "bg-muted hover:bg-muted/80"
+                      "aspect-square rounded-sm transition-all duration-300",
+                      day.completed 
+                        ? "bg-habits shadow-sm shadow-habits/50 scale-110" 
+                        : "bg-muted/50 hover:bg-muted"
                     )}
                     title={day.date}
                   />
@@ -276,10 +278,18 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
             <div className="flex flex-col gap-2 pt-4 border-t">
               {isEditing ? (
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)}>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => setIsEditing(false)}
+                  >
                     {t("Habits.form.cancel", "Cancelar")}
                   </Button>
-                  <Button className="flex-1" onClick={handleSave} disabled={updateHabit.isPending}>
+                  <Button 
+                    className="flex-1 bg-habits hover:bg-habits/90 text-white font-semibold shadow-lg shadow-habits/25" 
+                    onClick={handleSave} 
+                    disabled={updateHabit.isPending}
+                  >
                     {updateHabit.isPending ? "..." : t("Habits.actions.edit", "Salvar")}
                   </Button>
                 </div>

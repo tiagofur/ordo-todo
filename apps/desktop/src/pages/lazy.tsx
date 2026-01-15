@@ -116,6 +116,10 @@ export const LazyTimerFloating = lazy(() =>
 
 export const LazyFocusMode = lazy(() => import('./FocusMode'));
 
+export const LazyCreatorHub = lazy(() =>
+  import('./CreatorHub').then(module => ({ default: module.CreatorHub }))
+);
+
 // ============================================
 // Preload Functions for Route Prefetching
 // ============================================
@@ -138,6 +142,7 @@ export const preloadPage = {
   settings: () => import('./Settings'),
   profile: () => import('./Profile'),
   auth: () => import('./Auth'),
+  creatorHub: () => import('./CreatorHub'),
 };
 
 /**

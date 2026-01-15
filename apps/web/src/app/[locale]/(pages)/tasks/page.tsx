@@ -101,11 +101,7 @@ function TasksPageContent() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: "#a855f7",
-                  boxShadow: `0 10px 15px -3px #a855f740, 0 4px 6px -4px #a855f740`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-tasks text-tasks-foreground shadow-lg shadow-tasks/25"
               >
                 <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -161,7 +157,7 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 transition-all duration-200",
                   viewMode === "list"
-                    ? "bg-purple-500/10 text-purple-500"
+                    ? "bg-tasks/10 text-tasks"
                     : "text-muted-foreground hover:bg-muted/50"
                 )}
                 title="Vista de lista"
@@ -173,7 +169,7 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 transition-all duration-200",
                   viewMode === "grid"
-                    ? "bg-purple-500/10 text-purple-500"
+                    ? "bg-tasks/10 text-tasks"
                     : "text-muted-foreground hover:bg-muted/50"
                 )}
                 title="Vista de cuadrícula"
@@ -186,11 +182,7 @@ function TasksPageContent() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-              style={{
-                backgroundColor: "#a855f7",
-                boxShadow: `0 10px 15px -3px #a855f740, 0 4px 6px -4px #a855f740`,
-              }}
+              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-tasks text-tasks-foreground shadow-lg shadow-tasks/25 transition-all duration-200 hover:shadow-xl hover:shadow-tasks/30"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t("newTask")}</span>
@@ -269,7 +261,7 @@ function TasksPageContent() {
             {hasActiveFilters ? (
               <button
                 onClick={() => setFilters({})}
-                className="flex items-center gap-2 rounded-xl bg-purple-500/10 text-purple-500 px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-purple-500/20"
+                className="flex items-center gap-2 rounded-xl bg-tasks/10 text-tasks px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-tasks/20"
               >
                 <X className="h-4 w-4" />
                 Limpiar filtros
@@ -277,7 +269,7 @@ function TasksPageContent() {
             ) : (
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105"
+                className="flex items-center gap-2 rounded-xl bg-tasks px-6 py-3 text-sm font-medium text-tasks-foreground shadow-lg shadow-tasks/25 transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-4 w-4" />
                 {t("newTask")}

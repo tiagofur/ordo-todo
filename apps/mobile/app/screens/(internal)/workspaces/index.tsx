@@ -2,29 +2,27 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Pressable,
   ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
-import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
+import { useDesignTokens } from "@/app/lib/use-design-tokens";
 import { useWorkspaces } from "@/app/lib/shared-hooks";
 import { Feather } from "@expo/vector-icons";
-import Animated, { FadeInDown } from "react-native-reanimated";
-import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
 import Card from "@/app/components/shared/card.component";
-import { useState } from "react";
-import type { Workspace } from "@ordo-todo/api-client";
 import { useWorkspaceStore } from "@/app/lib/stores";
 import { useTranslation } from "react-i18next";
+import { useMediaQuery } from "@/app/lib/hooks/use-media-query";
 
 export default function WorkspacesScreen() {
-  const colors = useThemeColors();
+  const { colors } = useDesignTokens();
   const { data: workspaces, isLoading } = useWorkspaces();
   const { setSelectedWorkspaceId } = useWorkspaceStore();
   const { t } = useTranslation();
+  const { isTablet } = useMediaQuery();
 
-  const handleWorkspacePress = (workspace: Workspace) => {
+  const handleWorkspacePress = (workspace: any) => {
     setSelectedWorkspaceId(workspace.id);
 
     // Navigate using username/slug pattern
@@ -33,114 +31,110 @@ export default function WorkspacesScreen() {
         `/screens/(internal)/${workspace.owner.username}/${workspace.slug}`,
       );
     } else {
-      // Fallback
       router.push(`/screens/(internal)/workspaces/${workspace.id}`);
     }
   };
 
   if (isLoading) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.center,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.section.workspaces} />
       </View>
     );
   }
 
+  const renderItem = ({ item: workspace, index }: { item: any, index: number }) => {
+    const workspaceColor = workspace.color || colors.section.workspaces;
+    return (
+      <Animated.View
+        entering={FadeInDown.delay(index * 100).springify()}
+        style={isTablet ? { flex: 1, marginHorizontal: 8 } : { marginHorizontal: 20 }}
+      >
+        <Card
+          onPress={() => handleWorkspacePress(workspace)}
+          style={styles.workspaceCard}
+          padding={16}
+        >
+          <View style={styles.cardHeader}>
+            <View
+              style={[
+                styles.iconBox,
+                { backgroundColor: workspaceColor, shadowColor: workspaceColor, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+              ]}
+            >
+              <Feather
+                name="briefcase"
+                size={24}
+                color="#FFF"
+              />
+            </View>
+            <View style={styles.cardInfo}>
+              <Text style={[styles.workspaceName, { color: colors.foreground }]}>
+                {workspace.name}
+              </Text>
+              {workspace.description && (
+                <Text
+                  style={[styles.workspaceDescription, { color: colors.mutedForeground }]}
+                  numberOfLines={2}
+                >
+                  {workspace.description}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.cardFooter}>
+            {workspace.owner?.username ? (
+              <Text style={[styles.username, { color: colors.mutedForeground }]}>
+                @{workspace.owner.username}
+              </Text>
+            ) : (
+              <View /> 
+            )}
+          </View>
+        </Card>
+      </Animated.View>
+    );
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <LinearGradient
-        colors={[colors.primary, colors.primaryLight]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>{t("Mobile.workspaces.title")} 🏢</Text>
-        </Animated.View>
-      </LinearGradient>
-
-      {/* Workspaces List */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {workspaces?.length === 0 ? (
+       <Animated.FlatList
+        key={isTablet ? 'tablet' : 'mobile'}
+        numColumns={isTablet ? 2 : 1}
+        columnWrapperStyle={isTablet ? { gap: 0, paddingHorizontal: 12 } : undefined}
+        itemLayoutAnimation={LinearTransition}
+        data={workspaces}
+        contentContainerStyle={styles.listContent}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <View style={styles.headerContainer}>
+            <View style={styles.headerMain}>
+              <View style={[styles.headerIcon, { backgroundColor: colors.section.workspaces, shadowColor: colors.section.workspaces, shadowOpacity: 0.3, shadowRadius: 10, elevation: 5 }]}>
+                <Feather name="briefcase" size={26} color="#FFF" />
+              </View>
+              <View>
+                <Text style={[styles.headerTitle, { color: colors.foreground }]}>{t("Mobile.workspaces.title")}</Text>
+                <Text style={[styles.headerSubtitle, { color: colors.mutedForeground }]}>
+                  Tus espacios de colaboración
+                </Text>
+              </View>
+            </View>
+          </View>
+        }
+        renderItem={renderItem}
+        ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Feather
-              name="briefcase"
-              size={64}
-              color={colors.textMuted}
-              style={{ opacity: 0.5 }}
-            />
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            <View style={[styles.emptyIconContainer, { backgroundColor: colors.muted }]}>
+                <Feather name="briefcase" size={48} color={colors.mutedForeground} />
+            </View>
+            <Text style={[styles.emptyText, { color: colors.foreground }]}>
               {t("Mobile.workspaces.noWorkspaces")}
             </Text>
           </View>
-        ) : (
-          workspaces?.map((workspace: Workspace, index: number) => {
-            const workspaceColor = workspace.color || "#06b6d4";
-            return (
-              <Animated.View
-                key={workspace.id}
-                entering={FadeInDown.delay(200 + index * 100).springify()}
-              >
-                <Card
-                  onPress={() => handleWorkspacePress(workspace)}
-                  style={styles.workspaceCard}
-                >
-                  <View style={styles.cardHeader}>
-                    <View
-                      style={[
-                        styles.iconBox,
-                        { backgroundColor: `${workspaceColor}20` },
-                      ]}
-                    >
-                      <Feather
-                        name="briefcase"
-                        size={24}
-                        color={workspaceColor}
-                      />
-                    </View>
-                    <View style={styles.cardInfo}>
-                      <Text
-                        style={[styles.workspaceName, { color: colors.text }]}
-                      >
-                        {workspace.name}
-                      </Text>
-                      {workspace.description && (
-                        <Text
-                          style={[
-                            styles.workspaceDescription,
-                            { color: colors.textSecondary },
-                          ]}
-                          numberOfLines={2}
-                        >
-                          {workspace.description}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-
-                  <View style={styles.cardFooter}>
-                    {workspace.owner?.username && (
-                      <Text
-                        style={[styles.username, { color: colors.textMuted }]}
-                      >
-                        @{workspace.owner.username}
-                      </Text>
-                    )}
-                  </View>
-                </Card>
-              </Animated.View>
-            );
-          })
-        )}
-        <View style={{ height: 100 }} />
-      </ScrollView>
+        }
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
@@ -153,84 +147,105 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {
+  listContent: {
+    paddingBottom: 100,
+  },
+  headerContainer: {
+    padding: 24,
     paddingTop: 20,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    marginBottom: 8,
   },
-  greeting: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    fontWeight: "600",
-    opacity: 0.9,
+  headerMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "800",
-    color: "#FFFFFF",
-    marginTop: 4,
+  headerIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.5
   },
-  emptyState: {
-    padding: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  emptyText: {
-    fontSize: 16,
-    marginTop: 16,
+  headerSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 2
   },
   workspaceCard: {
     marginBottom: 16,
-    padding: 16,
   },
   cardHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 12,
+    alignItems: "center",
+    marginBottom: 16,
   },
   iconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 52,
+    height: 52,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 16,
   },
   cardInfo: {
     flex: 1,
   },
   workspaceName: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "800",
     marginBottom: 4,
   },
   workspaceDescription: {
     fontSize: 14,
     lineHeight: 20,
+    fontWeight: '500'
   },
   cardFooter: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.03)'
   },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  typeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 8,
   },
-  badgeText: {
-    fontSize: 12,
+  typeText: {
+    fontSize: 11,
     fontWeight: "700",
+    textTransform: 'uppercase'
   },
   username: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
+  },
+  emptyState: {
+    padding: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16
+  },
+  emptyIconContainer: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 8
+  },
+  emptyText: {
+    fontSize: 20,
+    fontWeight: "800",
+    textAlign: 'center'
   },
 });

@@ -54,6 +54,19 @@ import type {
   UpdateNoteDto,
 } from '@ordo-todo/api-client';
 
+import type {
+  Idea,
+  CreateIdeaDto,
+  UpdateIdeaDto,
+  ContentPiece,
+  CreateContentPieceDto,
+  UpdateContentPieceDto,
+  CreateSocialPostDto,
+  UpdateSocialPostDto,
+  BulkScheduleDto,
+  ContentPlatform,
+} from './types';
+
 import { queryKeys } from './query-keys';
 import type { ApiClient, CreateHooksConfig } from './types';
 import { createNotesHooks } from './notes/use-notes';
@@ -1626,6 +1639,309 @@ export function createHooks(config: CreateHooksConfig) {
     useDeleteNote
   } = createNotesHooks(apiClient);
 
+  // ============ CREATOR OS - IDEAS HOOKS ============
+
+  function useIdeas(params?: { status?: string; search?: string; page?: number; limit?: number }) {
+    return useQuery({
+      queryKey: queryKeys.ideas(params),
+      queryFn: () => apiClient.getIdeas(params ?? {}),
+    });
+  }
+
+  function useIdea(id: string) {
+    return useQuery({
+      queryKey: queryKeys.idea(id),
+      queryFn: () => apiClient.getIdea(id),
+      enabled: !!id,
+    });
+  }
+
+  function useCreateIdea() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: CreateIdeaDto) => apiClient.createIdea(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      },
+    });
+  }
+
+  function useUpdateIdea() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ id, data }: { id: string; data: UpdateIdeaDto }) =>
+        apiClient.updateIdea(id, data),
+      onSuccess: (_, { id }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.idea(id) });
+        queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      },
+    });
+  }
+
+  function useDeleteIdea() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (id: string) => apiClient.deleteIdea(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      },
+    });
+  }
+
+  function useArchiveIdea() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (id: string) => apiClient.archiveIdea(id),
+      onSuccess: (_, id) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.idea(id as string) });
+        queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      },
+    });
+  }
+
+  // ============ CREATOR OS - CONTENT PIECES HOOKS ============
+
+  function useContentPieces(params?: {
+    status?: string;
+    seriesId?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    return useQuery({
+      queryKey: queryKeys.contentPieces(params),
+      queryFn: () => apiClient.getContentPieces(params ?? {}),
+    });
+  }
+
+  function useContentPiece(id: string) {
+    return useQuery({
+      queryKey: queryKeys.contentPiece(id),
+      queryFn: () => apiClient.getContentPiece(id),
+      enabled: !!id,
+    });
+  }
+
+  function useContentPipeline() {
+    return useQuery({
+      queryKey: queryKeys.contentPipeline(),
+      queryFn: () => apiClient.getContentPipeline(),
+    });
+  }
+
+  function useCreateContentPiece() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: CreateContentPieceDto) => apiClient.createContentPiece(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+        queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      },
+    });
+  }
+
+  function usePromoteFromIdea() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ ideaId, data }: { ideaId: string; data: CreateContentPieceDto }) =>
+        apiClient.promoteFromIdea(ideaId, data),
+      onSuccess: (_, { ideaId }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.idea(ideaId) });
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+        queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      },
+    });
+  }
+
+  function useUpdateContentPiece() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ id, data }: { id: string; data: UpdateContentPieceDto }) =>
+        apiClient.updateContentPiece(id, data),
+      onSuccess: (_, { id }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.contentPiece(id) });
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+      },
+    });
+  }
+
+  function useUpdateContentStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ id, status }: { id: string; status: string }) =>
+        apiClient.updateContentStatus(id, status),
+      onSuccess: (_, { id }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.contentPiece(id) });
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.contentPipeline() });
+      },
+    });
+  }
+
+  function useDeleteContentPiece() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (id: string) => apiClient.deleteContentPiece(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+      },
+    });
+  }
+
+  // ============ CREATOR OS - PUBLISHING HOOKS ============
+
+  function useCreateSocialPost() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: CreateSocialPostDto) => apiClient.createSocialPost(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['publishing'] });
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+      },
+    });
+  }
+
+  function useBulkSchedulePosts() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: BulkScheduleDto) => apiClient.bulkSchedulePosts(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['publishing'] });
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+      },
+    });
+  }
+
+  function useScheduledPosts(params?: {
+    from?: string;
+    to?: string;
+    platform?: ContentPlatform;
+    page?: number;
+    limit?: number;
+  }) {
+    return useQuery({
+      queryKey: queryKeys.scheduledPosts(params),
+      queryFn: () => apiClient.getScheduledPosts(params ?? {}),
+    });
+  }
+
+  function usePublishingCalendar(startDate: string, endDate: string) {
+    return useQuery({
+      queryKey: queryKeys.publishingCalendar(startDate, endDate),
+      queryFn: () => apiClient.getPublishingCalendar(startDate, endDate),
+      enabled: !!startDate && !!endDate,
+    });
+  }
+
+  function usePostsByContentPiece(contentPieceId: string) {
+    return useQuery({
+      queryKey: queryKeys.contentPiecePosts(contentPieceId),
+      queryFn: () => apiClient.getPostsByContentPiece(contentPieceId),
+      enabled: !!contentPieceId,
+    });
+  }
+
+  function useSocialPost(id: string) {
+    return useQuery({
+      queryKey: queryKeys.socialPost(id),
+      queryFn: () => apiClient.getSocialPost(id),
+      enabled: !!id,
+    });
+  }
+
+  function useUpdateSocialPost() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ id, data }: { id: string; data: UpdateSocialPostDto }) =>
+        apiClient.updateSocialPost(id, data),
+      onSuccess: (_, { id }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.socialPost(id) });
+        queryClient.invalidateQueries({ queryKey: ['publishing'] });
+      },
+    });
+  }
+
+  function useSchedulePost() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: ({ id, scheduledAt }: { id: string; scheduledAt: string }) =>
+        apiClient.schedulePost(id, scheduledAt),
+      onSuccess: (_, { id }) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.socialPost(id) });
+        queryClient.invalidateQueries({ queryKey: ['publishing'] });
+      },
+    });
+  }
+
+  function useUnschedulePost() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (id: string) => apiClient.unschedulePost(id),
+      onSuccess: (_, id) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.socialPost(id) });
+        queryClient.invalidateQueries({ queryKey: ['publishing'] });
+      },
+    });
+  }
+
+  function useDeleteSocialPost() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (id: string) => apiClient.deleteSocialPost(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['publishing'] });
+        queryClient.invalidateQueries({ queryKey: ['content'] });
+      },
+    });
+  }
+
+  // ============ CREATOR OS - SERIES HOOKS ============
+
+  function useSeries() {
+    return useQuery({
+      queryKey: ['series'],
+      queryFn: () => apiClient.getSeries(),
+    });
+  }
+
+  function useSeriesById(id: string) {
+    return useQuery({
+      queryKey: ['series', id],
+      queryFn: () => apiClient.getSeriesById(id),
+      enabled: !!id,
+    });
+  }
+
+  function useCreateSeries() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: (data: any) => apiClient.createSeries(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['series'] });
+      },
+    });
+  }
+
+
+
+
+
   // Return all hooks
 
   return {
@@ -1795,6 +2111,41 @@ export function createHooks(config: CreateHooksConfig) {
     useCreateNote,
     useUpdateNote,
     useDeleteNote,
+
+    // Creator OS - Ideas
+    useIdeas,
+    useIdea,
+    useCreateIdea,
+    useUpdateIdea,
+    useDeleteIdea,
+    useArchiveIdea,
+
+    // Creator OS - Content Pieces
+    useContentPieces,
+    useContentPiece,
+    useContentPipeline,
+    useCreateContentPiece,
+    usePromoteFromIdea,
+    useUpdateContentPiece,
+    useUpdateContentStatus,
+    useDeleteContentPiece,
+
+    // Creator OS - Series
+    useSeries,
+    useSeriesById,
+    useCreateSeries,
+
+    // Creator OS - Publishing
+    useCreateSocialPost,
+    useBulkSchedulePosts,
+    useScheduledPosts,
+    usePublishingCalendar,
+    usePostsByContentPiece,
+    useSocialPost,
+    useUpdateSocialPost,
+    useSchedulePost,
+    useUnschedulePost,
+    useDeleteSocialPost,
 
     // Utilities
 

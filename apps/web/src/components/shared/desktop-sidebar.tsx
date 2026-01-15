@@ -15,6 +15,8 @@ import {
   MessageSquare,
   Heart,
   Users,
+  Zap,
+  Bot,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
@@ -43,6 +45,8 @@ export function DesktopSidebar() {
 
   const navItems: NavItem[] = [
     { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
+    { name: "Creator OS", href: "/creator", icon: Zap, color: "yellow" },
+    { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
     { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
     { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
     { name: t("goals"), href: "/goals", icon: Target, color: "pink" },

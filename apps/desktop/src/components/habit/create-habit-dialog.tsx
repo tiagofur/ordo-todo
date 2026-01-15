@@ -166,9 +166,9 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                   type="button"
                   onClick={() => setValue("frequency", f.value as any)}
                   className={cn(
-                    "flex-1 py-2 rounded-lg text-sm font-medium transition-colors",
+                    "flex-1 py-2 rounded-lg text-sm font-medium transition-all shadow-sm",
                     currentFrequency === f.value
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-[#10B981] text-white shadow-[#10B981]/25 shadow-lg"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
@@ -199,9 +199,9 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                         }
                       }}
                       className={cn(
-                        "flex-1 py-2 rounded-lg text-sm font-medium transition-colors",
+                        "flex-1 py-2 rounded-lg text-sm font-medium transition-all shadow-sm",
                         isSelected
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-[#10B981] text-white shadow-[#10B981]/25 shadow-lg"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       )}
                     >
@@ -223,9 +223,9 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                   type="button"
                   onClick={() => setValue("timeOfDay", time.value as any)}
                   className={cn(
-                    "flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-colors border",
+                    "flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-all border shadow-sm",
                     currentTimeOfDay === time.value
-                      ? "bg-primary/10 text-primary border-primary"
+                      ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30"
                       : "bg-muted text-muted-foreground border-transparent hover:bg-muted/80"
                   )}
                 >
@@ -269,7 +269,11 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Habits.form.cancel", "Cancelar")}
             </Button>
-            <Button type="submit" disabled={createHabitMutation.isPending}>
+            <Button 
+              type="submit" 
+              disabled={createHabitMutation.isPending}
+              className="bg-[#10B981] hover:bg-[#10B981]/90 text-white shadow-lg shadow-[#10B981]/25"
+            >
               {createHabitMutation.isPending 
                 ? t("Habits.form.creating", "Criando...") 
                 : t("Habits.form.create", "Criar Hábito")}

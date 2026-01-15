@@ -21,5 +21,6 @@ export * from './custom-field.types';
 export * from './wellbeing.types';
 export * from './workload.types';
 export * from './note.types';
+export * from './creator.types';
 export * from './search.types';
 //# sourceMappingURL=index.d.ts.map

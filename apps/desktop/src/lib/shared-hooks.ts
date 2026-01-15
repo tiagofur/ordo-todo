@@ -177,6 +177,41 @@ export const {
     useUpdateNote,
     useDeleteNote,
 
+    // ============ CREATOR OS - IDEAS ============
+    useIdeas,
+    useIdea,
+    useCreateIdea,
+    useUpdateIdea,
+    useDeleteIdea,
+    useArchiveIdea,
+
+    // ============ CREATOR OS - CONTENT PIECES ============
+    useContentPieces,
+    useContentPiece,
+    useContentPipeline,
+    useCreateContentPiece,
+    usePromoteFromIdea,
+    useUpdateContentPiece,
+    useUpdateContentStatus,
+    useDeleteContentPiece,
+
+    // ============ CREATOR OS - SERIES ============
+    useSeries,
+    useSeriesById,
+    useCreateSeries,
+
+    // ============ CREATOR OS - PUBLISHING ============
+    useCreateSocialPost,
+    useBulkSchedulePosts,
+    useScheduledPosts,
+    usePublishingCalendar,
+    usePostsByContentPiece,
+    useSocialPost,
+    useUpdateSocialPost,
+    useSchedulePost,
+    useUnschedulePost,
+    useDeleteSocialPost,
+
     // ============ UTILITIES ============
     invalidateAllTasks,
 

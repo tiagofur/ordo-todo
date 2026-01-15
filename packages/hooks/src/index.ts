@@ -77,7 +77,6 @@ export {
 } from './use-username-validation';
 
 // Validation schemas
-// Validation schemas
 export {
   taskBaseSchema,
   createTaskSchema,
@@ -92,3 +91,17 @@ export {
   WORKSPACE_LIMITS,
   MEMBER_ROLES,
 } from './schemas';
+
+// Dashboard composite hook
+export {
+  createUseDashboardData,
+  type DashboardStats,
+  type DashboardStreak,
+  type DashboardObjective,
+  type DashboardObjectivesSummary,
+  type DashboardHabit,
+  type DashboardHabitsSummary,
+  type DashboardTask,
+  type DashboardData,
+} from './dashboard/use-dashboard-data';
+

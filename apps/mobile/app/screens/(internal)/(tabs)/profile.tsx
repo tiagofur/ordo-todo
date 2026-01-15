@@ -120,7 +120,7 @@ export default function Profile() {
     }
 
     opts.push(
-      { icon: "settings", label: t('Mobile.profileOptions.settings'), color: "#4299E1" },
+      { icon: "settings", label: t('Mobile.profileOptions.settings'), color: "#4299E1", route: "/screens/(internal)/settings" },
       { icon: "help-circle", label: t('Mobile.profileOptions.help'), color: "#48BB78" },
       { icon: "info", label: t('Mobile.profileOptions.about'), color: "#ED8936" }
     );

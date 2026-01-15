@@ -182,9 +182,9 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                     key={f.value}
                     type="button"
                     onClick={() => setValue("frequency", f.value as any)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       currentFrequency === f.value
-                        ? "bg-primary text-primary-foreground shadow-md"
+                        ? "bg-habits text-white shadow-lg shadow-habits/25"
                         : "bg-muted/50 text-muted-foreground hover:bg-muted"
                     }`}
                   >
@@ -237,9 +237,9 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                     key={time.value}
                     type="button"
                     onClick={() => setValue("timeOfDay", time.value as any)}
-                    className={`flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-colors duration-200 ${
+                    className={`flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-all duration-200 ${
                       currentTimeOfDay === time.value
-                        ? "bg-primary/10 text-primary border border-primary"
+                        ? "bg-habits/10 text-habits border border-habits/30"
                         : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
                     }`}
                   >
@@ -300,7 +300,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               type="submit"
               form="habit-form"
               disabled={createHabitMutation.isPending}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              className="inline-flex items-center justify-center rounded-md text-sm font-semibold transition-all hover:scale-105 disabled:pointer-events-none disabled:opacity-50 bg-habits text-white shadow-lg shadow-habits/25 h-10 px-6 py-2"
             >
               {createHabitMutation.isPending ? t("form.creating") : t("form.create")}
             </button>

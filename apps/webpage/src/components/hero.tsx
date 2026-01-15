@@ -74,14 +74,14 @@ export function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
               </span>
-              <span className="text-sm font-medium">{t('badge')}</span>
+              <span className="text-sm font-medium">Ordo: The Creator's OS</span>
             </motion.div>
 
             {/* Main Heading */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15]">
-              <span className="block text-foreground">{t('title')}</span>
-              <span className="block mt-2 text-[#EC4899]">
-                {t('highlight')}
+              <span className="block text-foreground">Stop Losing Ideas.</span>
+              <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-[#d946ef] to-[#0ea5e9] drop-shadow-[0_0_15px_rgba(217,70,239,0.3)]">
+                Ship With Consistency.
               </span>
             </h1>
 
@@ -92,7 +92,7 @@ export function Hero() {
               transition={{ delay: 0.4 }}
               className="mt-8 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0"
             >
-              {t('description')}
+              The Operating System for chaotic content creators. Turn your scattered ideas into a published content pipeline. No more "Notes app" graveyards.
             </motion.p>
 
             {/* Feature Pills */}
@@ -102,19 +102,20 @@ export function Hero() {
               transition={{ delay: 0.5 }}
               className="flex flex-wrap justify-center lg:justify-start gap-3 mt-8"
             >
-              {['pomodoro', 'ai', 'cross'].map((key, i) => {
+              {['Content Pipeline', 'Idea Graveyard', 'AI Remix'].map((label, i) => {
                 const colors = ['#06B6D4', '#A855F7', '#F97316'];
                 return (
                   <div 
-                    key={key} 
-                    className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+                    key={label}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-current"
                     style={{ 
-                      backgroundColor: `${colors[i]}15`,
-                      color: colors[i]
+                      backgroundColor: `${colors[i]}10`,
+                      color: colors[i],
+                      borderColor: `${colors[i]}30`
                     }}
                   >
                     <CheckCircle2 className="h-4 w-4" style={{ color: colors[i] }} />
-                    <span>{t(`features.${key}`)}</span>
+                    <span>{label}</span>
                   </div>
                 );
               })}
@@ -130,9 +131,9 @@ export function Hero() {
               <a href="https://ordotodo.app/register" target="_blank" rel="noreferrer">
                 <Button 
                   size="lg" 
-                  className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-[#06B6D4] hover:bg-[#0891B2] text-white border-0 shadow-lg shadow-[#06B6D4]/30 transition-all duration-300 group"
+                  className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-[#d946ef] hover:bg-[#c026d3] text-white border-0 shadow-[0_0_20px_rgba(217,70,239,0.4)] transition-all duration-300 group"
                 >
-                  {t('cta_primary')}
+                  Start Creating Free
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
@@ -140,10 +141,10 @@ export function Hero() {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="w-full sm:w-auto h-14 px-8 text-lg font-semibold border-2 border-[#EC4899] text-[#EC4899] hover:bg-[#EC4899] hover:text-white group"
+                  className="w-full sm:w-auto h-14 px-8 text-lg font-semibold border border-[#0ea5e9] text-[#0ea5e9] hover:bg-[#0ea5e9]/10 hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] group"
                 >
                   <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                  {t('cta_secondary')}
+                  See the Manifesto
                 </Button>
               </Link>
             </motion.div>

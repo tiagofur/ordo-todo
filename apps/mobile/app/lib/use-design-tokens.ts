@@ -11,7 +11,8 @@ import {
     tagColors,
     priorityColors,
     statusColors,
-    timerColors
+    timerColors,
+    sectionColors
 } from './design-tokens';
 
 /**
@@ -31,6 +32,7 @@ export function useDesignTokens() {
             priority: priorityColors,
             status: statusColors,
             timer: timerColors,
+            section: sectionColors,
         },
         spacing,
         borderRadius,

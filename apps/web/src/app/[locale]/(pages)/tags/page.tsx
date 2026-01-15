@@ -31,7 +31,30 @@ export default function TagsPage() {
   const { mutateAsync: createTag } = useCreateTag();
   const { mutateAsync: updateTag } = useUpdateTag();
   
-  const accentColor = "#22c55e"; // Green
+  const accentColor = "#6366f1"; // Indigo
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 100,
+        damping: 12
+      },
+    },
+  };
 
   // Calculate task count for each tag
   const getTaskCount = (tagId: string) => {
@@ -70,36 +93,59 @@ export default function TagsPage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <motion.div
-                initial={{ rotate: -10, scale: 0.9 }}
-                animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40` }}
-              >
-                <TagIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-              </motion.div>
-              {t('title')}
-            </h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
-              {t('subtitle')}
-            </p>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-8"
+      >
+        {/* Premium Iconic Header */}
+        <motion.div 
+          variants={itemVariants}
+          className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card p-8 rounded-[2.5rem] border border-border/50 shadow-sm relative overflow-hidden group"
+        >
+          {/* Background Decorations */}
+          <div 
+            className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" 
+            style={{ backgroundColor: `${accentColor}10` }}
+          />
+          <div 
+            className="absolute bottom-0 left-0 w-24 h-24 rounded-full -ml-12 -mb-12 transition-transform group-hover:scale-110" 
+            style={{ backgroundColor: `${accentColor}10` }}
+          />
+
+          <div className="flex items-center gap-6 relative z-10">
+            <motion.div
+              initial={{ rotate: -10, scale: 0.9 }}
+              animate={{ rotate: 3, scale: 1 }}
+              whileHover={{ rotate: 0, scale: 1.05 }}
+              className="flex h-20 w-20 items-center justify-center rounded-[2rem] text-white shadow-xl shrink-0 transition-transform duration-500"
+              style={{ backgroundColor: accentColor, boxShadow: `0 20px 25px -5px ${accentColor}40` }}
+            >
+              <TagIcon className="h-10 w-10" />
+            </motion.div>
+
+            <div className="flex-1 min-w-0">
+              <h1 className="text-4xl font-black tracking-tight text-foreground truncate">
+                {t('title')}
+              </h1>
+              <p className="text-muted-foreground text-lg mt-1 font-medium line-clamp-1">
+                {t('subtitle')}
+              </p>
+            </div>
           </div>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenCreateDialog}
-            style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40` }}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
+            style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40` }}
+            className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition-all duration-200 shadow-lg relative z-10"
           >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('newTag')}</span>
+            <Plus className="h-5 w-5" />
+            <span>{t('newTag')}</span>
           </motion.button>
-        </div>
+        </motion.div>
 
         {/* Tags Grid */}
         {isLoading ? (
@@ -109,35 +155,38 @@ export default function TagsPage() {
             ))}
           </div>
         ) : tags && tags.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {tags.map((tag: any, index: number) => {
+          <motion.div 
+            variants={containerVariants}
+            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          >
+            {tags.map((tag: any) => {
               const taskCount = getTaskCount(tag.id);
               return (
                 <motion.div
                   key={tag.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  variants={itemVariants}
                   whileHover={{ y: -5, scale: 1.02 }}
                   onClick={() => handleTagClick(tag.id)}
                   className={cn(
-                    "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer",
+                    "group relative overflow-hidden rounded-[2rem] border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer",
                     "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
                   )}
-                  style={{ borderLeftWidth: "4px", borderLeftColor: tag.color || accentColor }}
+                  style={{ borderLeftWidth: "6px", borderLeftColor: tag.color || accentColor }}
                 >
                   <div className="relative z-10 flex flex-col h-full">
                     <div className="flex items-start justify-between gap-4 mb-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         <div
                           className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                           style={{ backgroundColor: `${tag.color || accentColor}15`, color: tag.color || accentColor }}
                         >
                           <TagIcon className="h-7 w-7" />
                         </div>
-                        <h3 className="font-bold text-xl leading-tight truncate max-w-[150px]">
-                          {tag.name}
-                        </h3>
+                        <div>
+                            <h3 className="font-bold text-xl leading-tight truncate max-w-[150px]">
+                              {tag.name}
+                            </h3>
+                        </div>
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -157,50 +206,54 @@ export default function TagsPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
+                    
                     <div className="mt-auto pt-4 border-t border-dashed border-border/50">
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <CheckSquare className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium" style={{ color: tag.color || accentColor }}>
-                          {taskCount}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {taskCount === 1 ? t('task') : t('tasks')}
-                        </span>
+                      <div className="flex items-center gap-2 text-sm justify-between">
+                        <div className="flex items-center gap-2">
+                             <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                             <span className="text-muted-foreground font-medium">
+                               {taskCount} {taskCount === 1 ? t('task') : t('tasks')}
+                             </span>
+                        </div>
+                        {tag.description && (
+                            <span className="text-xs text-muted-foreground truncate max-w-[100px] opacity-70">
+                                {tag.description}
+                            </span>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 pointer-events-none"
+                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 pointer-events-none transition-opacity group-hover:opacity-10"
                     style={{ backgroundColor: tag.color || accentColor }}
                   />
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-16 px-4 text-center"
+            variants={itemVariants}
+            className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-[2.5rem] bg-muted/20 border-2 border-dashed border-border/50"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
-              <TagIcon className="h-12 w-12 text-muted-foreground" />
+            <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-muted/50 mb-6 group">
+              <TagIcon className="h-12 w-12 text-muted-foreground transition-transform group-hover:rotate-12 duration-300" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">{t('noTags')}</h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
+            <h3 className="text-xl font-bold mb-2">{t('noTags')}</h3>
+            <p className="text-muted-foreground mb-8 max-w-md text-lg leading-relaxed">
               {t('noTagsDescription')}
             </p>
             <button
               onClick={handleOpenCreateDialog}
-              style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40` }}
-              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
+              style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40` }}
+              className="flex items-center gap-2 rounded-xl px-8 py-4 text-base font-bold text-white transition-all duration-200 hover:scale-105 hover:shadow-xl"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-5 w-5" />
               {t('createTag')}
             </button>
           </motion.div>
         )}
-      </div>
+      </motion.div>
 
       <CreateTagDialog
         open={showCreateTag}

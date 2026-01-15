@@ -39,9 +39,6 @@ const HabitDetailPanel = dynamic(
 );
 
 
-const accentColor = "#10B981"; // Emerald
-
-
 export default function HabitsPage() {
   const t = useTranslations("Habits");
   const format = useFormatter();
@@ -55,28 +52,28 @@ export default function HabitsPage() {
     {
       id: 'welcome',
       icon: Sparkles,
-      color: '#10B981',
+      color: '#10B981', // Emerald
       title: t('onboarding.welcome.title'),
       description: t('onboarding.welcome.description'),
     },
     {
       id: 'streaks',
       icon: Flame,
-      color: '#f59e0b',
+      color: '#f59e0b', // Amber
       title: t('onboarding.streaks.title'),
       description: t('onboarding.streaks.description'),
     },
     {
       id: 'reminders',
       icon: Bell,
-      color: '#8b5cf6',
+      color: '#8b5cf6', // Violet
       title: t('onboarding.reminders.title'),
       description: t('onboarding.reminders.description'),
     },
     {
       id: 'gamification',
       icon: Zap,
-      color: '#06b6d4',
+      color: '#06b6d4', // Cyan
       title: t('onboarding.gamification.title'),
       description: t('onboarding.gamification.description'),
     },
@@ -123,7 +120,6 @@ export default function HabitsPage() {
     }
   };
 
-
   // Stats cards
   const statCards = [
     {
@@ -131,7 +127,7 @@ export default function HabitsPage() {
       value: `${summary.completed}/${summary.total}`,
       subtitle: `${summary.percentage}%`,
       icon: Target,
-      color: accentColor,
+      color: "#10B981",
     },
     {
       title: t("stats.currentStreak"),
@@ -159,40 +155,35 @@ export default function HabitsPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <motion.div
-                initial={{ rotate: -10, scale: 0.9 }}
-                animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
-              >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
-              </motion.div>
-              {t("title")}
-            </h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
-              {t("subtitle")}
-            </p>
+        {/* Header - Standard Iconic Design */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <motion.div
+              initial={{ rotate: -10, scale: 0.9 }}
+              animate={{ rotate: 0, scale: 1 }}
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-habits text-white shadow-lg shadow-habits/25 shrink-0"
+            >
+              <Sparkles className="h-7 w-7" />
+            </motion.div>
+
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl font-bold tracking-tight truncate">
+                {t("title")}
+              </h1>
+              <p className="text-muted-foreground mt-1 line-clamp-1">
+                {t("subtitle")}
+              </p>
+            </div>
           </div>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateHabit(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-            }}
+            className="flex items-center justify-center gap-2 rounded-xl bg-habits px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-habits/25 transition-all duration-200"
           >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("newHabit")}</span>
+            <Plus className="h-5 w-5" />
+            <span>{t("newHabit")}</span>
           </motion.button>
         </div>
 
@@ -246,7 +237,7 @@ export default function HabitsPage() {
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">{t("todayProgress")}</h3>
-              <span className="text-sm font-medium" style={{ color: accentColor }}>
+              <span className="text-sm font-medium text-habits">
                 {summary.percentage}%
               </span>
             </div>
@@ -255,8 +246,7 @@ export default function HabitsPage() {
                 initial={{ width: 0 }}
                 animate={{ width: `${summary.percentage}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="h-full rounded-full"
-                style={{ backgroundColor: accentColor }}
+                className="h-full rounded-full bg-habits"
               />
             </div>
             <p className="text-sm text-muted-foreground mt-2">
@@ -298,11 +288,7 @@ export default function HabitsPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowCreateHabit(true)}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex items-center gap-2 rounded-xl bg-habits px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-habits/25 transition-all duration-200"
               >
                 <Plus className="h-4 w-4" />
                 {t("createHabit")}
@@ -359,7 +345,7 @@ export default function HabitsPage() {
                       {/* Habit Icon & Info */}
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-105"
-                        style={{ backgroundColor: habit.color || accentColor }}
+                        style={{ backgroundColor: habit.color || "#10B981" }}
                       >
                         <Sparkles className="h-5 w-5" />
                       </div>

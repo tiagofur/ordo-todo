@@ -65,18 +65,28 @@ export function NotificationPopover() {
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between p-4 border-b">
           <h4 className="font-semibold text-sm">{t('title')}</h4>
-          {(unreadCount as number) > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-primary"
-              onClick={handleMarkAllAsRead}
-              disabled={markAllAsRead.isPending}
-            >
-              <CheckCheck className="mr-1 h-3 w-3" />
-              {t('markAllRead')}
-            </Button>
-          )}
+          <div className="flex gap-2">
+             <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-primary"
+                onClick={() => window.location.href = '/notifications'}
+             >
+               View All
+             </Button>
+             {(unreadCount as number) > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-primary"
+                  onClick={handleMarkAllAsRead}
+                  disabled={markAllAsRead.isPending}
+                >
+                  <CheckCheck className="mr-1 h-3 w-3" />
+                  {t('markAllRead')}
+                </Button>
+             )}
+          </div>
         </div>
         
         <ScrollArea className="h-[300px]">

@@ -22,7 +22,6 @@ export default function ProjectsPage() {
   const t = useTranslations('Projects');
   const [showCreateProject, setShowCreateProject] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
-  const accentColor = "#ec4899"; // Pink
 
   const { data: projects, isLoading } = useProjects(selectedWorkspaceId as string);
   const { mutateAsync: createProject } = useCreateProject();
@@ -40,11 +39,7 @@ export default function ProjectsPage() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-projects text-projects-foreground shadow-lg shadow-projects/25"
               >
                 <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -58,11 +53,7 @@ export default function ProjectsPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateProject(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-            }}
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-projects text-projects-foreground shadow-lg shadow-projects/25 transition-all duration-200 hover:shadow-xl hover:shadow-projects/30"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t('newProject')}</span>
@@ -127,11 +118,7 @@ export default function ProjectsPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-              }}
+              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-projects text-projects-foreground shadow-lg shadow-projects/25 transition-all duration-200 hover:scale-105"
             >
               <Plus className="h-4 w-4" />
               {t('createProject')}

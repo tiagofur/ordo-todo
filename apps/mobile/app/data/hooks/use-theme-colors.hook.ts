@@ -83,9 +83,22 @@ export interface ThemeColors {
   tertiary: string;
   tertiaryLight: string;
 
-  // Shadow colors
+  // Shadows
   shadowColor: string;
   shadowLight: string;
+
+  // Section specific colors
+  section: {
+    dashboard: string;
+    tasks: string;
+    projects: string;
+    workspaces: string;
+    calendar: string;
+    goals: string;
+    habits: string;
+    notes: string;
+    wellbeing: string;
+  };
 }
 
 export function useThemeColors(): ThemeColors {
@@ -164,5 +177,18 @@ export function useThemeColors(): ThemeColors {
     // Shadows
     shadowColor: '#000000',
     shadowLight: isDark ? '#000000' : '#94A3B8',
+
+    // Section Colors
+    section: {
+      dashboard: colors.section.dashboard,
+      tasks: colors.section.tasks,
+      projects: colors.section.projects,
+      workspaces: colors.section.workspaces,
+      calendar: colors.section.calendar,
+      goals: colors.section.goals,
+      habits: colors.section.habits,
+      notes: colors.section.notes,
+      wellbeing: colors.section.wellbeing,
+    },
   };
 }

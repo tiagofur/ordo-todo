@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
+import { useDesignTokens } from '@/app/lib/use-design-tokens';
 import Card from '../shared/card.component';
 
 interface ProjectCardProps {
@@ -19,7 +19,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, onPress, style }: ProjectCardProps) {
-  const colors = useThemeColors();
+  const { colors } = useDesignTokens();
   
   // Calculate progress
   const totalTasks = project.tasksCount || 0;
@@ -28,7 +28,7 @@ export default function ProjectCard({ project, onPress, style }: ProjectCardProp
     ? Math.round((completedTasks / totalTasks) * 100) 
     : 0;
 
-  const projectColor = project.color || colors.primary;
+  const projectColor = project.color || colors.section.projects;
 
   return (
     <Card 
@@ -52,7 +52,7 @@ export default function ProjectCard({ project, onPress, style }: ProjectCardProp
             </View>
             <View style={styles.titleContainer}>
               <Text 
-                style={[styles.title, { color: colors.text }]} 
+                style={[styles.title, { color: colors.foreground }]} 
                 numberOfLines={1}
               >
                 {project.name}
@@ -63,7 +63,7 @@ export default function ProjectCard({ project, onPress, style }: ProjectCardProp
           {/* Description */}
           {project.description ? (
             <Text 
-              style={[styles.description, { color: colors.textSecondary }]} 
+              style={[styles.description, { color: colors.mutedForeground }]} 
               numberOfLines={2}
             >
               {project.description}
@@ -76,7 +76,7 @@ export default function ProjectCard({ project, onPress, style }: ProjectCardProp
             {totalTasks > 0 ? (
               <View style={styles.progressSection}>
                 <View style={styles.progressInfo}>
-                  <Text style={[styles.progressLabel, { color: colors.textMuted }]}>
+                  <Text style={[styles.progressLabel, { color: colors.mutedForeground }]}>
                     Progreso
                   </Text>
                   <Text style={[styles.progressPercent, { color: projectColor }]}>
@@ -97,7 +97,7 @@ export default function ProjectCard({ project, onPress, style }: ProjectCardProp
               </View>
             ) : (
                 <View style={styles.emptyState}>
-                    <Text style={[styles.emptyStateText, { color: colors.textMuted }]}>
+                    <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
                         Sin tareas
                     </Text>
                 </View>
@@ -105,15 +105,15 @@ export default function ProjectCard({ project, onPress, style }: ProjectCardProp
 
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Feather name="check-square" size={14} color={colors.textMuted} />
-                <Text style={[styles.statText, { color: colors.textSecondary }]}>
+                <Feather name="check-square" size={14} color={colors.mutedForeground} />
+                <Text style={[styles.statText, { color: colors.mutedForeground }]}>
                   {completedTasks}/{totalTasks}
                 </Text>
               </View>
               
               {project.archived && (
-                <View style={[styles.badge, { backgroundColor: colors.textMuted + '20' }]}>
-                   <Text style={[styles.badgeText, { color: colors.textMuted }]}>Archivado</Text>
+                <View style={[styles.badge, { backgroundColor: colors.mutedForeground + '20' }]}>
+                   <Text style={[styles.badgeText, { color: colors.mutedForeground }]}>Archivado</Text>
                 </View>
               )}
             </View>

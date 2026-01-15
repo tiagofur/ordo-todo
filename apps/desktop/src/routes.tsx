@@ -32,6 +32,8 @@ const LazyMeetings = LazyLoad(() => import("./pages/meetings/Meetings").then((m:
 const LazyTasksPeriod = LazyLoad(() => import("./pages/tasks-period/TasksPeriod").then((m: any) => ({ default: m.TasksPeriod || m.default })));
 const LazyTasksTrash = LazyLoad(() => import("./pages/tasks-trash/TasksTrash").then((m: any) => ({ default: m.TasksTrash || m.default })));
 const LazyReports = LazyLoad(() => import("./pages/reports/Reports").then((m: any) => ({ default: m.Reports || m.default })));
+const LazyAIChat = LazyLoad(() => import("./pages/AIChat").then((m: any) => ({ default: m.AIChat || m.default })));
+const LazyNotifications = LazyLoad(() => import("./pages/Notifications").then((m: any) => ({ default: m.Notifications || m.default })));
 
 // Create router configuration
 const router = createHashRouter([
@@ -154,6 +156,14 @@ const router = createHashRouter([
           {
             path: "reports",
             element: <LazyReports />,
+          },
+          {
+            path: "ai-chat",
+            element: <LazyAIChat />,
+          },
+          {
+            path: "notifications",
+            element: <LazyNotifications />,
           },
         ],
       },

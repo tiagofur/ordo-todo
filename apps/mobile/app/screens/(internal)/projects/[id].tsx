@@ -1,18 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
+import { useDesignTokens } from '@/app/lib/use-design-tokens';
 import { useProject, useTasks, useCompleteTask } from '@/app/lib/shared-hooks';
 import { Feather } from '@expo/vector-icons';
 import Card from '@/app/components/shared/card.component';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import { useMediaQuery } from '@/app/lib/hooks/use-media-query';
 
 export default function ProjectDetailScreen() {
   const { id } = useLocalSearchParams();
   const projectId = typeof id === 'string' ? id : '';
   
   const router = useRouter();
-  const colors = useThemeColors();
+  const { colors } = useDesignTokens();
+  const { isTablet } = useMediaQuery();
 
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const { data: tasks, isLoading: isLoadingTasks } = useTasks(projectId);
@@ -28,12 +30,9 @@ export default function ProjectDetailScreen() {
   };
   
   const handleCreateTaskInProject = () => {
-    // We would need to pass default Project ID to task creation. 
-    // The current task.tsx logic tries to infer project or use first one.
-    // Ideally we pass params.
     router.push({
         pathname: '/screens/(internal)/task',
-        params: { projectId: projectId } // Need to ensure task.tsx reads this
+        params: { projectId: projectId }
     });
   };
 
@@ -48,54 +47,71 @@ export default function ProjectDetailScreen() {
   if (!project) {
        return (
           <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-              <Text style={{color: colors.text}}>Proyecto no encontrado.</Text>
+              <Text style={{ color: colors.foreground }}>Proyecto no encontrado.</Text>
           </View>
       );
   }
 
+  const projectColor = project.color || colors.section.projects;
   const completedCount = tasks?.filter(t => t.status === 'COMPLETED').length || 0;
   const totalCount = tasks?.length || 0;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Stack.Screen options={{ title: project.name }} />
+      <Stack.Screen 
+        options={{ 
+            title: project.name,
+            headerTitleStyle: { fontWeight: '700' },
+            headerShadowVisible: false,
+            headerStyle: { backgroundColor: colors.background }
+        }} 
+      />
       
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Project Header Card */}
-        <Animated.View entering={FadeInDown.delay(100).springify()}>
-            <View style={[styles.headerCard, { backgroundColor: colors.card, borderColor: project.color }]}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Project Header - Standard Iconic Format */}
+        <Animated.View entering={FadeInDown.duration(400).springify()}>
+            <View style={[styles.headerCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.headerTop}>
-                    <View style={[styles.iconBox, { backgroundColor: `${project.color}20` }]}>
-                        <Feather name="folder" size={24} color={project.color} />
+                    <View style={[styles.iconBox, { backgroundColor: projectColor, shadowColor: projectColor, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}>
+                        <Feather name="folder" size={24} color="#FFF" />
                     </View>
                     <View style={{flex: 1}}>
-                         <Text style={[styles.projectName, { color: colors.text }]}>{project.name}</Text>
+                         <Text style={[styles.projectName, { color: colors.foreground }]}>{project.name}</Text>
                          {project.description && (
-                             <Text style={[styles.projectDesc, { color: colors.textSecondary }]}>{project.description}</Text>
+                             <Text style={[styles.projectDesc, { color: colors.mutedForeground }]} numberOfLines={2}>{project.description}</Text>
                          )}
                     </View>
                 </View>
 
+                {/* Progress Section */}
                 <View style={styles.statsRow}>
                     <View>
-                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>Progreso</Text>
-                        <Text style={[styles.statValue, { color: project.color }]}>{progressPercent}%</Text>
+                        <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Progreso</Text>
+                        <Text style={[styles.statValue, { color: projectColor }]}>{progressPercent}%</Text>
                     </View>
                     <View>
-                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>Tareas</Text>
-                        <Text style={[styles.statValue, { color: colors.text }]}>{completedCount}/{totalCount}</Text>
+                        <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Tareas</Text>
+                        <Text style={[styles.statValue, { color: colors.foreground }]}>{completedCount}/{totalCount}</Text>
                     </View>
                 </View>
 
-                 {/* Bar */}
-                 <View style={[styles.progressBarBg, { backgroundColor: colors.border }]}>
-                  <View 
+                 {/* Premium Progress Bar */}
+                 <View style={[styles.progressBarBg, { backgroundColor: colors.muted }]}>
+                  <Animated.View 
+                    layout={LinearTransition}
                     style={[
                       styles.progressBarFill, 
                       { 
                         width: `${progressPercent}%`,
-                        backgroundColor: project.color
+                        backgroundColor: projectColor,
+                        shadowColor: projectColor,
+                        shadowOpacity: 0.5,
+                        shadowRadius: 4,
+                        elevation: 2
                       }
                     ]} 
                   />
@@ -103,54 +119,78 @@ export default function ProjectDetailScreen() {
             </View>
         </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Tareas</Text>
+        <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Tareas del Proyecto</Text>
+            {totalCount > 0 && <View style={[styles.badge, { backgroundColor: colors.muted }]}><Text style={[styles.badgeText, { color: colors.mutedForeground }]}>{totalCount}</Text></View>}
+        </View>
 
-        {/* Task List */}
+        {/* Task List - Staggered Animations */}
         {tasks && tasks.length > 0 ? (
-            tasks.map((task, index) => (
-                <Animated.View key={task.id} entering={FadeInDown.delay(200 + (index * 50))}>
+            <View style={isTablet ? { flexDirection: 'row', flexWrap: 'wrap', gap: 16 } : undefined}>
+            {tasks.map((task, index) => (
+                <Animated.View 
+                    key={task.id} 
+                    entering={FadeInDown.delay(200 + (index * 50)).duration(400).springify()}
+                    layout={LinearTransition}
+                    style={isTablet ? { width: '48%' } : undefined}
+                >
                      <Card 
                         onPress={() => handleTaskPress(task.id)}
                         style={styles.taskCard}
+                        padding={16}
                      >
                          <View style={styles.taskRow}>
-                            <Pressable onPress={() => completeTaskMutation.mutate(task.id)}>
-                                <Feather 
-                                    name={task.status === 'COMPLETED' ? "check-circle" : "circle"} 
-                                    size={24} 
-                                    color={task.status === 'COMPLETED' ? colors.success : colors.textMuted}
-                                />
+                            <Pressable 
+                                onPress={() => completeTaskMutation.mutate(task.id)}
+                                style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+                            >
+                                <View style={[
+                                    styles.checkbox, 
+                                    { borderColor: task.status === 'COMPLETED' ? colors.semantic.success : colors.border },
+                                    task.status === 'COMPLETED' && { backgroundColor: colors.semantic.success }
+                                ]}>
+                                    {task.status === 'COMPLETED' && <Feather name="check" size={14} color="#FFF" />}
+                                </View>
                             </Pressable>
                             <View style={{flex: 1}}>
                                 <Text style={[
                                     styles.taskTitle, 
                                     { 
-                                        color: colors.text,
+                                        color: task.status === 'COMPLETED' ? colors.mutedForeground : colors.foreground,
                                         textDecorationLine: task.status === 'COMPLETED' ? 'line-through' : 'none',
-                                        opacity: task.status === 'COMPLETED' ? 0.6 : 1
                                     }
                                 ]}>
                                     {task.title}
                                 </Text>
                             </View>
+                            <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
                          </View>
                      </Card>
                 </Animated.View>
-            ))
+            ))}
+            </View>
         ) : (
-             <View style={styles.emptyTasks}>
-                 <Text style={{color: colors.textMuted}}>No hay tareas en este proyecto.</Text>
+             <View style={[styles.emptyTasks, { borderColor: colors.border }]}>
+                 <Feather name="clipboard" size={40} color={colors.muted} />
+                 <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>No hay tareas asignadas</Text>
              </View>
         )}
         
-        <View style={{height: 80}} />
+        <View style={{height: 100}} />
       </ScrollView>
 
-      {/* FAB */}
+      {/* FAB - Using Project Color */}
       <View style={styles.fabContainer}>
          <Pressable 
             onPress={handleCreateTaskInProject}
-            style={[styles.fab, { backgroundColor: project.color || colors.primary, shadowColor: project.color }]}
+            style={({ pressed }) => [
+                styles.fab, 
+                { 
+                    backgroundColor: projectColor, 
+                    shadowColor: projectColor,
+                    transform: [{ scale: pressed ? 0.95 : 1 }]
+                }
+            ]}
          >
             <Feather name="plus" size={24} color="#FFF" />
          </Pressable>
@@ -172,35 +212,36 @@ const styles = StyleSheet.create({
   },
   headerCard: {
       padding: 20,
-      borderRadius: 20,
-      borderLeftWidth: 6,
+      borderRadius: 24,
+      borderWidth: 1,
       marginBottom: 32,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 10,
-      elevation: 5
+      shadowOpacity: 0.05,
+      shadowRadius: 12,
+      elevation: 2
   },
   headerTop: {
       flexDirection: 'row',
       gap: 16,
-      marginBottom: 20
+      marginBottom: 24
   },
   iconBox: {
-      width: 48,
-      height: 48,
-      borderRadius: 14,
+      width: 56,
+      height: 56,
+      borderRadius: 16,
       alignItems: 'center',
       justifyContent: 'center'
   },
   projectName: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      marginBottom: 4
+      fontSize: 24,
+      fontWeight: '800',
+      marginBottom: 4,
   },
   projectDesc: {
       fontSize: 14,
-      lineHeight: 20
+      lineHeight: 20,
+      fontWeight: '500'
   },
   statsRow: {
       flexDirection: 'row',
@@ -209,65 +250,93 @@ const styles = StyleSheet.create({
   },
   statLabel: {
       fontSize: 12,
-      fontWeight: '600',
-      marginBottom: 2
+      fontWeight: '700',
+      marginBottom: 4,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5
   },
   statValue: {
-      fontSize: 20,
-      fontWeight: 'bold'
+      fontSize: 22,
+      fontWeight: '800'
   },
   progressBarBg: {
-    height: 8,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     width: '100%',
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 5,
   },
-  sectionTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
+  sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
       marginBottom: 16,
       marginLeft: 4
   },
+  sectionTitle: {
+      fontSize: 18,
+      fontWeight: '800',
+  },
+  badge: {
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 10,
+  },
+  badgeText: {
+      fontSize: 12,
+      fontWeight: '700',
+  },
   taskCard: {
       marginBottom: 12,
-      padding: 16
   },
   taskRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 12
   },
+  checkbox: {
+      width: 24,
+      height: 24,
+      borderRadius: 8,
+      borderWidth: 2,
+      alignItems: 'center',
+      justifyContent: 'center'
+  },
   taskTitle: {
       fontSize: 16,
-      fontWeight: '500'
+      fontWeight: '600'
   },
   emptyTasks: {
-      padding: 32,
+      padding: 40,
       alignItems: 'center',
       justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: 'rgba(0,0,0,0.05)',
-      borderRadius: 12,
-      borderStyle: 'dashed'
+      borderWidth: 2,
+      borderRadius: 24,
+      borderStyle: 'dashed',
+      gap: 12
+  },
+  emptyText: {
+      fontSize: 16,
+      fontWeight: '600'
   },
   fabContainer: {
       position: 'absolute',
-      bottom: 24,
+      bottom: 30,
       right: 24,
   },
   fab: {
-      width: 56,
-      height: 56,
-      borderRadius: 28,
+      width: 60,
+      height: 60,
+      borderRadius: 20,
       alignItems: 'center',
       justifyContent: 'center',
       elevation: 6,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
-      shadowRadius: 6,
+      shadowRadius: 8,
   }
 });
+

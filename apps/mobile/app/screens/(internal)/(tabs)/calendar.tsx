@@ -20,13 +20,12 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
-import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
+import { useDesignTokens } from "@/app/lib/use-design-tokens";
 import { apiClient } from "@/app/lib/api-client";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const DAY_PILL_WIDTH = (SCREEN_WIDTH - 48) / 7;
+import { useMediaQuery } from "@/app/lib/hooks/use-media-query";
 
 // Time slots from 6 AM to 10 PM
 const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => i + 6);
@@ -65,12 +64,15 @@ function getBlockStyle(block: TimeBlockData): { top: number; height: number } {
 }
 
 export default function CalendarScreen() {
-  const colors = useThemeColors();
+  const { colors, spacing, borderRadius } = useDesignTokens();
   const { t, i18n } = useTranslation();
+  const { isTablet, width, select } = useMediaQuery();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [selectedDay, setSelectedDay] = useState(new Date());
+
+  const DAY_PILL_WIDTH = (width - (isTablet ? 64 : 48)) / 7;
 
   // Get locale for date formatting
   const dateLocale = i18n.language === 'pt-br' ? ptBR : i18n.language === 'en' ? enUS : es;
@@ -116,47 +118,70 @@ export default function CalendarScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
-        <View style={styles.headerContent}>
-          <LinearGradient
-            colors={[colors.primary, colors.primaryDark || colors.primary]}
-            style={styles.iconContainer}
-          >
-            <Feather name="calendar" size={24} color="#FFFFFF" />
-          </LinearGradient>
-          <View>
-            <Text style={[styles.title, { color: colors.text }]}>
-              {t('Mobile.calendar.title')}
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-              {t('Mobile.calendar.subtitle')}
-            </Text>
-          </View>
-        </View>
-      </Animated.View>
+      {/* Header - Premium Iconic Design */}
+      <View style={[styles.headerContainer, isTablet && { paddingHorizontal: 32, paddingTop: 100 }]}>
+        <Animated.View 
+          entering={FadeInDown.duration(600)}
+          style={[
+            styles.headerMainContainer, 
+            { 
+              backgroundColor: colors.card, 
+              borderColor: colors.border
+            },
+            isTablet && { padding: 32, borderRadius: 40 }
+          ]}
+        >
+          {/* Background Decorations */}
+          <View style={[styles.headerDecoration, { top: -20, right: -20, backgroundColor: colors.section.calendar + '10' }]} />
+          <View style={[styles.headerDecoration, { bottom: -10, left: -30, width: 80, height: 80, backgroundColor: colors.section.calendar + '10' }]} />
 
-      {/* Week Navigator */}
+          <View style={styles.headerTop}>
+            <View style={[
+              styles.headerIconBox, 
+              { 
+                backgroundColor: colors.section.calendar, 
+                shadowColor: colors.section.calendar, 
+                shadowOpacity: 0.3, 
+                shadowRadius: 15, 
+                elevation: 8,
+                width: isTablet ? 80 : 64,
+                height: isTablet ? 80 : 64,
+                borderRadius: isTablet ? 24 : 20,
+                transform: [{ rotate: '3deg' }]
+              }
+            ]}>
+              <Feather name="calendar" size={isTablet ? 40 : 32} color="#FFF" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.headerTitle, { color: colors.foreground, fontSize: isTablet ? 40 : 28 }]}>{t('Mobile.calendar.title')}</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontSize: isTablet ? 18 : 14 }]}>
+                {t('Mobile.calendar.subtitle')}
+              </Text>
+            </View>
+          </View>
+        </Animated.View>
+      </View>
+
       <Animated.View
         entering={FadeInDown.delay(100).duration(300)}
-        style={[styles.weekNav, { backgroundColor: colors.card }]}
+        style={[styles.weekNav, { backgroundColor: colors.card }, isTablet && { marginHorizontal: 32, paddingVertical: 16 }]}
       >
         <Pressable onPress={goToPrevWeek} style={styles.navButton}>
-          <Feather name="chevron-left" size={24} color={colors.text} />
+          <Feather name="chevron-left" size={isTablet ? 28 : 24} color={colors.foreground} />
         </Pressable>
-        <Text style={[styles.weekText, { color: colors.text }]}>
+        <Text style={[styles.weekText, { color: colors.foreground, fontSize: isTablet ? 18 : 15 }]}>
           {format(weekStart, "d MMM", { locale: dateLocale })} -{" "}
           {format(weekEnd, "d MMM yyyy", { locale: dateLocale })}
         </Text>
         <Pressable onPress={goToNextWeek} style={styles.navButton}>
-          <Feather name="chevron-right" size={24} color={colors.text} />
+          <Feather name="chevron-right" size={isTablet ? 28 : 24} color={colors.foreground} />
         </Pressable>
       </Animated.View>
 
       {/* Day Selector */}
       <Animated.View
         entering={FadeInDown.delay(200).duration(300)}
-        style={styles.daySelector}
+        style={[styles.daySelector, isTablet && { paddingHorizontal: 32, gap: 12 }]}
       >
         {weekDays.map((day, index) => {
           const isSelected = isSameDay(day, selectedDay);
@@ -168,14 +193,15 @@ export default function CalendarScreen() {
               onPress={() => setSelectedDay(day)}
               style={[
                 styles.dayPill,
-                isSelected && { backgroundColor: colors.primary },
-                isToday && !isSelected && { borderColor: colors.primary, borderWidth: 2 },
+                { width: (width - (isTablet ? 64 + (12 * 6) : 48 + (6 * 6))) / 7 },
+                isSelected && { backgroundColor: colors.section.calendar },
+                isToday && !isSelected && { borderColor: colors.section.calendar, borderWidth: 2 },
               ]}
             >
               <Text
                 style={[
                   styles.dayName,
-                  { color: isSelected ? "#FFFFFF" : colors.textMuted },
+                  { color: isSelected ? "#FFFFFF" : colors.mutedForeground, fontSize: isTablet ? 12 : 10 },
                 ]}
               >
                 {format(day, "EEE", { locale: dateLocale }).slice(0, 2).toUpperCase()}
@@ -183,7 +209,7 @@ export default function CalendarScreen() {
               <Text
                 style={[
                   styles.dayNumber,
-                  { color: isSelected ? "#FFFFFF" : colors.text },
+                  { color: isSelected ? "#FFFFFF" : colors.foreground, fontSize: isTablet ? 22 : 17 },
                 ]}
               >
                 {format(day, "d")}
@@ -209,7 +235,7 @@ export default function CalendarScreen() {
             <View style={styles.timeLabels}>
               {TIME_SLOTS.map((hour) => (
                 <View key={hour} style={styles.timeLabel}>
-                  <Text style={[styles.timeLabelText, { color: colors.textMuted }]}>
+                  <Text style={[styles.timeLabelText, { color: colors.mutedForeground }]}>
                     {hour}:00
                   </Text>
                 </View>
@@ -229,7 +255,7 @@ export default function CalendarScreen() {
               {/* Time Blocks */}
               {dayBlocks.map((block) => {
                 const style = getBlockStyle(block);
-                const projectColor = block.project?.color || colors.primary;
+                const projectColor = block.project?.color || colors.section.calendar;
                 const isCompleted = block.status === "COMPLETED";
 
                 return (
@@ -268,7 +294,7 @@ export default function CalendarScreen() {
                       </Text>
                     </View>
                     {style.height > 40 && (
-                      <Text style={[styles.blockTime, { color: colors.textMuted }]}>
+                      <Text style={[styles.blockTime, { color: colors.mutedForeground }]}>
                         {block.scheduledTime}
                         {block.scheduledEndTime && ` - ${block.scheduledEndTime}`}
                       </Text>
@@ -280,11 +306,11 @@ export default function CalendarScreen() {
               {/* Empty State */}
               {dayBlocks.length === 0 && !isLoading && (
                 <View style={styles.emptyState}>
-                  <Feather name="calendar" size={48} color={colors.textMuted} />
-                  <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+                  <Feather name="calendar" size={48} color={colors.mutedForeground} />
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
                     {t('Mobile.calendar.noBlocks')}
                   </Text>
-                  <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
+                  <Text style={[styles.emptySubtext, { color: colors.mutedForeground }]}>
                     {t('Mobile.calendar.noBlocksHint')}
                   </Text>
                 </View>
@@ -300,37 +326,62 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
   },
-  header: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    alignItems: "center",
+  center: {
     justifyContent: "center",
+    alignItems: "center",
   },
-  title: {
+  headerContainer: {
+    padding: 16,
+    paddingTop: 60,
+    marginBottom: 8,
+  },
+  headerMainContainer: {
+    padding: 20,
+    borderRadius: 32,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  headerDecoration: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    position: 'relative',
+    zIndex: 10,
+  },
+  headerIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  headerTitle: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontWeight: '900',
+    letterSpacing: -0.5
   },
-  subtitle: {
+  headerSubtitle: {
     fontSize: 14,
-    marginTop: 2,
+    fontWeight: '600',
+    marginTop: 2
   },
   weekNav: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginHorizontal: 20,
+    marginHorizontal: 16,
     paddingHorizontal: 8,
     paddingVertical: 12,
     borderRadius: 16,
@@ -340,8 +391,8 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   weekText: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
   },
   daySelector: {
     flexDirection: "row",
@@ -350,20 +401,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   dayPill: {
-    width: DAY_PILL_WIDTH,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingVertical: 10,
+    borderRadius: 14,
     alignItems: "center",
     backgroundColor: "transparent",
   },
   dayName: {
-    fontSize: 11,
-    fontWeight: "600",
+    fontSize: 10,
+    fontWeight: "700",
     marginBottom: 4,
   },
   dayNumber: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 17,
+    fontWeight: "800",
   },
   timeGrid: {
     flex: 1,
@@ -389,7 +439,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   timeLabelText: {
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: '600'
   },
   blocksArea: {
     flex: 1,
@@ -405,9 +456,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 4,
     right: 4,
-    borderLeftWidth: 3,
-    borderRadius: 8,
-    padding: 8,
+    borderLeftWidth: 4,
+    borderRadius: 12,
+    padding: 10,
     overflow: "hidden",
   },
   blockContent: {
@@ -420,7 +471,7 @@ const styles = StyleSheet.create({
   },
   blockTitle: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
   },
   completedText: {
@@ -429,6 +480,7 @@ const styles = StyleSheet.create({
   blockTime: {
     fontSize: 10,
     marginTop: 4,
+    fontWeight: '500'
   },
   emptyState: {
     position: "absolute",
@@ -437,15 +489,17 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: "center",
     paddingHorizontal: 20,
+    gap: 12
   },
   emptyText: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "800",
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    marginTop: 8,
     textAlign: "center",
+    fontWeight: '500',
+    lineHeight: 20
   },
 });

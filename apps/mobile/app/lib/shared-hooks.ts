@@ -139,6 +139,25 @@ export function useHeatmapData() { return getHooks().useHeatmapData(); }
 export function useProjectDistribution() { return getHooks().useProjectDistribution(); }
 export function useTaskStatusDistribution() { return getHooks().useTaskStatusDistribution(); }
 
+// Productivity streak - implemented locally since not in shared hooks
+import { useQuery } from '@tanstack/react-query';
+
+export function useProductivityStreak() {
+    return useQuery({
+        queryKey: ['analytics', 'streak'],
+        queryFn: () => apiClient.getProductivityStreak(),
+    });
+}
+
+export function useAIInsights(options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ["ai", "insights"],
+        queryFn: () => apiClient.getAIInsights(),
+        enabled: options?.enabled ?? true,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+}
+
 // ============ AI HOOKS ============
 export function useAIProfile() { return getHooks().useAIProfile(); }
 export function useOptimalSchedule() { return getHooks().useOptimalSchedule(); }
@@ -201,8 +220,156 @@ export function useDeleteCustomField() { return getHooks().useDeleteCustomField(
 export function useTaskCustomValues(taskId: string) { return getHooks().useTaskCustomValues(taskId); }
 export function useSetTaskCustomValues() { return getHooks().useSetTaskCustomValues(); }
 
+// ============ NOTES HOOKS ============
+export function useNotes(workspaceId: string) { return getHooks().useNotes(workspaceId); }
+export function useNote(noteId: string) { return getHooks().useNote(noteId); }
+export function useCreateNote() { return getHooks().useCreateNote(); }
+export function useUpdateNote() { return getHooks().useUpdateNote(); }
+export function useDeleteNote() { return getHooks().useDeleteNote(); }
+
+// ============ CREATOR OS - IDEAS ============
+export function useIdeas(params?: { status?: string; search?: string; page?: number; limit?: number }) { return getHooks().useIdeas(params); }
+export function useIdea(id: string) { return getHooks().useIdea(id); }
+export function useCreateIdea() { return getHooks().useCreateIdea(); }
+export function useUpdateIdea() { return getHooks().useUpdateIdea(); }
+export function useDeleteIdea() { return getHooks().useDeleteIdea(); }
+export function useArchiveIdea() { return getHooks().useArchiveIdea(); }
+
+// ============ CREATOR OS - CONTENT PIECES ============
+export function useContentPieces(params?: { status?: string; seriesId?: string; search?: string; page?: number; limit?: number }) {
+    return getHooks().useContentPieces(params);
+}
+export function useContentPiece(id: string) { return getHooks().useContentPiece(id); }
+export function useContentPipeline() { return getHooks().useContentPipeline(); }
+export function useCreateContentPiece() { return getHooks().useCreateContentPiece(); }
+export function usePromoteFromIdea() { return getHooks().usePromoteFromIdea(); }
+export function useUpdateContentPiece() { return getHooks().useUpdateContentPiece(); }
+export function useUpdateContentStatus() { return getHooks().useUpdateContentStatus(); }
+export function useDeleteContentPiece() { return getHooks().useDeleteContentPiece(); }
+
+// ============ CREATOR OS - SERIES ============
+export function useSeries() { return getHooks().useSeries(); }
+export function useSeriesById(id: string) { return getHooks().useSeriesById(id); }
+export function useCreateSeries() { return getHooks().useCreateSeries(); }
+
+// ============ CREATOR OS - PUBLISHING ============
+export function useCreateSocialPost() { return getHooks().useCreateSocialPost(); }
+export function useBulkSchedulePosts() { return getHooks().useBulkSchedulePosts(); }
+export function useScheduledPosts(params: any) { return getHooks().useScheduledPosts(params); }
+export function usePublishingCalendar(startDate: string, endDate: string) { return getHooks().usePublishingCalendar(startDate, endDate); }
+export function usePostsByContentPiece(contentPieceId: string) { return getHooks().usePostsByContentPiece(contentPieceId); }
+export function useSocialPost(id: string) { return getHooks().useSocialPost(id); }
+export function useUpdateSocialPost() { return getHooks().useUpdateSocialPost(); }
+export function useSchedulePost() { return getHooks().useSchedulePost(); }
+export function useUnschedulePost() { return getHooks().useUnschedulePost(); }
+export function useDeleteSocialPost() { return getHooks().useDeleteSocialPost(); }
+
 // ============ UTILITIES ============
 export function invalidateAllTasks(queryClient: QueryClient) { return getHooks().invalidateAllTasks(queryClient); }
 
+// ============ DASHBOARD COMPOSITE HOOK ============
+import { useMemo } from 'react';
+import { isToday } from 'date-fns';
+
+export interface DashboardStats {
+    tasksCompleted: number;
+    pendingTasks: number;
+    todayTasks: number;
+}
+
+export interface DashboardStreak {
+    currentStreak: number;
+    longestStreak: number;
+}
+
+export interface DashboardHabitsSummary {
+    total: number;
+    completed: number;
+    remaining: number;
+    percentage: number;
+}
+
+export interface DashboardData {
+    stats: DashboardStats;
+    streak: DashboardStreak;
+    habits: DashboardHabitsSummary;
+    isLoading: boolean;
+    refetch: () => Promise<void>;
+}
+
+/**
+ * useDashboardData - Aggregates all dashboard-related data for Mobile
+ * 
+ * This is a simplified version that uses the available hooks.
+ */
+export function useDashboardData(): DashboardData {
+    const hooks = getHooks();
+
+    const tasksQuery = hooks.useTasks();
+    const habitsQuery = hooks.useTodayHabits();
+    // Note: useProductivityStreak is defined locally below, not part of getHooks()
+    const streakQuery = useProductivityStreak();
+
+    // Process tasks
+    const tasks = tasksQuery.data || [];
+    const stats = useMemo<DashboardStats>(() => {
+        const completedTasks = tasks.filter((t: any) => t.status === 'COMPLETED').length;
+        const pendingTasks = tasks.filter((t: any) => t.status !== 'COMPLETED').length;
+        const todayTasks = tasks.filter((t: any) => {
+            if (t.dueDate) {
+                return isToday(new Date(t.dueDate));
+            }
+            return false;
+        }).length;
+
+        return {
+            tasksCompleted: completedTasks,
+            pendingTasks,
+            todayTasks,
+        };
+    }, [tasks]);
+
+    // Process streak
+    const streak = useMemo<DashboardStreak>(() => ({
+        currentStreak: streakQuery.data?.currentStreak ?? 0,
+        longestStreak: streakQuery.data?.longestStreak ?? 0,
+    }), [streakQuery.data]);
+
+    // Process habits
+    const habits = useMemo<DashboardHabitsSummary>(() => {
+        const habitsData = Array.isArray(habitsQuery.data) ? habitsQuery.data : [];
+        const completed = habitsData.filter((h: { completions?: unknown[] }) =>
+            h.completions && h.completions.length > 0
+        ).length;
+        const total = habitsData.length;
+
+        return {
+            total,
+            completed,
+            remaining: total - completed,
+            percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
+        };
+    }, [habitsQuery.data]);
+
+    const isLoading = tasksQuery.isLoading || habitsQuery.isLoading || streakQuery.isLoading;
+
+    const refetch = async () => {
+        await Promise.all([
+            tasksQuery.refetch(),
+            habitsQuery.refetch(),
+            streakQuery.refetch(),
+        ]);
+    };
+
+    return {
+        stats,
+        streak,
+        habits,
+        isLoading,
+        refetch,
+    };
+}
+
 // Export the lazy getter for dynamic access
 export { getHooks as hooks };
+
