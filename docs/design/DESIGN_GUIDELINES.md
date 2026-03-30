@@ -2,7 +2,8 @@
 
 **Core Principle**: Solid, Flat, and Vibrant Colors.
 
-> **IMPORTANT**: All UI components MUST be created in `packages/ui`. See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for MANDATORY patterns.
+> **Full Reference**: See [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) for the complete design system (colors, tokens, typography, components).
+> **Component Rules**: All UI components MUST be created in `packages/ui`. See [Component Guidelines](/docs/COMPONENT_GUIDELINES.md) for MANDATORY patterns.
 
 ---
 

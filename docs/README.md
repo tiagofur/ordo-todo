@@ -1,205 +1,173 @@
-# 📚 Ordo-Todo Documentation
+# Ordo-Todo Documentation
 
-> **Última actualización:** Diciembre 2025
+> **Last updated:** March 2026
 
-Bienvenido a la documentación de **Ordo-Todo**, una plataforma moderna de gestión de tareas multiplataforma construida con **DDD** y **Clean Architecture**.
+Welcome to the documentation for **Ordo-Todo**, a modern cross-platform task management platform built with **DDD** and **Clean Architecture**.
 
 ---
 
-## 📁 Estructura de Documentación
+## Documentation Structure
 
 ```
 docs/
-├── README.md                    # Este archivo (índice principal)
-├── ROADMAP.md                   # Roadmap de desarrollo actualizado
-├── COMPONENT_GUIDELINES.md      # Guías para crear componentes compartidos
-├── PRICING-STRATEGY.md          # Estrategia de pricing
-├── USER_GUIDE.md                # Guía de usuario final
+├── README.md                        # This file (main index)
 │
-├── getting-started/             # 🚀 Comenzar aquí
-│   ├── QUICKSTART.md            # Setup rápido (5 minutos)
-│   ├── SETUP_AND_TESTING.md     # Guía completa de instalación
-│   └── internationalization.md  # Guía de i18n
+├── design/                          # Product & Design
+│   ├── PRD.md                       # Product Requirements Document (v2.0)
+│   ├── DESIGN_SYSTEM.md             # Design tokens, colors, typography, components
+│   ├── DESIGN_GUIDELINES.md         # Quick visual rules (no gradients, no transparencies)
+│   ├── ARCHITECTURE.md              # DDD + Clean Architecture patterns
+│   ├── TECHNICAL_DESIGN.md          # Technical specifications
+│   └── WIREFRAMES.md               # UI/UX wireframe specs
 │
-├── design/                      # 🎨 Diseño y Arquitectura
-│   ├── ARCHITECTURE.md          # Arquitectura DDD + Clean Architecture
-│   ├── PRD.md                   # Product Requirements Document
-│   ├── TECHNICAL_DESIGN.md      # Especificaciones técnicas
-│   ├── WIREFRAMES.md            # Diseños UI/UX
-│   └── DESIGN_GUIDELINES.md     # Guías de diseño visual
+├── getting-started/                 # Getting Started
+│   ├── QUICKSTART.md                # 5-minute setup
+│   ├── SETUP_AND_TESTING.md         # Full installation guide
+│   └── internationalization.md      # i18n guide
 │
-├── packages/                    # 📦 Packages Compartidos
-│   ├── README.md                # Core, DB, API Client, UI, Hooks
-│   └── fases.md                 # Estado de migración de packages
+├── web/                             # Web App (Next.js 16)
+│   ├── README.md                    # Setup, structure, features
+│   ├── AUDITORIA-COMPLETA.md        # Complete web audit
+│   ├── ROADMAP.md                   # Web-specific roadmap
+│   ├── BEST-PRACTICES.md            # Best practices
+│   ├── PERFORMANCE-GUIDE.md         # Performance optimization
+│   ├── DEVELOPER-TOOLS.md           # Dev tools guide
+│   ├── MAINTENANCE.md               # Maintenance guide
+│   ├── MIGRATION-GUIDE.md           # Migration procedures
+│   └── TROUBLESHOOTING.md           # Problem solving
 │
-├── mejoras-competencia/         # 🚀 Features Competitivos
-│   ├── README.md                # Índice de mejoras
-│   ├── COMPETITIVE-ANALYSIS.md  # Análisis de competencia
-│   ├── WEB-PRODUCTION-CHECKLIST.md # Checklist de producción
-│   ├── 01-HABIT-TRACKER.md      # Sistema de hábitos
-│   ├── 02-SMART-DATES.md        # Start/Scheduled/Due dates
-│   ├── 03-OKRS-GOALS.md         # Sistema OKRs
-│   ├── 04-TIME-BLOCKING.md      # Time blocking
-│   ├── 05-CUSTOM-FIELDS.md      # Campos personalizados
-│   └── 06-AI-FEATURES.md        # AI Features
+├── backend/                         # API (NestJS 11)
+│   ├── README.md                    # Endpoints reference
+│   ├── ARCHITECTURE.md              # Backend architecture
+│   ├── AUDITORIA-COMPLETA.md        # Complete backend audit
+│   ├── AUDITORIA-RESUMEN-FINAL.md   # Executive summary
+│   ├── SECURITY.md                  # Backend security
+│   ├── PERFORMANCE.md               # Query optimization
+│   ├── DATABASE_INDEXES.md          # Index strategy
+│   ├── N1_OPTIMIZATION.md           # N+1 query fixes
+│   ├── REDIS_SETUP.md               # Redis configuration
+│   ├── DEPLOYMENT.md                # Deployment procedures
+│   ├── MIGRATION_GUIDE.md           # Database migrations
+│   ├── IMPROVEMENTS.md              # Planned improvements
+│   ├── ROADMAP-MEJORAS-2025.md      # Improvement roadmap
+│   ├── SPRINT-4-5-COMPLETE.md       # Sprint history
+│   ├── GUIA-ARREGLO-RAPIDO.md       # Quick fixes
+│   ├── INDEX.md                     # Docs index
+│   └── ai-features.md              # AI system docs
 │
-├── web/                         # 🌐 Web App (Next.js)
-│   ├── README.md                # Setup, estructura, features
-│   ├── ROADMAP.md               # Roadmap específico web
-│   ├── BEST-PRACTICES.md        # Mejores prácticas
-│   ├── PERFORMANCE-GUIDE.md     # Optimización rendimiento
-│   ├── MAINTENANCE.md           # Guía de mantenimiento
-│   └── TROUBLESHOOTING.md       # Solución de problemas
+├── mobile/                          # Mobile App (React Native)
+│   ├── README.md                    # Setup, roadmap, status
+│   ├── PENDING_TASKS.md             # Pending work
+│   └── WEB_VS_MOBILE_GAP_ANALYSIS.md # Feature parity
 │
-├── backend/                     # ⚙️ API (NestJS)
-│   ├── README.md                # Endpoints reference
-│   ├── ARCHITECTURE.md          # Arquitectura backend
-│   ├── SECURITY.md              # Seguridad backend
-│   ├── IMPROVEMENTS.md          # Mejoras planificadas
-│   └── ai-features.md           # Sistema de IA
+├── desktop/                         # Desktop App (Electron)
+│   ├── README.md                    # Features, build guide
+│   ├── analysis-report.md           # Parity analysis
+│   ├── developer-needs-assessment.md # Dev requirements
+│   └── REFACTORING_PLAN.md          # Refactoring roadmap
 │
-├── mobile/                      # 📱 Mobile App (React Native)
-│   └── README.md                # Setup, roadmap, estado
+├── packages/                        # Shared Packages
+│   ├── README.md                    # Package overview
+│   ├── AUDIT-2026-Q1.md             # Latest audit
+│   ├── METRICAS-POR-PAQUETE.md      # Per-package metrics
+│   ├── INICIO-RAPIDO.md             # Quick start
+│   ├── PLATFORM-AGNOSTIC-PATTERN.md # Component patterns
+│   ├── ROADMAP.md                   # Package roadmap
+│   └── VIOLACIONES-POR-PAQUETE/     # Per-package issues
 │
-├── desktop/                     # 🖥️ Desktop App (Electron)
-│   ├── README.md                # Features nativos, build
-│   ├── analysis-report.md       # Análisis de paridad
-│   └── developer-needs-assessment.md # Necesidades dev
+├── mejoras-competencia/             # Competitive Features
+│   ├── COMPETITIVE-ANALYSIS.md      # Market analysis
+│   ├── 01-HABIT-TRACKER.md          # Habits system
+│   ├── 02-SMART-DATES.md            # Date system
+│   ├── 03-OKRS-GOALS.md             # OKR system
+│   ├── 04-TIME-BLOCKING.md          # Time blocking
+│   ├── 05-CUSTOM-FIELDS.md          # Custom fields
+│   └── 06-AI-FEATURES.md            # AI features
 │
-├── deployment/                  # 🚀 Deployment
-│   ├── DEPLOYMENT-STATUS.md     # Estado de deployment
-│   └── QUICK-COMMANDS.md        # Comandos rápidos
+├── deployment/                      # Deployment
+│   ├── DEPLOYMENT-STATUS.md         # Current status
+│   └── QUICK-COMMANDS.md            # Deploy commands
 │
-├── troubleshooting/             # 🔧 Solución de Problemas
-│   └── hmr-errors.md            # Errores HMR
-│
-├── DEPENDENCY_MANAGEMENT.md     # 📦 Gestión de dependencias
-├── DEPENDABOT_CLEANUP.md        # 🤖 Guía Dependabot
-└── SECURITY_REPORT.md           # 🔒 Reporte de seguridad
+├── ROADMAP.md                       # Development roadmap
+├── COMPONENT_GUIDELINES.md          # MANDATORY component patterns
+├── PROJECT_ORGANIZATION.md          # File organization rules
+├── SHARED-CODE-ARCHITECTURE.md      # Shared package architecture
+├── PRICING-STRATEGY.md              # Pricing tiers
+├── USER_GUIDE.md                    # End-user guide
+├── CI_CD_STATUS.md                  # CI/CD pipeline
+├── DEPLOYMENT_RUNBOOKS.md           # Deployment procedures
+├── DEPENDENCY_MANAGEMENT.md         # Dependency strategy
+├── SECURITY_REPORT.md               # Security audit
+├── MOBILE_GAP_ANALYSIS.md           # Web vs Mobile parity
+└── OAUTH-DESKTOP-IMPLEMENTATION.md  # Desktop OAuth flow
 ```
 
 ---
 
-## 🚀 ¿Por dónde empezar?
+## Quick Start
 
-### Nuevo en el proyecto
+### New to the project
 
-1. **[QUICKSTART.md](./getting-started/QUICKSTART.md)** - Levanta el proyecto en 5 minutos
-2. **[SETUP_AND_TESTING.md](./getting-started/SETUP_AND_TESTING.md)** - Guía detallada
+1. **[QUICKSTART.md](./getting-started/QUICKSTART.md)** - Get running in 5 minutes
+2. **[PRD.md](./design/PRD.md)** - Understand the product (v2.0, March 2026)
+3. **[DESIGN_SYSTEM.md](./design/DESIGN_SYSTEM.md)** - Visual design reference
 
-### Entender la arquitectura
+### Understand the architecture
 
-1. **[ARCHITECTURE.md](./design/ARCHITECTURE.md)** - Decisiones de arquitectura DDD
-2. **[packages/README.md](./packages/README.md)** - Cómo funcionan los packages
+1. **[ARCHITECTURE.md](./design/ARCHITECTURE.md)** - DDD decisions
+2. **[SHARED-CODE-ARCHITECTURE.md](./SHARED-CODE-ARCHITECTURE.md)** - Package structure
 
-### Trabajar en una app específica
+### Work on a specific app
 
-| App | Documentación | Estado |
-|-----|---------------|--------|
-| 🌐 **Web** | [web/README.md](./web/README.md) | ✅ Producción |
-| 📱 **Mobile** | [mobile/README.md](./mobile/README.md) | 🟡 En Progreso |
-| 🖥️ **Desktop** | [desktop/README.md](./desktop/README.md) | ✅ Funcional |
-| ⚙️ **Backend** | [backend/README.md](./backend/README.md) | ✅ Estable |
-
----
-
-## 🏗️ Arquitectura del Proyecto
-
-```
-ordo-todo/
-├── apps/
-│   ├── backend/      # NestJS REST API (Puerto 3101)
-│   ├── web/          # Next.js App (Puerto 3000)
-│   ├── mobile/       # React Native + Expo
-│   └── desktop/      # Electron + React
-│
-├── packages/
-│   ├── core/         # Lógica de dominio (DDD)
-│   ├── db/           # Prisma Client & Schema
-│   ├── api-client/   # Cliente HTTP tipado
-│   ├── ui/           # Componentes UI compartidos
-│   ├── hooks/        # React Hooks compartidos
-│   ├── i18n/         # Internacionalización
-│   └── styles/       # Estilos compartidos (Tailwind v4)
-│
-└── docs/             # Esta documentación
-```
+| App | Docs | Status |
+|-----|------|--------|
+| Web | [web/README.md](./web/README.md) | Production |
+| Backend | [backend/README.md](./backend/README.md) | Stable (34 modules, 200+ endpoints) |
+| Desktop | [desktop/README.md](./desktop/README.md) | Functional |
+| Mobile | [mobile/README.md](./mobile/README.md) | In Progress |
 
 ---
 
-## 🛠️ Stack Tecnológico
+## Tech Stack
 
-| Capa | Tecnología |
-|------|------------|
-| **Monorepo** | Turborepo |
-| **Frontend Web** | Next.js 16, React 19, TailwindCSS v4 |
-| **Frontend Mobile** | React Native, Expo SDK 52+ |
-| **Frontend Desktop** | Electron, Vite, React |
-| **Backend** | NestJS, REST API |
-| **Base de Datos** | PostgreSQL 16 + Prisma ORM |
-| **IA** | Google Gemini (genai SDK) |
-| **Arquitectura** | DDD + Clean Architecture |
-
----
-
-## 📊 Estado del Proyecto
-
-| Componente | Estado | Progreso |
-|------------|--------|----------|
-| **Backend** | ✅ Estable | 95% |
-| **Web** | ✅ Producción | 90% |
-| **Desktop** | ✅ Funcional | 85% |
-| **Mobile** | 🟡 En Progreso | 60% |
-| **Packages** | ✅ Estable | 90% |
-| **AI Features** | ✅ Implementado | 80% |
-
-Ver **[ROADMAP.md](./ROADMAP.md)** para detalles completos.
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Monorepo | Turborepo | Latest |
+| Web | Next.js, React, Tailwind CSS | 16.1, 19.2, 4.1 |
+| Mobile | React Native, Expo | SDK 52+ |
+| Desktop | Electron, Vite, React | Latest |
+| Backend | NestJS REST API | 11.1 |
+| Database | PostgreSQL + Prisma | 16 / 7.x |
+| AI | Google Gemini | Latest |
+| Language | TypeScript | 5.9.3 |
 
 ---
 
-## ✅ Features Principales Implementados
+## Project Status
 
-### Core
-- ✅ Gestión de tareas con subtareas
-- ✅ Proyectos y workspaces
-- ✅ Timer Pomodoro avanzado
-- ✅ Gamificación (XP, niveles, logros)
-- ✅ Vistas: Lista, Kanban, Calendario
-
-### Features Avanzados
-- ✅ [Habit Tracker](./mejoras-competencia/01-HABIT-TRACKER.md) - Sistema de hábitos con streaks
-- ✅ [Smart Dates](./mejoras-competencia/02-SMART-DATES.md) - Start/Scheduled/Due dates
-- ✅ [OKRs/Goals](./mejoras-competencia/03-OKRS-GOALS.md) - Objetivos con Key Results
-- ✅ [Time Blocking](./mejoras-competencia/04-TIME-BLOCKING.md) - Calendario con bloques
-- ✅ [Custom Fields](./mejoras-competencia/05-CUSTOM-FIELDS.md) - 8 tipos de campos
-
-### AI Features
-- ✅ Smart Semantic Search - Búsqueda en lenguaje natural
-- ✅ AI Meeting Assistant - Transcripción → Tareas
-- ✅ Burnout Prevention Engine - Detección de burnout
-- ✅ Focus Sessions Audio - Sonidos ambient
-- ✅ Weekly AI Reports - Reportes de productividad
+| Component | Status | Health |
+|-----------|--------|--------|
+| Backend | Stable | 34 modules, 200+ endpoints, 0 TS errors |
+| Web | Production | PWA, i18n (3 langs), offline support |
+| Desktop | Functional | Auth, core features working |
+| Mobile | In Progress | ~60% feature parity |
+| Packages | Stable | 11 packages, 88 UI components |
+| AI | Implemented | Chat, parsing, reports, wellbeing |
+| Tests | 83% | 526/633 passing |
+| Security | Clean | 0 npm vulnerabilities |
 
 ---
 
-## 🔗 Enlaces Rápidos
+## Key Documents
 
-| Recurso | Descripción |
-|---------|-------------|
-| [QUICKSTART.md](./getting-started/QUICKSTART.md) | Comenzar en 5 minutos |
-| [ARCHITECTURE.md](./design/ARCHITECTURE.md) | Decisiones de arquitectura |
-| [COMPETITIVE-ANALYSIS.md](./mejoras-competencia/COMPETITIVE-ANALYSIS.md) | Análisis competitivo |
-| [ROADMAP.md](./ROADMAP.md) | Estado y próximos pasos |
-| [SECURITY_REPORT.md](./SECURITY_REPORT.md) | Reporte de seguridad |
-
----
-
-## 🔒 Seguridad
-
-- **Vulnerabilidades críticas:** 0
-- **Última auditoría:** Diciembre 2025
-- Ver [SECURITY_REPORT.md](./SECURITY_REPORT.md) para más detalles.
+| Document | Purpose |
+|----------|---------|
+| [PRD.md](./design/PRD.md) | What we're building and why |
+| [DESIGN_SYSTEM.md](./design/DESIGN_SYSTEM.md) | How it looks (colors, tokens, components) |
+| [COMPONENT_GUIDELINES.md](./COMPONENT_GUIDELINES.md) | How to create components (MANDATORY) |
+| [ROADMAP.md](./ROADMAP.md) | What's next |
+| [COMPETITIVE-ANALYSIS.md](./mejoras-competencia/COMPETITIVE-ANALYSIS.md) | Market positioning |
 
 ---
 
-**¿Preguntas?** Revisa [troubleshooting/](./troubleshooting/) o abre un issue en GitHub.
+**Questions?** Check [troubleshooting/](./troubleshooting/) or open an issue on GitHub.
