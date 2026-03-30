@@ -80,7 +80,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
              // But let's assume we need to send it if it wasn't processed.
              // For now, let's treat createConversation as just setting up the room.
          } catch (err) {
-             console.error("Failed to create conversation", err);
+             if (process.env.NODE_ENV === 'development') console.error("Failed to create conversation", err);
              throw new Error("Could not start conversation");
          }
       }
@@ -98,7 +98,6 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      console.error(error);
       toast.error(t('error'));
     } finally {
       setIsLoading(false);

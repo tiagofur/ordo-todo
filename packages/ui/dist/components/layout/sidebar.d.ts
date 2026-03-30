@@ -5,11 +5,17 @@ export interface NavItem {
     icon: ElementType;
     color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue' | 'yellow' | 'red';
 }
+export interface NavSection {
+    label?: string;
+    items: NavItem[];
+}
 interface SidebarProps {
     /** Current pathname to determine active state */
     pathname?: string;
-    /** Navigation items */
+    /** Navigation items (flat list) */
     navItems?: NavItem[];
+    /** Navigation sections with optional labels (takes precedence over navItems) */
+    navSections?: NavSection[];
     /** Render a Link component (for Next.js or React Router) */
     renderLink: (props: {
         href: string;
@@ -40,6 +46,6 @@ interface SidebarProps {
         analytics?: string;
     };
 }
-export declare function Sidebar({ pathname, navItems, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, showSettingsButton, labels, }: SidebarProps): import("react/jsx-runtime").JSX.Element;
+export declare function Sidebar({ pathname, navItems, navSections, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, showSettingsButton, labels, }: SidebarProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=sidebar.d.ts.map

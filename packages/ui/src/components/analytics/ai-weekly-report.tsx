@@ -32,7 +32,7 @@ export interface AIReportSection {
 }
 
 interface AIWeeklyReportProps {
-  data?: ProductivityData;
+  data: ProductivityData;
   onRefresh?: () => void;
   className?: string;
   labels?: {
@@ -59,25 +59,6 @@ interface AIWeeklyReportProps {
   onGenerate?: () => void;
   onToggleSection?: (sectionId: string) => void;
 }
-
-const MOCK_DATA: ProductivityData = {
-  totalPomodoros: 32,
-  totalTasks: 45,
-  completedTasks: 28,
-  streak: 5,
-  avgPomodorosPerDay: 4.5,
-  peakHour: 10,
-  topProject: { name: 'Proyecto Alpha', tasks: 12 },
-  weeklyData: [
-    { day: 'Mon', pomodoros: 6, tasks: 5 },
-    { day: 'Tue', pomodoros: 8, tasks: 7 },
-    { day: 'Wed', pomodoros: 4, tasks: 3 },
-    { day: 'Thu', pomodoros: 7, tasks: 6 },
-    { day: 'Fri', pomodoros: 5, tasks: 4 },
-    { day: 'Sat', pomodoros: 2, tasks: 2 },
-    { day: 'Sun', pomodoros: 0, tasks: 1 },
-  ],
-};
 
 const sectionColors = {
   success: 'border-l-emerald-500 bg-emerald-50 dark:bg-emerald-950',
@@ -114,7 +95,7 @@ const DEFAULT_LABELS = {
  * Purely presentational - state must be managed by parent.
  */
 export function AIWeeklyReport({
-  data = MOCK_DATA,
+  data,
   onRefresh: _onRefresh,
   className,
   labels = {},

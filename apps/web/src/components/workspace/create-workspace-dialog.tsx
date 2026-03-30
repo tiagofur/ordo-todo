@@ -120,7 +120,7 @@ export function CreateWorkspaceDialog({
       setSelectedColor("#2563EB");
       setSelectedIcon("🏠");
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
     }
   };
 

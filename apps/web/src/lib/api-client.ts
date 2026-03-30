@@ -371,7 +371,9 @@ axiosInstance.interceptors.response.use(
           // If refresh fails, logout to clear cookies on backend
           await axiosInstance
             .post("/auth/logout", {}, { withCredentials: true })
-            .catch(() => { });
+            .catch(() => {
+              // Ignore errors during logout - user is leaving anyway
+            });
           // Redirect to login page
           if (typeof window !== "undefined") {
             window.location.href = "/login";
@@ -382,7 +384,9 @@ axiosInstance.interceptors.response.use(
         // Already retried and failed, logout to clear cookies on backend
         await axiosInstance
           .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => { });
+          .catch(() => {
+            // Ignore errors during logout - user is leaving anyway
+          });
         // Redirect to login page
         if (typeof window !== "undefined") {
           window.location.href = "/login";
@@ -580,22 +584,10 @@ export const apiClient = {
     axiosInstance.patch(`/tasks/${id}/complete`).then((res) => res.data),
   deleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
-  getDeletedTasks: (projectId: string): Promise<Task[]> => {
-    console.log(
-      "[apiClient] getDeletedTasks called with projectId:",
-      projectId,
-    );
-    return axiosInstance
+  getDeletedTasks: (projectId: string): Promise<Task[]> =>
+    axiosInstance
       .get("/tasks/deleted", { params: { projectId } })
-      .then((res) => {
-        console.log("[apiClient] getDeletedTasks response:", res.data);
-        return res.data;
-      })
-      .catch((error) => {
-        console.error("[apiClient] getDeletedTasks error:", error);
-        throw error;
-      });
-  },
+      .then((res) => res.data),
   restoreTask: (id: string): Promise<Task> =>
     axiosInstance.post(`/tasks/${id}/restore`).then((res) => res.data),
   permanentDeleteTask: (id: string): Promise<void> =>
@@ -874,36 +866,33 @@ export const apiClient = {
       .post(`/objectives/${objectiveId}/key-results`, data)
       .then((res) => res.data),
   updateKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     data: UpdateKeyResultDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data)
+      .patch(`/objectives/key-results/${keyResultId}`, data)
       .then((res) => res.data),
 
-  deleteKeyResult: (objectiveId: string, keyResultId: string): Promise<void> =>
+  deleteKeyResult: (keyResultId: string): Promise<void> =>
     axiosInstance
-      .delete(`/objectives/${objectiveId}/key-results/${keyResultId}`)
+      .delete(`/objectives/key-results/${keyResultId}`)
       .then((res) => res.data),
 
   linkTaskToKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     data: LinkTaskDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .post(`/objectives/${objectiveId}/key-results/${keyResultId}/tasks`, data)
+      .post(`/objectives/key-results/${keyResultId}/tasks`, data)
       .then((res) => res.data),
 
   unlinkTaskFromKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     taskId: string,
   ): Promise<KeyResult> =>
     axiosInstance
       .delete(
-        `/objectives/${objectiveId}/key-results/${keyResultId}/tasks/${taskId}`,
+        `/objectives/key-results/${keyResultId}/tasks/${taskId}`,
       )
       .then((res) => res.data),
 

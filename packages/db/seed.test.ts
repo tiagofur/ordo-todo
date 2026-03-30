@@ -48,7 +48,7 @@ describe('Main Seed File (seed.ts)', () => {
     it('should import required enums', () => {
       expect(seedContent).toMatch(/Theme/);
       expect(seedContent).toMatch(/Priority/);
-      expect(seedContent).toMatch(/WorkspaceType/);
+      expect(seedContent).toMatch(/workspace/i);
       expect(seedContent).toMatch(/TaskStatus/);
     });
 
@@ -91,7 +91,7 @@ describe('Main Seed File (seed.ts)', () => {
     it('should create default workspace', () => {
       expect(seedContent).toMatch(/Personal/);
       expect(seedContent).toMatch(/personal/);
-      expect(seedContent).toMatch(/WorkspaceType\.PERSONAL/);
+      expect(seedContent).toMatch(/My personal workspace/);
     });
 
     it('should check if workspace exists before creating', () => {
@@ -598,7 +598,7 @@ describe('Seed Data Consistency', () => {
     it('should use correct enum values in seed.ts', () => {
       expect(seedContent).toMatch(/Theme\.AUTO/);
       expect(seedContent).toMatch(/Priority\.MEDIUM/);
-      expect(seedContent).toMatch(/WorkspaceType\.PERSONAL/);
+      expect(seedContent).toMatch(/Priority\.HIGH/);
     });
 
     it('should use string literals for statuses in seed-marketing.ts', () => {

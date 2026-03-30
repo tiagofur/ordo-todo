@@ -61,7 +61,7 @@ export function CreateObjectiveDialog({ open, onOpenChange }: CreateObjectiveDia
                 form.reset();
             },
             onError: (error) => {
-                console.error(error);
+                if (process.env.NODE_ENV === 'development') console.error(error);
             }
         });
     };

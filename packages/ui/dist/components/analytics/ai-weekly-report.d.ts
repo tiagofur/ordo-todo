@@ -23,7 +23,7 @@ export interface AIReportSection {
     type: 'success' | 'info' | 'warning' | 'tip';
 }
 interface AIWeeklyReportProps {
-    data?: ProductivityData;
+    data: ProductivityData;
     onRefresh?: () => void;
     className?: string;
     labels?: {

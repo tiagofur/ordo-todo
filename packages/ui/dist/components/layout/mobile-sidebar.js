@@ -26,8 +26,10 @@ const DEFAULT_LABELS = {
     appName: "Ordo",
     settings: "Settings",
 };
-export function MobileSidebar({ open, onOpenChange, pathname = "", navItems = [], renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref = "/dashboard", LogoIcon, showSettingsButton = false, labels = {}, }) {
+export function MobileSidebar({ open, onOpenChange, pathname = "", navItems = [], navSections, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref = "/dashboard", LogoIcon, showSettingsButton = false, labels = {}, }) {
     const t = { ...DEFAULT_LABELS, ...labels };
+    // Build sections: prefer navSections, fall back to navItems as a single section
+    const sections = navSections || [{ items: navItems }];
     const isActiveRoute = (href) => {
         return pathname === href || pathname?.startsWith(`${href}/`);
     };
@@ -39,18 +41,18 @@ export function MobileSidebar({ open, onOpenChange, pathname = "", navItems = []
                                 className: "flex items-center gap-3 group",
                                 onClick: handleLinkClick,
                                 children: (_jsxs(_Fragment, { children: [LogoIcon && (_jsx("div", { className: "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/20 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3", children: _jsx(LogoIcon, { className: "h-6 w-6" }) })), _jsx("span", { className: "text-2xl font-bold text-foreground", children: t.appName })] })),
-                            }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { className: "space-y-1 px-3 py-4", children: navItems.map((item) => {
-                                        const isActive = isActiveRoute(item.href);
-                                        const color = item.color || "cyan";
-                                        return (_jsx("div", { children: renderLink({
-                                                href: item.href,
-                                                onClick: handleLinkClick,
-                                                className: cn("group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200", isActive
-                                                    ? activeColorClasses[color]
-                                                    : cn("text-muted-foreground hover:text-foreground", colorClasses[color])),
-                                                children: (_jsxs(_Fragment, { children: [_jsx(item.icon, { className: cn("h-5 w-5 transition-transform duration-200", isActive ? "" : "group-hover:scale-110") }), item.name] })),
-                                            }) }, item.href));
-                                    }) }), renderTimerWidget && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderTimerWidget() })), renderWorkspaceSelector && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderWorkspaceSelector() })), (showSettingsButton || renderInstallButton) && (_jsxs("div", { className: "border-t border-border/50 p-3 space-y-1", children: [showSettingsButton &&
+                            }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { className: "px-3 py-4", children: sections.map((section, sectionIndex) => (_jsxs("div", { className: cn(sectionIndex > 0 && "mt-4"), children: [section.label && (_jsx("div", { className: "px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70", children: section.label })), _jsx("div", { className: "space-y-1", children: section.items.map((item) => {
+                                                    const isActive = isActiveRoute(item.href);
+                                                    const color = item.color || "cyan";
+                                                    return (_jsx("div", { children: renderLink({
+                                                            href: item.href,
+                                                            onClick: handleLinkClick,
+                                                            className: cn("group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200", isActive
+                                                                ? activeColorClasses[color]
+                                                                : cn("text-muted-foreground hover:text-foreground", colorClasses[color])),
+                                                            children: (_jsxs(_Fragment, { children: [_jsx(item.icon, { className: cn("h-5 w-5 transition-transform duration-200", isActive ? "" : "group-hover:scale-110") }), item.name] })),
+                                                        }) }, item.href));
+                                                }) })] }, section.label || sectionIndex))) }), renderTimerWidget && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderTimerWidget() })), renderWorkspaceSelector && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderWorkspaceSelector() })), (showSettingsButton || renderInstallButton) && (_jsxs("div", { className: "border-t border-border/50 p-3 space-y-1", children: [showSettingsButton &&
                                             renderLink({
                                                 href: "/settings",
                                                 onClick: handleLinkClick,

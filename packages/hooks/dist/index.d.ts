@@ -2,8 +2,8 @@ import * as _tanstack_react_query from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import * as _ordo_todo_api_client from '@ordo-todo/api-client';
 import { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto } from '@ordo-todo/api-client';
-import { C as CreateHooksConfig } from './use-username-validation-ut21i5j5.js';
-export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-ut21i5j5.js';
+import { C as CreateHooksConfig } from './use-username-validation-CdoX1Tq7.js';
+export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-CdoX1Tq7.js';
 import { z } from 'zod';
 
 /**
@@ -199,8 +199,8 @@ declare function createHooks(config: CreateHooksConfig): {
     }[], Error>;
     useMonthlyMetrics: (params?: {
         monthStart?: string;
-    }) => _tanstack_react_query.UseQueryResult<unknown, Error>;
-    useDateRangeMetrics: (startDate: string, endDate: string) => _tanstack_react_query.UseQueryResult<unknown, Error>;
+    }) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.DailyMetrics[], Error>;
+    useDateRangeMetrics: (startDate: string, endDate: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.DailyMetrics[], Error>;
     useDashboardStats: () => _tanstack_react_query.UseQueryResult<{
         pomodoros: number;
         tasks: number;
@@ -257,7 +257,9 @@ declare function createHooks(config: CreateHooksConfig): {
     useNotifications: () => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.Notification[], Error>;
     useUnreadNotificationsCount: () => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.UnreadCountResponse, Error>;
     useMarkNotificationAsRead: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.Notification, Error, string, unknown>;
-    useMarkAllNotificationsAsRead: () => _tanstack_react_query.UseMutationResult<any, Error, void, unknown>;
+    useMarkAllNotificationsAsRead: () => _tanstack_react_query.UseMutationResult<{
+        success: boolean;
+    }, Error, void, unknown>;
     useTimeBlocks: (start?: Date | string, end?: Date | string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.TimeBlock[], Error>;
     useHabits: (includeArchived?: boolean) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.Habit[], Error>;
     useTodayHabits: () => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.TodayHabitsResponse, Error>;
@@ -368,11 +370,14 @@ declare const queryKeys: {
         limit?: number;
         offset?: number;
     } | undefined];
+    readonly allWorkflows: readonly ["workflows"];
     readonly workflows: (workspaceId: string) => readonly ["workflows", string];
+    readonly allProjectsPrefix: readonly ["projects"];
     readonly projects: (workspaceId: string) => readonly ["projects", string];
     readonly allProjects: readonly ["projects", "all"];
     readonly project: (id: string) => readonly ["projects", string];
     readonly projectBySlugs: (workspaceSlug: string, projectSlug: string) => readonly ["projects", "by-slug", string, string];
+    readonly allTasks: readonly ["tasks"];
     readonly tasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) => readonly ["tasks", {
         readonly projectId: string | undefined;
         readonly tags: string[] | undefined;
@@ -381,10 +386,13 @@ declare const queryKeys: {
     readonly task: (id: string) => readonly ["tasks", string];
     readonly taskDetails: (id: string) => readonly ["tasks", string, "details"];
     readonly publicTask: (token: string) => readonly ["public-task", string];
+    readonly allTags: readonly ["tags"];
     readonly tags: (workspaceId: string) => readonly ["tags", string];
     readonly taskTags: (taskId: string) => readonly ["tasks", string, "tags"];
     readonly activeTimer: readonly ["timer", "active"];
+    readonly allTimerHistory: readonly ["timer", "history"];
     readonly timerHistory: (params?: GetSessionsParams) => readonly ["timer", "history", GetSessionsParams | undefined];
+    readonly allTimerStats: readonly ["timer", "stats"];
     readonly timerStats: (params?: {
         startDate?: string;
         endDate?: string;
@@ -393,6 +401,7 @@ declare const queryKeys: {
         endDate?: string;
     } | undefined];
     readonly taskTimeSessions: (taskId: string) => readonly ["timer", "task", string];
+    readonly allAnalytics: readonly ["analytics"];
     readonly dailyMetrics: (params?: GetDailyMetricsParams) => readonly ["analytics", "daily", GetDailyMetricsParams | undefined];
     readonly weeklyMetrics: (params?: {
         weekStart?: string;
@@ -445,7 +454,9 @@ declare const queryKeys: {
     readonly todayHabits: readonly ["habits", "today"];
     readonly habit: (id: string) => readonly ["habits", string];
     readonly habitStats: (id: string) => readonly ["habits", string, "stats"];
+    readonly allTimeBlocks: readonly ["time-blocks"];
     readonly timeBlocks: (start?: string, end?: string) => readonly ["time-blocks", string | undefined, string | undefined];
+    readonly allObjectives: readonly ["objectives"];
     readonly objectives: (options?: {
         status?: string;
         workspaceId?: string;

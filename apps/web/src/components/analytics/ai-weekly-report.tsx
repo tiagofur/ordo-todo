@@ -91,6 +91,10 @@ export function AIWeeklyReport({ data, onRefresh, className }: AIWeeklyReportPro
     );
   };
 
+  if (!data) {
+    return null;
+  }
+
   return (
     <AIWeeklyReportUI
       data={data}

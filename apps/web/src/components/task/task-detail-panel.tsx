@@ -257,7 +257,7 @@ export function TaskDetailPanel({
         await uploadAttachmentMutation.mutateAsync({ file, taskId });
         // Clear input? easier to just use a key or controlled input, but simple is fine for now
     } catch (error) {
-        console.error("Failed to upload", error);
+        if (process.env.NODE_ENV === 'development') console.error("Failed to upload", error);
     }
   };
 
@@ -297,7 +297,7 @@ export function TaskDetailPanel({
        });
        setIsEditing(false);
      } catch (err) {
-       console.error(err);
+       if (process.env.NODE_ENV === 'development') console.error(err);
      } finally {
        setIsUpdating(false);
      }

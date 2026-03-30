@@ -32,18 +32,20 @@ const DEFAULT_LABELS = {
     tags: 'Tags',
     analytics: 'Analytics',
 };
-export function Sidebar({ pathname = '', navItems, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref = '/dashboard', showSettingsButton = false, labels = {}, }) {
+export function Sidebar({ pathname = '', navItems, navSections, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref = '/dashboard', showSettingsButton = false, labels = {}, }) {
     const t = { ...DEFAULT_LABELS, ...labels };
-    // Default navigation if not provided
-    const navigation = navItems || [
-        { name: t.today, href: '/dashboard', icon: Home, color: 'cyan' },
-        { name: t.tasks, href: '/tasks', icon: CheckSquare, color: 'purple' },
-        { name: t.calendar, href: '/calendar', icon: Calendar, color: 'blue' },
-        { name: t.projects, href: '/projects', icon: FolderKanban, color: 'pink' },
-        { name: t.workspaces, href: '/workspaces', icon: Briefcase, color: 'orange' },
-        { name: t.tags, href: '/tags', icon: Tags, color: 'green' },
-        { name: t.analytics, href: '/analytics', icon: BarChart3, color: 'cyan' },
-    ];
+    // Build sections: prefer navSections, fall back to navItems as a single section
+    const sections = navSections || [{
+            items: navItems || [
+                { name: t.today, href: '/dashboard', icon: Home, color: 'cyan' },
+                { name: t.tasks, href: '/tasks', icon: CheckSquare, color: 'purple' },
+                { name: t.calendar, href: '/calendar', icon: Calendar, color: 'blue' },
+                { name: t.projects, href: '/projects', icon: FolderKanban, color: 'pink' },
+                { name: t.workspaces, href: '/workspaces', icon: Briefcase, color: 'orange' },
+                { name: t.tags, href: '/tags', icon: Tags, color: 'green' },
+                { name: t.analytics, href: '/analytics', icon: BarChart3, color: 'cyan' },
+            ],
+        }];
     const isActiveRoute = (href) => {
         return pathname === href || pathname?.startsWith(`${href}/`);
     };
@@ -51,17 +53,17 @@ export function Sidebar({ pathname = '', navItems, renderLink, renderWorkspaceSe
                         href: logoHref,
                         className: 'flex items-center gap-3 group',
                         children: (_jsxs(_Fragment, { children: [_jsx("div", { className: "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/20 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3", children: _jsx(CheckSquare, { className: "h-6 w-6" }) }), _jsx("span", { className: "text-2xl font-bold text-foreground", children: t.appName })] })),
-                    }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { role: "navigation", "aria-label": "Navegaci\u00F3n principal", className: "space-y-1 px-3 py-4", children: navigation.map((item) => {
-                                const isActive = isActiveRoute(item.href);
-                                const color = item.color || 'cyan';
-                                return (_jsx("div", { children: renderLink({
-                                        href: item.href,
-                                        className: cn('group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200', isActive
-                                            ? activeColorClasses[color]
-                                            : cn('text-muted-foreground hover:text-foreground', colorClasses[color])),
-                                        children: (_jsxs(_Fragment, { children: [_jsx(item.icon, { className: cn('h-5 w-5 transition-transform duration-200', isActive ? '' : 'group-hover:scale-110') }), item.name] })),
-                                    }) }, item.href));
-                            }) }), renderTimerWidget && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderTimerWidget() })), renderWorkspaceSelector && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderWorkspaceSelector() })), (showSettingsButton || renderInstallButton) && (_jsxs("div", { className: "border-t border-border/50 p-3 space-y-1", children: [showSettingsButton && renderLink({
+                    }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { role: "navigation", "aria-label": "Navegaci\u00F3n principal", className: "px-3 py-4", children: sections.map((section, sectionIndex) => (_jsxs("div", { className: cn(sectionIndex > 0 && 'mt-4'), children: [section.label && (_jsx("div", { className: "px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70", children: section.label })), _jsx("div", { className: "space-y-1", children: section.items.map((item) => {
+                                            const isActive = isActiveRoute(item.href);
+                                            const color = item.color || 'cyan';
+                                            return (_jsx("div", { children: renderLink({
+                                                    href: item.href,
+                                                    className: cn('group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200', isActive
+                                                        ? activeColorClasses[color]
+                                                        : cn('text-muted-foreground hover:text-foreground', colorClasses[color])),
+                                                    children: (_jsxs(_Fragment, { children: [_jsx(item.icon, { className: cn('h-5 w-5 transition-transform duration-200', isActive ? '' : 'group-hover:scale-110') }), item.name] })),
+                                                }) }, item.href));
+                                        }) })] }, section.label || sectionIndex))) }), renderTimerWidget && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderTimerWidget() })), renderWorkspaceSelector && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderWorkspaceSelector() })), (showSettingsButton || renderInstallButton) && (_jsxs("div", { className: "border-t border-border/50 p-3 space-y-1", children: [showSettingsButton && renderLink({
                                     href: '/settings',
                                     className: cn('group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200', isActiveRoute('/settings')
                                         ? activeColorClasses.blue

@@ -124,7 +124,6 @@ export function GenerateReportDialog({
         onReset?.();
       }, 2000);
     } catch (err) {
-      console.error('Failed to generate report:', err);
       setInternalPending(false);
       setInternalError(true);
     }

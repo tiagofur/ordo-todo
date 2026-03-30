@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { AppLayout } from "@/components/shared/app-layout";
-import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon, Sparkles, Brain, Heart, Headphones, Rocket, Play, Shield } from "lucide-react";
+import { Clock, Palette, Moon, Sun, Monitor, Laptop, Zap, Bell, Volume2, Globe, Keyboard, Settings as SettingsIcon, Sparkles, Brain, Heart, Headphones, Rocket, Play, Shield, Tags, ChevronRight } from "lucide-react";
 import { Label, Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { useTimerSettings } from "@/hooks/use-timer-settings";
@@ -574,6 +574,37 @@ export default function SettingsPage() {
                   Panel de Bienestar, Carga del Equipo y Focus Audio.
                 </p>
               </div>
+            </div>
+          </section>
+
+          {/* Tags Management */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+              <div className="p-2 rounded-lg bg-green-500/10 text-green-500">
+                <Tags className="h-5 w-5" />
+              </div>
+              <h2 className="text-lg font-semibold">{t("tags") || "Etiquetas"}</h2>
+            </div>
+
+            <div className="rounded-xl border bg-card p-6 shadow-sm">
+              <p className="text-sm text-muted-foreground mb-4">
+                {t("tagsDescription") || "Gestiona las etiquetas para organizar y categorizar tus tareas"}
+              </p>
+              <button
+                onClick={() => router.push("/tags")}
+                className="flex items-center justify-between w-full rounded-xl border border-border/50 p-4 text-left transition-all hover:bg-muted/50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+                    <Tags className="h-5 w-5 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{t("manageTags") || "Administrar Etiquetas"}</p>
+                    <p className="text-xs text-muted-foreground">{t("manageTagsDescription") || "Crear, editar y eliminar etiquetas"}</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
             </div>
           </section>
 

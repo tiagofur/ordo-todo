@@ -67,7 +67,7 @@ export default function WorkloadPage() {
       const data = await apiClient.getWorkspaceWorkload(workspaceId);
       setWorkloadData(data);
     } catch (error) {
-      console.error("Failed to fetch workload:", error);
+      if (process.env.NODE_ENV === 'development') console.error("Failed to fetch workload:", error);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);

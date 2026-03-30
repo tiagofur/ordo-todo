@@ -57,6 +57,10 @@ export declare const locales: {
             wellbeing: string;
             workload: string;
             notes: string;
+            insights: string;
+            sectionPlan: string;
+            sectionInsights: string;
+            sectionTeam: string;
         };
         Settings: {
             title: string;
@@ -99,6 +103,10 @@ export declare const locales: {
                 settings: string;
                 toggleSidebar: string;
             };
+            tags: string;
+            tagsDescription: string;
+            manageTags: string;
+            manageTagsDescription: string;
             about: string;
             version: string;
             platform: string;
@@ -2018,6 +2026,11 @@ export declare const locales: {
             left: string;
             notFound: string;
             edit: string;
+            editObjective: string;
+            editDescription: string;
+            update: string;
+            updated: string;
+            updateError: string;
         };
         CustomFields: {
             title: string;
@@ -2391,6 +2404,12 @@ export declare const locales: {
             tasks: string;
             restore: string;
             confirmDelete: string;
+        };
+        notFound: {
+            title: string;
+            description: string;
+            goToDashboard: string;
+            goToHome: string;
         };
     };
     readonly es: {
@@ -2426,6 +2445,10 @@ export declare const locales: {
             wellbeing: string;
             workload: string;
             notes: string;
+            insights: string;
+            sectionPlan: string;
+            sectionInsights: string;
+            sectionTeam: string;
         };
         Settings: {
             title: string;
@@ -2468,6 +2491,10 @@ export declare const locales: {
                 settings: string;
                 toggleSidebar: string;
             };
+            tags: string;
+            tagsDescription: string;
+            manageTags: string;
+            manageTagsDescription: string;
             about: string;
             version: string;
             platform: string;
@@ -4290,6 +4317,11 @@ export declare const locales: {
             backToList: string;
             notFound: string;
             edit: string;
+            editObjective: string;
+            editDescription: string;
+            update: string;
+            updated: string;
+            updateError: string;
             createDescription: string;
             cancel: string;
             create: string;
@@ -4761,6 +4793,12 @@ export declare const locales: {
             restore: string;
             confirmDelete: string;
         };
+        notFound: {
+            title: string;
+            description: string;
+            goToDashboard: string;
+            goToHome: string;
+        };
     };
     readonly 'pt-br': {
         Calendar: {
@@ -4794,6 +4832,11 @@ export declare const locales: {
             meetings: string;
             wellbeing: string;
             workload: string;
+            notes: string;
+            insights: string;
+            sectionPlan: string;
+            sectionInsights: string;
+            sectionTeam: string;
         };
         Settings: {
             title: string;
@@ -4836,6 +4879,10 @@ export declare const locales: {
                 settings: string;
                 toggleSidebar: string;
             };
+            tags: string;
+            tagsDescription: string;
+            manageTags: string;
+            manageTagsDescription: string;
             about: string;
             version: string;
             platform: string;
@@ -6748,6 +6795,11 @@ export declare const locales: {
             left: string;
             notFound: string;
             edit: string;
+            editObjective: string;
+            editDescription: string;
+            update: string;
+            updated: string;
+            updateError: string;
         };
         CustomFields: {
             title: string;
@@ -7121,6 +7173,12 @@ export declare const locales: {
             tasks: string;
             restore: string;
             confirmDelete: string;
+        };
+        notFound: {
+            title: string;
+            description: string;
+            goToDashboard: string;
+            goToHome: string;
         };
     };
 };

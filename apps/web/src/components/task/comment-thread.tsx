@@ -99,7 +99,7 @@ export function CommentThread({
     try {
       await action();
     } catch (e) {
-      console.error(e);
+      if (process.env.NODE_ENV === 'development') console.error(e);
     } finally {
       setIsSubmitting(false);
     }
@@ -129,7 +129,7 @@ export function CommentThread({
       // onDelete is usually fast.
       try {
          onDelete(String(commentId));
-      } catch(e) { console.error(e); }
+      } catch(e) { if (process.env.NODE_ENV === 'development') console.error(e); }
     }
   };
 
