@@ -292,11 +292,6 @@ describe('useKeyboardShortcuts', () => {
   });
 
   it('should work with default shortcuts', () => {
-    const mockNavigate = vi.fn();
-    vi.mock('react-router-dom', () => ({
-      useNavigate: () => mockNavigate,
-    }));
-
     renderHook(() => useKeyboardShortcuts({
       shortcuts: defaultShortcuts,
     }));

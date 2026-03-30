@@ -52,7 +52,7 @@ describe('Schema Structure', () => {
       expect(schemaContent).toMatch(/id\s+String\s+@id/);
       expect(schemaContent).toMatch(/name\s+String/);
       expect(schemaContent).toMatch(/slug\s+String/);
-      expect(schemaContent).toMatch(/type\s+WorkspaceType/);
+      expect(schemaContent).toMatch(/tier\s+WorkspaceTier/);
     });
 
     it('should have TimeSession model with required fields', () => {
@@ -156,11 +156,11 @@ describe('Schema Structure', () => {
       expect(schemaContent).toMatch(/URGENT/);
     });
 
-    it('should define WorkspaceType enum', () => {
-      expect(schemaContent).toMatch(/enum WorkspaceType\s*\{/);
-      expect(schemaContent).toMatch(/PERSONAL/);
-      expect(schemaContent).toMatch(/WORK/);
-      expect(schemaContent).toMatch(/TEAM/);
+    it('should define WorkspaceTier enum', () => {
+      expect(schemaContent).toMatch(/enum WorkspaceTier\s*\{/);
+      expect(schemaContent).toMatch(/FREE/);
+      expect(schemaContent).toMatch(/PRO/);
+      expect(schemaContent).toMatch(/ENTERPRISE/);
     });
 
     it('should define SessionType enum', () => {

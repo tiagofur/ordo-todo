@@ -68,6 +68,10 @@ export function useKeyboardShortcuts({ shortcuts, onShortcutTriggered }: Keyboar
   }, [handleKeyDown]);
 
   return {
+    // Expose matchesShortcut for external use
+    matchesShortcut: (e: KeyboardEvent, shortcut: Partial<KeyboardShortcut>) =>
+      matchesShortcut(e, shortcut as KeyboardShortcut),
+
     // Helper to create navigation shortcuts
     createNavigationShortcut: (key: string, path: string, description: string, options?: Partial<KeyboardShortcut>): KeyboardShortcut => ({
       id: `nav-${path}`,
