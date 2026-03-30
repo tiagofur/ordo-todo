@@ -463,7 +463,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (workflowId: string) => apiClient.deleteWorkflow(workflowId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['workflows'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allWorkflows });
       },
     });
   }
@@ -534,7 +534,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: (projectId: string) => apiClient.archiveProject(projectId),
       onSuccess: (project) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
-        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       },
     });
   }
@@ -546,7 +546,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: (projectId: string) => apiClient.completeProject(projectId),
       onSuccess: (project) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
-        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       },
     });
   }
@@ -557,7 +557,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (projectId: string) => apiClient.deleteProject(projectId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       },
     });
   }
@@ -639,8 +639,8 @@ export function createHooks(config: CreateHooksConfig) {
       onSettled: (_task, _error, { taskId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        queryClient.invalidateQueries({ queryKey: ['time-blocks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimeBlocks });
       },
     });
   }
@@ -684,8 +684,8 @@ export function createHooks(config: CreateHooksConfig) {
       onSettled: (_task, _error, taskId) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        queryClient.invalidateQueries({ queryKey: ['analytics'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
         queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
       },
     });
@@ -697,7 +697,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (taskId: string) => apiClient.deleteTask(taskId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       },
     });
   }
@@ -710,7 +710,7 @@ export function createHooks(config: CreateHooksConfig) {
         apiClient.createSubtask(parentTaskId, data),
       onSuccess: (_, { parentTaskId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(parentTaskId) });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       },
     });
   }
@@ -792,7 +792,7 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         queryClient.invalidateQueries({ queryKey: ['tags'] });
       },
     });
@@ -808,7 +808,7 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         queryClient.invalidateQueries({ queryKey: ['tags'] });
       },
     });
@@ -841,7 +841,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: (data: StartTimerDto) => apiClient.startTimer(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       },
     });
   }
@@ -853,8 +853,8 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: (data: StopTimerDto) => apiClient.stopTimer(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-        queryClient.invalidateQueries({ queryKey: ['analytics'] });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
         queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
       },
@@ -891,8 +891,8 @@ export function createHooks(config: CreateHooksConfig) {
         apiClient.switchTask(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
-        queryClient.invalidateQueries({ queryKey: ['analytics'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
         queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
         queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
       },
@@ -1089,7 +1089,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (commentId: string) => apiClient.deleteComment(commentId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       },
     });
   }
@@ -1122,7 +1122,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (attachmentId: string) => apiClient.deleteAttachment(attachmentId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         queryClient.invalidateQueries({ queryKey: ['projects'] });
       },
     });
@@ -1184,7 +1184,7 @@ export function createHooks(config: CreateHooksConfig) {
    * Helper to invalidate all task queries
    */
   function invalidateAllTasks(queryClient: ReturnType<typeof useQueryClient>) {
-    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
   }
 
   function useTimeBlocks(start?: Date | string, end?: Date | string) {
@@ -1513,7 +1513,7 @@ export function createHooks(config: CreateHooksConfig) {
         apiClient.setTaskCustomValues(taskId, data),
       onSuccess: (_, { taskId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskCustomValues(taskId) });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       },
     });
   }

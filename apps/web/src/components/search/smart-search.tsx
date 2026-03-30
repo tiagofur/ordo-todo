@@ -71,7 +71,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
         const suggestionsData = Array.isArray(response) ? response : (response.suggestions || []);
         setSuggestions(suggestionsData);
       } catch (error) {
-        console.error('Failed to fetch suggestions', error);
+        if (process.env.NODE_ENV === 'development') console.error('Failed to fetch suggestions', error);
       }
     };
 
@@ -104,7 +104,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
       setInterpretation(searchInterpretation);
       setSelectedIndex(0);
     } catch (error) {
-      console.error('Search failed', error);
+      if (process.env.NODE_ENV === 'development') console.error('Search failed', error);
       setResults([]);
     } finally {
       setIsLoading(false);

@@ -143,7 +143,7 @@ export function FileUpload({
   const uploadFile = async (file: File) => {
     const error = validateFile(file);
     if (error) {
-      console.error(error); // Parent should handle toast if needed or we could expose onError
+      if (process.env.NODE_ENV === 'development') console.error(error); // Parent should handle toast if needed or we could expose onError
       return;
     }
 
@@ -169,7 +169,6 @@ export function FileUpload({
       setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
       onUploadComplete?.();
     } catch (err: unknown) {
-      console.error('Upload error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setUploadingFiles((prev) =>
         prev.map((f) =>

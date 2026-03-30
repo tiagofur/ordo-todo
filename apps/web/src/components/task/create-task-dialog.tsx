@@ -167,7 +167,7 @@ export function CreateTaskDialog({
       reset();
       onOpenChange(false);
     } catch (error) {
-       console.error(error);
+       if (process.env.NODE_ENV === 'development') console.error(error);
     }
   };
 
@@ -180,7 +180,7 @@ export function CreateTaskDialog({
       const description = await onGenerateAIDescription(title);
       setValue('description', description);
     } catch (err) {
-      console.error(err);
+      if (process.env.NODE_ENV === 'development') console.error(err);
     } finally {
       setIsGenerating(false);
     }

@@ -194,7 +194,7 @@ export function ProjectSettings({
         color: selectedColor,
       });
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
     }
   };
 
@@ -202,7 +202,7 @@ export function ProjectSettings({
     try {
       await onArchive(project.id);
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
     }
   };
 
@@ -210,7 +210,7 @@ export function ProjectSettings({
     try {
       await onDelete(project.id);
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
     }
   };
 

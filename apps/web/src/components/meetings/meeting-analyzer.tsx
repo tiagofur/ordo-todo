@@ -71,7 +71,6 @@ export function MeetingAnalyzer() {
       setAnalysis(result);
       toast.success("Análisis completado");
     } catch (err) {
-      console.error("Failed to analyze meeting:", err);
       setError("Error al analizar la transcripción. Inténtalo de nuevo.");
       toast.error("Error al analizar");
     } finally {

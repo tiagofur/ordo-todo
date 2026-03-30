@@ -47,7 +47,7 @@ export function NotificationPopover() {
         locale: localeMap[locale] || enUS
       });
     } catch (error) {
-      console.error('Error formatting date:', error, 'date value:', date);
+      if (process.env.NODE_ENV === 'development') console.error('Error formatting date:', error, 'date value:', date);
       return '';
     }
   };
