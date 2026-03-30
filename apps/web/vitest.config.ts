@@ -24,6 +24,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
+            '@ordo-todo/api-client': path.resolve(__dirname, '../../packages/api-client/src/index.ts'),
         },
     },
 });

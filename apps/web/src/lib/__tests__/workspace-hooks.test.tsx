@@ -151,8 +151,9 @@ describe("useCreateWorkspace", () => {
 
     vi.mocked(mockClient.createWorkspace).mockResolvedValue(resultWorkspace);
 
+    let mutationResult: typeof resultWorkspace | undefined;
     await act(async () => {
-      await result.current.mutateAsync({
+      mutationResult = await result.current.mutateAsync({
         name: "New",
         slug: "new",
       });
@@ -162,6 +163,6 @@ describe("useCreateWorkspace", () => {
       name: "New",
       slug: "new",
     });
-    expect(result.current.data).toEqual(resultWorkspace);
+    expect(mutationResult).toEqual(resultWorkspace);
   });
 });

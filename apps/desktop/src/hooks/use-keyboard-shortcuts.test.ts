@@ -7,19 +7,22 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
 }));
 
-// Mock toast
+// Mock toast - use vi.hoisted so variable is available in hoisted vi.mock factory
+const { mockToast } = vi.hoisted(() => {
+  return {
+    mockToast: {
+      error: vi.fn(),
+      success: vi.fn(),
+    },
+  };
+});
 vi.mock('sonner', () => ({
-  toast: {
-    error: vi.fn(),
-  },
+  toast: mockToast,
 }));
 
 describe('useKeyboardShortcuts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Remove any existing event listeners
-    document.removeEventListener('keydown', vi.fn());
-    window.removeEventListener('keydown', vi.fn());
   });
 
   it('should match keyboard shortcuts correctly', () => {
@@ -98,12 +101,12 @@ describe('useKeyboardShortcuts', () => {
       onShortcutTriggered: mockOnTriggered,
     }));
 
-    // Trigger matching keyboard event
+    // Trigger matching keyboard event (hook listens on window, not document)
     const event = new KeyboardEvent('keydown', {
       key: 'k',
       metaKey: true,
     });
-    fireEvent(document, event);
+    fireEvent(window, event);
 
     expect(mockAction).toHaveBeenCalled();
     expect(mockOnTriggered).toHaveBeenCalledWith(
@@ -135,7 +138,7 @@ describe('useKeyboardShortcuts', () => {
       key: 'l',
       metaKey: true,
     });
-    fireEvent(document, event);
+    fireEvent(window, event);
 
     expect(mockAction).not.toHaveBeenCalled();
   });
@@ -166,7 +169,7 @@ describe('useKeyboardShortcuts', () => {
       key: 'k',
       metaKey: true,
     });
-    fireEvent(document, event);
+    fireEvent(window, event);
 
     expect(mockAction).toHaveBeenCalled();
 
@@ -199,7 +202,7 @@ describe('useKeyboardShortcuts', () => {
       key: 'k',
       metaKey: true,
     });
-    fireEvent(document, event);
+    fireEvent(window, event);
 
     expect(mockAction).not.toHaveBeenCalled();
 
@@ -241,12 +244,6 @@ describe('useKeyboardShortcuts', () => {
     const mockAction = vi.fn(() => {
       throw new Error('Test error');
     });
-    const mockToast = { error: vi.fn() };
-
-    // Mock toast module
-    vi.doMock('sonner', () => ({
-      toast: mockToast,
-    }));
 
     renderHook(() => useKeyboardShortcuts({
       shortcuts: [
@@ -259,9 +256,9 @@ describe('useKeyboardShortcuts', () => {
       ],
     }));
 
-    // Trigger shortcut that throws error
+    // Trigger shortcut that throws error (hook listens on window)
     const event = new KeyboardEvent('keydown', { key: 'e' });
-    fireEvent(document, event);
+    fireEvent(window, event);
 
     expect(mockAction).toHaveBeenCalled();
     expect(mockToast.error).toHaveBeenCalledWith(
@@ -270,6 +267,8 @@ describe('useKeyboardShortcuts', () => {
   });
 
   it('should clean up event listeners on unmount', () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+
     const { unmount } = renderHook(() => useKeyboardShortcuts({
       shortcuts: [
         {
@@ -281,14 +280,16 @@ describe('useKeyboardShortcuts', () => {
       ],
     }));
 
-    // Event listeners should be set up
-    expect(document.removeEventListener).not.toHaveBeenCalled();
+    // Event listeners should be set up but not yet removed
+    expect(removeSpy).not.toHaveBeenCalledWith('keydown', expect.any(Function));
 
     // Unmount should clean up
     unmount();
 
-    // Note: In a real test environment, we'd verify that removeEventListener was called
-    // but since we're using vi.fn(), we can track the cleanup
+    // Verify removeEventListener was called for keydown
+    expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+
+    removeSpy.mockRestore();
   });
 
   it('should work with default shortcuts', () => {
@@ -298,7 +299,7 @@ describe('useKeyboardShortcuts', () => {
 
     // Test navigation shortcut
     const event1 = new KeyboardEvent('keydown', { key: '1', metaKey: true });
-    fireEvent(document, event1);
+    fireEvent(window, event1);
 
     // Note: In real implementation, this would trigger navigation
     // but for testing we verify the event listener setup works
@@ -328,7 +329,7 @@ describe('useKeyboardShortcuts', () => {
 
     // Test basic k press
     const event1 = new KeyboardEvent('keydown', { key: 'k' });
-    fireEvent(document, event1);
+    fireEvent(window, event1);
     expect(mockAction1).toHaveBeenCalled();
     expect(mockAction2).not.toHaveBeenCalled();
 
@@ -338,7 +339,7 @@ describe('useKeyboardShortcuts', () => {
 
     // Test cmd+k press
     const event2 = new KeyboardEvent('keydown', { key: 'k', metaKey: true });
-    fireEvent(document, event2);
+    fireEvent(window, event2);
     expect(mockAction1).not.toHaveBeenCalled();
     expect(mockAction2).toHaveBeenCalled();
   });
@@ -367,7 +368,7 @@ describe('useKeyboardShortcuts', () => {
       shiftKey: true,
       altKey: true,
     });
-    fireEvent(document, event);
+    fireEvent(window, event);
     expect(mockAction).toHaveBeenCalled();
 
     mockAction.mockClear();
@@ -379,7 +380,7 @@ describe('useKeyboardShortcuts', () => {
       shiftKey: true,
       // Missing altKey
     });
-    fireEvent(document, event2);
+    fireEvent(window, event2);
     expect(mockAction).not.toHaveBeenCalled();
   });
 
@@ -413,7 +414,7 @@ describe('useKeyboardShortcuts', () => {
       writable: true,
     });
 
-    fireEvent(document, event);
+    fireEvent(window, event);
 
     expect(mockAction).toHaveBeenCalled();
     expect(eventPrevented).toBe(true);

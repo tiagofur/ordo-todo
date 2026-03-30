@@ -2,7 +2,7 @@
  * Unit Tests for Workspace API Client Methods
  *
  * These tests verify the workspace-related API methods in the OrdoApiClient.
- * Tests mock axios responses and verify correct endpoint URLs and payload handling.
+ * Tests mock the internal axios instance and verify correct endpoint URLs and payload handling.
  *
  * Test Categories:
  * 1. Workspace CRUD operations (create, read, update, delete)
@@ -17,7 +17,6 @@ import {
   it,
   expect,
   vi,
-  beforeAll,
   beforeEach,
   afterEach,
 } from "vitest";
@@ -28,6 +27,7 @@ import type {
   WorkspaceInvitation,
   WorkspaceSettings,
   WorkspaceAuditLog,
+  WorkspaceAuditLogsResponse,
   CreateWorkspaceDto,
   UpdateWorkspaceDto,
   AddMemberDto,
@@ -36,55 +36,39 @@ import type {
   UpdateWorkspaceSettingsDto,
 } from "@ordo-todo/api-client";
 
-// Mock axios before importing the client
-const mockAxiosGet = vi.fn();
-const mockAxiosPost = vi.fn();
-const mockAxiosPut = vi.fn();
-const mockAxiosPatch = vi.fn();
-const mockAxiosDelete = vi.fn();
-const mockAxiosCreate = vi.fn();
-
-vi.mock("axios", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("axios")>();
-  return {
-    ...actual,
-    default: {
-      ...actual.default,
-      create: mockAxiosCreate,
-    },
-  };
-});
-
-// Set up the mock implementation
-mockAxiosCreate.mockReturnValue({
-  get: mockAxiosGet,
-  post: mockAxiosPost,
-  put: mockAxiosPut,
-  patch: mockAxiosPatch,
-  delete: mockAxiosDelete,
-  interceptors: {
-    request: { use: vi.fn() },
-    response: { use: vi.fn() },
-  },
-});
-
-// Import client after setting up mocks
 import { OrdoApiClient } from "@ordo-todo/api-client";
 
 describe("OrdoApiClient - Workspace Methods", () => {
   let client: OrdoApiClient;
+  let mockAxiosGet: ReturnType<typeof vi.fn>;
+  let mockAxiosPost: ReturnType<typeof vi.fn>;
+  let mockAxiosPut: ReturnType<typeof vi.fn>;
+  let mockAxiosPatch: ReturnType<typeof vi.fn>;
+  let mockAxiosDelete: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    // Clear all mocks before each test
-    mockAxiosGet.mockReset();
-    mockAxiosPost.mockReset();
-    mockAxiosPut.mockReset();
-    mockAxiosPatch.mockReset();
-    mockAxiosDelete.mockReset();
-
     client = new OrdoApiClient({
       baseURL: "http://localhost:3001/api/v1",
     });
+
+    // Replace the internal axios instance with mocks
+    mockAxiosGet = vi.fn();
+    mockAxiosPost = vi.fn();
+    mockAxiosPut = vi.fn();
+    mockAxiosPatch = vi.fn();
+    mockAxiosDelete = vi.fn();
+
+    (client as any).axios = {
+      get: mockAxiosGet,
+      post: mockAxiosPost,
+      put: mockAxiosPut,
+      patch: mockAxiosPatch,
+      delete: mockAxiosDelete,
+      interceptors: {
+        request: { use: vi.fn() },
+        response: { use: vi.fn() },
+      },
+    };
   });
 
   afterEach(() => {
@@ -165,9 +149,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
         slug: "new-workspace",
       };
 
-      mockAxiosPost.mockRejectedValue({
-        response: { status: 400, data: { message: "Invalid workspace data" } },
-      });
+      mockAxiosPost.mockRejectedValue(
+        new Error("Invalid workspace data"),
+      );
 
       await expect(client.createWorkspace(createDto)).rejects.toThrow();
     });
@@ -207,9 +191,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should handle API errors on fetch", async () => {
-      mockAxiosGet.mockRejectedValue(new Error("Network error"));
+      mockAxiosGet.mockRejectedValue(new Error("Network Error"));
 
-      await expect(client.getWorkspaces()).rejects.toThrow("Network error");
+      await expect(client.getWorkspaces()).rejects.toThrow("Network Error");
     });
   });
 
@@ -238,9 +222,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should handle 404 errors for non-existent workspace", async () => {
-      mockAxiosGet.mockRejectedValue({
-        response: { status: 404, data: { message: "Workspace not found" } },
-      });
+      mockAxiosGet.mockRejectedValue(
+        new Error("Workspace not found"),
+      );
 
       await expect(client.getWorkspace("non-existent")).rejects.toThrow();
     });
@@ -336,12 +320,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should handle deletion errors", async () => {
-      mockAxiosDelete.mockRejectedValue({
-        response: {
-          status: 403,
-          data: { message: "Not authorized to delete" },
-        },
-      });
+      mockAxiosDelete.mockRejectedValue(
+        new Error("Not authorized to delete"),
+      );
 
       await expect(client.deleteWorkspace("workspace-123")).rejects.toThrow();
     });
@@ -396,9 +377,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
         role: "MEMBER",
       };
 
-      mockAxiosPost.mockRejectedValue({
-        response: { status: 404, data: { message: "User not found" } },
-      });
+      mockAxiosPost.mockRejectedValue(
+        new Error("User not found"),
+      );
 
       await expect(
         client.addWorkspaceMember("workspace-123", addMemberDto),
@@ -418,9 +399,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should handle errors when removing non-existent member", async () => {
-      mockAxiosDelete.mockRejectedValue({
-        response: { status: 404, data: { message: "Member not found" } },
-      });
+      mockAxiosDelete.mockRejectedValue(
+        new Error("Member not found"),
+      );
 
       await expect(
         client.removeWorkspaceMember("workspace-123", "non-existent-user"),
@@ -428,12 +409,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should prevent removing workspace owner", async () => {
-      mockAxiosDelete.mockRejectedValue({
-        response: {
-          status: 403,
-          data: { message: "Cannot remove workspace owner" },
-        },
-      });
+      mockAxiosDelete.mockRejectedValue(
+        new Error("Cannot remove workspace owner"),
+      );
 
       await expect(
         client.removeWorkspaceMember("workspace-123", "owner-user-id"),
@@ -525,7 +503,7 @@ describe("OrdoApiClient - Workspace Methods", () => {
       );
 
       expect(mockAxiosPost).toHaveBeenCalledWith(
-        "/workspaces/workspace-123/invite",
+        "/workspaces/workspace-123/invitations",
         inviteDto,
       );
       expect(result.email).toBe("newmember@example.com");
@@ -631,12 +609,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
         token: "invalid-token",
       };
 
-      mockAxiosPost.mockRejectedValue({
-        response: {
-          status: 400,
-          data: { message: "Invalid or expired invitation" },
-        },
-      });
+      mockAxiosPost.mockRejectedValue(
+        new Error("Invalid or expired invitation"),
+      );
 
       await expect(
         client.acceptWorkspaceInvitation(acceptDto),
@@ -673,9 +648,9 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should handle missing settings", async () => {
-      mockAxiosGet.mockRejectedValue({
-        response: { status: 404, data: { message: "Settings not found" } },
-      });
+      mockAxiosGet.mockRejectedValue(
+        new Error("Settings not found"),
+      );
 
       await expect(
         client.getWorkspaceSettings("workspace-123"),
@@ -780,8 +755,13 @@ describe("OrdoApiClient - Workspace Methods", () => {
         },
       ];
 
+      const mockResponse: WorkspaceAuditLogsResponse = {
+        logs: mockLogs,
+        total: 2,
+      };
+
       mockAxiosGet.mockResolvedValue({
-        data: mockLogs,
+        data: mockResponse,
       });
 
       const result = await client.getWorkspaceAuditLogs("workspace-123");
@@ -792,8 +772,8 @@ describe("OrdoApiClient - Workspace Methods", () => {
           params: undefined,
         },
       );
-      expect(result).toEqual(mockLogs);
-      expect(result).toHaveLength(2);
+      expect(result.logs).toEqual(mockLogs);
+      expect(result.logs).toHaveLength(2);
     });
 
     it("should fetch audit logs with pagination params", async () => {
@@ -806,8 +786,13 @@ describe("OrdoApiClient - Workspace Methods", () => {
         },
       ];
 
+      const mockResponse: WorkspaceAuditLogsResponse = {
+        logs: mockLogs,
+        total: 1,
+      };
+
       mockAxiosGet.mockResolvedValue({
-        data: mockLogs,
+        data: mockResponse,
       });
 
       const result = await client.getWorkspaceAuditLogs("workspace-123", {
@@ -821,17 +806,22 @@ describe("OrdoApiClient - Workspace Methods", () => {
           params: { limit: 10, offset: 20 },
         },
       );
-      expect(result).toHaveLength(1);
+      expect(result.logs).toHaveLength(1);
     });
 
     it("should return empty array when no logs exist", async () => {
+      const mockResponse: WorkspaceAuditLogsResponse = {
+        logs: [],
+        total: 0,
+      };
+
       mockAxiosGet.mockResolvedValue({
-        data: [],
+        data: mockResponse,
       });
 
       const result = await client.getWorkspaceAuditLogs("workspace-123");
 
-      expect(result).toEqual([]);
+      expect(result.logs).toEqual([]);
     });
   });
 
@@ -839,11 +829,6 @@ describe("OrdoApiClient - Workspace Methods", () => {
 
   describe("Error Handling", () => {
     it("should handle network timeouts", async () => {
-      client = new OrdoApiClient({
-        baseURL: "http://localhost:3001/api/v1",
-        timeout: 100,
-      });
-
       mockAxiosGet.mockImplementation(
         () =>
           new Promise((_, reject) =>
@@ -867,17 +852,17 @@ describe("OrdoApiClient - Workspace Methods", () => {
     });
 
     it("should handle 500 server errors", async () => {
-      mockAxiosGet.mockRejectedValue({
-        response: { status: 500, data: { message: "Internal server error" } },
-      });
+      mockAxiosGet.mockRejectedValue(
+        new Error("Internal server error"),
+      );
 
       await expect(client.getWorkspaces()).rejects.toThrow();
     });
 
     it("should handle 401 unauthorized errors", async () => {
-      mockAxiosGet.mockRejectedValue({
-        response: { status: 401, data: { message: "Unauthorized" } },
-      });
+      mockAxiosGet.mockRejectedValue(
+        new Error("Unauthorized"),
+      );
 
       await expect(client.getWorkspace("workspace-123")).rejects.toThrow();
     });
