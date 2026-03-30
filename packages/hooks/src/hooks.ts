@@ -1172,12 +1172,8 @@ export function createHooks(config: CreateHooksConfig) {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: () => {
-        if (!apiClient.markAllNotificationsAsRead) {
-          throw new Error('markAllNotificationsAsRead not implemented in API client');
-        }
-        return apiClient.markAllNotificationsAsRead();
-      },
+      mutationFn: () =>
+        apiClient.markAllNotificationsAsRead(),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       },
@@ -1199,13 +1195,7 @@ export function createHooks(config: CreateHooksConfig) {
         start instanceof Date ? start.toISOString() : start,
         end instanceof Date ? end.toISOString() : end
       ),
-      queryFn: () => {
-        if (!apiClient.getTimeBlocks) {
-          throw new Error('getTimeBlocks not implemented in API client');
-        }
-        return apiClient.getTimeBlocks(start, end);
-      },
-      enabled: !!apiClient.getTimeBlocks,
+      queryFn: () => apiClient.getTimeBlocks(start, end),
     });
   }
 
