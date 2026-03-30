@@ -686,7 +686,6 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
         queryClient.invalidateQueries({ queryKey: ['analytics'] });
-        queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
         queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
       },
     });
@@ -858,7 +857,6 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
         queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
         queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
-        queryClient.invalidateQueries({ queryKey: ['dailyMetrics'] });
       },
     });
   }
