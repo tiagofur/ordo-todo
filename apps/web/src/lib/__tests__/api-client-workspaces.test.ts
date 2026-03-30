@@ -98,6 +98,7 @@ describe("OrdoApiClient - Workspace Methods", () => {
     description: "A test workspace",
     color: "#06b6d4",
     icon: null,
+    tier: "FREE",
     ownerId: "user-123",
     createdAt: new Date("2024-01-01"),
     updatedAt: new Date("2024-01-01"),

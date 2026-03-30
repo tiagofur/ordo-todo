@@ -874,36 +874,33 @@ export const apiClient = {
       .post(`/objectives/${objectiveId}/key-results`, data)
       .then((res) => res.data),
   updateKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     data: UpdateKeyResultDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data)
+      .patch(`/objectives/key-results/${keyResultId}`, data)
       .then((res) => res.data),
 
-  deleteKeyResult: (objectiveId: string, keyResultId: string): Promise<void> =>
+  deleteKeyResult: (keyResultId: string): Promise<void> =>
     axiosInstance
-      .delete(`/objectives/${objectiveId}/key-results/${keyResultId}`)
+      .delete(`/objectives/key-results/${keyResultId}`)
       .then((res) => res.data),
 
   linkTaskToKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     data: LinkTaskDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .post(`/objectives/${objectiveId}/key-results/${keyResultId}/tasks`, data)
+      .post(`/objectives/key-results/${keyResultId}/tasks`, data)
       .then((res) => res.data),
 
   unlinkTaskFromKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     taskId: string,
   ): Promise<KeyResult> =>
     axiosInstance
       .delete(
-        `/objectives/${objectiveId}/key-results/${keyResultId}/tasks/${taskId}`,
+        `/objectives/key-results/${keyResultId}/tasks/${taskId}`,
       )
       .then((res) => res.data),
 

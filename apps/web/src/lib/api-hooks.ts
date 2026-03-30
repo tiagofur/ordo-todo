@@ -473,7 +473,7 @@ export { useWorkspaceBySlugLegacy as useWorkspaceBySlug };
 export function useDeleteKeyResultCompat() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ objectiveId, keyResultId }: { objectiveId: string; keyResultId: string }) => {
+    mutationFn: async ({ keyResultId }: { objectiveId: string; keyResultId: string }) => {
       return apiClient.deleteKeyResult(keyResultId);
     },
     onSuccess: (_: unknown, { objectiveId }: { objectiveId: string; keyResultId: string }) => {

@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createHooks } from "@ordo-todo/hooks";
 import type { OrdoApiClient } from "@ordo-todo/api-client";
@@ -99,6 +99,7 @@ const createMockWorkspace = (overrides?: Partial<Workspace>): Workspace => ({
   id: "workspace-123",
   name: "Test Workspace",
   slug: "test",
+  description: null,
   color: "#2563EB",
   icon: null,
   tier: "FREE",
@@ -122,6 +123,7 @@ const createMockWorkspaceSettings = (): WorkspaceSettings => ({
 describe("useCreateWorkspace", () => {
   let mockClient: MockOrdoApiClient;
   let queryClient: QueryClient;
+  let hooks: ReturnType<typeof createHooks>;
 
   beforeEach(() => {
     mockClient = new MockOrdoApiClient();
@@ -133,9 +135,9 @@ describe("useCreateWorkspace", () => {
       },
     });
 
-    vi.mocked(mockClient.createWorkspace).mockResolvedValue(undefined);
+    vi.mocked(mockClient.createWorkspace).mockResolvedValue(undefined as unknown as Workspace);
 
-    const hooks = createHooks(mockClient);
+    hooks = createHooks({ apiClient: mockClient as unknown as OrdoApiClient });
     vi.clearAllMocks();
   });
 
@@ -146,7 +148,7 @@ describe("useCreateWorkspace", () => {
   it("should create workspace successfully", async () => {
     const resultWorkspace = createMockWorkspace({ id: "new-workspace" });
 
-    const { result } = renderHook(() => useCreateWorkspace(), {
+    const { result } = renderHook(() => hooks.useCreateWorkspace(), {
       wrapper: createWrapper(queryClient),
     });
 
