@@ -686,7 +686,7 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
-        queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerStats });
       },
     });
   }
@@ -762,7 +762,7 @@ export function createHooks(config: CreateHooksConfig) {
         if (tag.workspaceId) {
           queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
         }
-        queryClient.invalidateQueries({ queryKey: ['tags'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       },
     });
   }
@@ -777,7 +777,7 @@ export function createHooks(config: CreateHooksConfig) {
         if (tag.workspaceId) {
           queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
         }
-        queryClient.invalidateQueries({ queryKey: ['tags'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       },
     });
   }
@@ -793,7 +793,7 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
-        queryClient.invalidateQueries({ queryKey: ['tags'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       },
     });
   }
@@ -809,7 +809,7 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
-        queryClient.invalidateQueries({ queryKey: ['tags'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       },
     });
   }
@@ -820,7 +820,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (tagId: string) => apiClient.deleteTag(tagId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tags'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       },
     });
   }
@@ -855,8 +855,8 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
         queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
         queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
-        queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
-        queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerHistory });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerStats });
       },
     });
   }
@@ -893,8 +893,8 @@ export function createHooks(config: CreateHooksConfig) {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
         queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
         queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
-        queryClient.invalidateQueries({ queryKey: ['timer', 'history'] });
-        queryClient.invalidateQueries({ queryKey: ['timer', 'stats'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerHistory });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerStats });
       },
     });
   }
@@ -1123,7 +1123,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: (attachmentId: string) => apiClient.deleteAttachment(attachmentId),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
-        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       },
     });
   }
@@ -1161,7 +1161,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: (id: string) =>
         apiClient.markNotificationAsRead(id),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
       },
     });
   }
@@ -1173,7 +1173,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: () =>
         apiClient.markAllNotificationsAsRead(),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
       },
     });
   }
@@ -1362,7 +1362,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (data: CreateObjectiveDto) => apiClient.createObjective(data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1375,7 +1375,7 @@ export function createHooks(config: CreateHooksConfig) {
         apiClient.updateObjective(objectiveId, data),
       onSuccess: (_, { objectiveId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1386,7 +1386,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (objectiveId: string) => apiClient.deleteObjective(objectiveId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1399,7 +1399,7 @@ export function createHooks(config: CreateHooksConfig) {
         apiClient.addKeyResult(objectiveId, data),
       onSuccess: (_, { objectiveId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1411,7 +1411,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: ({ keyResultId, data }: { keyResultId: string; data: UpdateKeyResultDto }) =>
         apiClient.updateKeyResult(keyResultId, data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1422,7 +1422,7 @@ export function createHooks(config: CreateHooksConfig) {
     return useMutation({
       mutationFn: (keyResultId: string) => apiClient.deleteKeyResult(keyResultId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1434,7 +1434,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: ({ keyResultId, data }: { keyResultId: string; data: LinkTaskDto }) =>
         apiClient.linkTaskToKeyResult(keyResultId, data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
@@ -1446,7 +1446,7 @@ export function createHooks(config: CreateHooksConfig) {
       mutationFn: ({ keyResultId, taskId }: { keyResultId: string; taskId: string }) =>
         apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['objectives'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       },
     });
   }
