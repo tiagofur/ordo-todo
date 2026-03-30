@@ -1,7 +1,7 @@
 import {
   generateUsernameSuggestions,
   useUsernameValidation
-} from "./chunk-MDAXIC6Q.mjs";
+} from "./chunk-CKP2UBNA.mjs";
 export {
   generateUsernameSuggestions,
   useUsernameValidation
