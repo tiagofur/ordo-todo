@@ -482,9 +482,7 @@ export const useAnalyticsStore = create<AnalyticsStore>()(
             usage: state.getUsageReport(),
           };
 
-          // Note: reportAnalytics method may need to be implemented in apiClient
-          // await apiClient.reportAnalytics(syncData);
-          console.log('Analytics sync data prepared:', syncData);
+          await (apiClient as any).reportAnalytics(syncData);
 
           // Mark as synced
           set((prev) => ({

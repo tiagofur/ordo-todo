@@ -135,10 +135,7 @@ describe("useCreateWorkspace", () => {
       },
     });
 
-    vi.mocked(mockClient.createWorkspace).mockResolvedValue(undefined as unknown as Workspace);
-
     hooks = createHooks({ apiClient: mockClient as unknown as OrdoApiClient });
-    vi.clearAllMocks();
   });
 
   afterEach(() => {
