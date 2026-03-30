@@ -8,6 +8,7 @@ import { Button, Skeleton } from "@ordo-todo/ui";
 import { ArrowLeft, Plus, Calendar, Edit2, Trash2, Target } from "lucide-react";
 import { AppLayout } from "@/components/shared/app-layout";
 import { CreateKeyResultDialog } from "@/components/goals/create-key-result-dialog";
+import { EditObjectiveDialog } from "@/components/goals/edit-objective-dialog";
 import { notify } from "@/lib/notify";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -20,6 +21,7 @@ export default function ObjectiveDetailPage() {
   const deleteKeyResult = useDeleteKeyResult();
 
   const [showCreateKR, setShowCreateKR] = useState(false);
+  const [showEditObjective, setShowEditObjective] = useState(false);
 
   const handleDeleteKR = async (krId: string) => {
     if (!confirm(t("keyResults.confirmDelete") || "¿Eliminar este resultado clave?")) return;
@@ -98,10 +100,7 @@ export default function ObjectiveDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                // TODO: Implement edit objective
-                notify.info("Función de editar en desarrollo");
-              }}
+              onClick={() => setShowEditObjective(true)}
             >
               <Edit2 className="h-4 w-4 mr-2" />
               {t("edit") || "Editar"}
@@ -241,6 +240,13 @@ export default function ObjectiveDetailPage() {
         open={showCreateKR}
         onOpenChange={setShowCreateKR}
         objectiveId={params.id as string}
+      />
+
+      {/* Edit Objective Dialog */}
+      <EditObjectiveDialog
+        open={showEditObjective}
+        onOpenChange={setShowEditObjective}
+        objective={objective}
       />
     </AppLayout>
   );

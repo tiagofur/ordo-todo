@@ -2010,7 +2010,12 @@
     "okrsAtRisk": "OKRs At Risk",
     "left": "left",
     "notFound": "Goal not found",
-    "edit": "Edit"
+    "edit": "Edit",
+    "editObjective": "Edit Objective",
+    "editDescription": "Update the details of your objective.",
+    "update": "Update Objective",
+    "updated": "Objective updated successfully",
+    "updateError": "Error updating objective"
   },
   "CustomFields": {
     "title": "Custom Fields",
@@ -2384,5 +2389,11 @@
     "tasks": "tasks",
     "restore": "Restore",
     "confirmDelete": "Are you sure you want to permanently delete this item? This action CANNOT be undone."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "Sorry, the page you are looking for does not exist or has been moved. Check the URL or go back to the home page.",
+    "goToDashboard": "Go to Dashboard",
+    "goToHome": "Go to Home"
   }
 }

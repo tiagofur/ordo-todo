@@ -1914,6 +1914,11 @@
     "backToList": "Volver a Objetivos",
     "notFound": "Objetivo no encontrado",
     "edit": "Editar",
+    "editObjective": "Editar Objetivo",
+    "editDescription": "Actualiza los detalles de tu objetivo.",
+    "update": "Actualizar Objetivo",
+    "updated": "Objetivo actualizado correctamente",
+    "updateError": "Error al actualizar objetivo",
     "createDescription": "Crea un nuevo objetivo para rastrear tus metas.",
     "cancel": "Cancelar",
     "create": "Crear Objetivo",
@@ -2384,5 +2389,11 @@
     "tasks": "tareas",
     "restore": "Restaurar",
     "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente este elemento? Esta acción NO se puede deshacer."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "Lo sentimos, la página que buscas no existe o ha sido movida. Verifica la URL o vuelve al inicio.",
+    "goToDashboard": "Ir al Dashboard",
+    "goToHome": "Volver al Inicio"
   }
 }

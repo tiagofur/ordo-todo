@@ -2000,7 +2000,12 @@
     "okrsAtRisk": "OKRs em Risco",
     "left": "restantes",
     "notFound": "Objetivo não encontrado",
-    "edit": "Editar"
+    "edit": "Editar",
+    "editObjective": "Editar Objetivo",
+    "editDescription": "Atualize os detalhes do seu objetivo.",
+    "update": "Atualizar Objetivo",
+    "updated": "Objetivo atualizado com sucesso",
+    "updateError": "Erro ao atualizar objetivo"
   },
   "CustomFields": {
     "title": "Campos Personalizados",
@@ -2374,5 +2379,11 @@
     "tasks": "tarefas",
     "restore": "Restaurar",
     "confirmDelete": "Tem certeza de que deseja excluir permanentemente este item? Esta ação NÃO pode ser desfeita."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "Desculpe, a página que você procura não existe ou foi movida. Verifique a URL ou volte para a página inicial.",
+    "goToDashboard": "Ir para o Dashboard",
+    "goToHome": "Voltar ao Início"
   }
 }
