@@ -29,7 +29,12 @@
     "eisenhower": "Eisenhower",
     "meetings": "Reuniões",
     "wellbeing": "Bem-estar",
-    "workload": "Carga de Trabalho"
+    "workload": "Carga de Trabalho",
+    "notes": "Notas",
+    "insights": "Insights",
+    "sectionPlan": "Planejar",
+    "sectionInsights": "Análises",
+    "sectionTeam": "Equipe"
   },
   "Settings": {
     "title": "Configurações",
@@ -72,6 +77,10 @@
       "settings": "Configurações",
       "toggleSidebar": "Mostrar/Ocultar sidebar"
     },
+    "tags": "Tags",
+    "tagsDescription": "Gerencie tags para organizar e categorizar suas tarefas",
+    "manageTags": "Gerenciar Tags",
+    "manageTagsDescription": "Criar, editar e excluir tags",
     "about": "Sobre",
     "version": "Versão",
     "platform": "Plataforma",

@@ -4,20 +4,16 @@ import {
   Home,
   CheckSquare,
   FolderKanban,
-  Tags,
   BarChart3,
   Briefcase,
   Calendar,
   Download,
   Sparkles,
   Target,
-  LayoutGrid,
-  MessageSquare,
-  Heart,
   Users,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Sidebar as SidebarUI, type NavItem } from "@ordo-todo/ui";
+import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
 import { WorkspaceSelector } from "@/components/workspace/workspace-selector";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 import { TimerWidget } from "@/components/timer/timer-widget";
@@ -41,27 +37,42 @@ export function DesktopSidebar() {
     }
   };
 
-  const navItems: NavItem[] = [
-    { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
-    { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-    { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
-    { name: t("goals"), href: "/goals", icon: Target, color: "pink" },
-    { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
-    { name: t("eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
-    { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-    { name: t("meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
-    { name: t("wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
-    { name: t("workload"), href: "/workload", icon: Users, color: "orange" },
-    { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-    { name: t("tags"), href: "/tags", icon: Tags, color: "green" },
-    { name: t("analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
+  const navSections: NavSection[] = [
+    {
+      items: [
+        { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
+        { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+        { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+      ],
+    },
+    {
+      label: t("sectionPlan"),
+      items: [
+        { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+        { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
+        { name: t("goals"), href: "/goals", icon: Target, color: "pink" },
+      ],
+    },
+    {
+      label: t("sectionInsights"),
+      items: [
+        { name: t("insights"), href: "/insights", icon: BarChart3, color: "cyan" },
+      ],
+    },
+    {
+      label: t("sectionTeam"),
+      items: [
+        { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
+        { name: t("workload"), href: "/workload", icon: Users, color: "orange" },
+      ],
+    },
   ];
 
   return (
     <>
       <SidebarUI
         pathname={pathname}
-        navItems={navItems}
+        navSections={navSections}
         renderLink={({ href, className, children }) => (
           <Link href={href} className={className}>
             {children}

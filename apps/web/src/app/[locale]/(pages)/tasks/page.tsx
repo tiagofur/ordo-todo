@@ -10,6 +10,7 @@ import {
   X,
   List,
   LayoutGrid,
+  Grid2x2,
 } from "lucide-react";
 import { useTasks, useTags, useProjects, useCreateTask } from "@/lib/api-hooks";
 import { TaskPriority } from "@ordo-todo/api-client";
@@ -21,13 +22,21 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
+import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CreateTaskDialog = dynamic(
   () => import("@/components/task/create-task-dialog").then((mod) => mod.CreateTaskDialog),
   { ssr: false }
 );
 
-type ViewMode = "list" | "grid";
+const EisenhowerMatrix = dynamic(
+  () => import("@/components/tasks/eisenhower-matrix").then((mod) => mod.EisenhowerMatrix),
+  { ssr: false }
+);
+
+type ViewMode = "list" | "grid" | "eisenhower";
 
 export default function TasksPage() {
   return (
@@ -58,14 +67,50 @@ function TasksPageContent() {
   const searchParams = useSearchParams();
   const { selectedWorkspaceId } = useWorkspaceStore();
   const [showCreateTask, setShowCreateTask] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const initialView = searchParams.get("view") as ViewMode | null;
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    initialView === "eisenhower" ? "eisenhower" : "grid"
+  );
 
   const tagId = searchParams.get("tag");
   const { data: tasks, isLoading } = useTasks();
   const { data: tags } = useTags(selectedWorkspaceId || "");
   const { data: projects, isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
   const { mutateAsync: createTask } = useCreateTask();
+  const queryClient = useQueryClient();
   const { filters, setFilters, applyFilters, hasActiveFilters } = useQuickFilters();
+
+  const handleEisenhowerComplete = async (taskId: string, completed: boolean) => {
+    try {
+      await apiClient.updateTask(taskId, {
+        status: completed ? "COMPLETED" : "TODO",
+      });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success(completed ? "Tarea completada" : "Tarea reabierta");
+    } catch {
+      toast.error("Error al actualizar tarea");
+    }
+  };
+
+  const handleEisenhowerMove = async (
+    taskId: string,
+    quadrant: "DO" | "SCHEDULE" | "DELEGATE" | "DELETE"
+  ) => {
+    type TaskPriorityType = "HIGH" | "MEDIUM" | "LOW" | "URGENT";
+    const priorityMap: Record<string, TaskPriorityType> = {
+      DO: "URGENT",
+      SCHEDULE: "HIGH",
+      DELEGATE: "MEDIUM",
+      DELETE: "LOW",
+    };
+    try {
+      await apiClient.updateTask(taskId, { priority: priorityMap[quadrant] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Tarea movida");
+    } catch {
+      toast.error("Error al mover tarea");
+    }
+  };
 
   // Filter tasks by tag if tagId is present
   let filteredTasks = tagId && tasks
@@ -180,6 +225,18 @@ function TasksPageContent() {
               >
                 <LayoutGrid className="h-4 w-4" />
               </button>
+              <button
+                onClick={() => setViewMode("eisenhower")}
+                className={cn(
+                  "p-2 transition-all duration-200",
+                  viewMode === "eisenhower"
+                    ? "bg-purple-500/10 text-purple-500"
+                    : "text-muted-foreground hover:bg-muted/50"
+                )}
+                title="Matriz de Eisenhower"
+              >
+                <Grid2x2 className="h-4 w-4" />
+              </button>
             </div>
 
             <motion.button
@@ -205,8 +262,26 @@ function TasksPageContent() {
           onPresetSelect={handlePresetSelect}
         />
 
+        {/* Eisenhower Matrix View */}
+        {viewMode === "eisenhower" && !isLoading && filteredTasks ? (
+          <EisenhowerMatrix
+            tasks={(filteredTasks || []).map((t: any) => ({
+              id: t.id,
+              title: t.title,
+              priority: t.priority || "LOW",
+              dueDate: t.dueDate,
+              isUrgent: t.isUrgent,
+              isImportant: t.isImportant,
+              completed: t.completed,
+              project: t.project,
+            }))}
+            onTaskComplete={handleEisenhowerComplete}
+            onTaskMove={handleEisenhowerMove}
+          />
+        ) : null}
+
         {/* Tasks Grid/List */}
-        {isLoading ? (
+        {viewMode !== "eisenhower" && isLoading ? (
           <div
             className={cn(
               viewMode === "grid"
@@ -224,7 +299,7 @@ function TasksPageContent() {
               />
             ))}
           </div>
-        ) : filteredTasks && filteredTasks.length > 0 ? (
+        ) : viewMode !== "eisenhower" && filteredTasks && filteredTasks.length > 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -246,7 +321,7 @@ function TasksPageContent() {
               />
             ))}
           </motion.div>
-        ) : (
+        ) : viewMode !== "eisenhower" ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -284,7 +359,7 @@ function TasksPageContent() {
               </button>
             )}
           </motion.div>
-        )}
+        ) : null}
       </div>
 
       <CreateTaskDialog

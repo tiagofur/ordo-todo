@@ -30,8 +30,11 @@
     "meetings": "Reuniones",
     "wellbeing": "Bienestar",
     "workload": "Carga de trabajo",
-    "notes": "Notas"
-
+    "notes": "Notas",
+    "insights": "Insights",
+    "sectionPlan": "Planificar",
+    "sectionInsights": "Análisis",
+    "sectionTeam": "Equipo"
   },
   "Settings": {
     "title": "Configuración",
@@ -74,6 +77,10 @@
       "settings": "Configuración",
       "toggleSidebar": "Mostrar/Ocultar sidebar"
     },
+    "tags": "Etiquetas",
+    "tagsDescription": "Gestiona las etiquetas para organizar y categorizar tus tareas",
+    "manageTags": "Administrar Etiquetas",
+    "manageTagsDescription": "Crear, editar y eliminar etiquetas",
     "about": "Acerca de",
     "version": "Versión",
     "platform": "Plataforma",

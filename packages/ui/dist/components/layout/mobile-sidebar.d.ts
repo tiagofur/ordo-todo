@@ -1,6 +1,6 @@
 import { type ReactNode, type ElementType } from "react";
-import type { NavItem } from "./sidebar.js";
-export type { NavItem };
+import type { NavItem, NavSection } from "./sidebar.js";
+export type { NavItem, NavSection };
 interface MobileSidebarProps {
     /** Controls sheet open/close state */
     open: boolean;
@@ -8,8 +8,10 @@ interface MobileSidebarProps {
     onOpenChange: (open: boolean) => void;
     /** Current pathname to determine active state */
     pathname?: string;
-    /** Navigation items */
+    /** Navigation items (flat list) */
     navItems?: NavItem[];
+    /** Navigation sections with optional labels (takes precedence over navItems) */
+    navSections?: NavSection[];
     /** Render a Link component (for Next.js or React Router) */
     renderLink: (props: {
         href: string;
@@ -34,5 +36,5 @@ interface MobileSidebarProps {
         settings?: string;
     };
 }
-export declare function MobileSidebar({ open, onOpenChange, pathname, navItems, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, LogoIcon, showSettingsButton, labels, }: MobileSidebarProps): import("react/jsx-runtime").JSX.Element;
+export declare function MobileSidebar({ open, onOpenChange, pathname, navItems, navSections, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, LogoIcon, showSettingsButton, labels, }: MobileSidebarProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=mobile-sidebar.d.ts.map

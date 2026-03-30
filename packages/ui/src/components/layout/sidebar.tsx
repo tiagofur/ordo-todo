@@ -19,11 +19,18 @@ export interface NavItem {
   color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue' | 'yellow' | 'red';
 }
 
+export interface NavSection {
+  label?: string;
+  items: NavItem[];
+}
+
 interface SidebarProps {
   /** Current pathname to determine active state */
   pathname?: string;
-  /** Navigation items */
+  /** Navigation items (flat list) */
   navItems?: NavItem[];
+  /** Navigation sections with optional labels (takes precedence over navItems) */
+  navSections?: NavSection[];
   /** Render a Link component (for Next.js or React Router) */
   renderLink: (props: {
     href: string;
@@ -92,6 +99,7 @@ const DEFAULT_LABELS = {
 export function Sidebar({
   pathname = '',
   navItems,
+  navSections,
   renderLink,
   renderWorkspaceSelector,
   renderTimerWidget,
@@ -102,16 +110,18 @@ export function Sidebar({
 }: SidebarProps) {
   const t = { ...DEFAULT_LABELS, ...labels };
 
-  // Default navigation if not provided
-  const navigation: NavItem[] = navItems || [
-    { name: t.today, href: '/dashboard', icon: Home, color: 'cyan' },
-    { name: t.tasks, href: '/tasks', icon: CheckSquare, color: 'purple' },
-    { name: t.calendar, href: '/calendar', icon: Calendar, color: 'blue' },
-    { name: t.projects, href: '/projects', icon: FolderKanban, color: 'pink' },
-    { name: t.workspaces, href: '/workspaces', icon: Briefcase, color: 'orange' },
-    { name: t.tags, href: '/tags', icon: Tags, color: 'green' },
-    { name: t.analytics, href: '/analytics', icon: BarChart3, color: 'cyan' },
-  ];
+  // Build sections: prefer navSections, fall back to navItems as a single section
+  const sections: NavSection[] = navSections || [{
+    items: navItems || [
+      { name: t.today, href: '/dashboard', icon: Home, color: 'cyan' },
+      { name: t.tasks, href: '/tasks', icon: CheckSquare, color: 'purple' },
+      { name: t.calendar, href: '/calendar', icon: Calendar, color: 'blue' },
+      { name: t.projects, href: '/projects', icon: FolderKanban, color: 'pink' },
+      { name: t.workspaces, href: '/workspaces', icon: Briefcase, color: 'orange' },
+      { name: t.tags, href: '/tags', icon: Tags, color: 'green' },
+      { name: t.analytics, href: '/analytics', icon: BarChart3, color: 'cyan' },
+    ],
+  }];
 
   const isActiveRoute = (href: string) => {
     return pathname === href || pathname?.startsWith(`${href}/`);
@@ -141,38 +151,49 @@ export function Sidebar({
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto">
           {/* Navigation */}
-          <nav role="navigation" aria-label="Navegación principal" className="space-y-1 px-3 py-4">
-            {navigation.map((item) => {
-              const isActive = isActiveRoute(item.href);
-              const color = item.color || 'cyan';
-              return (
-                <div key={item.href}>
-                  {renderLink({
-                    href: item.href,
-                    className: cn(
-                      'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                      isActive
-                        ? activeColorClasses[color]
-                        : cn(
-                            'text-muted-foreground hover:text-foreground',
-                            colorClasses[color]
-                          )
-                    ),
-                    children: (
-                      <>
-                        <item.icon
-                          className={cn(
-                            'h-5 w-5 transition-transform duration-200',
-                            isActive ? '' : 'group-hover:scale-110'
-                          )}
-                        />
-                        {item.name}
-                      </>
-                    ),
+          <nav role="navigation" aria-label="Navegación principal" className="px-3 py-4">
+            {sections.map((section, sectionIndex) => (
+              <div key={section.label || sectionIndex} className={cn(sectionIndex > 0 && 'mt-4')}>
+                {section.label && (
+                  <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+                    {section.label}
+                  </div>
+                )}
+                <div className="space-y-1">
+                  {section.items.map((item) => {
+                    const isActive = isActiveRoute(item.href);
+                    const color = item.color || 'cyan';
+                    return (
+                      <div key={item.href}>
+                        {renderLink({
+                          href: item.href,
+                          className: cn(
+                            'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                            isActive
+                              ? activeColorClasses[color]
+                              : cn(
+                                  'text-muted-foreground hover:text-foreground',
+                                  colorClasses[color]
+                                )
+                          ),
+                          children: (
+                            <>
+                              <item.icon
+                                className={cn(
+                                  'h-5 w-5 transition-transform duration-200',
+                                  isActive ? '' : 'group-hover:scale-110'
+                                )}
+                              />
+                              {item.name}
+                            </>
+                          ),
+                        })}
+                      </div>
+                    );
                   })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </nav>
 
           {/* Timer Widget */}

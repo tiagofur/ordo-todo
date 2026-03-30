@@ -30,8 +30,11 @@
     "meetings": "Meetings",
     "wellbeing": "Well-being",
     "workload": "Workload",
-    "notes": "Notes"
-
+    "notes": "Notes",
+    "insights": "Insights",
+    "sectionPlan": "Plan",
+    "sectionInsights": "Insights",
+    "sectionTeam": "Team"
   },
   "Settings": {
     "title": "Settings",
@@ -74,6 +77,10 @@
       "settings": "Settings",
       "toggleSidebar": "Show/Hide sidebar"
     },
+    "tags": "Tags",
+    "tagsDescription": "Manage tags to organize and categorize your tasks",
+    "manageTags": "Manage Tags",
+    "manageTagsDescription": "Create, edit and delete tags",
     "about": "About",
     "version": "Version",
     "platform": "Platform",
