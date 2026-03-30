@@ -1808,14 +1808,14 @@ export class OrdoApiClient {
 
   /**
    * Invite a member to a workspace
-   * POST /workspaces/:id/invite
+   * POST /workspaces/:id/invitations
    */
   async inviteWorkspaceMember(
     workspaceId: string,
     data: InviteMemberDto,
   ): Promise<WorkspaceInvitation> {
     const response = await this.axios.post<WorkspaceInvitation>(
-      `/workspaces/${workspaceId}/invite`,
+      `/workspaces/${workspaceId}/invitations`,
       data,
     );
     return response.data;

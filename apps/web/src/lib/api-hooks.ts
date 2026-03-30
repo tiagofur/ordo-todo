@@ -468,15 +468,13 @@ export function useObjectivesDashboardSummary() {
 export { useWorkspaceBySlugLegacy as useWorkspaceBySlug };
 
 /**
- * Delete a key result (backwards compatible signature with objectiveId)
- * @deprecated Use useDeleteKeyResult from shared-hooks which only needs keyResultId
+ * Delete a key result with proper cache invalidation
  */
 export function useDeleteKeyResultCompat() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ objectiveId, keyResultId }: { objectiveId: string; keyResultId: string }) => {
-      // Use the web app's apiClient which requires both objectiveId and keyResultId
-      return apiClient.deleteKeyResult(objectiveId, keyResultId);
+      return apiClient.deleteKeyResult(keyResultId);
     },
     onSuccess: (_: unknown, { objectiveId }: { objectiveId: string; keyResultId: string }) => {
       queryClient.invalidateQueries({ queryKey: objectiveQueryKeys.objective(objectiveId) });
