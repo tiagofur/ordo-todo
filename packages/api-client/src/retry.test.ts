@@ -2,8 +2,8 @@
  * Tests for retry logic with exponential backoff
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { OrdoApiClient } from '../client';
-import type { RetryConfig } from '../client';
+import { OrdoApiClient } from './client';
+import type { RetryConfig } from './client';
 
 describe('OrdoApiClient Retry Logic', () => {
   let apiClient: OrdoApiClient;
