@@ -1,5 +1,5 @@
 "use client";
-import { IconBell, IconMenu2, IconSearch, IconUser, IconChevronRight } from "@tabler/icons-react";
+import { IconBell, IconMenu2, IconUser, IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { Link as LocalizedLink } from "@/i18n/navigation";
 import UserMenu from "./user-menu.component";
@@ -59,16 +59,7 @@ export default function TopBar(props: TopBarProps) {
             )}
         </div>
 
-        <div className="hidden lg:flex items-center rounded-lg gap-2 px-4 py-2 w-64 ml-4 bg-white border border-zinc-400/50 dark:border-zinc-700 dark:bg-zinc-700/70">
-          <IconSearch size={18} className="text-zinc-600 dark:text-zinc-500" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="focus:outline-none bg-transparent w-full text-black dark:text-zinc-300 placeholder:text-zinc-500 dark:placeholder:text-zinc-600"
-            value={""}
-            onChange={(e) => {}}
-          />
-        </div>
+        {/* Search is handled by the global search module */}
       </div>
       <div className="flex items-center gap-4">
         <Button 

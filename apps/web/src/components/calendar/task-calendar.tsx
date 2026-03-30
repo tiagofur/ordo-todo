@@ -253,9 +253,7 @@ export function TaskCalendar() {
   };
 
   const handleSelectEvent = (event: TaskEvent) => {
-      // Navigate to task details or open modal
-      // For now, let's just log or maybe navigate if we had a route
-      // router.push(`/tasks/${event.id}`);
+      router.push(`/tasks/${event.id}`);
   };
 
   if (isLoading) {
