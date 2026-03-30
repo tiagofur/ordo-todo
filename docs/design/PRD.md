@@ -2,930 +2,524 @@
 
 ## Ordo-Todo: The Modern Task Organization Platform
 
+**Version**: 2.0
+**Last Updated**: March 30, 2026
+**Status**: Production (Web), Beta (Mobile, Desktop)
+
 ---
 
 ## 1. Vision & Overview
 
 ### 1.1 Product Vision
 
-Ordo-Todo es una aplicación de gestión de tareas de próxima generación que combina simplicidad, elegancia y poder tecnológico. Nuestro objetivo es crear la herramienta de productividad definitiva que ayude a las personas a organizar su vida profesional y personal sin abrumarlas con complejidad innecesaria.
+Ordo-Todo is a next-generation task management application that combines simplicity, elegance, and technological power. Our goal is to create the definitive productivity tool that helps people organize their professional and personal lives without overwhelming them with unnecessary complexity.
 
-### 1.2 Propuesta de Valor
+### 1.2 Value Proposition
 
-- **Simplicidad Inteligente**: Funcionalidad potente con una interfaz minimalista
-- **IA como Copiloto**: Asistente inteligente que ayuda sin interrumpir
-- **Flexibilidad sin Complejidad**: Adaptable a diferentes flujos de trabajo sin configuraciones abrumadoras
-- **Multiplataforma Verdadera**: Experiencia nativa en web, móvil y escritorio
+| Pillar | Description |
+|--------|-------------|
+| **Intelligent Simplicity** | Powerful functionality with a minimalist interface |
+| **AI as Copilot** | Smart assistant that helps without interrupting |
+| **Flexibility without Complexity** | Adaptable to different workflows without overwhelming configuration |
+| **True Cross-Platform** | Native experience on web, mobile, and desktop |
+| **Wellbeing-Aware** | Burnout detection, energy matching, and work-life balance |
 
-### 1.3 Público Objetivo
+### 1.3 Target Audience
 
-- Profesionales que manejan múltiples proyectos
-- Equipos pequeños y medianos (2-20 personas)
-- Estudiantes y académicos
-- Freelancers y emprendedores
-- Personas que buscan balance vida-trabajo
+- **Primary**: Professionals managing multiple projects (25-45 years)
+- **Secondary**: Small and medium teams (2-20 people)
+- **Tertiary**: Students, academics, freelancers, and entrepreneurs
+- **Niche**: People seeking work-life balance with intelligent tooling
 
----
+### 1.4 Competitive Positioning
 
-## 2. Arquitectura de Producto
-
-### 2.1 Plataformas
-
-- **Web App**: React/Next.js (PWA-ready)
-- **Mobile**: React Native (iOS & Android)
-- **Desktop**: Electron (Windows, macOS, Linux)
-- **Backend**: Node.js/TypeScript con arquitectura serverless
-
-### 2.2 Sincronización
-
-- Real-time sync entre dispositivos
-- Modo offline con sincronización automática
-- Resolución inteligente de conflictos
+| vs Competitor | Ordo-Todo Advantage |
+|---------------|---------------------|
+| **Todoist** | Native integrated timer, AI-powered scheduling, energy matching, wellbeing tracking |
+| **Notion** | Task-focused (not all-in-one), faster and lighter, superior mobile experience |
+| **ClickUp** | Not overwhelming, smooth learning curve, cleaner design |
+| **Asana** | More accessible pricing, AI included in all plans, focus & timer features |
+| **Ticktick** | Deeper AI integration, OKR/goals system, team collaboration, custom fields |
 
 ---
 
-## 3. Arquitectura de Información
+## 2. Platform Architecture
 
-### 3.1 Jerarquía de Organización
+### 2.1 Technology Stack (Current)
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| **Web Frontend** | Next.js (App Router) | 16.1.1 |
+| **UI Framework** | React | 19.2.3 |
+| **Mobile** | React Native + Expo | SDK 52+ |
+| **Desktop** | Electron + Vite | Latest |
+| **Backend API** | NestJS (REST) | 11.1.11 |
+| **Database** | PostgreSQL + Prisma ORM | 16 / 7.x |
+| **Cache** | Redis (Upstash) | - |
+| **Language** | TypeScript | 5.9.3 |
+| **Styling** | Tailwind CSS | 4.1.17 |
+| **State (Server)** | TanStack React Query | 5.90+ |
+| **State (Client)** | Zustand | 5.0.9 |
+| **AI Provider** | Google Gemini API | Latest |
+| **Auth** | NextAuth.js + JWT | 4.24+ |
+| **i18n** | next-intl | 4.5+ |
+| **Animation** | Framer Motion | 12.x |
+| **Icons** | Lucide React + Tabler Icons | Latest |
+| **Forms** | React Hook Form + Zod | 7.x / 4.x |
+
+### 2.2 Monorepo Structure
 
 ```
-Usuario
-├── Espacios de Trabajo (Workspaces)
-│   ├── Personal
-│   ├── Trabajo
-│   └── Equipos (compartidos)
+ordo-todo/ (Turborepo)
+├── apps/
+│   ├── web/          Next.js 16 (PWA-ready)
+│   ├── backend/      NestJS REST API (34 modules, 200+ endpoints)
+│   ├── mobile/       React Native + Expo
+│   └── desktop/      Electron + Vite + React
 │
-└── Workflows (Flujos de Trabajo)
-    └── Proyectos (OBLIGATORIO para cada tarea)
-        └── Listas/Categorías
-            └── Tareas
-                ├── Sub-tareas
-                └── Checklist items
+└── packages/
+    ├── core/         Domain entities, use cases (38 domain modules)
+    ├── db/           Prisma schema (40+ models)
+    ├── ui/           88 shared React components
+    ├── hooks/        100+ React Query hooks (factory pattern)
+    ├── stores/       4 Zustand stores
+    ├── api-client/   181 typed API endpoint methods
+    ├── i18n/         3 languages (en, es, pt-br)
+    ├── styles/       Design tokens (CSS + JS)
+    ├── config/       Shared defaults & constants
+    ├── validations/  Shared Zod schemas
+    ├── eslint-config/
+    └── typescript-config/
 ```
 
-### 3.2 Estructura de Tarea
+### 2.3 Synchronization
 
-**Campos Core:**
-
-- Título (requerido)
-- Proyecto (requerido)
-- Descripción (markdown support)
-- Fecha de vencimiento
-- Prioridad (Baja, Media, Alta, Urgente)
-- Estado (Por hacer, En progreso, Completada)
-- Tiempo estimado
-- Etiquetas/Tags
-- Archivos adjuntos
-
-**Campos Avanzados:**
-
-- Dependencias (tareas bloqueadas por otras)
-- Recurrencia (diaria, semanal, mensual, custom)
-- Asignación (para equipos)
-- Comentarios/Notas
+- Real-time sync between devices via REST polling + WebSockets (Socket.IO)
+- Offline mode with IndexedDB persistence and automatic sync
+- Conflict resolution for concurrent edits
+- Optimistic updates for instant UI feedback
 
 ---
 
-## 4. Funcionalidades Core
+## 3. Information Architecture
 
-### 4.1 Gestión de Tareas
+### 3.1 Organization Hierarchy
 
-#### Creación Rápida
+```
+User
+├── Workspaces (PERSONAL | WORK | TEAM)
+│   ├── Workflows (custom status columns)
+│   │   └── Projects
+│   │       └── Tasks
+│   │           ├── Subtasks
+│   │           ├── Comments
+│   │           ├── Attachments
+│   │           ├── Custom Fields
+│   │           ├── Tags (many-to-many)
+│   │           ├── Dependencies (blocking/blocked)
+│   │           ├── Time Sessions
+│   │           └── Recurrence rules
+│   ├── Notes (sticky board)
+│   └── Members (OWNER | ADMIN | MEMBER | VIEWER)
+│
+├── Habits (daily/weekly tracking)
+├── Objectives (OKR: Objectives → Key Results → linked Tasks)
+├── AI Profile (preferences, learning data)
+├── Notifications
+└── Analytics (DailyMetrics, streaks, heatmaps)
+```
 
-- Quick-add desde cualquier pantalla (shortcut global)
-- Captura por voz
-- Parsing inteligente de lenguaje natural
-  - "Reunión con cliente mañana 3pm #trabajo @alta"
-  - IA extrae: fecha, hora, etiqueta, prioridad
+### 3.2 Task Structure
 
-#### Vistas Flexibles
+**Core Fields:**
+- Title (required, 1-200 chars)
+- Project (required)
+- Description (Markdown, max 5000 chars)
+- Due date, Start date, Scheduled date/time
+- Priority: LOW | MEDIUM | HIGH | URGENT
+- Status: TODO | IN_PROGRESS | COMPLETED | CANCELLED
+- Estimated minutes (1-480)
+- Tags (workspace-scoped)
+- Assignee (team workspaces)
 
-1. **Vista Lista** (default)
-
-   - Agrupación por: proyecto, fecha, prioridad, etiqueta
-   - Filtros múltiples combinables
-   - Ordenamiento drag & drop
-
-2. **Vista Kanban**
-
-   - Columnas personalizables
-   - Límites de WIP (Work in Progress)
-   - Métricas visuales
-
-3. **Vista Calendario**
-
-   - Mensual, semanal, diaria
-   - Time-blocking visual
-   - Integración con calendarios externos
-
-4. **Vista Timeline** (Gantt ligero)
-
-   - Para proyectos con dependencias
-   - Visualización de path crítico
-
-5. **Vista Enfoque** (Focus Mode)
-   - Muestra solo la siguiente tarea más importante
-   - Distracciones minimizadas
-
-### 4.2 Sistema de Tiempo
-
-#### Configuración Global
-
-**Modos de Trabajo (se aplica a todas las tareas):**
-
-1. **Modo Pomodoro**
-
-   - Trabajo: 25 min (configurable: 15-50 min)
-   - Descanso corto: 5 min (configurable: 3-15 min)
-   - Descanso largo: 15 min (configurable: 10-30 min)
-   - Intervalo para descanso largo: cada 4 pomodoros
-
-2. **Modo Tiempo Corrido**
-
-   - Timer continuo sin interrupciones
-   - Pausas manuales cuando el usuario desee
-
-3. **Modo Híbrido**
-   - Pomodoro con flexibilidad de saltear descansos
-   - Sugerencias inteligentes de pausas basadas en tiempo trabajado
-
-**Características del Timer:**
-
-- Notificaciones no invasivas
-- Sonidos personalizables (o silencioso)
-- Integración con música/ambient sounds (opcional)
-- Auto-inicio de siguiente tarea (configurable)
-- Registro automático de tiempo trabajado
-
-### 4.3 Separación de Contextos
-
-#### Espacios de Trabajo (Workspaces)
-
-**Personal**
-
-- Privado, solo del usuario
-- Tareas domésticas, metas personales, hobbies
-- Color theme: azul/verde
-
-**Trabajo**
-
-- Tareas profesionales individuales
-- Proyectos laborales
-- Color theme: gris/profesional
-
-**Equipos** (compartidos)
-
-- Colaboración en tiempo real
-- Permisos granulares (admin, editor, viewer)
-- Cada miembro ve su vista personalizada
-- Color theme: customizable por equipo
-
-**Cambio de Contexto:**
-
-- Switcher rápido (keyboard shortcut)
-- Indicador visual claro del espacio activo
-- Notificaciones separadas por espacio
-- Estadísticas independientes
+**Advanced Fields:**
+- Dependencies (blocking/blocked by relationships)
+- Recurrence (DAILY | WEEKLY | MONTHLY | YEARLY | CUSTOM)
+- Time blocks (calendar integration)
+- Custom fields (per-project, dynamic)
+- Attachments (max 10MB, common formats)
+- Public share token (read-only link)
 
 ---
 
-## 5. Funcionalidades de IA
+## 4. Core Features
 
-### 5.1 Asistente Inteligente "Ordo AI"
+### 4.1 Task Management
 
-#### Smart Scheduling
+#### Quick Creation
+- Quick-add from any screen (Cmd/Ctrl+K command palette)
+- Natural language parsing via AI ("Meeting with client tomorrow 3pm #work @high")
+- AI extracts: date, time, tags, priority, project
 
-- Sugiere mejor momento para tareas basado en:
-  - Patrones históricos de productividad
-  - Complejidad de la tarea
-  - Deadlines existentes
-  - Energía típica del usuario (mañana vs tarde)
+#### Views
+| View | Description | Status |
+|------|-------------|--------|
+| **List** | Default view with grouping, filters, drag & drop | ✅ Implemented |
+| **Kanban Board** | Customizable columns per workflow | ✅ Implemented |
+| **Calendar** | Monthly/weekly with time-blocking | ✅ Implemented |
+| **Timeline (Gantt)** | Project dependencies visualization | ✅ Implemented |
+| **Eisenhower Matrix** | Urgency vs Importance quadrants | ✅ Implemented |
+| **Focus Mode** | Single task view, distraction-free | ✅ Implemented |
+| **Today View** | Overdue + due today + scheduled + available | ✅ Implemented |
 
-#### Auto-Categorización
+#### Task Filters
+- By status, priority, tags, assignee, project
+- Date ranges (today, this week, this month, overdue)
+- Combined filters with AND logic
+- Quick filter bar on task views
+- Batch actions (bulk complete, delete, move)
 
-- Analiza título y descripción
-- Sugiere proyecto, etiquetas, prioridad
-- Aprende de correcciones del usuario
+### 4.2 Time Tracking System
 
-#### Estimación de Tiempo
+#### Timer Modes
+| Mode | Description |
+|------|-------------|
+| **Pomodoro** | Work 25min → Short break 5min → Long break 15min (every 4 pomodoros) |
+| **Continuous** | Unlimited timer with manual pauses |
 
-- Predice duración basada en tareas similares
-- Mejora con feedback del usuario
-- Alerta si agenda está sobrecargada
+All durations configurable. Timer persists across navigation.
 
-#### Priorización Inteligente
+#### Timer Features
+- Start/stop/pause/resume
+- Task switching without stopping (seamless transition)
+- Session history with statistics
+- Auto-tracking to DailyMetrics on session completion
+- Focus score calculation: `(workTime / totalTime) - (pauseCount * 0.02)`
+- Widget visible in sidebar and dashboard
+- Ambient audio player in Focus mode
 
-- Algoritmo que considera:
-  - Urgencia vs Importancia (Matriz Eisenhower)
-  - Dependencies
-  - Impacto en objetivos
-  - Energía requerida
-- Genera "Próximas 3 tareas" recomendadas
+### 4.3 Workspace & Collaboration
 
-#### Detección de Patrones
+#### Workspace Types
+| Type | Use Case |
+|------|----------|
+| **PERSONAL** | Private tasks, personal goals, hobbies |
+| **WORK** | Professional individual tasks |
+| **TEAM** | Shared collaboration with members |
 
-- Identifica tareas recurrentes no marcadas
-- Sugiere automatizaciones
-- Detecta cuellos de botella en proyectos
+#### Role-Based Access Control
+| Role | Capabilities |
+|------|-------------|
+| **OWNER** | Full control, can delete workspace |
+| **ADMIN** | Manage members, settings, moderate content |
+| **MEMBER** | Create/edit content, invite members |
+| **VIEWER** | Read-only access |
 
-#### Resúmenes Inteligentes
+#### Collaboration Features
+- Member invitation via email (7-day expiry tokens)
+- Workspace audit logs (activity tracking)
+- Workload analysis per member
+- Workspace-scoped settings (default views, sorts, notifications)
 
-- Daily brief matutino personalizado
-- Weekly review automático
-- Insights sobre productividad
+### 4.4 Habits Tracking
 
-#### Natural Language Processing
+- Daily/weekly habit definitions with frequency targets
+- Completion tracking with streak counting
+- Statistics: completion rate, current/best streak
+- Pause/resume for temporary breaks
+- Dashboard widget with progress rings
+- Celebration animations on completions
 
-- Creación de tareas por voz o texto natural
-- Búsqueda semántica (no solo keywords)
-- Comandos conversacionales: "Muéstrame tareas de marketing de alta prioridad"
+### 4.5 Objectives & Key Results (OKR)
 
-### 5.2 Automatizaciones con IA
+- Create Objectives with time periods
+- Define measurable Key Results per Objective
+- Link Tasks to Key Results (progress auto-calculated)
+- Dashboard summary with overall progress
+- Current period view for active OKRs
+- Visual progress indicators
 
-- Auto-rescheduling de tareas perdidas
-- Sugerencias de delegación en equipos
-- Detección de burnout y sugerencias de descanso
-- Templates inteligentes para tareas repetitivas
+### 4.6 Notes Board
+
+- Sticky notes on a spatial canvas
+- Workspace-scoped
+- Color-coded notes
+- Drag positioning (x, y coordinates)
+- Resizable notes
+- Search and filter
+
+### 4.7 Search
+
+| Type | Description |
+|------|-------------|
+| **Quick Search** | Fast autocomplete across all entities |
+| **Semantic Search** | AI-powered search understanding intent |
+| **Suggestions** | Auto-complete based on recent activity |
+| **Natural Language Q&A** | Ask questions about your data |
 
 ---
 
-## 6. Métricas & Analytics
+## 5. AI Features
 
-### 6.1 Dashboard Personal
+### 5.1 Ordo AI Assistant
 
-**Métricas Clave:**
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Chat** | Multi-turn conversational AI assistant | ✅ |
+| **Task Parsing** | Natural language → structured task | ✅ |
+| **Task Decomposition** | Break complex tasks into subtasks | ✅ |
+| **Workflow Suggestions** | Recommend workflows for projects | ✅ |
+| **Smart Scheduling** | Optimal task ordering based on patterns | ✅ |
+| **Duration Prediction** | Estimate task time from historical data | ✅ |
 
-- Tareas completadas (hoy, semana, mes)
-- Racha de días productivos (streak)
-- Tiempo total trabajado (Pomodoros completados)
-- Tasa de completación (vs creadas)
-- Distribución por proyecto/etiqueta
-- Progreso hacia objetivos
+### 5.2 Reports & Insights
 
-**Visualizaciones:**
+| Report | Description |
+|--------|-------------|
+| **Weekly Report** | AI-generated weekly productivity summary |
+| **Monthly Report** | Monthly trends and achievements |
+| **Project Report** | Per-project metrics and health analysis |
+| **Productivity Insights** | Pattern detection and actionable advice |
 
-- Gráfico de productividad semanal (heatmap)
-- Distribución de tiempo por categoría (pie chart)
-- Tendencia de tareas completadas (line chart)
-- Velocidad del equipo (para workspaces compartidos)
+### 5.3 Wellbeing & Burnout Prevention
 
-### 6.2 Insights Accionables
+| Feature | Description |
+|---------|-------------|
+| **Wellbeing Indicators** | Overall health metrics based on work patterns |
+| **Burnout Analysis** | Risk assessment based on hours, breaks, streaks |
+| **Work Patterns** | Visualization of work distribution |
+| **Rest Recommendations** | AI-suggested break times and activities |
+| **Burnout Intervention** | Proactive alerts when risk is high |
+| **Weekly Wellbeing Summary** | Holistic weekly health overview |
 
-- "Completas 40% más tareas los martes por la mañana"
-- "Proyecto X lleva 2 semanas sin progreso"
-- "Has trabajado 15% más esta semana que la anterior"
-- "Mejor racha: 12 días consecutivos"
+### 5.4 AI Profile
 
-### 6.3 Reports
-
-- Exportables en PDF/CSV
-- Time tracking detallado
-- Progreso de proyectos
-- Productividad del equipo
-- Cumplimiento de deadlines
+- Personalized AI behavior based on user preferences
+- Learning from corrections and feedback
+- Configurable AI features (enable/disable per user)
+- Data sharing preferences for AI training
 
 ---
 
-## 7. Diseño UI/UX
+## 6. Analytics & Metrics
 
-### 7.1 Principios de Diseño
+### 6.1 Dashboard Metrics
 
-**1. Claridad sobre Densidad**
+| Metric | Description |
+|--------|-------------|
+| **Tasks completed** | Today, this week, this month |
+| **Productivity streak** | Consecutive productive days |
+| **Time worked** | Total from timer sessions |
+| **Pomodoros completed** | Count of completed work sessions |
+| **Focus score** | Work efficiency (0-100%) |
+| **Task completion rate** | Completed vs created |
 
-- Espacios en blanco generosos
-- Tipografía legible (sistema + custom)
-- Jerarquía visual clara
+### 6.2 Visualizations
 
-**2. Progresive Disclosure**
+| Chart | Description |
+|-------|-------------|
+| **Weekly Activity** | Bar chart of last 7 days |
+| **Heatmap** | Calendar heatmap of productivity |
+| **Focus Score Gauge** | Circular gauge with color coding |
+| **Peak Hours** | When user is most productive |
+| **Distribution** | Tasks by project, status, priority |
+| **Project Time** | Time spent per project |
 
-- Funciones avanzadas ocultas hasta necesarias
-- Tooltips contextuales
-- Onboarding interactivo (ver sección 7.5)
+### 6.3 Analytics Endpoints
 
-**3. Consistencia Multiplataforma**
-
-- Design system unificado
-- Adaptación a patrones nativos (Material/iOS/Windows)
-- Shortcuts consistentes
-
-**4. Accesibilidad First**
-
-- WCAG 2.1 AA compliance
-- Keyboard navigation completa
-- Screen reader support
-- Alto contraste disponible
-
-### 7.2 Paleta de Colores
-
-**Tema Claro (default):**
-
-- Primary: Azul profundo (#2563EB)
-- Secondary: Verde esmeralda (#10B981)
-- Background: Blanco humo (#F9FAFB)
-- Surface: Blanco puro (#FFFFFF)
-- Text: Gris oscuro (#111827)
-
-**Tema Oscuro:**
-
-- Primary: Azul brillante (#3B82F6)
-- Secondary: Verde menta (#34D399)
-- Background: Gris casi negro (#0F172A)
-- Surface: Gris oscuro (#1E293B)
-- Text: Gris muy claro (#F1F5F9)
-
-**Código de Prioridad:**
-
-- Urgente: Rojo (#EF4444)
-- Alta: Naranja (#F59E0B)
-- Media: Azul (#3B82F6)
-- Baja: Gris (#6B7280)
-
-### 7.3 Layout & Navigation
-
-**Sidebar (Desktop)**
-
-- Colapsible
-- Quick access a workspaces
-- Búsqueda global prominente
-- Timer widget siempre visible
-
-**Bottom Navigation (Mobile)**
-
-- 5 tabs max: Hoy, Proyectos, Calendario, Estadísticas, Más
-- Floating Action Button para quick-add
-
-**Top Bar**
-
-- Workspace switcher
-- Notificaciones
-- Perfil & settings
-- Command palette (Cmd+K / Ctrl+K)
-
-### 7.4 Microinteracciones
-
-- Checkbox satisfaction (animación al completar)
-- Drag & drop fluido con feedback
-- Loading states informativos
-- Confetti en logros/streaks
-- Sonidos sutiles (opcionales)
-
-### 7.5 Estrategia de Onboarding
-
-**Flujo de Onboarding (5 pasos - <3 minutos):**
-
-**Paso 1: Bienvenida y Configuración de Perfil**
-
-- Nombre y avatar (opcional)
-- Zona horaria (auto-detectada)
-- Idioma preferido
-
-**Paso 2: Selección de Workspace Inicial**
-
-- ¿Para qué usarás Ordo-Todo principalmente?
-  - Personal / Trabajo / Ambos
-- Crear primer workspace con nombre
-
-**Paso 3: Primera Tarea Guiada**
-
-- Tutorial interactivo: crear primera tarea
-- Demostración de NLP ("Reunión con cliente mañana 3pm")
-- Introducción a atajos de teclado básicos
-
-**Paso 4: Configuración del Timer**
-
-- Selección de modo preferido (Pomodoro/Continuo/Híbrido)
-- Demo de 30 segundos del timer
-- Configurar sonidos/notificaciones
-
-**Paso 5: Tour de la Aplicación**
-
-- Overlay interactivo sobre la UI real
-- Tooltips en elementos principales
-- Presentación del asistente Ordo AI
-
-**Elementos de Onboarding Adicionales:**
-
-- Progress indicator visible en todo momento
-- Opción "Saltar" (no recomendada pero disponible)
-- Checklist de "Primeros Pasos" persistente en dashboard (primeras 48h)
-- Emails de onboarding automatizados (día 1, 3, 7)
-- Logros por completar onboarding (gamificación)
-
-**Onboarding para Equipos:**
-
-- Flujo adicional para administradores
-- Invitación masiva por email/CSV
-- Roles y permisos explicados
-- Templates de proyectos de equipo sugeridos
-
-### 7.6 Accesibilidad Detallada
-
-**Compliance WCAG 2.1 AA:**
-
-**Perceivable:**
-
-- Contraste de color ≥ 4.5:1 para texto normal
-- Contraste ≥ 3:1 para elementos UI grandes
-- Alternativas de texto para todos los iconos
-- Subtítulos para contenido de video (tutoriales)
-
-**Operable:**
-
-- Navegación completa por teclado
-- Sin trampas de teclado
-- Tiempo ajustable para acciones temporizadas
-- Skip links para navegación rápida
-
-**Understandable:**
-
-- Idioma declarado en HTML
-- Etiquetas claras para todos los inputs
-- Mensajes de error descriptivos y sugerencias
-- Comportamiento predecible de navegación
-
-**Robust:**
-
-- Markup válido y semántico
-- ARIA landmarks y labels
-- Compatible con lectores de pantalla principales
-
-**Modo de Alto Contraste:**
-
-- Tema de alto contraste dedicado
-- Colores WCAG AAA (7:1 ratio)
-- Bordes más gruesos para elementos interactivos
-- Iconos con mayor peso visual
-
-**Reducción de Movimiento:**
-
-- Respeto a `prefers-reduced-motion`
-- Animaciones deshabilitadas o reducidas
-- Transiciones instantáneas
-- Confetti y celebraciones opcionales
-
-**Otras Características de Accesibilidad:**
-
-- Soporte para modo oscuro/claro
-- Tamaño de fuente ajustable (hasta 200%)
-- Espaciado de línea personalizable
-- Compatibilidad con Dragon NaturallySpeaking
-- Modo de lectura para descripciones largas
+- Daily metrics (single day or date range)
+- Weekly aggregation
+- Monthly aggregation
+- Custom date range
+- Team metrics (per workspace)
+- Dashboard stats (quick overview)
 
 ---
 
-## 8. Funcionalidades Distintivas
+## 7. Authentication & Security
 
-### 8.1 "Energy Matching"
+### 7.1 Authentication Methods
 
-- Usuario establece niveles de energía típicos (mañana/tarde/noche)
-- Tareas tienen "energía requerida" (mental/física/creativa)
-- IA empareja tareas con momentos óptimos
+| Method | Status |
+|--------|--------|
+| Email + Password (bcrypt) | ✅ |
+| Google OAuth 2.0 | ✅ |
+| GitHub OAuth | ✅ |
+| JWT (httpOnly cookies) | ✅ |
+| Token refresh rotation | ✅ |
+| CSRF protection | ✅ |
 
-### 8.2 "Focus Shield"
+### 7.2 Security Features
 
-- Modo que bloquea notificaciones externas
-- Website blocker integrado (configurable)
-- "Do Not Disturb" sincronizado entre dispositivos
+- JWT access tokens (24h) + refresh tokens (7d)
+- Token blacklisting via Redis on logout
+- Rate limiting (login: 5/min, register: 3/hour)
+- Input validation on all endpoints (class-validator)
+- Workspace-scoped authorization checks
+- File upload validation (type, size, filename sanitization)
+- Security headers (X-Frame-Options, X-Content-Type-Options)
+- Soft deletes for data recovery
+- Audit logging for workspace actions
 
-### 8.3 "Weekly Review Asistida"
+### 7.3 Privacy & Compliance
 
-- Guía paso a paso al estilo GTD
-- IA pre-llena sugerencias
-- Establece intenciones para próxima semana
-
-### 8.4 "Objetivo del Día"
-
-- Usuario o IA elige "Una Gran Cosa" cada día
-- Destacada visualmente
-- Celebración especial al completar
-
-### 8.5 "Templates Inteligentes"
-
-- Biblioteca de templates para proyectos comunes
-- Generación de templates por IA desde descripción
-- Templates compartibles en equipos
-
-### 8.6 "Integrations Hub"
-
-- Gmail/Outlook: Convertir emails en tareas
-- Calendar: Sincronización bidireccional
-- Slack/Teams: Crear tareas desde mensajes
-- GitHub/Jira: Importar issues
-- Zapier/Make: Automatizaciones custom
+- GDPR: Data export, account deletion, consent management
+- Data portability: JSON/CSV export
+- User preferences for AI data sharing
+- Account deletion with 30-day grace period
 
 ---
 
-## 9. Arquitectura Técnica
+## 8. Internationalization
 
-### 9.1 Stack Tecnológico
+### 8.1 Supported Languages
 
-**Frontend:**
+| Language | Code | Status |
+|----------|------|--------|
+| English | en | ✅ Complete |
+| Spanish | es | ✅ Complete (default) |
+| Portuguese (Brazil) | pt-br | ✅ Complete |
 
-- React 18+ con TypeScript
-- Next.js 14 (App Router)
-- TailwindCSS + Headless UI
-- Framer Motion (animaciones)
-- React Query (estado del servidor)
-- Zustand (estado local)
+### 8.2 Implementation
 
-**Mobile:**
-
-- React Native + Expo
-- Native animations (Reanimated)
-- Compartir componentes con web
-
-**Backend:**
-
-- Node.js + TypeScript
-- REST API (Standard JSON)
-- PostgreSQL (datos relacionales)
-- Redis (cache & real-time)
-- Prisma ORM
-
-**IA/ML:**
-
-- OpenAI API (GPT-4 para NLP)
-- TensorFlow.js (ML en cliente)
-- Vector DB para embeddings (Pinecone)
-
-**Infraestructura:**
-
-- Vercel (frontend)
-- Railway/Supabase (backend)
-- Cloudflare (CDN + edge functions)
-- S3 (archivos adjuntos)
-
-### 9.2 Seguridad & Privacidad
-
-- End-to-end encryption para datos sensibles
-- Zero-knowledge architecture (opcional)
-- GDPR/CCPA compliant (ver sección 9.4)
-- 2FA obligatorio para equipos
-- Logs de auditoría
-- Data residency options (EU/US/ASIA)
-
-### 9.3 Internacionalización (i18n)
-
-**Idiomas Soportados:**
-
-**Fase 1 (MVP):**
-
-- Inglés (en-US) - Default
-- Español (es-ES, es-MX)
-- Portugués (pt-BR)
-
-**Fase 2 (V1.0):**
-
-- Francés (fr-FR)
-- Alemán (de-DE)
-- Italiano (it-IT)
-
-**Fase 3 (V1.5+):**
-
-- Japonés (ja-JP)
-- Coreano (ko-KR)
-- Chino Simplificado (zh-CN)
-- Árabe (ar-SA) - RTL support
-
-**Implementación Técnica:**
-
-- Framework: next-intl / react-i18next
-- Formato de archivos: JSON estructurado por namespace
-- Interpolación de variables y pluralización
-- Fechas y números localizados (Intl API)
-- Moneda adaptada por región
-
-**Flujo de Localización:**
-
-1. Strings en inglés como base
-2. Extracción automática con i18n-scanner
-3. Traducción via Crowdin/Lokalise
-4. Review por hablantes nativos
-5. QA automatizado de completitud
-
-**Consideraciones:**
-
-- Expansión de texto (alemán +30%)
-- Soporte RTL para árabe/hebreo
-- Formatos de fecha regionales
-- Primer día de semana configurable
-- Zonas horarias y DST
-
-### 9.4 Compliance Detallado (GDPR/CCPA)
-
-**GDPR - Regulación General de Protección de Datos:**
-
-**Derecho de Acceso (Art. 15):**
-
-- Dashboard de "Mis Datos" en configuración
-- Vista completa de datos almacenados
-- Historial de actividad descargable
-
-**Derecho de Rectificación (Art. 16):**
-
-- Edición de todos los datos personales
-- Historial de cambios auditable
-
-**Derecho al Olvido (Art. 17):**
-
-- Botón "Eliminar mi cuenta" en settings
-- Proceso de 30 días con confirmación
-- Eliminación completa de:
-  - Datos personales
-  - Tareas y proyectos
-  - Historial de actividad
-  - Backups (dentro de 90 días)
-- Email de confirmación de eliminación
-- Retención mínima por requisitos legales documentada
-
-**Derecho a la Portabilidad (Art. 20):**
-
-- Exportación completa en formatos:
-  - JSON (datos estructurados)
-  - CSV (tareas y proyectos)
-  - PDF (reportes y métricas)
-- Incluye: tareas, proyectos, comentarios, archivos adjuntos
-- Generación bajo demanda (<24h para cuentas grandes)
-
-**Consentimiento (Art. 7):**
-
-- Consentimiento explícito para:
-  - Cookies no esenciales
-  - Comunicaciones de marketing
-  - Procesamiento de IA
-- Retiro de consentimiento fácil
-- Registro de consentimientos con timestamp
-
-**Notificación de Brechas (Art. 33-34):**
-
-- Proceso documentado de respuesta
-- Notificación a autoridades <72h
-- Notificación a usuarios afectados
-
-**CCPA - California Consumer Privacy Act:**
-
-- "Do Not Sell My Personal Information" link
-- Categorías de datos recolectados documentadas
-- Propósitos de uso claros
-- Proceso de opt-out para residentes de California
-
-**Implementación Técnica:**
-
-- Privacy Center integrado en app
-- APIs de exportación/eliminación
-- Logs inmutables de acceso a datos
-- Encriptación de datos sensibles en reposo
-- Pseudonimización donde sea posible
-
-### 9.5 Performance
-
-- SSR + ISR para SEO y velocidad
-- Optimistic updates
-- Virtual scrolling para listas grandes
-- Image optimization automática
-- Code splitting agresivo
-- < 3s FCP, < 5s TTI
+- Framework: next-intl (web), i18next (mobile/desktop)
+- Locale detection from URL path (`/[locale]/...`)
+- Shared translation files in `packages/i18n`
+- Format conversion utilities between next-intl and i18next syntaxes
+- Localized dates and numbers via Intl API
 
 ---
 
-## 10. Modelo de Negocio
+## 9. PWA & Offline
 
-### 10.1 Tiers de Pricing
+### 9.1 PWA Features
 
-**Free (Personal)**
+- Installable on mobile and desktop (standalone display)
+- Service worker for offline fallback
+- App shortcuts: "New Task", "Quick Timer"
+- Push notifications (configurable)
+- Theme color: `#4F46E5` (Indigo)
 
-- 1 workspace personal
-- 50 tareas activas
-- Funciones básicas de IA (limitadas)
-- 100 MB storage
-- Sincronización entre 2 dispositivos
+### 9.2 Offline Capabilities
 
-**Pro ($9/mes)**
-
-- Workspaces ilimitados
-- Tareas ilimitadas
-- IA completa sin límites
-- 10 GB storage
-- Dispositivos ilimitados
-- Integraciones avanzadas
-- Temas custom
-- Prioridad en soporte
-
-**Team ($12/usuario/mes)**
-
-- Todo de Pro +
-- Workspaces compartidos
-- Colaboración en tiempo real
-- Roles y permisos
-- Analytics de equipo
-- SSO (SAML)
-- Onboarding dedicado
-
-**Enterprise (Custom)**
-
-- Todo de Team +
-- Self-hosted option
-- SLA garantizado
-- Soporte 24/7
-- Custom integrations
-- Auditoría avanzada
-- Data residency
-
-### 10.2 Estrategia Go-to-Market
-
-**Fase 1: Beta Privada (3 meses)**
-
-- 1000 early adopters
-- Feedback intensivo
-- Refinamiento de IA
-
-**Fase 2: Beta Pública (3 meses)**
-
-- Free tier abierto
-- Product Hunt launch
-- Influencer partnerships
-
-**Fase 3: General Availability**
-
-- Lanzamiento de planes pagos
-- Marketing digital agresivo
-- Partnership con empresas
+- IndexedDB storage for offline data persistence
+- Sync status indicator (idle, syncing, error, offline)
+- Pending actions queue for when connection restores
+- Conflict resolution for concurrent edits
 
 ---
 
-## 11. Roadmap de Desarrollo
+## 10. Public Content & Community
 
-### MVP (Meses 1-4)
+### 10.1 Content Modules
 
-**Must-have:**
-
-- ✅ Gestión básica de tareas (CRUD)
-- ✅ Vista Lista y Calendario
-- ✅ Workspaces (Personal/Trabajo)
-- ✅ Timer Pomodoro/Tiempo Corrido
-- ✅ Dashboard básico de métricas
-- ✅ Web app responsive (PWA)
-- ✅ Autenticación y sync
-- ✅ NLP básico para creación de tareas
-- ✅ Onboarding interactivo
-- ✅ Empty states y error handling
-
-**Nota:** Vista Timeline (Gantt) y Energy Matching movidos a versiones posteriores para mantener MVP enfocado.
-
-### V1.0 (Meses 5-6)
-
-- ✅ Mobile apps (iOS/Android) via React Native
-- ✅ Vista Kanban
-- ✅ Equipos y colaboración básica
-- ✅ Integraciones con Calendar
-- ✅ IA: Smart scheduling y priorización
-- ✅ Templates básicos
-- ✅ Modo offline
-- ✅ i18n: Español, Portugués
-
-### V1.5 (Meses 7-9)
-
-- ✅ Desktop apps (Electron) - Evaluar si PWA es suficiente primero
-- ✅ Vista Timeline (Gantt ligero)
-- ✅ IA: Detección de patrones
-- ✅ Integrations hub (Gmail, Slack)
-- ✅ Analytics avanzados
-- ✅ Weekly review asistida
-- ✅ Focus Shield
-- ✅ i18n: Francés, Alemán, Italiano
-
-### V2.0 (Meses 10-12)
-
-- ✅ Energy matching
-- ✅ Automatizaciones custom
-- ✅ API pública
-- ✅ Marketplace de templates
-- ✅ Widgets para iOS/Android
-- ✅ Voice assistant (Siri/Google)
-- ✅ Gamificación y achievements
-- ✅ i18n: Japonés, Coreano, Chino, Árabe
+| Module | Endpoints | Purpose |
+|--------|-----------|---------|
+| **Blog** | CRUD posts, comments | Company blog |
+| **Changelog** | List entries | Version history |
+| **Roadmap** | List items + voting | Feature requests |
+| **Newsletter** | Subscribe | Email list |
+| **Contact** | Submit form | User contact |
+| **Knowledge Base** | Articles + categories | Self-service help |
+| **FAQ** | List entries | Common questions |
 
 ---
 
-## 12. Métricas de Éxito (KPIs)
+## 11. Pricing Model
 
-### Producto
+### 11.1 Tiers
 
+| Tier | Price | Key Features |
+|------|-------|-------------|
+| **Free** | $0 | 1 workspace, 50 active tasks, basic AI, 100MB storage, 2 devices |
+| **Pro** | $9/mo | Unlimited workspaces & tasks, full AI, 10GB storage, all devices, integrations |
+| **Team** | $12/user/mo | Everything in Pro + shared workspaces, real-time collaboration, roles, team analytics, SSO |
+| **Enterprise** | Custom | Everything in Team + self-hosted, SLA, 24/7 support, custom integrations, data residency |
+
+---
+
+## 12. API Surface
+
+### 12.1 Backend Modules (34 Active)
+
+**Foundation**: Health, Metrics, Auth, Images, Users, Workspaces
+**Core Tasks**: Workflows, Projects, Tasks, Notes, Tags, Timers
+**Advanced**: Analytics, AI, Chat, Comments, Attachments, Upload, Notifications, Gamification, Templates, Collaboration, Habits, Objectives, CustomFields, Focus, Meetings, Search
+**Public Content**: Blog, Changelog, Newsletter, Contact, Roadmap
+
+### 12.2 Endpoint Summary
+
+| Domain | Endpoints | Key Operations |
+|--------|-----------|---------------|
+| Auth | 10 | Register, login, logout, refresh, OAuth (Google, GitHub) |
+| Users | 11 | Profile CRUD, preferences, avatar, data export, account deletion |
+| Workspaces | 20+ | CRUD, members, invitations, settings, audit logs, archive |
+| Projects | 12 | CRUD, archive, complete, trash/restore, slug lookup |
+| Tasks | 25+ | CRUD, today/scheduled/available views, subtasks, deps, share, time-blocks |
+| Tags | 6 | CRUD, assign/remove from tasks |
+| Timers | 10 | Start/stop/pause/resume, switch task, history, stats |
+| Analytics | 10 | Daily/weekly/monthly, heatmap, distributions, streaks, team |
+| AI | 20+ | Chat, parse, decompose, schedule, predict, wellbeing, reports |
+| Habits | 10 | CRUD, complete/uncomplete, pause/resume, stats |
+| Objectives | 12 | CRUD objectives & key results, link/unlink tasks |
+| Comments | 4 | CRUD on tasks |
+| Attachments | 5 | Upload, CRUD, project files |
+| Notifications | 4 | List, unread count, mark read |
+| Search | 4 | Semantic, suggestions, Q&A, quick |
+| Notes | 5 | CRUD workspace notes |
+| **Total** | **200+** | |
+
+---
+
+## 13. Quality Metrics (Current)
+
+| Metric | Value |
+|--------|-------|
+| TypeScript errors | 0 |
+| Tests passing | 526/633 (83%) |
+| Build status | ✅ All packages |
+| npm vulnerabilities | 0 |
+| Backend modules | 34/34 active |
+| REST endpoints | 200+ |
+| UI components (shared) | 88 |
+| React Query hooks | 100+ |
+| API client methods | 181 |
+| Supported languages | 3 |
+
+---
+
+## 14. KPIs & Success Metrics
+
+### Product
 - **DAU/MAU ratio**: > 40% (stickiness)
 - **Retention D7**: > 60%
 - **Retention D30**: > 40%
-- **Tasa de activación**: > 70% (completan onboarding)
-- **Time to first task**: < 2 minutos
+- **Activation rate**: > 70% (complete onboarding)
+- **Time to first task**: < 2 minutes
 
-### Negocio
-
+### Business
 - **Free-to-paid conversion**: > 5%
-- **Churn mensual**: < 3%
+- **Monthly churn**: < 3%
 - **NPS**: > 50
-- **CAC Payback**: < 12 meses
-- **ARR crecimiento**: 15% MoM
 
 ### Engagement
-
-- **Tareas creadas/usuario/día**: > 5
-- **Tareas completadas/usuario/día**: > 3
-- **Sesiones/usuario/día**: > 2
-- **Tiempo en app/día**: > 15 minutos
-- **Uso de IA**: > 30% de usuarios/semana
+- **Tasks created/user/day**: > 5
+- **Tasks completed/user/day**: > 3
+- **Sessions/user/day**: > 2
+- **AI usage**: > 30% of users/week
 
 ---
 
-## 13. Diferenciadores Competitivos
+## 15. Risks & Mitigations
 
-### vs Todoist
-
-✅ IA más potente y proactiva
-✅ Timer integrado nativamente
-✅ Energy matching
-✅ UI más moderna
-
-### vs Notion
-
-✅ Enfocado en tareas (no all-in-one)
-✅ Más rápido y liviano
-✅ IA específica para productividad
-✅ Mobile experience superior
-
-### vs ClickUp
-
-✅ No abrumador, curva de aprendizaje suave
-✅ Diseño más limpio
-✅ IA más accesible
-✅ Mejor para individuos y equipos pequeños
-
-### vs Asana
-
-✅ Precio más accesible
-✅ IA incluida en todos los planes
-✅ Mejor para balance vida-trabajo
-✅ Timer y focus features
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|-----------|
+| AI costs limit profitability | Medium | High | Aggressive caching, Gemini (cost-effective) |
+| Saturated market | High | Medium | Clear differentiation (AI + wellbeing + timer) |
+| Sync issues | Medium | High | Exhaustive testing, offline-first architecture |
+| Slow adoption | Medium | High | Generous free tier, product-led growth |
+| Competitor copies features | High | Medium | Continuous innovation, strong brand |
 
 ---
 
-## 14. Riesgos y Mitigaciones
-
-| Riesgo                         | Probabilidad | Impacto | Mitigación                                     |
-| ------------------------------ | ------------ | ------- | ---------------------------------------------- |
-| IA costosa limita rentabilidad | Media        | Alto    | Caché agresivo, fine-tuning de modelos propios |
-| Mercado saturado               | Alta         | Medio   | Diferenciación clara, nicho específico         |
-| Problemas de sync              | Media        | Alto    | Testing exhaustivo, rollback rápido            |
-| Adopción lenta                 | Media        | Alto    | Freemium generoso, viral loops                 |
-| Competidor copia features      | Alta         | Medio   | Innovación continua, marca fuerte              |
-
----
-
-## 15. Preguntas Abiertas / Decisiones Pendientes
-
-1. **¿Self-hosted desde MVP o solo cloud?**
-
-   - Recomendación: Solo cloud en MVP, self-hosted en Enterprise
-
-2. **¿Gamificación explícita o sutil?**
-
-   - Recomendación: Sutil en default, activable en settings
-
-3. **¿API pública desde V1?**
-
-   - Recomendación: Beta privada en V1.5, pública en V2.0
-
-4. **¿White-label para enterprise?**
-
-   - Recomendación: Evaluar en V2.0 si hay demanda
-
-5. **¿Marketplace de integraciones de terceros?**
-   - Recomendación: Post V2.0, requiere ecosistema maduro
-
----
-
-## 16. Conclusión
-
-Ordo-Todo tiene potencial de convertirse en la herramienta de productividad de referencia para la próxima década combinando:
-
-1. **Simplicidad** que respeta el tiempo del usuario
-2. **Inteligencia** que ayuda sin molestar
-3. **Flexibilidad** que se adapta a cualquier workflow
-4. **Belleza** que hace placentero el trabajo diario
-
-El éxito dependerá de:
-
-- Ejecución impecable del MVP
-- Feedback loop continuo con usuarios
-- Balance entre features y simplicidad
-- Innovación constante en IA
-- Construcción de comunidad fuerte
-
-**Siguiente paso:** Validar con usuarios potenciales mediante prototipos interactivos y ajustar basado en feedback antes de desarrollo completo.
-
----
-
-**Documento vivo**: Este PRD debe actualizarse trimestralmente basado en learnings del mercado, feedback de usuarios y evolución tecnológica.
-
-**Versión**: 1.0  
-**Última actualización**: Noviembre 2025  
-**Owner**: Equipo Ordo-Todo  
-**Status**: Aprobado para MVP
+**This is a living document. Updated quarterly based on market learnings, user feedback, and technological evolution.**
