@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
 import { renderHook, waitFor, cleanup } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createHooks, type CreateHooksConfig } from '../hooks';
@@ -560,7 +560,7 @@ describe('createHooks', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(mockApiClient.getTasks).toHaveBeenCalledWith('project-1', undefined);
+      expect(mockApiClient.getTasks).toHaveBeenCalledWith('project-1', undefined, undefined);
     });
 
     it('useTask should fetch single task', async () => {
