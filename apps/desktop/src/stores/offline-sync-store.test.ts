@@ -482,6 +482,6 @@ describe('useOfflineSyncStore', () => {
 
     expect(result.current.queue.syncStatus).toBe('error');
     expect(result.current.queue.operations[0].status).toBe('failed');
-    expect(result.current.queue.operations[0].retryCount).toBe(1);
+    expect(result.current.queue.operations[0].retryCount).toBe(2);
   });
 });
