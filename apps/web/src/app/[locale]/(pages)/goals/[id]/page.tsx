@@ -17,7 +17,7 @@ export default function ObjectiveDetailPage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("Goals");
-  const { data: objective, isLoading } = useObjective(params.id as string);
+  const { data: objective, isLoading, error } = useObjective(params.id as string);
   const deleteKeyResult = useDeleteKeyResult();
 
   const [showCreateKR, setShowCreateKR] = useState(false);
@@ -50,12 +50,12 @@ export default function ObjectiveDetailPage() {
       </AppLayout>
     );
 
-  if (!objective) {
+  if (error || !objective) {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center h-full p-6">
           <Target className="h-16 w-16 text-muted-foreground mb-4" />
-          <h1 className="text-2xl font-bold">{t("notFound") || "Objetivo no encontrado"}</h1>
+          <h1 className="text-2xl font-bold">{error ? (t("error") || "Error al cargar objetivo") : (t("notFound") || "Objetivo no encontrado")}</h1>
           <Button onClick={() => router.push("/goals")} className="mt-4" variant="outline">
             {t("backToList")}
           </Button>

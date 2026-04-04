@@ -45,17 +45,17 @@ export function deserializeFilters(params: URLSearchParams): TaskFilters {
 
   const status = params.get("status");
   if (status) {
-    filters.status = status.split(",") as any;
+    filters.status = status.split(",") as TaskFilters["status"];
   }
 
   const priority = params.get("priority");
   if (priority) {
-    filters.priority = priority.split(",") as any;
+    filters.priority = priority.split(",") as TaskFilters["priority"];
   }
 
   const due = params.get("due");
   if (due) {
-    filters.dueDateRange = due as any;
+    filters.dueDateRange = due as TaskFilters["dueDateRange"];
   }
 
   const assigned = params.get("assigned");

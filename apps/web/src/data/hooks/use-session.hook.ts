@@ -2,7 +2,8 @@ import { useAuth } from "@ordo-todo/auth-provider";
 import { User } from "@ordo-todo/core";
 
 const useSession = () => {
-    const { user: authUser, isLoading, logout } = useAuth();
+    const auth = useAuth();
+    const { user: authUser, isLoading, logout } = auth;
 
     const user = authUser
         ? new User({
@@ -17,8 +18,8 @@ const useSession = () => {
         loading: isLoading,
         token: null,
         user,
-        error: (useAuth() as any).error,
-        startSession: () => console.warn("startSession is deprecated"),
+        error: 'error' in auth ? (auth as { error: unknown }).error : null,
+        startSession: () => {},
         endSession: logout,
     };
 };

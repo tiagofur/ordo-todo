@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useMemo } from "react";
+import { createContext, useMemo, type PropsWithChildren } from "react";
 import { User } from "@ordo-todo/core";
 import { useSession as useNextAuthSession } from "next-auth/react";
 
@@ -11,33 +11,47 @@ interface SessionContextProps {
   endSession: () => void;
 }
 
-const SessionContext = createContext<SessionContextProps>({} as any);
+interface NextAuthUserExtended {
+  id?: string;
+  username?: string;
+  name?: string | null;
+  email?: string | null;
+}
+
+const defaultSessionContext: SessionContextProps = {
+  loading: true,
+  token: null,
+  user: null,
+  startSession: () => {},
+  endSession: () => {},
+};
+
+const SessionContext = createContext<SessionContextProps>(defaultSessionContext);
 export default SessionContext;
 
-export function SessionProvider(props: any) {
+export function SessionProvider({ children }: PropsWithChildren) {
   const { data: nextAuthSession, status } = useNextAuthSession();
-  
+
   const user = useMemo(() => {
     if (nextAuthSession?.user) {
-      // We cast to any because next-auth types might not have our custom properties
-      const user = nextAuthSession.user as any;
-      
+      const sessionUser = nextAuthSession.user as NextAuthUserExtended;
+
       return new User({
-        id: user.id || "unknown",
-        username: user.username || "",
-        name: user.name || "",
-        email: user.email || "",
+        id: sessionUser.id || "unknown",
+        username: sessionUser.username || "",
+        name: sessionUser.name || "",
+        email: sessionUser.email || "",
       });
     }
     return null;
   }, [nextAuthSession]);
 
-  function startSession(token: string) {
-    console.warn("startSession is deprecated. Use next-auth signIn.");
+  function startSession(_token: string) {
+    // Deprecated: Use next-auth signIn instead
   }
 
   function endSession() {
-    console.warn("endSession is deprecated. Use next-auth signOut.");
+    // Deprecated: Use next-auth signOut instead
   }
 
   return (
@@ -50,7 +64,7 @@ export function SessionProvider(props: any) {
         endSession,
       }}
     >
-      {props.children}
+      {children}
     </SessionContext.Provider>
   );
 }

@@ -66,8 +66,8 @@ export default function SettingsPage() {
         <div className="grid gap-8">
           {/* Appearance */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-500">
                 <Palette className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("appearance") || "Apariencia"}</h2>
@@ -85,8 +85,8 @@ export default function SettingsPage() {
                     className={cn(
                       "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[90px] flex-shrink-0 sm:min-w-0",
                       theme === "light"
-                        ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
-                        : "border-transparent bg-muted/50"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
+                        : "border-transparent bg-muted"
                     )}
                   >
                     <Sun className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -97,8 +97,8 @@ export default function SettingsPage() {
                     className={cn(
                       "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[90px] flex-shrink-0 sm:min-w-0",
                       theme === "dark"
-                        ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
-                        : "border-transparent bg-muted/50"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
+                        : "border-transparent bg-muted"
                     )}
                   >
                     <Moon className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -109,8 +109,8 @@ export default function SettingsPage() {
                     className={cn(
                       "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[90px] flex-shrink-0 sm:min-w-0",
                       theme === "system"
-                        ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
-                        : "border-transparent bg-muted/50"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
+                        : "border-transparent bg-muted"
                     )}
                   >
                     <Laptop className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -123,8 +123,8 @@ export default function SettingsPage() {
 
           {/* Language */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-green-500/10 text-green-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-500">
                 <Globe className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("language") || "Idioma"}</h2>
@@ -141,8 +141,8 @@ export default function SettingsPage() {
                   className={cn(
                     "flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[120px] flex-shrink-0 sm:min-w-0",
                     locale === "es"
-                      ? "border-green-500 bg-green-50/50 dark:bg-green-950/20"
-                      : "border-transparent bg-muted/50"
+                      ? "border-green-500 bg-green-50 dark:bg-green-950"
+                      : "border-transparent bg-muted"
                   )}
                 >
                   <span className="text-xl sm:text-2xl">🇪🇸</span>
@@ -153,8 +153,8 @@ export default function SettingsPage() {
                   className={cn(
                     "flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[120px] flex-shrink-0 sm:min-w-0",
                     locale === "en"
-                      ? "border-green-500 bg-green-50/50 dark:bg-green-950/20"
-                      : "border-transparent bg-muted/50"
+                      ? "border-green-500 bg-green-50 dark:bg-green-950"
+                      : "border-transparent bg-muted"
                   )}
                 >
                   <span className="text-xl sm:text-2xl">🇺🇸</span>
@@ -165,8 +165,8 @@ export default function SettingsPage() {
                   className={cn(
                     "flex items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all hover:bg-accent min-w-[120px] flex-shrink-0 sm:min-w-0",
                     locale === "pt-br"
-                      ? "border-green-500 bg-green-50/50 dark:bg-green-950/20"
-                      : "border-transparent bg-muted/50"
+                      ? "border-green-500 bg-green-50 dark:bg-green-950"
+                      : "border-transparent bg-muted"
                   )}
                 >
                   <span className="text-xl sm:text-2xl">🇧🇷</span>
@@ -178,8 +178,8 @@ export default function SettingsPage() {
 
           {/* Timer Settings */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900 text-indigo-500">
                 <Clock className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("timer") || "Temporizador"}</h2>
@@ -198,11 +198,11 @@ export default function SettingsPage() {
                     className={cn(
                       "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
                       settings.defaultMode === "POMODORO"
-                        ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20"
-                        : "border-transparent bg-muted/50"
+                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950"
+                        : "border-transparent bg-muted"
                     )}
                   >
-                    <div className="rounded-full bg-red-100 p-2 dark:bg-red-900/30">
+                    <div className="rounded-full bg-red-100 p-2 dark:bg-red-900">
                       <Zap className="h-5 w-5 text-red-500" />
                     </div>
                     <div className="text-center">
@@ -215,11 +215,11 @@ export default function SettingsPage() {
                     className={cn(
                       "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all hover:bg-accent",
                       settings.defaultMode === "CONTINUOUS"
-                        ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20"
-                        : "border-transparent bg-muted/50"
+                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950"
+                        : "border-transparent bg-muted"
                     )}
                   >
-                    <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900/30">
+                    <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900">
                       <Monitor className="h-5 w-5 text-blue-500" />
                     </div>
                     <div className="text-center">
@@ -271,7 +271,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-4 border-t border-border/50">
+                <div className="space-y-3 pt-4 border-t border-border">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label htmlFor="pomodorosUntilLongBreak">{t("longBreakInterval") || "Intervalo de descanso largo"}</Label>
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-border/50">
+                <div className="space-y-4 pt-4 border-t border-border">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label htmlFor="autoStartBreaks">{t("autoStartBreaks") || "Auto-iniciar descansos"}</Label>
@@ -380,8 +380,8 @@ export default function SettingsPage() {
 
           {/* AI Settings */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 text-purple-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-500">
                 <Sparkles className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">Inteligencia Artificial</h2>
@@ -472,7 +472,7 @@ export default function SettingsPage() {
                     />
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-border/50">
+                  <div className="space-y-2 pt-2 border-t border-border">
                     <Label>Sensibilidad de detección</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {["Baja", "Media", "Alta"].map((level) => (
@@ -481,8 +481,8 @@ export default function SettingsPage() {
                           className={cn(
                             "px-3 py-2 rounded-lg text-sm font-medium transition-all",
                             level === "Media"
-                              ? "bg-pink-500/10 border-2 border-pink-500/50 text-pink-600"
-                              : "bg-muted/50 border-2 border-transparent hover:bg-muted"
+                              ? "bg-pink-100 dark:bg-pink-900 border-2 border-pink-500 text-pink-600"
+                              : "bg-muted border-2 border-transparent hover:bg-muted"
                           )}
                         >
                           {level}
@@ -540,8 +540,8 @@ export default function SettingsPage() {
 
           {/* Tour & Help */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/10 to-purple-500/10 text-cyan-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900 text-cyan-500">
                 <Rocket className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">Tour & Ayuda</h2>
@@ -568,7 +568,7 @@ export default function SettingsPage() {
                 </Button>
               </div>
 
-              <div className="pt-4 border-t border-border/50">
+              <div className="pt-4 border-t border-border">
                 <p className="text-xs text-muted-foreground">
                   💡 El tour te guía por: Búsqueda Inteligente, Asistente de Reuniones, 
                   Panel de Bienestar, Carga del Equipo y Focus Audio.
@@ -579,8 +579,8 @@ export default function SettingsPage() {
 
           {/* Tags Management */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-green-500/10 text-green-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-500">
                 <Tags className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("tags") || "Etiquetas"}</h2>
@@ -592,7 +592,7 @@ export default function SettingsPage() {
               </p>
               <button
                 onClick={() => router.push("/tags")}
-                className="flex items-center justify-between w-full rounded-xl border border-border/50 p-4 text-left transition-all hover:bg-muted/50"
+                className="flex items-center justify-between w-full rounded-xl border border-border p-4 text-left transition-all hover:bg-muted"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900">
@@ -610,8 +610,8 @@ export default function SettingsPage() {
 
           {/* Security & Sessions */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-500">
                 <Shield className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("security") || "Seguridad"}</h2>
@@ -622,8 +622,8 @@ export default function SettingsPage() {
 
           {/* Keyboard Shortcuts */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-500">
                 <Keyboard className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("keyboardShortcuts") || "Atajos de Teclado"}</h2>
@@ -654,8 +654,8 @@ export default function SettingsPage() {
 
           {/* About */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-              <div className="p-2 rounded-lg bg-gray-500/10 text-gray-500">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500">
                 <SettingsIcon className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold">{t("about") || "Acerca de"}</h2>

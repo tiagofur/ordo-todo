@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 export default function WorkspacesPage() {
   const t = useTranslations('Workspaces');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { data: workspaces, isLoading } = useWorkspaces();
+  const { data: workspaces, isLoading, error } = useWorkspaces();
   const { mutateAsync: createWorkspace } = useCreateWorkspace();
   const accentColor = "#f97316"; // Orange
 
@@ -59,9 +59,17 @@ export default function WorkspacesPage() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="h-64 rounded-2xl bg-muted/50 animate-pulse"
+              className="h-64 rounded-2xl bg-muted animate-pulse"
             />
           ))}
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 mb-4">
+            <Briefcase className="h-8 w-8 text-red-500" />
+          </div>
+          <h3 className="text-lg font-semibold">{t('error') || 'Error al cargar espacios'}</h3>
+          <p className="text-muted-foreground mt-2 text-sm">{t('errorDescription') || 'No se pudieron cargar los espacios de trabajo. Intenta de nuevo.'}</p>
         </div>
       ) : workspaces && workspaces.length > 0 ? (
         <motion.div

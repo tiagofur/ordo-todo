@@ -1,15 +1,20 @@
 "use client";
 import { notify } from "@/lib/notify";
-import { createContext, useCallback } from "react";
+import { createContext, useCallback, type PropsWithChildren } from "react";
 
 export interface MessageContextProps {
   addSuccess: (text: string) => void;
   addError: (text: string) => void;
 }
 
-const MessageContext = createContext<MessageContextProps>({} as any);
+const defaultMessageContext: MessageContextProps = {
+  addSuccess: () => {},
+  addError: () => {},
+};
 
-export function MessageProvider(props: any) {
+const MessageContext = createContext<MessageContextProps>(defaultMessageContext);
+
+export function MessageProvider({ children }: PropsWithChildren) {
   const addMessage = useCallback(
     function (type: "success" | "error", text: string) {
       const description = text.split(/\n/).map((line) => (
@@ -48,7 +53,7 @@ export function MessageProvider(props: any) {
         addError,
       }}
     >
-      {props.children}
+      {children}
     </MessageContext.Provider>
   );
 }

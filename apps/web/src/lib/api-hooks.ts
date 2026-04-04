@@ -134,7 +134,7 @@ export function useTaskStatusDistribution() { return getHooks().useTaskStatusDis
 // AI
 export function useAIProfile() { return getHooks().useAIProfile(); }
 export function useOptimalSchedule(params?: { topN?: number }) { return getHooks().useOptimalSchedule(params); }
-export function useTaskDurationPrediction(params: any) { return getHooks().useTaskDurationPrediction(params); }
+export function useTaskDurationPrediction(params?: { title?: string; description?: string; category?: string; priority?: string }) { return getHooks().useTaskDurationPrediction(params); }
 export function useGenerateWeeklyReport() { return getHooks().useGenerateWeeklyReport(); }
 export function useReports(params?: { scope?: string; limit?: number; offset?: number }) { return getHooks().useReports(params); }
 export function useReport(reportId: string) { return getHooks().useReport(reportId); }
@@ -211,7 +211,7 @@ export function useCreateAuditLog() { return getHooks().useCreateAuditLog(); }
 export function useTimeBlocks(start?: Date | string, end?: Date | string) { return getHooks().useTimeBlocks(start, end); }
 
 // Utilities
-export function invalidateAllTasksShared(queryClient: any) { return getHooks().invalidateAllTasks(queryClient); }
+export function invalidateAllTasksShared(queryClient: ReturnType<typeof import('@tanstack/react-query').useQueryClient>) { return getHooks().invalidateAllTasks(queryClient); }
 export { getHooks as hooks };
 
 // Helper to check if user is authenticated
@@ -275,13 +275,12 @@ export function useProductivityStreak() {
 }
 
 /**
- * Get workspace by just the slug (deprecated - use useWorkspaceByUsernameAndSlug)
- * @deprecated Use useWorkspaceBySlug from shared-hooks with username param
+ * Get workspace by just the slug (uses /workspaces/by-slug/:slug endpoint)
  */
 export function useWorkspaceBySlugLegacy(slug: string) {
   return useQuery({
     queryKey: ["workspaces", "slug", slug],
-    queryFn: () => apiClient.getWorkspaceBySlug(slug),
+    queryFn: () => apiClient.getWorkspaceBySlugOnly(slug),
     enabled: !!slug,
   });
 }
@@ -292,7 +291,7 @@ export function useWorkspaceBySlugLegacy(slug: string) {
 export function useWorkspaceByUsernameAndSlug(username: string, slug: string) {
   return useQuery({
     queryKey: ["workspaces", "user", username, "slug", slug],
-    queryFn: () => apiClient.getWorkspaceByUsernameAndSlug(username, slug),
+    queryFn: () => apiClient.getWorkspaceBySlug(username, slug),
     enabled: !!username && !!slug,
   });
 }
@@ -307,7 +306,7 @@ export const invalidateAllTasksLegacy = (queryClient: QueryClient) => {
 
 export const objectiveQueryKeys = {
   all: ["objectives"] as const,
-  dashboard: ["objectives", "dashboard"] as const,
+  dashboard: ["objectives", "dashboard-summary"] as const,
   currentPeriod: ["objectives", "current-period"] as const,
   objective: (id: string) => ["objectives", id] as const,
 };

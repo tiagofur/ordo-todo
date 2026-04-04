@@ -222,8 +222,8 @@ export default function DashboardPage() {
   const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
-  const hoursWorked = stats ? Math.floor(stats.totalMinutesWorked / 60) : 0;
-  const minutesWorked = stats ? stats.totalMinutesWorked % 60 : 0;
+  const hoursWorked = stats ? Math.floor((stats.totalMinutesWorked ?? 0) / 60) : 0;
+  const minutesWorked = stats ? (stats.totalMinutesWorked ?? 0) % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
       ? `${hoursWorked}h ${minutesWorked}m`
@@ -631,11 +631,9 @@ export default function DashboardPage() {
         open={showCreateProjectDialog}
         onOpenChange={setShowCreateProjectDialog}
         onSubmit={async (data) => {
-             // Since createProject mutation expects CreateProjectDto, we pass data directly
-             // Assuming CreateProjectDialog passes correct shape
              await createProject({
               ...data,
-              workflowId: data.workflowId || "default-workflow-id" // Provide fallback if needed or handle inside dialog
+              workflowId: data.workflowId || "",
              });
              setShowCreateProjectDialog(false);
         }}

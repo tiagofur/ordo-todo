@@ -345,7 +345,7 @@ export default function HabitsPage() {
                           "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300",
                           isCompleted
                             ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-muted-foreground/30 hover:border-emerald-500 hover:bg-emerald-500/10"
+                            : "border-gray-300 dark:border-gray-600 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950"
                         )}
                       >
                         <CheckCircle2

@@ -239,7 +239,7 @@ class WebPerformanceMonitor {
     });
   }
 
-  private observeVital(type: string, callback: (entries: any[]) => void) {
+  private observeVital(type: string, callback: (entries: PerformanceEntryList) => void) {
     try {
       const observer = new PerformanceObserver((list) => {
         callback(list.getEntries());
@@ -522,7 +522,9 @@ export function initializePerformanceMonitoring() {
       }
     });
 
-    console.log('⚡ Performance monitoring enabled. Press Ctrl+Shift+P for performance report.');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⚡ Performance monitoring enabled. Press Ctrl+Shift+P for performance report.');
+    }
   }
 }
 

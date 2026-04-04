@@ -30,6 +30,7 @@ export function SessionHistory() {
     page: 1,
     limit: 10,
     startDate: subDays(new Date(), 7).toISOString().split("T")[0],
+    endDate: new Date().toISOString().split("T")[0],
   });
 
   const {

@@ -53,7 +53,7 @@ const goalsOnboardingSteps: OnboardingStep[] = [
 
 export default function GoalsPage() {
   const t = useTranslations("Goals");
-  const { data: objectives, isLoading } = useObjectives();
+  const { data: objectives, isLoading, error } = useObjectives();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const router = useRouter();
 
@@ -103,6 +103,14 @@ export default function GoalsPage() {
               <Skeleton key={i} className="h-64 w-full rounded-xl" />
             ))}
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center flex-1 text-center min-h-[300px]">
+            <div className="p-4 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+              <Target className="h-8 w-8 text-red-500" />
+            </div>
+            <h3 className="text-lg font-semibold">{t("error") || "Error al cargar objetivos"}</h3>
+            <p className="text-muted-foreground mt-2 text-sm">{t("errorDescription") || "No se pudieron cargar los objetivos. Intenta de nuevo."}</p>
+          </div>
         ) : !objectives || objectives.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 text-center min-h-[400px] bg-muted/10 rounded-3xl border-2 border-dashed border-muted mx-auto w-full max-w-3xl py-12">
               <div
@@ -147,7 +155,7 @@ export default function GoalsPage() {
                       <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">{t("progress")}</span>
-                              <span className="font-medium">{Math.round(objective.progress)}%</span>
+                              <span className="font-medium">{Math.round(objective.progress ?? 0)}%</span>
                           </div>
                           <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                               <div
