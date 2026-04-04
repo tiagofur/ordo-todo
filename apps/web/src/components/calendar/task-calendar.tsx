@@ -70,7 +70,7 @@ const CustomToolbar = (toolbar: any) => {
     <div className="flex items-center justify-between py-4 px-2 mb-2">
       <div className="flex items-center gap-4">
         {label()}
-        <div className="flex items-center rounded-md border bg-muted/50 p-0.5">
+        <div className="flex items-center rounded-md border bg-muted p-0.5">
           <Button variant="ghost" size="icon" onClick={goToBack} className="h-7 w-7 rounded-sm hover:bg-background hover:shadow-sm">
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -83,7 +83,7 @@ const CustomToolbar = (toolbar: any) => {
         </div>
       </div>
 
-      <div className="flex items-center rounded-md border bg-muted/50 p-0.5">
+      <div className="flex items-center rounded-md border bg-muted p-0.5">
         <Button
           variant="ghost"
           size="sm"
@@ -129,7 +129,7 @@ const CustomEvent = ({ event }: { event: TaskEvent }) => {
   return (
     <div className={cn(
        "h-full w-full px-2 py-1 rounded-md border-l-4 overflow-hidden text-xs transition-all hover:brightness-95",
-       task.status === 'COMPLETED' ? "bg-muted text-muted-foreground line-through opacity-70" : "bg-primary/10 text-primary-foreground border-primary/50"
+       task.status === 'COMPLETED' ? "bg-muted text-muted-foreground line-through opacity-70" : "bg-blue-100 dark:bg-blue-900 text-primary-foreground border-primary"
     )}
     style={{
         backgroundColor: "hsl(var(--card))",
@@ -268,7 +268,7 @@ export function TaskCalendar() {
   }
 
   return (
-    <div className="h-[calc(100vh-200px)] bg-background/50 backdrop-blur-sm calendar-wrapper text-foreground p-4">
+    <div className="h-[calc(100vh-200px)] bg-background calendar-wrapper text-foreground p-4">
       <style>{`
         .rbc-calendar { font-family: inherit; }
         .rbc-header { padding: 12px 4px; font-weight: 500; font-size: 0.875rem; text-transform: uppercase; color: hsl(var(--muted-foreground)); border-bottom: 1px solid hsl(var(--border)) !important; }

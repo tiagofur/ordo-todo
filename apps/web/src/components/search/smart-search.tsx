@@ -230,7 +230,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
 
         {/* AI Badge */}
         <div className="absolute -top-2 right-4">
-          <div className="flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full border border-primary/20">
+          <div className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900 text-primary text-xs px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
             <Sparkles className="h-3 w-3" />
             <span>IA</span>
           </div>
@@ -257,7 +257,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
                   }}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors",
-                    selectedIndex === index ? "bg-accent" : "hover:bg-accent/50"
+                    selectedIndex === index ? "bg-accent" : "hover:bg-accent"
                   )}
                 >
                   <Search className="h-4 w-4 text-muted-foreground" />
@@ -278,7 +278,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
           >
             {/* Interpretation Explanation */}
             {interpretation && (
-              <div className="px-4 py-3 border-b bg-muted/30">
+              <div className="px-4 py-3 border-b bg-muted">
                 <div className="flex items-center gap-2 text-sm">
                   <Sparkles className="h-4 w-4 text-primary" />
                   <span className="text-muted-foreground">{interpretation.explanation}</span>
@@ -294,7 +294,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
                   onClick={() => navigateToResult(result)}
                   className={cn(
                     "w-full flex items-start gap-3 px-3 py-3 rounded-lg text-left transition-colors",
-                    selectedIndex === index ? "bg-accent" : "hover:bg-accent/50"
+                    selectedIndex === index ? "bg-accent" : "hover:bg-accent"
                   )}
                 >
                   <div className={cn("mt-1", getPriorityColor(result.metadata.priority))}>
@@ -338,7 +338,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-2 border-t bg-muted/20 text-xs text-muted-foreground flex items-center justify-between">
+            <div className="px-4 py-2 border-t bg-muted text-xs text-muted-foreground flex items-center justify-between">
               <span>↑↓ navegar • Enter seleccionar • Esc cerrar</span>
               <span>{results.length} resultados</span>
             </div>
@@ -352,9 +352,9 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
             exit={{ opacity: 0, y: -10 }}
             className="mt-2 bg-card border rounded-xl shadow-lg p-8 text-center"
           >
-            <Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">No se encontraron resultados para "{query}"</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Prueba con otros términos o verifica la ortografía
             </p>
           </motion.div>

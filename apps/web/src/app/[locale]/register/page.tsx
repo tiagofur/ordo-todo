@@ -171,11 +171,11 @@ export default function SignUpPage() {
     formData.password !== formData.confirmPassword;
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-cyan-500/5 to-pink-500/5 p-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center bg-background p-4 py-12">
       {/* Decorative elements */}
-      <div className="absolute left-20 top-10 h-40 w-40 rotate-45 rounded-3xl bg-cyan-500/10 blur-3xl animate-pulse" />
-      <div className="absolute right-10 top-32 h-36 w-36 -rotate-12 rounded-full bg-pink-500/10 blur-3xl animate-pulse delay-700" />
-      <div className="absolute bottom-10 left-10 h-32 w-32 rotate-12 rounded-2xl bg-purple-500/10 blur-3xl animate-pulse delay-1000" />
+      <div className="absolute left-20 top-10 h-40 w-40 rotate-45 rounded-3xl bg-cyan-100 dark:bg-cyan-900 blur-3xl animate-pulse" />
+      <div className="absolute right-10 top-32 h-36 w-36 -rotate-12 rounded-full bg-pink-100 dark:bg-pink-900 blur-3xl animate-pulse delay-700" />
+      <div className="absolute bottom-10 left-10 h-32 w-32 rotate-12 rounded-2xl bg-purple-100 dark:bg-purple-900 blur-3xl animate-pulse delay-1000" />
 
       <div
         className="relative z-10 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700"
@@ -183,7 +183,7 @@ export default function SignUpPage() {
         {/* Logo and Header */}
         <div className="mb-8 text-center">
           <div
-            className="group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500 shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-110 hover:rotate-3"
+            className="group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500 shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-3"
           >
             <CheckSquare className="h-9 w-9 text-white" />
           </div>
@@ -197,7 +197,7 @@ export default function SignUpPage() {
 
         {/* Main Form Card */}
         <div
-          className="overflow-hidden rounded-2xl border border-border/50 bg-card p-8 shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150"
+          className="overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name Input */}
@@ -215,7 +215,7 @@ export default function SignUpPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
                   placeholder="Tu nombre completo"
                 />
               </div>
@@ -263,7 +263,7 @@ export default function SignUpPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   placeholder="tu@email.com"
                 />
               </div>
@@ -284,7 +284,7 @@ export default function SignUpPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-11 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Mínimo 8 caracteres"
                 />
                 <button
@@ -299,7 +299,7 @@ export default function SignUpPage() {
               {/* Password Strength Indicator */}
               {formData.password && (
                 <div
-                  className="space-y-3 rounded-xl border border-border/50 bg-muted/30 p-4 animate-in fade-in slide-in-from-top-2 duration-300"
+                  className="space-y-3 rounded-xl border border-border bg-muted p-4 animate-in fade-in slide-in-from-top-2 duration-300"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
@@ -317,7 +317,7 @@ export default function SignUpPage() {
                       {passwordStrength.checks?.length ? (
                         <Check className="h-3.5 w-3.5 text-green-500" />
                       ) : (
-                        <X className="h-3.5 w-3.5 text-muted-foreground/50" />
+                        <X className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                       <span className={passwordStrength.checks?.length ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
                         8+ caracteres
@@ -327,7 +327,7 @@ export default function SignUpPage() {
                       {passwordStrength.checks?.uppercase ? (
                         <Check className="h-3.5 w-3.5 text-green-500" />
                       ) : (
-                        <X className="h-3.5 w-3.5 text-muted-foreground/50" />
+                        <X className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                       <span className={passwordStrength.checks?.uppercase ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
                         Mayúsculas
@@ -337,7 +337,7 @@ export default function SignUpPage() {
                       {passwordStrength.checks?.number ? (
                         <Check className="h-3.5 w-3.5 text-green-500" />
                       ) : (
-                        <X className="h-3.5 w-3.5 text-muted-foreground/50" />
+                        <X className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                       <span className={passwordStrength.checks?.number ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
                         Números
@@ -347,7 +347,7 @@ export default function SignUpPage() {
                       {passwordStrength.checks?.special ? (
                         <Check className="h-3.5 w-3.5 text-green-500" />
                       ) : (
-                        <X className="h-3.5 w-3.5 text-muted-foreground/50" />
+                        <X className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                       <span className={passwordStrength.checks?.special ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
                         Símbolos
@@ -377,10 +377,10 @@ export default function SignUpPage() {
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   className={`h-12 w-full rounded-xl border bg-background pl-11 pr-20 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
                     passwordsMatch
-                      ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                      ? "border-green-500 focus:border-green-500 focus:ring-green-500"
                       : passwordsMismatch
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-input focus:border-orange-500 focus:ring-orange-500/20"
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                      : "border-input focus:border-orange-500 focus:ring-orange-500"
                   }`}
                   placeholder="Repite tu contraseña"
                 />
@@ -418,7 +418,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full overflow-hidden rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:scale-[1.02] hover:bg-cyan-600 hover:shadow-xl hover:shadow-cyan-500/40 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+              className="group relative w-full overflow-hidden rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-cyan-600 hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
             >
               <span className="flex items-center justify-center gap-2">
                 {isLoading ? (
@@ -447,14 +447,14 @@ export default function SignUpPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-pink-500/10 hover:border-pink-500/30 hover:text-pink-600"
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-900 hover:border-pink-300 dark:hover:border-pink-700 hover:text-pink-600"
             >
               <Chrome className="h-5 w-5" />
               Google
             </button>
             <button
               type="button"
-              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:text-cyan-600"
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-cyan-100 dark:hover:bg-cyan-900 hover:border-cyan-300 dark:hover:border-cyan-700 hover:text-cyan-600"
             >
               <Github className="h-5 w-5" />
               GitHub
