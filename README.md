@@ -65,6 +65,26 @@ npm run dev
 
 Visit [http://localhost:3100](http://localhost:3100) (Web) and [http://localhost:3200](http://localhost:3200) (API)
 
+### Create a forked repository (`ordo-todo-creators`)
+
+If you need the apps to evolve independently (e.g., enterprise vs. creator audiences or distinct feature sets per market), create a new repository from this code without affecting `ordo-todo`. Use the name `ordo-todo-creators` (or any name you prefer) for the variant with a distinct audience:
+
+> Replace `<SOURCE_REPO_OWNER>` with the current owner (e.g., `tiagofur`) and `<TARGET_REPO_OWNER>` with your GitHub username or organization.
+
+```bash
+# 1) Create the new empty repo in GitHub (via the web interface) named "ordo-todo-creators" (or your preferred name)
+# 2) Clone this repo and point to the new remote
+git clone https://github.com/<SOURCE_REPO_OWNER>/ordo-todo.git
+cd ordo-todo
+git remote rename origin upstream
+git remote add origin https://github.com/<TARGET_REPO_OWNER>/ordo-todo-creators.git
+
+# 3) Publish the initial code to the new repo
+git push -u origin main
+
+# 4) From here, the codebases can safely diverge
+```
+
 ---
 
 ## Project Structure
@@ -288,6 +308,26 @@ Ordo-Todo es una aplicacion de gestion de tareas de proxima generacion. Lee la [
 - Analytics y metricas de productividad
 - Soporte multilenguaje
 
+### Crear repositorio derivado (`ordo-todo-creators`)
+
+Si necesitas que las apps evolucionen de forma independiente con audiencias distintas, crea un nuevo repo a partir de este sin afectar a `ordo-todo`:
+
+> Reemplaza `<SOURCE_REPO_OWNER>` por el propietario actual (p. ej., `tiagofur`) y `<TARGET_REPO_OWNER>` por tu usuario u organización en GitHub.
+
+```bash
+# 1) Crea en GitHub el repo vacío "ordo-todo-creators" (o el nombre que prefieras)
+# 2) Clona este repo y cambia el remoto
+git clone https://github.com/<SOURCE_REPO_OWNER>/ordo-todo.git
+cd ordo-todo
+git remote rename origin upstream
+git remote add origin https://github.com/<TARGET_REPO_OWNER>/ordo-todo-creators.git
+
+# 3) Publica el estado inicial en el nuevo repo
+git push -u origin main
+
+# 4) A partir de este punto, las bases de código pueden divergir con seguridad
+```
+
 ---
 
 <a name="portugues"></a>
@@ -304,6 +344,26 @@ Ordo-Todo e um aplicativo de gerenciamento de tarefas de proxima geracao. Leia o
 - Colaboracao em equipe
 - Analytics e metricas de produtividade
 - Suporte multilinguagem
+
+### Criar repositório derivado (`ordo-todo-creators`)
+
+Se você precisa que os apps evoluam de forma independente com públicos diferentes, crie um novo repo a partir deste sem impactar `ordo-todo`:
+
+> Substitua `<SOURCE_REPO_OWNER>` pelo proprietário atual (ex.: `tiagofur`) e `<TARGET_REPO_OWNER>` pelo seu usuário ou organização no GitHub.
+
+```bash
+# 1) Crie no GitHub o repo vazio "ordo-todo-creators" (ou o nome que preferir)
+# 2) Clone este repo e troque o remoto
+git clone https://github.com/<SOURCE_REPO_OWNER>/ordo-todo.git
+cd ordo-todo
+git remote rename origin upstream
+git remote add origin https://github.com/<TARGET_REPO_OWNER>/ordo-todo-creators.git
+
+# 3) Publique o estado inicial no novo repo
+git push -u origin main
+
+# 4) A partir daqui, os códigos podem divergir com segurança
+```
 
 PROPRIETARY LICENSE / LICENCIA PROPIETARIA / LICENÇA PROPRIETÁRIA
 
