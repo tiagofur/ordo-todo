@@ -207,9 +207,9 @@ export function SessionsManager() {
                   transition={{ delay: index * 0.05 }}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-lg border transition-colors",
-                    session.isCurrent 
-                      ? "bg-primary/5 border-primary/20" 
-                      : "bg-muted/30 hover:bg-muted/50"
+                    session.isCurrent
+                      ? "bg-blue-100 dark:bg-blue-900 border-primary"
+                      : "bg-muted hover:bg-muted"
                   )}
                 >
                   <div className="flex items-center gap-4">
@@ -223,7 +223,7 @@ export function SessionsManager() {
                           {session.deviceName || `${session.browser || 'Navegador'} en ${session.os}`}
                         </span>
                         {session.isCurrent && (
-                          <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                          <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-primary font-medium">
                             <CheckCircle2 className="h-3 w-3" />
                             Sesión actual
                           </span>
@@ -252,7 +252,7 @@ export function SessionsManager() {
                       size="sm"
                       onClick={() => revokeSessionMutation.mutate(session.id)}
                       disabled={revokingSessionId === session.id}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="text-destructive hover:text-destructive hover:bg-red-100 dark:hover:bg-red-900"
                     >
                       {revokingSessionId === session.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
