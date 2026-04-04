@@ -71,17 +71,33 @@ export default function ProfilePage() {
         profile={profile ?? null}
         sessionUser={sessionUser}
         isLoading={isLoading}
-        onUpdateProfile={async (data: any) => {
-          await updateProfile.mutateAsync(data);
+        onUpdateProfile={async (data: Record<string, unknown>) => {
+          try {
+            await updateProfile.mutateAsync(data);
+          } catch (error: unknown) {
+            addError(error instanceof Error ? error.message : "Failed to update profile");
+          }
         }}
-        onUpdatePreferences={async (data: any) => {
-          await updatePreferences.mutateAsync(data);
+        onUpdatePreferences={async (data: Record<string, unknown>) => {
+          try {
+            await updatePreferences.mutateAsync(data);
+          } catch (error: unknown) {
+            addError(error instanceof Error ? error.message : "Failed to update preferences");
+          }
         }}
         onUpdateUsername={async (newUsername: string) => {
-          await updateProfile.mutateAsync({ username: newUsername });
+          try {
+            await updateProfile.mutateAsync({ username: newUsername });
+          } catch (error: unknown) {
+            addError(error instanceof Error ? error.message : "Failed to update username");
+          }
         }}
         onExportData={async () => {
-          await exportData.mutateAsync();
+          try {
+            await exportData.mutateAsync();
+          } catch (error: unknown) {
+            addError(error instanceof Error ? error.message : "Failed to export data");
+          }
         }}
         onDeleteAccount={handleDeleteAccount}
         isUpdateProfilePending={updateProfile.isPending}

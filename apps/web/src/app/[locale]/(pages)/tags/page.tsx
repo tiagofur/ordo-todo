@@ -217,8 +217,8 @@ export default function TagsPage() {
             }
             setShowCreateTag(false);
             setEditingTag(null);
-          } catch (error: any) {
-            notify.error(error.message || t('saveError'));
+          } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : t('saveError'));
           }
         }}
       />

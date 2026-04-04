@@ -70,21 +70,21 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       });
       toast.success(t("toast.updated"));
       setIsEditing(false);
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to update" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
     }
   };
 
   const handleDelete = async () => {
     if (!habitId) return;
     if (!confirm(t("confirmDelete"))) return;
-    
+
     try {
       await deleteHabit.mutateAsync(habitId);
       toast.success(t("toast.deleted"));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to delete" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to delete" }));
     }
   };
 
@@ -98,8 +98,8 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
         await pauseHabit.mutateAsync(habitId);
         toast.success(t("toast.paused"));
       }
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to update" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
     }
   };
 

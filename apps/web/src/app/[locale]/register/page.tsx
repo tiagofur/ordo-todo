@@ -158,8 +158,9 @@ export default function SignUpPage() {
 
       toast.success("Cuenta creada exitosamente");
       // Redirect is handled by auth context
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Error al crear cuenta");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al crear cuenta";
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

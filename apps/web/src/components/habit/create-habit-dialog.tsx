@@ -81,8 +81,8 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
       notify.success(t("toast.created"));
       reset();
       onOpenChange(false);
-    } catch (error: any) {
-      notify.error(error?.message || t("toast.error", { message: "Failed to create habit" }));
+    } catch (error: unknown) {
+      notify.error(error instanceof Error ? error.message : t("toast.error", { message: "Failed to create habit" }));
     }
   };
 

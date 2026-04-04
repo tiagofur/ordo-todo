@@ -46,9 +46,9 @@ export default function DebugWorkspacesPage() {
       // Recargar datos
       await refetchActive();
       await refetchDeleted();
-    } catch (error: any) {
-      setMessage(`❌ Error: ${error.message}`);
-      console.error("Error fixing carros:", error);
+    } catch (error: unknown) {
+      setMessage(`❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+      if (process.env.NODE_ENV === 'development') console.error("Error fixing carros:", error);
     }
     setIsFixing(false);
   };
