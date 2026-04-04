@@ -390,7 +390,7 @@ export function TaskDetailPanel({
         ) : (
           <div className="flex flex-col h-full animate-in fade-in duration-300">
             {/* Header Area */}
-            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-muted/10">
+            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-muted">
               {/* Mobile-first: Close button always visible at top right */}
               <div className="flex items-center justify-between gap-2 mb-3 sm:mb-0 sm:absolute sm:right-4 sm:top-4 sm:z-10">
                 <div className="flex items-center gap-1 sm:hidden">
@@ -402,7 +402,7 @@ export function TaskDetailPanel({
                        if(onUpdate && taskId) onUpdate(taskId, { status: val as TaskStatus });
                     }}
                   >
-                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -424,7 +424,7 @@ export function TaskDetailPanel({
                       if(onUpdate && taskId) onUpdate(taskId, { priority: val as TaskPriority });
                     }}
                   >
-                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -473,7 +473,7 @@ export function TaskDetailPanel({
                          if(onUpdate && taskId) onUpdate(taskId, { status: val as TaskStatus });
                       }}
                     >
-                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -495,7 +495,7 @@ export function TaskDetailPanel({
                         if(onUpdate && taskId) onUpdate(taskId, { priority: val as TaskPriority });
                       }}
                     >
-                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -516,13 +516,13 @@ export function TaskDetailPanel({
                     <Input
                       value={formData.title}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange("title", e.target.value)}
-                      className="text-xl sm:text-2xl font-bold h-auto py-1.5 sm:py-2 px-2 sm:px-3 -ml-2 sm:-ml-3 bg-transparent border-transparent hover:bg-accent/50 focus:bg-background focus:border-input transition-colors"
+                      className="text-xl sm:text-2xl font-bold h-auto py-1.5 sm:py-2 px-2 sm:px-3 -ml-2 sm:-ml-3 bg-transparent border-transparent hover:bg-accent focus:bg-background focus:border-input transition-colors"
                       placeholder={t.titlePlaceholder}
                       autoFocus
                     />
                   ) : (
                     <h2
-                      className="text-xl sm:text-2xl font-bold cursor-text hover:bg-accent/20 rounded px-2 -ml-2 py-1 transition-colors break-words"
+                      className="text-xl sm:text-2xl font-bold cursor-text hover:bg-accent rounded px-2 -ml-2 py-1 transition-colors break-words"
                       onClick={() => setIsEditing(true)}
                     >
                       {formData.title}
@@ -550,7 +550,7 @@ export function TaskDetailPanel({
                               e.stopPropagation();
                               if (taskId && onRemoveTag) onRemoveTag(taskId, tag.id);
                             }}
-                            className="hover:bg-background/30 rounded-full p-0.5 transition-colors"
+                            className="hover:bg-background rounded-full p-0.5 transition-colors"
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -645,8 +645,8 @@ export function TaskDetailPanel({
                            className={cn(
                              "prose prose-sm dark:prose-invert max-w-none flex-1 p-3 sm:p-4 rounded-lg border-2 border-dashed transition-all overflow-hidden",
                              formData.description
-                               ? "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/30"
-                               : "border-border/30 bg-muted/10 hover:border-border/50 hover:bg-muted/20",
+                               ? "border-border bg-muted hover:border-border hover:bg-muted"
+                               : "border-border bg-muted hover:border-border hover:bg-muted",
                              "cursor-text"
                            )}
                            onClick={() => setIsEditing(true)}
@@ -661,7 +661,7 @@ export function TaskDetailPanel({
                     </div>
                     
                     <div className="space-y-4 min-w-0">
-                      <div className="space-y-4 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-muted/40 to-muted/20 border-2 border-border/50 shadow-sm">
+                      <div className="space-y-4 p-4 sm:p-5 rounded-xl bg-muted border-2 border-border shadow-sm">
                         <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
                            <div className="w-1 h-4 bg-primary rounded-full flex-shrink-0" />
                            {t.detailsTitle}
@@ -670,7 +670,7 @@ export function TaskDetailPanel({
                         <div className="space-y-4">
                            <div className="space-y-2">
                              <Label className="text-xs font-medium text-muted-foreground">{t.dueDate}</Label>
-                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-border transition-colors">
                                <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                <Input
                                   type="date"
@@ -690,7 +690,7 @@ export function TaskDetailPanel({
                            
                            <div className="space-y-2">
                              <Label className="text-xs font-medium text-muted-foreground">{t.estimation}</Label>
-                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-border transition-colors">
                                <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                <Input
                                   type="number"
@@ -722,7 +722,7 @@ export function TaskDetailPanel({
                  
                  {/* Tabs */}
                  <div className="space-y-4 sm:space-y-5">
-                    <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-muted/40 rounded-lg w-full sm:w-fit border border-border/30">
+                    <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-muted rounded-lg w-full sm:w-fit border border-border">
                      <TabButton
                        active={activeTab === 'subtasks'}
                        onClick={() => setActiveTab('subtasks')}
@@ -798,11 +798,11 @@ export function TaskDetailPanel({
             </div>
             
             {/* Footer */}
-            <div className="p-3 sm:p-5 border-t bg-muted/10 flex justify-between items-center gap-2">
+            <div className="p-3 sm:p-5 border-t bg-muted flex justify-between items-center gap-2">
               <Button
                  variant="ghost"
                  size="sm"
-                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                 className="text-muted-foreground hover:text-destructive hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
                  onClick={handleDelete}
                  title={t.btnDelete}
               >
@@ -829,7 +829,7 @@ export function TaskDetailPanel({
            <div className="flex items-center space-x-2 mt-4">
              <div className="grid flex-1 gap-2">
                <Label htmlFor="link" className="sr-only">Link</Label>
-               <div className="flex items-center gap-2 p-2 rounded-md border bg-muted/50">
+               <div className="flex items-center gap-2 p-2 rounded-md border bg-muted">
                  <LinkIcon className="w-4 h-4 text-muted-foreground" />
                  <input
                    id="link"
@@ -871,13 +871,13 @@ function TabButton({
         "flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all flex-1 sm:flex-initial min-w-0",
         active
           ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
+          : "text-muted-foreground hover:bg-background hover:text-foreground"
       )}
     >
       <Icon className="w-4 h-4 flex-shrink-0" />
       <span className="hidden sm:inline truncate">{label}</span>
       {count !== undefined && count > 0 && (
-        <span className="bg-muted-foreground/10 text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
+        <span className="bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
           {count}
         </span>
       )}

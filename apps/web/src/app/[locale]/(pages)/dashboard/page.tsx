@@ -308,8 +308,8 @@ export default function DashboardPage() {
               transition={{ duration: 0.4, delay: index * 0.05 }}
               whileHover={{ y: -5, scale: 1.02 }}
               className={cn(
-                "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
-                "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+                "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300",
+                "hover:shadow-xl hover:shadow-lg"
               )}
               style={{
                 borderLeftWidth: "4px",
@@ -357,7 +357,7 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
-          className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300"
+          className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300"
         >
           {/* Header with controls */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -365,14 +365,14 @@ export default function DashboardPage() {
 
             <div className="flex items-center gap-3">
               {/* View mode toggle */}
-              <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+              <div className="flex items-center border border-border rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode("list")}
                   className={cn(
                     "p-1.5 transition-all duration-200",
                     viewMode === "list"
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted/50"
+                      ? "bg-blue-100 dark:bg-blue-900 text-primary"
+                      : "text-muted-foreground hover:bg-muted"
                   )}
                   title="Vista de lista"
                 >
@@ -383,8 +383,8 @@ export default function DashboardPage() {
                   className={cn(
                     "p-1.5 transition-all duration-200",
                     viewMode === "grid"
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted/50"
+                      ? "bg-blue-100 dark:bg-blue-900 text-primary"
+                      : "text-muted-foreground hover:bg-muted"
                   )}
                   title="Vista de cuadrícula"
                 >
@@ -398,7 +398,7 @@ export default function DashboardPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                  className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                 >
                   <option value="priority">Prioridad</option>
                   <option value="duration">Duración</option>
@@ -412,8 +412,8 @@ export default function DashboardPage() {
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
                   showCompleted
-                    ? "bg-primary/10 border-primary/20 text-primary"
-                    : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted"
+                    ? "bg-blue-100 dark:bg-blue-900 border-blue-200 dark:border-blue-800 text-primary"
+                    : "bg-muted border-border text-muted-foreground hover:bg-muted"
                 )}
               >
                 {showCompleted ? (
@@ -429,7 +429,7 @@ export default function DashboardPage() {
                     className={cn(
                       "px-1.5 py-0.5 rounded-full text-xs font-medium",
                       showCompleted
-                        ? "bg-primary/20 text-primary"
+                        ? "bg-blue-100 dark:bg-blue-900 text-primary"
                         : "bg-muted text-muted-foreground"
                     )}
                   >
@@ -442,7 +442,7 @@ export default function DashboardPage() {
 
           {sortedTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-              <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
+              <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-medium">
                 {!showCompleted && completedCount > 0
                   ? "Todas las tareas completadas"
@@ -456,7 +456,7 @@ export default function DashboardPage() {
               {!showCompleted && completedCount > 0 ? (
                 <button
                   onClick={() => setShowCompleted(true)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-muted hover:bg-muted/80 transition-all duration-200"
+                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-muted hover:bg-muted transition-all duration-200"
                 >
                   <Eye className="h-4 w-4" />
                   Mostrar completadas
@@ -518,7 +518,7 @@ export default function DashboardPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+                className="fixed inset-0 bg-gray-900 dark:bg-black"
                 onClick={() => setShowQuickActions(false)}
               />
 
