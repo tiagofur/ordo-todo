@@ -297,7 +297,7 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
                           idx === currentStep
                             ? "w-6 bg-primary"
                             : idx < currentStep
-                            ? "w-2 bg-primary/50"
+                            ? "w-2 bg-primary"
                             : "w-2 bg-muted"
                         )}
                       />

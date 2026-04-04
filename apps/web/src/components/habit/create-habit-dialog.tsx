@@ -185,7 +185,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                       currentFrequency === f.value
                         ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                        : "bg-muted text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     {f.label}
@@ -217,7 +217,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                         className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                           isSelected
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                            : "bg-muted text-muted-foreground hover:bg-muted"
                         }`}
                       >
                         {day.label}
@@ -239,8 +239,8 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                     onClick={() => setValue("timeOfDay", time.value as any)}
                     className={`flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-colors duration-200 ${
                       currentTimeOfDay === time.value
-                        ? "bg-primary/10 text-primary border border-primary"
-                        : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
+                        ? "bg-blue-100 dark:bg-blue-900 text-primary border border-primary"
+                        : "bg-muted text-muted-foreground hover:bg-muted border border-transparent"
                     }`}
                   >
                     <time.icon className="h-4 w-4" />
@@ -300,7 +300,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               type="submit"
               form="habit-form"
               disabled={createHabitMutation.isPending}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary h-10 px-4 py-2"
             >
               {createHabitMutation.isPending ? t("form.creating") : t("form.create")}
             </button>

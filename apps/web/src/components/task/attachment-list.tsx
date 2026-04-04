@@ -176,7 +176,7 @@ export function AttachmentList({
               key={attachment.id}
               className={cn(
                 'group relative rounded-lg border p-3 transition-all',
-                'hover:bg-accent/50 hover:shadow-md'
+                'hover:bg-accent hover:shadow-md'
               )}
             >
               {/* Image Preview */}
@@ -187,7 +187,7 @@ export function AttachmentList({
                     alt={attachment.filename}
                     className="object-cover w-full h-full"
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-gray-900 dark:bg-black opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button
                       variant="secondary"
                       size="sm"
@@ -274,7 +274,7 @@ export function AttachmentList({
         open={!!previewAttachment}
         onOpenChange={(open: boolean) => !open && setPreviewAttachment(null)}
       >
-        <DialogContent className="!max-w-none w-screen h-screen p-0 overflow-hidden bg-background/95 backdrop-blur-sm border-none shadow-none">
+        <DialogContent className="!max-w-none w-screen h-screen p-0 overflow-hidden bg-background border-none shadow-none">
           <DialogTitle className="sr-only">
             {previewAttachment?.filename}
           </DialogTitle>
@@ -298,7 +298,7 @@ export function AttachmentList({
               />
 
               {/* Filename overlay */}
-              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-6 py-3 rounded-full border shadow-lg z-10">
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-background px-6 py-3 rounded-full border shadow-lg z-10">
                 <p className="text-sm font-medium">{previewAttachment.filename}</p>
               </div>
             </div>
