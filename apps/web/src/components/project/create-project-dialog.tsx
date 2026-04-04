@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import {
   Dialog,
@@ -73,7 +74,7 @@ interface CreateProjectDialogProps {
   /** Whether create operation is pending */
   isPending?: boolean;
   /** Called when form is submitted */
-  onSubmit: (data: CreateProjectFormData, templateTasks?: ProjectTemplateTask[]) => void;
+  onSubmit: (data: CreateProjectFormData, templateTasks?: ProjectTemplateTask[]) => Promise<void> | void;
   /** Called when workflow needs to be created (if none exists) */
   onCreateWorkflow?: (workspaceId: string) => Promise<string>;
   /** Custom labels for i18n */
@@ -163,7 +164,7 @@ export function CreateProjectDialog({
   const {
     register,
     handleSubmit,
-    reset: _reset,
+    reset,
     setValue,
     watch,
     formState: { errors },
@@ -216,21 +217,18 @@ export function CreateProjectDialog({
   };
 
   const handleFormSubmit = async (data: CreateProjectForm) => {
-    
-    // Logic for creating workflow if needed should be handled by logic passed in `onSubmit` 
-    // or by expanding the `onSubmit` to separate async steps. 
-    // For simplicity/agnosticism, we pass the data up. 
-    // The parent component is responsible for:
-    // 1. Checking if workflowId is valid or needs creation
-    // 2. Calling createProject
-    // 3. Creating tasks from template if provided
-
-    onSubmit(
-      { ...data, color: selectedColor }, 
-      selectedTemplate?.tasks
-    );
-    
-    // We don't reset here immediately, usually parent handles success/close
+    try {
+      await onSubmit(
+        { ...data, color: selectedColor },
+        selectedTemplate?.tasks
+      );
+      reset();
+      setSelectedTemplate(null);
+      setSelectedColor(PROJECT_COLORS[3]);
+      onOpenChange(false);
+    } catch {
+      toast.error('Error al crear el proyecto');
+    }
   };
 
   const showEmptyState = !workspaceId && !isLoadingWorkspaces && workspaces.length === 0;

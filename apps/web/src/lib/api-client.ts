@@ -54,6 +54,7 @@ import type {
   WorkspaceInvitation,
   WorkspaceSettings,
   WorkspaceAuditLogsResponse,
+  WorkspaceAuditLog,
   Workflow,
   Project,
   Task,
@@ -444,14 +445,13 @@ export const apiClient = {
     axiosInstance.get("/workspaces").then((res) => res.data),
   getWorkspace: (id: string): Promise<Workspace> =>
     axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
-  getWorkspaceBySlug: (slug: string): Promise<Workspace> =>
-    axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
-  getWorkspaceByUsernameAndSlug: (
-    username: string,
-    slug: string,
-  ): Promise<Workspace> =>
+  getWorkspaceBySlug: (username: string, slug: string): Promise<Workspace> =>
     axiosInstance
       .get(`/workspaces/${username}/${slug}`)
+      .then((res) => res.data),
+  getWorkspaceBySlugOnly: (slug: string): Promise<Workspace> =>
+    axiosInstance
+      .get(`/workspaces/by-slug/${slug}`)
       .then((res) => res.data),
   createWorkspace: (data: CreateWorkspaceDto): Promise<Workspace> =>
     axiosInstance.post("/workspaces", data).then((res) => res.data),
@@ -511,6 +511,18 @@ export const apiClient = {
     axiosInstance
       .get(`/workspaces/${id}/audit-logs`, { params })
       .then((res) => res.data),
+  createAuditLog: (
+    workspaceId: string,
+    action: string,
+    payload?: Record<string, unknown>,
+  ): Promise<WorkspaceAuditLog> =>
+    axiosInstance
+      .post(`/workspaces/${workspaceId}/audit-logs`, { action, payload })
+      .then((res) => res.data),
+  archiveWorkspace: (id: string): Promise<Workspace> =>
+    axiosInstance
+      .post(`/workspaces/${id}/archive`)
+      .then((res) => res.data),
 
   // Workflow
   getWorkflows: (workspaceId: string): Promise<Workflow[]> =>
@@ -533,7 +545,7 @@ export const apiClient = {
     axiosInstance.get("/projects/all").then((res) => res.data),
   getProject: (id: string): Promise<Project> =>
     axiosInstance.get(`/projects/${id}`).then((res) => res.data),
-  getProjectBySlug: (
+  getProjectBySlugs: (
     workspaceSlug: string,
     projectSlug: string,
   ): Promise<Project> =>

@@ -275,13 +275,12 @@ export function useProductivityStreak() {
 }
 
 /**
- * Get workspace by just the slug (deprecated - use useWorkspaceByUsernameAndSlug)
- * @deprecated Use useWorkspaceBySlug from shared-hooks with username param
+ * Get workspace by just the slug (uses /workspaces/by-slug/:slug endpoint)
  */
 export function useWorkspaceBySlugLegacy(slug: string) {
   return useQuery({
     queryKey: ["workspaces", "slug", slug],
-    queryFn: () => apiClient.getWorkspaceBySlug(slug),
+    queryFn: () => apiClient.getWorkspaceBySlugOnly(slug),
     enabled: !!slug,
   });
 }
@@ -292,7 +291,7 @@ export function useWorkspaceBySlugLegacy(slug: string) {
 export function useWorkspaceByUsernameAndSlug(username: string, slug: string) {
   return useQuery({
     queryKey: ["workspaces", "user", username, "slug", slug],
-    queryFn: () => apiClient.getWorkspaceByUsernameAndSlug(username, slug),
+    queryFn: () => apiClient.getWorkspaceBySlug(username, slug),
     enabled: !!username && !!slug,
   });
 }

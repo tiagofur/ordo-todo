@@ -76,7 +76,7 @@ export const useProject = (id: string) => {
 export const useProjectBySlug = (workspaceSlug: string, projectSlug: string) => {
     const { data: project, isLoading, error } = useQuery({
         queryKey: ['project', workspaceSlug, projectSlug],
-        queryFn: () => apiClient.getProjectBySlug(workspaceSlug, projectSlug),
+        queryFn: () => apiClient.getProjectBySlugs(workspaceSlug, projectSlug),
         enabled: !!workspaceSlug && !!projectSlug,
     });
 
