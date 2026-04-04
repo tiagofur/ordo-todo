@@ -64,20 +64,25 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
       return;
     }
 
+    let cancelled = false;
+
     const fetchSuggestions = async () => {
       try {
         const response = await apiClient.searchSuggestions(debouncedQuery);
+        if (cancelled) return;
         // Ensure we handle both array and object formats
         const suggestionsData = Array.isArray(response) ? response : (response.suggestions || []);
         setSuggestions(suggestionsData);
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') console.error('Failed to fetch suggestions', error);
+      } catch {
+        // Silently ignore fetch errors for suggestions
       }
     };
 
     if (showSuggestions) {
       fetchSuggestions();
     }
+
+    return () => { cancelled = true; };
   }, [debouncedQuery, showSuggestions]);
 
   // Perform search

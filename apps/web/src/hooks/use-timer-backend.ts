@@ -45,10 +45,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             const savedDate = localStorage.getItem("ordo-pomodoros-date");
             const today = new Date().toDateString();
 
-            // Reset counter if it's a new day
             if (savedDate !== today) {
-                localStorage.setItem("ordo-pomodoros-date", today);
-                localStorage.setItem("ordo-completed-pomodoros", "0");
                 return 0;
             }
 
@@ -58,6 +55,17 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     });
     // Use a ref to track current completed pomodoros to avoid stale closure issues
     const completedPomodorosRef = useRef(completedPomodoros);
+
+    // Sync day reset to localStorage (side effect belongs in useEffect, not useState)
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const savedDate = localStorage.getItem("ordo-pomodoros-date");
+        const today = new Date().toDateString();
+        if (savedDate !== today) {
+            localStorage.setItem("ordo-pomodoros-date", today);
+            localStorage.setItem("ordo-completed-pomodoros", "0");
+        }
+    }, []);
     // Flag to prevent multiple transitions
     const isTransitioningRef = useRef(false);
 
