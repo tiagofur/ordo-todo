@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   RoadmapItem,
   RoadmapItemProps,
@@ -131,7 +131,7 @@ export class PrismaRoadmapRepository implements IRoadmapRepository {
     });
 
     if (!existingVote) {
-      throw new Error('Vote not found');
+      throw new NotFoundException('Vote not found');
     }
 
     const updatedItem = await this.prisma.$transaction(async (tx) => {

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import {
   ICollaborationRepository,
@@ -47,7 +47,7 @@ export class PrismaCollaborationRepository implements ICollaborationRepository {
     });
 
     if (!workspace) {
-      throw new Error('Workspace not found');
+      throw new NotFoundException('Workspace not found');
     }
 
     // Get workload for each member
@@ -124,7 +124,7 @@ export class PrismaCollaborationRepository implements ICollaborationRepository {
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const taskFilter: any = {

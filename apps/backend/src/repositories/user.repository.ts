@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
 import { User, UserRepository, CreateUserProps } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
@@ -187,7 +187,7 @@ export class PrismaUserRepository implements UserRepository {
       select: this.userSelectFields,
     });
 
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('User not found');
     return this.toDomain(user as any);
   }
 
