@@ -850,9 +850,9 @@ export const apiClient = {
   uncompleteHabit: (id: string): Promise<void> =>
     axiosInstance.delete(`/habits/${id}/complete`).then((res) => res.data),
   pauseHabit: (id: string): Promise<Habit> =>
-    axiosInstance.patch(`/habits/${id}/pause`).then((res) => res.data),
+    axiosInstance.post(`/habits/${id}/pause`).then((res) => res.data),
   resumeHabit: (id: string): Promise<Habit> =>
-    axiosInstance.patch(`/habits/${id}/resume`).then((res) => res.data),
+    axiosInstance.post(`/habits/${id}/resume`).then((res) => res.data),
 
   // Objectives (OKRs)
   getObjectives: (): Promise<Objective[]> =>
