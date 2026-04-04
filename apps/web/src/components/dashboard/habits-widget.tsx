@@ -4,6 +4,7 @@ import { Sparkles, Flame, CheckCircle2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/lib/api-hooks";
+import { type Habit } from "@ordo-todo/api-client";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -24,9 +25,9 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
   // Summary is not available in array response, mocking for UI stability
   const summary = { 
     total: habitsData.length, 
-    completed: habitsData.filter((h: any) => h.completions?.length > 0).length,
-    remaining: habitsData.filter((h: any) => !h.completions?.length).length,
-    percentage: habitsData.length > 0 ? Math.round((habitsData.filter((h: any) => h.completions?.length > 0).length / habitsData.length) * 100) : 0
+    completed: habitsData.filter((h: Habit) => (h.completions?.length ?? 0) > 0).length,
+    remaining: habitsData.filter((h: Habit) => !(h.completions?.length)).length,
+    percentage: habitsData.length > 0 ? Math.round((habitsData.filter((h: Habit) => (h.completions?.length ?? 0) > 0).length / habitsData.length) * 100) : 0
   };
 
   const handleComplete = async (e: React.MouseEvent, habitId: string, isCompleted: boolean) => {
@@ -117,8 +118,8 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
           </div>
         ) : (
           <div className="space-y-1">
-            {habits.map((habit: any, index: number) => {
-              const isCompleted = habit.completions && habit.completions.length > 0;
+            {habits.map((habit: Habit, index: number) => {
+              const isCompleted = (habit.completions?.length ?? 0) > 0;
               const isPending = completeHabit.isPending || uncompleteHabit.isPending;
 
               return (

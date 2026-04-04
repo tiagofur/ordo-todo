@@ -230,7 +230,7 @@ export function ProjectSettings({
             <Label className="text-sm font-medium text-foreground flex items-center gap-2">
               <Palette className="w-4 h-4" /> {t.form.color.label}
             </Label>
-            <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
+            <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted">
               {PROJECT_COLORS.map((color) => (
                 <button
                   key={color}
@@ -292,7 +292,7 @@ export function ProjectSettings({
               disabled={
                 isUpdating || (!isDirty && selectedColor === project.color)
               }
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary h-10 px-4 py-2"
             >
               {isUpdating ? t.actions.saving : t.actions.save}
             </button>
@@ -301,8 +301,8 @@ export function ProjectSettings({
       </div>
 
       {/* Danger Zone */}
-      <div className="rounded-xl border border-destructive/50 bg-card text-card-foreground shadow-sm">
-        <div className="p-6 border-b border-destructive/50">
+      <div className="rounded-xl border border-destructive bg-card text-card-foreground shadow-sm">
+        <div className="p-6 border-b border-destructive">
           <h3 className="text-lg font-semibold text-destructive flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" />
             {t.danger.title}
@@ -313,7 +313,7 @@ export function ProjectSettings({
         </div>
         <div className="p-6 space-y-4">
           {/* Archive */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/20">
+          <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted">
             <div>
               <h4 className="font-medium">
                 {project.archived
@@ -337,7 +337,7 @@ export function ProjectSettings({
           </div>
 
           {/* Delete */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/30 bg-destructive/5">
+          <div className="flex items-center justify-between p-4 rounded-lg border border-destructive bg-red-100 dark:bg-red-900">
             <div>
               <h4 className="font-medium text-destructive">
                 {t.danger.delete.title}
@@ -350,7 +350,7 @@ export function ProjectSettings({
               <AlertDialogTrigger asChild>
                 <button
                   disabled={isDeleting}
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2 gap-2"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive h-10 px-4 py-2 gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   {t.actions.delete}
@@ -367,7 +367,7 @@ export function ProjectSettings({
                   <AlertDialogCancel>{t.deleteDialog.cancel}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive"
                   >
                     {t.deleteDialog.confirm}
                   </AlertDialogAction>

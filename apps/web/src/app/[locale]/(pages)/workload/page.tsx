@@ -148,7 +148,6 @@ export default function WorkloadPage() {
                 className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lg"
                 style={{
                   backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
                 <Users className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -165,7 +164,7 @@ export default function WorkloadPage() {
             <select
               value={selectedWorkspaceId || ""}
               onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-              className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {workspaces.map((ws: any) => (
                 <option key={ws.id} value={ws.id}>{ws.name}</option>
@@ -245,7 +244,7 @@ export default function WorkloadPage() {
                     {workloadData.redistributionSuggestions.map((suggestion: any, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                        className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted transition-colors"
                       >
                         <div className={cn(
                           "p-2 rounded-lg bg-orange-100 dark:bg-orange-900"
@@ -284,7 +283,7 @@ export default function WorkloadPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-4 p-4 rounded-xl border bg-card hover:bg-muted/30 transition-colors"
+                      className="flex items-center gap-4 p-4 rounded-xl border bg-card hover:bg-muted transition-colors"
                     >
                       {/* Avatar */}
                       <div className="flex-shrink-0">
@@ -295,7 +294,7 @@ export default function WorkloadPage() {
                             className="h-12 w-12 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg">
+                          <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-primary font-medium text-lg">
                             {member.userName?.[0]?.toUpperCase()}
                           </div>
                         )}
@@ -356,7 +355,7 @@ export default function WorkloadPage() {
           </>
         ) : (
           <Card className="p-12 text-center">
-            <Briefcase className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+            <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">Selecciona un workspace</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Elige un workspace para ver la carga de trabajo del equipo

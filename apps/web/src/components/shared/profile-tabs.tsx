@@ -567,7 +567,7 @@ export function ProfileTabs({
                   )}
                   
                   {profile?.username && (
-                    <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
+                    <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900 p-3 rounded-md">
                       <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium">Warning: Changing your username will:</p>
@@ -873,7 +873,7 @@ export function ProfileTabs({
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                       <span className="text-blue-500 text-lg">G</span>
                     </div>
                     <div>
@@ -892,7 +892,7 @@ export function ProfileTabs({
               <div className="p-3 border rounded-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
                       <span className="text-green-500 text-xl">💻</span>
                     </div>
                     <div>
@@ -1127,7 +1127,7 @@ export function ProfileTabs({
             {desktopOnlyContent}
 
             {/* Danger Zone */}
-            <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/5">
+            <div className="p-4 border border-destructive rounded-lg bg-red-100 dark:bg-red-900">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2 text-destructive">
@@ -1156,7 +1156,7 @@ export function ProfileTabs({
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleDeleteAccount}
-                        className="bg-destructive hover:bg-destructive/90"
+                        className="bg-destructive hover:bg-destructive"
                       >
                         {isDeleteAccountPending ? "Deleting..." : "Delete Account"}
                       </AlertDialogAction>

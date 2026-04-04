@@ -111,7 +111,7 @@ export default function ProjectsTrashPage() {
             }
             window.location.href = url.toString();
           }}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-gray-800"
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500 dark:border-gray-700 dark:bg-gray-800"
         >
           <option value="">{t("allWorkspaces")}</option>
           {workspaces?.map((workspace: any) => (
@@ -126,7 +126,7 @@ export default function ProjectsTrashPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950/20"
+        className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950"
       >
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-500 flex-shrink-0 mt-0.5" />
@@ -146,7 +146,7 @@ export default function ProjectsTrashPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border-2 border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950/20"
+          className="rounded-2xl border-2 border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950"
         >
           <div className="flex items-center gap-3">
             <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-500" />
@@ -170,7 +170,7 @@ export default function ProjectsTrashPage() {
           transition={{ duration: 0.4 }}
           className="flex flex-col items-center justify-center py-16 px-4 text-center"
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
             <Building2 className="h-12 w-12 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-semibold mb-2">
@@ -185,7 +185,7 @@ export default function ProjectsTrashPage() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="h-64 rounded-2xl bg-muted/50 animate-pulse"
+              className="h-64 rounded-2xl bg-muted animate-pulse"
             />
           ))}
         </div>
@@ -278,7 +278,7 @@ export default function ProjectsTrashPage() {
                     projectToRestore === project.id ||
                     projectToDelete === project.id
                   }
-                  className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {projectToDelete === project.id ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -297,7 +297,7 @@ export default function ProjectsTrashPage() {
           transition={{ duration: 0.4 }}
           className="flex flex-col items-center justify-center py-16 px-4 text-center"
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
             <Trash2 className="h-12 w-12 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-semibold mb-2">
