@@ -306,7 +306,7 @@ export const invalidateAllTasksLegacy = (queryClient: QueryClient) => {
 
 export const objectiveQueryKeys = {
   all: ["objectives"] as const,
-  dashboard: ["objectives", "dashboard"] as const,
+  dashboard: ["objectives", "dashboard-summary"] as const,
   currentPeriod: ["objectives", "current-period"] as const,
   objective: (id: string) => ["objectives", id] as const,
 };

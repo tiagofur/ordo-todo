@@ -155,7 +155,7 @@ export default function UnifiedTrashPage() {
             <motion.div
               initial={{ rotate: -10, scale: 0.9 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg"
+              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg"
               style={{
                 boxShadow: "0 10px 15px -3px rgb(239 68 68 / 25%), 0 4px 6px -4px rgb(239 68 68 / 25%)",
               }}

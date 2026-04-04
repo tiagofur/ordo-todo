@@ -485,7 +485,7 @@ export const apiClient = {
     data: InviteMemberDto,
   ): Promise<WorkspaceInvitation> =>
     axiosInstance
-      .post(`/workspaces/${id}/invite`, data)
+      .post(`/workspaces/${id}/invitations`, data)
       .then((res) => res.data),
   acceptWorkspaceInvitation: (data: AcceptInvitationDto): Promise<Workspace> =>
     axiosInstance
@@ -866,7 +866,7 @@ export const apiClient = {
   createObjective: (data: CreateObjectiveDto): Promise<Objective> =>
     axiosInstance.post("/objectives", data).then((res) => res.data),
   updateObjective: (id: string, data: UpdateObjectiveDto): Promise<Objective> =>
-    axiosInstance.put(`/objectives/${id}`, data).then((res) => res.data),
+    axiosInstance.patch(`/objectives/${id}`, data).then((res) => res.data),
   deleteObjective: (id: string): Promise<void> =>
     axiosInstance.delete(`/objectives/${id}`).then((res) => res.data),
 

@@ -105,7 +105,7 @@ export default function TagsPage() {
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-40 rounded-2xl bg-muted/50 animate-pulse" />
+              <div key={i} className="h-40 rounded-2xl bg-muted animate-pulse" />
             ))}
           </div>
         ) : tags && tags.length > 0 ? (
@@ -121,8 +121,8 @@ export default function TagsPage() {
                   whileHover={{ y: -5, scale: 1.02 }}
                   onClick={() => handleTagClick(tag.id)}
                   className={cn(
-                    "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer",
-                    "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+                    "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 cursor-pointer",
+                    "hover:shadow-xl hover:shadow-lg"
                   )}
                   style={{ borderLeftWidth: "4px", borderLeftColor: tag.color || accentColor }}
                 >
@@ -157,7 +157,7 @@ export default function TagsPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                    <div className="mt-auto pt-4 border-t border-dashed border-border/50">
+                    <div className="mt-auto pt-4 border-t border-dashed border-border">
                       <div className="flex items-center gap-1.5 text-sm">
                         <CheckSquare className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium" style={{ color: tag.color || accentColor }}>
@@ -169,10 +169,6 @@ export default function TagsPage() {
                       </div>
                     </div>
                   </div>
-                  <div
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 pointer-events-none"
-                    style={{ backgroundColor: tag.color || accentColor }}
-                  />
                 </motion.div>
               );
             })}
@@ -183,7 +179,7 @@ export default function TagsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
               <TagIcon className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{t('noTags')}</h3>
