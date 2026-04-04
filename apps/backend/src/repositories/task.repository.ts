@@ -54,7 +54,9 @@ export class PrismaTaskRepository implements TaskRepository {
             };
           })
           .filter((t: any) => t !== null) || [],
+      completedAt: prismaTask.completedAt ?? undefined,
       estimatedMinutes: prismaTask.estimatedMinutes ?? undefined,
+      actualMinutes: prismaTask.actualMinutes ?? undefined,
       isDeleted: prismaTask.isDeleted,
       deletedAt: prismaTask.deletedAt ?? undefined,
       createdAt: prismaTask.createdAt,
