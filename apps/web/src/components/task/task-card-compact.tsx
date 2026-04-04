@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import {
   CheckCircle2,
   MoreVertical,
@@ -120,7 +121,11 @@ function ConnectedTaskDetailPanel({
   const { data: availableTags } = useTags(workspaceId);
 
   const handleUpdate = async (id: string, data: any) => {
-    await updateTask.mutateAsync({ taskId: id, data });
+    try {
+      await updateTask.mutateAsync({ taskId: id, data });
+    } catch {
+      toast.error('Error al actualizar tarea');
+    }
   };
 
   return (
@@ -132,9 +137,9 @@ function ConnectedTaskDetailPanel({
       isLoading={isLoading}
       availableTags={availableTags || []}
       onUpdate={handleUpdate}
-      onAssignTag={async (id, tagId) => { await assignTag.mutateAsync({ taskId: id, tagId }); }}
-      onRemoveTag={async (id, tagId) => { await removeTag.mutateAsync({ taskId: id, tagId }); }}
-      onShare={async (id) => { await shareTask.mutateAsync(id); }}
+      onAssignTag={async (id, tagId) => { try { await assignTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al asignar etiqueta'); } }}
+      onRemoveTag={async (id, tagId) => { try { await removeTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al remover etiqueta'); } }}
+      onShare={async (id) => { try { await shareTask.mutateAsync(id); } catch { toast.error('Error al compartir tarea'); } }}
     />
   );
 }

@@ -235,15 +235,27 @@ export function TaskDetailPanel({
 
   const handleCreateComment = async (content: string) => {
     if (!taskId) return;
-    await createCommentMutation.mutateAsync({ taskId, content });
+    try {
+      await createCommentMutation.mutateAsync({ taskId, content });
+    } catch {
+      toast.error('Error al crear comentario');
+    }
   };
 
   const handleUpdateComment = async (commentId: string, content: string) => {
-    await updateCommentMutation.mutateAsync({ commentId, data: { content } });
+    try {
+      await updateCommentMutation.mutateAsync({ commentId, data: { content } });
+    } catch {
+      toast.error('Error al actualizar comentario');
+    }
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    await deleteCommentMutation.mutateAsync(commentId);
+    try {
+      await deleteCommentMutation.mutateAsync(commentId);
+    } catch {
+      toast.error('Error al eliminar comentario');
+    }
   };
 
   // Attachments Logic
@@ -264,7 +276,11 @@ export function TaskDetailPanel({
 
   const handleDeleteAttachment = async (attachmentId: string) => {
     if (!taskId) return;
-    await deleteAttachmentMutation.mutateAsync(attachmentId);
+    try {
+      await deleteAttachmentMutation.mutateAsync(attachmentId);
+    } catch {
+      toast.error('Error al eliminar archivo adjunto');
+    }
   };
 
   useEffect(() => {
