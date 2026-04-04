@@ -24,7 +24,7 @@ export default function GlobalError({
     <html>
       <body className="bg-background">
         <div className="flex min-h-screen flex-col items-center justify-center text-center px-4">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 mb-6">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 mb-6">
             <AlertOctagon className="h-12 w-12 text-red-600 dark:text-red-400" />
           </div>
           

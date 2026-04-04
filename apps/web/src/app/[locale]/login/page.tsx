@@ -36,11 +36,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-purple-500/5 to-cyan-500/5 p-4">
-      {/* Decorative elements */}
-      <div className="absolute left-10 top-20 h-32 w-32 rotate-12 rounded-3xl bg-purple-500/10 blur-3xl" />
-      <div className="absolute right-20 top-40 h-40 w-40 -rotate-12 rounded-full bg-cyan-500/10 blur-3xl" />
-      <div className="absolute bottom-20 left-1/4 h-36 w-36 rotate-6 rounded-2xl bg-pink-500/10 blur-3xl" />
+    <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

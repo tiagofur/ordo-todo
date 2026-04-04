@@ -187,7 +187,7 @@ export default function UnifiedTrashPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950/20"
+        className="rounded-xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950"
       >
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-500 flex-shrink-0 mt-0.5" />
@@ -216,7 +216,7 @@ export default function UnifiedTrashPage() {
           >
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">{t("tabs.workspaces")}</span>
-            <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="ml-auto text-xs bg-white dark:bg-gray-700 px-2 py-0.5 rounded-full">
               {deletedWorkspaces?.length || 0}
             </span>
           </TabsTrigger>
@@ -231,7 +231,7 @@ export default function UnifiedTrashPage() {
           >
             <LayoutList className="h-4 w-4" />
             <span className="hidden sm:inline">{t("tabs.projects")}</span>
-            <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="ml-auto text-xs bg-white dark:bg-gray-700 px-2 py-0.5 rounded-full">
               {deletedProjects?.length || 0}
             </span>
           </TabsTrigger>
@@ -246,7 +246,7 @@ export default function UnifiedTrashPage() {
           >
             <CheckCircle2 className="h-4 w-4" />
             <span className="hidden sm:inline">{t("tabs.tasks")}</span>
-            <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full">
+            <span className="ml-auto text-xs bg-white dark:bg-gray-700 px-2 py-0.5 rounded-full">
               {deletedTasks?.length || 0}
             </span>
           </TabsTrigger>
@@ -257,7 +257,7 @@ export default function UnifiedTrashPage() {
           {isLoadingWorkspaces ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-64 rounded-2xl bg-muted/50 animate-pulse" />
+                <div key={i} className="h-64 rounded-2xl bg-muted animate-pulse" />
               ))}
             </div>
           ) : deletedWorkspaces && deletedWorkspaces.length > 0 ? (
@@ -333,7 +333,7 @@ export default function UnifiedTrashPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handlePermanentDelete("workspaces", workspace.id)}
                       disabled={isProcessing("workspaces", workspace.id)}
-                      className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isProcessing("workspaces", workspace.id) && itemToDelete?.type === "workspaces" ? (
                         <RefreshCw className="h-4 w-4 animate-spin" />
@@ -360,7 +360,7 @@ export default function UnifiedTrashPage() {
             <select
               value={selectedWorkspace}
               onChange={(e) => setSelectedWorkspace(e.target.value)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500 dark:border-gray-700 dark:bg-gray-800"
             >
               <option value="">{t("allWorkspaces")}</option>
               {workspaces?.map((workspace: any) => (
@@ -375,7 +375,7 @@ export default function UnifiedTrashPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border-2 border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950/20"
+              className="rounded-xl border-2 border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950"
             >
               <div className="flex items-center gap-3">
                 <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-500" />
@@ -396,7 +396,7 @@ export default function UnifiedTrashPage() {
           ) : isLoadingProjects ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-64 rounded-2xl bg-muted/50 animate-pulse" />
+                <div key={i} className="h-64 rounded-2xl bg-muted animate-pulse" />
               ))}
             </div>
           ) : deletedProjects && deletedProjects.length > 0 ? (
@@ -464,7 +464,7 @@ export default function UnifiedTrashPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handlePermanentDelete("projects", project.id)}
                       disabled={isProcessing("projects", project.id)}
-                      className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isProcessing("projects", project.id) && itemToDelete?.type === "projects" ? (
                         <RefreshCw className="h-4 w-4 animate-spin" />
@@ -491,7 +491,7 @@ export default function UnifiedTrashPage() {
             <select
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 dark:border-gray-700 dark:bg-gray-800"
             >
               <option value="">{t("allProjects")}</option>
               {allProjects?.map((project: any) => (
@@ -506,7 +506,7 @@ export default function UnifiedTrashPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border-2 border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950/20"
+              className="rounded-xl border-2 border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950"
             >
               <div className="flex items-center gap-3">
                 <LayoutList className="h-5 w-5 text-pink-600 dark:text-pink-500" />
@@ -527,7 +527,7 @@ export default function UnifiedTrashPage() {
           ) : isLoadingTasks ? (
             <div className="space-y-4">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-32 rounded-2xl bg-muted/50 animate-pulse" />
+                <div key={i} className="h-32 rounded-2xl bg-muted animate-pulse" />
               ))}
             </div>
           ) : deletedTasks && deletedTasks.length > 0 ? (
@@ -558,7 +558,7 @@ export default function UnifiedTrashPage() {
                           {task.status}
                         </span>
 
-                        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400">
+                        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium bg-yellow-50 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400">
                           {task.priority}
                         </span>
 
@@ -588,7 +588,7 @@ export default function UnifiedTrashPage() {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handlePermanentDelete("tasks", task.id)}
                         disabled={isProcessing("tasks", task.id)}
-                        className="flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isProcessing("tasks", task.id) && itemToDelete?.type === "tasks" ? (
                           <RefreshCw className="h-4 w-4 animate-spin" />
@@ -619,7 +619,7 @@ function EmptyState({ icon: Icon, message }: { icon: any; message: string }) {
       transition={{ duration: 0.4 }}
       className="flex flex-col items-center justify-center py-16 px-4 text-center"
     >
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
         <Icon className="h-12 w-12 text-muted-foreground" />
       </div>
       <h3 className="text-xl font-semibold mb-2">{message}</h3>

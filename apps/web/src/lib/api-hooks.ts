@@ -134,7 +134,7 @@ export function useTaskStatusDistribution() { return getHooks().useTaskStatusDis
 // AI
 export function useAIProfile() { return getHooks().useAIProfile(); }
 export function useOptimalSchedule(params?: { topN?: number }) { return getHooks().useOptimalSchedule(params); }
-export function useTaskDurationPrediction(params: any) { return getHooks().useTaskDurationPrediction(params); }
+export function useTaskDurationPrediction(params?: { title?: string; description?: string; category?: string; priority?: string }) { return getHooks().useTaskDurationPrediction(params); }
 export function useGenerateWeeklyReport() { return getHooks().useGenerateWeeklyReport(); }
 export function useReports(params?: { scope?: string; limit?: number; offset?: number }) { return getHooks().useReports(params); }
 export function useReport(reportId: string) { return getHooks().useReport(reportId); }
@@ -211,7 +211,7 @@ export function useCreateAuditLog() { return getHooks().useCreateAuditLog(); }
 export function useTimeBlocks(start?: Date | string, end?: Date | string) { return getHooks().useTimeBlocks(start, end); }
 
 // Utilities
-export function invalidateAllTasksShared(queryClient: any) { return getHooks().invalidateAllTasks(queryClient); }
+export function invalidateAllTasksShared(queryClient: ReturnType<typeof import('@tanstack/react-query').useQueryClient>) { return getHooks().invalidateAllTasks(queryClient); }
 export { getHooks as hooks };
 
 // Helper to check if user is authenticated

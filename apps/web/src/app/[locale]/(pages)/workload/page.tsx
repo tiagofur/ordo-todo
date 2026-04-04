@@ -88,11 +88,11 @@ export default function WorkloadPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "LOW": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-500/10" };
-      case "MODERATE": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-500/10" };
-      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-500/10" };
-      case "OVERLOADED": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-500/10" };
-      default: return { bg: "bg-gray-500", text: "text-gray-500", light: "bg-gray-500/10" };
+      case "LOW": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-100 dark:bg-blue-900" };
+      case "MODERATE": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-100 dark:bg-green-900" };
+      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-100 dark:bg-orange-900" };
+      case "OVERLOADED": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-100 dark:bg-red-900" };
+      default: return { bg: "bg-gray-500", text: "text-gray-500", light: "bg-gray-100 dark:bg-gray-900" };
     }
   };
 
@@ -190,7 +190,7 @@ export default function WorkloadPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
+                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
                     <Users className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
@@ -201,7 +201,7 @@ export default function WorkloadPage() {
               </Card>
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-500/10">
+                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
                     <BarChart3 className="h-5 w-5 text-purple-500" />
                   </div>
                   <div>
@@ -214,8 +214,8 @@ export default function WorkloadPage() {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "p-2 rounded-lg",
-                    (workloadData.balanceScore ?? 100) >= 70 ? "bg-green-500/10" : 
-                    (workloadData.balanceScore ?? 100) >= 40 ? "bg-yellow-500/10" : "bg-red-500/10"
+                    (workloadData.balanceScore ?? 100) >= 70 ? "bg-green-100 dark:bg-green-900" : 
+                    (workloadData.balanceScore ?? 100) >= 40 ? "bg-yellow-100 dark:bg-yellow-900" : "bg-red-100 dark:bg-red-900"
                   )}>
                     <CheckCircle2 className={cn(
                       "h-5 w-5",
@@ -248,7 +248,7 @@ export default function WorkloadPage() {
                         className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
                       >
                         <div className={cn(
-                          "p-2 rounded-lg bg-orange-500/10"
+                          "p-2 rounded-lg bg-orange-100 dark:bg-orange-900"
                         )}>
                           <Users className="h-4 w-4 text-orange-500" />
                         </div>
