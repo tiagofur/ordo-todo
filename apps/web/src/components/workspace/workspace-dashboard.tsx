@@ -385,9 +385,9 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
   const colorStyles: Record<StatCardProps["color"], string> = {
-    blue: "bg-blue-500/10 text-blue-600",
-    green: "bg-green-500/10 text-green-600",
-    purple: "bg-purple-500/10 text-purple-600",
+    blue: "bg-blue-100 dark:bg-blue-900 text-blue-600",
+    green: "bg-green-100 dark:bg-green-900 text-green-600",
+    purple: "bg-purple-100 dark:bg-purple-900 text-purple-600",
   };
 
   return (

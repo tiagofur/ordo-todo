@@ -144,7 +144,7 @@ export function WorkspaceSettingsDialog({
                         placeholder={t('form.name.placeholder')}
                         required
                         disabled={!permissions.canEdit}
-                        className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30 font-medium"
+                        className="h-10 bg-muted border-input focus-visible:ring-primary font-medium"
                       />
                     </div>
 
@@ -160,7 +160,7 @@ export function WorkspaceSettingsDialog({
                         placeholder={t('form.description.placeholder')}
                         rows={3}
                         disabled={!permissions.canEdit}
-                        className="bg-muted/30 border-input focus-visible:ring-primary/30 resize-none"
+                        className="bg-muted border-input focus-visible:ring-primary resize-none"
                       />
                     </div>
 
@@ -225,11 +225,11 @@ export function WorkspaceSettingsDialog({
 
                   {/* Danger Zone */}
                   {permissions.canDelete && (
-                    <div className="rounded-lg border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 p-4 mt-8">
+                    <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-4 mt-8">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <h4 className="text-sm font-medium text-red-900 dark:text-red-200">{t('dangerZone.title')}</h4>
-                          <p className="text-xs text-red-700 dark:text-red-300/70">
+                          <p className="text-xs text-red-700 dark:text-red-300">
                             {t('dangerZone.description')}
                           </p>
                         </div>
@@ -239,7 +239,7 @@ export function WorkspaceSettingsDialog({
                             variant="ghost"
                             size="sm"
                             onClick={handleDelete}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             {t('dangerZone.delete')}
@@ -292,7 +292,7 @@ export function WorkspaceSettingsDialog({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 bg-muted/10 border-t border-border flex justify-end gap-3 mt-auto">
+        <div className="p-6 bg-muted border-t border-border flex justify-end gap-3 mt-auto">
           <Button
             type="button"
             variant="outline"
@@ -306,7 +306,7 @@ export function WorkspaceSettingsDialog({
               type="submit"
               form="workspace-settings-form"
               disabled={updateWorkspaceMutation.isPending}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
+              className="bg-primary text-primary-foreground hover:brightness-90 px-6 shadow-sm"
             >
               <Save className="mr-2 h-4 w-4" />
               {updateWorkspaceMutation.isPending ? t('actions.saving') : t('actions.save')}

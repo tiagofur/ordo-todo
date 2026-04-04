@@ -66,7 +66,7 @@ export default function TopBar(props: TopBarProps) {
             variant="ghost" 
             size="icon" 
             onClick={props.onToggleAI}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20"
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900"
             title="Ordo AI Copilot"
         >
             <Sparkles className="h-5 w-5" />

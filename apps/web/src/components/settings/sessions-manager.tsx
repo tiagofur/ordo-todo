@@ -29,9 +29,9 @@ const deviceIcons = {
 };
 
 const deviceColors = {
-  web: "text-blue-500 bg-blue-500/10",
-  mobile: "text-green-500 bg-green-500/10",
-  desktop: "text-purple-500 bg-purple-500/10",
+  web: "text-blue-500 bg-blue-100 dark:bg-blue-900",
+  mobile: "text-green-500 bg-green-100 dark:bg-green-900",
+  desktop: "text-purple-500 bg-purple-100 dark:bg-purple-900",
 };
 
 function formatRelativeTime(dateString: string): string {
@@ -271,7 +271,7 @@ export function SessionsManager() {
       {/* Security Tips */}
       <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
+          <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900 text-amber-500">
             <Shield className="h-4 w-4" />
           </div>
           <div className="space-y-1">
