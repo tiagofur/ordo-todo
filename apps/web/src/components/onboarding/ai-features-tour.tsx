@@ -164,7 +164,8 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
     const seen = localStorage.getItem(AI_FEATURES_TOUR_KEY);
     if (!seen) {
       setHasSeenTour(false);
-      setTimeout(() => setIsVisible(true), 2000);
+      const timer = setTimeout(() => setIsVisible(true), 2000);
+      return () => clearTimeout(timer);
     }
   }, []);
 
