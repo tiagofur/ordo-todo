@@ -147,7 +147,7 @@ export default function GoalsPage() {
                       <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">{t("progress")}</span>
-                              <span className="font-medium">{Math.round(objective.progress)}%</span>
+                              <span className="font-medium">{Math.round(objective.progress ?? 0)}%</span>
                           </div>
                           <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                               <div

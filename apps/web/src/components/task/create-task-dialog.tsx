@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { createTaskSchema } from '@ordo-todo/hooks';
 import {
@@ -167,7 +168,7 @@ export function CreateTaskDialog({
       reset();
       onOpenChange(false);
     } catch (error) {
-       if (process.env.NODE_ENV === 'development') console.error(error);
+      toast.error('Error al crear la tarea');
     }
   };
 
@@ -179,8 +180,8 @@ export function CreateTaskDialog({
     try {
       const description = await onGenerateAIDescription(title);
       setValue('description', description);
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') console.error(err);
+    } catch {
+      toast.error('Error al generar descripción con IA');
     } finally {
       setIsGenerating(false);
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import {
   X,
   Save,
@@ -296,8 +297,8 @@ export function TaskDetailPanel({
          estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
        });
        setIsEditing(false);
-     } catch (err) {
-       if (process.env.NODE_ENV === 'development') console.error(err);
+     } catch {
+       toast.error('Error al guardar los cambios');
      } finally {
        setIsUpdating(false);
      }
@@ -306,8 +307,12 @@ export function TaskDetailPanel({
   const handleDelete = async () => {
     if (!taskId || !onDelete) return;
     if (window.confirm(t.confirmDelete)) {
-      await onDelete(taskId);
-      onOpenChange(false);
+      try {
+        await onDelete(taskId);
+        onOpenChange(false);
+      } catch {
+        toast.error('Error al eliminar la tarea');
+      }
     }
   };
 
@@ -316,8 +321,12 @@ export function TaskDetailPanel({
     if (task?.publicToken) {
       setShowShareDialog(true);
     } else if (onShare) {
-      await onShare(taskId);
-      setShowShareDialog(true);
+      try {
+        await onShare(taskId);
+        setShowShareDialog(true);
+      } catch {
+        toast.error('Error al compartir la tarea');
+      }
     }
   };
 
@@ -669,11 +678,14 @@ export function TaskDetailPanel({
                                <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                <Input
                                   type="number"
+                                  min={0}
+                                  max={9999}
                                   value={formData.estimatedMinutes}
                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                      handleFieldChange("estimatedMinutes", e.target.value);
-                                     if (!isEditing && taskId && onUpdate && e.target.value) {
-                                       onUpdate(taskId, { estimatedMinutes: parseFloat(e.target.value) });
+                                     const val = parseInt(e.target.value, 10);
+                                     if (!isEditing && taskId && onUpdate && !isNaN(val) && val >= 0) {
+                                       onUpdate(taskId, { estimatedMinutes: val });
                                      }
                                   }}
                                   placeholder="0"
@@ -725,7 +737,6 @@ export function TaskDetailPanel({
                     </div>
                     
                     <div className="min-h-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                       {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
                        {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
                        {activeTab === 'comments' && taskId && (
                          renderComments ? renderComments(taskId) : (
