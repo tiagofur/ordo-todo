@@ -408,7 +408,7 @@ export function TaskCardCompact({
             e.stopPropagation();
             if (task.id) onDelete?.(String(task.id));
           }}
-          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+          className="text-destructive focus:text-destructive focus:bg-red-100 dark:focus:bg-red-900"
         >
           <Trash2 className="mr-2 h-4 w-4" />
           {deleteLabel}
@@ -429,8 +429,8 @@ export function TaskCardCompact({
           className={cn(
             'group relative flex items-center rounded-xl border px-4 py-4 transition-all duration-200 cursor-pointer',
             isCompleted
-              ? 'border-border/30 bg-muted/20 opacity-70 hover:opacity-90'
-              : 'border-border/40 bg-card hover:border-border/60 hover:bg-accent/5 hover:shadow-md'
+              ? 'border-border bg-muted opacity-70 hover:opacity-90'
+              : 'border-border bg-card hover:border-border hover:bg-accent/5 hover:shadow-md'
           )}
           style={{
             borderLeftWidth: '4px',
@@ -557,10 +557,10 @@ export function TaskCardCompact({
         onClick={handleClick}
         className={cn(
           'group relative overflow-hidden rounded-xl border p-4 transition-all duration-300 cursor-pointer h-full flex flex-col',
-          'hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20',
+          'hover:shadow-lg',
           isCompleted
-            ? 'border-border/30 bg-muted/30 opacity-60 hover:opacity-80'
-            : 'border-border/50 bg-card hover:border-border'
+            ? 'border-border bg-muted opacity-60 hover:opacity-80'
+            : 'border-border bg-card hover:border-border'
         )}
         style={{
           borderTopWidth: '3px',
@@ -614,7 +614,7 @@ export function TaskCardCompact({
         )}
 
         {/* Footer */}
-        <div className="relative z-10 mt-auto pt-3 border-t border-dashed border-border/50">
+        <div className="relative z-10 mt-auto pt-3 border-t border-dashed border-border">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-3 text-muted-foreground">
               {showProject && task.project && (

@@ -47,14 +47,14 @@ const INSIGHT_ICONS: Record<string, React.ReactNode> = {
 };
 
 const INSIGHT_COLORS: Record<string, string> = {
-  PRODUCTIVITY_PEAK: 'text-blue-500 bg-blue-500/10',
-  UPCOMING_DEADLINES: 'text-orange-500 bg-orange-500/10',
-  SUGGESTED_BREAKS: 'text-green-500 bg-green-500/10',
-  COMPLETION_CELEBRATION: 'text-yellow-500 bg-yellow-500/10',
-  WORKLOAD_IMBALANCE: 'text-red-500 bg-red-500/10',
-  ENERGY_OPTIMIZATION: 'text-purple-500 bg-purple-500/10',
-  REST_SUGGESTION: 'text-pink-500 bg-pink-500/10',
-  ACHIEVEMENT_CELEBRATION: 'text-emerald-500 bg-emerald-500/10',
+  PRODUCTIVITY_PEAK: 'text-blue-500 bg-blue-100 dark:bg-blue-900',
+  UPCOMING_DEADLINES: 'text-orange-500 bg-orange-100 dark:bg-orange-900',
+  SUGGESTED_BREAKS: 'text-green-500 bg-green-100 dark:bg-green-900',
+  COMPLETION_CELEBRATION: 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900',
+  WORKLOAD_IMBALANCE: 'text-red-500 bg-red-100 dark:bg-red-900',
+  ENERGY_OPTIMIZATION: 'text-purple-500 bg-purple-100 dark:bg-purple-900',
+  REST_SUGGESTION: 'text-pink-500 bg-pink-100 dark:bg-pink-900',
+  ACHIEVEMENT_CELEBRATION: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-900',
 };
 
 const BACKEND_TYPE_MAP: Record<string, Insight['type']> = {
@@ -164,11 +164,11 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
         </CardHeader>
         <CardContent>
           <div className="text-center py-4">
-            <Lightbulb className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+            <Lightbulb className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">
               No hay insights en este momento
             </p>
-            <p className="text-xs text-muted-foreground/70 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Continúa trabajando y la IA te dará sugerencias
             </p>
           </div>
@@ -180,7 +180,7 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
   return (
     <Card className={cn("relative overflow-hidden", className)}>
       {/* Gradient background accent */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 dark:bg-blue-950 rounded-bl-full" />
       
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -214,13 +214,13 @@ export function AIInsightsWidget({ className, maxInsights = 3 }: AIInsightsWidge
                 className="group relative"
               >
                 <div className={cn(
-                  "flex items-start gap-3 p-3 rounded-lg border border-border/50",
-                  "bg-card hover:bg-muted/30 transition-colors"
+                  "flex items-start gap-3 p-3 rounded-lg border border-border",
+                  "bg-card hover:bg-muted transition-colors"
                 )}>
                   {/* Icon */}
                   <div className={cn(
                     "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center",
-                    INSIGHT_COLORS[insight.type] || 'text-primary bg-primary/10'
+                    INSIGHT_COLORS[insight.type] || 'text-primary bg-blue-100 dark:bg-blue-900'
                   )}>
                     {INSIGHT_ICONS[insight.type] || <Lightbulb className="h-5 w-5" />}
                   </div>
