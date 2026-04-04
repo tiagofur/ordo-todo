@@ -13,7 +13,7 @@ export default function WorkspaceDetailPage() {
   const t = useTranslations('WorkspaceDashboard');
   const slug = params.slug as string;
   
-  const { data: workspace, isLoading } = useWorkspaceBySlug(slug);
+  const { data: workspace, isLoading, error } = useWorkspaceBySlug(slug);
 
   if (isLoading) {
     return (
@@ -29,10 +29,10 @@ export default function WorkspaceDetailPage() {
     );
   }
 
-  if (!workspace) {
+  if (error || !workspace) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <h2 className="text-2xl font-bold">{t('notFound')}</h2>
+        <h2 className="text-2xl font-bold">{error ? (t('error') || 'Error al cargar el espacio') : t('notFound')}</h2>
         <Button onClick={() => router.push("/workspaces")} className="mt-4">
           {t('backToWorkspaces')}
         </Button>

@@ -24,7 +24,7 @@ export default function ProjectsPage() {
   const { selectedWorkspaceId } = useWorkspaceStore();
   const accentColor = "#ec4899"; // Pink
 
-  const { data: projects, isLoading } = useProjects(selectedWorkspaceId as string);
+  const { data: projects, isLoading, error } = useProjects(selectedWorkspaceId as string);
   const { mutateAsync: createProject } = useCreateProject();
 
   const { data: workflows } = useWorkflows(selectedWorkspaceId || "");
@@ -85,6 +85,14 @@ export default function ProjectsPage() {
               {t('selectWorkspaceDescription')}
             </p>
           </motion.div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 mb-4">
+              <FolderKanban className="h-8 w-8 text-red-500" />
+            </div>
+            <h3 className="text-lg font-semibold">{t('error') || 'Error al cargar proyectos'}</h3>
+            <p className="text-muted-foreground mt-2 text-sm">{t('errorDescription') || 'No se pudieron cargar los proyectos. Intenta de nuevo.'}</p>
+          </div>
         ) : isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
