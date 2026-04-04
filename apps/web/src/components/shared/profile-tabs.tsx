@@ -343,9 +343,9 @@ export function ProfileTabs({
 
   const getPlanBadgeColor = (plan: string) => {
     switch (plan) {
-      case "PRO": return "bg-gradient-to-r from-purple-500 to-pink-500 text-white";
-      case "TEAM": return "bg-gradient-to-r from-blue-500 to-cyan-500 text-white";
-      case "ENTERPRISE": return "bg-gradient-to-r from-amber-500 to-orange-500 text-white";
+      case "PRO": return "bg-purple-600 text-white";
+      case "TEAM": return "bg-blue-600 text-white";
+      case "ENTERPRISE": return "bg-amber-600 text-white";
       default: return "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300";
     }
   };
@@ -1043,7 +1043,7 @@ export function ProfileTabs({
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Current Plan */}
-            <div className="p-6 border rounded-lg bg-gradient-to-br from-background to-muted">
+            <div className="p-6 border rounded-lg bg-muted">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold">Current Plan</h3>
@@ -1052,7 +1052,7 @@ export function ProfileTabs({
                   </Badge>
                 </div>
                 {profile?.subscription?.plan === "FREE" && (
-                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                     Upgrade to Pro
                   </Button>
                 )}

@@ -96,7 +96,7 @@ export function WorkspaceActivityLog({ workspaceId }: WorkspaceActivityLogProps)
         {logs.map((log: WorkspaceAuditLog) => (
           <div
             key={log.id}
-            className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors"
+            className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
           >
             {/* Icon */}
             <div className="flex-shrink-0 mt-0.5">
@@ -125,7 +125,7 @@ export function WorkspaceActivityLog({ workspaceId }: WorkspaceActivityLogProps)
 
                   {/* Payload Details */}
                   {log.payload && Object.keys(log.payload).length > 0 && (
-                    <div className="mt-2 p-2 rounded bg-muted/50 text-xs font-mono text-muted-foreground">
+                    <div className="mt-2 p-2 rounded bg-muted text-xs font-mono text-muted-foreground">
                       {JSON.stringify(log.payload, null, 2)}
                     </div>
                   )}

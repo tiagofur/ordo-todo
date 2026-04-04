@@ -111,10 +111,10 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-background">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-md">
+          <div className="p-1.5 bg-indigo-600 rounded-lg shadow-md">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
-          <h3 className="font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h3 className="font-semibold text-indigo-600 dark:text-indigo-400">
             {t('title')}
           </h3>
         </div>
@@ -159,7 +159,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
           ))}
           {isLoading && (
             <div className="flex gap-3 animate-pulse">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 dark:from-indigo-900/40 dark:to-purple-900/40 flex items-center justify-center shrink-0">
+              <div className="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 flex items-center justify-center shrink-0">
                 <Bot className="h-4 w-4" />
               </div>
               <div className="bg-muted rounded-2xl rounded-tl-none p-3 text-sm flex items-center gap-1.5">

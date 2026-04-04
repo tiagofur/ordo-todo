@@ -78,7 +78,7 @@ export function DashboardTimerWidget({ accentColor = "#6b7280" }: DashboardTimer
       transition={{ duration: 0.4, delay: 0.1 }}
       className={cn(
         "group relative overflow-hidden rounded-2xl border-2 bg-card p-6 transition-all duration-300 cursor-pointer",
-        "hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20"
+        "hover:shadow-lg"
       )}
       style={{ borderColor: modeColor }}
       onClick={() => !isRunning && router.push("/timer")}
@@ -126,7 +126,7 @@ export function DashboardTimerWidget({ accentColor = "#6b7280" }: DashboardTimer
             onClick={handleReset}
             disabled={isIdle}
             className={cn(
-              "h-10 w-10 flex items-center justify-center rounded-xl border border-border/50 bg-background transition-all duration-200",
+              "h-10 w-10 flex items-center justify-center rounded-xl border border-border bg-background transition-all duration-200",
               isIdle ? "opacity-50 cursor-not-allowed" : "hover:bg-muted"
             )}
             title="Reiniciar"
@@ -153,7 +153,7 @@ export function DashboardTimerWidget({ accentColor = "#6b7280" }: DashboardTimer
             onClick={handleSkip}
             disabled={!isRunning}
             className={cn(
-              "h-10 w-10 flex items-center justify-center rounded-xl border border-border/50 bg-background transition-all duration-200",
+              "h-10 w-10 flex items-center justify-center rounded-xl border border-border bg-background transition-all duration-200",
               !isRunning ? "opacity-50 cursor-not-allowed" : "hover:bg-muted"
             )}
             title="Saltar"

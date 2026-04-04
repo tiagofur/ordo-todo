@@ -332,28 +332,28 @@ export function AnalyticsLogger({ isOpen = true, className }: AnalyticsLoggerPro
           {/* Quick Stats */}
           {metrics && (
             <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+              <div className="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-blue-600" />
                   <span className="text-sm font-medium text-blue-600">Events</span>
                 </div>
                 <div className="text-2xl font-bold text-blue-600">{metrics.eventCount}</div>
               </div>
-              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+              <div className="bg-green-50 dark:bg-green-900 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-green-600" />
                   <span className="text-sm font-medium text-green-600">Sessions</span>
                 </div>
                 <div className="text-2xl font-bold text-green-600">{metrics.sessionsCount}</div>
               </div>
-              <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+              <div className="bg-red-50 dark:bg-red-900 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
                   <XCircle className="h-4 w-4 text-red-600" />
                   <span className="text-sm font-medium text-red-600">Errors</span>
                 </div>
                 <div className="text-2xl font-bold text-red-600">{metrics.errorsCount}</div>
               </div>
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+              <div className="bg-purple-50 dark:bg-purple-900 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-purple-600" />
                   <span className="text-sm font-medium text-purple-600">Categories</span>

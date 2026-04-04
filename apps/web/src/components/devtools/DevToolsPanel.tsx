@@ -246,7 +246,7 @@ export function DevToolsPanel({ className, defaultPosition = 'floating' }: DevTo
                           size="sm"
                           className={cn(
                             "h-8 justify-start text-xs",
-                            isActive && "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                            isActive && "border-blue-500 bg-blue-50 dark:bg-blue-900"
                           )}
                           onClick={() => {
                             hook.toggle();
@@ -352,7 +352,7 @@ export function DevToolsPanel({ className, defaultPosition = 'floating' }: DevTo
       {/* Development Mode Indicator */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 left-4 z-40">
-          <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300 text-xs">
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-900 border-green-500 text-green-700 dark:text-green-300 text-xs">
             <Zap className="h-3 w-3 mr-1" />
             Development Mode
           </Badge>

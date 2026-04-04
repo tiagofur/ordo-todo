@@ -224,7 +224,7 @@ export default function ProjectDetailPage() {
                     </span>
                   )}
                   {project.status === "COMPLETED" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 px-3 py-1 text-sm">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-3 py-1 text-sm">
                       <CheckCircle2 className="h-4 w-4" />
                       {t("badges.completed")}
                     </span>

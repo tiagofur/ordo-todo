@@ -25,8 +25,8 @@ export function ProductivityStreakWidget({
       transition={{ duration: 0.4, delay: 0.25 }}
       whileHover={{ y: -5, scale: 1.02 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
-        "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+        "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300",
+        "hover:shadow-xl"
       )}
       style={{
         borderLeftWidth: "4px",
@@ -68,7 +68,7 @@ export function ProductivityStreakWidget({
       </div>
 
       {longestStreak > 0 && longestStreak !== currentStreak && (
-        <div className="mt-4 pt-4 border-t border-border/50">
+        <div className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Mejor racha:</span>
             <span className="font-medium">{longestStreak} días</span>

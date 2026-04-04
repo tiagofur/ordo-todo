@@ -30,7 +30,7 @@ export function UnscheduledTasks() {
 
   if (isLoading) {
     return (
-      <Card className="h-full border-l-0 rounded-l-none border-y-0 text-card-foreground shadow-none bg-muted/10">
+      <Card className="h-full border-l-0 rounded-l-none border-y-0 text-card-foreground shadow-none bg-muted">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Loading...</CardTitle>
         </CardHeader>
@@ -64,7 +64,7 @@ export function UnscheduledTasks() {
                   key={task.id}
                   draggable="true"
                   onDragStart={(e) => onDragStart(e, task)}
-                  className="group relative flex items-start gap-2 p-2.5 rounded-md border bg-card hover:bg-accent/50 hover:border-primary/30 transition-all cursor-grab active:cursor-grabbing shadow-sm"
+                  className="group relative flex items-start gap-2 p-2.5 rounded-md border bg-card hover:bg-accent hover:border-primary transition-all cursor-grab active:cursor-grabbing shadow-sm"
                   style={{
                     borderLeftColor: task.priority === 'URGENT' ? '#ef4444' : 
                                    task.priority === 'HIGH' ? '#f97316' : 
@@ -72,7 +72,7 @@ export function UnscheduledTasks() {
                     borderLeftWidth: task.priority !== 'LOW' ? '3px' : '1px'
                   }}
                 >
-                  <GripVertical className="h-4 w-4 text-muted-foreground/30 mt-0.5 group-hover:text-muted-foreground transition-colors" />
+                  <GripVertical className="h-4 w-4 text-muted-foreground mt-0.5 group-hover:text-muted-foreground transition-colors" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-tight line-clamp-2 mb-1">
                       {task.title}
