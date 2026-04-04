@@ -30,8 +30,8 @@ export default function ProfilePage() {
       await deleteAccount.mutateAsync();
       endSession();
       router.push("/login");
-    } catch (error: any) {
-      addError(error.message || "Failed to delete account");
+    } catch (error: unknown) {
+      addError(error instanceof Error ? error.message : "Failed to delete account");
     }
   }
 
@@ -40,7 +40,7 @@ export default function ProfilePage() {
     return (
       <div className="container max-w-4xl py-6">
         <Title title="Profile Settings" />
-        <div className="mt-6 p-6 border rounded-lg bg-destructive/5 border-destructive/30">
+        <div className="mt-6 p-6 border rounded-lg bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <div className="text-destructive">
               <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">

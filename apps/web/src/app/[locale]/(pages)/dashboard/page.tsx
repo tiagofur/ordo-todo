@@ -38,7 +38,7 @@ import { CreateProjectDialog } from "@/components/project/create-project-dialog"
 import { useRouter } from "next/navigation";
 import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { type OnboardingStep } from "@ordo-todo/ui";
-import { TaskPriority } from "@ordo-todo/api-client";
+import { TaskPriority, type Task } from "@ordo-todo/api-client";
 
 const DASHBOARD_ONBOARDING_KEY = "dashboard-onboarding-seen";
 
@@ -137,7 +137,7 @@ export default function DashboardPage() {
   const { data: allTasks = [] } = useTasks();
 
   // Filter tasks for today view
-  const todaysTasks = allTasks.filter((task: any) => {
+  const todaysTasks = allTasks.filter((task: Task) => {
     // Check if task has dueDate = today
     if (task.dueDate) {
       const dueDate = new Date(task.dueDate);
@@ -179,10 +179,10 @@ export default function DashboardPage() {
   // Filter out completed tasks if showCompleted is false
   const filteredTasks = showCompleted
     ? todaysTasks
-    : todaysTasks.filter((task: any) => task.status !== "COMPLETED");
+    : todaysTasks.filter((task: Task) => task.status !== "COMPLETED");
 
   // Sort tasks based on selected option
-  const sortedTasks = [...filteredTasks].sort((a: any, b: any) => {
+  const sortedTasks = [...filteredTasks].sort((a: Task, b: Task) => {
     // Completed tasks always go to the end
     if (a.status === "COMPLETED" && b.status !== "COMPLETED") return 1;
     if (a.status !== "COMPLETED" && b.status === "COMPLETED") return -1;
@@ -214,7 +214,7 @@ export default function DashboardPage() {
 
   // Count completed tasks for the toggle label
   const completedCount = todaysTasks.filter(
-    (task: any) => task.status === "COMPLETED"
+    (task: Task) => task.status === "COMPLETED"
   ).length;
 
   // Use metrics from backend

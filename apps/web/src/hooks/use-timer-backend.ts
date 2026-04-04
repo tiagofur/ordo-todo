@@ -175,8 +175,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsPaused(false);
             await refetchActiveSession();
             notify.success("Timer iniciado");
-        } catch (error: any) {
-            notify.error(error.message || "Error al iniciar timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al iniciar timer");
         }
     }, [taskId, mode, type, startTimerMutation, refetchActiveSession]);
 
@@ -189,8 +189,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsPaused(true);
             setIsRunning(false);
             await refetchActiveSession();
-        } catch (error: any) {
-            notify.error(error.message || "Error al pausar timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al pausar timer");
         }
     }, [pauseTimerMutation, refetchActiveSession]);
 
@@ -203,8 +203,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsRunning(true);
             setLocalPauseStartTime(null);
             await refetchActiveSession();
-        } catch (error: any) {
-            notify.error(error.message || "Error al reanudar timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al reanudar timer");
         }
     }, [localPauseStartTime, resumeTimerMutation, refetchActiveSession]);
 
@@ -226,8 +226,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             if (onSessionComplete) {
                 onSessionComplete();
             }
-        } catch (error: any) {
-            notify.error(error.message || "Error al detener timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al detener timer");
         }
     }, [stopTimerMutation, mode, type, getDuration, refetchActiveSession, onSessionComplete]);
 
@@ -299,7 +299,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                                     `Iniciando descanso corto. Relájate un poco.`
                                 );
                             }
-                        } catch (error: any) {
+                        } catch (error: unknown) {
                             console.error("Error auto-starting break:", error);
                             notify.error("Error al auto-iniciar descanso");
                         }
@@ -346,7 +346,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                                 "¡Descanso completado!",
                                 "Iniciando siguiente Pomodoro. ¡A trabajar!"
                             );
-                        } catch (error: any) {
+                        } catch (error: unknown) {
                             console.error("Error auto-starting pomodoro:", error);
                             notify.error("Error al auto-iniciar Pomodoro");
                         }
@@ -362,7 +362,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 setIsPaused(false);
                 await refetchActiveSession();
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error in skipToNext:", error);
             notify.error("Error al cambiar de modo");
         } finally {
@@ -379,8 +379,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             });
             await refetchActiveSession();
             notify.success("Tarea cambiada");
-        } catch (error: any) {
-            notify.error(error.message || "Error al cambiar de tarea");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al cambiar de tarea");
         }
     }, [mode, type, switchTaskMutation, refetchActiveSession]);
 
