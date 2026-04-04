@@ -44,8 +44,8 @@ export function TimerSettingsProvider({ children }: { children: React.ReactNode 
             if (saved) {
                 try {
                     setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
-                } catch (e) {
-                    console.error("Failed to parse timer settings", e);
+                } catch {
+                    // Invalid stored settings, use defaults
                 }
             }
         };

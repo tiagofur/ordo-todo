@@ -142,8 +142,8 @@ export function QuickFilters({
       try {
         const customPresets = JSON.parse(stored) as FilterPreset[];
         setPresets([...builtInPresets, ...customPresets]);
-      } catch (e) {
-        console.error("Failed to load filter presets:", e);
+      } catch {
+        // Invalid stored presets, use defaults
       }
     }
   }, []);

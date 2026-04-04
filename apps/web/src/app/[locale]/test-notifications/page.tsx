@@ -27,7 +27,7 @@ export default function TestNotificationsPage() {
     notify.success('Task Completed', 'Project "Website Redesign" has been updated successfully.', {
       action: {
         label: 'Undo',
-        onClick: () => console.log('Undo clicked')
+        onClick: () => {}
       }
     });
   };
@@ -40,7 +40,7 @@ export default function TestNotificationsPage() {
     notify.warning('Storage Full', 'You are running out of storage space. Please upgrade your plan.', {
       action: {
         label: 'Upgrade',
-        onClick: () => console.log('Upgrade clicked')
+        onClick: () => {}
       }
     });
   };

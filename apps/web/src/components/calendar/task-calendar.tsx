@@ -209,15 +209,15 @@ export function TaskCalendar() {
             }
         });
         DragStore.setDraggedTask(null);
-    } catch (error) {
-        console.error("Failed to schedule task", error);
+    } catch {
+        // Mutation error handled by React Query
     }
   };
 
   const onEventDrop = async ({ event, start, end }: any) => {
     const task = event.resource as Task;
     if (!task) return;
-    
+
     try {
         await updateTaskMutation.mutateAsync({
             taskId: task.id,
@@ -228,8 +228,8 @@ export function TaskCalendar() {
                 isTimeBlocked: true
             }
         });
-    } catch (error) {
-        console.error("Failed to update task date", error);
+    } catch {
+        // Mutation error handled by React Query
     }
   };
 
@@ -247,8 +247,8 @@ export function TaskCalendar() {
                 isTimeBlocked: true
             }
         });
-    } catch (error) {
-        console.error("Failed to resize task", error);
+    } catch {
+        // Mutation error handled by React Query
     }
   };
 

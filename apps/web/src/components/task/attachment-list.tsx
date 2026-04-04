@@ -123,8 +123,8 @@ export function AttachmentList({
       if (onDelete) {
          try {
             await onDelete(String(attachment.id));
-         } catch (err) {
-            console.error(err);
+         } catch {
+            // Error handled by parent
          }
       }
     }

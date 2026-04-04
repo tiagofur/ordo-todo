@@ -41,7 +41,6 @@ export default function DebugWorkspacesPage() {
         },
       });
       setMessage(`✅ Actualizados: ${result.data.updated} de ${result.data.total} workspaces`);
-      console.log("Resultado:", result.data);
 
       // Recargar datos
       await refetchActive();

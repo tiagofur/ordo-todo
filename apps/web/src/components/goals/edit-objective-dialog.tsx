@@ -94,8 +94,7 @@ export function EditObjectiveDialog({ open, onOpenChange, objective }: EditObjec
                 onOpenChange(false);
                 notify.success(t("updated") || "Objective updated successfully");
             },
-            onError: (error) => {
-                console.error(error);
+            onError: () => {
                 notify.error(t("updateError") || "Error updating objective");
             }
         });
