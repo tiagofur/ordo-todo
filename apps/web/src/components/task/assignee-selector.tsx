@@ -90,7 +90,7 @@ export function AssigneeSelector({
           <button
             className={cn(
               'flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all duration-200',
-              'hover:bg-muted/80 border border-transparent hover:border-border/50',
+              'hover:bg-muted border border-transparent hover:border-border',
               currentAssignee
                 ? 'text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
@@ -100,7 +100,7 @@ export function AssigneeSelector({
               <>
                 <Avatar className="h-5 w-5">
                   <AvatarImage src={currentAssignee.image} />
-                  <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                  <AvatarFallback className="text-[10px] bg-blue-100 dark:bg-blue-900 text-primary">
                     {getInitials(currentAssignee.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -136,7 +136,7 @@ export function AssigneeSelector({
                 {currentAssignee && (
                   <button
                     onClick={() => handleSelectAssignee(null)}
-                    className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/80 transition-colors text-left group"
+                    className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted transition-colors text-left group"
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground">
                       <X className="h-4 w-4" />
@@ -155,8 +155,8 @@ export function AssigneeSelector({
                     className={cn(
                       'w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-left',
                       currentAssignee?.id === member.user.id
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-muted/80'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-primary'
+                        : 'hover:bg-muted'
                     )}
                   >
                     <Avatar className="h-7 w-7">
@@ -206,15 +206,15 @@ export function AssigneeSelector({
         <PopoverTrigger asChild>
           <button
             className={cn(
-              'w-full flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-muted/30',
-              'hover:bg-muted/50 hover:border-border transition-all duration-200 text-left'
+              'w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-muted',
+              'hover:bg-muted hover:border-border transition-all duration-200 text-left'
             )}
           >
             {currentAssignee ? (
               <>
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={currentAssignee.image} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                  <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-primary text-sm">
                     {getInitials(currentAssignee.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -255,9 +255,9 @@ export function AssigneeSelector({
                 {currentAssignee && (
                   <button
                     onClick={() => handleSelectAssignee(null)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors text-left group"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors text-left group"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 text-destructive">
                       <X className="h-4 w-4" />
                     </div>
                     <span className="text-sm text-destructive">
@@ -266,7 +266,7 @@ export function AssigneeSelector({
                   </button>
                 )}
 
-                {currentAssignee && <div className="border-t border-border/50 my-1" />}
+                {currentAssignee && <div className="border-t border-border my-1" />}
 
                 {members.map((member) => (
                   <button
@@ -275,8 +275,8 @@ export function AssigneeSelector({
                     className={cn(
                       'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left',
                       currentAssignee?.id === member.user.id
-                        ? 'bg-primary/10'
-                        : 'hover:bg-muted/80'
+                        ? 'bg-blue-100 dark:bg-blue-900'
+                        : 'hover:bg-muted'
                     )}
                   >
                     <Avatar className="h-8 w-8">

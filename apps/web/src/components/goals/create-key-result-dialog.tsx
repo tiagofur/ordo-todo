@@ -90,8 +90,8 @@ export function CreateKeyResultDialog({
       notify.success(t("toast.created") || "Resultado clave creado");
       resetForm();
       onOpenChange(false);
-    } catch (error: any) {
-      notify.error(error?.message || t("toast.error") || "Error al crear");
+    } catch (error: unknown) {
+      notify.error(error instanceof Error ? error.message : (t("toast.error") || "Error al crear"));
     }
   };
 

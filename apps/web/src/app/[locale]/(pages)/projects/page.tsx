@@ -77,7 +77,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.4 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
               <FolderKanban className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{t('selectWorkspace')}</h3>
@@ -98,7 +98,7 @@ export default function ProjectsPage() {
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="h-48 rounded-2xl bg-muted/50 animate-pulse"
+                className="h-48 rounded-2xl bg-muted animate-pulse"
               />
             ))}
           </div>
@@ -124,7 +124,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.4 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
               <FolderKanban className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{t('noProjects')}</h3>

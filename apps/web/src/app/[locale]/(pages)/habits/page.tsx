@@ -206,8 +206,8 @@ export default function HabitsPage() {
               transition={{ duration: 0.4, delay: index * 0.05 }}
               whileHover={{ y: -5, scale: 1.02 }}
               className={cn(
-                "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
-                "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+                "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300",
+                "hover:shadow-xl hover:shadow-lg"
               )}
               style={{
                 borderLeftWidth: "4px",
@@ -242,7 +242,7 @@ export default function HabitsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="rounded-2xl border border-border/50 bg-card p-6"
+            className="rounded-2xl border border-border bg-card p-6"
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">{t("todayProgress")}</h3>
@@ -272,7 +272,7 @@ export default function HabitsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.25 }}
-          className="rounded-2xl border border-border/50 bg-card p-6"
+          className="rounded-2xl border border-border bg-card p-6"
         >
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
             <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -289,7 +289,7 @@ export default function HabitsPage() {
             </div>
           ) : habits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-              <Sparkles className="mb-4 h-12 w-12 text-muted-foreground/50" />
+              <Sparkles className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-medium">{t("noHabits")}</h3>
               <p className="mb-4 text-sm text-muted-foreground max-w-sm">
                 {t("noHabitsDescription")}
@@ -327,8 +327,8 @@ export default function HabitsPage() {
                       className={cn(
                         "group relative flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer",
                         isCompleted
-                          ? "bg-muted/30 border-border/30"
-                          : "bg-card border-border/50 hover:border-border hover:shadow-md",
+                          ? "bg-muted border-border"
+                          : "bg-card border-border hover:border-border hover:shadow-md",
                         isPaused && "opacity-60"
                       )}
                     >

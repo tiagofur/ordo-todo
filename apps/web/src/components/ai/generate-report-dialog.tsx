@@ -211,7 +211,7 @@ export function GenerateReportDialog({
 
           {success && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
                 <CheckCircle2 className="h-10 w-10 text-green-600" />
               </div>
               <div className="text-center space-y-2">
@@ -224,7 +224,7 @@ export function GenerateReportDialog({
           )}
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-800 p-4">
+            <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900 dark:border-red-800 p-4">
               <p className="text-sm text-red-800 dark:text-red-200">{t.error}</p>
               <div className="flex justify-end gap-2 mt-4">
                 <Button variant="outline" onClick={handleClose}>

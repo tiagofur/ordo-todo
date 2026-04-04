@@ -30,8 +30,8 @@ export default function useProfile() {
       if (!user) return;
       await updateProfile.mutateAsync({ name: user.name });
       addSuccess("Nome alterado com sucesso!");
-    } catch (error: any) {
-      addError(error.message);
+    } catch (error: unknown) {
+      addError(error instanceof Error ? error.message : 'Error al actualizar perfil');
     }
   }
 

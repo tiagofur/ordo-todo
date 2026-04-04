@@ -230,7 +230,7 @@ export function CreateTaskDialog({
                   type="button"
                   onClick={handleAIMagic}
                   disabled={isGenerating}
-                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors duration-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-blue-100 dark:bg-blue-900 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 disabled:opacity-50"
                 >
                   <Sparkles
                     className={`w-3.5 h-3.5 ${
@@ -320,8 +320,8 @@ export function CreateTaskDialog({
                       onClick={() => setValue('priority', p.value as 'LOW' | 'MEDIUM' | 'HIGH')}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
                         isSelected
-                          ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`
-                          : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                          ? `${p.bg} text-white shadow-md shadow-lg scale-105`
+                          : 'bg-muted text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {isSelected && <Flag className="w-3 h-3 fill-current" />}

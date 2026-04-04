@@ -164,7 +164,8 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
     const seen = localStorage.getItem(AI_FEATURES_TOUR_KEY);
     if (!seen) {
       setHasSeenTour(false);
-      setTimeout(() => setIsVisible(true), 2000);
+      const timer = setTimeout(() => setIsVisible(true), 2000);
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -211,7 +212,7 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-gray-900 backdrop-blur-sm z-50"
               onClick={closeTour}
             />
 
@@ -230,7 +231,7 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
                 >
                   {/* User type badge */}
                   <div className="absolute top-3 left-3">
-                    <span className="px-2 py-1 rounded-full bg-white/20 text-white/90 text-xs font-medium flex items-center gap-1">
+                    <span className="px-2 py-1 rounded-full bg-white dark:bg-gray-800 text-white text-xs font-medium flex items-center gap-1">
                       {isTeamUser ? (
                         <>
                           <Users className="h-3 w-3" />
@@ -248,18 +249,18 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-3 right-3 text-white/80 hover:text-white hover:bg-white/20"
+                    className="absolute top-3 right-3 text-white hover:text-white hover:bg-white dark:hover:bg-gray-800"
                     onClick={closeTour}
                   >
                     <X className="h-5 w-5" />
                   </Button>
 
                   <div className="flex items-center gap-4 mt-6">
-                    <div className="p-3 rounded-xl bg-white/20">
+                    <div className="p-3 rounded-xl bg-white dark:bg-gray-800">
                       {step.icon}
                     </div>
                     <div>
-                      <p className="text-white/70 text-sm">
+                      <p className="text-white text-sm">
                         Paso {currentStep + 1} de {tourSteps.length}
                       </p>
                       <h2 className="text-xl font-bold">{step.title}</h2>
@@ -297,7 +298,7 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
                           idx === currentStep
                             ? "w-6 bg-primary"
                             : idx < currentStep
-                            ? "w-2 bg-primary/50"
+                            ? "w-2 bg-primary"
                             : "w-2 bg-muted"
                         )}
                       />

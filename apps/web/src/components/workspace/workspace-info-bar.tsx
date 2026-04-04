@@ -102,7 +102,7 @@ export function WorkspaceInfoBar({
               </div>
 
               <div className="flex items-center gap-2 text-muted-foreground">
-                <div className="h-2 w-2 rounded-full bg-orange-500/50" />
+                <div className="h-2 w-2 rounded-full bg-orange-400" />
                 <span className="font-medium text-foreground">
                   {activeTaskCount}
                 </span>
@@ -111,7 +111,7 @@ export function WorkspaceInfoBar({
 
               {taskCount > activeTaskCount && (
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <div className="h-2 w-2 rounded-full bg-green-500/50" />
+                  <div className="h-2 w-2 rounded-full bg-green-400" />
                   <span className="font-medium text-foreground">
                     {taskCount - activeTaskCount}
                   </span>

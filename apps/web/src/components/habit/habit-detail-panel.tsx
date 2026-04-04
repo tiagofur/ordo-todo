@@ -70,21 +70,21 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       });
       toast.success(t("toast.updated"));
       setIsEditing(false);
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to update" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
     }
   };
 
   const handleDelete = async () => {
     if (!habitId) return;
     if (!confirm(t("confirmDelete"))) return;
-    
+
     try {
       await deleteHabit.mutateAsync(habitId);
       toast.success(t("toast.deleted"));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to delete" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to delete" }));
     }
   };
 
@@ -98,8 +98,8 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
         await pauseHabit.mutateAsync(habitId);
         toast.success(t("toast.paused"));
       }
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to update" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
     }
   };
 
@@ -161,7 +161,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                         {t("status.paused")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400">
                         <CheckCircle2 className="h-3 w-3" />
                         {t("status.active")}
                       </span>
@@ -275,7 +275,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                       "aspect-square rounded-sm transition-colors",
                       day.completed
                         ? "bg-emerald-500"
-                        : "bg-muted hover:bg-muted/80"
+                        : "bg-muted hover:bg-muted"
                     )}
                     title={day.date}
                   />
@@ -296,7 +296,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                   <button
                     onClick={handleSave}
                     disabled={updateHabit.isPending}
-                    className="flex-1 py-2 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    className="flex-1 py-2 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary transition-colors disabled:opacity-50"
                   >
                     {updateHabit.isPending ? "..." : t("actions.edit")}
                   </button>

@@ -63,8 +63,8 @@ export function InviteMemberDialog({
         onOpenChange(false);
         form.reset();
       }
-    } catch (error: any) {
-      toast.error(error?.message || t("error"));
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : t("error"));
     }
   };
 

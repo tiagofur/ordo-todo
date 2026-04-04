@@ -291,7 +291,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                   {logs.map((log: WorkspaceAuditLog) => (
                     <div
                       key={log.id}
-                      className="flex gap-3 p-4 hover:bg-muted/50 transition-colors"
+                      className="flex gap-3 p-4 hover:bg-muted transition-colors"
                     >
                       <div className="mt-0.5 text-lg">
                         {getActionIcon(log.action)}
@@ -385,9 +385,9 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
   const colorStyles: Record<StatCardProps["color"], string> = {
-    blue: "bg-blue-500/10 text-blue-600",
-    green: "bg-green-500/10 text-green-600",
-    purple: "bg-purple-500/10 text-purple-600",
+    blue: "bg-blue-100 dark:bg-blue-900 text-blue-600",
+    green: "bg-green-100 dark:bg-green-900 text-green-600",
+    purple: "bg-purple-100 dark:bg-purple-900 text-purple-600",
   };
 
   return (
@@ -454,7 +454,7 @@ function ProjectsSkeleton({ viewMode }: { viewMode: "list" | "grid" }) {
 
 function EmptyProjectsState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed rounded-xl bg-muted/30">
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed rounded-xl bg-muted">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
         <FolderKanban className="h-8 w-8 text-muted-foreground" />
       </div>

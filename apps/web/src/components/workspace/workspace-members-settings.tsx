@@ -147,7 +147,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={member.role === "OWNER" ? "default" : "outline"} className={member.role === "OWNER" ? "bg-amber-500/10 text-amber-600 border-amber-500/30" : ""}>
+                  <Badge variant={member.role === "OWNER" ? "default" : "outline"} className={member.role === "OWNER" ? "bg-amber-100 dark:bg-amber-900 text-amber-600 border-amber-400" : ""}>
                     {member.role === "OWNER" && <Crown className="mr-1 h-3 w-3" />}
                     {getRoleLabel(member.role)}
                   </Badge>

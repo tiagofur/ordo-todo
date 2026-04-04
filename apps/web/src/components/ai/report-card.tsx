@@ -57,9 +57,9 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
   };
 
   const getScoreBgColor = (score: number): string => {
-    if (score >= 80) return "bg-green-100 dark:bg-green-900/20";
-    if (score >= 60) return "bg-yellow-100 dark:bg-yellow-900/20";
-    return "bg-red-100 dark:bg-red-900/20";
+    if (score >= 80) return "bg-green-100 dark:bg-green-900";
+    if (score >= 60) return "bg-yellow-100 dark:bg-yellow-900";
+    return "bg-red-100 dark:bg-red-900";
   };
 
   const formatDate = (date: Date | string): string => {
@@ -69,7 +69,7 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
 
   return (
     <Card
-      className={`transition-all duration-200 ${onClick ? "cursor-pointer hover:shadow-md hover:border-primary/50" : ""}`}
+      className={`transition-all duration-200 ${onClick ? "cursor-pointer hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800" : ""}`}
       onClick={onClick}
     >
       <CardHeader>

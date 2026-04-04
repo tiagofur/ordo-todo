@@ -50,10 +50,10 @@ function TasksPageSkeleton() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div className="h-12 w-48 bg-muted/50 rounded-lg animate-pulse" />
+        <div className="h-12 w-48 bg-muted rounded-lg animate-pulse" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="rounded-2xl bg-muted/50 animate-pulse h-48" />
+            <div key={i} className="rounded-2xl bg-muted animate-pulse h-48" />
           ))}
         </div>
       </div>
@@ -149,7 +149,7 @@ function TasksPageContent() {
                 className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
                 style={{
                   backgroundColor: "#a855f7",
-                  boxShadow: `0 10px 15px -3px #a855f740, 0 4px 6px -4px #a855f740`,
+                  boxShadow: `0 10px 15px -3px rgb(168 85 247), 0 4px 6px -4px rgb(168 85 247)`,
                 }}
               >
                 <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -166,7 +166,6 @@ function TasksPageContent() {
                 className="mt-3 inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm"
                 style={{
                   borderColor: currentTag.color,
-                  backgroundColor: `${currentTag.color}10`,
                 }}
               >
                 <TagIcon
@@ -181,7 +180,7 @@ function TasksPageContent() {
                 </span>
                 <button
                   onClick={clearTagFilter}
-                  className="ml-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 p-0.5"
+                  className="ml-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 p-0.5"
                 >
                   <X
                     className="h-3.5 w-3.5"
@@ -200,14 +199,14 @@ function TasksPageContent() {
             />
 
             {/* View mode toggle */}
-            <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+            <div className="flex items-center border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode("list")}
                 className={cn(
                   "p-2 transition-all duration-200",
                   viewMode === "list"
-                    ? "bg-purple-500/10 text-purple-500"
-                    : "text-muted-foreground hover:bg-muted/50"
+                    ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
                 title="Vista de lista"
               >
@@ -218,8 +217,8 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 transition-all duration-200",
                   viewMode === "grid"
-                    ? "bg-purple-500/10 text-purple-500"
-                    : "text-muted-foreground hover:bg-muted/50"
+                    ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
                 title="Vista de cuadrícula"
               >
@@ -230,8 +229,8 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 transition-all duration-200",
                   viewMode === "eisenhower"
-                    ? "bg-purple-500/10 text-purple-500"
-                    : "text-muted-foreground hover:bg-muted/50"
+                    ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
                 title="Matriz de Eisenhower"
               >
@@ -246,7 +245,7 @@ function TasksPageContent() {
               className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
               style={{
                 backgroundColor: "#a855f7",
-                boxShadow: `0 10px 15px -3px #a855f740, 0 4px 6px -4px #a855f740`,
+                boxShadow: `0 10px 15px -3px rgb(168 85 247), 0 4px 6px -4px rgb(168 85 247)`,
               }}
             >
               <Plus className="h-4 w-4" />
@@ -293,7 +292,7 @@ function TasksPageContent() {
               <div
                 key={i}
                 className={cn(
-                  "rounded-2xl bg-muted/50 animate-pulse",
+                  "rounded-2xl bg-muted animate-pulse",
                   viewMode === "grid" ? "h-48" : "h-20"
                 )}
               />
@@ -328,7 +327,7 @@ function TasksPageContent() {
             transition={{ duration: 0.4 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
               <CheckSquare className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">
@@ -344,7 +343,7 @@ function TasksPageContent() {
             {hasActiveFilters ? (
               <button
                 onClick={() => setFilters({})}
-                className="flex items-center gap-2 rounded-xl bg-purple-500/10 text-purple-500 px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-purple-500/20"
+                className="flex items-center gap-2 rounded-xl bg-purple-100 dark:bg-purple-900 text-purple-500 px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-purple-200 dark:hover:bg-purple-800"
               >
                 <X className="h-4 w-4" />
                 Limpiar filtros
@@ -352,7 +351,7 @@ function TasksPageContent() {
             ) : (
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:bg-purple-600 hover:scale-105"
+                className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-lg transition-all duration-200 hover:bg-purple-600 hover:scale-105"
               >
                 <Plus className="h-4 w-4" />
                 {t("newTask")}

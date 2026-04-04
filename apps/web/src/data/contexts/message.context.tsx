@@ -18,7 +18,7 @@ export function MessageProvider({ children }: PropsWithChildren) {
   const addMessage = useCallback(
     function (type: "success" | "error", text: string) {
       const description = text.split(/\n/).map((line) => (
-        <p key={line} className="text-white/90 text-sm">
+        <p key={line} className="text-white text-sm">
           {line}
         </p>
       ));

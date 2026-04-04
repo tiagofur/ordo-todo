@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { GeminiAIService } from '../ai/gemini-ai.service';
 import { PrismaService } from '../database/prisma.service';
 
@@ -165,7 +165,7 @@ Responde ÚNICAMENTE con JSON válido en este formato:
       // Parse JSON response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('No valid JSON found in response');
+        throw new BadRequestException('No valid JSON found in AI response');
       }
 
       const analysis = JSON.parse(jsonMatch[0]) as MeetingAnalysis;
@@ -188,7 +188,8 @@ Responde ÚNICAMENTE con JSON válido en este formato:
       };
     } catch (error) {
       this.logger.error('Failed to analyze transcript', error);
-      throw new Error('Error al analizar la transcripción');
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException('Failed to analyze meeting transcript');
     }
   }
 
@@ -275,7 +276,8 @@ El resumen debe estar en español y ser profesional pero accesible.`;
       return response;
     } catch (error) {
       this.logger.error('Failed to generate summary', error);
-      throw new Error('Error al generar el resumen');
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException('Failed to generate meeting summary');
     }
   }
 

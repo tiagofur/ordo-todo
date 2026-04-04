@@ -76,7 +76,7 @@ export function WorkspaceConfigurationSettings({
             onValueChange={(value) => setFormData({ ...formData, defaultView: value as ViewType })}
             disabled={!permissions.canUpdateSettings}
           >
-            <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
+            <SelectTrigger className="h-10 bg-muted border-input focus:ring-primary">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -126,7 +126,7 @@ export function WorkspaceConfigurationSettings({
               setFormData({ ...formData, defaultDueTime: hours * 60 + minutes });
             }}
             disabled={!permissions.canUpdateSettings}
-            className="h-10 bg-muted/30 border-input focus-visible:ring-primary/30"
+            className="h-10 bg-muted border-input focus-visible:ring-primary"
           />
           <p className="text-[0.8rem] text-muted-foreground">
             {t('form.defaultDueTime.helper')}
@@ -143,7 +143,7 @@ export function WorkspaceConfigurationSettings({
             onValueChange={(value) => setFormData({ ...formData, timezone: value })}
             disabled={!permissions.canUpdateSettings}
           >
-            <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
+            <SelectTrigger className="h-10 bg-muted border-input focus:ring-primary">
               <SelectValue placeholder={t('form.timezone.placeholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -174,7 +174,7 @@ export function WorkspaceConfigurationSettings({
             onValueChange={(value) => setFormData({ ...formData, locale: value })}
             disabled={!permissions.canUpdateSettings}
           >
-            <SelectTrigger className="h-10 bg-muted/30 border-input focus:ring-primary/30">
+            <SelectTrigger className="h-10 bg-muted border-input focus:ring-primary">
               <SelectValue placeholder={t('form.locale.placeholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -200,7 +200,7 @@ export function WorkspaceConfigurationSettings({
           <Button
             type="submit"
             disabled={updateSettingsMutation.isPending}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 shadow-sm"
+            className="bg-primary text-primary-foreground hover:bg-primary px-6 shadow-sm"
           >
             <Save className="mr-2 h-4 w-4" />
             {updateSettingsMutation.isPending ? t('actions.saving') : t('actions.save')}

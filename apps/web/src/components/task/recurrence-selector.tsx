@@ -66,7 +66,7 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
       if (value.daysOfWeek) setDaysOfWeek(value.daysOfWeek);
       if (value.endDate) setEndDate(value.endDate);
     }
-  }, [value?.pattern]); // Simplified dependency check
+  }, [value]);
 
   useEffect(() => {
     if (enabled) {

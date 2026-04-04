@@ -36,23 +36,18 @@ export function useNotificationsSocket() {
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.log("Connected to real-time notifications");
+      if (process.env.NODE_ENV === "development") console.log("Connected to real-time notifications");
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err);
+      if (process.env.NODE_ENV === "development") console.error("Socket connection error:", err);
     });
 
     // Handle generic notifications
     socket.on("notification:new", (data: any) => {
-      console.log("Notification received:", data);
       toast(data.title || "Notification", {
         description: data.message,
         duration: 5000,
-        action: {
-          label: "View",
-          onClick: () => console.log("Notification clicked", data),
-        },
       });
     });
 

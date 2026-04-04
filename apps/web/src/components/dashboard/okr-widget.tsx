@@ -19,7 +19,7 @@ export function OkrWidget({ accentColor = "#3B82F6" }: OkrWidgetProps) {
   
   if (isLoading || !summary) {
     return (
-      <div className="h-full w-full rounded-2xl border border-border/50 bg-card p-4 flex items-center justify-center min-h-[200px]">
+      <div className="h-full w-full rounded-2xl border border-border bg-card p-4 flex items-center justify-center min-h-[200px]">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
       </div>
     );
@@ -31,12 +31,12 @@ export function OkrWidget({ accentColor = "#3B82F6" }: OkrWidgetProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.4 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300",
-        "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20 flex flex-col h-full"
+        "group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300",
+        "hover:shadow-xl hover:shadow-lg flex flex-col h-full"
       )}
     >
       {/* Header */}
-      <div className="p-4 border-b border-border/50">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
@@ -82,7 +82,7 @@ export function OkrWidget({ accentColor = "#3B82F6" }: OkrWidgetProps) {
 
       {/* Stats Summary */}
       {summary && summary.atRisk > 0 && (
-         <div className="px-4 py-2 bg-red-500/10 border-b border-red-500/10 flex items-center gap-2 text-xs text-red-500 font-medium">
+         <div className="px-4 py-2 bg-red-100 dark:bg-red-900 border-b border-red-200 dark:border-red-800 flex items-center gap-2 text-xs text-red-500 font-medium">
             <AlertTriangle className="h-3 w-3" />
             {summary.atRisk} {t("okrsAtRisk")}
          </div>
@@ -92,7 +92,7 @@ export function OkrWidget({ accentColor = "#3B82F6" }: OkrWidgetProps) {
       <div className="p-2 flex-1">
         {(objectives.length === 0) ? (
           <div className="flex flex-col items-center justify-center py-6 text-center h-full">
-            <Target className="h-8 w-8 text-muted-foreground/50 mb-2" />
+            <Target className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">{t("noObjectives")}</p>
             <Link
               href="/goals"
@@ -114,11 +114,11 @@ export function OkrWidget({ accentColor = "#3B82F6" }: OkrWidgetProps) {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group/item flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                  className="group/item flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   {/* Status Indicator / Progress Ring could be here, simple circle for now */}
                    <div className="relative h-8 w-8 flex items-center justify-center shrink-0">
-                      <svg className="h-full w-full -rotate-90 text-muted/30" viewBox="0 0 36 36">
+                      <svg className="h-full w-full -rotate-90 text-muted-foreground" viewBox="0 0 36 36">
                         <path className="fill-none stroke-current stroke-[3]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <path 
                             className="fill-none stroke-current stroke-[3] transition-all duration-500 ease-out" 

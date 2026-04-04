@@ -499,7 +499,7 @@ export function StateInspector({ isOpen = true, className }: StateInspectorProps
                         </div>
 
                         {query.error && (
-                          <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                          <div className="mt-2 p-2 bg-red-50 dark:bg-red-900 rounded">
                             <div className="text-xs text-red-600 dark:text-red-400">
                               {query.error.message || 'Unknown error'}
                             </div>

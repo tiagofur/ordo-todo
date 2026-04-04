@@ -148,7 +148,7 @@ export function ProjectSettingsDialog({
               <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Palette className="w-4 h-4" /> {colorLabel}
               </Label>
-              <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
+              <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted">
                 {PROJECT_COLORS.map((color) => (
                   <button
                     key={color}

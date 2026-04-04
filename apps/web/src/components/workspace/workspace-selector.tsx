@@ -111,7 +111,7 @@ export function WorkspaceSelector({
         onClick={onCreateClick}
         className="flex w-full items-center gap-3 rounded-lg border border-dashed px-3 py-2.5 text-sm hover:bg-accent hover:border-solid transition-all"
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
           <Plus className="h-4 w-4 text-primary" />
         </div>
         <span className="font-medium">{t.create}</span>
@@ -177,7 +177,7 @@ export function WorkspaceSelector({
                 }}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-all",
-                  isSelected ? "bg-accent shadow-sm" : "hover:bg-accent/50",
+                  isSelected ? "bg-accent shadow-sm" : "hover:bg-accent",
                 )}
               >
                 <div
@@ -222,7 +222,7 @@ export function WorkspaceSelector({
             }}
             className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm hover:bg-accent transition-all"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900 border border-blue-200 dark:border-blue-800">
               <Plus className="h-5 w-5 text-primary" />
             </div>
             <span className="font-medium">{t.create}</span>

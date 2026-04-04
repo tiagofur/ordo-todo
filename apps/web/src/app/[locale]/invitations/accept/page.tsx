@@ -35,14 +35,14 @@ export default function AcceptInvitationPage() {
       setTimeout(() => {
         router.push("/workspaces");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      setErrorMessage(error?.message || t("error"));
+      setErrorMessage(error instanceof Error ? error.message : t("error"));
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{t("title")}</CardTitle>

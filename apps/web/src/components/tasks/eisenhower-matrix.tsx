@@ -52,8 +52,8 @@ const quadrants: Quadrant[] = [
     subtitle: "Urgente e Importante",
     icon: <Flame className="h-5 w-5" />,
     color: "text-red-500",
-    bgColor: "bg-red-500/5",
-    borderColor: "border-red-500/30",
+    bgColor: "bg-red-50 dark:bg-red-950",
+    borderColor: "border-red-300 dark:border-red-700",
   },
   {
     id: "SCHEDULE",
@@ -61,8 +61,8 @@ const quadrants: Quadrant[] = [
     subtitle: "Importante, No Urgente",
     icon: <Calendar className="h-5 w-5" />,
     color: "text-blue-500",
-    bgColor: "bg-blue-500/5",
-    borderColor: "border-blue-500/30",
+    bgColor: "bg-blue-50 dark:bg-blue-950",
+    borderColor: "border-blue-300 dark:border-blue-700",
   },
   {
     id: "DELEGATE",
@@ -70,8 +70,8 @@ const quadrants: Quadrant[] = [
     subtitle: "Urgente, No Importante",
     icon: <Clock className="h-5 w-5" />,
     color: "text-yellow-500",
-    bgColor: "bg-yellow-500/5",
-    borderColor: "border-yellow-500/30",
+    bgColor: "bg-yellow-50 dark:bg-yellow-950",
+    borderColor: "border-yellow-300 dark:border-yellow-700",
   },
   {
     id: "DELETE",
@@ -79,8 +79,8 @@ const quadrants: Quadrant[] = [
     subtitle: "Ni Urgente Ni Importante",
     icon: <Trash2 className="h-5 w-5" />,
     color: "text-gray-400",
-    bgColor: "bg-gray-500/5",
-    borderColor: "border-gray-500/30",
+    bgColor: "bg-gray-50 dark:bg-gray-950",
+    borderColor: "border-gray-300 dark:border-gray-700",
   },
 ];
 
@@ -188,7 +188,7 @@ export function EisenhowerMatrix({
             onDrop={(e) => handleDrop(e, quadrant.id)}
           >
             {/* Quadrant Header */}
-            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
               <div className={cn("p-1.5 rounded-lg", quadrant.bgColor, quadrant.color)}>
                 {quadrant.icon}
               </div>
@@ -220,7 +220,7 @@ export function EisenhowerMatrix({
                       draggedTask === task.id && "opacity-50"
                     )}
                   >
-                    <GripVertical className="h-4 w-4 text-muted-foreground/50 mt-0.5 flex-shrink-0" />
+                    <GripVertical className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <Checkbox
                       checked={task.completed}
                       onCheckedChange={(checked) => 
@@ -274,11 +274,11 @@ export function EisenhowerMatrix({
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 border-t">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-500/20 border-2 border-red-500" />
+          <div className="w-3 h-3 rounded bg-red-100 dark:bg-red-900 border-2 border-red-500" />
           <span>Urgente + Importante = Hacer ahora</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-blue-500/20 border-2 border-blue-500" />
+          <div className="w-3 h-3 rounded bg-blue-100 dark:bg-blue-900 border-2 border-blue-500" />
           <span>Solo Importante = Programar</span>
         </div>
       </div>

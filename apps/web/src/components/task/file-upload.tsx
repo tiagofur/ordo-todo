@@ -229,8 +229,8 @@ export function FileUpload({
       <div
         className={cn(
           'relative rounded-lg border-2 border-dashed transition-all',
-          'hover:border-primary/50 hover:bg-accent/50',
-          isDragging && 'border-primary bg-accent/50 scale-[1.02]',
+          'hover:border-primary hover:bg-accent',
+          isDragging && 'border-primary bg-accent scale-[1.02]',
           'p-8 text-center cursor-pointer'
         )}
         onClick={() => document.getElementById('file-input')?.click()}
@@ -251,7 +251,7 @@ export function FileUpload({
           <div
             className={cn(
               'rounded-full p-4 transition-colors',
-              isDragging ? 'bg-primary/20' : 'bg-muted'
+              isDragging ? 'bg-blue-100 dark:bg-blue-900' : 'bg-muted'
             )}
           >
             <Upload

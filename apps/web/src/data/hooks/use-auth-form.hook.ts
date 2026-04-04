@@ -40,8 +40,8 @@ export default function useAuthForm() {
         await login();
       }
       clearForm();
-    } catch (error: any) {
-      addError(error.message);
+    } catch (error: unknown) {
+      addError(error instanceof Error ? error.message : 'Error de autenticación');
     }
   }
 

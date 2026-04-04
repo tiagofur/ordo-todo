@@ -25,7 +25,7 @@ export function WeeklyChart({ weekStart }: WeeklyChartProps) {
   );
 
   // Map API response to component format
-  const mappedMetrics: WeeklyMetric[] = (metrics ?? []).map((m: any) => ({
+  const mappedMetrics: WeeklyMetric[] = (metrics ?? []).map((m: { date: string; tasksCompleted?: number; tasksCompletedCount?: number; minutesWorked?: number; focusDuration?: number }) => ({
     date: m.date,
     tasksCompleted: m.tasksCompleted ?? 0,
     minutesWorked: m.minutesWorked ?? 0,

@@ -37,8 +37,8 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
     try {
       await createWorkspace.mutateAsync(data);
       setShowCreateWorkspace(false);
-    } catch (error) {
-      console.error(error);
+    } catch {
+      // Error handled by React Query's onError
     }
   };
 

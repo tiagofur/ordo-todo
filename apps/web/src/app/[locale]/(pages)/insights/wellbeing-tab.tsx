@@ -331,7 +331,7 @@ export function WellbeingTab() {
             <div className="flex items-center gap-4 p-4 rounded-xl bg-muted">
               <div className="text-4xl font-bold">{weekly.overallScore}</div>
               <div className="flex-1">
-                <div className="h-2 bg-muted-foreground/20 rounded-full overflow-hidden">
+                <div className="h-2 bg-muted-foreground rounded-full overflow-hidden">
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
@@ -390,7 +390,7 @@ export function WellbeingTab() {
             </div>
 
             {weekly.recommendations && weekly.recommendations.length > 0 && (
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <div className="p-4 rounded-xl bg-blue-100 dark:bg-blue-900 border border-blue-200 dark:border-blue-800">
                 <p className="text-sm flex items-start gap-2">
                   <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <span>{weekly.recommendations[0]}</span>
@@ -417,7 +417,7 @@ export function WellbeingTab() {
                   key={idx}
                   className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted transition-colors"
                 >
-                  <div className="p-2 rounded-full bg-primary/10">
+                  <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
                     <Heart className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -438,7 +438,7 @@ export function WellbeingTab() {
       {/* Empty state */}
       {!burnout && !patterns && !weekly && (
         <Card className="p-12 text-center">
-          <Heart className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+          <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">Sin datos de bienestar</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Continúa usando Ordo para que podamos analizar tus patrones de

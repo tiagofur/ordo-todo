@@ -1,6 +1,6 @@
 import Title from "@/components/template/title.component";
 
-export default async function Dashboard(props: any) {
+export default async function Dashboard(props: { params: Promise<{ period: string }> }) {
   const { period } = await props.params;
 
   const periodTitleMap: { [key: string]: string } = {

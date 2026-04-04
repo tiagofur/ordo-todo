@@ -4,6 +4,7 @@ import { Sparkles, Flame, CheckCircle2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/lib/api-hooks";
+import { type Habit } from "@ordo-todo/api-client";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -24,9 +25,9 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
   // Summary is not available in array response, mocking for UI stability
   const summary = { 
     total: habitsData.length, 
-    completed: habitsData.filter((h: any) => h.completions?.length > 0).length,
-    remaining: habitsData.filter((h: any) => !h.completions?.length).length,
-    percentage: habitsData.length > 0 ? Math.round((habitsData.filter((h: any) => h.completions?.length > 0).length / habitsData.length) * 100) : 0
+    completed: habitsData.filter((h: Habit) => (h.completions?.length ?? 0) > 0).length,
+    remaining: habitsData.filter((h: Habit) => !(h.completions?.length)).length,
+    percentage: habitsData.length > 0 ? Math.round((habitsData.filter((h: Habit) => (h.completions?.length ?? 0) > 0).length / habitsData.length) * 100) : 0
   };
 
   const handleComplete = async (e: React.MouseEvent, habitId: string, isCompleted: boolean) => {
@@ -51,12 +52,12 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.3 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300",
-        "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+        "group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300",
+        "hover:shadow-xl hover:shadow-lg"
       )}
     >
       {/* Header */}
-      <div className="p-4 border-b border-border/50">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
@@ -105,7 +106,7 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
           </div>
         ) : habits.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Sparkles className="h-8 w-8 text-muted-foreground/50 mb-2" />
+            <Sparkles className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">{t("noHabits")}</p>
             <Link
               href="/habits"
@@ -117,8 +118,8 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
           </div>
         ) : (
           <div className="space-y-1">
-            {habits.map((habit: any, index: number) => {
-              const isCompleted = habit.completions && habit.completions.length > 0;
+            {habits.map((habit: Habit, index: number) => {
+              const isCompleted = (habit.completions?.length ?? 0) > 0;
               const isPending = completeHabit.isPending || uncompleteHabit.isPending;
 
               return (
@@ -130,8 +131,8 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
                   className={cn(
                     "flex items-center gap-3 p-2 rounded-lg transition-colors cursor-pointer",
                     isCompleted
-                      ? "bg-muted/30"
-                      : "hover:bg-muted/50"
+                      ? "bg-muted"
+                      : "hover:bg-muted"
                   )}
                 >
                   {/* Completion Button */}
@@ -142,7 +143,7 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
                       "flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all duration-200 shrink-0",
                       isCompleted
                         ? "border-emerald-500 bg-emerald-500 text-white"
-                        : "border-muted-foreground/30 hover:border-emerald-500"
+                        : "border-muted-foreground hover:border-emerald-500"
                     )}
                   >
                     {isCompleted && <CheckCircle2 className="h-3.5 w-3.5" />}

@@ -62,15 +62,15 @@ export default function TasksTrashPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "LOW":
-        return "text-blue-600 bg-blue-50 dark:bg-blue-900/20";
+        return "text-blue-600 bg-blue-50 dark:bg-blue-900";
       case "MEDIUM":
-        return "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20";
+        return "text-yellow-600 bg-yellow-50 dark:bg-yellow-900";
       case "HIGH":
-        return "text-orange-600 bg-orange-50 dark:bg-orange-900/20";
+        return "text-orange-600 bg-orange-50 dark:bg-orange-900";
       case "URGENT":
-        return "text-red-600 bg-red-50 dark:bg-red-900/20";
+        return "text-red-600 bg-red-50 dark:bg-red-900";
       default:
-        return "text-gray-600 bg-gray-50 dark:bg-gray-900/20";
+        return "text-gray-600 bg-gray-50 dark:bg-gray-900";
     }
   };
 
@@ -79,11 +79,11 @@ export default function TasksTrashPage() {
       case "TODO":
         return "text-gray-600 bg-gray-100 dark:bg-gray-800";
       case "IN_PROGRESS":
-        return "text-blue-600 bg-blue-100 dark:bg-blue-900/20";
+        return "text-blue-600 bg-blue-100 dark:bg-blue-900";
       case "COMPLETED":
-        return "text-green-600 bg-green-100 dark:bg-green-900/20";
+        return "text-green-600 bg-green-100 dark:bg-green-900";
       case "CANCELLED":
-        return "text-red-600 bg-red-100 dark:bg-red-900/20";
+        return "text-red-600 bg-red-100 dark:bg-red-900";
       default:
         return "text-gray-600 bg-gray-100 dark:bg-gray-800";
     }
@@ -139,7 +139,7 @@ export default function TasksTrashPage() {
             }
             window.location.href = url.toString();
           }}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 dark:border-gray-700 dark:bg-gray-800"
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 dark:border-gray-700 dark:bg-gray-800"
         >
           <option value="">{t("allProjects")}</option>
           {projects.map((project: any) => (
@@ -154,7 +154,7 @@ export default function TasksTrashPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950/20"
+        className="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950"
       >
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-500 flex-shrink-0 mt-0.5" />
@@ -174,7 +174,7 @@ export default function TasksTrashPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border-2 border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950/20"
+          className="rounded-2xl border-2 border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950"
         >
           <div className="flex items-center gap-3">
             <LayoutList className="h-5 w-5 text-pink-600 dark:text-pink-500" />
@@ -198,7 +198,7 @@ export default function TasksTrashPage() {
           transition={{ duration: 0.4 }}
           className="flex flex-col items-center justify-center py-16 px-4 text-center"
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
             <LayoutList className="h-12 w-12 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-semibold mb-2">
@@ -213,7 +213,7 @@ export default function TasksTrashPage() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="h-32 rounded-2xl bg-muted/50 animate-pulse"
+              className="h-32 rounded-2xl bg-muted animate-pulse"
             />
           ))}
         </div>
@@ -300,7 +300,7 @@ export default function TasksTrashPage() {
                     disabled={
                       taskToRestore === task.id || taskToDelete === task.id
                     }
-                    className="flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium bg-red-100 text-red-700 transition-all hover:bg-red-200 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
                     title={t("permanentDelete")}
                   >
                     {taskToDelete === task.id ? (
@@ -321,7 +321,7 @@ export default function TasksTrashPage() {
           transition={{ duration: 0.4 }}
           className="flex flex-col items-center justify-center py-16 px-4 text-center"
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
             <Trash2 className="h-12 w-12 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-semibold mb-2">{t("noDeletedTasks")}</h3>

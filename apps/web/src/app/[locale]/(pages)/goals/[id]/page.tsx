@@ -32,8 +32,8 @@ export default function ObjectiveDetailPage() {
         keyResultId: krId,
       });
       notify.success(t("keyResults.deleted") || "Resultado clave eliminado");
-    } catch (error: any) {
-      notify.error(error?.message || "Error al eliminar");
+    } catch (error: unknown) {
+      notify.error(error instanceof Error ? error.message : "Error al eliminar");
     }
   };
 

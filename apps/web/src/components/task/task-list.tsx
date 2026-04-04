@@ -118,7 +118,7 @@ export function TaskList({
 
   if (error) {
     return (
-      <div className={cn('p-4 border border-destructive/50 rounded-lg bg-destructive/10 text-destructive flex flex-col items-center gap-2 mt-4', className)}>
+      <div className={cn('p-4 border border-destructive rounded-lg bg-red-100 dark:bg-red-900 text-destructive flex flex-col items-center gap-2 mt-4', className)}>
         <div className="flex items-center gap-2">
           <AlertCircle className="h-4 w-4" />
           <p className="font-medium">{errorLabel(error)}</p>
@@ -137,7 +137,7 @@ export function TaskList({
       {/* Filter Toggle */}
       {showFilter && (
         <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-lg border p-1 bg-muted/30">
+          <div className="inline-flex rounded-lg border p-1 bg-muted">
             <Button
               variant="ghost"
               size="sm"
@@ -172,7 +172,7 @@ export function TaskList({
               key={task.id}
               className={cn(
                 'p-4 border rounded-lg shadow-sm flex justify-between items-center animate-in fade-in slide-in-from-bottom-2 duration-300',
-                task.status === 'COMPLETED' && 'bg-muted/50'
+                task.status === 'COMPLETED' && 'bg-muted'
               )}
             >
               <div className="flex items-center gap-3">
