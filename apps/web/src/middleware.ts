@@ -6,11 +6,34 @@ const intlMiddleware = createMiddleware(routing);
 
 const publicPages = ['/login', '/register', '/share', '/invitations', '/forgot-password', '/reset-password'];
 
+function isTokenValid(token?: string): boolean {
+    if (!token) return false;
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3 || !parts[1]) return false;
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        const payload = JSON.parse(jsonPayload);
+        if (!payload.exp) return true;
+        return payload.exp * 1000 > Date.now();
+    } catch {
+        return false;
+    }
+}
+
 export default function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Check for tokens
-    const token = request.cookies.get('access_token')?.value || request.cookies.get('refresh_token')?.value;
+    // Check for tokens and their validity
+    const accessToken = request.cookies.get('access_token')?.value;
+    const refreshToken = request.cookies.get('refresh_token')?.value;
+    const hasValidToken = isTokenValid(accessToken) || isTokenValid(refreshToken);
+    const hasAnyToken = Boolean(accessToken || refreshToken);
 
     // Check if the request is for the root path
     const isRootPath = pathname === '/';
@@ -28,8 +51,13 @@ export default function middleware(request: NextRequest) {
             : routing.defaultLocale;
 
         // If authenticated -> Dashboard, else -> Login
-        const targetPath = token ? 'dashboard' : 'login';
-        return NextResponse.redirect(new URL(`/${locale}/${targetPath}`, request.url));
+        const targetPath = hasValidToken ? 'dashboard' : 'login';
+        const response = NextResponse.redirect(new URL(`/${locale}/${targetPath}`, request.url));
+        if (!hasValidToken && hasAnyToken) {
+            response.cookies.delete('access_token');
+            response.cookies.delete('refresh_token');
+        }
+        return response;
     }
 
     // Identify current locale from path
@@ -40,18 +68,28 @@ export default function middleware(request: NextRequest) {
     // Check if route is public
     const isPublic = publicPages.some(page => pathWithoutLocale.startsWith(page));
 
-    // 1. Protected Route & No Token -> Login
-    if (!isPublic && !token) {
-        return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+    // 1. Protected Route & No Valid Token -> Login
+    if (!isPublic && !hasValidToken) {
+        const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+        if (hasAnyToken) {
+            response.cookies.delete('access_token');
+            response.cookies.delete('refresh_token');
+        }
+        return response;
     }
 
-    // 2. Auth Route (Login/Register) & Token -> Dashboard
-    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && token) {
+    // 2. Auth Route (Login/Register) & Valid Token -> Dashboard
+    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && hasValidToken) {
         return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
     }
 
-    // For all other paths, use the intl middleware
-    return intlMiddleware(request);
+    // For all other paths, use the intl middleware and clear stale tokens on auth pages
+    const response = intlMiddleware(request);
+    if ((pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')) && !hasValidToken && hasAnyToken) {
+        response.cookies.delete('access_token');
+        response.cookies.delete('refresh_token');
+    }
+    return response;
 }
 
 export const config = {

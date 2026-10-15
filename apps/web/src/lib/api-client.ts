@@ -382,9 +382,14 @@ axiosInstance.interceptors.response.use(
             .catch(() => {
               // Ignore errors during logout - user session expired anyway
             });
-          // Redirect to login page
+          // Redirect to login page only if not already on an authentication page
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            const isAuthPage =
+              window.location.pathname.includes("/login") ||
+              window.location.pathname.includes("/register");
+            if (!isAuthPage) {
+              window.location.href = "/login";
+            }
           }
           return Promise.reject(refreshError);
         }
@@ -395,9 +400,14 @@ axiosInstance.interceptors.response.use(
           .catch(() => {
             // Ignore errors during logout
           });
-        // Redirect to login page
+        // Redirect to login page only if not already on an authentication page
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          const isAuthPage =
+            window.location.pathname.includes("/login") ||
+            window.location.pathname.includes("/register");
+          if (!isAuthPage) {
+            window.location.href = "/login";
+          }
         }
       }
     }
