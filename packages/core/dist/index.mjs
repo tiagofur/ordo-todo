@@ -329,6 +329,25 @@ var RequiredString = class _RequiredString {
   }
 };
 
+// src/shared/errors.ts
+var DomainError = class extends Error {
+  constructor(message, code = "DOMAIN_ERROR") {
+    super(message);
+    this.code = code;
+    this.name = this.constructor.name;
+  }
+};
+var UserAlreadyExistsError = class extends DomainError {
+  constructor(message = "User already exists") {
+    super(message, "USER_ALREADY_EXISTS");
+  }
+};
+var InvalidCredentialsError = class extends DomainError {
+  constructor(message = "Invalid credentials") {
+    super(message, "INVALID_CREDENTIALS");
+  }
+};
+
 // src/shared/constants/colors.constants.ts
 var PROJECT_COLORS = [
   "#EF4444",
@@ -15250,11 +15269,11 @@ var RegisterUser = class {
   async execute(user) {
     const existingUser = await this.repo.findByEmail(user.email);
     if (existingUser) {
-      throw new Error("Usu\xE1rio j\xE1 existe");
+      throw new UserAlreadyExistsError("Usu\xE1rio j\xE1 existe");
     }
     const existingUsername = await this.repo.findByUsername(user.username);
     if (existingUsername) {
-      throw new Error("Nome de usu\xE1rio j\xE1 est\xE1 em uso");
+      throw new UserAlreadyExistsError("Nome de usu\xE1rio j\xE1 est\xE1 em uso");
     }
     if (!user.password) {
       throw new Error("Senha \xE9 obrigat\xF3ria");
@@ -15298,9 +15317,9 @@ var UserLogin = class {
     const { email: email3, password } = input;
     const withPassword = true;
     const user = await this.repo.findByEmail(email3, withPassword);
-    if (!user) throw new Error("Usu\xE1rio n\xE3o encontrado");
+    if (!user) throw new InvalidCredentialsError("Usu\xE1rio n\xE3o encontrado");
     const samePassword = await this.crypto.compare(password, user.password);
-    if (!samePassword) throw new Error("Senha incorreta");
+    if (!samePassword) throw new InvalidCredentialsError("Senha incorreta");
     return user.withoutPassword();
   }
 };
@@ -15396,7 +15415,10 @@ var CompleteTaskUseCase = class {
     if (!task) {
       throw new Error("Task not found");
     }
-    if (task.props.ownerId !== input.ownerId) {
+    const actingUserId = input.userId ?? input.ownerId;
+    const isOwner = task.props.ownerId === actingUserId;
+    const isAssignee = task.props.assigneeId === actingUserId;
+    if (actingUserId && !isOwner && !isAssignee) {
       throw new Error("Unauthorized");
     }
     const completedTask = task.complete();
@@ -15968,16 +15990,20 @@ var AcceptInvitationUseCase = class {
     this.hashService = hashService;
   }
   async execute(token, userId) {
-    const pendingInvitations = await this.invitationRepository.findPendingInvitations();
-    if (pendingInvitations.length === 0) {
-      throw new Error("Invalid invitation token");
-    }
     let matchedInvitation = null;
-    for (const invitation of pendingInvitations) {
-      const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
-      if (isValid) {
-        matchedInvitation = invitation;
-        break;
+    try {
+      const hashedToken = await this.hashService.hash(token);
+      matchedInvitation = await this.invitationRepository.findByToken(hashedToken);
+    } catch {
+    }
+    if (!matchedInvitation) {
+      const pendingInvitations = await this.invitationRepository.findPendingInvitations();
+      for (const invitation of pendingInvitations) {
+        const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
+        if (isValid) {
+          matchedInvitation = invitation;
+          break;
+        }
       }
     }
     if (!matchedInvitation) {
@@ -23325,6 +23351,7 @@ export {
   DeleteNotificationUseCase,
   DeleteProjectUseCase,
   DeleteWorkflowUseCase,
+  DomainError,
   Email,
   Entity,
   ExecuteSearchUseCase,
@@ -23366,6 +23393,7 @@ export {
   Id,
   ImageSpecs,
   IntegrationProvider,
+  InvalidCredentialsError,
   InviteMemberUseCase,
   KBArticle,
   KBCategory,
@@ -23464,6 +23492,7 @@ export {
   UpgradePlanUseCase,
   User,
   UserAchievement,
+  UserAlreadyExistsError,
   UserByEmail,
   UserIntegration,
   UserLogin,

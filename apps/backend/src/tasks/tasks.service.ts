@@ -45,7 +45,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   /**
    * Creates a new task with automatic priority calculation and notifications
@@ -239,10 +239,13 @@ export class TasksService {
           tags,
         )}, assignedToMe: ${assignedToMe}`,
       );
-      const tasks = await this.taskRepository.findByWorkspaceMemberships(userId, {
-        projectId,
-        tags,
-      });
+      const tasks = await this.taskRepository.findByWorkspaceMemberships(
+        userId,
+        {
+          projectId,
+          tags,
+        },
+      );
       this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
       // Filter only main tasks (no parentTaskId)
       // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
@@ -429,15 +432,44 @@ export class TasksService {
       include: {
         subTasks: true,
         comments: {
-          include: { author: true },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
         },
         attachments: {
-          include: { uploadedBy: true } as any,
+          include: {
+            uploadedBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
           orderBy: { uploadedAt: 'desc' },
         },
         activities: {
-          include: { user: true },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
           take: 50, // Limit to last 50 activities
         },
@@ -716,7 +748,7 @@ export class TasksService {
     // Check if task exists before deleting
     const existingTask = await this.prisma.task.findUnique({
       where: { id },
-      select: { id: true, title: true, isDeleted: true, projectId: true }
+      select: { id: true, title: true, isDeleted: true, projectId: true },
     });
 
     if (!existingTask) {
@@ -724,7 +756,9 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    this.logger.log(`[Soft Delete] Task found: ${existingTask.title}, current isDeleted: ${existingTask.isDeleted}, projectId: ${existingTask.projectId}`);
+    this.logger.log(
+      `[Soft Delete] Task found: ${existingTask.title}, current isDeleted: ${existingTask.isDeleted}, projectId: ${existingTask.projectId}`,
+    );
 
     const softDeleteTaskUseCase = new SoftDeleteTaskUseCase(
       this.taskRepository,
@@ -734,10 +768,12 @@ export class TasksService {
     // Verify the delete was successful
     const deletedTask = await this.prisma.task.findUnique({
       where: { id },
-      select: { id: true, isDeleted: true, deletedAt: true }
+      select: { id: true, isDeleted: true, deletedAt: true },
     });
 
-    this.logger.log(`[Soft Delete] Task after delete: isDeleted=${deletedTask?.isDeleted}, deletedAt=${deletedTask?.deletedAt}`);
+    this.logger.log(
+      `[Soft Delete] Task after delete: isDeleted=${deletedTask?.isDeleted}, deletedAt=${deletedTask?.deletedAt}`,
+    );
 
     return { success: true };
   }
@@ -749,17 +785,23 @@ export class TasksService {
    * @returns List of deleted tasks
    */
   async getDeleted(projectId: string) {
-    this.logger.log(`[Get Deleted Tasks] Fetching deleted tasks for projectId: ${projectId}`);
+    this.logger.log(
+      `[Get Deleted Tasks] Fetching deleted tasks for projectId: ${projectId}`,
+    );
 
     const getDeletedTasksUseCase = new GetDeletedTasksUseCase(
       this.taskRepository,
     );
     const result = await getDeletedTasksUseCase.execute(projectId);
 
-    this.logger.log(`[Get Deleted Tasks] Found ${result.length} deleted tasks for projectId: ${projectId}`);
+    this.logger.log(
+      `[Get Deleted Tasks] Found ${result.length} deleted tasks for projectId: ${projectId}`,
+    );
     if (result.length > 0) {
-      result.forEach(task => {
-        this.logger.log(`[Get Deleted Tasks] - Task: ${task.props.title}, isDeleted: ${task.props.isDeleted}, deletedAt: ${task.props.deletedAt}`);
+      result.forEach((task) => {
+        this.logger.log(
+          `[Get Deleted Tasks] - Task: ${task.props.title}, isDeleted: ${task.props.isDeleted}, deletedAt: ${task.props.deletedAt}`,
+        );
       });
     }
 
@@ -878,11 +920,28 @@ export class TasksService {
       include: {
         subTasks: true,
         comments: {
-          include: { author: true },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
         },
         attachments: {
-          include: { uploadedBy: true } as any,
+          include: {
+            uploadedBy: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
           orderBy: { uploadedAt: 'desc' },
         },
         tags: {

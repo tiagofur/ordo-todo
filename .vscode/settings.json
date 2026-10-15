@@ -9,5 +9,7 @@
     "web-react": "react-components",
     "web-vue": "vue"
   },
-  "debug.javascript.unmapMissingSources": true
+  "debug.javascript.unmapMissingSources": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

@@ -117,9 +117,9 @@ export const CacheResult = (
  */
 export const CacheInvalidate = (
   /**
-   * Cache key prefix to invalidate
+   * Cache key prefix or prefixes to invalidate
    */
-  keyPrefix: string,
+  keyPrefix: string | string[],
 
   /**
    * Optional configuration
@@ -144,8 +144,24 @@ export const CacheInvalidate = (
     keysToInvalidate?: number[];
   },
 ): MethodDecorator => {
-  return SetMetadata('CACHE_INVALIDATE', {
-    keyPrefix,
-    ...options,
-  });
+  return (
+    target: object,
+    key?: string | symbol,
+    descriptor?: TypedPropertyDescriptor<any>,
+  ) => {
+    const targetFn = descriptor?.value || target;
+    const existing = Reflect.getMetadata('CACHE_INVALIDATE', targetFn) || [];
+    const list = Array.isArray(existing) ? existing : [existing];
+    const prefixes = Array.isArray(keyPrefix) ? keyPrefix : [keyPrefix];
+
+    for (const prefix of prefixes) {
+      list.push({
+        keyPrefix: prefix,
+        ...options,
+      });
+    }
+
+    Reflect.defineMetadata('CACHE_INVALIDATE', list, targetFn);
+    return descriptor;
+  };
 };

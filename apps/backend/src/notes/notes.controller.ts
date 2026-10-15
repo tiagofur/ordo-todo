@@ -32,7 +32,7 @@ import {
 @Controller('notes')
 @UseGuards(JwtAuthGuard)
 export class NotesController {
-  constructor(private readonly notesService: NotesService) { }
+  constructor(private readonly notesService: NotesService) {}
 
   @Post()
   @UseInterceptors(CacheInvalidateInterceptor)
@@ -144,10 +144,7 @@ export class NotesController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Not a workspace member' })
-  findAll(
-    @Query() query: QueryNoteDto,
-    @CurrentUser() user: RequestUser,
-  ) {
+  findAll(@Query() query: QueryNoteDto, @CurrentUser() user: RequestUser) {
     return this.notesService.findAll(query.workspaceId, user.id, query);
   }
 
@@ -194,8 +191,7 @@ export class NotesController {
 
   @Patch(':id')
   @UseInterceptors(CacheInvalidateInterceptor)
-  @CacheInvalidate('notes')
-  @CacheInvalidate('note')
+  @CacheInvalidate(['notes', 'note'])
   @ApiOperation({
     summary: 'Update a note',
     description: `
@@ -238,8 +234,7 @@ export class NotesController {
 
   @Delete(':id')
   @UseInterceptors(CacheInvalidateInterceptor)
-  @CacheInvalidate('notes')
-  @CacheInvalidate('note')
+  @CacheInvalidate(['notes', 'note'])
   @ApiOperation({
     summary: 'Delete a note',
     description: `

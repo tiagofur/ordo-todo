@@ -23,6 +23,7 @@ import { CsrfService } from './csrf.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { CheckUsernameDto } from './dto/check-username.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -286,8 +287,10 @@ export class AuthController {
       example: { available: false, message: 'Username is already taken' },
     },
   })
-  async checkUsername(@Body() body: { username: string }) {
-    return this.authService.checkUsernameAvailability(body.username);
+  async checkUsername(@Body() checkUsernameDto: CheckUsernameDto) {
+    return this.authService.checkUsernameAvailability(
+      checkUsernameDto.username,
+    );
   }
 
   /**

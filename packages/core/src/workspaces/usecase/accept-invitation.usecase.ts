@@ -12,24 +12,25 @@ export class AcceptInvitationUseCase {
     ) { }
 
     async execute(token: string, userId: string): Promise<void> {
-        // Since we now store hashed tokens with bcrypt, we can't search directly by hash
-        // (bcrypt generates different hashes each time even for the same input)
-        // Instead, we fetch all pending invitations and compare the token against each hash
-
-        const pendingInvitations = await this.invitationRepository.findPendingInvitations();
-
-        if (pendingInvitations.length === 0) {
-            throw new Error("Invalid invitation token");
-        }
-
-        // Find the invitation that matches the provided token
         let matchedInvitation: WorkspaceInvitation | null = null;
 
-        for (const invitation of pendingInvitations) {
-            const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
-            if (isValid) {
-                matchedInvitation = invitation;
-                break;
+        // 1. Fast path: Direct O(1) lookup using deterministic hash
+        try {
+            const hashedToken = await this.hashService.hash(token);
+            matchedInvitation = await this.invitationRepository.findByToken(hashedToken);
+        } catch {
+            // Fallback to scan
+        }
+
+        // 2. Slow path: Fallback for legacy bcrypt hashes
+        if (!matchedInvitation) {
+            const pendingInvitations = await this.invitationRepository.findPendingInvitations();
+            for (const invitation of pendingInvitations) {
+                const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
+                if (isValid) {
+                    matchedInvitation = invitation;
+                    break;
+                }
             }
         }
 

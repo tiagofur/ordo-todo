@@ -475,24 +475,33 @@ export class WorkspacesService {
     );
 
     try {
-      // Get all pending invitations to find the matching one
-      // We can't use findByToken directly because tokens are now hashed
-      const pendingInvitations =
-        await this.invitationRepository.findPendingInvitations();
+      // 1. Fast path: Direct O(1) lookup using deterministic hash
+      let matchedInvitation: Awaited<
+        ReturnType<typeof this.invitationRepository.findByToken>
+      > | null = null;
 
-      let matchedInvitation:
-        | Awaited<
-            ReturnType<typeof this.invitationRepository.findPendingInvitations>
-          >[number]
-        | null = null;
-      for (const invitation of pendingInvitations) {
-        const isValid = await this.hashService.compare(
-          token,
-          invitation.props.tokenHash,
-        );
-        if (isValid) {
-          matchedInvitation = invitation;
-          break;
+      try {
+        const hashedToken = await this.hashService.hash(token);
+        matchedInvitation =
+          await this.invitationRepository.findByToken(hashedToken);
+      } catch {
+        // Fallback to legacy scan
+      }
+
+      // 2. Slow path: Fallback for legacy bcrypt hashes
+      if (!matchedInvitation) {
+        const pendingInvitations =
+          await this.invitationRepository.findPendingInvitations();
+
+        for (const invitation of pendingInvitations) {
+          const isValid = await this.hashService.compare(
+            token,
+            invitation.props.tokenHash,
+          );
+          if (isValid) {
+            matchedInvitation = invitation;
+            break;
+          }
         }
       }
 

@@ -3,6 +3,8 @@ import CryptoProvider from "../provider/crypto.provider";
 import { UseCase } from "../../shared/use-case";
 import UserRepository from "../provider/user.repository";
 
+import { UserAlreadyExistsError } from "../../shared/errors";
+
 type Input = {
   name: string;
   username: string;
@@ -20,13 +22,13 @@ export default class RegisterUser implements UseCase<Input, void> {
     const existingUser = await this.repo.findByEmail(user.email);
 
     if (existingUser) {
-      throw new Error("Usuário já existe");
+      throw new UserAlreadyExistsError("Usuário já existe");
     }
 
     // Check if username is already taken
     const existingUsername = await this.repo.findByUsername(user.username);
     if (existingUsername) {
-      throw new Error("Nome de usuário já está em uso");
+      throw new UserAlreadyExistsError("Nome de usuário já está em uso");
     }
 
     if (!user.password) {

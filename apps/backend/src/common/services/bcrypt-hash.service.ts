@@ -1,20 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import type { HashService } from '@ordo-todo/core';
 
 /**
- * Bcrypt implementation of HashService for the backend.
- * Used for hashing invitation tokens and other secure data.
+ * Token HashService implementation for the backend.
+ * Uses SHA-256 for high-entropy tokens (UUIDs) for fast O(1) indexed lookup,
+ * while maintaining backward compatibility with legacy bcrypt hashes.
  */
 @Injectable()
 export class BcryptHashService implements HashService {
-  private readonly SALT_ROUNDS = 10;
-
   async hash(value: string): Promise<string> {
-    return bcrypt.hash(value, this.SALT_ROUNDS);
+    return crypto.createHash('sha256').update(value).digest('hex');
   }
 
   async compare(value: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(value, hash);
+    if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
+      return bcrypt.compare(value, hash);
+    }
+    const computed = crypto.createHash('sha256').update(value).digest('hex');
+    if (computed.length !== hash.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(hash));
   }
 }
