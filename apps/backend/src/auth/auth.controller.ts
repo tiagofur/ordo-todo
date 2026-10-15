@@ -74,7 +74,7 @@ export class AuthController {
   @ApiResponse({ status: 409, description: 'Email or username already exists' })
   async register(
     @Body() registerDto: RegisterDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     const { accessToken, refreshToken, user } =
       await this.authService.register(registerDto);
@@ -130,7 +130,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid email or password' })
   async login(
     @Body() loginDto: LoginDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     const { accessToken, refreshToken, user } =
       await this.authService.login(loginDto);
@@ -172,8 +172,8 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Logout successful' })
   async logout(
     @CurrentUser() user: any,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req?: Request,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     let token = req?.headers?.['authorization']?.replace('Bearer ', '');
 
@@ -225,9 +225,9 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   async refresh(
-    @Body() refreshTokenDto: RefreshTokenDto,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
+    @Body() refreshTokenDto?: RefreshTokenDto,
+    @Req() req?: Request,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     // Extract refresh token from httpOnly cookie or request body (for mobile/API clients)
     const refreshToken = req?.cookies?.refresh_token || refreshTokenDto?.refreshToken;
