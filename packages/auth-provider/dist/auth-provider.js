@@ -1,12 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaultAuthContext = void 0;
-exports.AuthProvider = AuthProvider;
-exports.useAuth = useAuth;
-const jsx_runtime_1 = require("react/jsx-runtime");
-const react_1 = require("react");
-const react_query_1 = require("@tanstack/react-query");
-const AuthContext = (0, react_1.createContext)(null);
+import { jsx as _jsx } from "react/jsx-runtime";
+import { createContext, useContext, useEffect, useState, useMemo, } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+const AuthContext = createContext(null);
 const QUERY_KEY_CURRENT_USER = "currentUser";
 const defaultAuthContext = {
     user: null,
@@ -19,35 +14,41 @@ const defaultAuthContext = {
     signInWithGoogle: async () => { },
     signInWithGitHub: async () => { },
 };
-exports.defaultAuthContext = defaultAuthContext;
-function AuthProvider({ children, platform, onError, onSuccess, apiClient, onOAuthLogin, }) {
-    const queryClient = (0, react_query_1.useQueryClient)();
-    const [mounted, setMounted] = (0, react_1.useState)(false);
-    (0, react_1.useEffect)(() => {
+export function AuthProvider({ children, platform, onError, onSuccess, apiClient, onOAuthLogin, queryClient: propQueryClient, }) {
+    let contextQueryClient;
+    try {
+        contextQueryClient = useQueryClient();
+    }
+    catch {
+        // Graceful fallback if context is isolated or during SSR
+    }
+    const queryClient = propQueryClient || contextQueryClient;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
         setMounted(true);
     }, []);
-    const { data: currentUserData, isLoading: isLoadingUser, error, } = (0, react_query_1.useQuery)({
+    const { data: currentUserData, isLoading: isLoadingUser, error, } = useQuery({
         queryKey: [QUERY_KEY_CURRENT_USER],
         queryFn: () => apiClient.getCurrentUser(),
         retry: false,
         enabled: mounted,
-    });
-    const loginMutation = (0, react_query_1.useMutation)({
+    }, queryClient);
+    const loginMutation = useMutation({
         mutationFn: (data) => apiClient.login(data),
-    });
-    const registerMutation = (0, react_query_1.useMutation)({
+    }, queryClient);
+    const registerMutation = useMutation({
         mutationFn: (data) => apiClient.register(data),
-    });
-    const logoutMutation = (0, react_query_1.useMutation)({
+    }, queryClient);
+    const logoutMutation = useMutation({
         mutationFn: () => apiClient.logout(),
         onSuccess: () => {
-            queryClient.clear();
+            queryClient?.clear();
             onSuccess?.("logout");
         },
         onError: (error) => {
             onError?.(error);
         },
-    });
+    }, queryClient);
     const isUnauthorized = error?.response?.status === 401;
     const user = isUnauthorized ? null : currentUserData || null;
     const login = async (data) => {
@@ -136,7 +137,7 @@ function AuthProvider({ children, platform, onError, onSuccess, apiClient, onOAu
             console.warn("OAuth login not configured for this platform");
         }
     };
-    const value = (0, react_1.useMemo)(() => ({
+    const value = useMemo(() => ({
         user,
         isLoading: !mounted || isLoadingUser,
         isAuthenticated: !!user,
@@ -147,13 +148,14 @@ function AuthProvider({ children, platform, onError, onSuccess, apiClient, onOAu
         signInWithGoogle,
         signInWithGitHub,
     }), [user, mounted, isLoadingUser, error]);
-    return (0, jsx_runtime_1.jsx)(AuthContext.Provider, { value: value, children: children });
+    return _jsx(AuthContext.Provider, { value: value, children: children });
 }
-function useAuth() {
-    const context = (0, react_1.useContext)(AuthContext);
+export function useAuth() {
+    const context = useContext(AuthContext);
     if (!context) {
         throw new Error("useAuth must be used within AuthProvider");
     }
     return context;
 }
+export { defaultAuthContext };
 //# sourceMappingURL=auth-provider.js.map

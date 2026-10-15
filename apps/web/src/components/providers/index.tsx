@@ -39,7 +39,7 @@ export function Providers({ children }: ProvidersProps) {
       disableTransitionOnChange={false}
     >
       <QueryClientProvider client={queryClient}>
-        <AuthProvider platform="web" apiClient={sharedApiClient}>
+        <AuthProvider platform="web" apiClient={sharedApiClient} queryClient={queryClient}>
           <TimerSettingsProvider>
             <TimerProvider>
               <DevToolsProvider>

@@ -1,14 +1,16 @@
 {
   "name": "@ordo-todo/auth-provider",
   "version": "1.0.0",
+  "type": "module",
   "description": "Shared authentication provider for Ordo-Todo applications (Web, Mobile, Desktop)",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -26,18 +28,19 @@
     "typescript"
   ],
   "dependencies": {
-    "@ordo-todo/api-client": "*",
-    "@tanstack/react-query": "^5.0.0",
-    "react": "^19.0.0"
+    "@ordo-todo/api-client": "*"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
     "react": "^18.3.1 || ^19.0.0",
     "react-dom": "^18.3.1 || ^19.0.0"
   },
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
+    "@tanstack/react-query": "^5.62.7",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.2.3",
+    "react": "^19.0.0",
     "typescript": "^5.9.3"
   }
 }
