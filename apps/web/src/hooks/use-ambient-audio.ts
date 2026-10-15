@@ -29,40 +29,49 @@ export function useAmbientAudio(options: UseAmbientAudioOptions = {}) {
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const onTrackEndRef = useRef(onTrackEnd);
 
-    // Initialize audio element
+    useEffect(() => {
+        onTrackEndRef.current = onTrackEnd;
+    }, [onTrackEnd]);
+
+    // Initialize audio element once on mount
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            audioRef.current = new Audio();
-            audioRef.current.loop = true;
-            audioRef.current.volume = volume / 100;
+            const audio = new Audio();
+            audio.loop = true;
+            audio.volume = volume / 100;
 
-            audioRef.current.addEventListener('ended', () => {
-                onTrackEnd?.();
+            audio.addEventListener('ended', () => {
+                onTrackEndRef.current?.();
             });
 
-            audioRef.current.addEventListener('error', (e) => {
+            audio.addEventListener('error', () => {
                 setError('Error loading audio');
                 setIsLoading(false);
             });
 
-            audioRef.current.addEventListener('canplaythrough', () => {
+            audio.addEventListener('canplaythrough', () => {
                 setIsLoading(false);
             });
+
+            audioRef.current = audio;
         }
 
         return () => {
+            if (fadeIntervalRef.current) {
+                clearInterval(fadeIntervalRef.current);
+                fadeIntervalRef.current = null;
+            }
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current.src = '';
-            }
-            if (fadeIntervalRef.current) {
-                clearInterval(fadeIntervalRef.current);
+                audioRef.current = null;
             }
         };
-    }, [onTrackEnd, volume]);
+    }, []);
 
-    // Update volume when it changes
+    // Update volume when it changes without destroying the audio element
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume / 100;
@@ -72,6 +81,11 @@ export function useAmbientAudio(options: UseAmbientAudioOptions = {}) {
     // Fade in audio
     const fadeIn = useCallback(() => {
         if (!audioRef.current) return;
+
+        if (fadeIntervalRef.current) {
+            clearInterval(fadeIntervalRef.current);
+            fadeIntervalRef.current = null;
+        }
 
         const targetVolume = volume / 100;
         audioRef.current.volume = 0;
@@ -89,6 +103,7 @@ export function useAmbientAudio(options: UseAmbientAudioOptions = {}) {
             if (currentStep >= steps) {
                 if (fadeIntervalRef.current) {
                     clearInterval(fadeIntervalRef.current);
+                    fadeIntervalRef.current = null;
                 }
             }
         }, stepDuration);
@@ -97,6 +112,11 @@ export function useAmbientAudio(options: UseAmbientAudioOptions = {}) {
     // Fade out audio
     const fadeOut = useCallback((): Promise<void> => {
         return new Promise((resolve) => {
+            if (fadeIntervalRef.current) {
+                clearInterval(fadeIntervalRef.current);
+                fadeIntervalRef.current = null;
+            }
+
             if (!audioRef.current || audioRef.current.volume === 0) {
                 resolve();
                 return;

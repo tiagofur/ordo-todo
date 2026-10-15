@@ -309,7 +309,7 @@ export function TaskDetailPanel({
          description: formData.description,
          status: formData.status as TaskStatus,
          priority: formData.priority as TaskPriority,
-         dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
+         dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
          estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
        });
        setIsEditing(false);

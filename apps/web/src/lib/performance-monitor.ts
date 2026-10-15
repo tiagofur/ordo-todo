@@ -158,6 +158,13 @@ class WebPerformanceMonitor {
 
   // Private methods
 
+  private addEntry(entry: PerformanceEntry) {
+    if (this.entries.length >= 100) {
+      this.entries.shift();
+    }
+    this.entries.push(entry);
+  }
+
   private initializeObservers() {
     // No initialization needed for web - observers are created when needed
   }
@@ -177,7 +184,7 @@ class WebPerformanceMonitor {
       const lastEntry = entries[entries.length - 1];
       if (lastEntry) {
         this.metrics.lcp = lastEntry.startTime;
-        this.entries.push({
+        this.addEntry({
           name: 'LCP',
           startTime: lastEntry.startTime,
           duration: 0,
@@ -194,7 +201,7 @@ class WebPerformanceMonitor {
         if (this.metrics.fid === undefined || fid > this.metrics.fid) {
           this.metrics.fid = fid;
         }
-        this.entries.push({
+        this.addEntry({
           name: 'FID',
           startTime: entry.startTime,
           duration: fid,
@@ -216,7 +223,7 @@ class WebPerformanceMonitor {
       } else {
         this.metrics.cls = clsValue;
       }
-      this.entries.push({
+      this.addEntry({
         name: 'CLS',
         startTime: 0,
         duration: clsValue,
@@ -229,7 +236,7 @@ class WebPerformanceMonitor {
       const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
       if (fcpEntry) {
         this.metrics.fcp = fcpEntry.startTime;
-        this.entries.push({
+        this.addEntry({
           name: 'FCP',
           startTime: fcpEntry.startTime,
           duration: 0,
@@ -277,7 +284,7 @@ class WebPerformanceMonitor {
                 }
               }
 
-              this.entries.push({
+              this.addEntry({
                 name: resourceName,
                 startTime: resource.startTime,
                 duration: loadTime,
@@ -332,7 +339,7 @@ class WebPerformanceMonitor {
     if (typeof performance !== 'undefined' && 'mark' in performance) {
       try {
         performance.mark(name);
-        this.entries.push({
+        this.addEntry({
           name,
           startTime: performance.now(),
           duration: 0,
@@ -350,7 +357,7 @@ class WebPerformanceMonitor {
         performance.measure(name, startMark, endMark);
         const measure = performance.getEntriesByName(name, 'measure')[0];
         if (measure) {
-          this.entries.push({
+          this.addEntry({
             name,
             startTime: measure.startTime,
             duration: measure.duration,
@@ -500,29 +507,29 @@ export function initializePerformanceMonitoring() {
     // Start monitoring automatically
     performanceMonitor.startMonitoring();
 
-    // Add keyboard shortcut for performance report (Ctrl+Shift+P)
-    document.addEventListener('keydown', (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'P') {
-        const summary = performanceMonitor.getPerformanceSummary();
-        console.group('🚀 Performance Report');
-        console.table(summary.metrics);
-        console.log(`Performance Score: ${summary.score.overall}/100`);
-        console.log(`LCP: ${summary.score.vitals.lcp}/100`);
-        console.log(`FID: ${summary.score.vitals.fid}/100`);
-        console.log(`CLS: ${summary.score.vitals.cls}/100`);
-
-        if (summary.recommendations.length > 0) {
-          console.log('Recommendations:', summary.recommendations);
-        }
-        if (summary.warnings.length > 0) {
-          console.warn('Warnings:', summary.warnings);
-        }
-
-        console.groupEnd();
-      }
-    });
-
     if (process.env.NODE_ENV === 'development') {
+      // Add keyboard shortcut for performance report (Ctrl+Shift+P) in dev only
+      document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.shiftKey && event.key === 'P') {
+          const summary = performanceMonitor.getPerformanceSummary();
+          console.group('🚀 Performance Report');
+          console.table(summary.metrics);
+          console.log(`Performance Score: ${summary.score.overall}/100`);
+          console.log(`LCP: ${summary.score.vitals.lcp}/100`);
+          console.log(`FID: ${summary.score.vitals.fid}/100`);
+          console.log(`CLS: ${summary.score.vitals.cls}/100`);
+
+          if (summary.recommendations.length > 0) {
+            console.log('Recommendations:', summary.recommendations);
+          }
+          if (summary.warnings.length > 0) {
+            console.warn('Warnings:', summary.warnings);
+          }
+
+          console.groupEnd();
+        }
+      });
+
       console.log('⚡ Performance monitoring enabled. Press Ctrl+Shift+P for performance report.');
     }
   }

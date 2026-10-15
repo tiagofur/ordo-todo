@@ -24,8 +24,19 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
-import { useTimerStats, useDailyMetrics, useCreateTask, useCreateProject, useProductivityStreak } from "@/lib/api-hooks";
-import { useTasks } from "@/lib/api-hooks";
+import {
+  useTimerStats,
+  useDailyMetrics,
+  useCreateTask,
+  useCreateProject,
+  useProductivityStreak,
+  useWorkspaces,
+  useProjects,
+  useWorkflows,
+  useCreateWorkflow,
+  useTasks,
+} from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-widget";
@@ -103,6 +114,11 @@ export default function DashboardPage() {
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: createProject } = useCreateProject();
 
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { data: workspaces = [], isLoading: isLoadingWorkspaces } = useWorkspaces();
+  const { data: projects = [], isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
+  const { data: workflows = [] } = useWorkflows(selectedWorkspaceId || "");
+  const { mutateAsync: createWorkflow } = useCreateWorkflow();
 
   // Get today's date range
   const today = new Date();
@@ -138,6 +154,16 @@ export default function DashboardPage() {
 
   // Filter tasks for today view
   const todaysTasks = allTasks.filter((task: Task) => {
+    // Workspace isolation filter
+    if (selectedWorkspaceId) {
+      const taskWorkspaceId = (task as any).project?.workspace?.id || (task as any).project?.workspaceId;
+      if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
+        return false;
+      }
+      if (!taskWorkspaceId && projects.length > 0 && !projects.some((p: any) => p.id === task.projectId)) {
+        return false;
+      }
+    }
     // Check if task has dueDate = today
     if (task.dueDate) {
       const dueDate = new Date(task.dueDate);
@@ -619,23 +645,58 @@ export default function DashboardPage() {
       <CreateTaskDialog
         open={showCreateTaskDialog}
         onOpenChange={setShowCreateTaskDialog}
+        projects={projects.map((p: any) => ({ id: p.id, name: p.name }))}
+        isLoadingProjects={isLoadingProjects}
+        onRequestCreateProject={() => {
+          setShowCreateTaskDialog(false);
+          setShowCreateProjectDialog(true);
+        }}
         onSubmit={async (data) => {
-            await createTask({
+          await createTask({
             ...data,
             priority: data.priority as TaskPriority,
-            });
-            setShowCreateTaskDialog(false);
+          });
+          setShowCreateTaskDialog(false);
         }}
       />
       <CreateProjectDialog
         open={showCreateProjectDialog}
         onOpenChange={setShowCreateProjectDialog}
+        workspaceId={selectedWorkspaceId || undefined}
+        workspaces={workspaces.map((w: any) => ({ id: w.id, name: w.name }))}
+        isLoadingWorkspaces={isLoadingWorkspaces}
+        workflows={workflows.map((w: any) => ({ id: w.id, name: w.name }))}
         onSubmit={async (data) => {
-             await createProject({
-              ...data,
-              workflowId: data.workflowId || "",
-             });
-             setShowCreateProjectDialog(false);
+          let workflowId = data.workflowId;
+
+          if (!workflowId || workflowId === "NEW") {
+            if (workflows && workflows.length > 0) {
+              workflowId = workflows[0].id;
+            } else if (data.workspaceId || selectedWorkspaceId) {
+              const targetWsId = data.workspaceId || selectedWorkspaceId!;
+              const newWorkflow = await createWorkflow({
+                name: "Default Workflow",
+                workspaceId: targetWsId,
+              });
+              workflowId = newWorkflow.id;
+            }
+          }
+
+          await createProject({
+            name: data.name,
+            description: data.description,
+            color: data.color,
+            workspaceId: data.workspaceId,
+            workflowId: workflowId || "",
+          });
+          setShowCreateProjectDialog(false);
+        }}
+        onCreateWorkflow={async (wsId) => {
+          const newWorkflow = await createWorkflow({
+            name: "Default Workflow",
+            workspaceId: wsId,
+          });
+          return newWorkflow.id;
         }}
       />
 

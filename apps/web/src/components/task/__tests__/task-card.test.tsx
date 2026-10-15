@@ -9,6 +9,7 @@ vi.mock('../task-detail-panel', () => ({
 
 vi.mock('@/lib/api-hooks', () => ({
   useCompleteTask: () => ({ mutate: vi.fn() }),
+  useDeleteTask: () => ({ mutate: vi.fn() }),
   useTaskTags: () => ({ data: [] }),
 }));
 

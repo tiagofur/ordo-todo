@@ -3,14 +3,21 @@
 import { useState } from "react";
 import { TaskCard as UITaskCard, type TaskCardTask } from "@ordo-todo/ui";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS, ptBR } from "date-fns/locale";
 import { TaskDetailPanel } from "./task-detail-panel";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useDeleteTask } from "@/lib/api-hooks";
 
 interface TaskCardProps {
   task: TaskCardTask;
   index?: number;
 }
+
+const localeMap: Record<string, typeof es> = {
+  es,
+  en: enUS,
+  "pt-br": ptBR,
+};
 
 /**
  * TaskCard Container - Handles business logic and state for task display.
@@ -18,6 +25,9 @@ interface TaskCardProps {
  */
 export function TaskCard({ task, index = 0 }: TaskCardProps) {
   const t = useTranslations('TaskCard');
+  const locale = useLocale();
+  const dateLocale = localeMap[locale] || es;
+  const deleteTask = useDeleteTask();
   const [showDetail, setShowDetail] = useState(false);
   const isCompleted = task.status === "COMPLETED";
 
@@ -33,10 +43,16 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
     const dateObj = typeof date === "string" ? new Date(date) : date;
-    return format(dateObj, "d MMM", { locale: es });
+    return format(dateObj, "d MMM", { locale: dateLocale });
   };
   
   const isOverdue = !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+
+  const handleDelete = () => {
+    if (task.id) {
+      deleteTask.mutate(String(task.id));
+    }
+  };
 
   return (
     <>
@@ -46,6 +62,7 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
         isExpanded={showDetail}
         onToggleExpand={() => setShowDetail(true)}
         onEdit={() => setShowDetail(true)}
+        onDelete={handleDelete}
         formattedDueDate={formatDueDate(task.dueDate)}
         isOverdue={!!isOverdue}
         priorityInfo={priority}
@@ -57,11 +74,13 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
         }}
       />
 
-      <TaskDetailPanel 
-        taskId={task.id ? String(task.id) : null} 
-        open={showDetail} 
-        onOpenChange={setShowDetail} 
-      />
+      {showDetail && (
+        <TaskDetailPanel 
+          taskId={task.id ? String(task.id) : null} 
+          open={showDetail} 
+          onOpenChange={setShowDetail} 
+        />
+      )}
     </>
   );
 }

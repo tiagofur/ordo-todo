@@ -119,6 +119,20 @@ function TasksPageContent() {
       )
     : tasks;
 
+  // Filter tasks by workspace if selectedWorkspaceId is present
+  if (filteredTasks && selectedWorkspaceId) {
+    filteredTasks = filteredTasks.filter((task: any) => {
+      const taskWorkspaceId = task.project?.workspace?.id || task.project?.workspaceId;
+      if (taskWorkspaceId) {
+        return taskWorkspaceId === selectedWorkspaceId;
+      }
+      if (projects && projects.length > 0) {
+        return projects.some((p: any) => p.id === task.projectId);
+      }
+      return true;
+    });
+  }
+
   // Apply quick filters
   if (filteredTasks && hasActiveFilters) {
     filteredTasks = applyFilters(filteredTasks);
@@ -366,6 +380,10 @@ function TasksPageContent() {
         onOpenChange={setShowCreateTask}
         projects={projects?.map((p: any) => ({ id: p.id, name: p.name }))}
         isLoadingProjects={isLoadingProjects}
+        onRequestCreateProject={() => {
+          setShowCreateTask(false);
+          router.push("/projects");
+        }}
         onSubmit={async (data) => {
           await createTask({
             ...data,

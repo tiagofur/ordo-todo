@@ -72,7 +72,7 @@ interface CreateTaskDialogProps {
     formPriority?: string;
     formEstimatedMinutes?: string;
     formDueDate?: string;
-    priorities?: { low: string; medium: string; high: string };
+    priorities?: { low: string; medium: string; high: string; urgent?: string };
     buttons?: { cancel: string; create: string; creating: string };
     emptyState?: { title: string; description: string; action: string };
     validation?: { titleRequired: string; projectRequired: string };
@@ -93,7 +93,7 @@ const DEFAULT_LABELS = {
   formPriority: 'Priority',
   formEstimatedMinutes: 'Est. Minutes',
   formDueDate: 'Due Date',
-  priorities: { low: 'Low', medium: 'Medium', high: 'High' },
+  priorities: { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' },
   buttons: { cancel: 'Cancel', create: 'Create Task', creating: 'Creating...' },
   emptyState: {
     title: 'No Projects Found',
@@ -190,7 +190,8 @@ export function CreateTaskDialog({
   const priorities = [
     { value: 'LOW', label: t.priorities.low, bg: 'bg-blue-500', border: 'border-blue-500' },
     { value: 'MEDIUM', label: t.priorities.medium, bg: 'bg-yellow-500', border: 'border-yellow-500' },
-    { value: 'HIGH', label: t.priorities.high, bg: 'bg-red-500', border: 'border-red-500' },
+    { value: 'HIGH', label: t.priorities.high, bg: 'bg-orange-500', border: 'border-orange-500' },
+    { value: 'URGENT', label: t.priorities.urgent || 'Urgent', bg: 'bg-red-500', border: 'border-red-500' },
   ];
 
   const showEmptyState = !projectId && !isLoadingProjects && projects.length === 0;
