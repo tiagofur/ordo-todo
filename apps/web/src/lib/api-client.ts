@@ -366,6 +366,16 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // Do not attempt token refresh if already on login/register pages
+      if (typeof window !== "undefined") {
+        const isAuthPage =
+          window.location.pathname.includes("/login") ||
+          window.location.pathname.includes("/register");
+        if (isAuthPage) {
+          return Promise.reject(error);
+        }
+      }
+
       // If we haven't retried this request yet
       if (!originalRequest._retry) {
         originalRequest._retry = true;
