@@ -162,18 +162,21 @@ describe('Notes API (e2e)', () => {
 
   describe('GET /notes', () => {
     it('should return all notes for workspace', async () => {
-      // Create test notes
+      // Create test notes with explicit timestamps to guarantee ordering
+      const baseDate = new Date();
       await prisma.note.createMany({
         data: [
           {
             content: 'Note 1',
             workspaceId: workspaceId,
             authorId: userId,
+            createdAt: new Date(baseDate.getTime() - 10000),
           },
           {
             content: 'Note 2',
             workspaceId: workspaceId,
             authorId: userId,
+            createdAt: baseDate,
           },
         ],
       });

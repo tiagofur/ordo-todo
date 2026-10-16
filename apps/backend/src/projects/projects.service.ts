@@ -150,7 +150,14 @@ export class ProjectsService {
     const restoreProjectUseCase = new RestoreProjectUseCase(
       this.projectRepository,
     );
-    await restoreProjectUseCase.execute(id);
+    try {
+      await restoreProjectUseCase.execute(id);
+    } catch (error: any) {
+      if (error.message?.includes('not found') || error.message === 'Project not found') {
+        throw new NotFoundException('Project not found');
+      }
+      throw error;
+    }
 
     // Get the restored project to return it
     const project = await this.projectRepository.findById(id);
@@ -164,7 +171,14 @@ export class ProjectsService {
     const permanentDeleteProjectUseCase = new PermanentDeleteProjectUseCase(
       this.projectRepository,
     );
-    await permanentDeleteProjectUseCase.execute(id);
-    return { success: true };
+    try {
+      await permanentDeleteProjectUseCase.execute(id);
+      return { success: true };
+    } catch (error: any) {
+      if (error.message?.includes('not found') || error.message === 'Project not found') {
+        throw new NotFoundException('Project not found');
+      }
+      throw error;
+    }
   }
 }
