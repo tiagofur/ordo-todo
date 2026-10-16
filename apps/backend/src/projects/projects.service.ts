@@ -106,7 +106,10 @@ export class ProjectsService {
     this.logger.log(
       `Project ${id} archived successfully. Status: ${project.props.archived}`,
     );
-    return project.props;
+    return {
+      ...project.props,
+      isArchived: project.props.archived,
+    };
   }
 
   async complete(id: string) {
@@ -128,7 +131,10 @@ export class ProjectsService {
     });
 
     this.logger.log(`Project ${id} completed at: ${updated.props.completedAt}`);
-    return updated.props;
+    return {
+      ...updated.props,
+      status: updated.props.completed ? 'COMPLETED' : 'ACTIVE',
+    };
   }
 
   async remove(id: string) {
@@ -164,7 +170,10 @@ export class ProjectsService {
     if (!project) {
       throw new NotFoundException('Project not found');
     }
-    return project.props;
+    return {
+      ...project.props,
+      deletedAt: null,
+    };
   }
 
   async permanentDelete(id: string) {

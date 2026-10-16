@@ -56,7 +56,7 @@ export class PrismaProjectRepository implements ProjectRepository {
 
   async findById(id: string): Promise<Project | null> {
     const project = await this.prisma.project.findFirst({
-      where: { id, isDeleted: false },
+      where: { id },
     });
     if (!project) return null;
     return this.toDomain(project);

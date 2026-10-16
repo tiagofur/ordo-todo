@@ -853,7 +853,10 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-    return task.props;
+    return {
+      ...task.props,
+      deletedAt: null,
+    };
   }
 
   /**
