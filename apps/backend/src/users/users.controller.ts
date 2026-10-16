@@ -444,7 +444,7 @@ export class UsersController extends BaseController {
     const currentUser = await this.usersService.getMe(user.email);
 
     // Delete old avatar if exists
-    if (currentUser.image) {
+    if (currentUser?.image) {
       await this.imagesService.deleteAvatar(currentUser.image);
     }
 
@@ -508,7 +508,7 @@ export class UsersController extends BaseController {
     const currentUser = await this.usersService.getMe(user.email);
 
     // Delete avatar file if exists
-    if (currentUser.image) {
+    if (currentUser?.image) {
       await this.imagesService.deleteAvatar(currentUser.image);
     }
 

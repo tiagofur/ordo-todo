@@ -72,7 +72,7 @@ describe('ProjectsController', () => {
     });
 
     it('should throw NotFoundException when project not found', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(service, 'findOne').mockResolvedValue(undefined);
 
       await expect(controller.findOne('not-found')).rejects.toThrow(
         NotFoundException,
@@ -86,6 +86,7 @@ describe('ProjectsController', () => {
         name: 'New Project',
         description: 'Test Description',
         workspaceId: 'ws-123',
+        workflowId: 'wf-123',
       };
 
       const mockProject = {

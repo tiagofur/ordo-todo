@@ -178,7 +178,7 @@ describe('PrismaAttachmentRepository', () => {
         url: '/uploads/new-name.pdf',
         mimeType: 'application/pdf',
         filesize: 1024000,
-        uploadedAt: updated.uploadedAt ?? null,
+        uploadedAt: updated.uploadedAt ?? new Date(),
       };
 
       mockPrismaService.attachment.update.mockResolvedValue(prismaAttachment);

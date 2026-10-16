@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotesService } from './notes.service';
 import { NoteRepository } from '@ordo-todo/core';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { QueryNoteDto, SortField, SortOrder } from './dto/query-note.dto';
 
 // Mock Note entity
 class MockNote {
@@ -83,13 +84,12 @@ describe('NotesService', () => {
     it('should return all notes for workspace when user is member', async () => {
       const workspaceId = 'workspace-123';
       const userId = 'user-123';
-      const query = {
+      const query: QueryNoteDto = {
+        workspaceId,
         limit: 20,
         page: 0,
-        search: undefined,
-        authorId: undefined,
-        sortBy: 'createdAt',
-        sortOrder: 'desc' as const,
+        sortBy: SortField.CREATED_AT,
+        sortOrder: SortOrder.DESC,
       };
       const mockNotes = [new MockNote(), new MockNote()];
 
@@ -126,13 +126,12 @@ describe('NotesService', () => {
     it('should throw ForbiddenException when user is not member', async () => {
       const workspaceId = 'workspace-123';
       const userId = 'user-123';
-      const query = {
+      const query: QueryNoteDto = {
+        workspaceId,
         limit: 20,
         page: 0,
-        search: undefined,
-        authorId: undefined,
-        sortBy: 'createdAt',
-        sortOrder: 'desc' as const,
+        sortBy: SortField.CREATED_AT,
+        sortOrder: SortOrder.DESC,
       };
 
       mockNoteRepository.findWorkspaceMember.mockResolvedValue(null);

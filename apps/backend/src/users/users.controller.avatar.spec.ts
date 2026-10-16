@@ -9,18 +9,18 @@ describe('UsersController - Avatar Endpoints', () => {
   let service: UsersService;
   let imagesService: ImagesService;
 
-  const mockUser = {
+  const mockUser: any = {
     id: 'user-123',
     email: 'test@example.com',
     name: 'Test User',
   };
 
-  const mockUserWithAvatar = {
+  const mockUserWithAvatar: any = {
     ...mockUser,
     image: '/uploads/avatars/user-123-old.jpg',
   };
 
-  const mockProcessedAvatar = {
+  const mockProcessedAvatar: any = {
     buffer: Buffer.from('test-image-data'),
     width: 256,
     height: 256,

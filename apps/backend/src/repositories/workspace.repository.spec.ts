@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaWorkspaceRepository } from './workspace.repository';
 import { PrismaService } from '../database/prisma.service';
-import { Workspace, WorkspaceMember } from '@ordo-todo/core';
+import { Workspace, WorkspaceMember, MemberRole } from '@ordo-todo/core';
 
 describe('PrismaWorkspaceRepository', () => {
   let repository: PrismaWorkspaceRepository;
@@ -52,10 +52,11 @@ describe('PrismaWorkspaceRepository', () => {
         id: 'ws-123',
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
         tier: 'FREE',
         color: '#ff0000',
         ownerId: 'user-123',
+        isArchived: false,
+        isDeleted: false,
       });
 
       const mockCreatedWorkspace = {
@@ -95,9 +96,10 @@ describe('PrismaWorkspaceRepository', () => {
         id: 'ws-123',
         name: 'Team Workspace',
         slug: 'team-workspace',
-        type: 'TEAM',
         tier: 'PRO',
         color: '#00ff00',
+        isArchived: false,
+        isDeleted: false,
       });
 
       const mockCreatedWorkspace = {
@@ -200,10 +202,10 @@ describe('PrismaWorkspaceRepository', () => {
 
       mockPrismaService.workspace.findFirst.mockResolvedValue(mockWorkspace);
 
-      const result = await repository.findBySlug(slug);
+      const result = await repository.findBySlug(slug, 'user-123');
 
       expect(mockPrismaService.workspace.findFirst).toHaveBeenCalledWith({
-        where: { slug, isDeleted: false },
+        where: { slug, ownerId: 'user-123', isDeleted: false },
         include: expect.any(Object),
       });
       expect(result).toBeInstanceOf(Workspace);
@@ -215,7 +217,7 @@ describe('PrismaWorkspaceRepository', () => {
 
       mockPrismaService.workspace.findFirst.mockResolvedValue(null);
 
-      const result = await repository.findBySlug(slug);
+      const result = await repository.findBySlug(slug, 'user-123');
 
       expect(result).toBeNull();
     });
@@ -303,10 +305,11 @@ describe('PrismaWorkspaceRepository', () => {
         id: 'ws-123',
         name: 'Updated Workspace',
         slug: 'updated-workspace',
-        type: 'WORK',
         tier: 'PRO',
         color: '#0000ff',
         ownerId: 'user-123',
+        isArchived: false,
+        isDeleted: false,
       });
 
       const mockUpdatedWorkspace = {
@@ -411,7 +414,7 @@ describe('PrismaWorkspaceRepository', () => {
         id: 'member-123',
         workspaceId: 'ws-123',
         userId: 'user-123',
-        role: 'ADMIN',
+        role: MemberRole.ADMIN,
         joinedAt: new Date(),
       });
 

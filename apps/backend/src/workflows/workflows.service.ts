@@ -24,11 +24,11 @@ export class WorkflowsService {
     return workflow.props;
   }
 
-  async findAll(workspaceId: string) {
+  async findAll(workspaceId?: string) {
     const listWorkflowsUseCase = new ListWorkflowsUseCase(
       this.workflowRepository,
     );
-    const workflows = await listWorkflowsUseCase.execute(workspaceId);
+    const workflows = await listWorkflowsUseCase.execute(workspaceId as string);
     return workflows.map((w) => w.props);
   }
 

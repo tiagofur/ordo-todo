@@ -4,6 +4,7 @@ import { PrismaService } from '../database/prisma.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
+import { MemberRole } from '@ordo-todo/core';
 
 describe('WorkspacesService', () => {
   let service: WorkspacesService;
@@ -128,7 +129,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -185,7 +185,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'WORK',
         description: 'A custom workspace',
         color: '#FF5733',
       };
@@ -231,7 +230,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -280,7 +278,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -320,7 +317,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'existing-slug',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -361,7 +357,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'new-slug',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -403,7 +398,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup for user2
@@ -1353,7 +1347,7 @@ describe('WorkspacesService', () => {
           'ws-nonexistent',
           'user-123',
           'email@test.com',
-          'MEMBER',
+          MemberRole.MEMBER,
         ),
       ).rejects.toThrow(NotFoundException);
     });
@@ -1391,7 +1385,7 @@ describe('WorkspacesService', () => {
         workspaceId,
         userId,
         email,
-        'MEMBER',
+        MemberRole.MEMBER,
       );
 
       expect(result.success).toBe(true);

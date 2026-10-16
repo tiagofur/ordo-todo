@@ -356,7 +356,7 @@ describe('TasksService', () => {
         title: 'New Task',
         projectId: 'project-123',
         description: 'Test task',
-        priority: 'HIGH',
+        priority: 'HIGH' as const,
         dueDate: new Date(),
       };
 
@@ -382,7 +382,7 @@ describe('TasksService', () => {
 
       // Mock the use case execution
       const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(mockTask);
+      executeSpy.mockResolvedValue(mockTask as any);
 
       const result = await service.create(createTaskDto, userId);
 
@@ -425,7 +425,7 @@ describe('TasksService', () => {
 
       // Mock the use case execution
       const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(mockTask);
+      executeSpy.mockResolvedValue(mockTask as any);
 
       const result = await service.create(createTaskDto, userId);
 
@@ -475,7 +475,7 @@ describe('TasksService', () => {
       mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
 
       const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(mockTask);
+      executeSpy.mockResolvedValue(mockTask as any);
 
       await service.create(createTaskDto, userId);
 
@@ -508,14 +508,14 @@ describe('TasksService', () => {
       mockAnalyticsRepository.save = jest.fn().mockResolvedValue(undefined);
 
       const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(mockTask);
+      executeSpy.mockResolvedValue(mockTask as any);
 
       // Create spy BEFORE calling service.create()
       const updateMetricsSpy = jest.spyOn(
         UpdateDailyMetricsUseCase.prototype,
         'execute',
       );
-      updateMetricsSpy.mockResolvedValue(undefined);
+      updateMetricsSpy.mockResolvedValue(undefined as any);
 
       await service.create(createTaskDto, userId);
 
@@ -567,7 +567,7 @@ describe('TasksService', () => {
         .mockResolvedValue(undefined);
 
       const executeSpy = jest.spyOn(CreateTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(mockSubtask);
+      executeSpy.mockResolvedValue(mockSubtask as any);
 
       const result = await service.createSubtask(
         parentTaskId,

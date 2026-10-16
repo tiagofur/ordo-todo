@@ -5,13 +5,17 @@ import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RedisService } from '../cache/redis.service';
 
+import { RequestUser } from '../common/types/request-user.interface';
+
 describe('NotesController', () => {
   let controller: NotesController;
   let notesService: jest.Mocked<NotesService>;
 
-  const mockRequestUser = {
+  const mockRequestUser: RequestUser = {
     id: 'user-123',
     email: 'test@example.com',
+    username: 'testuser',
+    name: 'Test User',
   };
 
   // Mock RedisService for cache interceptors

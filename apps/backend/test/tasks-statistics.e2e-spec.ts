@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '@ordo-todo/db';
+import { PrismaService } from '../src/database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   createTestUser,
@@ -77,7 +77,7 @@ describe('Tasks Statistics (e2e)', () => {
 
   afterAll(async () => {
     await cleanupTestData(prisma);
-    await prisma.$disconnect();
+    await prisma.client.$disconnect();
     await app.close();
   });
 
@@ -131,7 +131,7 @@ describe('Tasks Statistics (e2e)', () => {
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id, // Assigned to test user
-          order: 0,
+          position: 0,
         },
       });
 
@@ -143,7 +143,7 @@ describe('Tasks Statistics (e2e)', () => {
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id, // Assigned to test user
-          order: 0,
+          position: 0,
         },
       });
 
@@ -189,7 +189,7 @@ describe('Tasks Statistics (e2e)', () => {
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id,
-          order: 0,
+          position: 0,
         },
       });
 
@@ -197,11 +197,11 @@ describe('Tasks Statistics (e2e)', () => {
         data: {
           id: `task-${Math.random().toString(36).substring(7)}`,
           title: 'Assigned DONE',
-          status: 'DONE',
+          status: 'DONE' as any,
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id,
-          order: 0,
+          position: 0,
         },
       });
 

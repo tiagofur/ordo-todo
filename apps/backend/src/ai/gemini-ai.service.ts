@@ -74,7 +74,7 @@ interface AIProfile {
 interface WellbeingMetrics {
   dailyMetrics: DailyMetrics[];
   sessions: TimeSession[];
-  profile: AIProfile;
+  profile: AIProfile | null;
 }
 
 interface ProductivityReportContext {

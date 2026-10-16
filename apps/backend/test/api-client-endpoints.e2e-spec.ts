@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '@ordo-todo/db';
+import { PrismaService } from '../src/database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   createTestUser,
@@ -89,7 +89,7 @@ describe('API Client Endpoints (e2e)', () => {
 
   afterAll(async () => {
     await cleanupTestData(prisma);
-    await prisma.$disconnect();
+    await prisma.client.$disconnect();
     await app.close();
   });
 
@@ -154,14 +154,14 @@ describe('API Client Endpoints (e2e)', () => {
         // Create dependencies: task1 depends on task2 and task3
         await prisma.taskDependency.create({
           data: {
-            taskId: task1.id,
+            blockedTaskId: task1.id,
             blockingTaskId: task2.id,
           },
         });
 
         await prisma.taskDependency.create({
           data: {
-            taskId: task1.id,
+            blockedTaskId: task1.id,
             blockingTaskId: task3.id,
           },
         });
@@ -210,8 +210,8 @@ describe('API Client Endpoints (e2e)', () => {
         // Verify dependency was created
         const dependency = await prisma.taskDependency.findUnique({
           where: {
-            taskId_blockingTaskId: {
-              taskId: task1.id,
+            blockingTaskId_blockedTaskId: {
+              blockedTaskId: task1.id,
               blockingTaskId: task2.id,
             },
           },
@@ -263,7 +263,7 @@ describe('API Client Endpoints (e2e)', () => {
         // Create a dependency for testing deletion
         await prisma.taskDependency.create({
           data: {
-            taskId: task1.id,
+            blockedTaskId: task1.id,
             blockingTaskId: task2.id,
           },
         });
@@ -278,8 +278,8 @@ describe('API Client Endpoints (e2e)', () => {
         // Verify dependency was deleted
         const dependency = await prisma.taskDependency.findUnique({
           where: {
-            taskId_blockingTaskId: {
-              taskId: task1.id,
+            blockingTaskId_blockedTaskId: {
+              blockedTaskId: task1.id,
               blockingTaskId: task2.id,
             },
           },
@@ -307,7 +307,7 @@ describe('API Client Endpoints (e2e)', () => {
         // task1 depends on task2
         await prisma.taskDependency.create({
           data: {
-            taskId: task1.id,
+            blockedTaskId: task1.id,
             blockingTaskId: task2.id,
           },
         });
