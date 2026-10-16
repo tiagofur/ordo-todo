@@ -78,7 +78,7 @@ describe('UsersController - Avatar Endpoints', () => {
         .mockResolvedValue('/uploads/avatars/user-123-new.jpg');
       jest.spyOn(service, 'updateAvatar').mockResolvedValue(undefined);
 
-      const result = await controller.uploadAvatar(mockUser as any, file);
+      const result = await controller.uploadAvatar(mockUser, file);
 
       expect(imagesService.processAvatar).toHaveBeenCalledWith(file);
       expect(imagesService.saveAvatar).toHaveBeenCalledWith(
@@ -113,7 +113,7 @@ describe('UsersController - Avatar Endpoints', () => {
       jest.spyOn(imagesService, 'deleteAvatar').mockResolvedValue(undefined);
       jest.spyOn(service, 'updateAvatar').mockResolvedValue(undefined);
 
-      await controller.uploadAvatar(mockUser as any, file);
+      await controller.uploadAvatar(mockUser, file);
 
       expect(imagesService.deleteAvatar).toHaveBeenCalledWith(
         '/uploads/avatars/user-123-old.jpg',
@@ -139,14 +139,14 @@ describe('UsersController - Avatar Endpoints', () => {
       jest.spyOn(imagesService, 'deleteAvatar').mockResolvedValue(undefined);
       jest.spyOn(service, 'updateAvatar').mockResolvedValue(undefined);
 
-      await controller.uploadAvatar(mockUser as any, file);
+      await controller.uploadAvatar(mockUser, file);
 
       expect(imagesService.deleteAvatar).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if no file uploaded', async () => {
       await expect(
-        controller.uploadAvatar(mockUser as any, null as any),
+        controller.uploadAvatar(mockUser, null as any),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -164,9 +164,9 @@ describe('UsersController - Avatar Endpoints', () => {
           new BadRequestException('File too large. Maximum size is 5MB'),
         );
 
-      await expect(
-        controller.uploadAvatar(mockUser as any, file),
-      ).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadAvatar(mockUser, file)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -176,7 +176,7 @@ describe('UsersController - Avatar Endpoints', () => {
       jest.spyOn(imagesService, 'deleteAvatar').mockResolvedValue(undefined);
       jest.spyOn(service, 'removeAvatar').mockResolvedValue(undefined);
 
-      const result = await controller.deleteAvatar(mockUser as any);
+      const result = await controller.deleteAvatar(mockUser);
 
       expect(imagesService.deleteAvatar).toHaveBeenCalledWith(
         '/uploads/avatars/user-123-old.jpg',
@@ -193,7 +193,7 @@ describe('UsersController - Avatar Endpoints', () => {
       jest.spyOn(imagesService, 'deleteAvatar').mockResolvedValue(undefined);
       jest.spyOn(service, 'removeAvatar').mockResolvedValue(undefined);
 
-      const result = await controller.deleteAvatar(mockUser as any);
+      const result = await controller.deleteAvatar(mockUser);
 
       expect(imagesService.deleteAvatar).not.toHaveBeenCalled();
       expect(service.removeAvatar).toHaveBeenCalledWith(mockUser.email);
@@ -209,7 +209,7 @@ describe('UsersController - Avatar Endpoints', () => {
       jest.spyOn(imagesService, 'deleteAvatar').mockResolvedValue(undefined);
       jest.spyOn(service, 'removeAvatar').mockResolvedValue(undefined);
 
-      const result = await controller.deleteAvatar(mockUser as any);
+      const result = await controller.deleteAvatar(mockUser);
 
       expect(imagesService.deleteAvatar).toHaveBeenCalled();
       expect(service.removeAvatar).toHaveBeenCalled();

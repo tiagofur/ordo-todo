@@ -386,12 +386,14 @@ describe('API Client Endpoints (e2e)', () => {
 
   describe('Endpoint Availability', () => {
     it('should have all OAuth endpoints registered', async () => {
-      // Test that the routes are registered
-      const response = await request(app.getHttpServer())
-        .get('/auth/google')
-        .expect(200);
-
-      expect(response.body).toHaveProperty('authUrl');
+      // Test that the routes are registered (passport redirects with 302)
+      const response = await request(app.getHttpServer()).get('/auth/google');
+      expect([200, 302]).toContain(response.status);
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty('authUrl');
+      } else if (response.status === 302) {
+        expect(response.headers.location).toContain('accounts.google.com');
+      }
     });
 
     it('should have all task dependency endpoints registered', async () => {

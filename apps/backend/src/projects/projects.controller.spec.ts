@@ -10,6 +10,7 @@ import {
 } from '../common/decorators/cache';
 
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { PrismaService } from '../database/prisma.service';
 
 describe('ProjectsController', () => {
   let controller: ProjectsController;
@@ -23,6 +24,7 @@ describe('ProjectsController', () => {
         { provide: 'ProjectRepository', useValue: {} },
         { provide: 'RedisService', useValue: {} },
         { provide: WorkspacesService, useValue: {} },
+        { provide: PrismaService, useValue: {} },
       ],
     })
       .overrideGuard(ProjectGuard)

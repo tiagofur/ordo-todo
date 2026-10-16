@@ -1039,7 +1039,12 @@ export class TasksService {
       blockedTaskId,
     });
 
-    return dependency;
+    return {
+      id: dependency.id,
+      blockingTaskId: dependency.props?.blockingTaskId ?? blockingTaskId,
+      blockedTaskId: dependency.props?.blockedTaskId ?? blockedTaskId,
+      createdAt: dependency.props?.createdAt,
+    };
   }
 
   /**

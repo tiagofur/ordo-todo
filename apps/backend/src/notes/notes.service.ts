@@ -59,11 +59,21 @@ export class NotesService {
 
   async findOne(id: string, userId: string) {
     const findNoteUseCase = new FindNoteUseCase(this.noteRepository);
-    const note = await findNoteUseCase.execute({
-      id,
-      userId,
-    });
-    return note.props;
+    try {
+      const note = await findNoteUseCase.execute({
+        id,
+        userId,
+      });
+      return note.props;
+    } catch (error) {
+      if (error.message === 'Note not found') {
+        throw new NotFoundException('Note not found');
+      }
+      if (error.message === 'You do not have permission to access this note') {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
+    }
   }
 
   async update(id: string, updateNoteDto: UpdateNoteDto, userId: string) {

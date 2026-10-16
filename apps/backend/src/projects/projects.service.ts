@@ -12,6 +12,7 @@ import {
 } from '@ordo-todo/core';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class ProjectsService {
@@ -20,6 +21,7 @@ export class ProjectsService {
   constructor(
     @Inject('ProjectRepository')
     private readonly projectRepository: ProjectRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
@@ -31,8 +33,27 @@ export class ProjectsService {
     const slug =
       createProjectDto.slug || this.generateSlug(createProjectDto.name);
 
+    let workflowId = createProjectDto.workflowId;
+    if (!workflowId) {
+      const defaultWorkflow = await this.prisma.workflow.findFirst({
+        where: { workspaceId: createProjectDto.workspaceId },
+      });
+      if (defaultWorkflow) {
+        workflowId = defaultWorkflow.id;
+      } else {
+        const newWorkflow = await this.prisma.workflow.create({
+          data: {
+            name: 'General',
+            workspaceId: createProjectDto.workspaceId,
+          },
+        });
+        workflowId = newWorkflow.id;
+      }
+    }
+
     const project = await createProjectUseCase.execute({
       ...createProjectDto,
+      workflowId,
       slug,
       color: createProjectDto.color ?? '#6B7280',
       isDeleted: false,

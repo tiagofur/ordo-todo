@@ -59,11 +59,11 @@ describe('Workspaces Security (e2e)', () => {
     // Create two test users
     const user1 = await createTestUser(prisma, {
       email: 'user1@example.com',
-      name: 'User 1',
+      name: 'User One',
     });
     const user2 = await createTestUser(prisma, {
       email: 'user2@example.com',
-      name: 'User 2',
+      name: 'User Two',
     });
 
     // Generate auth tokens

@@ -230,8 +230,10 @@ export class AttachmentsController {
 
     return {
       success: true,
-      url: attachment.url,
+      id: attachment.id,
+      fileName: attachment.filename,
       filename: attachment.filename,
+      url: attachment.url,
       mimeType: attachment.mimeType,
       filesize: attachment.filesize,
       attachment,

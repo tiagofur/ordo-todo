@@ -26,6 +26,6 @@ export class CreateProjectDto {
   workspaceId: string;
 
   @IsString()
-  @MinLength(1)
-  workflowId: string;
+  @IsOptional()
+  workflowId?: string;
 }

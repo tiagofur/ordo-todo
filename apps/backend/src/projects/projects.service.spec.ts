@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectsService } from './projects.service';
+import { PrismaService } from '../database/prisma.service';
 
 describe('ProjectsService', () => {
   let service: ProjectsService;
@@ -12,6 +13,13 @@ describe('ProjectsService', () => {
     delete: jest.fn(),
   };
 
+  const mockPrismaService = {
+    workflow: {
+      findFirst: jest.fn().mockResolvedValue({ id: 'workflow-123' }),
+      create: jest.fn().mockResolvedValue({ id: 'workflow-123' }),
+    },
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -19,6 +27,10 @@ describe('ProjectsService', () => {
         {
           provide: 'ProjectRepository',
           useValue: mockProjectRepository,
+        },
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
         },
       ],
     }).compile();

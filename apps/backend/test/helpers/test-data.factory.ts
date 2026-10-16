@@ -42,10 +42,22 @@ export async function createTestUser(
  * @returns Array of created users
  */
 export async function createTestUsers(prisma: PrismaService, count: number) {
+  const numberWords = [
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+    'Ten',
+  ];
   const users: any[] = [];
   for (let i = 0; i < count; i++) {
     const user = await createTestUser(prisma, {
-      name: `Test User ${i + 1}`,
+      name: `Test User ${numberWords[i] || 'Extra'}`,
     });
     users.push(user);
   }
@@ -234,17 +246,21 @@ export async function cleanupTestData(prisma: PrismaService) {
   if (!prisma) return;
   // Delete in reverse order of dependencies to avoid foreign key constraints
   try {
-    if (prisma.taskDependency) await prisma.taskDependency.deleteMany().catch(() => {});
+    if (prisma.taskDependency)
+      await prisma.taskDependency.deleteMany().catch(() => {});
     if (prisma.taskTag) await prisma.taskTag.deleteMany().catch(() => {});
     if (prisma.comment) await prisma.comment.deleteMany().catch(() => {});
     if (prisma.attachment) await prisma.attachment.deleteMany().catch(() => {});
     if (prisma.note) await prisma.note.deleteMany().catch(() => {});
-    if (prisma.timeSession) await prisma.timeSession.deleteMany().catch(() => {});
+    if (prisma.timeSession)
+      await prisma.timeSession.deleteMany().catch(() => {});
     if (prisma.task) await prisma.task.deleteMany().catch(() => {});
     if (prisma.project) await prisma.project.deleteMany().catch(() => {});
-    if (prisma.workspaceMember) await prisma.workspaceMember.deleteMany().catch(() => {});
+    if (prisma.workspaceMember)
+      await prisma.workspaceMember.deleteMany().catch(() => {});
     if (prisma.workspace) await prisma.workspace.deleteMany().catch(() => {});
-    if (prisma.authAuditLog) await prisma.authAuditLog.deleteMany().catch(() => {});
+    if (prisma.authAuditLog)
+      await prisma.authAuditLog.deleteMany().catch(() => {});
     if (prisma.user) await prisma.user.deleteMany().catch(() => {});
   } catch {
     // Ignore cleanup errors during test teardown
