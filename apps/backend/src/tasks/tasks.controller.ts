@@ -392,6 +392,7 @@ export class TasksController {
   }
 
   @Delete(':id/dependencies/:blockingTaskId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(TaskGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   removeDependency(

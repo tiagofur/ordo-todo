@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -225,7 +226,7 @@ export class WorkspacesController {
    * Gets workspace by slug (globally - first match)
    * Note: With user namespaces, this may be ambiguous
    */
-  @Get('by-slug/:slug')
+  @Get(['by-slug/:slug', 'slug/:slug'])
   @ApiOperation({
     summary: 'Get workspace by slug',
     description:
@@ -749,6 +750,7 @@ export class WorkspacesController {
    * Requires OWNER or ADMIN role
    */
   @Put(':id')
+  @Patch(':id')
   @UseInterceptors(CacheInvalidateInterceptor)
   @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)

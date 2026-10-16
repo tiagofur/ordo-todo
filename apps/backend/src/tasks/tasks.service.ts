@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Logger,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import type {
@@ -1023,6 +1024,15 @@ export class TasksService {
 
     if (hasReverse)
       throw new BadRequestException('Circular dependency detected');
+
+    // Check duplicate dependency
+    const existing = await this.taskDependencyRepository.exists(
+      blockingTaskId,
+      blockedTaskId,
+    );
+    if (existing) {
+      throw new ConflictException('Dependency already exists');
+    }
 
     const dependency = await this.taskDependencyRepository.create({
       blockingTaskId,

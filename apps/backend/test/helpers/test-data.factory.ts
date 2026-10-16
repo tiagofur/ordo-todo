@@ -180,7 +180,10 @@ export async function createTestTask(
   const id = overrides.id || `task-${Math.random().toString(36).substring(7)}`;
   const title = overrides.title || 'Test Task';
   const description = overrides.description || 'Test task description';
-  const status = (overrides.status as any) || 'TODO';
+  const status =
+    overrides.status === 'DONE'
+      ? 'COMPLETED'
+      : (overrides.status as any) || 'TODO';
   const priority = overrides.priority || 'MEDIUM';
 
   return prisma.task.create({
@@ -235,11 +238,13 @@ export async function cleanupTestData(prisma: PrismaService) {
     if (prisma.taskTag) await prisma.taskTag.deleteMany().catch(() => {});
     if (prisma.comment) await prisma.comment.deleteMany().catch(() => {});
     if (prisma.attachment) await prisma.attachment.deleteMany().catch(() => {});
+    if (prisma.note) await prisma.note.deleteMany().catch(() => {});
     if (prisma.timeSession) await prisma.timeSession.deleteMany().catch(() => {});
     if (prisma.task) await prisma.task.deleteMany().catch(() => {});
     if (prisma.project) await prisma.project.deleteMany().catch(() => {});
     if (prisma.workspaceMember) await prisma.workspaceMember.deleteMany().catch(() => {});
     if (prisma.workspace) await prisma.workspace.deleteMany().catch(() => {});
+    if (prisma.authAuditLog) await prisma.authAuditLog.deleteMany().catch(() => {});
     if (prisma.user) await prisma.user.deleteMany().catch(() => {});
   } catch {
     // Ignore cleanup errors during test teardown

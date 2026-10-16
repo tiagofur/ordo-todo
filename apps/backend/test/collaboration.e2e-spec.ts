@@ -50,7 +50,7 @@ describe('Collaboration API (e2e)', () => {
       .send({
         email: `userb-${Date.now()}@example.com`,
         password: 'Password123!',
-        name: 'UserB',
+        name: 'User B',
         username: `userb${Date.now()}`,
       })
       .expect(201);
