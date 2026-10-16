@@ -1774,9 +1774,11 @@
     "columns": {
       "todo": "To Do",
       "inProgress": "In Progress",
-      "completed": "Completed"
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
-    "addTask": "Add Task"
+    "addTask": "Add Task",
+    "toggleCancelled": "Show cancelled"
   },
   "ProjectList": {
     "columns": {

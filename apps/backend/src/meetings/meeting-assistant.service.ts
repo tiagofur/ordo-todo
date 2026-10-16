@@ -301,12 +301,21 @@ El resumen debe estar en español y ser profesional pero accesible.`;
     for (const item of actionItems) {
       try {
         // Build task data dynamically to handle optional fields
+        const title =
+          item.title || (item as any).action || 'Untitled Action Item';
+        const contextStr = item.context
+          ? `\n\n---\n📝 Contexto de la reunión: "${item.context}"`
+          : '';
+        const description = item.description
+          ? `${item.description}${contextStr}`
+          : item.context
+            ? `📝 Contexto de la reunión: "${item.context}"`
+            : undefined;
+
         const taskData: any = {
-          title: item.title,
-          description: item.description
-            ? `${item.description}\n\n---\n📝 Contexto de la reunión: "${item.context}"`
-            : `📝 Contexto de la reunión: "${item.context}"`,
-          priority: item.priority,
+          title,
+          description,
+          priority: item.priority || 'MEDIUM',
           status: 'TODO',
           ownerId: userId,
           metadata: {

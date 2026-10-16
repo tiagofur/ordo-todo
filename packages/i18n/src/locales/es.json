@@ -1774,9 +1774,11 @@
     "columns": {
       "todo": "Por Hacer",
       "inProgress": "En Progreso",
-      "completed": "Completado"
+      "completed": "Completado",
+      "cancelled": "Canceladas"
     },
-    "addTask": "Agregar Tarea"
+    "addTask": "Agregar Tarea",
+    "toggleCancelled": "Mostrar canceladas"
   },
   "ProjectList": {
     "columns": {

@@ -1783,8 +1783,10 @@ export declare const locales: {
                 todo: string;
                 inProgress: string;
                 completed: string;
+                cancelled: string;
             };
             addTask: string;
+            toggleCancelled: string;
         };
         ProjectList: {
             columns: {
@@ -2016,10 +2018,26 @@ export declare const locales: {
         };
         Timer: {
             title: string;
+            pomodoro: string;
             subtitle: string;
             tabs: {
                 timer: string;
                 history: string;
+            };
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                pomodoroTitle: string;
+                pomodoroDesc: string;
+                continuousTitle: string;
+                continuousDesc: string;
+                tasksTitle: string;
+                tasksDesc: string;
+                statsTitle: string;
+                statsDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
             };
             modes: {
                 work: string;
@@ -2349,6 +2367,20 @@ export declare const locales: {
             analyze: string;
             analyzing: string;
             transcriptPlaceholder: string;
+            meetingTranscript: string;
+            characters: string;
+            dragFile: string;
+            analyzeWithAi: string;
+            pleaseEnterTranscript: string;
+            analysisCompleted: string;
+            analysisError: string;
+            errorTitle: string;
+            featureSummaryTitle: string;
+            featureSummaryDesc: string;
+            featureActionItemsTitle: string;
+            featureActionItemsDesc: string;
+            featureDecisionsTitle: string;
+            featureDecisionsDesc: string;
             summary: string;
             keyPoints: string;
             actionItems: string;
@@ -2361,6 +2393,13 @@ export declare const locales: {
             converting: string;
             tasksCreated: string;
             noActionItems: string;
+            copied: string;
+            copy: string;
+            priorities: {
+                HIGH: string;
+                MEDIUM: string;
+                LOW: string;
+            };
             sentiments: {
                 POSITIVE: string;
                 NEUTRAL: string;
@@ -2385,6 +2424,21 @@ export declare const locales: {
             capacityRemaining: string;
             workloadScore: string;
             trend: string;
+            refresh: string;
+            refreshing: string;
+            teamMembers: string;
+            averageWorkload: string;
+            teamBalance: string;
+            aiSuggestions: string;
+            membersSectionTitle: string;
+            tasks: string;
+            today: string;
+            hours: string;
+            load: string;
+            selectWorkspace: string;
+            selectWorkspacePrompt: string;
+            selectWorkspaceDesc: string;
+            tasksCount: string;
             levels: {
                 LOW: string;
                 MODERATE: string;
@@ -2618,6 +2672,8 @@ export declare const locales: {
             projects: string;
             tasks: string;
             restore: string;
+            deletePermanently: string;
+            unknownDate: string;
             confirmDelete: string;
         };
         notFound: {
@@ -4417,8 +4473,10 @@ export declare const locales: {
                 todo: string;
                 inProgress: string;
                 completed: string;
+                cancelled: string;
             };
             addTask: string;
+            toggleCancelled: string;
         };
         ProjectList: {
             columns: {
@@ -4650,10 +4708,26 @@ export declare const locales: {
         };
         Timer: {
             title: string;
+            pomodoro: string;
             subtitle: string;
             tabs: {
                 timer: string;
                 history: string;
+            };
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                pomodoroTitle: string;
+                pomodoroDesc: string;
+                continuousTitle: string;
+                continuousDesc: string;
+                tasksTitle: string;
+                tasksDesc: string;
+                statsTitle: string;
+                statsDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
             };
             modes: {
                 work: string;
@@ -4983,6 +5057,20 @@ export declare const locales: {
             analyze: string;
             analyzing: string;
             transcriptPlaceholder: string;
+            meetingTranscript: string;
+            characters: string;
+            dragFile: string;
+            analyzeWithAi: string;
+            pleaseEnterTranscript: string;
+            analysisCompleted: string;
+            analysisError: string;
+            errorTitle: string;
+            featureSummaryTitle: string;
+            featureSummaryDesc: string;
+            featureActionItemsTitle: string;
+            featureActionItemsDesc: string;
+            featureDecisionsTitle: string;
+            featureDecisionsDesc: string;
             summary: string;
             keyPoints: string;
             actionItems: string;
@@ -4995,6 +5083,13 @@ export declare const locales: {
             converting: string;
             tasksCreated: string;
             noActionItems: string;
+            copied: string;
+            copy: string;
+            priorities: {
+                HIGH: string;
+                MEDIUM: string;
+                LOW: string;
+            };
             sentiments: {
                 POSITIVE: string;
                 NEUTRAL: string;
@@ -5019,6 +5114,21 @@ export declare const locales: {
             capacityRemaining: string;
             workloadScore: string;
             trend: string;
+            refresh: string;
+            refreshing: string;
+            teamMembers: string;
+            averageWorkload: string;
+            teamBalance: string;
+            aiSuggestions: string;
+            membersSectionTitle: string;
+            tasks: string;
+            today: string;
+            hours: string;
+            load: string;
+            selectWorkspace: string;
+            selectWorkspacePrompt: string;
+            selectWorkspaceDesc: string;
+            tasksCount: string;
             levels: {
                 LOW: string;
                 MODERATE: string;
@@ -5252,6 +5362,8 @@ export declare const locales: {
             projects: string;
             tasks: string;
             restore: string;
+            deletePermanently: string;
+            unknownDate: string;
             confirmDelete: string;
         };
         notFound: {
@@ -7044,8 +7156,10 @@ export declare const locales: {
                 todo: string;
                 inProgress: string;
                 completed: string;
+                cancelled: string;
             };
             addTask: string;
+            toggleCancelled: string;
         };
         ProjectList: {
             columns: {
@@ -7294,10 +7408,26 @@ export declare const locales: {
         };
         Timer: {
             title: string;
+            pomodoro: string;
             subtitle: string;
             tabs: {
                 timer: string;
                 history: string;
+            };
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                pomodoroTitle: string;
+                pomodoroDesc: string;
+                continuousTitle: string;
+                continuousDesc: string;
+                tasksTitle: string;
+                tasksDesc: string;
+                statsTitle: string;
+                statsDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
             };
             modes: {
                 work: string;
@@ -7610,6 +7740,20 @@ export declare const locales: {
             analyze: string;
             analyzing: string;
             transcriptPlaceholder: string;
+            meetingTranscript: string;
+            characters: string;
+            dragFile: string;
+            analyzeWithAi: string;
+            pleaseEnterTranscript: string;
+            analysisCompleted: string;
+            analysisError: string;
+            errorTitle: string;
+            featureSummaryTitle: string;
+            featureSummaryDesc: string;
+            featureActionItemsTitle: string;
+            featureActionItemsDesc: string;
+            featureDecisionsTitle: string;
+            featureDecisionsDesc: string;
             summary: string;
             keyPoints: string;
             actionItems: string;
@@ -7622,6 +7766,13 @@ export declare const locales: {
             converting: string;
             tasksCreated: string;
             noActionItems: string;
+            copied: string;
+            copy: string;
+            priorities: {
+                HIGH: string;
+                MEDIUM: string;
+                LOW: string;
+            };
             sentiments: {
                 POSITIVE: string;
                 NEUTRAL: string;
@@ -7646,6 +7797,21 @@ export declare const locales: {
             capacityRemaining: string;
             workloadScore: string;
             trend: string;
+            refresh: string;
+            refreshing: string;
+            teamMembers: string;
+            averageWorkload: string;
+            teamBalance: string;
+            aiSuggestions: string;
+            membersSectionTitle: string;
+            tasks: string;
+            today: string;
+            hours: string;
+            load: string;
+            selectWorkspace: string;
+            selectWorkspacePrompt: string;
+            selectWorkspaceDesc: string;
+            tasksCount: string;
             levels: {
                 LOW: string;
                 MODERATE: string;
@@ -7879,6 +8045,8 @@ export declare const locales: {
             projects: string;
             tasks: string;
             restore: string;
+            deletePermanently: string;
+            unknownDate: string;
             confirmDelete: string;
         };
         notFound: {

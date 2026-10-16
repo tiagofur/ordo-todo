@@ -337,18 +337,33 @@ export function MeetingAnalyzer() {
                     className="overflow-hidden"
                   >
                     <div className="p-4.5 pt-0 space-y-4">
-                      <p className="text-sm leading-relaxed text-foreground/90">{analysis.summary}</p>
+                      <p className="text-sm leading-relaxed text-foreground/90">
+                        {typeof analysis.summary === "string"
+                          ? analysis.summary
+                          : (analysis.summary as any)?.text ||
+                            (analysis.summary as any)?.summary ||
+                            String(analysis.summary)}
+                      </p>
                       
                       {analysis.keyPoints.length > 0 && (
                         <div className="pt-4 border-t border-border/80">
                           <h4 className="text-sm font-semibold mb-2.5">{t("keyPoints")}:</h4>
                           <ul className="space-y-2">
-                            {analysis.keyPoints.map((point, idx) => (
-                              <li key={idx} className="flex items-start gap-2.5 text-sm">
-                                <div className="mt-2 h-1.5 w-1.5 rounded-full bg-violet-500 flex-shrink-0" />
-                                <span className="text-muted-foreground leading-normal">{point}</span>
-                              </li>
-                            ))}
+                            {analysis.keyPoints.map((point, idx) => {
+                              const pointText =
+                                typeof point === "string"
+                                  ? point
+                                  : (point as any)?.point ||
+                                    (point as any)?.text ||
+                                    (point as any)?.keyPoint ||
+                                    JSON.stringify(point);
+                              return (
+                                <li key={idx} className="flex items-start gap-2.5 text-sm">
+                                  <div className="mt-2 h-1.5 w-1.5 rounded-full bg-violet-500 flex-shrink-0" />
+                                  <span className="text-muted-foreground leading-normal">{pointText}</span>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                       )}
