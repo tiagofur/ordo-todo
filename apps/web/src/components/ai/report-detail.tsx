@@ -151,7 +151,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Strengths */}
-        {report.strengths.length > 0 && (
+        {(report.strengths?.length ?? 0) > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -161,7 +161,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {report.strengths.map((strength, index) => (
+                {report.strengths?.map((strength, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <span>{strength}</span>
@@ -173,7 +173,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
         )}
 
         {/* Weaknesses */}
-        {report.weaknesses.length > 0 && (
+        {(report.weaknesses?.length ?? 0) > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -183,7 +183,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {report.weaknesses.map((weakness, index) => (
+                {report.weaknesses?.map((weakness, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
                     <span className="text-red-600 mt-0.5">✗</span>
                     <span>{weakness}</span>
@@ -196,8 +196,8 @@ export function ReportDetail({ report }: ReportDetailProps) {
       </div>
 
       {/* Recommendations */}
-      {report.recommendations.length > 0 && (
-        <Card className="border-primary/20 bg-primary/5">
+      {(report.recommendations?.length ?? 0) > 0 && (
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-primary" />
@@ -206,7 +206,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-              {report.recommendations.map((rec, index) => (
+              {report.recommendations?.map((rec, index) => (
                 <li key={index} className="flex items-start gap-3 text-sm">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold flex-shrink-0">
                     {index + 1}
@@ -220,7 +220,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
       )}
 
       {/* Patterns */}
-      {report.patterns.length > 0 && (
+      {(report.patterns?.length ?? 0) > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -230,7 +230,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {report.patterns.map((pattern, index) => (
+              {report.patterns?.map((pattern, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm">
                   <span className="text-blue-600 mt-0.5">•</span>
                   <span>{pattern}</span>

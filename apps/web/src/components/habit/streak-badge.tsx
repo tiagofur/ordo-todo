@@ -45,24 +45,24 @@ export function StreakBadge({
 
   const tierStyles = {
     common: {
-      bg: "bg-amber-500/10",
+      bg: "bg-amber-100 dark:bg-amber-900",
       text: "text-amber-500",
-      glow: "shadow-amber-500/20",
+      glow: "shadow-lg",
     },
     rare: {
-      bg: "bg-orange-500/10",
+      bg: "bg-orange-100 dark:bg-orange-900",
       text: "text-orange-500",
-      glow: "shadow-orange-500/30",
+      glow: "shadow-lg",
     },
     epic: {
-      bg: "bg-red-500/10",
+      bg: "bg-red-100 dark:bg-red-900",
       text: "text-red-500",
-      glow: "shadow-red-500/40",
+      glow: "shadow-lg",
     },
     legendary: {
-      bg: "bg-gradient-to-r from-amber-500/20 via-red-500/20 to-purple-500/20",
-      text: "text-transparent bg-gradient-to-r from-amber-500 via-red-500 to-purple-500 bg-clip-text",
-      glow: "shadow-red-500/50",
+      bg: "bg-red-100 dark:bg-red-900",
+      text: "text-red-500",
+      glow: "shadow-lg",
     },
   };
 

@@ -81,8 +81,8 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
       notify.success(t("toast.created"));
       reset();
       onOpenChange(false);
-    } catch (error: any) {
-      notify.error(error?.message || t("toast.error", { message: "Failed to create habit" }));
+    } catch (error: unknown) {
+      notify.error(error instanceof Error ? error.message : t("toast.error", { message: "Failed to create habit" }));
     }
   };
 
@@ -100,14 +100,16 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
   ];
 
 
+  const rawDays = typeof (t as any)?.raw === "function" ? (t as any).raw("daysOfWeek.short") : null;
+  const dayNamesShort = (Array.isArray(rawDays) ? rawDays : null) || ["D", "L", "M", "X", "J", "V", "S"];
   const weekDays = [
-    { label: "L", value: 1 },
-    { label: "M", value: 2 },
-    { label: "X", value: 3 },
-    { label: "J", value: 4 },
-    { label: "V", value: 5 },
-    { label: "S", value: 6 },
-    { label: "D", value: 0 },
+    { label: dayNamesShort[1] || "M", value: 1 },
+    { label: dayNamesShort[2] || "T", value: 2 },
+    { label: dayNamesShort[3] || "W", value: 3 },
+    { label: dayNamesShort[4] || "T", value: 4 },
+    { label: dayNamesShort[5] || "F", value: 5 },
+    { label: dayNamesShort[6] || "S", value: 6 },
+    { label: dayNamesShort[0] || "S", value: 0 },
   ];
 
   return (
@@ -182,10 +184,10 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                     key={f.value}
                     type="button"
                     onClick={() => setValue("frequency", f.value as any)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                       currentFrequency === f.value
-                        ? "bg-habits text-white shadow-lg shadow-habits/25"
-                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "bg-muted text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     {f.label}
@@ -217,7 +219,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                         className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                           isSelected
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                            : "bg-muted text-muted-foreground hover:bg-muted"
                         }`}
                       >
                         {day.label}
@@ -237,10 +239,10 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
                     key={time.value}
                     type="button"
                     onClick={() => setValue("timeOfDay", time.value as any)}
-                    className={`flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    className={`flex flex-col items-center gap-1 py-3 rounded-lg text-xs font-medium transition-colors duration-200 ${
                       currentTimeOfDay === time.value
-                        ? "bg-habits/10 text-habits border border-habits/30"
-                        : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
+                        ? "bg-blue-100 dark:bg-blue-900 text-primary border border-primary"
+                        : "bg-muted text-muted-foreground hover:bg-muted border border-transparent"
                     }`}
                   >
                     <time.icon className="h-4 w-4" />
@@ -300,7 +302,7 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
               type="submit"
               form="habit-form"
               disabled={createHabitMutation.isPending}
-              className="inline-flex items-center justify-center rounded-md text-sm font-semibold transition-all hover:scale-105 disabled:pointer-events-none disabled:opacity-50 bg-habits text-white shadow-lg shadow-habits/25 h-10 px-6 py-2"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary h-10 px-4 py-2"
             >
               {createHabitMutation.isPending ? t("form.creating") : t("form.create")}
             </button>

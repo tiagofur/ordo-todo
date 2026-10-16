@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import {
   Dialog,
@@ -74,7 +75,7 @@ interface CreateProjectDialogProps {
   /** Whether create operation is pending */
   isPending?: boolean;
   /** Called when form is submitted */
-  onSubmit: (data: CreateProjectFormData, templateTasks?: ProjectTemplateTask[]) => void;
+  onSubmit: (data: CreateProjectFormData, templateTasks?: ProjectTemplateTask[]) => Promise<void> | void;
   /** Called when workflow needs to be created (if none exists) */
   onCreateWorkflow?: (workspaceId: string) => Promise<string>;
   /** Custom labels for i18n */
@@ -205,7 +206,7 @@ export function CreateProjectDialog({
   const {
     register,
     handleSubmit,
-    reset: _reset,
+    reset,
     setValue,
     watch,
     formState: { errors },
@@ -259,21 +260,18 @@ export function CreateProjectDialog({
   };
 
   const handleFormSubmit = async (data: CreateProjectForm) => {
-
-    // Logic for creating workflow if needed should be handled by logic passed in `onSubmit`
-    // or by expanding the `onSubmit` to separate async steps.
-    // For simplicity/agnosticism, we pass the data up.
-    // The parent component is responsible for:
-    // 1. Checking if workflowId is valid or needs creation
-    // 2. Calling createProject
-    // 3. Creating tasks from template if provided
-
-    onSubmit(
-      { ...data, color: selectedColor, type: selectedType },
-      selectedTemplate?.tasks
-    );
-
-    // We don't reset here immediately, usually parent handles success/close
+    try {
+      await onSubmit(
+        { ...data, color: selectedColor, type: selectedType },
+        selectedTemplate?.tasks
+      );
+      reset();
+      setSelectedTemplate(null);
+      setSelectedColor(PROJECT_COLORS[3]);
+      onOpenChange(false);
+    } catch {
+      toast.error('Error al crear el proyecto');
+    }
   };
 
   const showEmptyState = !workspaceId && !isLoadingWorkspaces && workspaces.length === 0;
@@ -290,7 +288,7 @@ export function CreateProjectDialog({
               <button
                 type="button"
                 onClick={() => setShowTemplates(!showTemplates)}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors duration-200"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-blue-100 dark:bg-blue-900 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200"
               >
                 <LayoutTemplate className="w-3.5 h-3.5" />
                 {showTemplates ? hideTemplates: useTemplate}
@@ -314,7 +312,7 @@ export function CreateProjectDialog({
           ) : (
             <>
               {showTemplates && templates.length > 0 && (
-                <div className="bg-muted/30 rounded-lg border border-border p-4 mb-4">
+                <div className="bg-muted rounded-lg border border-border p-4 mb-4">
                   <h4 className="text-sm font-medium mb-3">{templatesTitle}</h4>
                   <ScrollArea className="h-[200px] pr-4">
                     <div className="grid grid-cols-2 gap-3">
@@ -322,7 +320,7 @@ export function CreateProjectDialog({
                         <button
                           key={template.id}
                           onClick={() => handleTemplateSelect(template)}
-                          className="flex flex-col items-start gap-2 p-3 rounded-lg border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-all text-left group"
+                          className="flex flex-col items-start gap-2 p-3 rounded-lg border border-border bg-card hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all text-left group"
                         >
                           <div className="flex items-center gap-2 w-full">
                             <div
@@ -341,7 +339,7 @@ export function CreateProjectDialog({
                           <p className="text-xs text-muted-foreground line-clamp-2">
                             {template.description}
                           </p>
-                          <div className="text-xs text-primary/70 font-medium">
+                          <div className="text-xs text-primary font-medium">
                             {tasksCount(template.tasks.length)}
                           </div>
                         </button>
@@ -357,7 +355,7 @@ export function CreateProjectDialog({
                   <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                     <Palette className="w-4 h-4" /> {colorLabel}
                   </Label>
-                  <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted/20">
+                  <div className="flex gap-3 flex-wrap p-3 rounded-lg border border-border bg-muted">
                     {PROJECT_COLORS.map((color) => (
                       <button
                         key={color}
@@ -366,7 +364,7 @@ export function CreateProjectDialog({
                         className={`relative h-8 w-8 rounded-full transition-transform hover:scale-110 ${
                           selectedColor === color
                             ? 'ring-2 ring-offset-2 ring-offset-background ring-primary scale-110'
-                            : 'hover:opacity-80'
+                            : 'hover:brightness-90'
                         }`}
                         style={{ backgroundColor: color }}
                       >

@@ -12,12 +12,15 @@ export interface AuthContextType {
     signInWithGitHub: () => Promise<void>;
 }
 export type OAuthProvider = "google" | "github";
+import type { QueryClient } from "@tanstack/react-query";
 export interface AuthProviderProps {
     children: ReactNode;
     platform: "web" | "mobile" | "desktop";
     onError?: (error: Error) => void;
     onSuccess?: (event: "login" | "register" | "logout") => void;
     apiClient: ApiClient;
+    /** Optional query client instance */
+    queryClient?: QueryClient;
     /** Optional callback for OAuth login - each platform implements this differently */
     onOAuthLogin?: (provider: OAuthProvider) => Promise<void>;
 }

@@ -22,6 +22,7 @@ import {
   useResumeHabit,
 } from "@/hooks/api";
 import { toast } from "sonner";
+import { toCalendarDateString } from "@ordo-todo/core";
 import {
   Sheet,
   SheetContent,
@@ -116,8 +117,8 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (29 - i));
-    const dateStr = date.toISOString().split("T")[0];
-    const found = calendarData.find((d: any) => d.date === dateStr);
+    const dateStr = toCalendarDateString(date);
+    const found = calendarData.find((d: any) => toCalendarDateString(d.date) === dateStr);
     return {
       date: dateStr,
       completed: found?.completed || false,

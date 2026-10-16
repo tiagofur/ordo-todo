@@ -12,12 +12,13 @@ export const API_CONFIG = {
   baseURL: env.NEXT_PUBLIC_API_URL,
 } as const;
 
-// Log API URL for debugging
-console.log("🔗 API Configuration loaded:", {
-  baseURL: API_CONFIG.baseURL,
-  fromEnv: process.env.NEXT_PUBLIC_API_URL,
-  mode: process.env.NODE_ENV,
-});
+// Log API URL for debugging (dev only)
+if (process.env.NODE_ENV === "development") {
+  console.log("API Configuration loaded:", {
+    baseURL: API_CONFIG.baseURL,
+    fromEnv: process.env.NEXT_PUBLIC_API_URL,
+  });
+}
 
 // Auth Configuration
 export const AUTH_CONFIG = {

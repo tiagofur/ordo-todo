@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   Habit,
   HabitProps,
@@ -233,7 +233,7 @@ export class PrismaHabitRepository implements IHabitRepository {
     });
 
     if (!habit) {
-      throw new Error(`Habit ${habitId} not found`);
+      throw new NotFoundException(`Habit ${habitId} not found`);
     }
 
     // Calculate new streak
@@ -343,7 +343,7 @@ export class PrismaHabitRepository implements IHabitRepository {
     });
 
     if (!habit) {
-      throw new Error(`Habit ${habitId} not found`);
+      throw new NotFoundException(`Habit ${habitId} not found`);
     }
 
     const now = new Date();

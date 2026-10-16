@@ -80,7 +80,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
              // But let's assume we need to send it if it wasn't processed.
              // For now, let's treat createConversation as just setting up the room.
          } catch (err) {
-             console.error("Failed to create conversation", err);
+             if (process.env.NODE_ENV === 'development') console.error("Failed to create conversation", err);
              throw new Error("Could not start conversation");
          }
       }
@@ -98,7 +98,6 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      console.error(error);
       toast.error(t('error'));
     } finally {
       setIsLoading(false);
@@ -108,18 +107,18 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-80 sm:w-96 bg-background/95 backdrop-blur-md border-l shadow-2xl z-50 flex flex-col transition-all duration-300 ease-in-out">
+    <div className="fixed inset-y-0 right-0 w-80 sm:w-96 bg-background border-l shadow-2xl z-50 flex flex-col transition-all duration-300 ease-in-out">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-sm">
+      <div className="flex items-center justify-between p-4 border-b bg-background">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-md">
-            <Sparkles className="h-4 w-4 text-white" />
+          <div className="p-1.5 bg-primary rounded-lg shadow-xs">
+            <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
-          <h3 className="font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h3 className="font-semibold text-foreground">
             {t('title')}
           </h3>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-muted/50 rounded-full">
+        <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-muted rounded-full">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -135,10 +134,10 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
               } animate-in fade-in slide-in-from-bottom-2 duration-300`}
             >
               <div
-                className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 dark:from-indigo-900/40 dark:to-purple-900/40 dark:text-indigo-300"
+                    : "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
                 }`}
               >
                 {msg.role === "user" ? (
@@ -148,10 +147,10 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
                 )}
               </div>
               <div
-                className={`rounded-2xl p-3 text-sm max-w-[85%] shadow-sm ${
+                className={`rounded-2xl p-3 text-sm max-w-[85%] shadow-xs ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground rounded-tr-none"
-                    : "bg-muted/80 backdrop-blur-sm rounded-tl-none border"
+                    : "bg-muted rounded-tl-none border"
                 }`}
               >
                 {msg.content}
@@ -159,14 +158,14 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
             </div>
           ))}
           {isLoading && (
-            <div className="flex gap-3 animate-pulse">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 dark:from-indigo-900/40 dark:to-purple-900/40 flex items-center justify-center shrink-0">
+            <div className="flex gap-3">
+              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground flex items-center justify-center shrink-0">
                 <Bot className="h-4 w-4" />
               </div>
               <div className="bg-muted rounded-2xl rounded-tl-none p-3 text-sm flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-0"></span>
-                <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce delay-150"></span>
-                <span className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-bounce delay-300"></span>
+                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse"></span>
+                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse [animation-delay:150ms]"></span>
+                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse [animation-delay:300ms]"></span>
               </div>
             </div>
           )}
@@ -175,7 +174,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-background/50 backdrop-blur-sm">
+      <div className="p-4 border-t bg-background">
         <form
           onSubmit={(e) => {
             e.preventDefault();

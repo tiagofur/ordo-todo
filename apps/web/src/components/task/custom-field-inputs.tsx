@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Input,
   Label,
@@ -297,10 +298,14 @@ export function useCustomFieldForm(projectId: string, taskId?: string) {
   const saveValues = async (targetTaskId: string) => {
     const submitValues = getValuesForSubmit();
     if (submitValues.length > 0) {
-      await setTaskValues.mutateAsync({
-        taskId: targetTaskId,
-        data: { values: submitValues },
-      });
+      try {
+        await setTaskValues.mutateAsync({
+          taskId: targetTaskId,
+          data: { values: submitValues },
+        });
+      } catch {
+        toast.error('Error al guardar campos personalizados');
+      }
     }
   };
 

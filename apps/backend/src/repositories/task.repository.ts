@@ -14,7 +14,7 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaTaskRepository implements TaskRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(
     prismaTask: PrismaTask & {
@@ -54,19 +54,21 @@ export class PrismaTaskRepository implements TaskRepository {
             };
           })
           .filter((t: any) => t !== null) || [],
+      completedAt: prismaTask.completedAt ?? undefined,
       estimatedMinutes: prismaTask.estimatedMinutes ?? undefined,
+      actualMinutes: prismaTask.actualMinutes ?? undefined,
       isDeleted: prismaTask.isDeleted,
       deletedAt: prismaTask.deletedAt ?? undefined,
       createdAt: prismaTask.createdAt,
       updatedAt: prismaTask.updatedAt,
       recurrence: prismaTask.recurrence
         ? {
-          pattern: prismaTask.recurrence.pattern,
-          interval: prismaTask.recurrence.interval,
-          daysOfWeek: prismaTask.recurrence.daysOfWeek,
-          dayOfMonth: prismaTask.recurrence.dayOfMonth,
-          endDate: prismaTask.recurrence.endDate,
-        }
+            pattern: prismaTask.recurrence.pattern,
+            interval: prismaTask.recurrence.interval,
+            daysOfWeek: prismaTask.recurrence.daysOfWeek,
+            dayOfMonth: prismaTask.recurrence.dayOfMonth,
+            endDate: prismaTask.recurrence.endDate,
+          }
         : undefined,
     };
 
@@ -201,23 +203,23 @@ export class PrismaTaskRepository implements TaskRepository {
         ...data,
         recurrence: task.props.recurrence
           ? {
-            upsert: {
-              create: {
-                pattern: task.props.recurrence.pattern,
-                interval: task.props.recurrence.interval,
-                daysOfWeek: task.props.recurrence.daysOfWeek,
-                dayOfMonth: task.props.recurrence.dayOfMonth,
-                endDate: task.props.recurrence.endDate,
+              upsert: {
+                create: {
+                  pattern: task.props.recurrence.pattern,
+                  interval: task.props.recurrence.interval,
+                  daysOfWeek: task.props.recurrence.daysOfWeek,
+                  dayOfMonth: task.props.recurrence.dayOfMonth,
+                  endDate: task.props.recurrence.endDate,
+                },
+                update: {
+                  pattern: task.props.recurrence.pattern,
+                  interval: task.props.recurrence.interval,
+                  daysOfWeek: task.props.recurrence.daysOfWeek,
+                  dayOfMonth: task.props.recurrence.dayOfMonth,
+                  endDate: task.props.recurrence.endDate,
+                },
               },
-              update: {
-                pattern: task.props.recurrence.pattern,
-                interval: task.props.recurrence.interval,
-                daysOfWeek: task.props.recurrence.daysOfWeek,
-                dayOfMonth: task.props.recurrence.dayOfMonth,
-                endDate: task.props.recurrence.endDate,
-              },
-            },
-          }
+            }
           : undefined,
       },
     });
@@ -455,23 +457,23 @@ export class PrismaTaskRepository implements TaskRepository {
         ...data,
         recurrence: task.props.recurrence
           ? {
-            upsert: {
-              create: {
-                pattern: task.props.recurrence.pattern,
-                interval: task.props.recurrence.interval,
-                daysOfWeek: task.props.recurrence.daysOfWeek,
-                dayOfMonth: task.props.recurrence.dayOfMonth,
-                endDate: task.props.recurrence.endDate,
+              upsert: {
+                create: {
+                  pattern: task.props.recurrence.pattern,
+                  interval: task.props.recurrence.interval,
+                  daysOfWeek: task.props.recurrence.daysOfWeek,
+                  dayOfMonth: task.props.recurrence.dayOfMonth,
+                  endDate: task.props.recurrence.endDate,
+                },
+                update: {
+                  pattern: task.props.recurrence.pattern,
+                  interval: task.props.recurrence.interval,
+                  daysOfWeek: task.props.recurrence.daysOfWeek,
+                  dayOfMonth: task.props.recurrence.dayOfMonth,
+                  endDate: task.props.recurrence.endDate,
+                },
               },
-              update: {
-                pattern: task.props.recurrence.pattern,
-                interval: task.props.recurrence.interval,
-                daysOfWeek: task.props.recurrence.daysOfWeek,
-                dayOfMonth: task.props.recurrence.dayOfMonth,
-                endDate: task.props.recurrence.endDate,
-              },
-            },
-          }
+            }
           : undefined,
       },
     });

@@ -15,6 +15,7 @@ import { useDesignTokens } from "@/app/lib/use-design-tokens";
 import { useTasks } from "@/app/lib/shared-hooks";
 import { useWorkspaceStore } from "@ordo-todo/stores";
 import { useMediaQuery } from "@/app/lib/hooks/use-media-query";
+import { parseCalendarDate } from "@ordo-todo/core";
 
 type FilterType = "ALL" | "TODO" | "IN_PROGRESS" | "COMPLETED";
 type SortType = "DUE_DATE" | "PRIORITY" | "CREATED_AT";
@@ -87,21 +88,21 @@ export default function AllTasksScreen() {
     // @ts-ignore - Dynamic access to priority colors
     return colors.priority[p]?.background || colors.muted;
   };
-  
+
   const getPriorityForeground = (priority: string) => {
     const p = priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT";
     // @ts-ignore
-     return colors.priority[p]?.foreground || colors.mutedForeground;
+    return colors.priority[p]?.foreground || colors.mutedForeground;
   }
 
   const getStatusColor = (status: string) => {
-     // @ts-ignore
+    // @ts-ignore
     return colors.status[status]?.foreground || colors.mutedForeground;
   };
-  
+
   const getStatusBg = (status: string) => {
-      // @ts-ignore
-      return colors.status[status]?.background || colors.muted;
+    // @ts-ignore
+    return colors.status[status]?.background || colors.muted;
   }
 
   const getStatusIcon = (status: string) => {
@@ -116,7 +117,9 @@ export default function AllTasksScreen() {
 
   const formatDate = (date: Date | string | null) => {
     if (!date) return "Sin fecha";
-    return new Date(date).toLocaleDateString("es", {
+    const parsed = parseCalendarDate(date);
+    if (!parsed) return "Sin fecha";
+    return parsed.toLocaleDateString("es", {
       month: "short",
       day: "numeric",
     });
@@ -128,7 +131,7 @@ export default function AllTasksScreen() {
 
   const renderItem = useCallback(({ item: task, index }: { item: any; index: number }) => {
     const isSelected = selectedTaskId === task.id;
-    
+
     return (
       <Animated.View
         entering={FadeInDown.delay(index * 50).springify().damping(15)}
@@ -139,130 +142,130 @@ export default function AllTasksScreen() {
         ]}
       >
         <TouchableOpacity
-            style={[
-              styles.taskCard,
-              {
-                backgroundColor: isSelected ? colors.section.tasks + "10" : colors.card,
-                borderColor: isSelected ? colors.section.tasks : colors.border,
-              },
-            ]}
-            onPress={() => handleTaskPress(task.id)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.taskHeader}>
-              {/* Status Icon */}
-              <View
+          style={[
+            styles.taskCard,
+            {
+              backgroundColor: isSelected ? colors.section.tasks + "10" : colors.card,
+              borderColor: isSelected ? colors.section.tasks : colors.border,
+            },
+          ]}
+          onPress={() => handleTaskPress(task.id)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.taskHeader}>
+            {/* Status Icon */}
+            <View
+              style={[
+                styles.statusContainer,
+                {
+                  backgroundColor: getStatusBg(task.status),
+                },
+              ]}
+            >
+              <Feather
+                name={getStatusIcon(task.status)}
+                size={14}
+                color={getStatusColor(task.status)}
+              />
+            </View>
+
+            {/* Task Content */}
+            <View style={styles.taskContent}>
+              <Text
                 style={[
-                  styles.statusContainer,
+                  styles.taskTitle,
                   {
-                    backgroundColor: getStatusBg(task.status),
+                    color:
+                      task.status === "COMPLETED" ||
+                        task.status === "CANCELLED"
+                        ? colors.mutedForeground
+                        : colors.foreground,
+                    textDecorationLine:
+                      task.status === "COMPLETED"
+                        ? "line-through"
+                        : "none",
                   },
                 ]}
+                numberOfLines={2}
               >
-                <Feather
-                  name={getStatusIcon(task.status)}
-                  size={14}
-                  color={getStatusColor(task.status)}
-                />
-              </View>
+                {task.title}
+              </Text>
 
-              {/* Task Content */}
-              <View style={styles.taskContent}>
-                <Text
-                  style={[
-                    styles.taskTitle,
-                    {
-                      color:
-                        task.status === "COMPLETED" ||
-                        task.status === "CANCELLED"
-                          ? colors.mutedForeground
-                          : colors.foreground,
-                      textDecorationLine:
-                        task.status === "COMPLETED"
-                          ? "line-through"
-                          : "none",
-                    },
-                  ]}
-                  numberOfLines={2}
-                >
-                  {task.title}
-                </Text>
-
-                {/* Meta */}
-                <View style={styles.taskMeta}>
-                  {task.projectName && (
-                    <Text
-                      style={[styles.projectTag, { color: colors.section.tasks, backgroundColor: colors.section.tasks + '15' }]}
-                    >
-                      {task.projectName}
-                    </Text>
-                  )}
-                  {task.tags && task.tags.length > 0 && (
-                    <View style={styles.tagsContainer}>
-                      {task.tags.slice(0, 2).map((tag: any) => (
-                        <View
-                          key={tag}
-                          style={[
-                            styles.tag,
-                            { backgroundColor: colors.muted },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.tagText,
-                              { color: colors.mutedForeground },
-                            ]}
-                          >
-                            {tag}
-                          </Text>
-                        </View>
-                      ))}
-                      {task.tags.length > 2 && (
+              {/* Meta */}
+              <View style={styles.taskMeta}>
+                {task.projectName && (
+                  <Text
+                    style={[styles.projectTag, { color: colors.section.tasks, backgroundColor: colors.section.tasks + '15' }]}
+                  >
+                    {task.projectName}
+                  </Text>
+                )}
+                {task.tags && task.tags.length > 0 && (
+                  <View style={styles.tagsContainer}>
+                    {task.tags.slice(0, 2).map((tag: any) => (
+                      <View
+                        key={tag}
+                        style={[
+                          styles.tag,
+                          { backgroundColor: colors.muted },
+                        ]}
+                      >
                         <Text
                           style={[
-                            styles.tagsMore,
+                            styles.tagText,
                             { color: colors.mutedForeground },
                           ]}
                         >
-                          +{task.tags.length - 2}
+                          {tag}
                         </Text>
-                      )}
-                    </View>
-                  )}
-                </View>
-
-                {/* Priority Badge */}
-                <View
-                  style={[
-                    styles.priorityBadge,
-                    { backgroundColor: getPriorityColor(task.priority) },
-                  ]}
-                >
-                  <Text style={[styles.priorityText, { color: getPriorityForeground(task.priority) }]}>
-                    {task.priority}
-                  </Text>
-                </View>
-
-                {/* Due Date */}
-                {task.dueDate && (
-                  <View style={styles.dueDateContainer}>
-                    <Feather
-                      name="calendar"
-                      size={14}
-                      color={colors.mutedForeground}
-                    />
-                    <Text
-                      style={[
-                        styles.dueDateText,
-                        { color: colors.mutedForeground },
-                      ]}
-                    >
-                      {formatDate(task.dueDate)}
-                    </Text>
+                      </View>
+                    ))}
+                    {task.tags.length > 2 && (
+                      <Text
+                        style={[
+                          styles.tagsMore,
+                          { color: colors.mutedForeground },
+                        ]}
+                      >
+                        +{task.tags.length - 2}
+                      </Text>
+                    )}
                   </View>
                 )}
               </View>
+
+              {/* Priority Badge */}
+              <View
+                style={[
+                  styles.priorityBadge,
+                  { backgroundColor: getPriorityColor(task.priority) },
+                ]}
+              >
+                <Text style={[styles.priorityText, { color: getPriorityForeground(task.priority) }]}>
+                  {task.priority}
+                </Text>
+              </View>
+
+              {/* Due Date */}
+              {task.dueDate && (
+                <View style={styles.dueDateContainer}>
+                  <Feather
+                    name="calendar"
+                    size={14}
+                    color={colors.mutedForeground}
+                  />
+                  <Text
+                    style={[
+                      styles.dueDateText,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    {formatDate(task.dueDate)}
+                  </Text>
+                </View>
+              )}
             </View>
+          </View>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -319,46 +322,46 @@ export default function AllTasksScreen() {
           contentContainerStyle={styles.filtersScroll}
           keyExtractor={(item) => item.value}
           renderItem={({ item: f }) => {
-              const count =
+            const count =
               f.value === "ALL"
                 ? tasks.length
                 : tasks.filter((t) => t.status === f.value).length;
-              const isActive = filter === f.value;
-              
-              return (
-                <TouchableOpacity
-                    style={[
-                    styles.filterButton,
+            const isActive = filter === f.value;
+
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  {
+                    backgroundColor: isActive ? colors.section.tasks : colors.card,
+                    borderColor: isActive ? colors.section.tasks : colors.border,
+                  },
+                ]}
+                onPress={() => setFilter(f.value as FilterType)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
                     {
-                        backgroundColor: isActive ? colors.section.tasks : colors.card,
-                        borderColor: isActive ? colors.section.tasks : colors.border,
+                      color: isActive ? "#FFFFFF" : colors.mutedForeground,
+                      fontWeight: isActive ? "700" : "500",
                     },
-                    ]}
-                    onPress={() => setFilter(f.value as FilterType)}
+                  ]}
                 >
-                    <Text
+                  {f.label}
+                </Text>
+                {f.value !== "ALL" && (
+                  <View
                     style={[
-                        styles.filterText,
-                        {
-                        color: isActive ? "#FFFFFF" : colors.mutedForeground,
-                        fontWeight: isActive ? "700" : "500",
-                        },
+                      styles.filterCount,
+                      { backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : colors.muted },
                     ]}
-                    >
-                    {f.label}
-                    </Text>
-                    {f.value !== "ALL" && (
-                    <View
-                        style={[
-                        styles.filterCount,
-                        { backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : colors.muted },
-                        ]}
-                    >
-                        <Text style={[styles.filterCountText, { color: isActive ? '#fff' : colors.mutedForeground }]}>{count}</Text>
-                    </View>
-                    )}
-                </TouchableOpacity>
-              )
+                  >
+                    <Text style={[styles.filterCountText, { color: isActive ? '#fff' : colors.mutedForeground }]}>{count}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )
           }}
         />
 
@@ -390,43 +393,43 @@ export default function AllTasksScreen() {
 
       {/* Tasks List */}
       {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator color={colors.section.tasks} size="large" />
-            <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>
-              Cargando tareas...
-            </Text>
-          </View>
-        ) : (
-            <Animated.FlatList 
-                key={isTablet ? 'tablet' : 'mobile'}
-                numColumns={isTablet ? 2 : 1}
-                columnWrapperStyle={isTablet ? { gap: 16 } : undefined}
-                data={sortedTasks}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={styles.tasksContainer}
-                showsVerticalScrollIndicator={false}
-                itemLayoutAnimation={LinearTransition}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Feather
-                        name="inbox"
-                        size={64}
-                        color={colors.muted}
-                        style={styles.emptyIcon}
-                        />
-                        <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
-                        Sin tareas
-                        </Text>
-                        <Text style={[styles.emptySubtitle, { color: colors.mutedForeground }]}>
-                        {filter === "ALL"
-                            ? "No tienes tareas"
-                            : `No hay tareas ${FILTERS.find((f) => f.value === filter)?.label.toLowerCase()}`}
-                        </Text>
-                    </View>
-                }
-            />
-        )}
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={colors.section.tasks} size="large" />
+          <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>
+            Cargando tareas...
+          </Text>
+        </View>
+      ) : (
+        <Animated.FlatList
+          key={isTablet ? 'tablet' : 'mobile'}
+          numColumns={isTablet ? 2 : 1}
+          columnWrapperStyle={isTablet ? { gap: 16 } : undefined}
+          data={sortedTasks}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.tasksContainer}
+          showsVerticalScrollIndicator={false}
+          itemLayoutAnimation={LinearTransition}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Feather
+                name="inbox"
+                size={64}
+                color={colors.muted}
+                style={styles.emptyIcon}
+              />
+              <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
+                Sin tareas
+              </Text>
+              <Text style={[styles.emptySubtitle, { color: colors.mutedForeground }]}>
+                {filter === "ALL"
+                  ? "No tienes tareas"
+                  : `No hay tareas ${FILTERS.find((f) => f.value === filter)?.label.toLowerCase()}`}
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }

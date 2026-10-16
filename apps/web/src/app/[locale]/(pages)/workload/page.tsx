@@ -67,7 +67,7 @@ export default function WorkloadPage() {
       const data = await apiClient.getWorkspaceWorkload(workspaceId);
       setWorkloadData(data);
     } catch (error) {
-      console.error("Failed to fetch workload:", error);
+      if (process.env.NODE_ENV === 'development') console.error("Failed to fetch workload:", error);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -88,11 +88,11 @@ export default function WorkloadPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "LOW": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-500/10" };
-      case "MODERATE": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-500/10" };
-      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-500/10" };
-      case "OVERLOADED": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-500/10" };
-      default: return { bg: "bg-gray-500", text: "text-gray-500", light: "bg-gray-500/10" };
+      case "LOW": return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-100 dark:bg-blue-900" };
+      case "MODERATE": return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-100 dark:bg-green-900" };
+      case "HIGH": return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-100 dark:bg-orange-900" };
+      case "OVERLOADED": return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-100 dark:bg-red-900" };
+      default: return { bg: "bg-gray-500", text: "text-gray-500", light: "bg-gray-100 dark:bg-gray-900" };
     }
   };
 
@@ -148,7 +148,6 @@ export default function WorkloadPage() {
                 className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lg"
                 style={{
                   backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
                 }}
               >
                 <Users className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -165,7 +164,7 @@ export default function WorkloadPage() {
             <select
               value={selectedWorkspaceId || ""}
               onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-              className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {workspaces.map((ws: any) => (
                 <option key={ws.id} value={ws.id}>{ws.name}</option>
@@ -190,7 +189,7 @@ export default function WorkloadPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
+                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
                     <Users className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
@@ -201,7 +200,7 @@ export default function WorkloadPage() {
               </Card>
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-500/10">
+                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
                     <BarChart3 className="h-5 w-5 text-purple-500" />
                   </div>
                   <div>
@@ -214,8 +213,8 @@ export default function WorkloadPage() {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "p-2 rounded-lg",
-                    (workloadData.balanceScore ?? 100) >= 70 ? "bg-green-500/10" : 
-                    (workloadData.balanceScore ?? 100) >= 40 ? "bg-yellow-500/10" : "bg-red-500/10"
+                    (workloadData.balanceScore ?? 100) >= 70 ? "bg-green-100 dark:bg-green-900" : 
+                    (workloadData.balanceScore ?? 100) >= 40 ? "bg-yellow-100 dark:bg-yellow-900" : "bg-red-100 dark:bg-red-900"
                   )}>
                     <CheckCircle2 className={cn(
                       "h-5 w-5",
@@ -245,10 +244,10 @@ export default function WorkloadPage() {
                     {workloadData.redistributionSuggestions.map((suggestion: any, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                        className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted transition-colors"
                       >
                         <div className={cn(
-                          "p-2 rounded-lg bg-orange-500/10"
+                          "p-2 rounded-lg bg-orange-100 dark:bg-orange-900"
                         )}>
                           <Users className="h-4 w-4 text-orange-500" />
                         </div>
@@ -284,7 +283,7 @@ export default function WorkloadPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-4 p-4 rounded-xl border bg-card hover:bg-muted/30 transition-colors"
+                      className="flex items-center gap-4 p-4 rounded-xl border bg-card hover:bg-muted transition-colors"
                     >
                       {/* Avatar */}
                       <div className="flex-shrink-0">
@@ -295,7 +294,7 @@ export default function WorkloadPage() {
                             className="h-12 w-12 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg">
+                          <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-primary font-medium text-lg">
                             {member.userName?.[0]?.toUpperCase()}
                           </div>
                         )}
@@ -356,7 +355,7 @@ export default function WorkloadPage() {
           </>
         ) : (
           <Card className="p-12 text-center">
-            <Briefcase className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+            <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">Selecciona un workspace</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Elige un workspace para ver la carga de trabajo del equipo

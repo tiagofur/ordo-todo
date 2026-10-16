@@ -7,6 +7,7 @@ export * from "./value-object";
 export * from "./id.vo";
 export * from "./entity";
 export * from "./required-string.vo";
+export * from "./errors";
 
 // Utilities
 export * from "./uuid.util";

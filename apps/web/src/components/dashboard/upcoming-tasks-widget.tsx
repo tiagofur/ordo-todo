@@ -63,7 +63,7 @@ export function UpcomingTasksWidget({ tasks, accentColor = "#06b6d4" }: Upcoming
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="rounded-2xl border border-border/50 bg-card p-6"
+        className="rounded-2xl border border-border bg-card p-6"
       >
         <div className="flex items-center gap-3 mb-4">
           <div
@@ -89,7 +89,7 @@ export function UpcomingTasksWidget({ tasks, accentColor = "#06b6d4" }: Upcoming
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="rounded-2xl border border-border/50 bg-card p-6"
+      className="rounded-2xl border border-border bg-card p-6"
     >
       <div className="flex items-center gap-3 mb-4">
         <div
@@ -118,7 +118,7 @@ export function UpcomingTasksWidget({ tasks, accentColor = "#06b6d4" }: Upcoming
               transition={{ duration: 0.3, delay: index * 0.05 }}
               className={cn(
                 "flex items-start gap-3 rounded-lg border p-3 transition-all duration-200",
-                "hover:bg-accent/50 hover:border-primary/20 cursor-pointer"
+                "hover:bg-accent hover:border-primary cursor-pointer"
               )}
             >
               {/* Priority indicator */}

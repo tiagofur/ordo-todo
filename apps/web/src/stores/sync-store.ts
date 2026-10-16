@@ -304,7 +304,11 @@ export const useSyncStore = create<SyncState>()(
     }),
     {
       name: "ordo-sync-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => (typeof window !== "undefined" ? localStorage : {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      })),
       partialize: (state) => ({
         lastSyncTime: state.lastSyncTime,
         pendingCount: state.pendingCount,
@@ -317,23 +321,37 @@ export const useSyncStore = create<SyncState>()(
  * Process a single pending action by making the API call
  */
 async function processPendingAction(action: PendingAction): Promise<void> {
-  const { apiClient } = await import("@/lib/api-client");
+  const { getCsrfToken } = await import("@/lib/api-client");
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
-  // Cookies are sent automatically with credentials: 'include'
-  // No need to manually add Authorization header
+  // Add CSRF token for state-changing requests (backend requires x-csrf-token)
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(action.method)) {
+    try {
+      const csrfToken = await getCsrfToken();
+      if (csrfToken) {
+        headers["x-csrf-token"] = csrfToken;
+      }
+    } catch (csrfError) {
+      logger.warn("[SyncStore] Failed to acquire CSRF token for offline action:", csrfError);
+    }
+  }
 
   const config = await import("@/config");
   const baseURL = config.config.api.baseURL;
+  const endpoint = action.endpoint.startsWith("http")
+    ? action.endpoint
+    : `${baseURL}${action.endpoint.startsWith("/") ? "" : "/"}${action.endpoint}`;
 
-  const response = await fetch(`${baseURL}${action.endpoint}`, {
+  const response = await fetch(endpoint, {
     method: action.method,
     headers,
     body:
-      action.method !== "DELETE" ? JSON.stringify(action.payload) : undefined,
+      action.method !== "DELETE" && action.payload !== undefined
+        ? (typeof action.payload === "string" ? action.payload : JSON.stringify(action.payload))
+        : undefined,
     credentials: "include",
   });
 

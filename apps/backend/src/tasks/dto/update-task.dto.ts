@@ -6,6 +6,7 @@ import {
   IsDate,
   Matches,
   IsBoolean,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -26,20 +27,23 @@ export class UpdateTaskDto {
   @IsOptional()
   priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
+  @ValidateIf((_, val) => val !== null)
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  dueDate?: Date;
+  dueDate?: Date | null;
 
+  @ValidateIf((_, val) => val !== null)
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  startDate?: Date;
+  startDate?: Date | null;
 
+  @ValidateIf((_, val) => val !== null)
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  scheduledDate?: Date;
+  scheduledDate?: Date | null;
 
   @IsString()
   @Matches(/^\d{2}:\d{2}$/, {

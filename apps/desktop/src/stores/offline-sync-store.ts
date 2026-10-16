@@ -302,6 +302,12 @@ export const useOfflineSyncStore = create<OfflineSyncStore>()(
         try {
           await get().processQueue();
 
+          // Check if any operations failed during processing
+          const failedOps = get().queue.operations.filter(op => op.status === 'failed');
+          if (failedOps.length > 0) {
+            throw new Error(`${failedOps.length} operation(s) failed during sync`);
+          }
+
           set((state) => ({
             queue: {
               ...state.queue,

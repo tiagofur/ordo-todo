@@ -9,6 +9,7 @@ vi.mock('../task-detail-panel', () => ({
 
 vi.mock('@/lib/api-hooks', () => ({
   useCompleteTask: () => ({ mutate: vi.fn() }),
+  useDeleteTask: () => ({ mutate: vi.fn() }),
   useTaskTags: () => ({ data: [] }),
 }));
 
@@ -64,10 +65,9 @@ describe('TaskCard Component', () => {
     const taskWithProject = { ...mockTask, project: mockProject };
     render(<TaskCard task={taskWithProject} />);
     
-    // The color is applied to style, difficult to test with simple queries
-    // We can check if the element with style exists
     const card = screen.getByText('Test Task').closest('.group');
-    expect(card).toHaveStyle({ borderLeftColor: '#FF0000' });
+    const indicator = card?.querySelector('span[aria-hidden="true"]');
+    expect(indicator).toHaveStyle({ backgroundColor: '#FF0000' });
   });
 
   it('should open detail panel when clicked', () => {

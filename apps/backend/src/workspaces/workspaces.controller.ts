@@ -322,6 +322,8 @@ export class WorkspacesController {
    * without requiring them to accept an invitation.
    */
   @Post(':id/members')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
@@ -363,6 +365,8 @@ export class WorkspacesController {
    * Requires OWNER or ADMIN role
    */
   @Delete(':id/members/:userId')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
@@ -470,10 +474,8 @@ export class WorkspacesController {
 
   /**
    * Accepts an invitation to join a workspace
-   * Public endpoint (token-based authentication)
    */
   @Post('invitations/accept')
-  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Accept workspace invitation',
@@ -817,6 +819,8 @@ export class WorkspacesController {
    * Only the OWNER can restore the workspace
    */
   @Post(':id/restore')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(CoreMemberRole.OWNER)
@@ -855,6 +859,8 @@ export class WorkspacesController {
    * Workspace must be soft deleted first
    */
   @Delete(':id/permanent')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(CoreMemberRole.OWNER)
@@ -881,6 +887,8 @@ export class WorkspacesController {
    * Only OWNER can archive
    */
   @Post(':id/archive')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
   @UseGuards(WorkspaceGuard)
   @WorkspaceContext({ type: 'direct', paramName: 'id' })
   @Roles(CoreMemberRole.OWNER)

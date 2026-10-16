@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import {
   CheckCircle2,
   MoreVertical,
@@ -100,7 +101,7 @@ interface TaskCardCompactProps {
 type Locale = Parameters<typeof format>[2] extends { locale?: infer L } ? L : never;
 
 // Helper component to connect detail panel with data
-function ConnectedTaskDetailPanel({ 
+export function ConnectedTaskDetailPanel({ 
   taskId, 
   open, 
   onOpenChange 
@@ -120,7 +121,11 @@ function ConnectedTaskDetailPanel({
   const { data: availableTags } = useTags(workspaceId);
 
   const handleUpdate = async (id: string, data: any) => {
-    await updateTask.mutateAsync({ taskId: id, data });
+    try {
+      await updateTask.mutateAsync({ taskId: id, data });
+    } catch {
+      toast.error('Error al actualizar tarea');
+    }
   };
 
   return (
@@ -132,9 +137,9 @@ function ConnectedTaskDetailPanel({
       isLoading={isLoading}
       availableTags={availableTags || []}
       onUpdate={handleUpdate}
-      onAssignTag={async (id, tagId) => { await assignTag.mutateAsync({ taskId: id, tagId }); }}
-      onRemoveTag={async (id, tagId) => { await removeTag.mutateAsync({ taskId: id, tagId }); }}
-      onShare={async (id) => { await shareTask.mutateAsync(id); }}
+      onAssignTag={async (id, tagId) => { try { await assignTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al asignar etiqueta'); } }}
+      onRemoveTag={async (id, tagId) => { try { await removeTag.mutateAsync({ taskId: id, tagId }); } catch { toast.error('Error al remover etiqueta'); } }}
+      onShare={async (id) => { try { await shareTask.mutateAsync(id); } catch { toast.error('Error al compartir tarea'); } }}
     />
   );
 }
@@ -170,6 +175,7 @@ export function TaskCardCompact({
   } = labels;
 
   const [showDetailInternal, setShowDetailInternal] = useState(false);
+  const updateTask = useUpdateTask();
   const isCompleted = task.status === 'COMPLETED';
 
   // Helper to handle detail opening
@@ -269,9 +275,19 @@ export function TaskCardCompact({
   const StatusIcon = statusConfig.icon;
   const accentColor = task.project?.color || priorityConfig.color;
 
-  const handleStatusChange = (newStatus: string) => {
-    if (task.id) {
-      onStatusChange?.(String(task.id), newStatus);
+  const handleStatusChange = async (newStatus: string) => {
+    if (!task.id || newStatus === task.status) return;
+    if (onStatusChange) {
+      onStatusChange(String(task.id), newStatus);
+      return;
+    }
+    try {
+      await updateTask.mutateAsync({
+        taskId: String(task.id),
+        data: { status: newStatus as any },
+      });
+    } catch {
+      toast.error('Error al actualizar el estado de la tarea');
     }
   };
 
@@ -403,7 +419,7 @@ export function TaskCardCompact({
             e.stopPropagation();
             if (task.id) onDelete?.(String(task.id));
           }}
-          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+          className="text-destructive focus:text-destructive focus:bg-red-100 dark:focus:bg-red-900"
         >
           <Trash2 className="mr-2 h-4 w-4" />
           {deleteLabel}
@@ -422,16 +438,18 @@ export function TaskCardCompact({
           transition={{ duration: 0.2, delay: index * 0.02 }}
           onClick={handleClick}
           className={cn(
-            'group relative flex items-center rounded-xl border px-4 py-4 transition-all duration-200 cursor-pointer',
+            'group relative flex items-center overflow-hidden rounded-xl border border-border px-4 py-4 transition-all duration-200 cursor-pointer',
             isCompleted
-              ? 'border-border/30 bg-muted/20 opacity-70 hover:opacity-90'
-              : 'border-border/40 bg-card hover:border-border/60 hover:bg-accent/5 hover:shadow-md'
+              ? 'bg-muted opacity-70 hover:opacity-90'
+              : 'bg-card hover:bg-accent/5 hover:shadow-md'
           )}
-          style={{
-            borderLeftWidth: '4px',
-            borderLeftColor: isCompleted ? '#22c55e' : accentColor,
-          }}
         >
+          {/* Subtle accent indicator */}
+          <span
+            className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full"
+            style={{ backgroundColor: isCompleted ? '#22c55e' : accentColor }}
+            aria-hidden="true"
+          />
           {/* Left Section: Title & Meta */}
           <div className="flex-1 min-w-0 pr-4">
             {/* Title */}
@@ -551,19 +569,27 @@ export function TaskCardCompact({
         transition={{ duration: 0.3, delay: index * 0.03 }}
         onClick={handleClick}
         className={cn(
-          'group relative overflow-hidden rounded-xl border p-4 transition-all duration-300 cursor-pointer h-full flex flex-col',
-          'hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20',
+          'group relative overflow-hidden rounded-xl border border-border p-4 transition-all duration-300 cursor-pointer h-full flex flex-col',
+          'hover:shadow-lg',
           isCompleted
-            ? 'border-border/30 bg-muted/30 opacity-60 hover:opacity-80'
-            : 'border-border/50 bg-card hover:border-border'
+            ? 'bg-muted opacity-60 hover:opacity-80'
+            : 'bg-card hover:border-border'
         )}
-        style={{
-          borderTopWidth: '3px',
-          borderTopColor: isCompleted ? '#22c55e' : accentColor,
-        }}
       >
-        {/* Header: Menu only */}
-        <div className="relative z-10 flex items-center justify-end mb-3">
+        {/* Header: Accent indicator & Menu */}
+        <div className="relative z-10 flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span
+              className="h-2 w-2 rounded-full shrink-0"
+              style={{ backgroundColor: isCompleted ? '#22c55e' : accentColor }}
+              aria-hidden="true"
+            />
+            {showProject && task.project && (
+              <span className="text-xs text-muted-foreground truncate max-w-[140px] font-medium">
+                {task.project.name}
+              </span>
+            )}
+          </div>
           {renderActionsMenu()}
         </div>
 
@@ -609,7 +635,7 @@ export function TaskCardCompact({
         )}
 
         {/* Footer */}
-        <div className="relative z-10 mt-auto pt-3 border-t border-dashed border-border/50">
+        <div className="relative z-10 mt-auto pt-3 border-t border-dashed border-border">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-3 text-muted-foreground">
               {showProject && task.project && (

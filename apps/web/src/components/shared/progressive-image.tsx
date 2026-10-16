@@ -54,7 +54,7 @@ export function ProgressiveImage({
     >
       {/* Skeleton pulse animation while loading */}
       {!isLoaded && showSkeleton && (
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="absolute inset-0 animate-pulse bg-muted" />
       )}
       
       <Image
@@ -110,7 +110,7 @@ export function AvatarImage({
     return (
       <div
         className={cn(
-          "flex items-center justify-center rounded-full bg-primary/10 text-primary font-medium",
+          "flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 text-primary font-medium",
           sizeClasses[size],
           className
         )}

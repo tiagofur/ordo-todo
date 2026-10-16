@@ -21,6 +21,8 @@ COPY packages/stores/package.json ./packages/stores/
 COPY packages/styles/package.json ./packages/styles/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/ui/package.json ./packages/ui/
+COPY packages/auth-provider/package.json ./packages/auth-provider/
+COPY packages/validations/package.json ./packages/validations/
 
 # Copy Prisma schema for generate
 COPY packages/db/prisma ./packages/db/prisma

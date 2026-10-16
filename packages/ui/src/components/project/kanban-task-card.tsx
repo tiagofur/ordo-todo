@@ -104,26 +104,28 @@ export function KanbanTaskCard({
     <div
       onClick={handleCardClick}
       className={cn(
-        "group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all cursor-pointer",
-        "hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-900",
+        "group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-xs transition-all cursor-pointer",
+        "hover:shadow-md hover:border-border/80",
         isCompleted && "opacity-60 grayscale",
         className
       )}
-      style={{
-        ...style,
-        borderLeftWidth: "3px",
-        borderLeftColor: accentColor,
-      }}
+      style={style}
     >
       <div className="flex items-start justify-between gap-2">
-        <h4
-          className={cn(
-            "font-medium text-sm leading-tight line-clamp-2 text-foreground",
-            isCompleted && "line-through text-muted-foreground",
-          )}
-        >
-          {task.title}
-        </h4>
+        <div className="flex items-start gap-2 min-w-0">
+          <span
+            className="h-2 w-2 rounded-full shrink-0 mt-1"
+            style={{ backgroundColor: accentColor }}
+          />
+          <h4
+            className={cn(
+              "font-medium text-sm leading-tight line-clamp-2 text-foreground",
+              isCompleted && "line-through text-muted-foreground",
+            )}
+          >
+            {task.title}
+          </h4>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <button 

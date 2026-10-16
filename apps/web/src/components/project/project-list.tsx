@@ -85,7 +85,7 @@ export function ProjectList({ projectId }: ProjectListProps) {
   return (
     <div className="space-y-2">
       <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[auto_1fr_auto_auto] gap-4 p-4 border-b bg-muted/40 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="grid grid-cols-[auto_1fr_auto_auto] gap-4 p-4 border-b bg-muted text-xs font-medium text-muted-foreground uppercase tracking-wider">
           <div className="w-6"></div>
           <div>{t("columns.task")}</div>
           <div>{t("columns.dueDate")}</div>
@@ -96,7 +96,7 @@ export function ProjectList({ projectId }: ProjectListProps) {
           {tasks?.map((task: Task) => (
             <div
               key={task.id}
-              className="grid grid-cols-[auto_1fr_auto_auto] gap-4 p-4 items-center hover:bg-muted/30 transition-colors cursor-pointer group"
+              className="grid grid-cols-[auto_1fr_auto_auto] gap-4 p-4 items-center hover:bg-muted transition-colors cursor-pointer group"
               onClick={() => setSelectedTaskId(task.id)}
             >
               <button
@@ -108,7 +108,7 @@ export function ProjectList({ projectId }: ProjectListProps) {
                   "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
                   task.status === "COMPLETED"
                     ? "bg-green-500 border-green-500 text-white"
-                    : "border-muted-foreground/40 hover:border-primary"
+                    : "border-muted-foreground hover:border-primary"
                 )}
               >
                 {task.status === "COMPLETED" && (

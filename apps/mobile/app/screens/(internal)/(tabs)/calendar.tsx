@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useDesignTokens } from "@/app/lib/use-design-tokens";
 import { apiClient } from "@/app/lib/api-client";
 import { router } from "expo-router";
+import { toCalendarDateString } from "@ordo-todo/core";
 import { useTranslation } from "react-i18next";
 
 import { useMediaQuery } from "@/app/lib/hooks/use-media-query";
@@ -89,13 +90,10 @@ export default function CalendarScreen() {
   });
 
   const dayBlocks = useMemo(() => {
-    const selectedDateKey = format(selectedDay, "yyyy-MM-dd");
+    const selectedDateKey = toCalendarDateString(selectedDay);
     return (timeBlocks as TimeBlockData[]).filter((block) => {
       if (!block.scheduledDate) return false;
-      const blockDate = format(
-        new Date(block.scheduledDate),
-        "yyyy-MM-dd"
-      );
+      const blockDate = toCalendarDateString(block.scheduledDate);
       return blockDate === selectedDateKey;
     });
   }, [timeBlocks, selectedDay]);

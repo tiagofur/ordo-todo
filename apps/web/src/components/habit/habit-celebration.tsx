@@ -113,7 +113,7 @@ export function HabitCelebration({ show, onComplete, xp, streak }: HabitCelebrat
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-6xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent"
+                  className="text-6xl font-bold text-emerald-500 dark:text-emerald-400"
                 >
                   +{xp} XP
                 </motion.div>
@@ -122,7 +122,7 @@ export function HabitCelebration({ show, onComplete, xp, streak }: HabitCelebrat
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="mt-2 flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 text-amber-500 font-semibold"
+                    className="mt-2 flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400 font-semibold"
                   >
                     🔥 {streak} day streak!
                   </motion.div>

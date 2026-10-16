@@ -72,16 +72,16 @@ export type ApiClient = (OrdoApiClient & { [key: string]: any }) | {
   addWorkspaceMember: OrdoApiClient['addWorkspaceMember'];
   removeWorkspaceMember: OrdoApiClient['removeWorkspaceMember'];
 
-  // Extended workspace methods (optional)
-  getWorkspaceMembers?: OrdoApiClient['getWorkspaceMembers'];
-  getWorkspaceInvitations?: OrdoApiClient['getWorkspaceInvitations'];
-  inviteWorkspaceMember?: OrdoApiClient['inviteWorkspaceMember'];
-  acceptWorkspaceInvitation?: OrdoApiClient['acceptWorkspaceInvitation'];
-  getWorkspaceSettings?: OrdoApiClient['getWorkspaceSettings'];
-  updateWorkspaceSettings?: OrdoApiClient['updateWorkspaceSettings'];
-  getWorkspaceAuditLogs?: OrdoApiClient['getWorkspaceAuditLogs'];
-  createAuditLog?: OrdoApiClient['createAuditLog'];
-  archiveWorkspace?: OrdoApiClient['archiveWorkspace'];
+  // Extended workspace methods
+  getWorkspaceMembers: OrdoApiClient['getWorkspaceMembers'];
+  getWorkspaceInvitations: OrdoApiClient['getWorkspaceInvitations'];
+  inviteWorkspaceMember: OrdoApiClient['inviteWorkspaceMember'];
+  acceptWorkspaceInvitation: OrdoApiClient['acceptWorkspaceInvitation'];
+  getWorkspaceSettings: OrdoApiClient['getWorkspaceSettings'];
+  updateWorkspaceSettings: OrdoApiClient['updateWorkspaceSettings'];
+  getWorkspaceAuditLogs: OrdoApiClient['getWorkspaceAuditLogs'];
+  createAuditLog: OrdoApiClient['createAuditLog'];
+  archiveWorkspace: OrdoApiClient['archiveWorkspace'];
 
   // Workflow
   getWorkflows: OrdoApiClient['getWorkflows'];
@@ -110,12 +110,12 @@ export type ApiClient = (OrdoApiClient & { [key: string]: any }) | {
   deleteTask: OrdoApiClient['deleteTask'];
   createSubtask: OrdoApiClient['createSubtask'];
 
-  // Task sharing (optional)
-  generatePublicToken?: (taskId: string) => Promise<TaskShareResponse>;
-  getTaskByPublicToken?: (token: string) => Promise<PublicTaskResponse>;
+  // Task sharing
+  generatePublicToken: OrdoApiClient['generatePublicToken'];
+  getTaskByPublicToken: OrdoApiClient['getTaskByPublicToken'];
 
   // Time Blocking
-  getTimeBlocks?: OrdoApiClient['getTimeBlocks'];
+  getTimeBlocks: OrdoApiClient['getTimeBlocks'];
 
   // Tag
   getTags: OrdoApiClient['getTags'];
@@ -125,8 +125,8 @@ export type ApiClient = (OrdoApiClient & { [key: string]: any }) | {
   removeTagFromTask: OrdoApiClient['removeTagFromTask'];
   deleteTag: OrdoApiClient['deleteTag'];
 
-  // Extended tag methods (optional)
-  updateTag?: (id: string, data: unknown) => Promise<unknown>;
+  // Extended tag methods
+  updateTag: OrdoApiClient['updateTag'];
 
   // Timer
   startTimer: OrdoApiClient['startTimer'];
@@ -147,9 +147,9 @@ export type ApiClient = (OrdoApiClient & { [key: string]: any }) | {
   getProjectDistribution: OrdoApiClient['getProjectDistribution'];
   getTaskStatusDistribution: OrdoApiClient['getTaskStatusDistribution'];
 
-  // Extended analytics (optional)
-  getMonthlyMetrics?: (params?: unknown) => Promise<unknown>;
-  getDateRangeMetrics?: (startDate: string, endDate: string) => Promise<unknown>;
+  // Extended analytics
+  getMonthlyMetrics: OrdoApiClient['getMonthlyMetrics'];
+  getDateRangeMetrics: OrdoApiClient['getDateRangeMetrics'];
 
   // AI
   getAIProfile: OrdoApiClient['getAIProfile'];
@@ -171,14 +171,14 @@ export type ApiClient = (OrdoApiClient & { [key: string]: any }) | {
   createAttachment: OrdoApiClient['createAttachment'];
   deleteAttachment: OrdoApiClient['deleteAttachment'];
 
-  // Extended attachments (optional)
-  getProjectAttachments?: (projectId: string) => Promise<Attachment[]>;
+  // Extended attachments
+  getProjectAttachments: OrdoApiClient['getProjectAttachments'];
 
-  // Notifications (optional)
-  getNotifications?: () => Promise<Notification[]>;
-  getUnreadNotificationsCount?: () => Promise<UnreadCountResponse>;
-  markNotificationAsRead?: (id: string) => Promise<Notification>;
-  markAllNotificationsAsRead?: () => Promise<any>;
+  // Notifications
+  getNotifications: OrdoApiClient['getNotifications'];
+  getUnreadNotificationsCount: OrdoApiClient['getUnreadNotificationsCount'];
+  markNotificationAsRead: OrdoApiClient['markNotificationAsRead'];
+  markAllNotificationsAsRead: OrdoApiClient['markAllNotificationsAsRead'];
 
   // Habits
   getHabits: OrdoApiClient['getHabits'];

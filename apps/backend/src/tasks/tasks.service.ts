@@ -19,6 +19,7 @@ import {
   RestoreTaskUseCase,
   PermanentDeleteTaskUseCase,
   GetDeletedTasksUseCase,
+  toCalendarDateString,
 } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -45,7 +46,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
-  ) { }
+  ) {}
 
   /**
    * Creates a new task with automatic priority calculation and notifications
@@ -239,10 +240,13 @@ export class TasksService {
           tags,
         )}, assignedToMe: ${assignedToMe}`,
       );
-      const tasks = await this.taskRepository.findByWorkspaceMemberships(userId, {
-        projectId,
-        tags,
-      });
+      const tasks = await this.taskRepository.findByWorkspaceMemberships(
+        userId,
+        {
+          projectId,
+          tags,
+        },
+      );
       this.logger.debug(`Found ${tasks.length} tasks for user ${userId}`);
       // Filter only main tasks (no parentTaskId)
       // Project filtering is now done in repository, but we keep the check just in case or remove it if fully handled
@@ -274,43 +278,57 @@ export class TasksService {
    * Categories: overdue, dueToday, scheduledToday, available, notYetAvailable
    */
   async findToday(userId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { timezone: true },
+    });
+    const timezone = user?.timezone || 'America/Mexico_City';
+
+    // Current date string in user's timezone (YYYY-MM-DD)
+    const userTodayStr = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
 
     const tasks = await this.taskRepository.findTodayTasks(
       userId,
-      today,
-      tomorrow,
+      new Date(),
+      new Date(),
     );
 
-    const overdue = tasks.filter(
-      (t) => t.props.dueDate && t.props.dueDate < today,
-    );
-    const dueToday = tasks.filter(
-      (t) =>
-        t.props.dueDate &&
-        t.props.dueDate >= today &&
-        t.props.dueDate < tomorrow,
-    );
-    const scheduledToday = tasks.filter(
-      (t) =>
-        t.props.scheduledDate &&
-        t.props.scheduledDate >= today &&
-        t.props.scheduledDate < tomorrow,
-    );
-    const notYetAvailable = tasks.filter(
-      (t) => t.props.startDate && t.props.startDate > today,
-    );
-    const available = tasks.filter(
-      (t) =>
-        (!t.props.startDate || t.props.startDate <= today) &&
-        (!t.props.scheduledDate ||
-          t.props.scheduledDate < today ||
-          t.props.scheduledDate >= tomorrow) &&
-        (!t.props.dueDate || t.props.dueDate >= tomorrow),
-    );
+    const overdue = tasks.filter((t) => {
+      const dueStr = toCalendarDateString(t.props.dueDate);
+      return dueStr !== '' && dueStr < userTodayStr;
+    });
+
+    const dueToday = tasks.filter((t) => {
+      const dueStr = toCalendarDateString(t.props.dueDate);
+      return dueStr === userTodayStr;
+    });
+
+    const scheduledToday = tasks.filter((t) => {
+      const schedStr = toCalendarDateString(t.props.scheduledDate);
+      return schedStr === userTodayStr;
+    });
+
+    const notYetAvailable = tasks.filter((t) => {
+      const startStr = toCalendarDateString(t.props.startDate);
+      return startStr !== '' && startStr > userTodayStr;
+    });
+
+    const available = tasks.filter((t) => {
+      const startStr = toCalendarDateString(t.props.startDate);
+      const schedStr = toCalendarDateString(t.props.scheduledDate);
+      const dueStr = toCalendarDateString(t.props.dueDate);
+
+      const isStarted = !startStr || startStr <= userTodayStr;
+      const isNotScheduledForToday = schedStr !== userTodayStr;
+      const isNotDueTodayOrOverdue = !dueStr || dueStr > userTodayStr;
+
+      return isStarted && isNotScheduledForToday && isNotDueTodayOrOverdue;
+    });
 
     return {
       overdue: overdue.map((t) => t.props),
@@ -429,15 +447,44 @@ export class TasksService {
       include: {
         subTasks: true,
         comments: {
-          include: { author: true },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
         },
         attachments: {
-          include: { uploadedBy: true } as any,
+          include: {
+            uploadedBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
           orderBy: { uploadedAt: 'desc' },
         },
         activities: {
-          include: { user: true },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
           take: 50, // Limit to last 50 activities
         },
@@ -716,7 +763,7 @@ export class TasksService {
     // Check if task exists before deleting
     const existingTask = await this.prisma.task.findUnique({
       where: { id },
-      select: { id: true, title: true, isDeleted: true, projectId: true }
+      select: { id: true, title: true, isDeleted: true, projectId: true },
     });
 
     if (!existingTask) {
@@ -724,7 +771,9 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    this.logger.log(`[Soft Delete] Task found: ${existingTask.title}, current isDeleted: ${existingTask.isDeleted}, projectId: ${existingTask.projectId}`);
+    this.logger.log(
+      `[Soft Delete] Task found: ${existingTask.title}, current isDeleted: ${existingTask.isDeleted}, projectId: ${existingTask.projectId}`,
+    );
 
     const softDeleteTaskUseCase = new SoftDeleteTaskUseCase(
       this.taskRepository,
@@ -734,10 +783,12 @@ export class TasksService {
     // Verify the delete was successful
     const deletedTask = await this.prisma.task.findUnique({
       where: { id },
-      select: { id: true, isDeleted: true, deletedAt: true }
+      select: { id: true, isDeleted: true, deletedAt: true },
     });
 
-    this.logger.log(`[Soft Delete] Task after delete: isDeleted=${deletedTask?.isDeleted}, deletedAt=${deletedTask?.deletedAt}`);
+    this.logger.log(
+      `[Soft Delete] Task after delete: isDeleted=${deletedTask?.isDeleted}, deletedAt=${deletedTask?.deletedAt}`,
+    );
 
     return { success: true };
   }
@@ -749,17 +800,23 @@ export class TasksService {
    * @returns List of deleted tasks
    */
   async getDeleted(projectId: string) {
-    this.logger.log(`[Get Deleted Tasks] Fetching deleted tasks for projectId: ${projectId}`);
+    this.logger.log(
+      `[Get Deleted Tasks] Fetching deleted tasks for projectId: ${projectId}`,
+    );
 
     const getDeletedTasksUseCase = new GetDeletedTasksUseCase(
       this.taskRepository,
     );
     const result = await getDeletedTasksUseCase.execute(projectId);
 
-    this.logger.log(`[Get Deleted Tasks] Found ${result.length} deleted tasks for projectId: ${projectId}`);
+    this.logger.log(
+      `[Get Deleted Tasks] Found ${result.length} deleted tasks for projectId: ${projectId}`,
+    );
     if (result.length > 0) {
-      result.forEach(task => {
-        this.logger.log(`[Get Deleted Tasks] - Task: ${task.props.title}, isDeleted: ${task.props.isDeleted}, deletedAt: ${task.props.deletedAt}`);
+      result.forEach((task) => {
+        this.logger.log(
+          `[Get Deleted Tasks] - Task: ${task.props.title}, isDeleted: ${task.props.isDeleted}, deletedAt: ${task.props.deletedAt}`,
+        );
       });
     }
 
@@ -878,11 +935,28 @@ export class TasksService {
       include: {
         subTasks: true,
         comments: {
-          include: { author: true },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
         },
         attachments: {
-          include: { uploadedBy: true } as any,
+          include: {
+            uploadedBy: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
           orderBy: { uploadedAt: 'desc' },
         },
         tags: {

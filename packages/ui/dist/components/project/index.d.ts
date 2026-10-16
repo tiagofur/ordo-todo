@@ -9,4 +9,5 @@ export * from "./kanban-task-card.js";
 export * from "./project-board.js";
 export * from "./project-card.js";
 export * from "./project-timeline.js";
+export * from "./project-view-switcher.js";
 //# sourceMappingURL=index.d.ts.map

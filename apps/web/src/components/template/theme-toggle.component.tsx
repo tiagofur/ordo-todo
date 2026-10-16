@@ -28,8 +28,8 @@ export default function ThemeToggle() {
     <button
       onClick={toggleTheme}
       className="relative w-10 h-10 rounded-full flex items-center justify-center
-                 bg-yellow-200/70 dark:bg-zinc-800
-                 hover:bg-yellow-300/80 dark:hover:bg-zinc-700
+                 bg-yellow-200 dark:bg-zinc-800
+                 hover:bg-yellow-300 dark:hover:bg-zinc-700
                  transition-all duration-300 ease-in-out
                  hover:scale-110 active:scale-95
                  group overflow-hidden"

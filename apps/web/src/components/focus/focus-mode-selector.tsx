@@ -118,16 +118,16 @@ export function FocusModeSelector({
             onClick={() => onSelectMode(mode)}
             className={cn(
               "relative p-4 rounded-xl border text-left transition-all",
-              "hover:bg-accent/50",
+              "hover:bg-accent",
               mode.id === selectedModeId 
-                ? "bg-primary/10 border-primary/30" 
-                : "border-border/50"
+                ? "bg-blue-100 dark:bg-blue-900 border-blue-200 dark:border-blue-800"
+                : "border-border"
             )}
           >
             <div className="flex items-start gap-3">
               <div className={cn(
                 "h-10 w-10 rounded-lg flex items-center justify-center",
-                mode.id === selectedModeId ? "bg-primary/20" : "bg-muted",
+                mode.id === selectedModeId ? "bg-blue-100 dark:bg-blue-900" : "bg-muted",
                 mode.color
               )}>
                 {mode.icon}
@@ -158,7 +158,7 @@ export function FocusModeSelector({
       </div>
       
       {/* Selected Mode Details */}
-      <div className="p-4 rounded-xl bg-muted/30 border border-border/50">
+      <div className="p-4 rounded-xl bg-muted border border-border">
         <div className="flex items-center gap-3 mb-2">
           <div className={cn("p-2 rounded-lg bg-muted", selectedMode.color)}>
             {selectedMode.icon}

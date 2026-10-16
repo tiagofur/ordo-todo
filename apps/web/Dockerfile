@@ -18,6 +18,8 @@ COPY packages/stores/package.json ./packages/stores/
 COPY packages/i18n/package.json ./packages/i18n/
 COPY packages/styles/package.json ./packages/styles/
 COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/auth-provider/package.json ./packages/auth-provider/
+COPY packages/validations/package.json ./packages/validations/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/eslint-config/package.json ./packages/eslint-config/
 

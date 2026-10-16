@@ -70,21 +70,21 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       });
       toast.success(t("toast.updated"));
       setIsEditing(false);
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to update" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
     }
   };
 
   const handleDelete = async () => {
     if (!habitId) return;
     if (!confirm(t("confirmDelete"))) return;
-    
+
     try {
       await deleteHabit.mutateAsync(habitId);
       toast.success(t("toast.deleted"));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to delete" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to delete" }));
     }
   };
 
@@ -98,8 +98,8 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
         await pauseHabit.mutateAsync(habitId);
         toast.success(t("toast.paused"));
       }
-    } catch (error: any) {
-      toast.error(t("toast.error", { message: error?.message || "Failed to update" }));
+    } catch (error: unknown) {
+      toast.error(t("toast.error", { message: error instanceof Error ? error.message : "Failed to update" }));
     }
   };
 
@@ -124,7 +124,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-habits" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         ) : habit ? (
           <div className="space-y-6">
@@ -133,10 +133,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                 <motion.div
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg"
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
                   style={{
                     backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40`,
                   }}
                 >
                   <Sparkles className="h-7 w-7" />
@@ -146,7 +145,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                     <input
                       value={editedName}
                       onChange={(e) => setEditedName(e.target.value)}
-                      className="text-xl font-bold w-full bg-transparent border-b border-habits focus:outline-none"
+                      className="text-xl font-semibold w-full bg-transparent border-b border-primary focus:outline-none"
                       autoFocus
                     />
                   ) : (
@@ -161,7 +160,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                         {t("status.paused")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-habits/10 text-habits">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                         <CheckCircle2 className="h-3 w-3" />
                         {t("status.active")}
                       </span>
@@ -182,7 +181,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                   <textarea
                     value={editedDescription}
                     onChange={(e) => setEditedDescription(e.target.value)}
-                    className="w-full min-h-[80px] p-3 rounded-lg border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-habits"
+                    className="w-full min-h-[80px] p-3 rounded-lg border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 ) : (
                   <p className="text-sm">{habit.description}</p>
@@ -240,12 +239,12 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                 transition={{ delay: 0.25 }}
                 className="p-4 rounded-xl border bg-card"
               >
-                <div className="flex items-center gap-2 text-habits mb-2">
+                <div className="flex items-center gap-2 text-emerald-500 mb-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="text-xs font-medium">{t("stats.completionRate")}</span>
                 </div>
                 <p className="text-2xl font-bold">{stats?.completionRate || 0}%</p>
-                <p className="text-xs text-muted-foreground">{t("stats.thisWeek")}</p>
+                <p className="text-xs text-muted-foreground">tasa de éxito</p>
               </motion.div>
             </div>
 
@@ -272,10 +271,10 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.01 }}
                     className={cn(
-                      "aspect-square rounded-sm transition-all duration-300",
+                      "aspect-square rounded-sm transition-colors",
                       day.completed
-                        ? "bg-habits shadow-sm shadow-habits/50 scale-110"
-                        : "bg-muted/50 hover:bg-muted"
+                        ? "bg-emerald-500"
+                        : "bg-muted hover:bg-muted"
                     )}
                     title={day.date}
                   />
@@ -296,7 +295,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                   <button
                     onClick={handleSave}
                     disabled={updateHabit.isPending}
-                    className="flex-1 py-2 px-4 rounded-lg bg-habits text-white font-semibold shadow-lg shadow-habits/25 hover:scale-105 transition-all disabled:opacity-50"
+                    className="flex-1 py-2 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary transition-colors disabled:opacity-50"
                   >
                     {updateHabit.isPending ? "..." : t("actions.edit")}
                   </button>

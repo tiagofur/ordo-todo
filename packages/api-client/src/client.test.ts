@@ -468,13 +468,13 @@ describe('OrdoApiClient', () => {
     });
 
     it('should update a task', async () => {
-      mockAxios.put.mockResolvedValue({ data: mockTask });
+      mockAxios.patch.mockResolvedValue({ data: mockTask });
 
       const result = await client.updateTask('task-1', {
         title: 'Updated Task',
       });
 
-      expect(mockAxios.put).toHaveBeenCalledWith('/tasks/task-1', {
+      expect(mockAxios.patch).toHaveBeenCalledWith('/tasks/task-1', {
         title: 'Updated Task',
       });
       expect(result).toEqual(mockTask);
@@ -883,7 +883,7 @@ describe('OrdoApiClient', () => {
 
       const result = await client.getWeeklyMetrics();
 
-      expect(mockAxios.get).toHaveBeenCalledWith('/analytics/weekly');
+      expect(mockAxios.get).toHaveBeenCalledWith('/analytics/weekly', { params: undefined });
       expect(result).toHaveLength(1);
     });
 
@@ -1647,7 +1647,7 @@ describe('OrdoApiClient', () => {
         role: 'MEMBER',
       });
 
-      expect(mockAxios.post).toHaveBeenCalledWith('/workspaces/workspace-1/invite', {
+      expect(mockAxios.post).toHaveBeenCalledWith('/workspaces/workspace-1/invitations', {
         email: 'invited@example.com',
         role: 'MEMBER',
       });

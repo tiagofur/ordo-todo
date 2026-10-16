@@ -8,6 +8,7 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./vitest.setup.tsx'],
+        exclude: ['e2e/**', 'node_modules/**'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
@@ -23,6 +24,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
+            '@ordo-todo/api-client': path.resolve(__dirname, '../../packages/api-client/src/index.ts'),
         },
     },
 });

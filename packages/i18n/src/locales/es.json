@@ -8,7 +8,29 @@
     "day": "Día",
     "agenda": "Agenda",
     "previous": "Anterior",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "unscheduledTasks": "Tareas sin programar",
+    "noUnscheduledTasks": "No hay tareas sin programar",
+    "noUnscheduledTasksDescription": "Crea una tarea para verla aquí",
+    "taskScheduled": "Tarea programada",
+    "taskScheduleError": "Error al programar tarea",
+    "taskMoved": "Horario de tarea actualizado",
+    "taskMoveError": "Error al actualizar horario",
+    "onboarding": {
+      "welcomeTitle": "Time Blocking",
+      "welcomeDesc": "Bloquea tiempo específico para tus tareas. Esta técnica aumenta el enfoque y reduce la procrastinación.",
+      "dragdropTitle": "Arrastra y Suelta",
+      "dragdropDesc": "Toma cualquier tarea de la barra lateral y arrástrala directamente al calendario para programarla.",
+      "schedulingTitle": "Programa tu Día",
+      "schedulingDesc": "Asigna bloques de tiempo específicos. Define cuándo empiezas y cuándo terminas cada tarea.",
+      "viewsTitle": "Vista Semanal",
+      "viewsDesc": "Visualiza toda tu semana de un vistazo. Identifica huecos de tiempo y balancea tu carga de trabajo.",
+      "getstartedTitle": "¡Planifica tu Semana!",
+      "getstartedDesc": "Arrastra una tarea de la izquierda al calendario para comenzar. ¡Tu tiempo es valioso, úsalo bien!",
+      "skip": "Saltar",
+      "next": "Siguiente",
+      "getStarted": "¡Empezar a Planificar!"
+    }
   },
   "Sidebar": {
     "today": "Hoy",
@@ -30,8 +52,11 @@
     "meetings": "Reuniones",
     "wellbeing": "Bienestar",
     "workload": "Carga de trabajo",
-    "notes": "Notas"
-
+    "notes": "Notas",
+    "insights": "Insights",
+    "sectionPlan": "Planificar",
+    "sectionInsights": "Análisis",
+    "sectionTeam": "Equipo"
   },
   "Settings": {
     "title": "Configuración",
@@ -74,10 +99,87 @@
       "settings": "Configuración",
       "toggleSidebar": "Mostrar/Ocultar sidebar"
     },
+    "tags": "Etiquetas",
+    "tagsDescription": "Gestiona las etiquetas para organizar y categorizar tus tareas",
+    "manageTags": "Administrar Etiquetas",
+    "manageTagsDescription": "Crear, editar y eliminar etiquetas",
     "about": "Acerca de",
     "version": "Versión",
     "platform": "Plataforma",
-    "developer": "Desarrollado por"
+    "developer": "Desarrollado por",
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "pomodoroDesc": "Enfoque + Descansos",
+      "continuous": "Tiempo Corrido",
+      "continuousDesc": "Cronómetro simple"
+    },
+    "ai": {
+      "title": "Inteligencia Artificial",
+      "insightsTitle": "AI Insights",
+      "insightsDesc": "Recibe sugerencias proactivas basadas en tus patrones de productividad",
+      "enableInsights": "Habilitar insights de IA",
+      "enableInsightsDesc": "Muestra sugerencias personalizadas en el dashboard",
+      "smartScheduling": "Programación inteligente",
+      "smartSchedulingDesc": "Sugiere horarios óptimos basados en tu productividad",
+      "wellbeingTitle": "Bienestar",
+      "wellbeingDesc": "Detección de riesgo de burnout y recomendaciones de descanso",
+      "burnoutDetection": "Detección de burnout",
+      "burnoutDetectionDesc": "Analiza patrones de trabajo para prevenir agotamiento",
+      "restReminders": "Recordatorios de descanso",
+      "restRemindersDesc": "Notificaciones suaves para tomar pausas",
+      "sensitivity": "Sensibilidad de detección",
+      "sensitivityLevels": {
+        "low": "Baja",
+        "medium": "Media",
+        "high": "Alta"
+      },
+      "focusAudioTitle": "Focus Audio",
+      "focusAudioDesc": "Sonidos ambient para mejorar la concentración durante sesiones de trabajo",
+      "ambientAudio": "Audio ambient automático",
+      "ambientAudioDesc": "Inicia audio al comenzar una sesión de focus",
+      "defaultVolume": "Volumen por defecto"
+    },
+    "tour": {
+      "title": "Tour & Ayuda",
+      "aiFeatures": "Tour de Features de IA",
+      "aiFeaturesDesc": "Revisa las nuevas funcionalidades de inteligencia artificial",
+      "startTour": "Iniciar tour",
+      "retakeTour": "Ver de nuevo",
+      "starting": "Iniciando tour de IA...",
+      "guideText": "💡 El tour te guía por: Búsqueda Inteligente, Asistente de Reuniones, Panel de Bienestar, Carga del Equipo y Focus Audio."
+    },
+    "security": "Seguridad",
+    "sessions": {
+      "title": "Sesiones activas",
+      "single": "Solo tienes una sesión activa (esta)",
+      "multiple": "Tienes {count} sesiones activas",
+      "closeOthers": "Cerrar otras sesiones",
+      "confirm": "Confirmar",
+      "closing": "Cerrando...",
+      "cancel": "Cancelar",
+      "current": "Sesión actual",
+      "loading": "Cargando sesiones...",
+      "loadError": "Error al cargar las sesiones. Intenta nuevamente.",
+      "revokeSuccess": "Sesión revocada exitosamente",
+      "revokeError": "Error al revocar sesión",
+      "revokeOthersSuccess": "Todas las otras sesiones han sido cerradas",
+      "tipsTitle": "Consejos de seguridad",
+      "tips": {
+        "tip1": "Si ves una sesión que no reconoces, revócala inmediatamente",
+        "tip2": "Cierra las sesiones en dispositivos públicos o compartidos",
+        "tip3": "Cambia tu contraseña si sospechas acceso no autorizado"
+      },
+      "relativeTime": {
+        "justNow": "Ahora mismo",
+        "minute": "Hace 1 minuto",
+        "minutes": "Hace {count} minutos",
+        "hour": "Hace 1 hora",
+        "hours": "Hace {count} horas",
+        "day": "Hace 1 día",
+        "days": "Hace {count} días"
+      }
+    },
+    "languageChanged": "Idioma cambiado a {lang}"
   },
   "TimerWidget": {
     "startTimer": "Iniciar timer"
@@ -115,6 +217,21 @@
       "newProject": "Nuevo Proyecto",
       "startTimer": "Iniciar Timer",
       "newTask": "Nueva Tarea"
+    },
+    "onboarding": {
+      "welcomeTitle": "¡Bienvenido a Ordo!",
+      "welcomeDesc": "Tu centro de comando para la productividad. Aquí verás un resumen de tu día, tus tareas pendientes y tu progreso.",
+      "tasksTitle": "Tus Tareas del Día",
+      "tasksDesc": "Visualiza todas las tareas pendientes para hoy, ordénalas por prioridad o duración, y márcalas como completadas.",
+      "timerTitle": "Timer Integrado",
+      "timerDesc": "Usa el widget de timer para iniciar sesiones de enfoque con la técnica Pomodoro o en modo continuo.",
+      "habitsTitle": "Hábitos y OKRs",
+      "habitsDesc": "Mantén tus hábitos al día y revisa el progreso de tus objetivos directamente desde el dashboard.",
+      "getstartedTitle": "¡Comienza Ahora!",
+      "getstartedDesc": "Crea tu primera tarea con el botón (+) en la esquina inferior derecha. ¡Tu productividad empieza aquí!",
+      "skip": "Saltar",
+      "next": "Siguiente",
+      "getStarted": "¡Empezar!"
     }
   },
   "Tasks": {
@@ -127,7 +244,47 @@
     "noPendingTasks": "No tienes tareas pendientes. ¡Buen trabajo!",
     "confirmDeleteTask": "¿Estás seguro de que quieres eliminar esta tarea?",
     "taskDeleted": "Tarea eliminada exitosamente",
-    "taskDeleteError": "Error al eliminar la tarea"
+    "taskDeleteError": "Error al eliminar la tarea",
+    "noResults": "Sin resultados",
+    "noResultsDescription": "No hay tareas que coincidan con los filtros seleccionados",
+    "clearFilters": "Limpiar filtros",
+    "taskCompleted": "Tarea completada",
+    "taskReopened": "Tarea reabierta",
+    "taskUpdateError": "Error al actualizar tarea",
+    "taskMoved": "Tarea movida",
+    "taskMoveError": "Error al mover tarea",
+    "listView": "Vista de lista",
+    "gridView": "Vista de cuadrícula",
+    "eisenhowerView": "Matriz de Eisenhower",
+    "eisenhower": {
+      "title": "Matriz de Eisenhower",
+      "urgentCount": "{count} urgentes",
+      "importantCount": "{count} importantes",
+      "quadrants": {
+        "do": {
+          "title": "Hacer Primero",
+          "subtitle": "Urgente e Importante"
+        },
+        "schedule": {
+          "title": "Programar",
+          "subtitle": "Importante, No Urgente"
+        },
+        "delegate": {
+          "title": "Delegar",
+          "subtitle": "Urgente, No Importante"
+        },
+        "delete": {
+          "title": "Eliminar",
+          "subtitle": "Ni Urgente Ni Importante"
+        }
+      },
+      "empty": "Sin tareas",
+      "dragHere": "Arrastra tareas aquí",
+      "legend": {
+        "do": "Urgente + Importante = Hacer ahora",
+        "schedule": "Solo Importante = Programar"
+      }
+    }
   },
   "Notes": {
     "title": "Notas",
@@ -243,7 +400,26 @@
     "noTags": "No hay etiquetas",
     "noTagsDescription": "Crea tu primera etiqueta para empezar a organizar tus tareas.",
     "createTag": "Crear Etiqueta",
-    "tagCreated": "Etiqueta creada"
+    "tagCreated": "Etiqueta creada",
+    "tagUpdated": "Etiqueta actualizada",
+    "saveError": "Error al guardar etiqueta",
+    "selectWorkspaceFirst": "Por favor selecciona un espacio de trabajo primero",
+    "dialog": {
+      "titleCreate": "Nueva Etiqueta",
+      "titleEdit": "Editar Etiqueta",
+      "descriptionCreate": "Crea una nueva etiqueta para organizar tus tareas.",
+      "descriptionEdit": "Modifica el nombre o color de la etiqueta.",
+      "colorLabel": "Color",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Ej: Backend, Urgente",
+      "nameRequired": "El nombre es requerido",
+      "previewLabel": "Vista Previa",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "create": "Crear",
+      "creating": "Creando..."
+    }
   },
   "Habits": {
     "title": "Hábitos",
@@ -262,7 +438,9 @@
       "totalCompletions": "Veces completado",
       "completionRate": "Tasa de éxito",
       "thisWeek": "Esta semana",
-      "thisMonth": "Este mes"
+      "thisMonth": "Este mes",
+      "days": "días",
+      "completedCount": "completados"
     },
     "frequency": {
       "DAILY": "Diario",
@@ -392,9 +570,17 @@
     "avgPerDay": "Promedio/día",
     "tabs": {
       "overview": "Resumen",
+      "analytics": "Analíticas",
+      "reports": "Reportes",
+      "wellbeing": "Bienestar",
       "weekly": "Semanal",
       "focus": "Enfoque",
       "aiInsights": "Análisis IA"
+    },
+    "reports": {
+      "emptyTitle": "No hay reportes todavía",
+      "emptyDesc": "Genera tu primer reporte de productividad para obtener insights personalizados sobre tu trabajo.",
+      "detailTitle": "Detalle del Reporte"
     },
     "focusScore": {
       "label": "Focus Score de Hoy",
@@ -1212,7 +1398,8 @@
     },
     "actions": {
       "viewEdit": "Ver/Editar",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "moreOptions": "Más opciones"
     },
     "status": {
       "completed": "Completada"
@@ -1911,9 +2098,29 @@
     "noObjectives": "No hay objetivos establecidos aún",
     "noObjectivesDescription": "Define tus objetivos para mantenerte enfocado en lo que más importa.",
     "listTitle": "Objetivos y Resultados Clave",
+    "onboarding": {
+      "welcomeTitle": "Objetivos y OKRs",
+      "welcomeDesc": "Define metas ambiciosas y mide tu progreso con la metodología OKR (Objectives and Key Results).",
+      "objectivesTitle": "¿Qué son los Objetivos?",
+      "objectivesDesc": "Un objetivo es una meta inspiracional y cualitativa. Ejemplo: 'Mejorar la salud física' o 'Lanzar un producto exitoso'.",
+      "keyresultsTitle": "Key Results",
+      "keyresultsDesc": "Los Key Results son métricas específicas y medibles. Ejemplo: 'Hacer ejercicio 3 veces por semana' o 'Alcanzar 1000 usuarios'.",
+      "linkingTitle": "Vincula Tareas",
+      "linkingDesc": "Conecta tus tareas diarias a Key Results específicos. Cada tarea completada contribuye a tu progreso.",
+      "progressTitle": "Seguimiento de Progreso",
+      "progressDesc": "Visualiza el avance de cada objetivo y ajusta tu estrategia. ¡Mantén el foco en lo que realmente importa!",
+      "skip": "Saltar",
+      "next": "Siguiente",
+      "getStarted": "¡Crear mi primer Objetivo!"
+    },
     "backToList": "Volver a Objetivos",
     "notFound": "Objetivo no encontrado",
     "edit": "Editar",
+    "editObjective": "Editar Objetivo",
+    "editDescription": "Actualiza los detalles de tu objetivo.",
+    "update": "Actualizar Objetivo",
+    "updated": "Objetivo actualizado correctamente",
+    "updateError": "Error al actualizar objetivo",
     "createDescription": "Crea un nuevo objetivo para rastrear tus metas.",
     "cancel": "Cancelar",
     "create": "Crear Objetivo",
@@ -2226,6 +2433,26 @@
       "gentleReminder": "Recordatorio Suave",
       "strongWarning": "Advertencia",
       "criticalAlert": "Alerta Crítica"
+    },
+    "refresh": "Actualizar",
+    "factorsDetected": "Factores Detectados",
+    "immediateSuggestions": "Sugerencias Inmediatas",
+    "hoursPerDay": "Horas/día",
+    "weekends": "Fines de semana",
+    "breaks": "Descansos",
+    "trends": {
+      "improving": "Mejorando",
+      "stable": "Estable",
+      "declining": "Bajando"
+    },
+    "wellbeingScore": "Puntuación de bienestar",
+    "positive": "Lo positivo",
+    "concerns": "Áreas de mejora",
+    "restRecommendations": "Recomendaciones de Descanso",
+    "empty": {
+      "title": "Sin datos de bienestar",
+      "description": "Continúa usando Ordo para que podamos analizar tus patrones de trabajo",
+      "retry": "Intentar de nuevo"
     }
   },
   "Mobile": {
@@ -2384,5 +2611,42 @@
     "tasks": "tareas",
     "restore": "Restaurar",
     "confirmDelete": "¿Estás seguro de que quieres eliminar permanentemente este elemento? Esta acción NO se puede deshacer."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "Lo sentimos, la página que buscas no existe o ha sido movida. Verifica la URL o vuelve al inicio.",
+    "goToDashboard": "Ir al Dashboard",
+    "goToHome": "Volver al Inicio"
+  },
+  "Auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión para continuar con Ordo",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Tu contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "rememberMe": "Recordarme",
+      "submitButton": "Iniciar Sesión",
+      "submitting": "Iniciando sesión...",
+      "orContinueWith": "O continúa con",
+      "google": "Google",
+      "github": "GitHub",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpFree": "Regístrate gratis",
+      "termsPrefix": "Al continuar, aceptas nuestros",
+      "terms": "Términos de Servicio",
+      "termsAnd": "y",
+      "privacy": "Política de Privacidad",
+      "errors": {
+        "requiredFields": "Por favor completa todos los campos",
+        "invalidEmail": "Ingresa un correo electrónico válido",
+        "invalidCredentials": "Email o contraseña incorrectos",
+        "googleFailed": "No se pudo iniciar sesión con Google",
+        "githubFailed": "No se pudo iniciar sesión con GitHub"
+      },
+      "success": "Sesión iniciada exitosamente"
+    }
   }
 }

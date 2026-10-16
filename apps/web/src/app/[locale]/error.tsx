@@ -22,9 +22,9 @@ export default function Error({
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
-      <Card className="w-full max-w-md border-destructive/20 shadow-lg">
+      <Card className="w-full max-w-md border-destructive shadow-lg">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
             <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
           <CardTitle className="text-2xl font-bold text-destructive">

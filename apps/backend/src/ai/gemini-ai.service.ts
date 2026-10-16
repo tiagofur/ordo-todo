@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException, BadRequestException } from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 import { ConfigService } from '@nestjs/config';
 import type {
@@ -149,7 +149,7 @@ export class GeminiAIService {
     prompt: string,
   ): Promise<string> {
     if (!this.ai) {
-      throw new Error('AI not initialized');
+      throw new ServiceUnavailableException('AI service is not initialized');
     }
 
     const response = await this.ai.models.generateContent({
@@ -174,7 +174,7 @@ export class GeminiAIService {
   @CircuitBreaker({ failureThreshold: 5, resetTimeout: 10000 })
   async generate(systemPrompt: string, userPrompt: string): Promise<string> {
     if (!this.ai) {
-      throw new Error('AI not initialized');
+      throw new ServiceUnavailableException('AI service is not initialized');
     }
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
     return this.generateContent(this.getModelName('low'), fullPrompt);
@@ -260,7 +260,7 @@ Responde SOLO con JSON válido:
         };
       }
 
-      throw new Error('Invalid JSON response');
+      throw new BadRequestException('Failed to parse AI response: invalid JSON');
     } catch (error) {
       this.logger.error('Task decomposition failed', error);
       return this.getDefaultDecomposition(taskTitle);
@@ -459,7 +459,7 @@ Ejemplos:
         };
       }
 
-      throw new Error('Invalid JSON response');
+      throw new BadRequestException('Failed to parse AI response: invalid JSON');
     } catch (error) {
       this.logger.error('Failed to parse task', error);
       return this.extractTaskLocally(input);
@@ -568,7 +568,7 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
         };
       }
 
-      throw new Error('Invalid response');
+      throw new BadRequestException('Failed to parse AI response: invalid format');
     } catch (error) {
       this.logger.error('Wellbeing analysis failed', error);
       return {
@@ -724,7 +724,7 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
         return JSON.parse(jsonMatch[0]);
       }
 
-      throw new Error('Invalid response');
+      throw new BadRequestException('Failed to parse AI response: invalid format');
     } catch (error) {
       this.logger.error('Workflow suggestion failed', error);
       return this.getDefaultWorkflowSuggestion(projectName);
@@ -805,7 +805,7 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
     language: 'es' | 'en' | 'pt-br' = 'es',
   ): Promise<BlogPostGenerationResult> {
     if (!this.ai) {
-      throw new Error('AI_NOT_CONFIGURED');
+      throw new ServiceUnavailableException('AI service is not configured');
     }
 
     try {
@@ -845,7 +845,7 @@ Responde SOLO con este JSON exacto:
         return JSON.parse(jsonMatch[0]);
       }
 
-      throw new Error('Invalid JSON response');
+      throw new BadRequestException('Failed to parse AI response: invalid JSON');
     } catch (error) {
       this.logger.error('Blog generation failed', error);
       throw error;
@@ -891,7 +891,7 @@ Responde SOLO con este JSON exacto:
         };
       }
 
-      throw new Error('Failed to parse AI response');
+      throw new BadRequestException('Failed to parse AI response');
     } catch (error) {
       this.logger.error('Failed to generate productivity report', error);
       return this.getMockReport(context.scope);
@@ -1012,7 +1012,7 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
           reasoning: data.reasoning || 'Estimación automática generada por IA.',
         };
       }
-      throw new Error('Invalid format');
+      throw new BadRequestException('Failed to parse AI response: invalid format');
     } catch (e) {
       this.logger.error('Failed to estimate duration', e);
       return {

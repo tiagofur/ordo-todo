@@ -10,7 +10,7 @@ import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
 import { GamificationService } from '../gamification/gamification.service';
-import { Habit, HabitFrequency, TimeOfDay } from '@ordo-todo/core';
+import { Habit, HabitFrequency, TimeOfDay, toCalendarDateString } from '@ordo-todo/core';
 import type { IHabitRepository } from '@ordo-todo/core';
 import {
   startOfDay,
@@ -406,9 +406,9 @@ export class HabitsService {
     const calendarData: Array<{ date: string; completed: boolean }> = [];
     for (let i = 0; i < 30; i++) {
       const date = subDays(now, i);
-      const dateStr = startOfDay(date).toISOString();
-      const completed = last30Completions.some((c) =>
-        isSameDay(new Date(c.completedDate), date),
+      const dateStr = toCalendarDateString(date);
+      const completed = last30Completions.some(
+        (c) => toCalendarDateString(c.completedDate) === dateStr,
       );
       calendarData.push({
         date: dateStr,

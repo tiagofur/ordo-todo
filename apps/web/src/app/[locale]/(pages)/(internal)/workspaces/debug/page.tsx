@@ -41,14 +41,13 @@ export default function DebugWorkspacesPage() {
         },
       });
       setMessage(`✅ Actualizados: ${result.data.updated} de ${result.data.total} workspaces`);
-      console.log("Resultado:", result.data);
 
       // Recargar datos
       await refetchActive();
       await refetchDeleted();
-    } catch (error: any) {
-      setMessage(`❌ Error: ${error.message}`);
-      console.error("Error fixing carros:", error);
+    } catch (error: unknown) {
+      setMessage(`❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+      if (process.env.NODE_ENV === 'development') console.error("Error fixing carros:", error);
     }
     setIsFixing(false);
   };
@@ -80,7 +79,7 @@ export default function DebugWorkspacesPage() {
       )}
 
       {message && (
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-800 rounded-lg">
           <p className="text-sm font-medium">{message}</p>
         </div>
       )}
@@ -100,8 +99,8 @@ export default function DebugWorkspacesPage() {
                   key={ws.id}
                   className={`p-4 rounded-lg border-2 ${
                     ws.isDeleted
-                      ? "bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800"
-                      : "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800"
+                      ? "bg-red-50 dark:bg-red-900 border-red-300 dark:border-red-800"
+                      : "bg-green-50 dark:bg-green-900 border-green-300 dark:border-green-800"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -149,7 +148,7 @@ export default function DebugWorkspacesPage() {
               (deletedWorkspaces as unknown as DebugWorkspace[]).map((ws) => (
                 <div
                   key={ws.id}
-                  className="p-4 rounded-lg border-2 bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800"
+                  className="p-4 rounded-lg border-2 bg-red-50 dark:bg-red-900 border-red-300 dark:border-red-800"
                 >
                   <h3 className="font-semibold text-lg">{ws.name}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -183,8 +182,8 @@ export default function DebugWorkspacesPage() {
                 key={ws.id}
                 className={`p-4 rounded-lg border-2 ${
                   ws.isDeleted
-                    ? "bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800"
-                    : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-800"
+                    ? "bg-red-50 dark:bg-red-900 border-red-300 dark:border-red-800"
+                    : "bg-yellow-50 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-800"
                 }`}
               >
                 <div className="flex items-start justify-between">

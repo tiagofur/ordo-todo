@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePWA } from "@/components/providers/pwa-provider";
 import { Button } from "@ordo-todo/ui";
 import { toast } from "sonner";
@@ -14,7 +14,7 @@ export function PWATester() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Listen for online/offline events
-  useState(() => {
+  useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
@@ -25,7 +25,7 @@ export function PWATester() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  });
+  }, []);
 
   const handleRequestPermission = async () => {
     const granted = await pushNotifications.requestPermission();

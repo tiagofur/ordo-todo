@@ -1830,14 +1830,14 @@ export class OrdoApiClient {
 
   /**
    * Invite a member to a workspace
-   * POST /workspaces/:id/invite
+   * POST /workspaces/:id/invitations
    */
   async inviteWorkspaceMember(
     workspaceId: string,
     data: InviteMemberDto,
   ): Promise<WorkspaceInvitation> {
     const response = await this.axios.post<WorkspaceInvitation>(
-      `/workspaces/${workspaceId}/invite`,
+      `/workspaces/${workspaceId}/invitations`,
       data,
     );
     return response.data;
@@ -1942,12 +1942,12 @@ export class OrdoApiClient {
 
   /**
    * Get all timer sessions for a task
-   * GET /timers?taskId=xxx
+   * GET /timers/task/:taskId
    */
   async getTimerSessions(taskId: string): Promise<TimeSession[]> {
-    const response = await this.axios.get<TimeSession[]>("/timers", {
-      params: { taskId },
-    });
+    const response = await this.axios.get<TimeSession[]>(
+      `/timers/task/${taskId}`,
+    );
     return response.data;
   }
 

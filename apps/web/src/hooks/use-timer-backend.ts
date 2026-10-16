@@ -45,10 +45,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             const savedDate = localStorage.getItem("ordo-pomodoros-date");
             const today = new Date().toDateString();
 
-            // Reset counter if it's a new day
             if (savedDate !== today) {
-                localStorage.setItem("ordo-pomodoros-date", today);
-                localStorage.setItem("ordo-completed-pomodoros", "0");
                 return 0;
             }
 
@@ -58,6 +55,17 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     });
     // Use a ref to track current completed pomodoros to avoid stale closure issues
     const completedPomodorosRef = useRef(completedPomodoros);
+
+    // Sync day reset to localStorage (side effect belongs in useEffect, not useState)
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const savedDate = localStorage.getItem("ordo-pomodoros-date");
+        const today = new Date().toDateString();
+        if (savedDate !== today) {
+            localStorage.setItem("ordo-pomodoros-date", today);
+            localStorage.setItem("ordo-completed-pomodoros", "0");
+        }
+    }, []);
     // Flag to prevent multiple transitions
     const isTransitioningRef = useRef(false);
 
@@ -175,8 +183,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsPaused(false);
             await refetchActiveSession();
             notify.success("Timer iniciado");
-        } catch (error: any) {
-            notify.error(error.message || "Error al iniciar timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al iniciar timer");
         }
     }, [taskId, mode, type, startTimerMutation, refetchActiveSession]);
 
@@ -189,8 +197,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsPaused(true);
             setIsRunning(false);
             await refetchActiveSession();
-        } catch (error: any) {
-            notify.error(error.message || "Error al pausar timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al pausar timer");
         }
     }, [pauseTimerMutation, refetchActiveSession]);
 
@@ -203,8 +211,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             setIsRunning(true);
             setLocalPauseStartTime(null);
             await refetchActiveSession();
-        } catch (error: any) {
-            notify.error(error.message || "Error al reanudar timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al reanudar timer");
         }
     }, [localPauseStartTime, resumeTimerMutation, refetchActiveSession]);
 
@@ -226,8 +234,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             if (onSessionComplete) {
                 onSessionComplete();
             }
-        } catch (error: any) {
-            notify.error(error.message || "Error al detener timer");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al detener timer");
         }
     }, [stopTimerMutation, mode, type, getDuration, refetchActiveSession, onSessionComplete]);
 
@@ -299,7 +307,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                                     `Iniciando descanso corto. Relájate un poco.`
                                 );
                             }
-                        } catch (error: any) {
+                        } catch (error: unknown) {
                             console.error("Error auto-starting break:", error);
                             notify.error("Error al auto-iniciar descanso");
                         }
@@ -346,7 +354,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                                 "¡Descanso completado!",
                                 "Iniciando siguiente Pomodoro. ¡A trabajar!"
                             );
-                        } catch (error: any) {
+                        } catch (error: unknown) {
                             console.error("Error auto-starting pomodoro:", error);
                             notify.error("Error al auto-iniciar Pomodoro");
                         }
@@ -362,7 +370,7 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 setIsPaused(false);
                 await refetchActiveSession();
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error in skipToNext:", error);
             notify.error("Error al cambiar de modo");
         } finally {
@@ -379,8 +387,8 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             });
             await refetchActiveSession();
             notify.success("Tarea cambiada");
-        } catch (error: any) {
-            notify.error(error.message || "Error al cambiar de tarea");
+        } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : "Error al cambiar de tarea");
         }
     }, [mode, type, switchTaskMutation, refetchActiveSession]);
 
@@ -403,6 +411,11 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                     }
 
                     if (prev <= 1) {
+                        // Clear interval immediately to prevent subsequent ticks
+                        if (intervalRef.current) {
+                            clearInterval(intervalRef.current);
+                            intervalRef.current = null;
+                        }
                         // Timer completed - trigger transition
                         // Use refs to get latest function references and avoid stale closures
                         setTimeout(() => {

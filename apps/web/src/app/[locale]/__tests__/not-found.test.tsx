@@ -9,35 +9,48 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+// Mock next-intl
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      title: "Page not found",
+      description: "Sorry, the page you are looking for does not exist or has been moved.",
+      goToDashboard: "Go to Dashboard",
+      goToHome: "Back to Home",
+    };
+    return translations[key] ?? key;
+  },
+}));
+
 describe("NotFound Page", () => {
   it("renders 404 heading", () => {
     render(<NotFound />);
-    
+
     expect(screen.getByText("404")).toBeInTheDocument();
-    expect(screen.getByText("Página no encontrada")).toBeInTheDocument();
+    expect(screen.getByText("Page not found")).toBeInTheDocument();
   });
 
   it("renders helpful message", () => {
     render(<NotFound />);
-    
+
     expect(
-      screen.getByText(/Lo sentimos, la página que buscas no existe/i)
+      screen.getByText(/Sorry, the page you are looking for does not exist/i)
     ).toBeInTheDocument();
   });
 
   it("has navigation buttons", () => {
     render(<NotFound />);
-    
-    expect(screen.getByRole("link", { name: /Ir al Dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Volver al Inicio/i })).toBeInTheDocument();
+
+    expect(screen.getByRole("link", { name: /Go to Dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Back to Home/i })).toBeInTheDocument();
   });
 
   it("has correct link destinations", () => {
     render(<NotFound />);
-    
-    const dashboardLink = screen.getByRole("link", { name: /Ir al Dashboard/i });
-    const homeLink = screen.getByRole("link", { name: /Volver al Inicio/i });
-    
+
+    const dashboardLink = screen.getByRole("link", { name: /Go to Dashboard/i });
+    const homeLink = screen.getByRole("link", { name: /Back to Home/i });
+
     expect(dashboardLink).toHaveAttribute("href", "/dashboard");
     expect(homeLink).toHaveAttribute("href", "/");
   });

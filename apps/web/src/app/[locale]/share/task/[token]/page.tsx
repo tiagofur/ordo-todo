@@ -38,7 +38,7 @@ export default function PublicTaskPage() {
   if (error || !task) {
     return (
       <div className="container max-w-3xl mx-auto py-10 px-4 flex flex-col items-center justify-center text-center min-h-[50vh]">
-        <div className="bg-destructive/10 p-4 rounded-full mb-4">
+        <div className="bg-red-100 dark:bg-red-900 p-4 rounded-full mb-4">
           <AlertCircle className="w-10 h-10 text-destructive" />
         </div>
         <h1 className="text-2xl font-bold mb-2">Task Not Found</h1>
@@ -64,7 +64,7 @@ export default function PublicTaskPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/10 py-10 px-4">
+    <div className="min-h-screen bg-muted py-10 px-4">
       <div className="container max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -86,7 +86,7 @@ export default function PublicTaskPage() {
                 {task.priority}
               </Badge>
               {task.project && (
-                <Badge variant="secondary" style={{ color: task.project.color, backgroundColor: `${task.project.color}15` }}>
+                <Badge variant="secondary" style={{ color: task.project.color }}>
                   {task.project.name}
                 </Badge>
               )}
@@ -100,7 +100,7 @@ export default function PublicTaskPage() {
             {/* Description */}
             <div className="prose prose-sm dark:prose-invert max-w-none">
               {task.description ? (
-                <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">
+                <p className="whitespace-pre-wrap leading-relaxed text-foreground">
                   {task.description}
                 </p>
               ) : (
@@ -113,7 +113,7 @@ export default function PublicTaskPage() {
             {/* Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {task.dueDate && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted">
                   <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Due Date</p>
@@ -125,7 +125,7 @@ export default function PublicTaskPage() {
               )}
               
               {task.estimatedMinutes && (
-                <div className="bg-muted/50 p-3 rounded-lg border">
+                <div className="bg-muted p-3 rounded-lg border">
                   <div className="flex items-center text-muted-foreground mb-1">
                     <Clock className="w-4 h-4 mr-2" />
                     <span className="text-xs uppercase font-semibold">Estimated Time</span>
@@ -135,8 +135,8 @@ export default function PublicTaskPage() {
               )}
 
               {task.assignee && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary mt-0.5">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-bold text-primary mt-0.5">
                     {task.assignee.name?.[0] || 'U'}
                   </div>
                   <div>
@@ -147,8 +147,8 @@ export default function PublicTaskPage() {
               )}
 
               {task.creator && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary mt-0.5">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-bold text-primary mt-0.5">
                     {task.creator.name?.[0] || 'U'}
                   </div>
                   <div>
@@ -168,7 +168,7 @@ export default function PublicTaskPage() {
                 </h3>
                 <div className="space-y-2">
                   {task.subTasks.map((subtask: any) => (
-                    <div key={subtask.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+                    <div key={subtask.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
                       <div className={`w-4 h-4 rounded border flex items-center justify-center ${subtask.status === 'COMPLETED' ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground'}`}>
                         {subtask.status === 'COMPLETED' && <CheckSquare className="w-3 h-3" />}
                       </div>

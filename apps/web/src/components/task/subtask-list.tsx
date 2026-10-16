@@ -169,7 +169,7 @@ export function SubtaskList({
             key={subtask.id}
             className={cn(
               'group flex items-start gap-2 rounded-lg border p-3 transition-all',
-              'hover:bg-accent/50',
+              'hover:bg-accent',
               subtask.status === 'COMPLETED' && 'opacity-60'
             )}
           >
@@ -265,7 +265,7 @@ export function SubtaskList({
 
       {/* Add Subtask Form */}
       {isAdding ? (
-        <div className="flex items-center gap-2 rounded-lg border p-3 bg-accent/20">
+        <div className="flex items-center gap-2 rounded-lg border p-3 bg-accent">
           <Input
             value={newSubtaskTitle}
             onChange={(e) => setNewSubtaskTitle(e.target.value)}

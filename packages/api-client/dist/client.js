@@ -1191,10 +1191,10 @@ class OrdoApiClient {
     }
     /**
      * Invite a member to a workspace
-     * POST /workspaces/:id/invite
+     * POST /workspaces/:id/invitations
      */
     async inviteWorkspaceMember(workspaceId, data) {
-        const response = await this.axios.post(`/workspaces/${workspaceId}/invite`, data);
+        const response = await this.axios.post(`/workspaces/${workspaceId}/invitations`, data);
         return response.data;
     }
     /**
@@ -1259,12 +1259,10 @@ class OrdoApiClient {
     // ============ EXTENDED TIMER ENDPOINTS ============
     /**
      * Get all timer sessions for a task
-     * GET /timers?taskId=xxx
+     * GET /timers/task/:taskId
      */
     async getTimerSessions(taskId) {
-        const response = await this.axios.get("/timers", {
-            params: { taskId },
-        });
+        const response = await this.axios.get(`/timers/task/${taskId}`);
         return response.data;
     }
     /**

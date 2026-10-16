@@ -343,9 +343,9 @@ export function ProfileTabs({
 
   const getPlanBadgeColor = (plan: string) => {
     switch (plan) {
-      case "PRO": return "bg-gradient-to-r from-purple-500 to-pink-500 text-white";
-      case "TEAM": return "bg-gradient-to-r from-blue-500 to-cyan-500 text-white";
-      case "ENTERPRISE": return "bg-gradient-to-r from-amber-500 to-orange-500 text-white";
+      case "PRO": return "bg-purple-600 text-white";
+      case "TEAM": return "bg-blue-600 text-white";
+      case "ENTERPRISE": return "bg-amber-600 text-white";
       default: return "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300";
     }
   };
@@ -567,7 +567,7 @@ export function ProfileTabs({
                   )}
                   
                   {profile?.username && (
-                    <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
+                    <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900 p-3 rounded-md">
                       <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium">Warning: Changing your username will:</p>
@@ -873,7 +873,7 @@ export function ProfileTabs({
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                       <span className="text-blue-500 text-lg">G</span>
                     </div>
                     <div>
@@ -892,7 +892,7 @@ export function ProfileTabs({
               <div className="p-3 border rounded-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
                       <span className="text-green-500 text-xl">💻</span>
                     </div>
                     <div>
@@ -1043,7 +1043,7 @@ export function ProfileTabs({
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Current Plan */}
-            <div className="p-6 border rounded-lg bg-gradient-to-br from-background to-muted">
+            <div className="p-6 border rounded-lg bg-muted">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold">Current Plan</h3>
@@ -1052,7 +1052,7 @@ export function ProfileTabs({
                   </Badge>
                 </div>
                 {profile?.subscription?.plan === "FREE" && (
-                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                     Upgrade to Pro
                   </Button>
                 )}
@@ -1127,7 +1127,7 @@ export function ProfileTabs({
             {desktopOnlyContent}
 
             {/* Danger Zone */}
-            <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/5">
+            <div className="p-4 border border-destructive rounded-lg bg-red-100 dark:bg-red-900">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2 text-destructive">
@@ -1156,7 +1156,7 @@ export function ProfileTabs({
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleDeleteAccount}
-                        className="bg-destructive hover:bg-destructive/90"
+                        className="bg-destructive hover:bg-destructive"
                       >
                         {isDeleteAccountPending ? "Deleting..." : "Delete Account"}
                       </AlertDialogAction>

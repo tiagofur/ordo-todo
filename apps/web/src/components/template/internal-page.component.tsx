@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type PropsWithChildren } from "react";
 import Menu from "./menu.component";
 import TopBar from "./top-bar.component";
 import { useScreenSize } from "@/data/hooks/use-screen-size.hook";
@@ -7,7 +7,7 @@ import { AIAssistantSidebar } from "@/components/ai/ai-assistant-sidebar";
 import { DesktopSidebar } from "@/components/shared/desktop-sidebar";
 import { useNotificationsSocket } from "@/hooks/use-notifications-socket";
 
-export default function InternalPage(props: any) {
+export default function InternalPage({ children }: PropsWithChildren) {
   useNotificationsSocket();
   const { xs, sm, md } = useScreenSize();
   const [isMenuOpen, setMenuOpen] = useState(!(xs || sm || md));
@@ -39,7 +39,7 @@ export default function InternalPage(props: any) {
           onToggleMenu={() => setMenuOpen(!isMenuOpen)}
           onToggleAI={() => setAIOpen(!isAIOpen)}
         />
-        <main className="p-6">{props.children}</main>
+        <main className="p-6">{children}</main>
         
         <AIAssistantSidebar 
             isOpen={isAIOpen} 

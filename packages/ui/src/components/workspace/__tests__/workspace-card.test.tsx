@@ -37,7 +37,6 @@ describe('WorkspaceCard Component', () => {
     slug: 'test-workspace',
     name: 'Test Workspace',
     description: 'A test workspace for testing',
-    type: 'PERSONAL',
     color: '#06b6d4',
     icon: null,
     projectsCount: 5,
@@ -74,12 +73,6 @@ describe('WorkspaceCard Component', () => {
       expect(screen.queryByText('A test workspace for testing')).not.toBeInTheDocument();
     });
 
-    it('should render workspace type badge', () => {
-      render(<WorkspaceCard workspace={mockWorkspace} />);
-
-      expect(screen.getByText('Personal')).toBeInTheDocument();
-    });
-
     it('should render active status badge', () => {
       render(<WorkspaceCard workspace={mockWorkspace} />);
 
@@ -106,18 +99,12 @@ describe('WorkspaceCard Component', () => {
       expect(screen.getByText(/0 tasks/)).toBeInTheDocument();
     });
 
-    it('should render correct icon for WORK type', () => {
-      const workWorkspace = { ...mockWorkspace, type: 'WORK' as const };
-      render(<WorkspaceCard workspace={workWorkspace} />);
+    it('should render with different workspace colors', () => {
+      const workWorkspace = { ...mockWorkspace, color: '#f59e0b' };
+      const { container } = render(<WorkspaceCard workspace={workWorkspace} />);
 
-      expect(screen.getByText('Work')).toBeInTheDocument();
-    });
-
-    it('should render correct icon for TEAM type', () => {
-      const teamWorkspace = { ...mockWorkspace, type: 'TEAM' as const };
-      render(<WorkspaceCard workspace={teamWorkspace} />);
-
-      expect(screen.getByText('Team')).toBeInTheDocument();
+      const card = container.querySelector('[style*="border-left"]');
+      expect(card).toBeInTheDocument();
     });
   });
 
@@ -236,18 +223,16 @@ describe('WorkspaceCard Component', () => {
   // ============ CUSTOM LABELS ============
 
   describe('Custom Labels', () => {
-    it('should use custom type labels', () => {
+    it('should use custom status labels', () => {
       const customLabels = {
-        types: {
-          PERSONAL: 'My Personal',
-          WORK: 'My Work',
-          TEAM: 'My Team',
+        status: {
+          active: 'Activo',
         },
       };
 
       render(<WorkspaceCard workspace={mockWorkspace} labels={customLabels} />);
 
-      expect(screen.getByText('My Personal')).toBeInTheDocument();
+      expect(screen.getByText('Activo')).toBeInTheDocument();
     });
 
     it('should use custom stats labels', () => {
@@ -340,11 +325,11 @@ describe('WorkspaceCard Component', () => {
       expect(buttons.length).toBeGreaterThan(0);
     });
 
-    it('should announce workspace type to screen readers', () => {
+    it('should announce workspace status to screen readers', () => {
       render(<WorkspaceCard workspace={mockWorkspace} />);
 
-      const typeBadge = screen.getByText('Personal');
-      expect(typeBadge).toBeVisible();
+      const statusBadge = screen.getByText('Active');
+      expect(statusBadge).toBeVisible();
     });
   });
 
@@ -367,18 +352,17 @@ describe('WorkspaceCard Component', () => {
       expect(iconBox).toBeInTheDocument();
     });
 
-    it('should render different colors for different workspace types', () => {
+    it('should render different colors for different workspaces', () => {
       const { rerender } = render(<WorkspaceCard workspace={mockWorkspace} />);
 
-      // PERSONAL type uses cyan color
       const personalCard = screen.getByText('Test Workspace').closest('div');
       expect(personalCard).toBeInTheDocument();
 
-      // Rerender with WORK type
-      const workWorkspace = { ...mockWorkspace, type: 'WORK' as const };
+      // Rerender with different color
+      const workWorkspace = { ...mockWorkspace, color: '#f59e0b' };
       rerender(<WorkspaceCard workspace={workWorkspace} />);
 
-      expect(screen.getByText('Work')).toBeInTheDocument();
+      expect(screen.getByText('Test Workspace')).toBeInTheDocument();
     });
   });
 

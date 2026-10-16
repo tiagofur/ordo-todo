@@ -9,6 +9,7 @@ import {
 } from "@/hooks/api";
 import { toast } from "sonner";
 import type { TaskStatus, TaskPriority } from "@ordo-todo/api-client";
+import { formatCalendarDateInput, serializeCalendarDateForApi } from "@ordo-todo/core";
 import {
   cn,
   Sheet,
@@ -96,9 +97,9 @@ export function TaskDetailPanel({
         description: task.description || "",
         status: task.status || "TODO",
         priority: task.priority || "MEDIUM",
-        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
-        startDate: task.startDate ? new Date(task.startDate).toISOString().split("T")[0] : "",
-        scheduledDate: task.scheduledDate ? new Date(task.scheduledDate).toISOString().split("T")[0] : "",
+        dueDate: formatCalendarDateInput(task.dueDate),
+        startDate: formatCalendarDateInput(task.startDate),
+        scheduledDate: formatCalendarDateInput(task.scheduledDate),
         scheduledTime: task.scheduledTime || "",
         scheduledEndTime: (task as any).scheduledEndTime || "",
         isTimeBlocked: task.isTimeBlocked || false,
@@ -117,7 +118,12 @@ export function TaskDetailPanel({
         description: formData.description,
         status: formData.status as any,
         priority: formData.priority as any,
-        dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
+        dueDate: (formData.dueDate ? serializeCalendarDateForApi(formData.dueDate) : null) as any,
+        startDate: (formData.startDate ? serializeCalendarDateForApi(formData.startDate) : null) as any,
+        scheduledDate: (formData.scheduledDate ? serializeCalendarDateForApi(formData.scheduledDate) : null) as any,
+        scheduledTime: formData.scheduledTime || null,
+        scheduledEndTime: formData.scheduledEndTime || null,
+        isTimeBlocked: formData.isTimeBlocked,
         estimatedMinutes: formData.estimatedTime ? parseInt(String(formData.estimatedTime)) : undefined,
       }
     }, {
@@ -302,7 +308,7 @@ export function TaskDetailPanel({
                               if (!isEditing) {
                                 updateTask.mutate({ 
                                   taskId, 
-                                  data: { dueDate: e.target.value ? new Date(e.target.value) : undefined }
+                                  data: { dueDate: (e.target.value ? serializeCalendarDateForApi(e.target.value) : null) as any }
                                 });
                               }
                             }}
@@ -324,7 +330,7 @@ export function TaskDetailPanel({
                               if (!isEditing) {
                                 updateTask.mutate({ 
                                   taskId, 
-                                  data: { startDate: e.target.value ? new Date(e.target.value) : undefined }
+                                  data: { startDate: (e.target.value ? serializeCalendarDateForApi(e.target.value) : null) as any }
                                 });
                               }
                             }}
@@ -366,7 +372,7 @@ export function TaskDetailPanel({
                               if (!isEditing) {
                                 updateTask.mutate({ 
                                   taskId, 
-                                  data: { scheduledDate: e.target.value ? new Date(e.target.value) : undefined }
+                                  data: { scheduledDate: (e.target.value ? serializeCalendarDateForApi(e.target.value) : null) as any }
                                 });
                               }
                             }}

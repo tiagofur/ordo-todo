@@ -77,8 +77,8 @@ export default function FocusPage() {
           size="icon" 
           onClick={() => setShowAudioPanel(!showAudioPanel)} 
           className={cn(
-            "hover:bg-accent/20 text-muted-foreground hover:text-foreground transition-colors",
-            showAudioPanel && "bg-accent/20 text-foreground"
+            "hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
+            showAudioPanel && "bg-accent text-foreground"
           )}
           title="Ambiente Sonoro"
         >
@@ -89,7 +89,7 @@ export default function FocusPage() {
           variant="ghost" 
           size="icon" 
           onClick={toggleFullscreen} 
-          className="hover:bg-accent/20 text-muted-foreground hover:text-foreground transition-colors"
+          className="hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
           title="Toggle Fullscreen"
         >
           <Maximize2 className="w-6 h-6" />
@@ -97,7 +97,7 @@ export default function FocusPage() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-accent/20 text-muted-foreground hover:text-foreground transition-colors"
+          className="hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => router.push('/')}
           title={t('exit')}
         >
@@ -134,7 +134,7 @@ export default function FocusPage() {
               </h1>
             </>
           ) : (
-            <h1 className="text-4xl font-bold text-muted-foreground/50">{t('selectTask')}</h1>
+            <h1 className="text-4xl font-bold text-muted-foreground">{t('selectTask')}</h1>
           )}
         </div>
 
@@ -148,7 +148,7 @@ export default function FocusPage() {
           </div>
           
           {/* Progress Bar */}
-          <div className="absolute -bottom-8 left-0 right-0 h-3 bg-secondary/20 rounded-full overflow-hidden backdrop-blur-sm">
+          <div className="absolute -bottom-8 left-0 right-0 h-3 bg-secondary rounded-full overflow-hidden backdrop-blur-sm">
             <motion.div 
               className={cn(
                 "h-full rounded-full shadow-[0_0_15px_currentColor]",
@@ -169,7 +169,7 @@ export default function FocusPage() {
               onClick={() => start()} 
               className={cn(
                 "h-24 w-24 rounded-full text-xl shadow-2xl hover:scale-110 transition-all duration-300",
-                mode === 'WORK' ? "bg-red-500 hover:bg-red-600 shadow-red-500/30" : "bg-green-500 hover:bg-green-600 shadow-green-500/30"
+                mode === 'WORK' ? "bg-red-500 hover:bg-red-600 shadow-lg" : "bg-green-500 hover:bg-green-600 shadow-lg"
               )}
             >
               <Play className="w-10 h-10 ml-1" />
@@ -180,7 +180,7 @@ export default function FocusPage() {
                 variant="outline"
                 size="icon" 
                 onClick={pause} 
-                className="h-20 w-20 rounded-full border-2 hover:bg-accent/10 hover:border-foreground/50 transition-all"
+                className="h-20 w-20 rounded-full border-2 hover:bg-accent hover:border-foreground transition-all"
                 title={tTimer('pause')}
               >
                 <Pause className="w-10 h-10" />
@@ -190,7 +190,7 @@ export default function FocusPage() {
                 variant="outline"
                 size="icon" 
                 onClick={() => stop()} 
-                className="h-20 w-20 rounded-full border-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive transition-all"
+                className="h-20 w-20 rounded-full border-2 hover:bg-red-100 dark:hover:bg-red-900 hover:text-destructive hover:border-destructive transition-all"
                 title={tTimer('stop')}
               >
                 <Square className="w-8 h-8" />
@@ -201,7 +201,7 @@ export default function FocusPage() {
                   variant="outline"
                   size="icon" 
                   onClick={skipToNext} 
-                  className="h-20 w-20 rounded-full border-2 hover:bg-accent/10 hover:border-foreground/50 transition-all"
+                  className="h-20 w-20 rounded-full border-2 hover:bg-accent hover:border-foreground transition-all"
                   title={tTimer('skip')}
                 >
                   <SkipForward className="w-8 h-8" />
@@ -213,7 +213,7 @@ export default function FocusPage() {
                   variant="secondary"
                   size="icon" 
                   onClick={handleCompleteTask} 
-                  className="h-20 w-20 rounded-full bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-2 border-green-500/20 hover:border-green-500/50 transition-all"
+                  className="h-20 w-20 rounded-full bg-green-100 dark:bg-green-900 text-green-500 hover:bg-green-200 dark:hover:bg-green-800 shadow-none border-2 border-green-300 dark:border-green-700 hover:border-green-500 transition-all"
                   title={t('completeTask')}
                 >
                   <Check className="w-10 h-10" />

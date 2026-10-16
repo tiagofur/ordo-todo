@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@ordo-todo/ui";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import {
   FolderKanban,
   CheckSquare,
@@ -95,88 +95,81 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
-      >
-        <div className="flex items-center gap-4">
-          <div
-            className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl shadow-lg transition-transform hover:scale-105 flex-shrink-0"
-            style={{
-              backgroundColor: workspaceColor,
-              boxShadow: `0 8px 16px -4px ${workspaceColor}40`,
-            }}
-          >
-            <span className="text-2xl sm:text-3xl text-white">
-              {workspace.icon || "🏢"}
-            </span>
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight truncate">
-              {workspace.name}
-            </h1>
-            <p className="text-muted-foreground text-sm sm:text-base font-medium truncate opacity-80">
-              {workspace.description || t("workspaceDescription") || "Gestión del espacio de trabajo"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {permissions.canCreateProjects && (
-            <Button
-              onClick={() => setShowCreateProject(true)}
-              className="gap-2 shadow-lg transition-all hover:scale-105 px-4 h-10 sm:h-11"
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div
+              className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl shadow-sm transition-transform hover:scale-105 flex-shrink-0"
               style={{
-                backgroundColor: workspaceColor,
-                borderColor: workspaceColor,
-                boxShadow: `0 4px 12px -2px ${workspaceColor}40`,
+                backgroundColor: `${workspaceColor}15`,
+                color: workspaceColor,
               }}
             >
-              <Plus className="h-5 w-5" />
-              <span className="font-semibold">{t("newProject")}</span>
-            </Button>
-          )}
-          {(permissions.canViewSettings || permissions.canDelete) && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl"
-                >
-                  <MoreHorizontal className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-xl p-2 shadow-xl border-muted/20">
-                {permissions.canViewSettings && (
-                  <DropdownMenuItem onClick={() => setShowSettings(true)} className="rounded-lg gap-2 cursor-pointer">
-                    <Settings className="h-4 w-4" />
-                    {t("settings")}
-                  </DropdownMenuItem>
-                )}
-                {permissions.canDelete && (
-                  <DropdownMenuItem
-                    onClick={handleDelete}
-                    className="text-destructive focus:text-destructive focus:bg-destructive/10 rounded-lg gap-2 cursor-pointer"
+              <TypeIcon className="h-6 w-6 sm:h-8 sm:w-8" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">
+                {workspace.name}
+              </h1>
+              {workspace.description && (
+                <span className="text-muted-foreground text-xs sm:text-sm hidden sm:inline border-l pl-2 ml-2">
+                  {workspace.description}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {permissions.canCreateProjects && (
+              <Button
+                onClick={() => setShowCreateProject(true)}
+                className="gap-2 shadow-md transition-all hover:scale-105 flex-1 sm:flex-initial"
+                size="sm"
+                style={{
+                  backgroundColor: workspaceColor,
+                  borderColor: workspaceColor,
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                {t("newProject")}
+              </Button>
+            )}
+            {(permissions.canViewSettings || permissions.canDelete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 flex-shrink-0"
                   >
-                    <Trash2 className="h-4 w-4" />
-                    {t("delete")}
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {permissions.canViewSettings && (
+                    <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      {t("settings")}
+                    </DropdownMenuItem>
+                  )}
+                  {permissions.canDelete && (
+                    <DropdownMenuItem
+                      onClick={handleDelete}
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {t("delete")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Stats Grid */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
           title={t("stats.projects")}
           value={workspace.stats?.projectCount || 0}
@@ -195,22 +188,17 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
           icon={Users}
           color="purple"
         />
-      </motion.div>
+      </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content: Projects */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <FolderKanban className="h-5 w-5" style={{ color: workspaceColor }} />
+              <FolderKanban className="h-5 w-5 text-primary" />
               {t("projects")}
             </h2>
-            <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
               <Button
                 variant={viewMode === "list" ? "secondary" : "ghost"}
                 size="sm"
@@ -270,16 +258,16 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
         {/* Sidebar: Activity & Quick Actions */}
         <div className="space-y-6">
           {/* Activity Feed */}
-          <Card className="rounded-2xl bg-card border-muted/20 shadow-sm overflow-hidden">
-            <CardHeader className="pb-3 border-b bg-muted/20">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Clock className="h-4 w-4" style={{ color: workspaceColor }} />
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary" />
                 {t("recentActivity")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-0 pt-2">
+            <CardContent className="px-0">
               {isLoadingActivity ? (
-                <div className="space-y-4 px-6 py-4">
+                <div className="space-y-4 px-6">
                   {[...Array(3)].map((_, i) => (
                     <div key={i} className="flex gap-3">
                       <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
@@ -291,25 +279,24 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                   ))}
                 </div>
               ) : logs.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground text-sm px-6">
+                <div className="text-center py-8 text-muted-foreground text-sm px-6">
                   {t("noActivity")}
                 </div>
               ) : (
-                <div className="divide-y divide-muted/10">
+                <div className="divide-y">
                   {logs.map((log: WorkspaceAuditLog) => (
                     <div
                       key={log.id}
-                      className="flex gap-3 p-4 hover:bg-muted/30 transition-colors animate-in fade-in slide-in-from-left-2 duration-300"
+                      className="flex gap-3 p-4 hover:bg-muted transition-colors"
                     >
-                      <div className="mt-0.5 text-lg flex-shrink-0">
+                      <div className="mt-0.5 text-lg">
                         {getActionIcon(log.action)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate text-foreground/90">
+                        <p className="text-sm font-medium truncate">
                           {formatAction(log.action)}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                          <Clock className="h-3 w-3 opacity-50" />
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {formatDistanceToNow(new Date(log.createdAt), {
                             addSuffix: true,
                           })}
@@ -317,11 +304,11 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
                       </div>
                     </div>
                   ))}
-                  <div className="p-3 bg-muted/10 text-center">
+                  <div className="p-2 text-center border-t">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                      className="w-full text-xs text-muted-foreground hover:text-primary"
                       onClick={() => setShowSettings(true)}
                     >
                       {t("viewAllActivity")}{" "}
@@ -333,7 +320,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
             </CardContent>
           </Card>
         </div>
-      </motion.div>
+      </div>
 
       <CreateProjectDialog
         open={showCreateProject}
@@ -394,17 +381,17 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
   const colorStyles: Record<StatCardProps["color"], string> = {
-    blue: "bg-blue-500/10 text-blue-600",
-    green: "bg-green-500/10 text-green-600",
-    purple: "bg-purple-500/10 text-purple-600",
+    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    green: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    purple: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
   };
 
   return (
-    <Card>
+    <Card className="rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-border/80">
       <CardContent className="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
         <div
           className={cn(
-            "p-2.5 sm:p-3 rounded-lg sm:rounded-xl",
+            "p-2.5 sm:p-3 rounded-2xl",
             colorStyles[color],
           )}
         >
@@ -462,19 +449,19 @@ function ProjectsSkeleton({ viewMode }: { viewMode: "list" | "grid" }) {
 }
 
 function EmptyProjectsState({ onCreate }: { onCreate: () => void }) {
+  const t = useTranslations("Projects");
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed rounded-xl bg-muted/30">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-border rounded-2xl bg-card">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mb-4">
         <FolderKanban className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+      <h3 className="text-lg font-semibold mb-2">{t("noProjects")}</h3>
       <p className="text-muted-foreground mb-6 max-w-sm text-sm">
-        Create your first project to start organizing your tasks and
-        collaborating with your team.
+        {t("noProjectsDescription")}
       </p>
-      <Button onClick={onCreate}>
-        <Plus className="h-4 w-4 mr-2" />
-        Create Project
+      <Button onClick={onCreate} className="gap-2">
+        <Plus className="h-4 w-4" />
+        {t("createProject")}
       </Button>
     </div>
   );

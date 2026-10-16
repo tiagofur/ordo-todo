@@ -59,7 +59,7 @@ export function NoteItem({ note }: NoteItemProps) {
       <div className="flex justify-between items-center mb-1">
          {/* Grip handle for dragging */}
          <div 
-            className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-black/5 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
             {...listeners} 
             {...attributes}
          >
@@ -69,7 +69,7 @@ export function NoteItem({ note }: NoteItemProps) {
         <Button 
             variant="ghost" 
             size="icon" 
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-black/10 text-gray-700"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700"
             onClick={() => deleteNote.mutate(note.id)}
         >
             <X className="h-3 w-3" />

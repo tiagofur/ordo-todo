@@ -68,7 +68,7 @@ export function AmbientAudioPlayer({ className, compact = false }: AmbientAudioP
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
             "relative h-10 w-10 rounded-full transition-all",
-            isPlaying && "bg-primary/10 text-primary"
+            isPlaying && "bg-blue-100 dark:bg-blue-900 text-primary"
           )}
         >
           <Headphones className="h-5 w-5" />
@@ -107,13 +107,13 @@ export function AmbientAudioPlayer({ className, compact = false }: AmbientAudioP
   }
 
   return (
-    <div className={cn("bg-card/50 backdrop-blur-sm rounded-2xl border p-4", className)}>
+    <div className={cn("bg-card rounded-2xl border p-4", className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={cn(
             "h-10 w-10 rounded-full flex items-center justify-center transition-colors",
-            isPlaying ? "bg-primary/20 text-primary" : "bg-muted"
+            isPlaying ? "bg-blue-100 dark:bg-blue-900 text-primary" : "bg-muted"
           )}>
             <Headphones className="h-5 w-5" />
           </div>
@@ -197,8 +197,8 @@ export function AmbientAudioPlayer({ className, compact = false }: AmbientAudioP
                   onClick={() => play(track)}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-xl text-left transition-all",
-                    "hover:bg-accent/50",
-                    currentTrack?.id === track.id && isPlaying && "bg-primary/10 border border-primary/20",
+                    "hover:bg-accent",
+                    currentTrack?.id === track.id && isPlaying && "bg-blue-100 dark:bg-blue-900 border border-blue-200 dark:border-blue-800",
                     track.isPremium && "opacity-60"
                   )}
                   disabled={track.isPremium}

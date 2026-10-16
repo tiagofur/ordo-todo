@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!taskId) {
+        if (!taskId || !/^[a-zA-Z0-9_-]+$/.test(taskId)) {
             return NextResponse.json(
-                { error: "No taskId provided" },
+                { error: "Invalid or missing taskId format" },
                 { status: 400 }
             );
         }
@@ -70,16 +70,28 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Validate allowed extensions (block HTML, SVG, scripts, executables)
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.csv'];
+        const lastDot = file.name.lastIndexOf('.');
+        const ext = lastDot !== -1 ? file.name.substring(lastDot).toLowerCase() : '';
+        if (!allowedExtensions.includes(ext)) {
+            return NextResponse.json(
+                { error: "File type not permitted for upload" },
+                { status: 400 }
+            );
+        }
+
         // Create uploads directory if it doesn't exist
-        const uploadsDir = join(process.cwd(), "public", "uploads", taskId);
+        const sanitizedTaskId = taskId.replace(/[^a-zA-Z0-9_-]/g, "");
+        const uploadsDir = join(process.cwd(), "public", "uploads", sanitizedTaskId);
         if (!existsSync(uploadsDir)) {
             await mkdir(uploadsDir, { recursive: true });
         }
 
-        // Generate unique filename
+        // Generate safe unique filename
         const timestamp = Date.now();
-        const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const filename = `${timestamp}-${sanitizedFilename}`;
+        const randomId = Math.random().toString(36).substring(2, 10);
+        const filename = `${timestamp}-${randomId}${ext}`;
         const filepath = join(uploadsDir, filename);
 
         // Convert file to buffer and save

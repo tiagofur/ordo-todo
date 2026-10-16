@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import {
   CheckCircle2,
@@ -24,8 +24,19 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
-import { useTimerStats, useDailyMetrics, useCreateTask, useCreateProject, useProductivityStreak } from "@/lib/api-hooks";
-import { useTasks } from "@/lib/api-hooks";
+import {
+  useTimerStats,
+  useDailyMetrics,
+  useCreateTask,
+  useCreateProject,
+  useProductivityStreak,
+  useWorkspaces,
+  useProjects,
+  useWorkflows,
+  useCreateWorkflow,
+  useTasks,
+} from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
 import { DashboardTimerWidget } from "@/components/dashboard/dashboard-timer-widget";
@@ -38,47 +49,9 @@ import { CreateProjectDialog } from "@/components/project/create-project-dialog"
 import { useRouter } from "next/navigation";
 import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { type OnboardingStep } from "@ordo-todo/ui";
-import { TaskPriority } from "@ordo-todo/api-client";
+import { TaskPriority, type Task } from "@ordo-todo/api-client";
 
 const DASHBOARD_ONBOARDING_KEY = "dashboard-onboarding-seen";
-
-const dashboardOnboardingSteps: OnboardingStep[] = [
-  {
-    id: "welcome",
-    icon: Sparkles,
-    color: "#06b6d4", // Dashboard Cyan
-    title: "¡Bienvenido a Ordo!",
-    description: "Tu centro de comando para la productividad. Aquí verás un resumen de tu día, tus tareas pendientes y tu progreso.",
-  },
-  {
-    id: "tasks",
-    icon: CheckCircle2,
-    color: "#8b5cf6", // Tasks Violet
-    title: "Tus Tareas del Día",
-    description: "Visualiza todas las tareas pendientes para hoy, ordénalas por prioridad o duración, y márcalas como completadas.",
-  },
-  {
-    id: "timer",
-    icon: Timer,
-    color: "#3b82f6", // Calendar/Timer Blue
-    title: "Timer Integrado",
-    description: "Usa el widget de timer para iniciar sesiones de enfoque con la técnica Pomodoro o en modo continuo.",
-  },
-  {
-    id: "habits",
-    icon: Target,
-    color: "#10b981", // Habits Emerald
-    title: "Hábitos y OKRs",
-    description: "Mantén tus hábitos al día y revisa el progreso de tus objetivos directamente desde el dashboard.",
-  },
-  {
-    id: "getstarted",
-    icon: Rocket,
-    color: "#06b6d4", // Dashboard Cyan
-    title: "¡Comienza Ahora!",
-    description: "Crea tu primera tarea con el botón (+) en la esquina inferior derecha. ¡Tu productividad empieza aquí!",
-  },
-];
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
@@ -87,6 +60,45 @@ export default function DashboardPage() {
   const t = useTranslations("Dashboard");
   const format = useFormatter();
   const router = useRouter();
+  const accentColor = "#06b6d4"; // Cyan
+
+  const dashboardOnboardingSteps: OnboardingStep[] = useMemo(() => [
+    {
+      id: "welcome",
+      icon: Sparkles,
+      color: "#06b6d4",
+      title: t("onboarding.welcomeTitle"),
+      description: t("onboarding.welcomeDesc"),
+    },
+    {
+      id: "tasks",
+      icon: CheckCircle2,
+      color: "#10b981",
+      title: t("onboarding.tasksTitle"),
+      description: t("onboarding.tasksDesc"),
+    },
+    {
+      id: "timer",
+      icon: Timer,
+      color: "#f59e0b",
+      title: t("onboarding.timerTitle"),
+      description: t("onboarding.timerDesc"),
+    },
+    {
+      id: "habits",
+      icon: Target,
+      color: "#8b5cf6",
+      title: t("onboarding.habitsTitle"),
+      description: t("onboarding.habitsDesc"),
+    },
+    {
+      id: "getstarted",
+      icon: Rocket,
+      color: "#06b6d4",
+      title: t("onboarding.getstartedTitle"),
+      description: t("onboarding.getstartedDesc"),
+    },
+  ], [t]);
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
@@ -102,6 +114,11 @@ export default function DashboardPage() {
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: createProject } = useCreateProject();
 
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { data: workspaces = [], isLoading: isLoadingWorkspaces } = useWorkspaces();
+  const { data: projects = [], isLoading: isLoadingProjects } = useProjects(selectedWorkspaceId || "");
+  const { data: workflows = [] } = useWorkflows(selectedWorkspaceId || "");
+  const { mutateAsync: createWorkflow } = useCreateWorkflow();
 
   // Get today's date range
   const today = new Date();
@@ -136,7 +153,17 @@ export default function DashboardPage() {
   const { data: allTasks = [] } = useTasks();
 
   // Filter tasks for today view
-  const todaysTasks = allTasks.filter((task: any) => {
+  const todaysTasks = allTasks.filter((task: Task) => {
+    // Workspace isolation filter
+    if (selectedWorkspaceId) {
+      const taskWorkspaceId = (task as any).project?.workspace?.id || (task as any).project?.workspaceId;
+      if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
+        return false;
+      }
+      if (!taskWorkspaceId && projects.length > 0 && !projects.some((p: any) => p.id === task.projectId)) {
+        return false;
+      }
+    }
     // Check if task has dueDate = today
     if (task.dueDate) {
       const dueDate = new Date(task.dueDate);
@@ -178,10 +205,10 @@ export default function DashboardPage() {
   // Filter out completed tasks if showCompleted is false
   const filteredTasks = showCompleted
     ? todaysTasks
-    : todaysTasks.filter((task: any) => task.status !== "COMPLETED");
+    : todaysTasks.filter((task: Task) => task.status !== "COMPLETED");
 
   // Sort tasks based on selected option
-  const sortedTasks = [...filteredTasks].sort((a: any, b: any) => {
+  const sortedTasks = [...filteredTasks].sort((a: Task, b: Task) => {
     // Completed tasks always go to the end
     if (a.status === "COMPLETED" && b.status !== "COMPLETED") return 1;
     if (a.status !== "COMPLETED" && b.status === "COMPLETED") return -1;
@@ -213,7 +240,7 @@ export default function DashboardPage() {
 
   // Count completed tasks for the toggle label
   const completedCount = todaysTasks.filter(
-    (task: any) => task.status === "COMPLETED"
+    (task: Task) => task.status === "COMPLETED"
   ).length;
 
   // Use metrics from backend
@@ -221,8 +248,8 @@ export default function DashboardPage() {
   const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
-  const hoursWorked = stats ? Math.floor(stats.totalMinutesWorked / 60) : 0;
-  const minutesWorked = stats ? stats.totalMinutesWorked % 60 : 0;
+  const hoursWorked = stats ? Math.floor((stats.totalMinutesWorked ?? 0) / 60) : 0;
+  const minutesWorked = stats ? (stats.totalMinutesWorked ?? 0) % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
       ? `${hoursWorked}h ${minutesWorked}m`
@@ -246,10 +273,10 @@ export default function DashboardPage() {
       title: t("completed"),
       value: completedToday.toString(),
       icon: CheckCircle2,
-      color: "var(--theme-dashboard)",
+      color: accentColor,
     },
     {
-      title: "Subtareas",
+      title: t("subtasks"),
       value: subtasksCompletedToday.toString(),
       icon: ListChecks,
       color: "#8b5cf6", // Purple
@@ -272,15 +299,10 @@ export default function DashboardPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <motion.div 
-          className="flex items-center justify-between"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-dashboard text-white shadow-lg shadow-dashboard/25">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25">
                 <Home className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               {t("today")}
@@ -294,7 +316,7 @@ export default function DashboardPage() {
               })}
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Stats */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -303,20 +325,13 @@ export default function DashboardPage() {
               key={card.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 + (index * 0.05) }}
-              whileHover={{ y: -5, scale: 1.02 }}
-              className={cn(
-                "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
-                "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
-              )}
-              style={{
-                borderLeftWidth: "4px",
-                borderLeftColor: card.color,
-              }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              whileHover={{ y: -4 }}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-border/80"
             >
               <div className="flex items-center gap-4">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300 group-hover:scale-105"
                   style={{
                     backgroundColor: `${card.color}15`,
                     color: card.color,
@@ -334,36 +349,28 @@ export default function DashboardPage() {
         </div>
 
         {/* New Widgets Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25 }}
-          className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
-        >
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <ProductivityStreakWidget
             currentStreak={currentStreak}
             longestStreak={longestStreak}
+            accentColor={accentColor}
           />
-          <DashboardTimerWidget />
+          <DashboardTimerWidget
+            accentColor={accentColor}
+          />
           <HabitsWidget />
           <OkrWidget />
-        </motion.div>
+        </div>
 
         {/* AI Insights Widget */}
-        <motion.div
-           initial={{ opacity: 0, scale: 0.98 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.3, delay: 0.35 }}
-        >
-            <AIInsightsWidget className="w-full" />
-        </motion.div>
+        <AIInsightsWidget className="w-full" />
 
         {/* Tasks Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.45 }}
-          className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300"
+          transition={{ duration: 0.4, delay: 0.15 }}
+          className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300"
         >
           {/* Header with controls */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -371,16 +378,16 @@ export default function DashboardPage() {
 
             <div className="flex items-center gap-3">
               {/* View mode toggle */}
-              <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+              <div className="flex items-center border border-border rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode("list")}
                   className={cn(
                     "p-1.5 transition-all duration-200",
                     viewMode === "list"
-                      ? "bg-tasks/10 text-tasks"
-                      : "text-muted-foreground hover:bg-muted/50"
+                      ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
+                      : "text-muted-foreground hover:bg-muted"
                   )}
-                  title="Vista de lista"
+                  title={t("viewList")}
                 >
                   <List className="h-4 w-4" />
                 </button>
@@ -389,10 +396,10 @@ export default function DashboardPage() {
                   className={cn(
                     "p-1.5 transition-all duration-200",
                     viewMode === "grid"
-                      ? "bg-tasks/10 text-tasks"
-                      : "text-muted-foreground hover:bg-muted/50"
+                      ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
+                      : "text-muted-foreground hover:bg-muted"
                   )}
-                  title="Vista de cuadrícula"
+                  title={t("viewGrid")}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </button>
@@ -404,11 +411,11 @@ export default function DashboardPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                  className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
                 >
-                  <option value="priority">Prioridad</option>
-                  <option value="duration">Duración</option>
-                  <option value="created">Recientes</option>
+                  <option value="priority">{t("sortOptions.priority")}</option>
+                  <option value="duration">{t("sortOptions.duration")}</option>
+                  <option value="created">{t("sortOptions.created")}</option>
                 </select>
               </div>
 
@@ -418,8 +425,8 @@ export default function DashboardPage() {
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
                   showCompleted
-                    ? "bg-tasks/10 border-tasks/20 text-tasks"
-                    : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted"
+                    ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-semibold"
+                    : "bg-muted border-border text-muted-foreground hover:bg-muted"
                 )}
               >
                 {showCompleted ? (
@@ -428,14 +435,14 @@ export default function DashboardPage() {
                   <EyeOff className="h-4 w-4" />
                 )}
                 <span className="hidden sm:inline">
-                  {showCompleted ? "Ocultar" : "Mostrar"} completadas
+                  {showCompleted ? t("hideCompleted") : t("showCompleted")}
                 </span>
                 {completedCount > 0 && (
                   <span
                     className={cn(
                       "px-1.5 py-0.5 rounded-full text-xs font-medium",
                       showCompleted
-                        ? "bg-tasks/20 text-tasks"
+                        ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300"
                         : "bg-muted text-muted-foreground"
                     )}
                   >
@@ -448,15 +455,15 @@ export default function DashboardPage() {
 
           {sortedTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-              <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
+              <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-medium">
                 {!showCompleted && completedCount > 0
-                  ? "Todas las tareas completadas"
+                  ? t("allTasksCompleted")
                   : t("noTasks")}
               </h3>
               <p className="mb-4 text-sm text-muted-foreground">
                 {!showCompleted && completedCount > 0
-                  ? `Tienes ${completedCount} tarea${completedCount > 1 ? "s" : ""} completada${completedCount > 1 ? "s" : ""} hoy`
+                  ? t("tasksCompletedToday", { count: completedCount })
                   : t("noTasksDescription")}
               </p>
               {!showCompleted && completedCount > 0 ? (
@@ -465,12 +472,12 @@ export default function DashboardPage() {
                   className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-muted hover:bg-muted/80 transition-all duration-200"
                 >
                   <Eye className="h-4 w-4" />
-                  Mostrar completadas
+                  {t("showCompleted")}
                 </button>
               ) : (
                 <button
                   onClick={() => setShowCreateTaskDialog(true)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white bg-tasks shadow-lg shadow-tasks/25 transition-all duration-200 hover:scale-105"
+                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 hover:bg-cyan-600 transition-all duration-200"
                 >
                   <Plus className="h-4 w-4" />
                   {t("createTask")}
@@ -520,7 +527,7 @@ export default function DashboardPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+                className="fixed inset-0 bg-background/80 backdrop-blur-xs"
                 onClick={() => setShowQuickActions(false)}
               />
 
@@ -538,10 +545,12 @@ export default function DashboardPage() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-projects transition-colors">
-                    Nuevo Proyecto
+                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                    {t("quickActionButtons.newProject")}
                   </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-projects text-white">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-pink-500 shadow-sm shadow-pink-500/25"
+                  >
                     <FolderPlus className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -558,12 +567,11 @@ export default function DashboardPage() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                    Iniciar Timer
+                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                    {t("quickActionButtons.startTimer")}
                   </span>
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-                    style={{ backgroundColor: "#f59e0b" }}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-amber-500 shadow-sm shadow-amber-500/25"
                   >
                     <Timer className="h-5 w-5" />
                   </div>
@@ -581,10 +589,12 @@ export default function DashboardPage() {
                   }}
                   className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-tasks transition-colors">
-                    Nueva Tarea
+                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                    {t("quickActionButtons.newTask")}
                   </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-tasks text-white">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-cyan-500 shadow-sm shadow-cyan-500/25"
+                  >
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -595,12 +605,12 @@ export default function DashboardPage() {
 
         {/* Main FAB Button */}
         <motion.button
-          whileHover={{ scale: 1.1, rotate: 45 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg transition-all duration-300",
-            showQuickActions ? "rotate-45 bg-dashboard/80 backdrop-blur-md" : "bg-dashboard shadow-dashboard/25"
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300",
+            showQuickActions ? "rotate-45" : "rotate-0"
           )}
         >
           <Plus className="h-7 w-7" />
@@ -611,25 +621,58 @@ export default function DashboardPage() {
       <CreateTaskDialog
         open={showCreateTaskDialog}
         onOpenChange={setShowCreateTaskDialog}
+        projects={projects.map((p: any) => ({ id: p.id, name: p.name }))}
+        isLoadingProjects={isLoadingProjects}
+        onRequestCreateProject={() => {
+          setShowCreateTaskDialog(false);
+          setShowCreateProjectDialog(true);
+        }}
         onSubmit={async (data) => {
-            await createTask({
+          await createTask({
             ...data,
             priority: data.priority as TaskPriority,
-            });
-            setShowCreateTaskDialog(false);
+          });
+          setShowCreateTaskDialog(false);
         }}
       />
       <CreateProjectDialog
         open={showCreateProjectDialog}
         onOpenChange={setShowCreateProjectDialog}
+        workspaceId={selectedWorkspaceId || undefined}
+        workspaces={workspaces.map((w: any) => ({ id: w.id, name: w.name }))}
+        isLoadingWorkspaces={isLoadingWorkspaces}
+        workflows={workflows.map((w: any) => ({ id: w.id, name: w.name }))}
         onSubmit={async (data) => {
-             // Since createProject mutation expects CreateProjectDto, we pass data directly
-             // Assuming CreateProjectDialog passes correct shape
-             await createProject({
-              ...data,
-              workflowId: data.workflowId || "default-workflow-id" // Provide fallback if needed or handle inside dialog
-             });
-             setShowCreateProjectDialog(false);
+          let workflowId = data.workflowId;
+
+          if (!workflowId || workflowId === "NEW") {
+            if (workflows && workflows.length > 0) {
+              workflowId = workflows[0].id;
+            } else if (data.workspaceId || selectedWorkspaceId) {
+              const targetWsId = data.workspaceId || selectedWorkspaceId!;
+              const newWorkflow = await createWorkflow({
+                name: "Default Workflow",
+                workspaceId: targetWsId,
+              });
+              workflowId = newWorkflow.id;
+            }
+          }
+
+          await createProject({
+            name: data.name,
+            description: data.description,
+            color: data.color,
+            workspaceId: data.workspaceId,
+            workflowId: workflowId || "",
+          });
+          setShowCreateProjectDialog(false);
+        }}
+        onCreateWorkflow={async (wsId) => {
+          const newWorkflow = await createWorkflow({
+            name: "Default Workflow",
+            workspaceId: wsId,
+          });
+          return newWorkflow.id;
         }}
       />
 
@@ -637,9 +680,9 @@ export default function DashboardPage() {
         <FeatureOnboarding
           steps={dashboardOnboardingSteps}
           storageKey={DASHBOARD_ONBOARDING_KEY}
-          skipText="Saltar"
-          nextText="Siguiente"
-          getStartedText="¡Empezar!"
+          skipText={t("onboarding.skip")}
+          nextText={t("onboarding.next")}
+          getStartedText={t("onboarding.getStarted")}
         />
     </AppLayout>
   );

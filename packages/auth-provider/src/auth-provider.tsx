@@ -6,7 +6,7 @@ import {
   ReactNode,
   useMemo,
 } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import type {
   UserResponse,
   LoginDto,
@@ -17,7 +17,7 @@ import type {
   AuthProviderProps,
   PlatformType,
   ApiClient,
-} from "./types";
+} from "./types.js";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -42,8 +42,15 @@ export function AuthProvider({
   onSuccess,
   apiClient,
   onOAuthLogin,
+  queryClient: propQueryClient,
 }: AuthProviderProps) {
-  const queryClient = useQueryClient();
+  let contextQueryClient: QueryClient | undefined;
+  try {
+    contextQueryClient = useQueryClient();
+  } catch {
+    // Graceful fallback if context is isolated or during SSR
+  }
+  const queryClient = propQueryClient || contextQueryClient;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -54,31 +61,43 @@ export function AuthProvider({
     data: currentUserData,
     isLoading: isLoadingUser,
     error,
-  } = useQuery({
-    queryKey: [QUERY_KEY_CURRENT_USER],
-    queryFn: () => apiClient.getCurrentUser(),
-    retry: false,
-    enabled: mounted,
-  });
-
-  const loginMutation = useMutation({
-    mutationFn: (data: LoginDto) => apiClient.login(data),
-  });
-
-  const registerMutation = useMutation({
-    mutationFn: (data: RegisterDto) => apiClient.register(data),
-  });
-
-  const logoutMutation = useMutation({
-    mutationFn: () => apiClient.logout(),
-    onSuccess: () => {
-      queryClient.clear();
-      onSuccess?.("logout");
+  } = useQuery(
+    {
+      queryKey: [QUERY_KEY_CURRENT_USER],
+      queryFn: () => apiClient.getCurrentUser(),
+      retry: false,
+      enabled: mounted,
     },
-    onError: (error) => {
-      onError?.(error as Error);
+    queryClient
+  );
+
+  const loginMutation = useMutation(
+    {
+      mutationFn: (data: LoginDto) => apiClient.login(data),
     },
-  });
+    queryClient
+  );
+
+  const registerMutation = useMutation(
+    {
+      mutationFn: (data: RegisterDto) => apiClient.register(data),
+    },
+    queryClient
+  );
+
+  const logoutMutation = useMutation(
+    {
+      mutationFn: () => apiClient.logout(),
+      onSuccess: () => {
+        queryClient?.clear();
+        onSuccess?.("logout");
+      },
+      onError: (error) => {
+        onError?.(error as Error);
+      },
+    },
+    queryClient
+  );
 
   const isUnauthorized = (error as any)?.response?.status === 401;
   const user = isUnauthorized ? null : currentUserData || null;

@@ -30,31 +30,6 @@ export default function TagsPage() {
   const deleteTag = useDeleteTag();
   const { mutateAsync: createTag } = useCreateTag();
   const { mutateAsync: updateTag } = useUpdateTag();
-  
-  const accentColor = "#6366f1"; // Indigo
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 100,
-        damping: 12
-      },
-    },
-  };
 
   // Calculate task count for each tag
   const getTaskCount = (tagId: string) => {
@@ -93,104 +68,83 @@ export default function TagsPage() {
 
   return (
     <AppLayout>
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-8"
-      >
-        {/* Premium Iconic Header */}
-        <motion.div 
-          variants={itemVariants}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card p-8 rounded-[2.5rem] border border-border/50 shadow-sm relative overflow-hidden group"
-        >
-          {/* Background Decorations */}
-          <div 
-            className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" 
-            style={{ backgroundColor: `${accentColor}10` }}
-          />
-          <div 
-            className="absolute bottom-0 left-0 w-24 h-24 rounded-full -ml-12 -mb-12 transition-transform group-hover:scale-110" 
-            style={{ backgroundColor: `${accentColor}10` }}
-          />
-
-          <div className="flex items-center gap-6 relative z-10">
-            <motion.div
-              initial={{ rotate: -10, scale: 0.9 }}
-              animate={{ rotate: 3, scale: 1 }}
-              whileHover={{ rotate: 0, scale: 1.05 }}
-              className="flex h-20 w-20 items-center justify-center rounded-[2rem] text-white shadow-xl shrink-0 transition-transform duration-500"
-              style={{ backgroundColor: accentColor, boxShadow: `0 20px 25px -5px ${accentColor}40` }}
-            >
-              <TagIcon className="h-10 w-10" />
-            </motion.div>
-
-            <div className="flex-1 min-w-0">
-              <h1 className="text-4xl font-black tracking-tight text-foreground truncate">
-                {t('title')}
-              </h1>
-              <p className="text-muted-foreground text-lg mt-1 font-medium line-clamp-1">
-                {t('subtitle')}
-              </p>
-            </div>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+              <motion.div
+                initial={{ rotate: -8, scale: 0.92 }}
+                animate={{ rotate: 0, scale: 1 }}
+                transition={{ duration: 0.25 }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
+              >
+                <TagIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </motion.div>
+              {t('title')}
+            </h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
+              {t('subtitle')}
+            </p>
           </div>
-
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleOpenCreateDialog}
-            style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40` }}
-            className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition-all duration-200 shadow-lg relative z-10"
+            className="flex items-center gap-2 rounded-xl px-3 sm:px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
           >
-            <Plus className="h-5 w-5" />
-            <span>{t('newTag')}</span>
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('newTag')}</span>
           </motion.button>
-        </motion.div>
+        </div>
 
         {/* Tags Grid */}
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-40 rounded-2xl bg-muted/50 animate-pulse" />
+              <div key={i} className="h-40 rounded-2xl border border-border bg-card/60 p-6 animate-pulse" />
             ))}
           </div>
         ) : tags && tags.length > 0 ? (
-          <motion.div 
-            variants={containerVariants}
-            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          >
-            {tags.map((tag: any) => {
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {tags.map((tag: any, index: number) => {
               const taskCount = getTaskCount(tag.id);
+              const tagColor = tag.color || "#10b981";
               return (
                 <motion.div
                   key={tag.id}
-                  variants={itemVariants}
-                  whileHover={{ y: -5, scale: 1.02 }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.04 }}
+                  whileHover={{ y: -4 }}
                   onClick={() => handleTagClick(tag.id)}
                   className={cn(
-                    "group relative overflow-hidden rounded-[2rem] border border-border/50 bg-card p-6 transition-all duration-300 cursor-pointer",
-                    "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
+                    "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:border-border/80"
                   )}
-                  style={{ borderLeftWidth: "6px", borderLeftColor: tag.color || accentColor }}
                 >
                   <div className="relative z-10 flex flex-col h-full">
                     <div className="flex items-start justify-between gap-4 mb-4">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div
-                          className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
-                          style={{ backgroundColor: `${tag.color || accentColor}15`, color: tag.color || accentColor }}
+                          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105"
+                          style={{ backgroundColor: `${tagColor}15`, color: tagColor }}
                         >
-                          <TagIcon className="h-7 w-7" />
+                          <TagIcon className="h-6 w-6" />
                         </div>
-                        <div>
-                            <h3 className="font-bold text-xl leading-tight truncate max-w-[150px]">
-                              {tag.name}
-                            </h3>
-                        </div>
+                        <h3 className="font-semibold text-lg leading-tight truncate">
+                          {tag.name}
+                        </h3>
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <button className={cn("opacity-0 group-hover:opacity-100 transition-opacity duration-200", "rounded-full p-2 hover:bg-muted")}>
+                          <button
+                            type="button"
+                            aria-label={t('edit')}
+                            className={cn(
+                              "opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200",
+                              "rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                            )}
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </button>
                         </DropdownMenuTrigger>
@@ -206,54 +160,47 @@ export default function TagsPage() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                    
-                    <div className="mt-auto pt-4 border-t border-dashed border-border/50">
-                      <div className="flex items-center gap-2 text-sm justify-between">
-                        <div className="flex items-center gap-2">
-                             <CheckSquare className="h-4 w-4 text-muted-foreground" />
-                             <span className="text-muted-foreground font-medium">
-                               {taskCount} {taskCount === 1 ? t('task') : t('tasks')}
-                             </span>
-                        </div>
-                        {tag.description && (
-                            <span className="text-xs text-muted-foreground truncate max-w-[100px] opacity-70">
-                                {tag.description}
-                            </span>
-                        )}
+                    <div className="mt-auto pt-4 border-t border-border/60">
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium" style={{ color: tagColor }}>
+                          {taskCount}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {taskCount === 1 ? t('task') : t('tasks')}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <div
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-5 pointer-events-none transition-opacity group-hover:opacity-10"
-                    style={{ backgroundColor: tag.color || accentColor }}
-                  />
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         ) : (
           <motion.div
-            variants={itemVariants}
-            className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-[2.5rem] bg-muted/20 border-2 border-dashed border-border/50"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-16 px-4 text-center rounded-2xl border border-dashed border-border bg-card/50"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-muted/50 mb-6 group">
-              <TagIcon className="h-12 w-12 text-muted-foreground transition-transform group-hover:rotate-12 duration-300" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4 shadow-xs">
+              <TagIcon className="h-8 w-8" />
             </div>
-            <h3 className="text-xl font-bold mb-2">{t('noTags')}</h3>
-            <p className="text-muted-foreground mb-8 max-w-md text-lg leading-relaxed">
+            <h3 className="text-lg font-semibold mb-1">{t('noTags')}</h3>
+            <p className="text-muted-foreground mb-6 max-w-sm text-sm">
               {t('noTagsDescription')}
             </p>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleOpenCreateDialog}
-              style={{ backgroundColor: accentColor, boxShadow: `0 10px 15px -3px ${accentColor}40` }}
-              className="flex items-center gap-2 rounded-xl px-8 py-4 text-base font-bold text-white transition-all duration-200 hover:scale-105 hover:shadow-xl"
+              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4" />
               {t('createTag')}
-            </button>
+            </motion.button>
           </motion.div>
         )}
-      </motion.div>
+      </div>
 
       <CreateTagDialog
         open={showCreateTag}
@@ -263,6 +210,22 @@ export default function TagsPage() {
         }}
         workspaceId={selectedWorkspaceId || undefined}
         tagToEdit={editingTag}
+        labels={{
+          titleCreate: t('dialog.titleCreate'),
+          titleEdit: t('dialog.titleEdit'),
+          descriptionCreate: t('dialog.descriptionCreate'),
+          descriptionEdit: t('dialog.descriptionEdit'),
+          colorLabel: t('dialog.colorLabel'),
+          nameLabel: t('dialog.nameLabel'),
+          namePlaceholder: t('dialog.namePlaceholder'),
+          nameRequired: t('dialog.nameRequired'),
+          previewLabel: t('dialog.previewLabel'),
+          cancel: t('dialog.cancel'),
+          save: t('dialog.save'),
+          saving: t('dialog.saving'),
+          create: t('dialog.create'),
+          creating: t('dialog.creating'),
+        }}
         onSubmit={async (data, isEdit) => {
           try {
             if (isEdit) {
@@ -274,11 +237,12 @@ export default function TagsPage() {
             }
             setShowCreateTag(false);
             setEditingTag(null);
-          } catch (error: any) {
-            notify.error(error.message || t('saveError'));
+          } catch (error: unknown) {
+            notify.error(error instanceof Error ? error.message : t('saveError'));
           }
         }}
       />
     </AppLayout>
   );
 }
+

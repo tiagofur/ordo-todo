@@ -465,7 +465,12 @@ describe('useOfflineSyncStore', () => {
     // Mock API error
     vi.mocked(apiClient.createTask).mockRejectedValue(new Error('API Error'));
 
-    // Add operation
+    // Set offline to prevent auto-sync from addOperation
+    act(() => {
+      result.current.setOnlineStatus(false);
+    });
+
+    // Add operation (won't auto-sync because offline)
     act(() => {
       result.current.addOperation({
         type: 'create',
@@ -473,6 +478,13 @@ describe('useOfflineSyncStore', () => {
         entityId: 'task-1',
         data: { title: 'New Task' },
       });
+    });
+
+    // Directly set isOnline in state to avoid setOnlineStatus triggering processQueue
+    act(() => {
+      useOfflineSyncStore.setState((state) => ({
+        queue: { ...state.queue, isOnline: true },
+      }));
     });
 
     // Start sync should handle error

@@ -33,8 +33,8 @@ export function ConfirmDelete({
       setLoading(true);
       await onConfirm();
       setOpen(false);
-    } catch (error) {
-      console.error(error);
+    } catch {
+      // Error handling delegated to onConfirm caller
     } finally {
       setLoading(false);
     }

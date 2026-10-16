@@ -3,48 +3,49 @@
 import { useState } from "react";
 import { Plus, Briefcase } from "lucide-react";
 import { useWorkspaces, useCreateWorkspace } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { WorkspaceCard } from "@/components/workspace/workspace-card";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/error-handler";
 
 export default function WorkspacesPage() {
   const t = useTranslations('Workspaces');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { data: workspaces, isLoading } = useWorkspaces();
-  const { mutateAsync: createWorkspace } = useCreateWorkspace();
-  
+  const { data: workspaces, isLoading, error } = useWorkspaces();
+  const createWorkspaceMutation = useCreateWorkspace();
+  const { setSelectedWorkspaceId } = useWorkspaceStore();
+  const accentColor = "#f97316"; // Orange
+
   return (
     <div className="space-y-6">
-      {/* Header - Standard Iconic Design */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-        <div className="flex items-start gap-4 flex-1 min-w-0">
-          <motion.div
-            initial={{ rotate: -10, scale: 0.9 }}
-            animate={{ rotate: 0, scale: 1 }}
-            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-workspaces text-white shadow-lg shadow-workspaces/25 shrink-0"
-          >
-            <Briefcase className="h-7 w-7" />
-          </motion.div>
-
-          <div className="flex-1 min-w-0">
-            <h1 className="text-3xl font-bold tracking-tight truncate">
-              {t('title')}
-            </h1>
-            <p className="text-muted-foreground mt-1 line-clamp-1">
-              {t('subtitle')}
-            </p>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+            <motion.div
+              initial={{ rotate: -10, scale: 0.9 }}
+              animate={{ rotate: 0, scale: 1 }}
+              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-sm shadow-orange-500/25"
+            >
+              <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
+            </motion.div>
+            {t('title')}
+          </h1>
+          <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
+            {t('subtitle')}
+          </p>
         </div>
-
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowCreateDialog(true)}
-          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium bg-workspaces text-white shadow-lg shadow-workspaces/25 transition-all duration-200 hover:shadow-xl hover:shadow-workspaces/30"
+          className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
         >
           <Plus className="h-4 w-4" />
-          {t('newWorkspace')}
+          <span className="hidden sm:inline">{t('newWorkspace')}</span>
         </motion.button>
       </div>
 
@@ -54,12 +55,25 @@ export default function WorkspacesPage() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="h-64 rounded-2xl bg-muted/50 animate-pulse border border-border/20"
+              className="h-64 rounded-2xl bg-muted animate-pulse"
             />
           ))}
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 mb-4">
+            <Briefcase className="h-8 w-8 text-red-500" />
+          </div>
+          <h3 className="text-lg font-semibold">{t('error') || 'Error al cargar espacios'}</h3>
+          <p className="text-muted-foreground mt-2 text-sm">{t('errorDescription') || 'No se pudieron cargar los espacios de trabajo. Intenta de nuevo.'}</p>
+        </div>
       ) : workspaces && workspaces.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
           {workspaces.map((workspace: any, index: number) => (
             <WorkspaceCard
               key={workspace.id}
@@ -67,27 +81,28 @@ export default function WorkspacesPage() {
               index={index}
             />
           ))}
-        </div>
+        </motion.div>
       ) : (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center justify-center py-20 px-4 text-center bg-muted/10 rounded-3xl border-2 border-dashed border-border/50"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center justify-center py-16 px-4 text-center"
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-workspaces/10 text-workspaces mb-6">
-            <Briefcase className="h-12 w-12" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <Briefcase className="h-12 w-12 text-muted-foreground" />
           </div>
-          <h3 className="text-2xl font-bold mb-2 tracking-tight">{t('noWorkspaces')}</h3>
-          <p className="text-muted-foreground mb-8 max-w-md text-balance">
+          <h3 className="text-xl font-semibold mb-2">{t('noWorkspaces')}</h3>
+          <p className="text-muted-foreground mb-6 max-w-md">
             {t('noWorkspacesDescription')}
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateDialog(true)}
-            className="flex items-center gap-2 rounded-xl px-8 py-3.5 text-base font-semibold bg-workspaces text-white shadow-xl shadow-workspaces/25 transition-all duration-200"
+            className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4" />
             {t('createWorkspace')}
           </motion.button>
         </motion.div>
@@ -96,9 +111,19 @@ export default function WorkspacesPage() {
       <CreateWorkspaceDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
+        isPending={createWorkspaceMutation.isPending}
         onSubmit={async (data) => {
-            await createWorkspace(data);
+          try {
+            const created = await createWorkspaceMutation.mutateAsync(data);
+            if (created?.id) {
+              setSelectedWorkspaceId(created.id);
+            }
+            toast.success(t('createSuccess') || 'Espacio de trabajo creado');
             setShowCreateDialog(false);
+          } catch (err) {
+            toast.error(getErrorMessage(err, t('createError') || 'Error al crear espacio de trabajo'));
+            throw err;
+          }
         }}
       />
     </div>

@@ -39,6 +39,9 @@ const HabitDetailPanel = dynamic(
 );
 
 
+const accentColor = "#10B981"; // Emerald
+
+
 export default function HabitsPage() {
   const t = useTranslations("Habits");
   const format = useFormatter();
@@ -52,28 +55,28 @@ export default function HabitsPage() {
     {
       id: 'welcome',
       icon: Sparkles,
-      color: '#10B981', // Emerald
+      color: '#10B981',
       title: t('onboarding.welcome.title'),
       description: t('onboarding.welcome.description'),
     },
     {
       id: 'streaks',
       icon: Flame,
-      color: '#f59e0b', // Amber
+      color: '#f59e0b',
       title: t('onboarding.streaks.title'),
       description: t('onboarding.streaks.description'),
     },
     {
       id: 'reminders',
       icon: Bell,
-      color: '#8b5cf6', // Violet
+      color: '#8b5cf6',
       title: t('onboarding.reminders.title'),
       description: t('onboarding.reminders.description'),
     },
     {
       id: 'gamification',
       icon: Zap,
-      color: '#06b6d4', // Cyan
+      color: '#06b6d4',
       title: t('onboarding.gamification.title'),
       description: t('onboarding.gamification.description'),
     },
@@ -116,9 +119,10 @@ export default function HabitsPage() {
         }
       }
     } catch (error) {
-      toast.error(t("toast.error", { message: "Failed to update habit" }));
+      toast.error(error instanceof Error ? error.message : t("toast.updated"));
     }
   };
+
 
   // Stats cards
   const statCards = [
@@ -127,26 +131,26 @@ export default function HabitsPage() {
       value: `${summary.completed}/${summary.total}`,
       subtitle: `${summary.percentage}%`,
       icon: Target,
-      color: "#10B981",
+      color: "#10b981",
     },
     {
       title: t("stats.currentStreak"),
       value: habits.length > 0 ? Math.max(...habits.map((h: Habit) => h.currentStreak || 0)).toString() : "0",
-      subtitle: "días",
+      subtitle: t("stats.days"),
       icon: Flame,
       color: "#f59e0b",
     },
     {
       title: t("stats.longestStreak"),
       value: habits.length > 0 ? Math.max(...habits.map((h: Habit) => h.longestStreak || 0)).toString() : "0",
-      subtitle: "días",
+      subtitle: t("stats.days"),
       icon: TrendingUp,
       color: "#8b5cf6",
     },
     {
       title: t("stats.thisWeek"),
       value: habits.reduce((acc: number, h: Habit) => acc + (h.completions?.length || 0), 0).toString(),
-      subtitle: "completados",
+      subtitle: t("stats.completedCount"),
       icon: Calendar,
       color: "#06b6d4",
     },
@@ -155,35 +159,32 @@ export default function HabitsPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header - Standard Iconic Design */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <motion.div
-              initial={{ rotate: -10, scale: 0.9 }}
-              animate={{ rotate: 0, scale: 1 }}
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-habits text-white shadow-lg shadow-habits/25 shrink-0"
-            >
-              <Sparkles className="h-7 w-7" />
-            </motion.div>
-
-            <div className="flex-1 min-w-0">
-              <h1 className="text-3xl font-bold tracking-tight truncate">
-                {t("title")}
-              </h1>
-              <p className="text-muted-foreground mt-1 line-clamp-1">
-                {t("subtitle")}
-              </p>
-            </div>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+              <motion.div
+                initial={{ rotate: -10, scale: 0.9 }}
+                animate={{ rotate: 0, scale: 1 }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
+              >
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
+              </motion.div>
+              {t("title")}
+            </h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
+              {t("subtitle")}
+            </p>
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateHabit(true)}
-            className="flex items-center justify-center gap-2 rounded-xl bg-habits px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-habits/25 transition-all duration-200"
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
           >
-            <Plus className="h-5 w-5" />
-            <span>{t("newHabit")}</span>
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("newHabit")}</span>
           </motion.button>
         </div>
 
@@ -195,19 +196,12 @@ export default function HabitsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ y: -5, scale: 1.02 }}
-              className={cn(
-                "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
-                "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
-              )}
-              style={{
-                borderLeftWidth: "4px",
-                borderLeftColor: card.color,
-              }}
+              whileHover={{ y: -4 }}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-border/80"
             >
               <div className="flex items-center gap-4">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300 group-hover:scale-105"
                   style={{
                     backgroundColor: `${card.color}15`,
                     color: card.color,
@@ -217,8 +211,8 @@ export default function HabitsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{card.title}</p>
-                  <div className="flex items-baseline gap-1">
-                    <p className="text-2xl font-bold">{card.value}</p>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <p className="text-2xl font-bold tracking-tight">{card.value}</p>
                     <span className="text-xs text-muted-foreground">{card.subtitle}</span>
                   </div>
                 </div>
@@ -233,11 +227,11 @@ export default function HabitsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="rounded-2xl border border-border/50 bg-card p-6"
+            className="rounded-2xl border border-border bg-card p-6"
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">{t("todayProgress")}</h3>
-              <span className="text-sm font-medium text-habits">
+              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                 {summary.percentage}%
               </span>
             </div>
@@ -246,7 +240,7 @@ export default function HabitsPage() {
                 initial={{ width: 0 }}
                 animate={{ width: `${summary.percentage}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="h-full rounded-full bg-habits"
+                className="h-full rounded-full bg-emerald-500"
               />
             </div>
             <p className="text-sm text-muted-foreground mt-2">
@@ -262,7 +256,7 @@ export default function HabitsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.25 }}
-          className="rounded-2xl border border-border/50 bg-card p-6"
+          className="rounded-2xl border border-border bg-card p-6"
         >
           <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
             <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -275,20 +269,20 @@ export default function HabitsPage() {
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
             </div>
           ) : habits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-              <Sparkles className="mb-4 h-12 w-12 text-muted-foreground/50" />
+              <Sparkles className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="mb-2 text-lg font-medium">{t("noHabits")}</h3>
               <p className="mb-4 text-sm text-muted-foreground max-w-sm">
                 {t("noHabitsDescription")}
               </p>
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setShowCreateHabit(true)}
-                className="flex items-center gap-2 rounded-xl bg-habits px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-habits/25 transition-all duration-200"
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
               >
                 <Plus className="h-4 w-4" />
                 {t("createHabit")}
@@ -313,8 +307,8 @@ export default function HabitsPage() {
                       className={cn(
                         "group relative flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer",
                         isCompleted
-                          ? "bg-muted/30 border-border/30"
-                          : "bg-card border-border/50 hover:border-border hover:shadow-md",
+                          ? "bg-muted border-border"
+                          : "bg-card border-border hover:border-border hover:shadow-md",
                         isPaused && "opacity-60"
                       )}
                     >
@@ -331,7 +325,7 @@ export default function HabitsPage() {
                           "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300",
                           isCompleted
                             ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-muted-foreground/30 hover:border-emerald-500 hover:bg-emerald-500/10"
+                            : "border-gray-300 dark:border-gray-600 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950"
                         )}
                       >
                         <CheckCircle2
@@ -345,7 +339,7 @@ export default function HabitsPage() {
                       {/* Habit Icon & Info */}
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-105"
-                        style={{ backgroundColor: habit.color || "#10B981" }}
+                        style={{ backgroundColor: habit.color || accentColor }}
                       >
                         <Sparkles className="h-5 w-5" />
                       </div>
@@ -403,13 +397,10 @@ export default function HabitsPage() {
                       )}
 
                       {/* Actions */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
-                        <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-                          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                        <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                        </button>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center pr-1">
+                        <span className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </span>
                       </div>
                     </motion.div>
                   );

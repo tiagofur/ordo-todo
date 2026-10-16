@@ -1,4 +1,4 @@
-import { OrdoApiClient, TaskShareResponse, PublicTaskResponse, Attachment, Notification, UnreadCountResponse, Idea, CreateIdeaDto, UpdateIdeaDto, ContentPiece, CreateContentPieceDto, UpdateContentPieceDto, CreateSocialPostDto, SocialPost, BulkScheduleDto, ContentPlatform, SocialPostsListResponse, UpdateSocialPostDto } from '@ordo-todo/api-client';
+import { OrdoApiClient, Idea, CreateIdeaDto, UpdateIdeaDto, ContentPiece, CreateContentPieceDto, UpdateContentPieceDto, CreateSocialPostDto, SocialPost, BulkScheduleDto, ContentPlatform, SocialPostsListResponse, UpdateSocialPostDto } from '@ordo-todo/api-client';
 
 /**
  * Types for the hooks package
@@ -34,15 +34,15 @@ type ApiClient = (OrdoApiClient & {
     permanentDeleteWorkspace: OrdoApiClient['permanentDeleteWorkspace'];
     addWorkspaceMember: OrdoApiClient['addWorkspaceMember'];
     removeWorkspaceMember: OrdoApiClient['removeWorkspaceMember'];
-    getWorkspaceMembers?: OrdoApiClient['getWorkspaceMembers'];
-    getWorkspaceInvitations?: OrdoApiClient['getWorkspaceInvitations'];
-    inviteWorkspaceMember?: OrdoApiClient['inviteWorkspaceMember'];
-    acceptWorkspaceInvitation?: OrdoApiClient['acceptWorkspaceInvitation'];
-    getWorkspaceSettings?: OrdoApiClient['getWorkspaceSettings'];
-    updateWorkspaceSettings?: OrdoApiClient['updateWorkspaceSettings'];
-    getWorkspaceAuditLogs?: OrdoApiClient['getWorkspaceAuditLogs'];
-    createAuditLog?: OrdoApiClient['createAuditLog'];
-    archiveWorkspace?: OrdoApiClient['archiveWorkspace'];
+    getWorkspaceMembers: OrdoApiClient['getWorkspaceMembers'];
+    getWorkspaceInvitations: OrdoApiClient['getWorkspaceInvitations'];
+    inviteWorkspaceMember: OrdoApiClient['inviteWorkspaceMember'];
+    acceptWorkspaceInvitation: OrdoApiClient['acceptWorkspaceInvitation'];
+    getWorkspaceSettings: OrdoApiClient['getWorkspaceSettings'];
+    updateWorkspaceSettings: OrdoApiClient['updateWorkspaceSettings'];
+    getWorkspaceAuditLogs: OrdoApiClient['getWorkspaceAuditLogs'];
+    createAuditLog: OrdoApiClient['createAuditLog'];
+    archiveWorkspace: OrdoApiClient['archiveWorkspace'];
     getWorkflows: OrdoApiClient['getWorkflows'];
     createWorkflow: OrdoApiClient['createWorkflow'];
     updateWorkflow: OrdoApiClient['updateWorkflow'];
@@ -64,16 +64,16 @@ type ApiClient = (OrdoApiClient & {
     completeTask: OrdoApiClient['completeTask'];
     deleteTask: OrdoApiClient['deleteTask'];
     createSubtask: OrdoApiClient['createSubtask'];
-    generatePublicToken?: (taskId: string) => Promise<TaskShareResponse>;
-    getTaskByPublicToken?: (token: string) => Promise<PublicTaskResponse>;
-    getTimeBlocks?: OrdoApiClient['getTimeBlocks'];
+    generatePublicToken: OrdoApiClient['generatePublicToken'];
+    getTaskByPublicToken: OrdoApiClient['getTaskByPublicToken'];
+    getTimeBlocks: OrdoApiClient['getTimeBlocks'];
     getTags: OrdoApiClient['getTags'];
     getTaskTags: OrdoApiClient['getTaskTags'];
     createTag: OrdoApiClient['createTag'];
     assignTagToTask: OrdoApiClient['assignTagToTask'];
     removeTagFromTask: OrdoApiClient['removeTagFromTask'];
     deleteTag: OrdoApiClient['deleteTag'];
-    updateTag?: (id: string, data: unknown) => Promise<unknown>;
+    updateTag: OrdoApiClient['updateTag'];
     startTimer: OrdoApiClient['startTimer'];
     stopTimer: OrdoApiClient['stopTimer'];
     getActiveTimer: OrdoApiClient['getActiveTimer'];
@@ -89,8 +89,8 @@ type ApiClient = (OrdoApiClient & {
     getHeatmapData: OrdoApiClient['getHeatmapData'];
     getProjectDistribution: OrdoApiClient['getProjectDistribution'];
     getTaskStatusDistribution: OrdoApiClient['getTaskStatusDistribution'];
-    getMonthlyMetrics?: (params?: unknown) => Promise<unknown>;
-    getDateRangeMetrics?: (startDate: string, endDate: string) => Promise<unknown>;
+    getMonthlyMetrics: OrdoApiClient['getMonthlyMetrics'];
+    getDateRangeMetrics: OrdoApiClient['getDateRangeMetrics'];
     getAIProfile: OrdoApiClient['getAIProfile'];
     getOptimalSchedule: OrdoApiClient['getOptimalSchedule'];
     predictTaskDuration: OrdoApiClient['predictTaskDuration'];
@@ -105,11 +105,11 @@ type ApiClient = (OrdoApiClient & {
     getTaskAttachments: OrdoApiClient['getTaskAttachments'];
     createAttachment: OrdoApiClient['createAttachment'];
     deleteAttachment: OrdoApiClient['deleteAttachment'];
-    getProjectAttachments?: (projectId: string) => Promise<Attachment[]>;
-    getNotifications?: () => Promise<Notification[]>;
-    getUnreadNotificationsCount?: () => Promise<UnreadCountResponse>;
-    markNotificationAsRead?: (id: string) => Promise<Notification>;
-    markAllNotificationsAsRead?: () => Promise<any>;
+    getProjectAttachments: OrdoApiClient['getProjectAttachments'];
+    getNotifications: OrdoApiClient['getNotifications'];
+    getUnreadNotificationsCount: OrdoApiClient['getUnreadNotificationsCount'];
+    markNotificationAsRead: OrdoApiClient['markNotificationAsRead'];
+    markAllNotificationsAsRead: OrdoApiClient['markAllNotificationsAsRead'];
     getHabits: OrdoApiClient['getHabits'];
     getTodayHabits: OrdoApiClient['getTodayHabits'];
     getHabit: OrdoApiClient['getHabit'];

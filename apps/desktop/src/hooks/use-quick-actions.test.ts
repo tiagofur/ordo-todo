@@ -89,8 +89,8 @@ describe('useQuickActions', () => {
       result.current.openQuickActions();
     });
 
-    // Search with different cases
-    const searchTerms = ['TASK', 'task', 'TaSk', 'DaSh'];
+    // Search with different cases - all terms must match at least one action label
+    const searchTerms = ['TASK', 'task', 'TaSk', 'Timer'];
 
     searchTerms.forEach(term => {
       act(() => {
@@ -201,11 +201,11 @@ describe('useQuickActions', () => {
     });
 
     const navigationTests = [
-      { actionId: 'dashboard', expectedHash: '/dashboard' },
-      { actionId: 'tasks', expectedHash: '/tasks' },
+      { actionId: 'today', expectedHash: '/dashboard?filter=today' },
+      { actionId: 'new-task', expectedHash: '/tasks?new=true' },
       { actionId: 'projects', expectedHash: '/projects' },
-      { actionId: 'timer', expectedHash: '/timer' },
-      { actionId: 'analytics', expectedHash: '/analytics' },
+      { actionId: 'start-pomodoro', expectedHash: '/timer?start=pomodoro' },
+      { actionId: 'focus-mode', expectedHash: '/focus' },
     ];
 
     navigationTests.forEach(({ actionId, expectedHash }) => {

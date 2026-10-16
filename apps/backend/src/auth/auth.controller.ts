@@ -9,6 +9,7 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
@@ -23,6 +24,7 @@ import { CsrfService } from './csrf.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { CheckUsernameDto } from './dto/check-username.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,6 +33,8 @@ import { AuthGuard } from '@nestjs/passport';
 @ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly csrfService: CsrfService,
@@ -70,13 +74,13 @@ export class AuthController {
   @ApiResponse({ status: 409, description: 'Email or username already exists' })
   async register(
     @Body() registerDto: RegisterDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     const { accessToken, refreshToken, user } =
       await this.authService.register(registerDto);
 
     // Set httpOnly cookies for security (XSS protection)
-    res.cookie('access_token', accessToken, {
+    res?.cookie?.('access_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -84,7 +88,7 @@ export class AuthController {
       path: '/',
     });
 
-    res.cookie('refresh_token', refreshToken, {
+    res?.cookie?.('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -92,8 +96,7 @@ export class AuthController {
       path: '/',
     });
 
-    // Return only user data (tokens are in httpOnly cookies)
-    return { user };
+    return { user, accessToken, refreshToken };
   }
 
   /**
@@ -127,13 +130,13 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid email or password' })
   async login(
     @Body() loginDto: LoginDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     const { accessToken, refreshToken, user } =
       await this.authService.login(loginDto);
 
     // Set httpOnly cookies for security (XSS protection)
-    res.cookie('access_token', accessToken, {
+    res?.cookie?.('access_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -141,7 +144,7 @@ export class AuthController {
       path: '/',
     });
 
-    res.cookie('refresh_token', refreshToken, {
+    res?.cookie?.('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -149,8 +152,7 @@ export class AuthController {
       path: '/',
     });
 
-    // Return only user data (tokens are in httpOnly cookies)
-    return { user };
+    return { user, accessToken, refreshToken };
   }
 
   /**
@@ -159,6 +161,7 @@ export class AuthController {
    * Adds the current access token to the blacklist to prevent reuse.
    * Clears httpOnly cookies.
    */
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -167,25 +170,28 @@ export class AuthController {
       'Blacklists the JWT access token, clears httpOnly cookies, and prevents further use.',
   })
   @ApiResponse({ status: 200, description: 'Logout successful' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(
     @CurrentUser() user: any,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req?: Request,
+    @Res({ passthrough: true }) res?: Response,
   ) {
-    let token = req.headers['authorization']?.replace('Bearer ', '');
+    let token = req?.headers?.['authorization']?.replace('Bearer ', '');
 
-    if (!token && req.cookies && req.cookies['access_token']) {
+    if (!token && req?.cookies && req?.cookies['access_token']) {
       token = req.cookies['access_token'];
     }
 
     if (token) {
-      await this.authService.logout(token);
+      try {
+        await this.authService.logout(token);
+      } catch (err: any) {
+        this.logger.warn(`Logout token blacklist skipped/failed: ${err?.message}`);
+      }
     }
 
-    // Clear httpOnly cookies
-    res.clearCookie('access_token', { path: '/' });
-    res.clearCookie('refresh_token', { path: '/' });
+    // Always clear httpOnly cookies regardless of token validity
+    res?.clearCookie?.('access_token', { path: '/' });
+    res?.clearCookie?.('refresh_token', { path: '/' });
 
     return { message: 'Logout successful' };
   }
@@ -219,11 +225,12 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
+    @Body() refreshTokenDto?: RefreshTokenDto,
+    @Req() req?: Request,
+    @Res({ passthrough: true }) res?: Response,
   ) {
-    // Extract refresh token from httpOnly cookie
-    const refreshToken = req.cookies?.refresh_token;
+    // Extract refresh token from httpOnly cookie or request body (for mobile/API clients)
+    const refreshToken = req?.cookies?.refresh_token || refreshTokenDto?.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
@@ -236,7 +243,7 @@ export class AuthController {
     } = await this.authService.refresh(refreshToken);
 
     // Set httpOnly cookies for new tokens
-    res.cookie('access_token', accessToken, {
+    res?.cookie?.('access_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -244,7 +251,7 @@ export class AuthController {
       path: '/',
     });
 
-    res.cookie('refresh_token', newRefreshToken, {
+    res?.cookie?.('refresh_token', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -252,8 +259,7 @@ export class AuthController {
       path: '/',
     });
 
-    // Return only user data (tokens are in httpOnly cookies)
-    return { user };
+    return { user, accessToken, refreshToken: newRefreshToken };
   }
 
   /**
@@ -286,8 +292,10 @@ export class AuthController {
       example: { available: false, message: 'Username is already taken' },
     },
   })
-  async checkUsername(@Body() body: { username: string }) {
-    return this.authService.checkUsernameAvailability(body.username);
+  async checkUsername(@Body() checkUsernameDto: CheckUsernameDto) {
+    return this.authService.checkUsernameAvailability(
+      checkUsernameDto.username,
+    );
   }
 
   /**

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTasks, useUpdateTask, useCreateTask } from "@/lib/api-hooks";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
@@ -226,21 +227,25 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
         onOpenChange={setIsCreateTaskOpen}
         projectId={projectId}
         onSubmit={async (data) => {
-          const newTask = await createTask({
-            ...data,
-            priority: data.priority as TaskPriority,
-            projectId: projectId,
-          });
+          try {
+            const newTask = await createTask({
+              ...data,
+              priority: data.priority as TaskPriority,
+              projectId: projectId,
+            });
 
-          // Update status if it's not the default
-          const targetStatus = (data as any).status || addTaskStatus;
-          if (targetStatus && targetStatus !== 'TODO') {
-             await updateTaskMutation.mutateAsync({ 
-                taskId: newTask.id, 
-                data: { status: targetStatus } as UpdateTaskDto
-             });
+            // Update status if it's not the default
+            const targetStatus = (data as any).status || addTaskStatus;
+            if (targetStatus && targetStatus !== 'TODO') {
+               await updateTaskMutation.mutateAsync({
+                  taskId: newTask.id,
+                  data: { status: targetStatus } as UpdateTaskDto
+               });
+            }
+            setIsCreateTaskOpen(false);
+          } catch {
+            toast.error('Error al crear tarea');
           }
-          setIsCreateTaskOpen(false);
         }}
       />
     </>

@@ -47,7 +47,7 @@ export function NotificationPopover() {
         locale: localeMap[locale] || enUS
       });
     } catch (error) {
-      console.error('Error formatting date:', error, 'date value:', date);
+      if (process.env.NODE_ENV === 'development') console.error('Error formatting date:', error, 'date value:', date);
       return '';
     }
   };
@@ -55,7 +55,7 @@ export function NotificationPopover() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 hover:bg-muted/50 hover:scale-105">
+        <button className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 hover:bg-muted hover:scale-105">
           <Bell className="h-5 w-5 text-muted-foreground" />
           {(unreadCount as number) > 0 && (
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
@@ -105,8 +105,8 @@ export function NotificationPopover() {
                 <div 
                   key={notification.id}
                   className={cn(
-                    "p-4 hover:bg-muted/50 transition-colors cursor-pointer relative group",
-                    !notification.isRead && "bg-primary/5"
+                    "p-4 hover:bg-muted transition-colors cursor-pointer relative group",
+                    !notification.isRead && "bg-blue-100 dark:bg-blue-900"
                   )}
                   onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
                 >
@@ -124,7 +124,7 @@ export function NotificationPopover() {
                           {notification.message}
                         </p>
                       )}
-                      <p className="text-[10px] text-muted-foreground/70">
+                      <p className="text-[10px] text-muted-foreground">
                         {formatTime(notification.createdAt)}
                       </p>
                     </div>

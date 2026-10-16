@@ -7,7 +7,6 @@ import {
   Flame,
   Clock,
   Trash2,
-  CheckCircle2,
   GripVertical,
   Calendar,
   AlertTriangle,
@@ -221,7 +220,7 @@ export function EisenhowerMatrix({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     draggable
-                    onDragStart={(e) => handleDragStart(e as any, task.id)}
+                    onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, task.id)}
                     className={cn(
                       "flex items-start gap-2 p-2 rounded-lg bg-card border cursor-grab",
                       "hover:shadow-sm transition-all",

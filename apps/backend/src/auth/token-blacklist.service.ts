@@ -26,6 +26,7 @@ import { RedisService } from '../cache/redis.service';
 export class TokenBlacklistService {
   private readonly logger = new Logger(TokenBlacklistService.name);
   private readonly TOKEN_PREFIX = 'blacklist:token:';
+  private readonly inMemoryBlacklist = new Map<string, number>();
 
   constructor(
     private readonly jwtService: JwtService,
@@ -36,7 +37,7 @@ export class TokenBlacklistService {
    * Add a token to the blacklist
    *
    * Stores the token in Redis with automatic expiration based on JWT expiry time.
-   * This ensures blacklisted tokens are revoked across all server instances.
+   * Also maintains an in-memory fallback for local environments or when Redis is offline.
    *
    * @param token - JWT access token to blacklist
    * @returns Promise that resolves when token is added to Redis
@@ -60,6 +61,9 @@ export class TokenBlacklistService {
 
         // Only store if token hasn't already expired
         if (expiresAt > now) {
+          // Always record in in-memory fallback
+          this.inMemoryBlacklist.set(jti, expiresAt.getTime());
+
           // Calculate TTL in seconds
           const ttl = Math.floor((expiresAt.getTime() - now.getTime()) / 1000);
 
@@ -82,8 +86,7 @@ export class TokenBlacklistService {
   /**
    * Check if a token is blacklisted
    *
-   * Queries Redis to determine if the token has been revoked.
-   * Works across multiple server instances due to Redis distributed storage.
+   * Queries Redis or in-memory fallback to determine if the token has been revoked.
    *
    * @param token - JWT access token to check
    * @returns Promise that resolves to true if token is blacklisted
@@ -97,6 +100,16 @@ export class TokenBlacklistService {
       }
 
       const jti = decoded.jti || token;
+
+      // Check in-memory fallback first
+      const memExpiry = this.inMemoryBlacklist.get(jti);
+      if (memExpiry) {
+        if (memExpiry > Date.now()) {
+          return true;
+        }
+        this.inMemoryBlacklist.delete(jti);
+      }
+
       const redisKey = `${this.TOKEN_PREFIX}${jti}`;
 
       // Check if token exists in Redis blacklist
@@ -106,7 +119,7 @@ export class TokenBlacklistService {
         this.logger.debug(`Token ${jti} is blacklisted`);
       }
 
-      return isBlacklisted;
+      return Boolean(isBlacklisted);
     } catch (error) {
       this.logger.error('Failed to check token blacklist status', error);
       return false;

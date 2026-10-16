@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
 import { User, UserRepository, CreateUserProps } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
@@ -134,7 +134,7 @@ export class PrismaUserRepository implements UserRepository {
       select: this.userSelectFields,
     });
     if (!user) return null;
-    return this.toDomain(user as any);
+    return this.toDomain(user as any).withoutPassword();
   }
 
   async findById(id: string): Promise<User | null> {
@@ -143,7 +143,7 @@ export class PrismaUserRepository implements UserRepository {
       select: this.userSelectFields,
     });
     if (!user) return null;
-    return this.toDomain(user as any);
+    return this.toDomain(user as any).withoutPassword();
   }
 
   async findByProvider(
@@ -165,7 +165,7 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (!account || !account.user) return null;
-    return this.toDomain(account.user as any);
+    return this.toDomain(account.user as any).withoutPassword();
   }
 
   async linkOAuthAccount(
@@ -187,7 +187,7 @@ export class PrismaUserRepository implements UserRepository {
       select: this.userSelectFields,
     });
 
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('User not found');
     return this.toDomain(user as any);
   }
 

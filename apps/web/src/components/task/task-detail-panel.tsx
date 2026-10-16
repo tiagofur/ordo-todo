@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import {
   X,
   Save,
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
+import { formatCalendarDateInput, serializeCalendarDateForApi } from '@ordo-todo/core';
 import { 
   useTaskComments, 
   useCreateComment, 
@@ -234,15 +236,27 @@ export function TaskDetailPanel({
 
   const handleCreateComment = async (content: string) => {
     if (!taskId) return;
-    await createCommentMutation.mutateAsync({ taskId, content });
+    try {
+      await createCommentMutation.mutateAsync({ taskId, content });
+    } catch {
+      toast.error('Error al crear comentario');
+    }
   };
 
   const handleUpdateComment = async (commentId: string, content: string) => {
-    await updateCommentMutation.mutateAsync({ commentId, data: { content } });
+    try {
+      await updateCommentMutation.mutateAsync({ commentId, data: { content } });
+    } catch {
+      toast.error('Error al actualizar comentario');
+    }
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    await deleteCommentMutation.mutateAsync(commentId);
+    try {
+      await deleteCommentMutation.mutateAsync(commentId);
+    } catch {
+      toast.error('Error al eliminar comentario');
+    }
   };
 
   // Attachments Logic
@@ -257,13 +271,17 @@ export function TaskDetailPanel({
         await uploadAttachmentMutation.mutateAsync({ file, taskId });
         // Clear input? easier to just use a key or controlled input, but simple is fine for now
     } catch (error) {
-        console.error("Failed to upload", error);
+        if (process.env.NODE_ENV === 'development') console.error("Failed to upload", error);
     }
   };
 
   const handleDeleteAttachment = async (attachmentId: string) => {
     if (!taskId) return;
-    await deleteAttachmentMutation.mutateAsync(attachmentId);
+    try {
+      await deleteAttachmentMutation.mutateAsync(attachmentId);
+    } catch {
+      toast.error('Error al eliminar archivo adjunto');
+    }
   };
 
   useEffect(() => {
@@ -273,7 +291,7 @@ export function TaskDetailPanel({
         description: task.description || '',
         status: task.status || 'TODO',
         priority: task.priority || 'MEDIUM',
-        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] ?? '' : '',
+        dueDate: formatCalendarDateInput(task.dueDate),
         estimatedMinutes: task.estimatedMinutes?.toString() || '',
       });
     }
@@ -292,12 +310,12 @@ export function TaskDetailPanel({
          description: formData.description,
          status: formData.status as TaskStatus,
          priority: formData.priority as TaskPriority,
-         dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
+         dueDate: (formData.dueDate ? serializeCalendarDateForApi(formData.dueDate) : null) as any,
          estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
        });
        setIsEditing(false);
-     } catch (err) {
-       console.error(err);
+     } catch {
+       toast.error('Error al guardar los cambios');
      } finally {
        setIsUpdating(false);
      }
@@ -306,8 +324,12 @@ export function TaskDetailPanel({
   const handleDelete = async () => {
     if (!taskId || !onDelete) return;
     if (window.confirm(t.confirmDelete)) {
-      await onDelete(taskId);
-      onOpenChange(false);
+      try {
+        await onDelete(taskId);
+        onOpenChange(false);
+      } catch {
+        toast.error('Error al eliminar la tarea');
+      }
     }
   };
 
@@ -316,8 +338,12 @@ export function TaskDetailPanel({
     if (task?.publicToken) {
       setShowShareDialog(true);
     } else if (onShare) {
-      await onShare(taskId);
-      setShowShareDialog(true);
+      try {
+        await onShare(taskId);
+        setShowShareDialog(true);
+      } catch {
+        toast.error('Error al compartir la tarea');
+      }
     }
   };
 
@@ -365,7 +391,7 @@ export function TaskDetailPanel({
         ) : (
           <div className="flex flex-col h-full animate-in fade-in duration-300">
             {/* Header Area */}
-            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-muted/10">
+            <div className="px-4 sm:px-6 py-4 sm:py-5 border-b bg-muted">
               {/* Mobile-first: Close button always visible at top right */}
               <div className="flex items-center justify-between gap-2 mb-3 sm:mb-0 sm:absolute sm:right-4 sm:top-4 sm:z-10">
                 <div className="flex items-center gap-1 sm:hidden">
@@ -377,7 +403,7 @@ export function TaskDetailPanel({
                        if(onUpdate && taskId) onUpdate(taskId, { status: val as TaskStatus });
                     }}
                   >
-                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -399,7 +425,7 @@ export function TaskDetailPanel({
                       if(onUpdate && taskId) onUpdate(taskId, { priority: val as TaskPriority });
                     }}
                   >
-                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                    <SelectTrigger className="h-7 text-xs w-auto gap-1 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -448,7 +474,7 @@ export function TaskDetailPanel({
                          if(onUpdate && taskId) onUpdate(taskId, { status: val as TaskStatus });
                       }}
                     >
-                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -470,7 +496,7 @@ export function TaskDetailPanel({
                         if(onUpdate && taskId) onUpdate(taskId, { priority: val as TaskPriority });
                       }}
                     >
-                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary/50 hover:bg-secondary/80 focus:ring-0">
+                      <SelectTrigger className="h-8 text-xs w-auto gap-2 border-transparent bg-secondary hover:bg-secondary focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -491,13 +517,13 @@ export function TaskDetailPanel({
                     <Input
                       value={formData.title}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange("title", e.target.value)}
-                      className="text-xl sm:text-2xl font-bold h-auto py-1.5 sm:py-2 px-2 sm:px-3 -ml-2 sm:-ml-3 bg-transparent border-transparent hover:bg-accent/50 focus:bg-background focus:border-input transition-colors"
+                      className="text-xl sm:text-2xl font-bold h-auto py-1.5 sm:py-2 px-2 sm:px-3 -ml-2 sm:-ml-3 bg-transparent border-transparent hover:bg-accent focus:bg-background focus:border-input transition-colors"
                       placeholder={t.titlePlaceholder}
                       autoFocus
                     />
                   ) : (
                     <h2
-                      className="text-xl sm:text-2xl font-bold cursor-text hover:bg-accent/20 rounded px-2 -ml-2 py-1 transition-colors break-words"
+                      className="text-xl sm:text-2xl font-bold cursor-text hover:bg-accent rounded px-2 -ml-2 py-1 transition-colors break-words"
                       onClick={() => setIsEditing(true)}
                     >
                       {formData.title}
@@ -525,7 +551,7 @@ export function TaskDetailPanel({
                               e.stopPropagation();
                               if (taskId && onRemoveTag) onRemoveTag(taskId, tag.id);
                             }}
-                            className="hover:bg-background/30 rounded-full p-0.5 transition-colors"
+                            className="hover:bg-background rounded-full p-0.5 transition-colors"
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -620,8 +646,8 @@ export function TaskDetailPanel({
                            className={cn(
                              "prose prose-sm dark:prose-invert max-w-none flex-1 p-3 sm:p-4 rounded-lg border-2 border-dashed transition-all overflow-hidden",
                              formData.description
-                               ? "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/30"
-                               : "border-border/30 bg-muted/10 hover:border-border/50 hover:bg-muted/20",
+                               ? "border-border bg-muted hover:border-border hover:bg-muted"
+                               : "border-border bg-muted hover:border-border hover:bg-muted",
                              "cursor-text"
                            )}
                            onClick={() => setIsEditing(true)}
@@ -636,7 +662,7 @@ export function TaskDetailPanel({
                     </div>
                     
                     <div className="space-y-4 min-w-0">
-                      <div className="space-y-4 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-muted/40 to-muted/20 border-2 border-border/50 shadow-sm">
+                      <div className="space-y-4 p-4 sm:p-5 rounded-xl bg-muted border-2 border-border shadow-sm">
                         <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
                            <div className="w-1 h-4 bg-primary rounded-full flex-shrink-0" />
                            {t.detailsTitle}
@@ -645,7 +671,7 @@ export function TaskDetailPanel({
                         <div className="space-y-4">
                            <div className="space-y-2">
                              <Label className="text-xs font-medium text-muted-foreground">{t.dueDate}</Label>
-                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-border transition-colors">
                                <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                <Input
                                   type="date"
@@ -653,7 +679,7 @@ export function TaskDetailPanel({
                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                      handleFieldChange("dueDate", e.target.value);
                                      if (!isEditing && taskId && onUpdate) {
-                                       onUpdate(taskId, { dueDate: e.target.value ? new Date(e.target.value) : undefined });
+                                       onUpdate(taskId, { dueDate: (e.target.value ? serializeCalendarDateForApi(e.target.value) : null) as any });
                                      }
                                   }}
                                   className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
@@ -665,15 +691,18 @@ export function TaskDetailPanel({
                            
                            <div className="space-y-2">
                              <Label className="text-xs font-medium text-muted-foreground">{t.estimation}</Label>
-                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/50 hover:border-border transition-colors">
+                             <div className="flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-border transition-colors">
                                <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                <Input
                                   type="number"
+                                  min={0}
+                                  max={9999}
                                   value={formData.estimatedMinutes}
                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                      handleFieldChange("estimatedMinutes", e.target.value);
-                                     if (!isEditing && taskId && onUpdate && e.target.value) {
-                                       onUpdate(taskId, { estimatedMinutes: parseFloat(e.target.value) });
+                                     const val = parseInt(e.target.value, 10);
+                                     if (!isEditing && taskId && onUpdate && !isNaN(val) && val >= 0) {
+                                       onUpdate(taskId, { estimatedMinutes: val });
                                      }
                                   }}
                                   placeholder="0"
@@ -694,7 +723,7 @@ export function TaskDetailPanel({
                  
                  {/* Tabs */}
                  <div className="space-y-4 sm:space-y-5">
-                    <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-muted/40 rounded-lg w-full sm:w-fit border border-border/30">
+                    <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-muted rounded-lg w-full sm:w-fit border border-border">
                      <TabButton
                        active={activeTab === 'subtasks'}
                        onClick={() => setActiveTab('subtasks')}
@@ -725,7 +754,6 @@ export function TaskDetailPanel({
                     </div>
                     
                     <div className="min-h-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                       {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
                        {activeTab === 'subtasks' && taskId && renderSubtaskList && renderSubtaskList(taskId, task?.subTasks || [])}
                        {activeTab === 'comments' && taskId && (
                          renderComments ? renderComments(taskId) : (
@@ -771,11 +799,11 @@ export function TaskDetailPanel({
             </div>
             
             {/* Footer */}
-            <div className="p-3 sm:p-5 border-t bg-muted/10 flex justify-between items-center gap-2">
+            <div className="p-3 sm:p-5 border-t bg-muted flex justify-between items-center gap-2">
               <Button
                  variant="ghost"
                  size="sm"
-                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                 className="text-muted-foreground hover:text-destructive hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
                  onClick={handleDelete}
                  title={t.btnDelete}
               >
@@ -802,7 +830,7 @@ export function TaskDetailPanel({
            <div className="flex items-center space-x-2 mt-4">
              <div className="grid flex-1 gap-2">
                <Label htmlFor="link" className="sr-only">Link</Label>
-               <div className="flex items-center gap-2 p-2 rounded-md border bg-muted/50">
+               <div className="flex items-center gap-2 p-2 rounded-md border bg-muted">
                  <LinkIcon className="w-4 h-4 text-muted-foreground" />
                  <input
                    id="link"
@@ -844,13 +872,13 @@ function TabButton({
         "flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-all flex-1 sm:flex-initial min-w-0",
         active
           ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
+          : "text-muted-foreground hover:bg-background hover:text-foreground"
       )}
     >
       <Icon className="w-4 h-4 flex-shrink-0" />
       <span className="hidden sm:inline truncate">{label}</span>
       {count !== undefined && count > 0 && (
-        <span className="bg-muted-foreground/10 text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
+        <span className="bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
           {count}
         </span>
       )}

@@ -3,24 +3,6 @@ import { cn } from '../../utils/index.js';
 import { Sparkles, TrendingUp, RefreshCw, Download, Share2, ChevronDown, ChevronRight, Zap, } from 'lucide-react';
 import { Button } from '../ui/button.js';
 import { Card } from '../ui/card.js';
-const MOCK_DATA = {
-    totalPomodoros: 32,
-    totalTasks: 45,
-    completedTasks: 28,
-    streak: 5,
-    avgPomodorosPerDay: 4.5,
-    peakHour: 10,
-    topProject: { name: 'Proyecto Alpha', tasks: 12 },
-    weeklyData: [
-        { day: 'Mon', pomodoros: 6, tasks: 5 },
-        { day: 'Tue', pomodoros: 8, tasks: 7 },
-        { day: 'Wed', pomodoros: 4, tasks: 3 },
-        { day: 'Thu', pomodoros: 7, tasks: 6 },
-        { day: 'Fri', pomodoros: 5, tasks: 4 },
-        { day: 'Sat', pomodoros: 2, tasks: 2 },
-        { day: 'Sun', pomodoros: 0, tasks: 1 },
-    ],
-};
 const sectionColors = {
     success: 'border-l-emerald-500 bg-emerald-50 dark:bg-emerald-950',
     info: 'border-l-blue-500 bg-blue-50 dark:bg-blue-950',
@@ -52,7 +34,7 @@ const DEFAULT_LABELS = {
  * AIWeeklyReport - Platform-agnostic AI report component.
  * Purely presentational - state must be managed by parent.
  */
-export function AIWeeklyReport({ data = MOCK_DATA, onRefresh: _onRefresh, className, labels = {}, isGenerating = false, hasGenerated = false, report = [], expandedSections = [], onGenerate, onToggleSection, }) {
+export function AIWeeklyReport({ data, onRefresh: _onRefresh, className, labels = {}, isGenerating = false, hasGenerated = false, report = [], expandedSections = [], onGenerate, onToggleSection, }) {
     const t = {
         ...DEFAULT_LABELS,
         ...labels,

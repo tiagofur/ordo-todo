@@ -17,12 +17,15 @@ import {
 } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useWorkspaces } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
 export interface WorkspaceSelectorItem {
   id: string;
   slug: string;
   name: string;
   color: string;
+  icon?: string;
   stats?: {
     projectCount?: number;
     taskCount?: number;
@@ -59,13 +62,43 @@ const DEFAULT_LABELS = {
 };
 
 export function WorkspaceSelector({
-  workspaces = [],
-  selectedWorkspaceId,
-  isLoading = false,
-  onSelect,
+  workspaces: propWorkspaces,
+  selectedWorkspaceId: propSelectedId,
+  isLoading: propIsLoading,
+  onSelect: propOnSelect,
   onCreateClick,
   labels = {},
 }: WorkspaceSelectorProps) {
+  const { data: fetchedWorkspaces, isLoading: isFetching } = useWorkspaces();
+  const { selectedWorkspaceId: storeSelectedId, setSelectedWorkspaceId } = useWorkspaceStore();
+
+  const workspaces: WorkspaceSelectorItem[] = useMemo(() => {
+    if (propWorkspaces) return propWorkspaces;
+    if (!fetchedWorkspaces) return [];
+    return fetchedWorkspaces.map((w: any) => ({
+      id: w.id,
+      slug: w.slug,
+      name: w.name,
+      color: w.color || "#2563EB",
+      icon: w.icon,
+      stats: {
+        projectCount: w.stats?.projectCount,
+        taskCount: w.stats?.taskCount,
+      },
+    }));
+  }, [propWorkspaces, fetchedWorkspaces]);
+
+  const selectedWorkspaceId = propSelectedId !== undefined ? propSelectedId : storeSelectedId;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : isFetching;
+
+  const handleSelectWorkspace = (workspace: WorkspaceSelectorItem) => {
+    if (propOnSelect) {
+      propOnSelect(workspace);
+    } else {
+      setSelectedWorkspaceId(workspace.id);
+    }
+  };
+
   const t = {
     ...DEFAULT_LABELS,
     ...labels,
@@ -111,7 +144,7 @@ export function WorkspaceSelector({
         onClick={onCreateClick}
         className="flex w-full items-center gap-3 rounded-lg border border-dashed px-3 py-2.5 text-sm hover:bg-accent hover:border-solid transition-all"
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
           <Plus className="h-4 w-4 text-primary" />
         </div>
         <span className="font-medium">{t.create}</span>
@@ -129,7 +162,11 @@ export function WorkspaceSelector({
               selectedWorkspace?.color || "#06b6d4",
             )}
           >
-            <User className="h-4 w-4" />
+            {selectedWorkspace?.icon ? (
+              <span className="text-sm">{selectedWorkspace.icon}</span>
+            ) : (
+              <User className="h-4 w-4" />
+            )}
           </div>
           <div className="flex-1 text-left min-w-0">
             <div className="font-medium truncate">
@@ -172,19 +209,23 @@ export function WorkspaceSelector({
               <button
                 key={workspace.id}
                 onClick={() => {
-                  onSelect?.(workspace);
+                  handleSelectWorkspace(workspace);
                   setIsOpen(false);
                 }}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-all",
-                  isSelected ? "bg-accent shadow-sm" : "hover:bg-accent/50",
+                  isSelected ? "bg-accent shadow-sm" : "hover:bg-accent",
                 )}
               >
                 <div
                   className="flex h-10 w-10 items-center justify-center rounded-lg border flex-shrink-0"
                   style={getWorkspaceColorStyle(workspace.color)}
                 >
-                  <User className="h-5 w-5" />
+                  {workspace.icon ? (
+                    <span className="text-base">{workspace.icon}</span>
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <div className="font-medium truncate">{workspace.name}</div>
@@ -222,7 +263,7 @@ export function WorkspaceSelector({
             }}
             className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm hover:bg-accent transition-all"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900 border border-blue-200 dark:border-blue-800">
               <Plus className="h-5 w-5 text-primary" />
             </div>
             <span className="font-medium">{t.create}</span>

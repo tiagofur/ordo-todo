@@ -80,6 +80,16 @@ export interface WorkspaceRepository {
   findById(id: string): Promise<Workspace | null>;
 
   /**
+   * Finds a workspace by ID including soft-deleted ones.
+   */
+  findByIdIncludeDeleted?(id: string): Promise<Workspace | null>;
+
+  /**
+   * Checks if a slug is already in use by this owner (including soft-deleted).
+   */
+  slugExistsForOwner?(slug: string, ownerId: string): Promise<boolean>;
+
+  /**
    * Finds a workspace by its unique slug and owner.
    *
    * Used for shareable workspace URLs (e.g., /workspace/my-project).

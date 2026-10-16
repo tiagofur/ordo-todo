@@ -17,10 +17,10 @@ export default function MenuItem(props: MenuItemProps) {
           transition-all duration-200
           ${
             props.selected
-              ? "bg-indigo-400/15 dark:bg-violet-400/15 text-indigo-600 dark:text-purple-400 rounded-r-lg"
+              ? "bg-indigo-100 dark:bg-violet-900 text-indigo-600 dark:text-purple-400 rounded-r-lg"
               : "text-black dark:text-white rounded-lg hover:rounded-r-lg"
           }
-          hover:bg-indigo-400/30 dark:hover:bg-violet-400/30 hover:text-indigo-700 dark:hover:text-zinc-200
+          hover:bg-indigo-200 dark:hover:bg-violet-800 hover:text-indigo-700 dark:hover:text-zinc-200
         `}
       onClick={props.onClick}
     >

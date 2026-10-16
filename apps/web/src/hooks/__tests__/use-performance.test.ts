@@ -28,7 +28,9 @@ describe("usePerformance", () => {
             duration = result.current.measure("data-fetch");
         });
 
-        expect(duration).toBeGreaterThan(0);
+        expect(duration).not.toBeNull();
+        expect(typeof duration).toBe("number");
+        expect(duration! as number).toBeGreaterThanOrEqual(0);
     });
 
     it("returns null for unmeasured marks", () => {

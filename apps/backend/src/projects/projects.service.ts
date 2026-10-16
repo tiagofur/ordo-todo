@@ -92,7 +92,7 @@ export class ProjectsService {
     this.logger.log(`Completing project: ${id}`);
     const project = await this.projectRepository.findById(id);
     if (!project) {
-      throw new Error('Project not found');
+      throw new NotFoundException('Project not found');
     }
 
     // Use the complete method from the entity

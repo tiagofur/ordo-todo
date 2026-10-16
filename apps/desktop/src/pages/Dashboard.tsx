@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@ordo-todo/ui"; // or @/lib/utils if cn is not in ui
+import { isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
 import { 
   useTimerStats, 
   useDailyMetrics, 
@@ -98,11 +99,8 @@ export function Dashboard() {
   // Filter tasks for today view
   const todaysTasks = allTasks.filter((task: any) => {
     // Check if task has dueDate = today
-    if (task.dueDate) {
-      const dueDate = new Date(task.dueDate);
-      if (dueDate.toDateString() === today.toDateString()) {
-        return true;
-      }
+    if (task.dueDate && isCalendarDateToday(task.dueDate)) {
+      return true;
     }
 
     // Check if task was completed today
@@ -126,8 +124,7 @@ export function Dashboard() {
       if (!task.dueDate) {
         return true;
       }
-      const dueDate = new Date(task.dueDate);
-      if (dueDate < startOfDay) {
+      if (isCalendarDateOverdue(task.dueDate, false)) {
         return true;
       }
     }

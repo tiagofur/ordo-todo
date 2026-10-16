@@ -92,8 +92,9 @@ export function CreateWorkspaceDialog({
   const [selectedColor, setSelectedColor] = useState("#2563EB");
   const [selectedIcon, setSelectedIcon] = useState("🏠");
 
-  const formSchema = createWorkspaceSchema.extend({
+  const formSchema = z.object({
     name: z.string().min(1, t.validation.nameRequired),
+    description: z.string().optional(),
   });
 
   type FormData = z.infer<typeof formSchema>;
@@ -109,9 +110,11 @@ export function CreateWorkspaceDialog({
 
   const handleFormSubmit = async (data: FormData) => {
     try {
-      const slug = generateSlug(data.name);
+      const generated = generateSlug(data.name);
+      const slug = generated || "workspace";
       await onSubmit({
-        ...data,
+        name: data.name,
+        description: data.description,
         slug,
         color: selectedColor,
         icon: selectedIcon,
@@ -120,7 +123,8 @@ export function CreateWorkspaceDialog({
       setSelectedColor("#2563EB");
       setSelectedIcon("🏠");
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === "development") console.error(error);
+      throw error;
     }
   };
 

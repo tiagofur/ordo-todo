@@ -193,20 +193,24 @@ export class UsersService {
     await this.userRepository.updateProps(userEntity, updateData);
     const updatedUser = await this.userRepository.findByEmail(email);
 
+    if (!updatedUser) {
+      throw new NotFoundException('User not found after update');
+    }
+
     return {
       success: true,
       user: {
-        id: updatedUser!.id,
-        name: updatedUser!.props.name,
-        email: updatedUser!.props.email,
-        username: updatedUser!.props.username,
-        phone: updatedUser!.props.phone,
-        jobTitle: updatedUser!.props.jobTitle,
-        department: updatedUser!.props.department,
-        bio: updatedUser!.props.bio,
-        timezone: updatedUser!.props.timezone,
-        locale: updatedUser!.props.locale,
-        image: updatedUser!.props.image,
+        id: updatedUser.id,
+        name: updatedUser.props.name,
+        email: updatedUser.props.email,
+        username: updatedUser.props.username,
+        phone: updatedUser.props.phone,
+        jobTitle: updatedUser.props.jobTitle,
+        department: updatedUser.props.department,
+        bio: updatedUser.props.bio,
+        timezone: updatedUser.props.timezone,
+        locale: updatedUser.props.locale,
+        image: updatedUser.props.image,
       },
     };
   }

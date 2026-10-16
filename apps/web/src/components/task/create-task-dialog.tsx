@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { createTaskSchema } from '@ordo-todo/hooks';
 import {
@@ -71,7 +72,7 @@ interface CreateTaskDialogProps {
     formPriority?: string;
     formEstimatedMinutes?: string;
     formDueDate?: string;
-    priorities?: { low: string; medium: string; high: string };
+    priorities?: { low: string; medium: string; high: string; urgent?: string };
     buttons?: { cancel: string; create: string; creating: string };
     emptyState?: { title: string; description: string; action: string };
     validation?: { titleRequired: string; projectRequired: string };
@@ -92,7 +93,7 @@ const DEFAULT_LABELS = {
   formPriority: 'Priority',
   formEstimatedMinutes: 'Est. Minutes',
   formDueDate: 'Due Date',
-  priorities: { low: 'Low', medium: 'Medium', high: 'High' },
+  priorities: { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' },
   buttons: { cancel: 'Cancel', create: 'Create Task', creating: 'Creating...' },
   emptyState: {
     title: 'No Projects Found',
@@ -167,7 +168,7 @@ export function CreateTaskDialog({
       reset();
       onOpenChange(false);
     } catch (error) {
-       console.error(error);
+      toast.error('Error al crear la tarea');
     }
   };
 
@@ -179,8 +180,8 @@ export function CreateTaskDialog({
     try {
       const description = await onGenerateAIDescription(title);
       setValue('description', description);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error('Error al generar descripción con IA');
     } finally {
       setIsGenerating(false);
     }
@@ -189,7 +190,8 @@ export function CreateTaskDialog({
   const priorities = [
     { value: 'LOW', label: t.priorities.low, bg: 'bg-blue-500', border: 'border-blue-500' },
     { value: 'MEDIUM', label: t.priorities.medium, bg: 'bg-yellow-500', border: 'border-yellow-500' },
-    { value: 'HIGH', label: t.priorities.high, bg: 'bg-red-500', border: 'border-red-500' },
+    { value: 'HIGH', label: t.priorities.high, bg: 'bg-orange-500', border: 'border-orange-500' },
+    { value: 'URGENT', label: t.priorities.urgent || 'Urgent', bg: 'bg-red-500', border: 'border-red-500' },
   ];
 
   const showEmptyState = !projectId && !isLoadingProjects && projects.length === 0;
@@ -229,7 +231,7 @@ export function CreateTaskDialog({
                   type="button"
                   onClick={handleAIMagic}
                   disabled={isGenerating}
-                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors duration-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-blue-100 dark:bg-blue-900 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 disabled:opacity-50"
                 >
                   <Sparkles
                     className={`w-3.5 h-3.5 ${
@@ -319,8 +321,8 @@ export function CreateTaskDialog({
                       onClick={() => setValue('priority', p.value as 'LOW' | 'MEDIUM' | 'HIGH')}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-colors duration-200 ${
                         isSelected
-                          ? `${p.bg} text-white shadow-md shadow-black/10 scale-105`
-                          : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                          ? `${p.bg} text-white shadow-md shadow-lg scale-105`
+                          : 'bg-muted text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {isSelected && <Flag className="w-3 h-3 fill-current" />}

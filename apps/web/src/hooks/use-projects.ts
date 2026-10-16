@@ -18,9 +18,8 @@ export const useProjects = (workspaceId?: string) => {
             queryClient.invalidateQueries({ queryKey: ['projects', workspaceId] });
             toast.success('Project created successfully');
         },
-        onError: (error) => {
+        onError: () => {
             toast.error('Failed to create project');
-            console.error(error);
         },
     });
 
@@ -31,9 +30,8 @@ export const useProjects = (workspaceId?: string) => {
             queryClient.invalidateQueries({ queryKey: ['projects', workspaceId] });
             toast.success('Project updated successfully');
         },
-        onError: (error) => {
+        onError: () => {
             toast.error('Failed to update project');
-            console.error(error);
         },
     });
 
@@ -43,9 +41,8 @@ export const useProjects = (workspaceId?: string) => {
             queryClient.invalidateQueries({ queryKey: ['projects', workspaceId] });
             toast.success('Project deleted successfully');
         },
-        onError: (error) => {
+        onError: () => {
             toast.error('Failed to delete project');
-            console.error(error);
         },
     });
 
@@ -76,7 +73,7 @@ export const useProject = (id: string) => {
 export const useProjectBySlug = (workspaceSlug: string, projectSlug: string) => {
     const { data: project, isLoading, error } = useQuery({
         queryKey: ['project', workspaceSlug, projectSlug],
-        queryFn: () => apiClient.getProjectBySlug(workspaceSlug, projectSlug),
+        queryFn: () => apiClient.getProjectBySlugs(workspaceSlug, projectSlug),
         enabled: !!workspaceSlug && !!projectSlug,
     });
 

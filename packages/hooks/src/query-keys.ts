@@ -25,9 +25,11 @@ export const queryKeys = {
     ['workspaces', id, 'audit-logs', params] as const,
 
   // ============ Workflows ============
+  allWorkflows: ['workflows'] as const,
   workflows: (workspaceId: string) => ['workflows', workspaceId] as const,
 
   // ============ Projects ============
+  allProjectsPrefix: ['projects'] as const,
   projects: (workspaceId: string) => ['projects', workspaceId] as const,
   allProjects: ['projects', 'all'] as const,
   project: (id: string) => ['projects', id] as const,
@@ -35,6 +37,7 @@ export const queryKeys = {
     ['projects', 'by-slug', workspaceSlug, projectSlug] as const,
 
   // ============ Tasks ============
+  allTasks: ['tasks'] as const,
   tasks: (projectId?: string, tags?: string[], assignedToMe?: boolean) =>
     ['tasks', { projectId, tags, assignedToMe }] as const,
   task: (id: string) => ['tasks', id] as const,
@@ -42,17 +45,21 @@ export const queryKeys = {
   publicTask: (token: string) => ['public-task', token] as const,
 
   // ============ Tags ============
+  allTags: ['tags'] as const,
   tags: (workspaceId: string) => ['tags', workspaceId] as const,
   taskTags: (taskId: string) => ['tasks', taskId, 'tags'] as const,
 
   // ============ Timer ============
   activeTimer: ['timer', 'active'] as const,
+  allTimerHistory: ['timer', 'history'] as const,
   timerHistory: (params?: GetSessionsParams) => ['timer', 'history', params] as const,
+  allTimerStats: ['timer', 'stats'] as const,
   timerStats: (params?: { startDate?: string; endDate?: string }) =>
     ['timer', 'stats', params] as const,
   taskTimeSessions: (taskId: string) => ['timer', 'task', taskId] as const,
 
   // ============ Analytics ============
+  allAnalytics: ['analytics'] as const,
   dailyMetrics: (params?: GetDailyMetricsParams) => ['analytics', 'daily', params] as const,
   weeklyMetrics: (params?: { weekStart?: string }) => ['analytics', 'weekly', params] as const,
   monthlyMetrics: (params?: { monthStart?: string }) => ['analytics', 'monthly', params] as const,
@@ -94,9 +101,11 @@ export const queryKeys = {
   habitStats: (id: string) => ['habits', id, 'stats'] as const,
 
   // ============ Time Blocking ============
+  allTimeBlocks: ['time-blocks'] as const,
   timeBlocks: (start?: string, end?: string) => ['time-blocks', start, end] as const,
 
   // ============ Objectives (OKRs) ============
+  allObjectives: ['objectives'] as const,
   objectives: (options?: { status?: string; workspaceId?: string }) =>
     ['objectives', options] as const,
   currentPeriodObjectives: ['objectives', 'current-period'] as const,

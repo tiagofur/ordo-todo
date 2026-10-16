@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createHooks } from "@ordo-todo/hooks";
 import type { OrdoApiClient } from "@ordo-todo/api-client";
@@ -99,6 +99,7 @@ const createMockWorkspace = (overrides?: Partial<Workspace>): Workspace => ({
   id: "workspace-123",
   name: "Test Workspace",
   slug: "test",
+  description: null,
   color: "#2563EB",
   icon: null,
   tier: "FREE",
@@ -122,6 +123,7 @@ const createMockWorkspaceSettings = (): WorkspaceSettings => ({
 describe("useCreateWorkspace", () => {
   let mockClient: MockOrdoApiClient;
   let queryClient: QueryClient;
+  let hooks: ReturnType<typeof createHooks>;
 
   beforeEach(() => {
     mockClient = new MockOrdoApiClient();
@@ -133,10 +135,7 @@ describe("useCreateWorkspace", () => {
       },
     });
 
-    vi.mocked(mockClient.createWorkspace).mockResolvedValue(undefined);
-
-    const hooks = createHooks(mockClient);
-    vi.clearAllMocks();
+    hooks = createHooks({ apiClient: mockClient as unknown as OrdoApiClient });
   });
 
   afterEach(() => {
@@ -146,14 +145,15 @@ describe("useCreateWorkspace", () => {
   it("should create workspace successfully", async () => {
     const resultWorkspace = createMockWorkspace({ id: "new-workspace" });
 
-    const { result } = renderHook(() => useCreateWorkspace(), {
+    const { result } = renderHook(() => hooks.useCreateWorkspace(), {
       wrapper: createWrapper(queryClient),
     });
 
     vi.mocked(mockClient.createWorkspace).mockResolvedValue(resultWorkspace);
 
+    let mutationResult: typeof resultWorkspace | undefined;
     await act(async () => {
-      await result.current.mutateAsync({
+      mutationResult = await result.current.mutateAsync({
         name: "New",
         slug: "new",
       });
@@ -163,6 +163,6 @@ describe("useCreateWorkspace", () => {
       name: "New",
       slug: "new",
     });
-    expect(result.current.data).toEqual(resultWorkspace);
+    expect(mutationResult).toEqual(resultWorkspace);
   });
 });

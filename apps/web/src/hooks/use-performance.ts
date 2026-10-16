@@ -55,7 +55,7 @@ export function usePerformance() {
      */
     const measure = useCallback((name: MetricName): number | null => {
         const startTime = marks.current.get(name);
-        if (!startTime) return null;
+        if (startTime === undefined) return null;
 
         const duration = performance.now() - startTime;
         marks.current.delete(name);

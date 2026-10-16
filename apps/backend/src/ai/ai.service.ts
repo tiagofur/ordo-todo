@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
 import type {
   AIProfileRepository,
   ProductivityReportRepository,
@@ -430,7 +430,7 @@ export class AIService {
     });
 
     if (!project) {
-      throw new Error('Project not found');
+      throw new NotFoundException('Project not found');
     }
 
     // Get time sessions for project tasks using TimerRepository

@@ -7,8 +7,9 @@ import { useTasks } from "@/hooks/api";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
-import { format, isToday, isPast, isFuture, addDays } from "date-fns";
+import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseCalendarDate, isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
 
 export function TasksPeriod() {
   const { t } = useTranslation();
@@ -19,19 +20,19 @@ export function TasksPeriod() {
 
   // Filter tasks based on period
   const filteredTasks = useMemo(() => {
-    const now = new Date();
     return tasks.filter((task: any) => {
-      if (!task.dueDate || task.completed) return false;
+      if (!task.dueDate || task.status === "COMPLETED" || task.status === "DONE" || task.completed) return false;
 
-      const dueDate = new Date(task.dueDate);
+      const isTodayTask = isCalendarDateToday(task.dueDate);
+      const isOverdueTask = isCalendarDateOverdue(task.dueDate, false);
 
       switch (period) {
         case "today":
-          return isToday(dueDate);
+          return isTodayTask;
         case "upcoming":
-          return isFuture(dueDate) && !isToday(dueDate);
+          return !isTodayTask && !isOverdueTask;
         case "overdue":
-          return isPast(dueDate) && !isToday(dueDate);
+          return isOverdueTask;
         default:
           return false;
       }
@@ -229,7 +230,7 @@ export function TasksPeriod() {
                           {task.dueDate && (
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {format(new Date(task.dueDate), "d MMM yyyy", { locale: es })}
+                              {format(parseCalendarDate(task.dueDate) || new Date(task.dueDate), "d MMM yyyy", { locale: es })}
                             </span>
                           )}
                           {task.project && (

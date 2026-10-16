@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger } from '@ordo-todo/ui';
 import { useTasks, useCreateTask, useProjects, useTags } from '@/lib/shared-hooks';
+import { serializeCalendarDateForApi } from '@ordo-todo/core';
 
 interface QuickAddTaskProps {
   isOpen: boolean;
@@ -65,7 +66,7 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
       await createTask.mutateAsync({
         title: title.trim(),
         description: description.trim() || undefined,
-        dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        dueDate: dueDate ? (serializeCalendarDateForApi(dueDate) as any) : undefined,
         projectId: projectId,
         tagIds: tagIds.length > 0 ? tagIds : undefined,
         priority: priority.toUpperCase() as any,

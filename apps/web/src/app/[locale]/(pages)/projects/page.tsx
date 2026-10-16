@@ -22,8 +22,9 @@ export default function ProjectsPage() {
   const t = useTranslations('Projects');
   const [showCreateProject, setShowCreateProject] = useState(false);
   const { selectedWorkspaceId } = useWorkspaceStore();
+  const accentColor = "#ec4899"; // Pink
 
-  const { data: projects, isLoading } = useProjects(selectedWorkspaceId as string);
+  const { data: projects, isLoading, error } = useProjects(selectedWorkspaceId as string);
   const { mutateAsync: createProject } = useCreateProject();
 
   const { data: workflows } = useWorkflows(selectedWorkspaceId || "");
@@ -39,7 +40,7 @@ export default function ProjectsPage() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-projects text-projects-foreground shadow-lg shadow-projects/25"
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-pink-500 text-white shadow-sm shadow-pink-500/25"
               >
                 <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -50,10 +51,10 @@ export default function ProjectsPage() {
             </p>
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateProject(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-projects text-projects-foreground shadow-lg shadow-projects/25 transition-all duration-200 hover:shadow-xl hover:shadow-projects/30"
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-pink-500 text-white shadow-sm shadow-pink-500/25 hover:bg-pink-600 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t('newProject')}</span>
@@ -68,7 +69,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.4 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
               <FolderKanban className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{t('selectWorkspace')}</h3>
@@ -76,12 +77,20 @@ export default function ProjectsPage() {
               {t('selectWorkspaceDescription')}
             </p>
           </motion.div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 mb-4">
+              <FolderKanban className="h-8 w-8 text-red-500" />
+            </div>
+            <h3 className="text-lg font-semibold">{t('error') || 'Error al cargar proyectos'}</h3>
+            <p className="text-muted-foreground mt-2 text-sm">{t('errorDescription') || 'No se pudieron cargar los proyectos. Intenta de nuevo.'}</p>
+          </div>
         ) : isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="h-48 rounded-2xl bg-muted/50 animate-pulse"
+                className="h-48 rounded-2xl bg-muted animate-pulse"
               />
             ))}
           </div>
@@ -107,7 +116,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.4 }}
             className="flex flex-col items-center justify-center py-16 px-4 text-center"
           >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/50 mb-6">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted mb-6">
               <FolderKanban className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{t('noProjects')}</h3>
@@ -115,10 +124,10 @@ export default function ProjectsPage() {
               {t('noProjectsDescription')}
             </p>
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-projects text-projects-foreground shadow-lg shadow-projects/25 transition-all duration-200 hover:scale-105"
+              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-pink-500 text-white shadow-sm shadow-pink-500/25 hover:bg-pink-600 transition-all duration-200"
             >
               <Plus className="h-4 w-4" />
               {t('createProject')}

@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ServiceUnavailableException } from '@nestjs/common';
 
 /**
  * State of the Circuit Breaker
@@ -77,7 +77,7 @@ export function CircuitBreaker(options: CircuitBreakerOptions = {}) {
           logger.error(
             `Circuit ${circuitKey} is OPEN. Blocking request to prevent cascading failure.`,
           );
-          throw new Error(
+          throw new ServiceUnavailableException(
             `Circuit ${circuitKey} is currently OPEN due to repeated failures`,
           );
         }

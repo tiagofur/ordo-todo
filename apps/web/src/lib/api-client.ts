@@ -54,6 +54,7 @@ import type {
   WorkspaceInvitation,
   WorkspaceSettings,
   WorkspaceAuditLogsResponse,
+  WorkspaceAuditLog,
   Workflow,
   Project,
   Task,
@@ -262,8 +263,6 @@ async function handleTokenRefresh(): Promise<AuthResponse> {
 
       // Backend sets new cookies automatically in the response
       return response.data;
-    } catch (error) {
-      throw error;
     } finally {
       isRefreshing = false;
       refreshPromise = null;
@@ -302,19 +301,19 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const config = error.config as OfflineRequestConfig | undefined;
+    const requestConfig = error.config as OfflineRequestConfig | undefined;
 
     // Check if this is a network error and we can queue the request
     if (error.message === "Network Error" || !navigator.onLine) {
-      if (config && canQueueRequest(config)) {
-        const actionType = getActionType(config);
+      if (requestConfig && canQueueRequest(requestConfig)) {
+        const actionType = getActionType(requestConfig);
 
         if (actionType) {
-          const url = config.url || "";
+          const url = requestConfig.url || "";
           const entityType =
-            config._offlineAction?.entityType || getEntityType(url);
-          const entityId = config._offlineAction?.entityId || getEntityId(url);
-          const method = (config.method?.toUpperCase() || "POST") as
+            requestConfig._offlineAction?.entityType || getEntityType(url);
+          const entityId = requestConfig._offlineAction?.entityId || getEntityId(url);
+          const method = (requestConfig.method?.toUpperCase() || "POST") as
             | "POST"
             | "PUT"
             | "PATCH"
@@ -328,7 +327,7 @@ axiosInstance.interceptors.response.use(
                 actionType,
                 url,
                 method,
-                config.data ? JSON.parse(config.data) : {},
+                requestConfig.data ? JSON.parse(requestConfig.data) : {},
                 entityType,
                 entityId,
               );
@@ -340,11 +339,11 @@ axiosInstance.interceptors.response.use(
 
             // Return a mock success response for optimistic updates
             return {
-              data: config.data ? JSON.parse(config.data) : {},
+              data: requestConfig.data ? JSON.parse(requestConfig.data) : {},
               status: 202, // Accepted - will be processed later
               statusText: "Queued for sync",
               headers: {},
-              config,
+              config: requestConfig,
               _offlineQueued: true,
               _actionId: actionId,
             };
@@ -357,6 +356,23 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const originalRequest = error.config as any;
+      if (!originalRequest) return Promise.reject(error);
+
+      // Do not attempt token refresh for authentication endpoints to prevent loops
+      const url = originalRequest.url || "";
+      if (url.includes("/auth/")) {
+        return Promise.reject(error);
+      }
+
+      // Do not attempt token refresh if already on login/register pages
+      if (typeof window !== "undefined") {
+        const isAuthPage =
+          window.location.pathname.includes("/login") ||
+          window.location.pathname.includes("/register");
+        if (isAuthPage) {
+          return Promise.reject(error);
+        }
+      }
 
       // If we haven't retried this request yet
       if (!originalRequest._retry) {
@@ -368,24 +384,38 @@ axiosInstance.interceptors.response.use(
           // Retry the original request (cookies are automatically updated)
           return axiosInstance(originalRequest);
         } catch (refreshError) {
-          // If refresh fails, logout to clear cookies on backend
-          await axiosInstance
-            .post("/auth/logout", {}, { withCredentials: true })
-            .catch(() => { });
-          // Redirect to login page
+          // If refresh fails, call logout via un-intercepted axios to avoid loops
+          await axios
+            .post(`${config.api.baseURL}/auth/logout`, {}, { withCredentials: true })
+            .catch(() => {
+              // Ignore errors during logout - user session expired anyway
+            });
+          // Redirect to login page only if not already on an authentication page
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            const isAuthPage =
+              window.location.pathname.includes("/login") ||
+              window.location.pathname.includes("/register");
+            if (!isAuthPage) {
+              window.location.href = "/login";
+            }
           }
           return Promise.reject(refreshError);
         }
       } else {
-        // Already retried and failed, logout to clear cookies on backend
-        await axiosInstance
-          .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => { });
-        // Redirect to login page
+        // Already retried and failed, logout via un-intercepted axios
+        await axios
+          .post(`${config.api.baseURL}/auth/logout`, {}, { withCredentials: true })
+          .catch(() => {
+            // Ignore errors during logout
+          });
+        // Redirect to login page only if not already on an authentication page
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          const isAuthPage =
+            window.location.pathname.includes("/login") ||
+            window.location.pathname.includes("/register");
+          if (!isAuthPage) {
+            window.location.href = "/login";
+          }
         }
       }
     }
@@ -440,14 +470,13 @@ export const apiClient = {
     axiosInstance.get("/workspaces").then((res) => res.data),
   getWorkspace: (id: string): Promise<Workspace> =>
     axiosInstance.get(`/workspaces/${id}`).then((res) => res.data),
-  getWorkspaceBySlug: (slug: string): Promise<Workspace> =>
-    axiosInstance.get(`/workspaces/by-slug/${slug}`).then((res) => res.data),
-  getWorkspaceByUsernameAndSlug: (
-    username: string,
-    slug: string,
-  ): Promise<Workspace> =>
+  getWorkspaceBySlug: (username: string, slug: string): Promise<Workspace> =>
     axiosInstance
       .get(`/workspaces/${username}/${slug}`)
+      .then((res) => res.data),
+  getWorkspaceBySlugOnly: (slug: string): Promise<Workspace> =>
+    axiosInstance
+      .get(`/workspaces/by-slug/${slug}`)
       .then((res) => res.data),
   createWorkspace: (data: CreateWorkspaceDto): Promise<Workspace> =>
     axiosInstance.post("/workspaces", data).then((res) => res.data),
@@ -481,7 +510,7 @@ export const apiClient = {
     data: InviteMemberDto,
   ): Promise<WorkspaceInvitation> =>
     axiosInstance
-      .post(`/workspaces/${id}/invite`, data)
+      .post(`/workspaces/${id}/invitations`, data)
       .then((res) => res.data),
   acceptWorkspaceInvitation: (data: AcceptInvitationDto): Promise<Workspace> =>
     axiosInstance
@@ -507,6 +536,18 @@ export const apiClient = {
     axiosInstance
       .get(`/workspaces/${id}/audit-logs`, { params })
       .then((res) => res.data),
+  createAuditLog: (
+    workspaceId: string,
+    action: string,
+    payload?: Record<string, unknown>,
+  ): Promise<WorkspaceAuditLog> =>
+    axiosInstance
+      .post(`/workspaces/${workspaceId}/audit-logs`, { action, payload })
+      .then((res) => res.data),
+  archiveWorkspace: (id: string): Promise<Workspace> =>
+    axiosInstance
+      .post(`/workspaces/${id}/archive`)
+      .then((res) => res.data),
 
   // Workflow
   getWorkflows: (workspaceId: string): Promise<Workflow[]> =>
@@ -529,7 +570,7 @@ export const apiClient = {
     axiosInstance.get("/projects/all").then((res) => res.data),
   getProject: (id: string): Promise<Project> =>
     axiosInstance.get(`/projects/${id}`).then((res) => res.data),
-  getProjectBySlug: (
+  getProjectBySlugs: (
     workspaceSlug: string,
     projectSlug: string,
   ): Promise<Project> =>
@@ -580,22 +621,10 @@ export const apiClient = {
     axiosInstance.patch(`/tasks/${id}/complete`).then((res) => res.data),
   deleteTask: (id: string): Promise<void> =>
     axiosInstance.delete(`/tasks/${id}`).then((res) => res.data),
-  getDeletedTasks: (projectId: string): Promise<Task[]> => {
-    console.log(
-      "[apiClient] getDeletedTasks called with projectId:",
-      projectId,
-    );
-    return axiosInstance
+  getDeletedTasks: (projectId: string): Promise<Task[]> =>
+    axiosInstance
       .get("/tasks/deleted", { params: { projectId } })
-      .then((res) => {
-        console.log("[apiClient] getDeletedTasks response:", res.data);
-        return res.data;
-      })
-      .catch((error) => {
-        console.error("[apiClient] getDeletedTasks error:", error);
-        throw error;
-      });
-  },
+      .then((res) => res.data),
   restoreTask: (id: string): Promise<Task> =>
     axiosInstance.post(`/tasks/${id}/restore`).then((res) => res.data),
   permanentDeleteTask: (id: string): Promise<void> =>
@@ -838,7 +867,7 @@ export const apiClient = {
   createHabit: (data: CreateHabitDto): Promise<Habit> =>
     axiosInstance.post("/habits", data).then((res) => res.data),
   updateHabit: (id: string, data: UpdateHabitDto): Promise<Habit> =>
-    axiosInstance.put(`/habits/${id}`, data).then((res) => res.data),
+    axiosInstance.patch(`/habits/${id}`, data).then((res) => res.data),
   deleteHabit: (id: string): Promise<void> =>
     axiosInstance.delete(`/habits/${id}`).then((res) => res.data),
   completeHabit: (id: string, data?: CompleteHabitDto): Promise<Habit> =>
@@ -846,9 +875,9 @@ export const apiClient = {
   uncompleteHabit: (id: string): Promise<void> =>
     axiosInstance.delete(`/habits/${id}/complete`).then((res) => res.data),
   pauseHabit: (id: string): Promise<Habit> =>
-    axiosInstance.patch(`/habits/${id}/pause`).then((res) => res.data),
+    axiosInstance.post(`/habits/${id}/pause`).then((res) => res.data),
   resumeHabit: (id: string): Promise<Habit> =>
-    axiosInstance.patch(`/habits/${id}/resume`).then((res) => res.data),
+    axiosInstance.post(`/habits/${id}/resume`).then((res) => res.data),
 
   // Objectives (OKRs)
   getObjectives: (): Promise<Objective[]> =>
@@ -862,7 +891,7 @@ export const apiClient = {
   createObjective: (data: CreateObjectiveDto): Promise<Objective> =>
     axiosInstance.post("/objectives", data).then((res) => res.data),
   updateObjective: (id: string, data: UpdateObjectiveDto): Promise<Objective> =>
-    axiosInstance.put(`/objectives/${id}`, data).then((res) => res.data),
+    axiosInstance.patch(`/objectives/${id}`, data).then((res) => res.data),
   deleteObjective: (id: string): Promise<void> =>
     axiosInstance.delete(`/objectives/${id}`).then((res) => res.data),
 
@@ -874,36 +903,33 @@ export const apiClient = {
       .post(`/objectives/${objectiveId}/key-results`, data)
       .then((res) => res.data),
   updateKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     data: UpdateKeyResultDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .put(`/objectives/${objectiveId}/key-results/${keyResultId}`, data)
+      .patch(`/objectives/key-results/${keyResultId}`, data)
       .then((res) => res.data),
 
-  deleteKeyResult: (objectiveId: string, keyResultId: string): Promise<void> =>
+  deleteKeyResult: (keyResultId: string): Promise<void> =>
     axiosInstance
-      .delete(`/objectives/${objectiveId}/key-results/${keyResultId}`)
+      .delete(`/objectives/key-results/${keyResultId}`)
       .then((res) => res.data),
 
   linkTaskToKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     data: LinkTaskDto,
   ): Promise<KeyResult> =>
     axiosInstance
-      .post(`/objectives/${objectiveId}/key-results/${keyResultId}/tasks`, data)
+      .post(`/objectives/key-results/${keyResultId}/tasks`, data)
       .then((res) => res.data),
 
   unlinkTaskFromKeyResult: (
-    objectiveId: string,
     keyResultId: string,
     taskId: string,
   ): Promise<KeyResult> =>
     axiosInstance
       .delete(
-        `/objectives/${objectiveId}/key-results/${keyResultId}/tasks/${taskId}`,
+        `/objectives/key-results/${keyResultId}/tasks/${taskId}`,
       )
       .then((res) => res.data),
 

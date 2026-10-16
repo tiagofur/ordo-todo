@@ -3,7 +3,7 @@ import {
   __export,
   generateUsernameSuggestions,
   useUsernameValidation
-} from "./chunk-MDAXIC6Q.mjs";
+} from "./chunk-CKP2UBNA.mjs";
 
 // src/hooks.ts
 import { useQuery as useQuery2, useMutation as useMutation2, useQueryClient as useQueryClient2 } from "@tanstack/react-query";
@@ -24,26 +24,33 @@ var queryKeys = {
   workspaceSettings: (id) => ["workspaces", id, "settings"],
   workspaceAuditLogs: (id, params) => ["workspaces", id, "audit-logs", params],
   // ============ Workflows ============
+  allWorkflows: ["workflows"],
   workflows: (workspaceId) => ["workflows", workspaceId],
   // ============ Projects ============
+  allProjectsPrefix: ["projects"],
   projects: (workspaceId) => ["projects", workspaceId],
   allProjects: ["projects", "all"],
   project: (id) => ["projects", id],
   projectBySlugs: (workspaceSlug, projectSlug) => ["projects", "by-slug", workspaceSlug, projectSlug],
   // ============ Tasks ============
+  allTasks: ["tasks"],
   tasks: (projectId, tags, assignedToMe) => ["tasks", { projectId, tags, assignedToMe }],
   task: (id) => ["tasks", id],
   taskDetails: (id) => ["tasks", id, "details"],
   publicTask: (token) => ["public-task", token],
   // ============ Tags ============
+  allTags: ["tags"],
   tags: (workspaceId) => ["tags", workspaceId],
   taskTags: (taskId) => ["tasks", taskId, "tags"],
   // ============ Timer ============
   activeTimer: ["timer", "active"],
+  allTimerHistory: ["timer", "history"],
   timerHistory: (params) => ["timer", "history", params],
+  allTimerStats: ["timer", "stats"],
   timerStats: (params) => ["timer", "stats", params],
   taskTimeSessions: (taskId) => ["timer", "task", taskId],
   // ============ Analytics ============
+  allAnalytics: ["analytics"],
   dailyMetrics: (params) => ["analytics", "daily", params],
   weeklyMetrics: (params) => ["analytics", "weekly", params],
   monthlyMetrics: (params) => ["analytics", "monthly", params],
@@ -72,8 +79,10 @@ var queryKeys = {
   habit: (id) => ["habits", id],
   habitStats: (id) => ["habits", id, "stats"],
   // ============ Time Blocking ============
+  allTimeBlocks: ["time-blocks"],
   timeBlocks: (start, end) => ["time-blocks", start, end],
   // ============ Objectives (OKRs) ============
+  allObjectives: ["objectives"],
   objectives: (options) => ["objectives", options],
   currentPeriodObjectives: ["objectives", "current-period"],
   objectivesDashboard: ["objectives", "dashboard-summary"],
@@ -336,36 +345,21 @@ function createHooks(config2) {
   function useWorkspaceMembers(workspaceId) {
     return useQuery2({
       queryKey: queryKeys.workspaceMembers(workspaceId),
-      queryFn: () => {
-        if (!apiClient.getWorkspaceMembers) {
-          throw new Error("getWorkspaceMembers not implemented in API client");
-        }
-        return apiClient.getWorkspaceMembers(workspaceId);
-      },
-      enabled: !!workspaceId && !!apiClient.getWorkspaceMembers
+      queryFn: () => apiClient.getWorkspaceMembers(workspaceId),
+      enabled: !!workspaceId
     });
   }
   function useWorkspaceInvitations(workspaceId) {
     return useQuery2({
       queryKey: queryKeys.workspaceInvitations(workspaceId),
-      queryFn: () => {
-        if (!apiClient.getWorkspaceInvitations) {
-          throw new Error("getWorkspaceInvitations not implemented in API client");
-        }
-        return apiClient.getWorkspaceInvitations(workspaceId);
-      },
-      enabled: !!workspaceId && !!apiClient.getWorkspaceInvitations
+      queryFn: () => apiClient.getWorkspaceInvitations(workspaceId),
+      enabled: !!workspaceId
     });
   }
   function useInviteMember() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: ({ workspaceId, data }) => {
-        if (!apiClient.inviteWorkspaceMember) {
-          throw new Error("inviteWorkspaceMember not implemented in API client");
-        }
-        return apiClient.inviteWorkspaceMember(workspaceId, data);
-      },
+      mutationFn: ({ workspaceId, data }) => apiClient.inviteWorkspaceMember(workspaceId, data),
       onSuccess: (_, { workspaceId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaceInvitations(workspaceId) });
       }
@@ -374,12 +368,7 @@ function createHooks(config2) {
   function useAcceptInvitation() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: (data) => {
-        if (!apiClient.acceptWorkspaceInvitation) {
-          throw new Error("acceptWorkspaceInvitation not implemented in API client");
-        }
-        return apiClient.acceptWorkspaceInvitation(data);
-      },
+      mutationFn: (data) => apiClient.acceptWorkspaceInvitation(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
       }
@@ -388,13 +377,8 @@ function createHooks(config2) {
   function useWorkspaceSettings(workspaceId) {
     return useQuery2({
       queryKey: queryKeys.workspaceSettings(workspaceId),
-      queryFn: () => {
-        if (!apiClient.getWorkspaceSettings) {
-          throw new Error("getWorkspaceSettings not implemented in API client");
-        }
-        return apiClient.getWorkspaceSettings(workspaceId);
-      },
-      enabled: !!workspaceId && !!apiClient.getWorkspaceSettings
+      queryFn: () => apiClient.getWorkspaceSettings(workspaceId),
+      enabled: !!workspaceId
     });
   }
   function useUpdateWorkspaceSettings() {
@@ -403,12 +387,7 @@ function createHooks(config2) {
       mutationFn: ({
         workspaceId,
         data
-      }) => {
-        if (!apiClient.updateWorkspaceSettings) {
-          throw new Error("updateWorkspaceSettings not implemented in API client");
-        }
-        return apiClient.updateWorkspaceSettings(workspaceId, data);
-      },
+      }) => apiClient.updateWorkspaceSettings(workspaceId, data),
       onSuccess: (_, { workspaceId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaceSettings(workspaceId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
@@ -418,13 +397,8 @@ function createHooks(config2) {
   function useWorkspaceAuditLogs(workspaceId, params) {
     return useQuery2({
       queryKey: queryKeys.workspaceAuditLogs(workspaceId, params),
-      queryFn: () => {
-        if (!apiClient.getWorkspaceAuditLogs) {
-          throw new Error("getWorkspaceAuditLogs not implemented in API client");
-        }
-        return apiClient.getWorkspaceAuditLogs(workspaceId, params);
-      },
-      enabled: !!workspaceId && !!apiClient.getWorkspaceAuditLogs
+      queryFn: () => apiClient.getWorkspaceAuditLogs(workspaceId, params),
+      enabled: !!workspaceId
     });
   }
   function useCreateAuditLog() {
@@ -434,12 +408,7 @@ function createHooks(config2) {
         workspaceId,
         action,
         payload
-      }) => {
-        if (!apiClient.createAuditLog) {
-          throw new Error("createAuditLog not implemented in API client");
-        }
-        return apiClient.createAuditLog(workspaceId, action, payload);
-      },
+      }) => apiClient.createAuditLog(workspaceId, action, payload),
       onSuccess: (_, { workspaceId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaceAuditLogs(workspaceId) });
       }
@@ -448,12 +417,7 @@ function createHooks(config2) {
   function useArchiveWorkspace() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: (workspaceId) => {
-        if (!apiClient.archiveWorkspace) {
-          throw new Error("archiveWorkspace not implemented in API client");
-        }
-        return apiClient.archiveWorkspace(workspaceId);
-      },
+      mutationFn: (workspaceId) => apiClient.archiveWorkspace(workspaceId),
       onSuccess: (_, workspaceId) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaces });
         queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) });
@@ -490,7 +454,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (workflowId) => apiClient.deleteWorkflow(workflowId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["workflows"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allWorkflows });
       }
     });
   }
@@ -548,7 +512,7 @@ function createHooks(config2) {
       mutationFn: (projectId) => apiClient.archiveProject(projectId),
       onSuccess: (project) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       }
     });
   }
@@ -558,7 +522,7 @@ function createHooks(config2) {
       mutationFn: (projectId) => apiClient.completeProject(projectId),
       onSuccess: (project) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.project(project.id) });
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       }
     });
   }
@@ -567,7 +531,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (projectId) => apiClient.deleteProject(projectId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       }
     });
   }
@@ -635,8 +599,8 @@ function createHooks(config2) {
       onSettled: (_task, _error, { taskId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["time-blocks"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimeBlocks });
       }
     });
   }
@@ -674,10 +638,9 @@ function createHooks(config2) {
       onSettled: (_task, _error, taskId) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["analytics"] });
-        queryClient.invalidateQueries({ queryKey: ["dailyMetrics"] });
-        queryClient.invalidateQueries({ queryKey: ["timer", "stats"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerStats });
       }
     });
   }
@@ -686,7 +649,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (taskId) => apiClient.deleteTask(taskId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       }
     });
   }
@@ -696,19 +659,14 @@ function createHooks(config2) {
       mutationFn: ({ parentTaskId, data }) => apiClient.createSubtask(parentTaskId, data),
       onSuccess: (_, { parentTaskId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(parentTaskId) });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       }
     });
   }
   function useShareTask() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: (taskId) => {
-        if (!apiClient.generatePublicToken) {
-          throw new Error("generatePublicToken not implemented in API client");
-        }
-        return apiClient.generatePublicToken(taskId);
-      },
+      mutationFn: (taskId) => apiClient.generatePublicToken(taskId),
       onSuccess: (_data, taskId) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
       }
@@ -717,13 +675,8 @@ function createHooks(config2) {
   function usePublicTask(token) {
     return useQuery2({
       queryKey: queryKeys.publicTask(token),
-      queryFn: () => {
-        if (!apiClient.getTaskByPublicToken) {
-          throw new Error("getTaskByPublicToken not implemented in API client");
-        }
-        return apiClient.getTaskByPublicToken(token);
-      },
-      enabled: !!token && !!apiClient.getTaskByPublicToken
+      queryFn: () => apiClient.getTaskByPublicToken(token),
+      enabled: !!token
     });
   }
   function useTags(workspaceId) {
@@ -748,24 +701,19 @@ function createHooks(config2) {
         if (tag.workspaceId) {
           queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
         }
-        queryClient.invalidateQueries({ queryKey: ["tags"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       }
     });
   }
   function useUpdateTag() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: async ({ tagId, data }) => {
-        if (!apiClient.updateTag) {
-          throw new Error("updateTag not implemented in API client");
-        }
-        return apiClient.updateTag(tagId, data);
-      },
+      mutationFn: async ({ tagId, data }) => apiClient.updateTag(tagId, data),
       onSuccess: (tag) => {
         if (tag.workspaceId) {
           queryClient.invalidateQueries({ queryKey: queryKeys.tags(tag.workspaceId) });
         }
-        queryClient.invalidateQueries({ queryKey: ["tags"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       }
     });
   }
@@ -777,8 +725,8 @@ function createHooks(config2) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["tags"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       }
     });
   }
@@ -790,8 +738,8 @@ function createHooks(config2) {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskTags(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.taskDetails(taskId) });
         queryClient.invalidateQueries({ queryKey: queryKeys.task(taskId) });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["tags"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       }
     });
   }
@@ -800,7 +748,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (tagId) => apiClient.deleteTag(tagId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tags"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTags });
       }
     });
   }
@@ -816,7 +764,7 @@ function createHooks(config2) {
       mutationFn: (data) => apiClient.startTimer(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       }
     });
   }
@@ -826,11 +774,10 @@ function createHooks(config2) {
       mutationFn: (data) => apiClient.stopTimer(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-        queryClient.invalidateQueries({ queryKey: ["analytics"] });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["timer", "history"] });
-        queryClient.invalidateQueries({ queryKey: ["timer", "stats"] });
-        queryClient.invalidateQueries({ queryKey: ["dailyMetrics"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerHistory });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerStats });
       }
     });
   }
@@ -858,10 +805,10 @@ function createHooks(config2) {
       mutationFn: (data) => apiClient.switchTask(data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeTimer });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["analytics"] });
-        queryClient.invalidateQueries({ queryKey: ["timer", "history"] });
-        queryClient.invalidateQueries({ queryKey: ["timer", "stats"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allAnalytics });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerHistory });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTimerStats });
       }
     });
   }
@@ -899,25 +846,13 @@ function createHooks(config2) {
   function useMonthlyMetrics(params) {
     return useQuery2({
       queryKey: queryKeys.monthlyMetrics(params),
-      queryFn: () => {
-        if (!apiClient.getMonthlyMetrics) {
-          throw new Error("getMonthlyMetrics not implemented in API client");
-        }
-        return apiClient.getMonthlyMetrics(params);
-      },
-      enabled: !!apiClient.getMonthlyMetrics
+      queryFn: () => apiClient.getMonthlyMetrics(params)
     });
   }
   function useDateRangeMetrics(startDate, endDate) {
     return useQuery2({
       queryKey: queryKeys.dateRangeMetrics(startDate, endDate),
-      queryFn: () => {
-        if (!apiClient.getDateRangeMetrics) {
-          throw new Error("getDateRangeMetrics not implemented in API client");
-        }
-        return apiClient.getDateRangeMetrics(startDate, endDate);
-      },
-      enabled: !!apiClient.getDateRangeMetrics
+      queryFn: () => apiClient.getDateRangeMetrics(startDate, endDate)
     });
   }
   function useDashboardStats() {
@@ -1028,7 +963,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (commentId) => apiClient.deleteComment(commentId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       }
     });
   }
@@ -1054,79 +989,52 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (attachmentId) => apiClient.deleteAttachment(attachmentId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allProjectsPrefix });
       }
     });
   }
   function useProjectAttachments(projectId) {
     return useQuery2({
       queryKey: queryKeys.projectAttachments(projectId),
-      queryFn: () => {
-        if (!apiClient.getProjectAttachments) {
-          throw new Error("getProjectAttachments not implemented in API client");
-        }
-        return apiClient.getProjectAttachments(projectId);
-      },
-      enabled: !!projectId && !!apiClient.getProjectAttachments
+      queryFn: () => apiClient.getProjectAttachments(projectId),
+      enabled: !!projectId
     });
   }
   function useNotifications() {
     return useQuery2({
       queryKey: queryKeys.notifications,
-      queryFn: () => {
-        if (!apiClient.getNotifications) {
-          throw new Error("getNotifications not implemented in API client");
-        }
-        return apiClient.getNotifications();
-      },
-      refetchInterval: 3e4,
-      enabled: !!apiClient.getNotifications
+      queryFn: () => apiClient.getNotifications(),
+      refetchInterval: 3e4
     });
   }
   function useUnreadNotificationsCount() {
     return useQuery2({
       queryKey: queryKeys.unreadNotificationsCount,
-      queryFn: () => {
-        if (!apiClient.getUnreadNotificationsCount) {
-          throw new Error("getUnreadNotificationsCount not implemented in API client");
-        }
-        return apiClient.getUnreadNotificationsCount();
-      },
-      refetchInterval: 3e4,
-      enabled: !!apiClient.getUnreadNotificationsCount
+      queryFn: () => apiClient.getUnreadNotificationsCount(),
+      refetchInterval: 3e4
     });
   }
   function useMarkNotificationAsRead() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: (id) => {
-        if (!apiClient.markNotificationAsRead) {
-          throw new Error("markNotificationAsRead not implemented in API client");
-        }
-        return apiClient.markNotificationAsRead(id);
-      },
+      mutationFn: (id) => apiClient.markNotificationAsRead(id),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
       }
     });
   }
   function useMarkAllNotificationsAsRead() {
     const queryClient = useQueryClient2();
     return useMutation2({
-      mutationFn: () => {
-        if (!apiClient.markAllNotificationsAsRead) {
-          throw new Error("markAllNotificationsAsRead not implemented in API client");
-        }
-        return apiClient.markAllNotificationsAsRead();
-      },
+      mutationFn: () => apiClient.markAllNotificationsAsRead(),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
       }
     });
   }
   function invalidateAllTasks(queryClient) {
-    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
   }
   function useTimeBlocks(start, end) {
     return useQuery2({
@@ -1134,13 +1042,7 @@ function createHooks(config2) {
         start instanceof Date ? start.toISOString() : start,
         end instanceof Date ? end.toISOString() : end
       ),
-      queryFn: () => {
-        if (!apiClient.getTimeBlocks) {
-          throw new Error("getTimeBlocks not implemented in API client");
-        }
-        return apiClient.getTimeBlocks(start, end);
-      },
-      enabled: !!apiClient.getTimeBlocks
+      queryFn: () => apiClient.getTimeBlocks(start, end)
     });
   }
   function useHabits(includeArchived) {
@@ -1278,7 +1180,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (data) => apiClient.createObjective(data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1288,7 +1190,7 @@ function createHooks(config2) {
       mutationFn: ({ objectiveId, data }) => apiClient.updateObjective(objectiveId, data),
       onSuccess: (_, { objectiveId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1297,7 +1199,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (objectiveId) => apiClient.deleteObjective(objectiveId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1307,7 +1209,7 @@ function createHooks(config2) {
       mutationFn: ({ objectiveId, data }) => apiClient.addKeyResult(objectiveId, data),
       onSuccess: (_, { objectiveId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.objective(objectiveId) });
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1316,7 +1218,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: ({ keyResultId, data }) => apiClient.updateKeyResult(keyResultId, data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1325,7 +1227,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: (keyResultId) => apiClient.deleteKeyResult(keyResultId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1334,7 +1236,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: ({ keyResultId, data }) => apiClient.linkTaskToKeyResult(keyResultId, data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1343,7 +1245,7 @@ function createHooks(config2) {
     return useMutation2({
       mutationFn: ({ keyResultId, taskId }) => apiClient.unlinkTaskFromKeyResult(keyResultId, taskId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["objectives"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allObjectives });
       }
     });
   }
@@ -1394,7 +1296,7 @@ function createHooks(config2) {
       mutationFn: ({ taskId, data }) => apiClient.setTaskCustomValues(taskId, data),
       onSuccess: (_, { taskId }) => {
         queryClient.invalidateQueries({ queryKey: queryKeys.taskCustomValues(taskId) });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.allTasks });
       }
     });
   }

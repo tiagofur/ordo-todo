@@ -238,23 +238,37 @@ export class CacheInvalidateInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // Check if method has cache invalidation metadata
-    const invalidateMetadata = this.reflector.getAllAndOverride<{
-      keyPrefix: string;
-      pattern?: (...args: any[]) => string;
-      invalidateAll?: boolean;
-      keysToInvalidate?: number[];
-    }>('CACHE_INVALIDATE', [context.getHandler(), context.getClass()]);
+    const invalidateMetadata = this.reflector.getAllAndOverride<
+      | {
+          keyPrefix: string;
+          pattern?: (...args: any[]) => string;
+          invalidateAll?: boolean;
+          keysToInvalidate?: number[];
+        }
+      | Array<{
+          keyPrefix: string;
+          pattern?: (...args: any[]) => string;
+          invalidateAll?: boolean;
+          keysToInvalidate?: number[];
+        }>
+    >('CACHE_INVALIDATE', [context.getHandler(), context.getClass()]);
 
     if (!invalidateMetadata) {
       return next.handle();
     }
+
+    const metadataList = Array.isArray(invalidateMetadata)
+      ? invalidateMetadata
+      : [invalidateMetadata];
 
     return next.handle().pipe(
       tap((result) => {
         // Only invalidate if operation was successful
         if (result) {
           // Fire and forget - don't await in tap
-          this.invalidateCache(context, invalidateMetadata).catch((error) => {
+          Promise.all(
+            metadataList.map((meta) => this.invalidateCache(context, meta)),
+          ).catch((error) => {
             this.logger.error('Cache invalidation failed:', error);
           });
         }
