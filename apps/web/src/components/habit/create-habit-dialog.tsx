@@ -100,14 +100,16 @@ export function CreateHabitDialog({ open, onOpenChange }: CreateHabitDialogProps
   ];
 
 
+  const rawDays = typeof (t as any)?.raw === "function" ? (t as any).raw("daysOfWeek.short") : null;
+  const dayNamesShort = (Array.isArray(rawDays) ? rawDays : null) || ["D", "L", "M", "X", "J", "V", "S"];
   const weekDays = [
-    { label: "L", value: 1 },
-    { label: "M", value: 2 },
-    { label: "X", value: 3 },
-    { label: "J", value: 4 },
-    { label: "V", value: 5 },
-    { label: "S", value: 6 },
-    { label: "D", value: 0 },
+    { label: dayNamesShort[1] || "M", value: 1 },
+    { label: dayNamesShort[2] || "T", value: 2 },
+    { label: dayNamesShort[3] || "W", value: 3 },
+    { label: dayNamesShort[4] || "T", value: 4 },
+    { label: dayNamesShort[5] || "F", value: 5 },
+    { label: dayNamesShort[6] || "S", value: 6 },
+    { label: dayNamesShort[0] || "S", value: 0 },
   ];
 
   return (

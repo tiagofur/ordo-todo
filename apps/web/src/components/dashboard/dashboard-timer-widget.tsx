@@ -136,10 +136,9 @@ export function DashboardTimerWidget({ accentColor = "#6b7280" }: DashboardTimer
 
           <button
             onClick={handleToggle}
-            className="h-12 w-24 flex items-center justify-center rounded-xl text-white shadow-lg transition-all duration-200 hover:scale-105"
+            className="h-12 w-24 flex items-center justify-center rounded-xl text-white shadow-sm transition-all duration-200 hover:opacity-90 active:scale-95"
             style={{
               backgroundColor: modeColor,
-              boxShadow: `0 4px 14px -3px ${modeColor}60`,
             }}
           >
             {isRunning && !isPaused ? (

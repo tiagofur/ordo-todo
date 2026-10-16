@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { WorkspacesService } from '../workspaces/workspaces.service';
 import { TokenBlacklistService } from './token-blacklist.service';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
+import { CsrfService } from './csrf.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -76,6 +77,13 @@ describe('AuthController', () => {
           useValue: {
             blacklist: jest.fn(),
             isBlacklisted: jest.fn(),
+          },
+        },
+        {
+          provide: CsrfService,
+          useValue: {
+            generateToken: jest.fn().mockReturnValue('mock-csrf-token'),
+            validateToken: jest.fn().mockReturnValue(true),
           },
         },
       ],

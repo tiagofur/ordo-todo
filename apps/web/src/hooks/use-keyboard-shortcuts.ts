@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 
 interface Shortcut {
@@ -34,7 +34,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     const router = useRouter();
     const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
 
-    const shortcuts: Shortcut[] = [
+    const shortcuts: Shortcut[] = useMemo(() => [
         // Navigation
         {
             key: "g",
@@ -129,7 +129,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
             description: "Ir a Bienestar",
             category: "AI Features",
         },
-    ];
+    ], [router, onSearchOpen, onNewTask, onNewProject, onToggleSidebar]);
 
     const handleKeyDown = useCallback(
         (event: KeyboardEvent) => {

@@ -33,13 +33,13 @@ export declare const useWorkspaceStore: import("zustand").UseBoundStore<Omit<imp
     setState(partial: WorkspaceStore | Partial<WorkspaceStore> | ((state: WorkspaceStore) => WorkspaceStore | Partial<WorkspaceStore>), replace?: false | undefined): unknown;
     setState(state: WorkspaceStore | ((state: WorkspaceStore) => WorkspaceStore), replace: true): unknown;
     persist: {
-        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<WorkspaceStore, WorkspaceStore, unknown>>) => void;
+        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<WorkspaceStore, unknown, unknown>>) => void;
         clearStorage: () => void;
         rehydrate: () => Promise<void> | void;
         hasHydrated: () => boolean;
         onHydrate: (fn: (state: WorkspaceStore) => void) => () => void;
         onFinishHydration: (fn: (state: WorkspaceStore) => void) => () => void;
-        getOptions: () => Partial<import("zustand/middleware").PersistOptions<WorkspaceStore, WorkspaceStore, unknown>>;
+        getOptions: () => Partial<import("zustand/middleware").PersistOptions<WorkspaceStore, unknown, unknown>>;
     };
 }>;
 /**

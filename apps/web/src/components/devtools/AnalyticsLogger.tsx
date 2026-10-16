@@ -353,12 +353,12 @@ export function AnalyticsLogger({ isOpen = true, className }: AnalyticsLoggerPro
                 </div>
                 <div className="text-2xl font-bold text-red-600">{metrics.errorsCount}</div>
               </div>
-              <div className="bg-purple-50 dark:bg-purple-900 p-3 rounded-lg">
+              <div className="bg-muted/50 p-3 rounded-lg border">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-600">Categories</span>
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">Categories</span>
                 </div>
-                <div className="text-2xl font-bold text-purple-600">{Object.keys(metrics.categoryCounts).length}</div>
+                <div className="text-2xl font-bold text-foreground">{Object.keys(metrics.categoryCounts).length}</div>
               </div>
             </div>
           )}

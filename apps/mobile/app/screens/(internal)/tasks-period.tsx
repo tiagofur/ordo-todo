@@ -11,6 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import { useTasks } from "../../lib/shared-hooks";
 import { useThemeColors } from "../../data/hooks/use-theme-colors.hook";
 import { useWorkspaceStore } from "@ordo-todo/stores";
+import { parseCalendarDate, isCalendarDateToday, isCalendarDateOverdue, toCalendarDateString } from "@ordo-todo/core";
 
 type Period = "today" | "week" | "month";
 
@@ -25,24 +26,26 @@ export default function TasksPeriodScreen() {
     if (!tasks) return [];
 
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    const todayStr = toCalendarDateString(now);
 
-    const today = new Date(now);
     const endOfWeek = new Date(now);
     endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
+    const endOfWeekStr = toCalendarDateString(endOfWeek);
+
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const endOfMonthStr = toCalendarDateString(endOfMonth);
 
     return tasks.filter((task: any) => {
-      const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-      const startDate = task.startDate ? new Date(task.startDate) : null;
+      if (!task.dueDate || task.status === "COMPLETED") return false;
+      const dueStr = toCalendarDateString(task.dueDate);
 
       switch (period) {
         case "today":
-          return dueDate && dueDate <= endOfWeek;
+          return isCalendarDateToday(task.dueDate);
         case "week":
-          return dueDate && dueDate <= endOfWeek;
+          return dueStr >= todayStr && dueStr <= endOfWeekStr;
         case "month":
-          return dueDate && dueDate <= endOfMonth;
+          return dueStr >= todayStr && dueStr <= endOfMonthStr;
         default:
           return true;
       }
@@ -108,7 +111,7 @@ export default function TasksPeriodScreen() {
                 </Text>
                 {task.dueDate && (
                   <Text style={[styles.taskDate, { color: colors.textMuted }]}>
-                    {new Date(task.dueDate).toLocaleDateString()}
+                    {(parseCalendarDate(task.dueDate) || new Date(task.dueDate)).toLocaleDateString()}
                   </Text>
                 )}
               </Animated.View>

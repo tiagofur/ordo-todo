@@ -9,7 +9,15 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Mark packages that use Node.js APIs as server-only
   serverExternalPackages: ['@ordo-todo/core'],
-  transpilePackages: ["@ordo-todo/ui", "@ordo-todo/styles", "@ordo-todo/hooks"],
+  transpilePackages: [
+    "@ordo-todo/ui",
+    "@ordo-todo/styles",
+    "@ordo-todo/hooks",
+    "@ordo-todo/stores",
+    "@ordo-todo/auth-provider",
+    "@ordo-todo/api-client",
+    "@ordo-todo/validations",
+  ],
 
   // Bundle optimization with webpack
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

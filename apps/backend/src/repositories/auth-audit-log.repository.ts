@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthEventType } from '@ordo-todo/db';
+import { AuthEventType } from '../auth/types/auth-event.types';
 
 export interface CreateAuthAuditLogDto {
     type: AuthEventType;

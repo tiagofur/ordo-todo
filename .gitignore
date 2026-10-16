@@ -65,3 +65,8 @@ scripts/test-db.js
 
 # Windows reserved names
 nul
+
+# Agent & Tooling Artifacts
+.impeccable/
+.agents/
+.agent/skills/

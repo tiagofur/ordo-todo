@@ -129,22 +129,24 @@ export function TaskCard({
         onClick={handleCardClick}
         className={cn(
           'group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 cursor-pointer shadow-sm',
-          'hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800',
+          'hover:shadow-lg hover:border-border/80 hover:bg-muted/30',
           isCompleted && 'grayscale opacity-80',
           className
         )}
-        style={{
-          borderLeftWidth: '4px',
-          borderLeftColor: accentColor,
-        }}
       >
+        {/* Subtle accent indicator */}
+        <span
+          className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full"
+          style={{ backgroundColor: accentColor }}
+          aria-hidden="true"
+        />
+
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
               <div
-                className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 bg-muted"
                 style={{
-                  backgroundColor: '#f3f4f6', // Solid light gray background
                   color: accentColor,
                 }}
               >

@@ -40,11 +40,7 @@ export default function ProjectsPage() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-pink-500 text-white shadow-sm shadow-pink-500/25"
               >
                 <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -55,14 +51,10 @@ export default function ProjectsPage() {
             </p>
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateProject(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-            }}
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-pink-500 text-white shadow-sm shadow-pink-500/25 hover:bg-pink-600 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t('newProject')}</span>
@@ -132,14 +124,10 @@ export default function ProjectsPage() {
               {t('noProjectsDescription')}
             </p>
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-              }}
+              className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-pink-500 text-white shadow-sm shadow-pink-500/25 hover:bg-pink-600 transition-all duration-200"
             >
               <Plus className="h-4 w-4" />
               {t('createProject')}

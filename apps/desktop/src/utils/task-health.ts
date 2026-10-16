@@ -3,6 +3,8 @@
  * Calculates the health status of a task based on multiple factors
  */
 
+import { isCalendarDateOverdue } from '@ordo-todo/core';
+
 export type HealthStatus = 'healthy' | 'at-risk' | 'critical';
 
 export interface TaskHealthFactor {
@@ -41,9 +43,8 @@ export function calculateTaskHealth(task: TaskHealthInput): TaskHealth {
 
     // Factor 1: Has due date and not overdue (weight: 0.25)
     const now = new Date();
-    const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-    const isOverdue = dueDate && dueDate < now && task.status !== 'COMPLETED';
-    const hasDueDate = !!dueDate;
+    const hasDueDate = !!task.dueDate;
+    const isOverdue = isCalendarDateOverdue(task.dueDate, task.status === 'COMPLETED');
 
     factors.push({
         name: 'Due Date',

@@ -80,7 +80,7 @@ export function ProjectCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      whileHover={{ y: -5, scale: 1.02 }}
+      whileHover={{ y: -4 }}
     >
       <UIProjectCard
         project={project as any}

@@ -263,8 +263,6 @@ async function handleTokenRefresh(): Promise<AuthResponse> {
 
       // Backend sets new cookies automatically in the response
       return response.data;
-    } catch (error) {
-      throw error;
     } finally {
       isRefreshing = false;
       refreshPromise = null;
@@ -303,19 +301,19 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const config = error.config as OfflineRequestConfig | undefined;
+    const requestConfig = error.config as OfflineRequestConfig | undefined;
 
     // Check if this is a network error and we can queue the request
     if (error.message === "Network Error" || !navigator.onLine) {
-      if (config && canQueueRequest(config)) {
-        const actionType = getActionType(config);
+      if (requestConfig && canQueueRequest(requestConfig)) {
+        const actionType = getActionType(requestConfig);
 
         if (actionType) {
-          const url = config.url || "";
+          const url = requestConfig.url || "";
           const entityType =
-            config._offlineAction?.entityType || getEntityType(url);
-          const entityId = config._offlineAction?.entityId || getEntityId(url);
-          const method = (config.method?.toUpperCase() || "POST") as
+            requestConfig._offlineAction?.entityType || getEntityType(url);
+          const entityId = requestConfig._offlineAction?.entityId || getEntityId(url);
+          const method = (requestConfig.method?.toUpperCase() || "POST") as
             | "POST"
             | "PUT"
             | "PATCH"
@@ -329,7 +327,7 @@ axiosInstance.interceptors.response.use(
                 actionType,
                 url,
                 method,
-                config.data ? JSON.parse(config.data) : {},
+                requestConfig.data ? JSON.parse(requestConfig.data) : {},
                 entityType,
                 entityId,
               );
@@ -341,11 +339,11 @@ axiosInstance.interceptors.response.use(
 
             // Return a mock success response for optimistic updates
             return {
-              data: config.data ? JSON.parse(config.data) : {},
+              data: requestConfig.data ? JSON.parse(requestConfig.data) : {},
               status: 202, // Accepted - will be processed later
               statusText: "Queued for sync",
               headers: {},
-              config,
+              config: requestConfig,
               _offlineQueued: true,
               _actionId: actionId,
             };
@@ -358,6 +356,23 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const originalRequest = error.config as any;
+      if (!originalRequest) return Promise.reject(error);
+
+      // Do not attempt token refresh for authentication endpoints to prevent loops
+      const url = originalRequest.url || "";
+      if (url.includes("/auth/")) {
+        return Promise.reject(error);
+      }
+
+      // Do not attempt token refresh if already on login/register pages
+      if (typeof window !== "undefined") {
+        const isAuthPage =
+          window.location.pathname.includes("/login") ||
+          window.location.pathname.includes("/register");
+        if (isAuthPage) {
+          return Promise.reject(error);
+        }
+      }
 
       // If we haven't retried this request yet
       if (!originalRequest._retry) {
@@ -369,28 +384,38 @@ axiosInstance.interceptors.response.use(
           // Retry the original request (cookies are automatically updated)
           return axiosInstance(originalRequest);
         } catch (refreshError) {
-          // If refresh fails, logout to clear cookies on backend
-          await axiosInstance
-            .post("/auth/logout", {}, { withCredentials: true })
+          // If refresh fails, call logout via un-intercepted axios to avoid loops
+          await axios
+            .post(`${config.api.baseURL}/auth/logout`, {}, { withCredentials: true })
             .catch(() => {
-              // Ignore errors during logout - user is leaving anyway
+              // Ignore errors during logout - user session expired anyway
             });
-          // Redirect to login page
+          // Redirect to login page only if not already on an authentication page
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            const isAuthPage =
+              window.location.pathname.includes("/login") ||
+              window.location.pathname.includes("/register");
+            if (!isAuthPage) {
+              window.location.href = "/login";
+            }
           }
           return Promise.reject(refreshError);
         }
       } else {
-        // Already retried and failed, logout to clear cookies on backend
-        await axiosInstance
-          .post("/auth/logout", {}, { withCredentials: true })
+        // Already retried and failed, logout via un-intercepted axios
+        await axios
+          .post(`${config.api.baseURL}/auth/logout`, {}, { withCredentials: true })
           .catch(() => {
-            // Ignore errors during logout - user is leaving anyway
+            // Ignore errors during logout
           });
-        // Redirect to login page
+        // Redirect to login page only if not already on an authentication page
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          const isAuthPage =
+            window.location.pathname.includes("/login") ||
+            window.location.pathname.includes("/register");
+          if (!isAuthPage) {
+            window.location.href = "/login";
+          }
         }
       }
     }

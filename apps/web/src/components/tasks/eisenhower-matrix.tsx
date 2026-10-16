@@ -7,15 +7,13 @@ import {
   Flame,
   Clock,
   Trash2,
-  CheckCircle2,
   GripVertical,
   Calendar,
   AlertTriangle,
 } from "lucide-react";
 import { Card, Checkbox, Badge } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Task {
   id: string;
@@ -34,55 +32,6 @@ interface EisenhowerMatrixProps {
   onTaskComplete?: (taskId: string, completed: boolean) => void;
   onTaskMove?: (taskId: string, quadrant: "DO" | "SCHEDULE" | "DELEGATE" | "DELETE") => void;
 }
-
-interface Quadrant {
-  id: "DO" | "SCHEDULE" | "DELEGATE" | "DELETE";
-  title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  color: string;
-  bgColor: string;
-  borderColor: string;
-}
-
-const quadrants: Quadrant[] = [
-  {
-    id: "DO",
-    title: "Hacer Primero",
-    subtitle: "Urgente e Importante",
-    icon: <Flame className="h-5 w-5" />,
-    color: "text-red-500",
-    bgColor: "bg-red-50 dark:bg-red-950",
-    borderColor: "border-red-300 dark:border-red-700",
-  },
-  {
-    id: "SCHEDULE",
-    title: "Programar",
-    subtitle: "Importante, No Urgente",
-    icon: <Calendar className="h-5 w-5" />,
-    color: "text-blue-500",
-    bgColor: "bg-blue-50 dark:bg-blue-950",
-    borderColor: "border-blue-300 dark:border-blue-700",
-  },
-  {
-    id: "DELEGATE",
-    title: "Delegar",
-    subtitle: "Urgente, No Importante",
-    icon: <Clock className="h-5 w-5" />,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-50 dark:bg-yellow-950",
-    borderColor: "border-yellow-300 dark:border-yellow-700",
-  },
-  {
-    id: "DELETE",
-    title: "Eliminar",
-    subtitle: "Ni Urgente Ni Importante",
-    icon: <Trash2 className="h-5 w-5" />,
-    color: "text-gray-400",
-    bgColor: "bg-gray-50 dark:bg-gray-950",
-    borderColor: "border-gray-300 dark:border-gray-700",
-  },
-];
 
 // Determine quadrant based on task properties
 function getTaskQuadrant(task: Task): "DO" | "SCHEDULE" | "DELEGATE" | "DELETE" {
@@ -109,8 +58,62 @@ export function EisenhowerMatrix({
   onTaskComplete,
   onTaskMove 
 }: EisenhowerMatrixProps) {
+  const t = useTranslations("Tasks.eisenhower");
+  const locale = useLocale();
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
   const [dragOverQuadrant, setDragOverQuadrant] = useState<string | null>(null);
+
+  const formatDate = (dateValue: string | Date) => {
+    try {
+      const date = new Date(dateValue);
+      return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(date);
+    } catch {
+      return "";
+    }
+  };
+
+  const quadrants = [
+    {
+      id: "DO" as const,
+      title: t("quadrants.do.title"),
+      subtitle: t("quadrants.do.subtitle"),
+      icon: Flame,
+      color: "text-red-500",
+      badgeBg: "bg-red-500/10 text-red-500",
+      cardBg: "bg-red-500/[0.03] dark:bg-red-500/[0.05]",
+      borderColor: "border-red-500/20 dark:border-red-500/30",
+    },
+    {
+      id: "SCHEDULE" as const,
+      title: t("quadrants.schedule.title"),
+      subtitle: t("quadrants.schedule.subtitle"),
+      icon: Calendar,
+      color: "text-blue-500",
+      badgeBg: "bg-blue-500/10 text-blue-500",
+      cardBg: "bg-blue-500/[0.03] dark:bg-blue-500/[0.05]",
+      borderColor: "border-blue-500/20 dark:border-blue-500/30",
+    },
+    {
+      id: "DELEGATE" as const,
+      title: t("quadrants.delegate.title"),
+      subtitle: t("quadrants.delegate.subtitle"),
+      icon: Clock,
+      color: "text-amber-500",
+      badgeBg: "bg-amber-500/10 text-amber-500",
+      cardBg: "bg-amber-500/[0.03] dark:bg-amber-500/[0.05]",
+      borderColor: "border-amber-500/20 dark:border-amber-500/30",
+    },
+    {
+      id: "DELETE" as const,
+      title: t("quadrants.delete.title"),
+      subtitle: t("quadrants.delete.subtitle"),
+      icon: Trash2,
+      color: "text-muted-foreground",
+      badgeBg: "bg-muted text-muted-foreground",
+      cardBg: "bg-muted/20",
+      borderColor: "border-border",
+    },
+  ];
 
   // Group tasks by quadrant
   const tasksByQuadrant = useMemo(() => {
@@ -155,131 +158,137 @@ export function EisenhowerMatrix({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">Matriz de Eisenhower</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
+            <Target className="h-5 w-5" />
+          </div>
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
         </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full bg-red-500" />
-            {tasksByQuadrant.DO.length} urgentes
+        <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-red-500" />
+            {t("urgentCount", { count: tasksByQuadrant.DO.length })}
           </span>
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            {tasksByQuadrant.SCHEDULE.length} importantes
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            {t("importantCount", { count: tasksByQuadrant.SCHEDULE.length })}
           </span>
         </div>
       </div>
 
       {/* Matrix Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {quadrants.map((quadrant) => (
-          <Card
-            key={quadrant.id}
-            className={cn(
-              "p-4 min-h-[200px] transition-all duration-200",
-              quadrant.bgColor,
-              quadrant.borderColor,
-              dragOverQuadrant === quadrant.id && "ring-2 ring-primary scale-[1.02]"
-            )}
-            onDragOver={(e) => handleDragOver(e, quadrant.id)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, quadrant.id)}
-          >
-            {/* Quadrant Header */}
-            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-              <div className={cn("p-1.5 rounded-lg", quadrant.bgColor, quadrant.color)}>
-                {quadrant.icon}
-              </div>
-              <div>
-                <h3 className={cn("font-semibold text-sm", quadrant.color)}>
-                  {quadrant.title}
-                </h3>
-                <p className="text-xs text-muted-foreground">{quadrant.subtitle}</p>
-              </div>
-              <Badge variant="secondary" className="ml-auto">
-                {tasksByQuadrant[quadrant.id].length}
-              </Badge>
-            </div>
-
-            {/* Tasks */}
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-              <AnimatePresence>
-                {tasksByQuadrant[quadrant.id].map((task) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e as any, task.id)}
-                    className={cn(
-                      "flex items-start gap-2 p-2 rounded-lg bg-card border cursor-grab",
-                      "hover:shadow-sm transition-all",
-                      draggedTask === task.id && "opacity-50"
-                    )}
-                  >
-                    <GripVertical className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={(checked) => 
-                        onTaskComplete?.(task.id, checked as boolean)
-                      }
-                      className="mt-0.5"
-                    />
-                    <div 
-                      className="flex-1 min-w-0 cursor-pointer"
-                      onClick={() => onTaskClick?.(task)}
-                    >
-                      <p className="text-sm font-medium truncate">{task.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {task.project && (
-                          <span 
-                            className="text-xs px-1.5 py-0.5 rounded-full"
-                            style={{ 
-                              backgroundColor: `${task.project.color}20`,
-                              color: task.project.color 
-                            }}
-                          >
-                            {task.project.name}
-                          </span>
-                        )}
-                        {task.dueDate && (
-                          <span className={cn(
-                            "text-xs flex items-center gap-1",
-                            isTaskDueSoon(task) ? "text-red-500" : "text-muted-foreground"
-                          )}>
-                            {isTaskDueSoon(task) && <AlertTriangle className="h-3 w-3" />}
-                            {format(new Date(task.dueDate), "d MMM", { locale: es })}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {tasksByQuadrant[quadrant.id].length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  <p>Sin tareas</p>
-                  <p className="text-xs mt-1">Arrastra tareas aquí</p>
-                </div>
+        {quadrants.map((quadrant) => {
+          const Icon = quadrant.icon;
+          return (
+            <Card
+              key={quadrant.id}
+              className={cn(
+                "rounded-2xl border p-4 min-h-[220px] transition-all duration-200",
+                quadrant.cardBg,
+                quadrant.borderColor,
+                dragOverQuadrant === quadrant.id && "ring-2 ring-purple-500/50 scale-[1.01] shadow-md"
               )}
-            </div>
-          </Card>
-        ))}
+              onDragOver={(e) => handleDragOver(e, quadrant.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, quadrant.id)}
+              aria-label={quadrant.title}
+            >
+              {/* Quadrant Header */}
+              <div className="flex items-center gap-2.5 mb-3 pb-2.5 border-b border-border/60">
+                <div className={cn("p-2 rounded-xl", quadrant.badgeBg)}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className={cn("font-semibold text-sm", quadrant.color)}>
+                    {quadrant.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">{quadrant.subtitle}</p>
+                </div>
+                <Badge variant="secondary" className="ml-auto font-medium text-xs rounded-full px-2.5">
+                  {tasksByQuadrant[quadrant.id].length}
+                </Badge>
+              </div>
+
+              {/* Tasks */}
+              <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                <AnimatePresence>
+                  {tasksByQuadrant[quadrant.id].map((task) => (
+                    <motion.div
+                      key={task.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e as any, task.id)}
+                      className={cn(
+                        "group flex items-start gap-2.5 p-3 rounded-xl bg-card border border-border cursor-grab active:cursor-grabbing",
+                        "hover:shadow-sm hover:border-border/80 transition-all",
+                        draggedTask === task.id && "opacity-50"
+                      )}
+                    >
+                      <GripVertical className="h-4 w-4 text-muted-foreground/60 group-hover:text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <Checkbox
+                        checked={task.completed}
+                        onCheckedChange={(checked) => 
+                          onTaskComplete?.(task.id, checked as boolean)
+                        }
+                        className="mt-0.5"
+                      />
+                      <div 
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => onTaskClick?.(task)}
+                      >
+                        <p className="text-sm font-medium truncate text-foreground">{task.title}</p>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {task.project && (
+                            <span 
+                              className="text-xs px-2 py-0.5 rounded-full font-medium"
+                              style={{ 
+                                backgroundColor: `${task.project.color}15`,
+                                color: task.project.color 
+                              }}
+                            >
+                              {task.project.name}
+                            </span>
+                          )}
+                          {task.dueDate && (
+                            <span className={cn(
+                              "text-xs flex items-center gap-1",
+                              isTaskDueSoon(task) ? "text-red-500 font-medium" : "text-muted-foreground"
+                            )}>
+                              {isTaskDueSoon(task) && <AlertTriangle className="h-3 w-3" />}
+                              {formatDate(task.dueDate)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {tasksByQuadrant[quadrant.id].length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-8 px-4 text-center border border-dashed border-border/80 rounded-xl bg-card/50">
+                    <p className="text-sm font-medium text-muted-foreground">{t("empty")}</p>
+                    <p className="text-xs text-muted-foreground/80 mt-1">{t("dragHere")}</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 border-t">
+      <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground pt-4 border-t border-border">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-100 dark:bg-red-900 border-2 border-red-500" />
-          <span>Urgente + Importante = Hacer ahora</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-red-500/20" />
+          <span>{t("legend.do")}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-blue-100 dark:bg-blue-900 border-2 border-blue-500" />
-          <span>Solo Importante = Programar</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-blue-500/20" />
+          <span>{t("legend.schedule")}</span>
         </div>
       </div>
     </div>

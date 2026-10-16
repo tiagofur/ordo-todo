@@ -1,4 +1,5 @@
-import { OrdoApiClient, LocalStorageTokenStorage } from './index';
+import { OrdoApiClient } from './client';
+import { LocalStorageTokenStorage } from './utils/storage';
 
 // Get API URL from environment
 const getApiUrl = () => {

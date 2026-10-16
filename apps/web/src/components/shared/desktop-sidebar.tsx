@@ -21,19 +21,31 @@ import { usePWA } from "@/components/providers/pwa-provider";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useCreateWorkspace } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/error-handler";
 
-export function DesktopSidebar() {
+interface DesktopSidebarProps {
+  collapsed?: boolean;
+}
+
+export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const createWorkspace = useCreateWorkspace();
+  const { setSelectedWorkspaceId } = useWorkspaceStore();
 
   const handleCreateWorkspace = async (data: any) => {
     try {
-      await createWorkspace.mutateAsync(data);
+      const created = await createWorkspace.mutateAsync(data);
+      if (created?.id) {
+        setSelectedWorkspaceId(created.id);
+      }
+      toast.success("Workspace creado exitosamente");
       setShowCreateWorkspace(false);
-    } catch {
-      // Error handled by React Query's onError
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Error al crear workspace"));
     }
   };
 
@@ -49,8 +61,8 @@ export function DesktopSidebar() {
       label: t("sectionPlan"),
       items: [
         { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-        { name: t("habits"), href: "/habits", icon: Sparkles, color: "green" },
-        { name: t("goals"), href: "/goals", icon: Target, color: "pink" },
+        { name: t("habits"), href: "/habits", icon: Sparkles, color: "emerald" },
+        { name: t("goals"), href: "/goals", icon: Target, color: "orange" },
       ],
     },
     {
@@ -63,7 +75,7 @@ export function DesktopSidebar() {
       label: t("sectionTeam"),
       items: [
         { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-        { name: t("workload"), href: "/workload", icon: Users, color: "orange" },
+        { name: t("workload"), href: "/workload", icon: Users, color: "purple" },
       ],
     },
   ];
@@ -73,6 +85,7 @@ export function DesktopSidebar() {
       <SidebarUI
         pathname={pathname}
         navSections={navSections}
+        collapsed={collapsed}
         renderLink={({ href, className, children }) => (
           <Link href={href} className={className}>
             {children}

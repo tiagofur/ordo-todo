@@ -411,6 +411,11 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                     }
 
                     if (prev <= 1) {
+                        // Clear interval immediately to prevent subsequent ticks
+                        if (intervalRef.current) {
+                            clearInterval(intervalRef.current);
+                            intervalRef.current = null;
+                        }
                         // Timer completed - trigger transition
                         // Use refs to get latest function references and avoid stale closures
                         setTimeout(() => {

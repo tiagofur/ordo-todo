@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useObjectives } from "@/lib/api-hooks";
-import { Plus, Target, Sparkles, KeyRound, Link2, TrendingUp, Rocket } from "lucide-react";
+import { Plus, Target, Sparkles, KeyRound, Link2, TrendingUp } from "lucide-react";
 import { Skeleton, type OnboardingStep } from "@ordo-todo/ui";
 import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
 import { motion } from "framer-motion";
@@ -13,51 +13,49 @@ import { AppLayout } from "@/components/shared/app-layout";
 
 const GOALS_ONBOARDING_KEY = "goals-onboarding-seen";
 
-const goalsOnboardingSteps: OnboardingStep[] = [
-  {
-    id: "welcome",
-    icon: Sparkles,
-    color: "#ec4899",
-    title: "Objetivos y OKRs",
-    description: "Define metas ambiciosas y mide tu progreso con la metodología OKR (Objectives and Key Results) usada por Google.",
-  },
-  {
-    id: "objectives",
-    icon: Target,
-    color: "#ec4899",
-    title: "¿Qué son los Objetivos?",
-    description: "Un objetivo es una meta inspiracional y cualitativa. Ejemplo: 'Mejorar la salud física' o 'Lanzar un producto exitoso'.",
-  },
-  {
-    id: "keyresults",
-    icon: KeyRound,
-    color: "#10b981",
-    title: "Key Results",
-    description: "Los Key Results son métricas específicas y medibles. Ejemplo: 'Hacer ejercicio 3 veces por semana' o 'Alcanzar 1000 usuarios'.",
-  },
-  {
-    id: "linking",
-    icon: Link2,
-    color: "#f59e0b",
-    title: "Vincula Tareas",
-    description: "Conecta tus tareas diarias a Key Results específicos. Cada tarea completada contribuye a tu progreso.",
-  },
-  {
-    id: "progress",
-    icon: TrendingUp,
-    color: "#06b6d4",
-    title: "Seguimiento de Progreso",
-    description: "Visualiza el avance de cada objetivo y ajusta tu estrategia. ¡Mantén el foco en lo que realmente importa!",
-  },
-];
-
 export default function GoalsPage() {
   const t = useTranslations("Goals");
   const { data: objectives, isLoading, error } = useObjectives();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const router = useRouter();
 
-  const accentColor = "#ec4899"; // Pink (matches sidebar)
+  const goalsOnboardingSteps: OnboardingStep[] = useMemo(() => [
+    {
+      id: "welcome",
+      icon: Sparkles,
+      color: "#f97316",
+      title: t("onboarding.welcomeTitle"),
+      description: t("onboarding.welcomeDesc"),
+    },
+    {
+      id: "objectives",
+      icon: Target,
+      color: "#f97316",
+      title: t("onboarding.objectivesTitle"),
+      description: t("onboarding.objectivesDesc"),
+    },
+    {
+      id: "keyresults",
+      icon: KeyRound,
+      color: "#10b981",
+      title: t("onboarding.keyresultsTitle"),
+      description: t("onboarding.keyresultsDesc"),
+    },
+    {
+      id: "linking",
+      icon: Link2,
+      color: "#f59e0b",
+      title: t("onboarding.linkingTitle"),
+      description: t("onboarding.linkingDesc"),
+    },
+    {
+      id: "progress",
+      icon: TrendingUp,
+      color: "#06b6d4",
+      title: t("onboarding.progressTitle"),
+      description: t("onboarding.progressDesc"),
+    },
+  ], [t]);
 
   return (
     <AppLayout>
@@ -69,11 +67,7 @@ export default function GoalsPage() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-sm shadow-orange-500/25"
               >
                 <Target className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -86,11 +80,7 @@ export default function GoalsPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-            }}
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("createObjective")}</span>
@@ -100,7 +90,7 @@ export default function GoalsPage() {
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className="h-64 w-full rounded-xl" />
+              <Skeleton key={i} className="h-64 w-full rounded-2xl" />
             ))}
           </div>
         ) : error ? (
@@ -112,24 +102,19 @@ export default function GoalsPage() {
             <p className="text-muted-foreground mt-2 text-sm">{t("errorDescription") || "No se pudieron cargar los objetivos. Intenta de nuevo."}</p>
           </div>
         ) : !objectives || objectives.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 text-center min-h-[400px] bg-muted/10 rounded-3xl border-2 border-dashed border-muted mx-auto w-full max-w-3xl py-12">
+          <div className="flex flex-col items-center justify-center flex-1 text-center min-h-[400px] bg-card rounded-3xl border border-dashed border-border mx-auto w-full max-w-3xl py-12 px-4">
               <div
-                className="p-6 rounded-full mb-6"
-                style={{ backgroundColor: `${accentColor}15` }}
+                className="flex h-20 w-20 items-center justify-center rounded-2xl bg-orange-500/10 mb-6"
               >
-                  <Target className="h-12 w-12" style={{ color: accentColor }} />
+                  <Target className="h-10 w-10 text-orange-500" />
               </div>
               <h3 className="text-2xl font-bold tracking-tight">{t("noObjectives")}</h3>
-              <p className="text-muted-foreground mt-3 max-w-md text-lg">{t("noObjectivesDescription")}</p>
+              <p className="text-muted-foreground mt-3 max-w-md text-base sm:text-lg">{t("noObjectivesDescription")}</p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsCreateOpen(true)}
-                className="mt-8 flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="mt-8 flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
               >
                 <Plus className="h-5 w-5" />
                 {t("createObjective")}
@@ -137,16 +122,27 @@ export default function GoalsPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {objectives.map((objective) => (
-              <div
+            {objectives.map((objective, index) => (
+              <motion.div
                   key={objective.id}
-                  className="p-6 border rounded-xl bg-card hover:shadow-lg transition-all duration-200 cursor-pointer group relative overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  whileHover={{ y: -4 }}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-border/80 cursor-pointer"
                   onClick={() => router.push(`/goals/${objective.id}`)}
               >
-                  <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: objective.color }}></div>
-                  <div className="flex justify-between items-start mb-4">
-                      <h3 className="font-bold text-xl group-hover:text-primary transition-colors line-clamp-2">{objective.title}</h3>
-                      <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted uppercase tracking-wider">
+                  <div className="flex justify-between items-start mb-4 gap-3">
+                      <h3 className="font-bold text-xl group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
+                        {objective.title}
+                      </h3>
+                      <span
+                        className="text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0"
+                        style={{
+                          backgroundColor: `${objective.color || "#f97316"}15`,
+                          color: objective.color || "#f97316",
+                        }}
+                      >
                           {t(`status.${objective.status}`)}
                       </span>
                   </div>
@@ -155,17 +151,20 @@ export default function GoalsPage() {
                       <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">{t("progress")}</span>
-                              <span className="font-medium">{Math.round(objective.progress ?? 0)}%</span>
+                              <span className="font-semibold">{Math.round(objective.progress ?? 0)}%</span>
                           </div>
                           <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                               <div
-                                  className="h-full bg-primary transition-all duration-500"
-                                  style={{ width: `${objective.progress}%`, backgroundColor: objective.color }}
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${Math.min(100, Math.max(0, objective.progress ?? 0))}%`,
+                                    backgroundColor: objective.color || "#f97316",
+                                  }}
                               />
                           </div>
                       </div>
                   </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -176,9 +175,9 @@ export default function GoalsPage() {
         <FeatureOnboarding
           steps={goalsOnboardingSteps}
           storageKey={GOALS_ONBOARDING_KEY}
-          skipText="Saltar"
-          nextText="Siguiente"
-          getStartedText="¡Crear mi primer Objetivo!"
+          skipText={t("onboarding.skip")}
+          nextText={t("onboarding.next")}
+          getStartedText={t("onboarding.getStarted")}
         />
       </div>
     </AppLayout>

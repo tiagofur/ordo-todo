@@ -3,6 +3,8 @@ import {
   ExecutionContext,
   Injectable,
   Logger,
+  Optional,
+  Inject,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
@@ -34,9 +36,12 @@ export class WsThrottleGuard implements CanActivate {
   private readonly limit: number;
   private readonly ttlMs: number;
 
-  constructor(limit = 50, ttlSeconds = 60) {
-    this.limit = limit;
-    this.ttlMs = ttlSeconds * 1000;
+  constructor(
+    @Optional() @Inject('WS_THROTTLE_LIMIT') limit?: number,
+    @Optional() @Inject('WS_THROTTLE_TTL') ttlSeconds?: number,
+  ) {
+    this.limit = limit ?? 50;
+    this.ttlMs = (ttlSeconds ?? 60) * 1000;
   }
 
   canActivate(context: ExecutionContext): boolean {

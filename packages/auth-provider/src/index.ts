@@ -1,4 +1,4 @@
-export { AuthProvider, useAuth, defaultAuthContext } from "./auth-provider";
+export { AuthProvider, useAuth, defaultAuthContext } from "./auth-provider.js";
 export type {
   AuthContextType,
   AuthProviderProps,
@@ -6,4 +6,4 @@ export type {
   AuthEvent,
   ApiClient,
   OAuthProvider,
-} from "./types";
+} from "./types.js";

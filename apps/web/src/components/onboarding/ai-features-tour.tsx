@@ -19,6 +19,7 @@ import { Button } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useWorkspaces } from "@/lib/api-hooks";
+import { useAuth } from "@ordo-todo/auth-provider";
 
 interface AIFeatureTourStep {
   id: string;
@@ -139,9 +140,10 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
   const [hasSeenTour, setHasSeenTour] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   
-  // Use hooks freely here as we are mounted on client
-  const { data: workspaces = [] } = useWorkspaces();
+  // Use hooks freely here as we are mounted on client, but only fetch if authenticated
+  const { data: workspaces = [] } = useWorkspaces({ enabled: !!isAuthenticated });
   
   const isTeamUser = useMemo(() => {
     return workspaces.some((ws: any) => ws.members && ws.members.length > 1);
@@ -161,13 +163,14 @@ function AIFeaturesTourInner({ children }: { children: ReactNode }) {
   }, [isTeamUser]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const seen = localStorage.getItem(AI_FEATURES_TOUR_KEY);
     if (!seen) {
       setHasSeenTour(false);
       const timer = setTimeout(() => setIsVisible(true), 2000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const showTour = () => {
     setCurrentStep(0);

@@ -14,6 +14,7 @@ import { ShareTaskDialog } from "@/components/sharing";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseCalendarDate, isCalendarDateOverdue } from "@ordo-todo/core";
 import { motion } from "framer-motion";
 import { TaskDetailPanel } from "./task-detail-panel";
 import { useTranslation } from "react-i18next";
@@ -74,11 +75,12 @@ export function TaskCard({ task: initialTask, isSelected, onOpenDetail, index = 
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    const dateObj = typeof date === "string" ? new Date(date) : date;
+    const dateObj = parseCalendarDate(date);
+    if (!dateObj) return null;
     return format(dateObj, "d MMM", { locale: es });
   };
   
-  const isOverdue = !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+  const isOverdue = isCalendarDateOverdue(task.dueDate, isCompleted);
 
   // Handle completion toggle
   const updateTaskMutation = useUpdateTask();

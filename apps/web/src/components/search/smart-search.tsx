@@ -192,6 +192,17 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
     }
   };
 
+  // Escape HTML entities to prevent XSS before applying mark tags
+  const renderSafeHighlight = (highlight: string) => {
+    const escaped = highlight
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    return escaped.replace(/\*\*(.*?)\*\*/g, '<mark class="bg-yellow-200 dark:bg-yellow-900">$1</mark>');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -329,7 +340,7 @@ export function SmartSearch({ onClose, isOpen = true, className }: SmartSearchPr
                     {result.highlights.length > 0 && (
                       <div className="mt-1">
                         {result.highlights.map((h, i) => (
-                          <p key={i} className="text-xs text-muted-foreground italic" dangerouslySetInnerHTML={{ __html: h.replace(/\*\*(.*?)\*\*/g, '<mark class="bg-yellow-200 dark:bg-yellow-900">$1</mark>') }} />
+                          <p key={i} className="text-xs text-muted-foreground italic" dangerouslySetInnerHTML={{ __html: renderSafeHighlight(h) }} />
                         ))}
                       </div>
                     )}

@@ -9,17 +9,17 @@ export interface TaskProps extends EntityProps<string> {
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
-  dueDate?: Date;
-  startDate?: Date; // When task can be started
-  scheduledDate?: Date; // When task is scheduled to be worked on
-  scheduledTime?: string; // Time of day scheduled (e.g., "14:30")
-  scheduledEndTime?: string; // End time of day (e.g., "15:30")
+  dueDate?: Date | null;
+  startDate?: Date | null; // When task can be started
+  scheduledDate?: Date | null; // When task is scheduled to be worked on
+  scheduledTime?: string | null; // Time of day scheduled (e.g., "14:30")
+  scheduledEndTime?: string | null; // End time of day (e.g., "15:30")
   isTimeBlocked?: boolean; // Whether task is time blocked in calendar
   completedAt?: Date;
   projectId: string;
   ownerId: string;
   assigneeId?: string | null;
-  parentTaskId?: string;
+  parentTaskId?: string | null;
   subTasks?: Task[];
   estimatedMinutes?: number;
   actualMinutes?: number;
@@ -41,7 +41,7 @@ export interface TaskRecurrenceInfo {
   interval?: number;
   daysOfWeek?: number[];
   dayOfMonth?: number;
-  endDate?: Date;
+  endDate?: Date | null;
 }
 
 export class Task extends Entity<TaskProps> {

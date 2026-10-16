@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { UnscheduledTasks } from "@/components/calendar/unscheduled-tasks";
 import { AppLayout } from "@/components/shared/app-layout";
 import { TaskCalendar } from "@/components/calendar/task-calendar";
@@ -12,47 +12,46 @@ import { motion } from "framer-motion";
 
 const CALENDAR_ONBOARDING_KEY = "calendar-onboarding-seen";
 
-const calendarOnboardingSteps: OnboardingStep[] = [
-  {
-    id: "welcome",
-    icon: Sparkles,
-    color: "#0ea5e9",
-    title: "Time Blocking",
-    description: "Bloquea tiempo específico para tus tareas. Esta técnica aumenta el enfoque y reduce la procrastinación.",
-  },
-  {
-    id: "dragdrop",
-    icon: GripVertical,
-    color: "#10b981",
-    title: "Arrastra y Suelta",
-    description: "Toma cualquier tarea de la barra lateral y arrástrala directamente al calendario para programarla.",
-  },
-  {
-    id: "scheduling",
-    icon: Clock,
-    color: "#f59e0b",
-    title: "Programa tu Día",
-    description: "Asigna bloques de tiempo específicos. Define cuándo empiezas y cuándo terminas cada tarea.",
-  },
-  {
-    id: "views",
-    icon: LayoutGrid,
-    color: "#8b5cf6",
-    title: "Vista Semanal",
-    description: "Visualiza toda tu semana de un vistazo. Identifica huecos de tiempo y balancea tu carga de trabajo.",
-  },
-  {
-    id: "getstarted",
-    icon: Rocket,
-    color: "#0ea5e9",
-    title: "¡Planifica tu Semana!",
-    description: "Arrastra una tarea de la izquierda al calendario para comenzar. ¡Tu tiempo es valioso, úsalo bien!",
-  },
-];
-
 export default function CalendarPage() {
   const t = useTranslations("Calendar");
-  const accentColor = "#0ea5e9"; // Sky blue
+
+  const calendarOnboardingSteps: OnboardingStep[] = useMemo(() => [
+    {
+      id: "welcome",
+      icon: Sparkles,
+      color: "#3b82f6",
+      title: t("onboarding.welcomeTitle"),
+      description: t("onboarding.welcomeDesc"),
+    },
+    {
+      id: "dragdrop",
+      icon: GripVertical,
+      color: "#3b82f6",
+      title: t("onboarding.dragdropTitle"),
+      description: t("onboarding.dragdropDesc"),
+    },
+    {
+      id: "scheduling",
+      icon: Clock,
+      color: "#3b82f6",
+      title: t("onboarding.schedulingTitle"),
+      description: t("onboarding.schedulingDesc"),
+    },
+    {
+      id: "views",
+      icon: LayoutGrid,
+      color: "#3b82f6",
+      title: t("onboarding.viewsTitle"),
+      description: t("onboarding.viewsDesc"),
+    },
+    {
+      id: "getstarted",
+      icon: Rocket,
+      color: "#3b82f6",
+      title: t("onboarding.getstartedTitle"),
+      description: t("onboarding.getstartedDesc"),
+    },
+  ], [t]);
 
   return (
     <AppLayout>
@@ -63,11 +62,7 @@ export default function CalendarPage() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-sm shadow-blue-500/25"
               >
                 <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -93,13 +88,13 @@ export default function CalendarPage() {
       </div>
 
       {/* Onboarding */}
-        <FeatureOnboarding
-          steps={calendarOnboardingSteps}
-          storageKey={CALENDAR_ONBOARDING_KEY}
-          skipText="Saltar"
-          nextText="Siguiente"
-          getStartedText="¡Empezar a Planificar!"
-        />
+      <FeatureOnboarding
+        steps={calendarOnboardingSteps}
+        storageKey={CALENDAR_ONBOARDING_KEY}
+        skipText={t("onboarding.skip")}
+        nextText={t("onboarding.next")}
+        getStartedText={t("onboarding.getStarted")}
+      />
     </AppLayout>
   );
 }

@@ -102,8 +102,8 @@ export function WorkspaceCard({
     onOpenSettings?.(workspace.id);
   };
 
-  const displayColor = workspace.color || '#2563EB';
-  const displayBg = workspace.color ? `${workspace.color}26` : '#daedf4';
+  const displayColor = workspace.color || '#f97316';
+  const displayBg = `${displayColor}15`;
 
   return (
     <>
@@ -111,24 +111,20 @@ export function WorkspaceCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.05 }}
-        whileHover={{ y: -5, scale: 1.02 }}
+        whileHover={{ y: -4 }}
         onClick={handleCardClick}
         className={cn(
           'group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 cursor-pointer shadow-sm',
-          'hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-900',
+          'hover:shadow-lg hover:border-border/80',
           className
         )}
-        style={{
-          borderLeftWidth: '4px',
-          borderLeftColor: displayColor,
-        }}
       >
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
               {/* Icon Box */}
               <div
-                className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300 group-hover:scale-105"
                 style={{
                   backgroundColor: displayBg,
                   color: displayColor,

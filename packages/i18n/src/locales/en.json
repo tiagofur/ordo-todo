@@ -8,7 +8,29 @@
     "day": "Day",
     "agenda": "Agenda",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "unscheduledTasks": "Unscheduled Tasks",
+    "noUnscheduledTasks": "No unscheduled tasks",
+    "noUnscheduledTasksDescription": "Create a task to see it here",
+    "taskScheduled": "Task scheduled",
+    "taskScheduleError": "Failed to schedule task",
+    "taskMoved": "Task schedule updated",
+    "taskMoveError": "Failed to update schedule",
+    "onboarding": {
+      "welcomeTitle": "Time Blocking",
+      "welcomeDesc": "Block specific time for your tasks. This technique boosts focus and reduces procrastination.",
+      "dragdropTitle": "Drag and Drop",
+      "dragdropDesc": "Take any task from the sidebar and drag it directly onto the calendar to schedule it.",
+      "schedulingTitle": "Schedule your Day",
+      "schedulingDesc": "Assign specific time blocks. Define when you start and finish each task.",
+      "viewsTitle": "Weekly View",
+      "viewsDesc": "Visualize your whole week at a glance. Spot time gaps and balance your workload.",
+      "getstartedTitle": "Plan your Week!",
+      "getstartedDesc": "Drag a task from the left to the calendar to get started. Your time is valuable, use it well!",
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Start Planning!"
+    }
   },
   "Sidebar": {
     "today": "Today",
@@ -84,7 +106,80 @@
     "about": "About",
     "version": "Version",
     "platform": "Platform",
-    "developer": "Developed by"
+    "developer": "Developed by",
+    "modes": {
+      "pomodoro": "Pomodoro",
+      "pomodoroDesc": "Focus + Breaks",
+      "continuous": "Continuous Time",
+      "continuousDesc": "Simple stopwatch"
+    },
+    "ai": {
+      "title": "Artificial Intelligence",
+      "insightsTitle": "AI Insights",
+      "insightsDesc": "Receive proactive suggestions based on your productivity patterns",
+      "enableInsights": "Enable AI insights",
+      "enableInsightsDesc": "Shows personalized suggestions on dashboard",
+      "smartScheduling": "Smart scheduling",
+      "smartSchedulingDesc": "Suggests optimal times based on productivity",
+      "wellbeingTitle": "Wellbeing",
+      "wellbeingDesc": "Burnout risk detection and rest recommendations",
+      "burnoutDetection": "Burnout detection",
+      "burnoutDetectionDesc": "Analyzes work patterns to prevent exhaustion",
+      "restReminders": "Rest reminders",
+      "restRemindersDesc": "Gentle notifications to take breaks",
+      "sensitivity": "Detection sensitivity",
+      "sensitivityLevels": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "focusAudioTitle": "Focus Audio",
+      "focusAudioDesc": "Ambient sounds to enhance focus during work sessions",
+      "ambientAudio": "Automatic ambient audio",
+      "ambientAudioDesc": "Starts audio when starting a focus session",
+      "defaultVolume": "Default volume"
+    },
+    "tour": {
+      "title": "Tour & Help",
+      "aiFeatures": "AI Features Tour",
+      "aiFeaturesDesc": "Review new artificial intelligence features",
+      "startTour": "Start tour",
+      "retakeTour": "Watch again",
+      "starting": "Starting AI tour...",
+      "guideText": "💡 The tour guides you through: Smart Search, Meeting Assistant, Wellbeing Panel, Team Workload, and Focus Audio."
+    },
+    "security": "Security",
+    "sessions": {
+      "title": "Active sessions",
+      "single": "You only have one active session (this one)",
+      "multiple": "You have {count} active sessions",
+      "closeOthers": "Close other sessions",
+      "confirm": "Confirm",
+      "closing": "Closing...",
+      "cancel": "Cancel",
+      "current": "Current session",
+      "loading": "Loading sessions...",
+      "loadError": "Error loading sessions. Please try again.",
+      "revokeSuccess": "Session revoked successfully",
+      "revokeError": "Error revoking session",
+      "revokeOthersSuccess": "All other sessions have been closed",
+      "tipsTitle": "Security tips",
+      "tips": {
+        "tip1": "If you see an unfamiliar session, revoke it immediately",
+        "tip2": "Log out from public or shared devices",
+        "tip3": "Change your password if you suspect unauthorized access"
+      },
+      "relativeTime": {
+        "justNow": "Just now",
+        "minute": "1 minute ago",
+        "minutes": "{count} minutes ago",
+        "hour": "1 hour ago",
+        "hours": "{count} hours ago",
+        "day": "1 day ago",
+        "days": "{count} days ago"
+      }
+    },
+    "languageChanged": "Language changed to {lang}"
   },
   "TimerWidget": {
     "startTimer": "Start timer"
@@ -122,6 +217,21 @@
       "newProject": "New Project",
       "startTimer": "Start Timer",
       "newTask": "New Task"
+    },
+    "onboarding": {
+      "welcomeTitle": "Welcome to Ordo!",
+      "welcomeDesc": "Your productivity command center. Here you will see a summary of your day, your pending tasks, and your progress.",
+      "tasksTitle": "Your Tasks for Today",
+      "tasksDesc": "View all pending tasks for today, sort them by priority or duration, and mark them as completed.",
+      "timerTitle": "Built-in Timer",
+      "timerDesc": "Use the timer widget to start focus sessions with the Pomodoro technique or continuous mode.",
+      "habitsTitle": "Habits & OKRs",
+      "habitsDesc": "Keep your habits up to date and track your goals progress directly from the dashboard.",
+      "getstartedTitle": "Get Started Now!",
+      "getstartedDesc": "Create your first task with the (+) button in the bottom right corner. Your productivity starts here!",
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Get Started!"
     }
   },
   "Tasks": {
@@ -134,7 +244,47 @@
     "noPendingTasks": "You have no pending tasks. Good job!",
     "confirmDeleteTask": "Are you sure you want to delete this task?",
     "taskDeleted": "Task deleted successfully",
-    "taskDeleteError": "Failed to delete task"
+    "taskDeleteError": "Failed to delete task",
+    "noResults": "No results",
+    "noResultsDescription": "No tasks match the selected filters",
+    "clearFilters": "Clear filters",
+    "taskCompleted": "Task completed",
+    "taskReopened": "Task reopened",
+    "taskUpdateError": "Failed to update task",
+    "taskMoved": "Task moved",
+    "taskMoveError": "Failed to move task",
+    "listView": "List view",
+    "gridView": "Grid view",
+    "eisenhowerView": "Eisenhower matrix",
+    "eisenhower": {
+      "title": "Eisenhower Matrix",
+      "urgentCount": "{count} urgent",
+      "importantCount": "{count} important",
+      "quadrants": {
+        "do": {
+          "title": "Do First",
+          "subtitle": "Urgent & Important"
+        },
+        "schedule": {
+          "title": "Schedule",
+          "subtitle": "Important, Not Urgent"
+        },
+        "delegate": {
+          "title": "Delegate",
+          "subtitle": "Urgent, Not Important"
+        },
+        "delete": {
+          "title": "Delete",
+          "subtitle": "Neither Urgent Nor Important"
+        }
+      },
+      "empty": "No tasks",
+      "dragHere": "Drag tasks here",
+      "legend": {
+        "do": "Urgent + Important = Do first",
+        "schedule": "Important only = Schedule"
+      }
+    }
   },
   "Notes": {
     "title": "Notes",
@@ -250,7 +400,26 @@
     "noTags": "No tags",
     "noTagsDescription": "Create your first tag to start organizing your tasks.",
     "createTag": "Create Tag",
-    "tagCreated": "Tag created"
+    "tagCreated": "Tag created",
+    "tagUpdated": "Tag updated",
+    "saveError": "Error saving tag",
+    "selectWorkspaceFirst": "Please select a workspace first",
+    "dialog": {
+      "titleCreate": "Create Tag",
+      "titleEdit": "Edit Tag",
+      "descriptionCreate": "Create a new tag to organize your tasks.",
+      "descriptionEdit": "Modify tag name or color.",
+      "colorLabel": "Color",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Backend, Urgent",
+      "nameRequired": "Name is required",
+      "previewLabel": "Preview",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "create": "Create",
+      "creating": "Creating..."
+    }
   },
   "Habits": {
     "title": "Habits",
@@ -269,7 +438,9 @@
       "totalCompletions": "Times completed",
       "completionRate": "Success rate",
       "thisWeek": "This week",
-      "thisMonth": "This month"
+      "thisMonth": "This month",
+      "days": "days",
+      "completedCount": "completed"
     },
     "frequency": {
       "DAILY": "Daily",
@@ -399,9 +570,17 @@
     "avgPerDay": "Avg/day",
     "tabs": {
       "overview": "Overview",
+      "analytics": "Analytics",
+      "reports": "Reports",
+      "wellbeing": "Wellbeing",
       "weekly": "Weekly",
       "focus": "Focus",
       "aiInsights": "AI Insights"
+    },
+    "reports": {
+      "emptyTitle": "No reports yet",
+      "emptyDesc": "Generate your first productivity report to get personalized insights on your work.",
+      "detailTitle": "Report Details"
     },
     "focusScore": {
       "label": "Today's Focus Score",
@@ -1219,7 +1398,8 @@
     },
     "actions": {
       "viewEdit": "View/Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "moreOptions": "More options"
     },
     "status": {
       "completed": "Completed"
@@ -1918,6 +2098,21 @@
     "noObjectives": "No goals set yet",
     "noObjectivesDescription": "Define your objectives to stay focused on what matters most.",
     "listTitle": "Objectives & Key Results",
+    "onboarding": {
+      "welcomeTitle": "Goals and OKRs",
+      "welcomeDesc": "Set ambitious goals and track your progress with the OKR (Objectives and Key Results) methodology.",
+      "objectivesTitle": "What are Objectives?",
+      "objectivesDesc": "An objective is an inspirational and qualitative goal. Example: 'Improve physical fitness' or 'Launch a successful product'.",
+      "keyresultsTitle": "Key Results",
+      "keyresultsDesc": "Key Results are specific and measurable metrics. Example: 'Work out 3 times a week' or 'Reach 1,000 active users'.",
+      "linkingTitle": "Link Tasks",
+      "linkingDesc": "Connect your daily tasks to specific Key Results. Every completed task contributes to your overall progress.",
+      "progressTitle": "Progress Tracking",
+      "progressDesc": "Visualize the progress of each objective and adjust your strategy. Keep focus on what truly matters!",
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Create My First Objective!"
+    },
     "backToList": "Back to Goals",
     "createDescription": "Create a new objective to track your goals.",
     "cancel": "Cancel",
@@ -2238,6 +2433,26 @@
       "gentleReminder": "Gentle Reminder",
       "strongWarning": "Warning",
       "criticalAlert": "Critical Alert"
+    },
+    "refresh": "Refresh",
+    "factorsDetected": "Detected Factors",
+    "immediateSuggestions": "Immediate Suggestions",
+    "hoursPerDay": "Hours/day",
+    "weekends": "Weekends",
+    "breaks": "Breaks",
+    "trends": {
+      "improving": "Improving",
+      "stable": "Stable",
+      "declining": "Declining"
+    },
+    "wellbeingScore": "Wellbeing score",
+    "positive": "Highlights",
+    "concerns": "Areas of concern",
+    "restRecommendations": "Rest Recommendations",
+    "empty": {
+      "title": "No wellbeing data",
+      "description": "Continue using Ordo so we can analyze your work patterns",
+      "retry": "Try again"
     }
   },
   "Mobile": {
@@ -2402,5 +2617,36 @@
     "description": "Sorry, the page you are looking for does not exist or has been moved. Check the URL or go back to the home page.",
     "goToDashboard": "Go to Dashboard",
     "goToHome": "Go to Home"
+  },
+  "Auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to continue to Ordo",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "forgotPassword": "Forgot your password?",
+      "rememberMe": "Remember me",
+      "submitButton": "Sign In",
+      "submitting": "Signing in...",
+      "orContinueWith": "Or continue with",
+      "google": "Google",
+      "github": "GitHub",
+      "noAccount": "Don't have an account?",
+      "signUpFree": "Sign up for free",
+      "termsPrefix": "By continuing, you agree to our",
+      "terms": "Terms of Service",
+      "termsAnd": "and",
+      "privacy": "Privacy Policy",
+      "errors": {
+        "requiredFields": "Please fill in all fields",
+        "invalidEmail": "Please enter a valid email address",
+        "invalidCredentials": "Invalid email or password",
+        "googleFailed": "Could not sign in with Google",
+        "githubFailed": "Could not sign in with GitHub"
+      },
+      "success": "Signed in successfully"
+    }
   }
 }

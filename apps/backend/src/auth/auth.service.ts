@@ -8,7 +8,14 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { RegisterUser, UserLogin, type UserRepository } from '@ordo-todo/core';
+import * as crypto from 'crypto';
+import {
+  RegisterUser,
+  UserLogin,
+  type UserRepository,
+  UserAlreadyExistsError,
+  InvalidCredentialsError,
+} from '@ordo-todo/core';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
 import { RegisterDto } from './dto/register.dto';
@@ -33,7 +40,7 @@ export class AuthService {
     private readonly workspacesService: WorkspacesService,
     private readonly tokenBlacklistService: TokenBlacklistService,
     private readonly authAuditService: AuthAuditService,
-  ) { }
+  ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     try {
@@ -56,8 +63,10 @@ export class AuthService {
       });
     } catch (error) {
       if (
-        error.message.includes('já existe') ||
-        error.message.includes('já está em uso')
+        error instanceof UserAlreadyExistsError ||
+        error.message?.includes('já existe') ||
+        error.message?.includes('já está em uso') ||
+        error.message?.includes('already exists')
       ) {
         throw new ConflictException(error.message);
       }
@@ -67,7 +76,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     try {
-      const user = await this.userRepository.findByEmail(loginDto.email);
+      const user = await this.userRepository.findByEmail(loginDto.email, true);
 
       if (!user) {
         await this.authAuditService.loginFailed(
@@ -77,7 +86,7 @@ export class AuthService {
           'User not found',
         );
 
-        throw new UnauthorizedException('Invalid email or password');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       // Check if user has a password (OAuth users may not have one)
@@ -89,7 +98,7 @@ export class AuthService {
           'No password set (OAuth user)',
         );
 
-        throw new UnauthorizedException('Invalid email or password');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       const isValid = await this.cryptoProvider.compare(
@@ -105,21 +114,34 @@ export class AuthService {
           'Invalid password',
         );
 
-        throw new UnauthorizedException('Invalid email or password');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
-      const payload = {
+      const basePayload = {
         sub: user.id,
         email: user.email,
         username: user.username,
         name: user.name,
       };
 
-      const accessToken = this.jwtService.sign(payload);
-      const refreshToken = this.jwtService.sign(payload, {
-        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
-          '7d') as StringValue,
+      const accessToken = this.jwtService.sign({
+        ...basePayload,
+        tokenType: 'access',
+        jti: crypto.randomUUID(),
       });
+
+      const refreshToken = this.jwtService.sign(
+        {
+          ...basePayload,
+          tokenType: 'refresh',
+          jti: crypto.randomUUID(),
+        },
+        {
+          expiresIn: (this.configService.get<string>(
+            'JWT_REFRESH_EXPIRATION',
+          ) ?? '7d') as StringValue,
+        },
+      );
 
       await this.authAuditService.loginSuccess(
         user.id,
@@ -140,6 +162,14 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error('Login failed', error);
+      if (
+        error instanceof InvalidCredentialsError ||
+        error.message?.includes('não encontrado') ||
+        error.message?.includes('incorreta') ||
+        error.message?.includes('Invalid credentials')
+      ) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
       throw error;
     }
   }
@@ -159,40 +189,57 @@ export class AuthService {
 
   async refresh(refreshToken: string): Promise<AuthResponseDto> {
     try {
-      // Verify the refresh token
-      const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>('JWT_SECRET')!,
-      });
-
-      // Check if refresh token is already blacklisted (token reuse detection)
+      // Check if refresh token is already revoked/blacklisted
       if (await this.tokenBlacklistService.isBlacklisted(refreshToken)) {
         throw new UnauthorizedException(
           'Refresh token has been revoked or reused',
         );
       }
 
-      // Blacklist the refresh token BEFORE generating a new one (token rotation)
-      await this.tokenBlacklistService.blacklist(refreshToken);
+      // Verify the refresh token
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_SECRET')!,
+      });
 
+      // Verify token type to prevent using access tokens as refresh tokens
+      if (payload.tokenType && payload.tokenType !== 'refresh') {
+        throw new UnauthorizedException('Invalid token type for refresh');
+      }
       // Validate that the user still exists
       const user = await this.validateUser(payload.email);
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
+      // Invalidate the consumed refresh token (single-use refresh token rotation)
+      await this.tokenBlacklistService.blacklist(refreshToken);
+
       // Generate new tokens (token rotation for security)
-      const newPayload = {
+      const basePayload = {
         sub: user.id,
         email: user.email,
         username: user.username,
         name: user.name,
       };
 
-      const accessToken = this.jwtService.sign(newPayload);
-      const newRefreshToken = this.jwtService.sign(newPayload, {
-        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
-          '7d') as StringValue,
+      const accessToken = this.jwtService.sign({
+        ...basePayload,
+        tokenType: 'access',
+        jti: crypto.randomUUID(),
       });
+
+      const newRefreshToken = this.jwtService.sign(
+        {
+          ...basePayload,
+          tokenType: 'refresh',
+          jti: crypto.randomUUID(),
+        },
+        {
+          expiresIn: (this.configService.get<string>(
+            'JWT_REFRESH_EXPIRATION',
+          ) ?? '7d') as StringValue,
+        },
+      );
 
       return {
         accessToken,
@@ -344,18 +391,29 @@ export class AuthService {
     }
 
     // Generate JWT tokens
-    const payload = {
+    const basePayload = {
       sub: user.id,
       email: user.email,
       username: user.username,
       name: user.name,
     };
 
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
-        '7d') as StringValue,
+    const accessToken = this.jwtService.sign({
+      ...basePayload,
+      tokenType: 'access',
+      jti: crypto.randomUUID(),
     });
+    const refreshToken = this.jwtService.sign(
+      {
+        ...basePayload,
+        tokenType: 'refresh',
+        jti: crypto.randomUUID(),
+      },
+      {
+        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRATION') ??
+          '7d') as StringValue,
+      },
+    );
 
     return {
       accessToken,

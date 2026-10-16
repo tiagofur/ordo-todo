@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
 import { WorkspaceDashboard } from "@/components/workspace/workspace-dashboard";
 import { useWorkspaceByUsernameAndSlug } from "@/lib/api-hooks";

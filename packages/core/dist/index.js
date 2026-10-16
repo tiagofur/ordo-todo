@@ -72,6 +72,7 @@ __export(index_exports, {
   DeleteNotificationUseCase: () => DeleteNotificationUseCase,
   DeleteProjectUseCase: () => DeleteProjectUseCase,
   DeleteWorkflowUseCase: () => DeleteWorkflowUseCase,
+  DomainError: () => DomainError,
   Email: () => Email,
   Entity: () => Entity,
   ExecuteSearchUseCase: () => ExecuteSearchUseCase,
@@ -113,6 +114,7 @@ __export(index_exports, {
   Id: () => Id,
   ImageSpecs: () => ImageSpecs,
   IntegrationProvider: () => IntegrationProvider,
+  InvalidCredentialsError: () => InvalidCredentialsError,
   InviteMemberUseCase: () => InviteMemberUseCase,
   KBArticle: () => KBArticle,
   KBCategory: () => KBCategory,
@@ -211,6 +213,7 @@ __export(index_exports, {
   UpgradePlanUseCase: () => UpgradePlanUseCase,
   User: () => User,
   UserAchievement: () => UserAchievement,
+  UserAlreadyExistsError: () => UserAlreadyExistsError,
   UserByEmail: () => UserByEmail,
   UserIntegration: () => UserIntegration,
   UserLogin: () => UserLogin,
@@ -265,6 +268,7 @@ __export(index_exports, {
   duplicateProjectSchema: () => duplicateProjectSchema,
   endOfDay: () => endOfDay,
   endOfWeek: () => endOfWeek,
+  formatCalendarDateInput: () => formatCalendarDateInput,
   formatDate: () => formatDate,
   formatDateShort: () => formatDateShort,
   formatDuration: () => formatDuration,
@@ -306,6 +310,8 @@ __export(index_exports, {
   isAllowedFileType: () => isAllowedFileType,
   isAlphanumeric: () => isAlphanumeric,
   isBefore: () => isBefore,
+  isCalendarDateOverdue: () => isCalendarDateOverdue,
+  isCalendarDateToday: () => isCalendarDateToday,
   isDarkColor: () => isDarkColor,
   isDueToday: () => isDueToday,
   isFuture: () => isFuture,
@@ -328,6 +334,7 @@ __export(index_exports, {
   minutesToSeconds: () => minutesToSeconds,
   mixColors: () => mixColors,
   normalizeWhitespace: () => normalizeWhitespace,
+  parseCalendarDate: () => parseCalendarDate,
   parseDuration: () => parseDuration,
   pluralize: () => pluralize,
   projectBaseSchema: () => projectBaseSchema,
@@ -340,6 +347,7 @@ __export(index_exports, {
   rgbToHex: () => rgbToHex,
   sanitizeHtml: () => sanitizeHtml,
   secondsToMinutes: () => secondsToMinutes,
+  serializeCalendarDateForApi: () => serializeCalendarDateForApi,
   shouldTakeLongBreak: () => shouldTakeLongBreak,
   snakeToTitle: () => snakeToTitle,
   startOfDay: () => startOfDay,
@@ -351,6 +359,7 @@ __export(index_exports, {
   taskBaseSchema: () => taskBaseSchema,
   taskDatesSchema: () => taskDatesSchema,
   taskFilterSchema: () => taskFilterSchema,
+  toCalendarDateString: () => toCalendarDateString,
   transferOwnershipSchema: () => transferOwnershipSchema,
   truncate: () => truncate,
   updateCommentSchema: () => updateCommentSchema,
@@ -690,6 +699,25 @@ var RequiredString = class _RequiredString {
   }
   toJSON() {
     return this._value;
+  }
+};
+
+// src/shared/errors.ts
+var DomainError = class extends Error {
+  constructor(message, code = "DOMAIN_ERROR") {
+    super(message);
+    this.code = code;
+    this.name = this.constructor.name;
+  }
+};
+var UserAlreadyExistsError = class extends DomainError {
+  constructor(message = "User already exists") {
+    super(message, "USER_ALREADY_EXISTS");
+  }
+};
+var InvalidCredentialsError = class extends DomainError {
+  constructor(message = "Invalid credentials") {
+    super(message, "INVALID_CREDENTIALS");
   }
 };
 
@@ -1190,6 +1218,58 @@ function formatScheduledDateTime(scheduledDate, scheduledTime, locale = "en-US")
   }
   return dateStr;
 }
+function toCalendarDateString(date5) {
+  if (!date5) return "";
+  if (typeof date5 === "string") {
+    const trimmed = date5.trim();
+    const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+    const d = new Date(trimmed);
+    if (isNaN(d.getTime())) return "";
+    return formatLocalDateToYYYYMMDD(d);
+  }
+  if (isNaN(date5.getTime())) return "";
+  return formatLocalDateToYYYYMMDD(date5);
+}
+function formatLocalDateToYYYYMMDD(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+function parseCalendarDate(date5) {
+  if (!date5) return null;
+  const dateStr = toCalendarDateString(date5);
+  if (!dateStr) return null;
+  const parts = dateStr.split("-");
+  if (parts.length < 3 || !parts[0] || !parts[1] || !parts[2]) return null;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  return new Date(year, month, day, 0, 0, 0, 0);
+}
+function formatCalendarDateInput(date5) {
+  return toCalendarDateString(date5);
+}
+function serializeCalendarDateForApi(date5) {
+  const dateStr = toCalendarDateString(date5);
+  if (!dateStr) return null;
+  return `${dateStr}T00:00:00.000Z`;
+}
+function isCalendarDateToday(date5) {
+  if (!date5) return false;
+  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
+  return toCalendarDateString(date5) === todayStr;
+}
+function isCalendarDateOverdue(dueDate, isCompleted = false) {
+  if (!dueDate || isCompleted) return false;
+  const dueStr = toCalendarDateString(dueDate);
+  if (!dueStr) return false;
+  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
+  return dueStr < todayStr;
+}
 
 // src/shared/utils/time.utils.ts
 function formatDuration(minutes) {
@@ -1267,7 +1347,8 @@ function isWorkingHours(date5 = /* @__PURE__ */ new Date(), startHour = 9, endHo
 
 // src/shared/utils/string.utils.ts
 function generateSlug(text) {
-  return text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+  const slug = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug || "workspace";
 }
 function truncate(text, maxLength, ellipsis = "...") {
   if (text.length <= maxLength) return text;
@@ -15614,11 +15695,11 @@ var RegisterUser = class {
   async execute(user) {
     const existingUser = await this.repo.findByEmail(user.email);
     if (existingUser) {
-      throw new Error("Usu\xE1rio j\xE1 existe");
+      throw new UserAlreadyExistsError("Usu\xE1rio j\xE1 existe");
     }
     const existingUsername = await this.repo.findByUsername(user.username);
     if (existingUsername) {
-      throw new Error("Nome de usu\xE1rio j\xE1 est\xE1 em uso");
+      throw new UserAlreadyExistsError("Nome de usu\xE1rio j\xE1 est\xE1 em uso");
     }
     if (!user.password) {
       throw new Error("Senha \xE9 obrigat\xF3ria");
@@ -15662,9 +15743,9 @@ var UserLogin = class {
     const { email: email3, password } = input;
     const withPassword = true;
     const user = await this.repo.findByEmail(email3, withPassword);
-    if (!user) throw new Error("Usu\xE1rio n\xE3o encontrado");
+    if (!user) throw new InvalidCredentialsError("Usu\xE1rio n\xE3o encontrado");
     const samePassword = await this.crypto.compare(password, user.password);
-    if (!samePassword) throw new Error("Senha incorreta");
+    if (!samePassword) throw new InvalidCredentialsError("Senha incorreta");
     return user.withoutPassword();
   }
 };
@@ -15739,6 +15820,10 @@ var CreateTaskUseCase = class {
       description: input.description,
       priority: input.priority ?? "MEDIUM",
       dueDate: input.dueDate,
+      startDate: input.startDate,
+      scheduledDate: input.scheduledDate,
+      scheduledTime: input.scheduledTime,
+      scheduledEndTime: input.scheduledEndTime,
       projectId: input.projectId,
       ownerId: input.ownerId,
       assigneeId: input.assigneeId,
@@ -15760,7 +15845,10 @@ var CompleteTaskUseCase = class {
     if (!task) {
       throw new Error("Task not found");
     }
-    if (task.props.ownerId !== input.ownerId) {
+    const actingUserId = input.userId ?? input.ownerId;
+    const isOwner = task.props.ownerId === actingUserId;
+    const isAssignee = task.props.assigneeId === actingUserId;
+    if (actingUserId && !isOwner && !isAssignee) {
       throw new Error("Unauthorized");
     }
     const completedTask = task.complete();
@@ -16110,16 +16198,18 @@ var CreateWorkspaceUseCase = class {
   async execute(props, ownerUsername) {
     const username = ownerUsername || this.ownerUsername;
     const workspaceNameSlug = this.generateSlug(props.name);
-    const slug = workspaceNameSlug;
-    let finalSlug = slug;
+    let finalSlug = workspaceNameSlug;
     let counter = 1;
     if (props.ownerId) {
-      while (await this.workspaceRepository.findBySlug(finalSlug, props.ownerId)) {
-        if (username) {
-          finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
-        } else {
-          finalSlug = `${workspaceNameSlug}-${counter}`;
+      const checkExists = async (slugToCheck) => {
+        if (this.workspaceRepository.slugExistsForOwner) {
+          return this.workspaceRepository.slugExistsForOwner(slugToCheck, props.ownerId);
         }
+        const existing = await this.workspaceRepository.findBySlug(slugToCheck, props.ownerId);
+        return !!existing;
+      };
+      while (await checkExists(finalSlug)) {
+        finalSlug = `${workspaceNameSlug}-${counter}`;
         counter++;
       }
     }
@@ -16130,7 +16220,8 @@ var CreateWorkspaceUseCase = class {
     return this.workspaceRepository.create(workspace);
   }
   generateSlug(name) {
-    return name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+    const slug = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+    return slug || "workspace";
   }
 };
 
@@ -16201,7 +16292,7 @@ var RestoreWorkspaceUseCase = class {
     this.workspaceRepository = workspaceRepository;
   }
   async execute(id, userId) {
-    const workspace = await this.workspaceRepository.findById(id);
+    const workspace = this.workspaceRepository.findByIdIncludeDeleted ? await this.workspaceRepository.findByIdIncludeDeleted(id) : (await this.workspaceRepository.findDeleted(userId)).find((w) => w.id === id);
     if (!workspace) {
       throw new Error("Workspace not found");
     }
@@ -16218,7 +16309,7 @@ var PermanentDeleteWorkspaceUseCase = class {
     this.workspaceRepository = workspaceRepository;
   }
   async execute(id, userId) {
-    const workspace = await this.workspaceRepository.findById(id);
+    const workspace = this.workspaceRepository.findByIdIncludeDeleted ? await this.workspaceRepository.findByIdIncludeDeleted(id) : (await this.workspaceRepository.findDeleted(userId)).find((w) => w.id === id);
     if (!workspace) {
       throw new Error("Workspace not found");
     }
@@ -16332,16 +16423,20 @@ var AcceptInvitationUseCase = class {
     this.hashService = hashService;
   }
   async execute(token, userId) {
-    const pendingInvitations = await this.invitationRepository.findPendingInvitations();
-    if (pendingInvitations.length === 0) {
-      throw new Error("Invalid invitation token");
-    }
     let matchedInvitation = null;
-    for (const invitation of pendingInvitations) {
-      const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
-      if (isValid) {
-        matchedInvitation = invitation;
-        break;
+    try {
+      const hashedToken = await this.hashService.hash(token);
+      matchedInvitation = await this.invitationRepository.findByToken(hashedToken);
+    } catch {
+    }
+    if (!matchedInvitation) {
+      const pendingInvitations = await this.invitationRepository.findPendingInvitations();
+      for (const invitation of pendingInvitations) {
+        const isValid = await this.hashService.compare(token, invitation.props.tokenHash);
+        if (isValid) {
+          matchedInvitation = invitation;
+          break;
+        }
       }
     }
     if (!matchedInvitation) {
@@ -23690,6 +23785,7 @@ var UserIntegration = class extends Entity {
   DeleteNotificationUseCase,
   DeleteProjectUseCase,
   DeleteWorkflowUseCase,
+  DomainError,
   Email,
   Entity,
   ExecuteSearchUseCase,
@@ -23731,6 +23827,7 @@ var UserIntegration = class extends Entity {
   Id,
   ImageSpecs,
   IntegrationProvider,
+  InvalidCredentialsError,
   InviteMemberUseCase,
   KBArticle,
   KBCategory,
@@ -23829,6 +23926,7 @@ var UserIntegration = class extends Entity {
   UpgradePlanUseCase,
   User,
   UserAchievement,
+  UserAlreadyExistsError,
   UserByEmail,
   UserIntegration,
   UserLogin,
@@ -23883,6 +23981,7 @@ var UserIntegration = class extends Entity {
   duplicateProjectSchema,
   endOfDay,
   endOfWeek,
+  formatCalendarDateInput,
   formatDate,
   formatDateShort,
   formatDuration,
@@ -23924,6 +24023,8 @@ var UserIntegration = class extends Entity {
   isAllowedFileType,
   isAlphanumeric,
   isBefore,
+  isCalendarDateOverdue,
+  isCalendarDateToday,
   isDarkColor,
   isDueToday,
   isFuture,
@@ -23946,6 +24047,7 @@ var UserIntegration = class extends Entity {
   minutesToSeconds,
   mixColors,
   normalizeWhitespace,
+  parseCalendarDate,
   parseDuration,
   pluralize,
   projectBaseSchema,
@@ -23958,6 +24060,7 @@ var UserIntegration = class extends Entity {
   rgbToHex,
   sanitizeHtml,
   secondsToMinutes,
+  serializeCalendarDateForApi,
   shouldTakeLongBreak,
   snakeToTitle,
   startOfDay,
@@ -23969,6 +24072,7 @@ var UserIntegration = class extends Entity {
   taskBaseSchema,
   taskDatesSchema,
   taskFilterSchema,
+  toCalendarDateString,
   transferOwnershipSchema,
   truncate,
   updateCommentSchema,

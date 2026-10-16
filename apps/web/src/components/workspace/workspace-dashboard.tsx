@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@ordo-todo/ui";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import {
   FolderKanban,
   CheckSquare,
@@ -95,11 +95,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
-        <div
-          className="absolute left-0 top-0 bottom-0 w-1.5"
-          style={{ backgroundColor: workspaceColor }}
-        />
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
             <div
@@ -385,17 +381,17 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
   const colorStyles: Record<StatCardProps["color"], string> = {
-    blue: "bg-blue-100 dark:bg-blue-900 text-blue-600",
-    green: "bg-green-100 dark:bg-green-900 text-green-600",
-    purple: "bg-purple-100 dark:bg-purple-900 text-purple-600",
+    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    green: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    purple: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
   };
 
   return (
-    <Card>
+    <Card className="rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-border/80">
       <CardContent className="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
         <div
           className={cn(
-            "p-2.5 sm:p-3 rounded-lg sm:rounded-xl",
+            "p-2.5 sm:p-3 rounded-2xl",
             colorStyles[color],
           )}
         >
@@ -453,19 +449,19 @@ function ProjectsSkeleton({ viewMode }: { viewMode: "list" | "grid" }) {
 }
 
 function EmptyProjectsState({ onCreate }: { onCreate: () => void }) {
+  const t = useTranslations("Projects");
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed rounded-xl bg-muted">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-border rounded-2xl bg-card">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mb-4">
         <FolderKanban className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+      <h3 className="text-lg font-semibold mb-2">{t("noProjects")}</h3>
       <p className="text-muted-foreground mb-6 max-w-sm text-sm">
-        Create your first project to start organizing your tasks and
-        collaborating with your team.
+        {t("noProjectsDescription")}
       </p>
-      <Button onClick={onCreate}>
-        <Plus className="h-4 w-4 mr-2" />
-        Create Project
+      <Button onClick={onCreate} className="gap-2">
+        <Plus className="h-4 w-4" />
+        {t("createProject")}
       </Button>
     </div>
   );

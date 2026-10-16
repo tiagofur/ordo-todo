@@ -29,6 +29,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(req: any, payload: any) {
+    if (payload.tokenType && payload.tokenType !== 'access') {
+      throw new UnauthorizedException('Invalid token type');
+    }
+
     // Get the token from the request to check if it's blacklisted
     let token = req.get('authorization')?.replace('Bearer ', '');
 

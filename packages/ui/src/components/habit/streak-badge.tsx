@@ -55,24 +55,24 @@ export function StreakBadge({
 
   const tierStyles = {
     common: {
-      bg: 'bg-amber-100 dark:bg-amber-900', // Solid background for platform-agnostic
-      text: 'text-amber-500',
+      bg: 'bg-amber-100/80 dark:bg-amber-950/50',
+      text: 'text-amber-600 dark:text-amber-400',
       glow: 'shadow-none',
     },
     rare: {
-      bg: 'bg-orange-100 dark:bg-orange-900',
-      text: 'text-orange-500',
-      glow: 'shadow-md shadow-orange-500/30',
+      bg: 'bg-orange-100/80 dark:bg-orange-950/50',
+      text: 'text-orange-600 dark:text-orange-400',
+      glow: 'shadow-xs',
     },
     epic: {
-      bg: 'bg-red-100 dark:bg-red-900',
-      text: 'text-red-500',
-      glow: 'shadow-lg shadow-red-500/40',
+      bg: 'bg-red-100/80 dark:bg-red-950/50',
+      text: 'text-red-600 dark:text-red-400',
+      glow: 'shadow-sm',
     },
     legendary: {
-      bg: 'bg-gradient-to-r from-amber-100 via-red-100 to-purple-100 dark:from-amber-900 dark:via-red-900 dark:to-purple-900',
-      text: 'text-transparent bg-gradient-to-r from-amber-500 via-red-500 to-purple-500 bg-clip-text',
-      glow: 'shadow-xl shadow-red-500/50',
+      bg: 'bg-red-100/90 dark:bg-red-950/70',
+      text: 'text-red-600 dark:text-red-400',
+      glow: 'shadow-sm shadow-red-500/20',
     },
   };
 
@@ -97,8 +97,8 @@ export function StreakBadge({
       >
         <Flame
           size={iconSizes[size]}
-          className={cn(tier === 'legendary' ? 'text-red-500' : style.text)}
-          fill={tier === 'legendary' ? 'url(#flameGradient)' : 'currentColor'}
+          className={style.text}
+          fill="currentColor"
         />
       </div>
 
@@ -110,25 +110,6 @@ export function StreakBadge({
         <span className={cn('text-muted-foreground', style.text)}>
           {streak === 1 ? t.day : t.days}
         </span>
-      )}
-
-      {/* SVG gradient for legendary tier */}
-      {tier === 'legendary' && (
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient
-              id="flameGradient"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="100%"
-            >
-              <stop offset="0%" stopColor="#fbbf24" />
-              <stop offset="50%" stopColor="#ef4444" />
-              <stop offset="100%" stopColor="#a855f7" />
-            </linearGradient>
-          </defs>
-        </svg>
       )}
     </div>
   );
@@ -149,7 +130,7 @@ export function StreakCounter({
 }: StreakCounterProps) {
   return (
     <div className="flex items-center gap-2 animate-in zoom-in duration-300">
-      <div className="animate-bounce">
+      <div className="animate-pulse">
         <Flame className="h-8 w-8 text-amber-500" fill="#f59e0b" />
       </div>
       <span

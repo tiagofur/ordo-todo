@@ -1,5 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ActivityType as CoreActivityType, LogActivityUseCase } from '@ordo-todo/core';
+import {
+  ActivityType as CoreActivityType,
+  LogActivityUseCase,
+} from '@ordo-todo/core';
 import { ActivityType as PrismaActivityType } from '@prisma/client';
 
 interface CreateActivityData {

@@ -3,7 +3,7 @@ export interface NavItem {
     name: string;
     href: string;
     icon: ElementType;
-    color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'blue' | 'yellow' | 'red';
+    color?: 'cyan' | 'purple' | 'pink' | 'orange' | 'green' | 'emerald' | 'blue' | 'yellow' | 'red';
 }
 export interface NavSection {
     label?: string;
@@ -32,6 +32,8 @@ interface SidebarProps {
     onSettingsClick?: () => void;
     /** Logo click handler or href */
     logoHref?: string;
+    /** Whether the sidebar is collapsed */
+    collapsed?: boolean;
     /** Whether to show the settings button (default: false) */
     showSettingsButton?: boolean;
     labels?: {
@@ -46,6 +48,6 @@ interface SidebarProps {
         analytics?: string;
     };
 }
-export declare function Sidebar({ pathname, navItems, navSections, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, showSettingsButton, labels, }: SidebarProps): import("react/jsx-runtime").JSX.Element;
+export declare function Sidebar({ pathname, navItems, navSections, collapsed, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, showSettingsButton, labels, }: SidebarProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=sidebar.d.ts.map

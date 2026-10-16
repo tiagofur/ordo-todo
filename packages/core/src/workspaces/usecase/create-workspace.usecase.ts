@@ -22,20 +22,21 @@ export class CreateWorkspaceUseCase {
   ): Promise<Workspace> {
     const username = ownerUsername || this.ownerUsername;
     const workspaceNameSlug = this.generateSlug(props.name);
-
-    const slug = workspaceNameSlug;
-
-    let finalSlug = slug;
+    let finalSlug = workspaceNameSlug;
     let counter = 1;
 
     // Check for slug uniqueness within the owner's context
     if (props.ownerId) {
-      while (await this.workspaceRepository.findBySlug(finalSlug, props.ownerId)) {
-        if (username) {
-          finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
-        } else {
-          finalSlug = `${workspaceNameSlug}-${counter}`;
+      const checkExists = async (slugToCheck: string): Promise<boolean> => {
+        if (this.workspaceRepository.slugExistsForOwner) {
+          return this.workspaceRepository.slugExistsForOwner(slugToCheck, props.ownerId!);
         }
+        const existing = await this.workspaceRepository.findBySlug(slugToCheck, props.ownerId!);
+        return !!existing;
+      };
+
+      while (await checkExists(finalSlug)) {
+        finalSlug = `${workspaceNameSlug}-${counter}`;
         counter++;
       }
     }
@@ -48,11 +49,15 @@ export class CreateWorkspaceUseCase {
   }
 
   private generateSlug(name: string): string {
-    return name
+    const slug = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, "")
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+    return slug || "workspace";
   }
 }

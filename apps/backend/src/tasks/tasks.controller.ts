@@ -190,7 +190,11 @@ export class TasksController {
   )
   @CacheTTL(CACHE_TTL.TASKS)
   @ApiOperation({ summary: 'Get soft-deleted tasks for a project' })
-  @ApiQuery({ name: 'projectId', required: false, description: 'Filter by project ID' })
+  @ApiQuery({
+    name: 'projectId',
+    required: false,
+    description: 'Filter by project ID',
+  })
   @ApiResponseDecorator({ status: 200, description: 'Deleted tasks retrieved' })
   @ApiResponseDecorator({ status: 403, description: 'Forbidden' })
   getDeleted(@Query('projectId') projectId: string) {

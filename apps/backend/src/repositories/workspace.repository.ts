@@ -149,6 +149,21 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     return this.toDomain(workspace);
   }
 
+  async findByIdIncludeDeleted(id: string): Promise<Workspace | null> {
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id },
+    });
+    if (!workspace) return null;
+    return this.toDomain(workspace);
+  }
+
+  async slugExistsForOwner(slug: string, ownerId: string): Promise<boolean> {
+    const count = await this.prisma.workspace.count({
+      where: { slug, ownerId },
+    });
+    return count > 0;
+  }
+
   async findBySlug(slug: string, ownerId: string): Promise<Workspace | null> {
     // SECURITY FIX: Include ownerId to prevent accessing workspaces with duplicate slugs
     // owned by different users. This prevents unauthorized access to other users' workspaces.

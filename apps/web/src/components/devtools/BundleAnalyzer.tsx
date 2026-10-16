@@ -269,7 +269,7 @@ export function BundleAnalyzer({ isOpen = true, className }: BundleAnalyzerProps
                   <div className="text-sm text-gray-600 dark:text-gray-400">Gzipped</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <div className="text-2xl font-bold text-foreground">
                     {getCompressionRatio(analysis.metrics.totalSize, analysis.metrics.gzippedSize)}%
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Compression</div>
