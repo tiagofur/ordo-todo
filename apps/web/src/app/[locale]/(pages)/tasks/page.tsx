@@ -86,9 +86,9 @@ function TasksPageContent() {
         status: completed ? "COMPLETED" : "TODO",
       });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast.success(completed ? "Tarea completada" : "Tarea reabierta");
+      toast.success(completed ? t("taskCompleted") : t("taskReopened"));
     } catch {
-      toast.error("Error al actualizar tarea");
+      toast.error(t("taskUpdateError"));
     }
   };
 
@@ -106,9 +106,9 @@ function TasksPageContent() {
     try {
       await apiClient.updateTask(taskId, { priority: priorityMap[quadrant] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast.success("Tarea movida");
+      toast.success(t("taskMoved"));
     } catch {
-      toast.error("Error al mover tarea");
+      toast.error(t("taskMoveError"));
     }
   };
 
@@ -160,11 +160,7 @@ function TasksPageContent() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: "#a855f7",
-                  boxShadow: `0 10px 15px -3px rgb(168 85 247), 0 4px 6px -4px rgb(168 85 247)`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25"
               >
                 <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -194,7 +190,7 @@ function TasksPageContent() {
                 </span>
                 <button
                   onClick={clearTagFilter}
-                  className="ml-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 p-0.5"
+                  className="ml-1 rounded-full hover:bg-muted p-0.5 transition-colors"
                 >
                   <X
                     className="h-3.5 w-3.5"
@@ -213,54 +209,53 @@ function TasksPageContent() {
             />
 
             {/* View mode toggle */}
-            <div className="flex items-center border border-border rounded-lg overflow-hidden">
+            <div className="flex items-center border border-border rounded-lg overflow-hidden bg-card/60 p-0.5">
               <button
                 onClick={() => setViewMode("list")}
                 className={cn(
-                  "p-2 transition-all duration-200",
+                  "p-2 rounded-md transition-all duration-200",
                   viewMode === "list"
-                    ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 )}
-                title="Vista de lista"
+                title={t("listView")}
+                aria-label={t("listView")}
               >
                 <List className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setViewMode("grid")}
                 className={cn(
-                  "p-2 transition-all duration-200",
+                  "p-2 rounded-md transition-all duration-200",
                   viewMode === "grid"
-                    ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 )}
-                title="Vista de cuadrícula"
+                title={t("gridView")}
+                aria-label={t("gridView")}
               >
                 <LayoutGrid className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setViewMode("eisenhower")}
                 className={cn(
-                  "p-2 transition-all duration-200",
+                  "p-2 rounded-md transition-all duration-200",
                   viewMode === "eisenhower"
-                    ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 )}
-                title="Matriz de Eisenhower"
+                title={t("eisenhowerView")}
+                aria-label={t("eisenhowerView")}
               >
                 <Grid2x2 className="h-4 w-4" />
               </button>
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-              style={{
-                backgroundColor: "#a855f7",
-                boxShadow: `0 10px 15px -3px rgb(168 85 247), 0 4px 6px -4px rgb(168 85 247)`,
-              }}
+              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 transition-all duration-200"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t("newTask")}</span>
@@ -345,27 +340,27 @@ function TasksPageContent() {
               <CheckSquare className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">
-              {currentTag ? t("noTasksWithTag") : hasActiveFilters ? "Sin resultados" : t("allClear")}
+              {currentTag ? t("noTasksWithTag") : hasActiveFilters ? t("noResults") : t("allClear")}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
               {currentTag
                 ? t("noTasksWithTagDescription", { tagName: currentTag.name })
                 : hasActiveFilters
-                ? "No hay tareas que coincidan con los filtros seleccionados"
+                ? t("noResultsDescription")
                 : t("noPendingTasks")}
             </p>
             {hasActiveFilters ? (
               <button
                 onClick={() => setFilters({})}
-                className="flex items-center gap-2 rounded-xl bg-purple-100 dark:bg-purple-900 text-purple-500 px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-purple-200 dark:hover:bg-purple-800"
+                className="flex items-center gap-2 rounded-xl bg-muted text-foreground px-6 py-3 text-sm font-medium transition-all duration-200 hover:bg-muted/80"
               >
                 <X className="h-4 w-4" />
-                Limpiar filtros
+                {t("clearFilters")}
               </button>
             ) : (
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-lg transition-all duration-200 hover:bg-purple-600 hover:scale-105"
+                className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-sm font-medium shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02]"
               >
                 <Plus className="h-4 w-4" />
                 {t("newTask")}

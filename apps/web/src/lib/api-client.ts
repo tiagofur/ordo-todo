@@ -263,8 +263,6 @@ async function handleTokenRefresh(): Promise<AuthResponse> {
 
       // Backend sets new cookies automatically in the response
       return response.data;
-    } catch (error) {
-      throw error;
     } finally {
       isRefreshing = false;
       refreshPromise = null;

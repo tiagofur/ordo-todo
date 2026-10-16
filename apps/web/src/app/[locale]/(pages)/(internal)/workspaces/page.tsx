@@ -3,16 +3,20 @@
 import { useState } from "react";
 import { Plus, Briefcase } from "lucide-react";
 import { useWorkspaces, useCreateWorkspace } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { WorkspaceCard } from "@/components/workspace/workspace-card";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/error-handler";
 
 export default function WorkspacesPage() {
   const t = useTranslations('Workspaces');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { data: workspaces, isLoading, error } = useWorkspaces();
-  const { mutateAsync: createWorkspace } = useCreateWorkspace();
+  const createWorkspaceMutation = useCreateWorkspace();
+  const { setSelectedWorkspaceId } = useWorkspaceStore();
   const accentColor = "#f97316"; // Orange
 
   return (
@@ -24,11 +28,7 @@ export default function WorkspacesPage() {
             <motion.div
               initial={{ rotate: -10, scale: 0.9 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-              }}
+              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-sm shadow-orange-500/25"
             >
               <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
             </motion.div>
@@ -42,11 +42,7 @@ export default function WorkspacesPage() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowCreateDialog(true)}
-          className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-          style={{
-            backgroundColor: accentColor,
-            boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-          }}
+          className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
         >
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">{t('newWorkspace')}</span>
@@ -104,11 +100,7 @@ export default function WorkspacesPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateDialog(true)}
-            className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-            }}
+            className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             {t('createWorkspace')}
@@ -119,9 +111,19 @@ export default function WorkspacesPage() {
       <CreateWorkspaceDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
+        isPending={createWorkspaceMutation.isPending}
         onSubmit={async (data) => {
-            await createWorkspace(data);
+          try {
+            const created = await createWorkspaceMutation.mutateAsync(data);
+            if (created?.id) {
+              setSelectedWorkspaceId(created.id);
+            }
+            toast.success(t('createSuccess') || 'Espacio de trabajo creado');
             setShowCreateDialog(false);
+          } catch (err) {
+            toast.error(getErrorMessage(err, t('createError') || 'Error al crear espacio de trabajo'));
+            throw err;
+          }
         }}
       />
     </div>

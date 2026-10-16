@@ -119,7 +119,7 @@ export default function HabitsPage() {
         }
       }
     } catch (error) {
-      toast.error(t("toast.error", { message: "Failed to update habit" }));
+      toast.error(error instanceof Error ? error.message : t("toast.updated"));
     }
   };
 
@@ -131,26 +131,26 @@ export default function HabitsPage() {
       value: `${summary.completed}/${summary.total}`,
       subtitle: `${summary.percentage}%`,
       icon: Target,
-      color: accentColor,
+      color: "#10b981",
     },
     {
       title: t("stats.currentStreak"),
       value: habits.length > 0 ? Math.max(...habits.map((h: Habit) => h.currentStreak || 0)).toString() : "0",
-      subtitle: "días",
+      subtitle: t("stats.days"),
       icon: Flame,
       color: "#f59e0b",
     },
     {
       title: t("stats.longestStreak"),
       value: habits.length > 0 ? Math.max(...habits.map((h: Habit) => h.longestStreak || 0)).toString() : "0",
-      subtitle: "días",
+      subtitle: t("stats.days"),
       icon: TrendingUp,
       color: "#8b5cf6",
     },
     {
       title: t("stats.thisWeek"),
       value: habits.reduce((acc: number, h: Habit) => acc + (h.completions?.length || 0), 0).toString(),
-      subtitle: "completados",
+      subtitle: t("stats.completedCount"),
       icon: Calendar,
       color: "#06b6d4",
     },
@@ -166,11 +166,7 @@ export default function HabitsPage() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
               >
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -182,14 +178,10 @@ export default function HabitsPage() {
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateHabit(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: accentColor,
-              boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-            }}
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("newHabit")}</span>
@@ -204,19 +196,12 @@ export default function HabitsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ y: -5, scale: 1.02 }}
-              className={cn(
-                "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300",
-                "hover:shadow-xl hover:shadow-lg"
-              )}
-              style={{
-                borderLeftWidth: "4px",
-                borderLeftColor: card.color,
-              }}
+              whileHover={{ y: -4 }}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-border/80"
             >
               <div className="flex items-center gap-4">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300 group-hover:scale-105"
                   style={{
                     backgroundColor: `${card.color}15`,
                     color: card.color,
@@ -226,8 +211,8 @@ export default function HabitsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{card.title}</p>
-                  <div className="flex items-baseline gap-1">
-                    <p className="text-2xl font-bold">{card.value}</p>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <p className="text-2xl font-bold tracking-tight">{card.value}</p>
                     <span className="text-xs text-muted-foreground">{card.subtitle}</span>
                   </div>
                 </div>
@@ -246,7 +231,7 @@ export default function HabitsPage() {
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">{t("todayProgress")}</h3>
-              <span className="text-sm font-medium" style={{ color: accentColor }}>
+              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                 {summary.percentage}%
               </span>
             </div>
@@ -255,8 +240,7 @@ export default function HabitsPage() {
                 initial={{ width: 0 }}
                 animate={{ width: `${summary.percentage}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="h-full rounded-full"
-                style={{ backgroundColor: accentColor }}
+                className="h-full rounded-full bg-emerald-500"
               />
             </div>
             <p className="text-sm text-muted-foreground mt-2">
@@ -285,7 +269,7 @@ export default function HabitsPage() {
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
             </div>
           ) : habits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
@@ -295,14 +279,10 @@ export default function HabitsPage() {
                 {t("noHabitsDescription")}
               </p>
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setShowCreateHabit(true)}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
               >
                 <Plus className="h-4 w-4" />
                 {t("createHabit")}
@@ -417,13 +397,10 @@ export default function HabitsPage() {
                       )}
 
                       {/* Actions */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
-                        <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-                          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                        <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                        </button>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center pr-1">
+                        <span className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </span>
                       </div>
                     </motion.div>
                   );

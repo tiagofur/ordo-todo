@@ -21,6 +21,7 @@ import {
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
+import { useTranslations } from "next-intl";
 
 interface BurnoutAnalysis {
   riskScore: number;
@@ -53,6 +54,7 @@ interface WeeklySummary {
 }
 
 export function WellbeingTab() {
+  const t = useTranslations("Wellbeing");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [burnout, setBurnout] = useState<BurnoutAnalysis | null>(null);
@@ -91,26 +93,46 @@ export function WellbeingTab() {
   const getRiskColor = (level: string) => {
     switch (level) {
       case "LOW":
-        return { bg: "bg-green-500", text: "text-green-500", light: "bg-green-100 dark:bg-green-900" };
+        return {
+          bg: "bg-emerald-500",
+          text: "text-emerald-500",
+          light: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        };
       case "MODERATE":
-        return { bg: "bg-yellow-500", text: "text-yellow-500", light: "bg-yellow-100 dark:bg-yellow-900" };
+        return {
+          bg: "bg-amber-500",
+          text: "text-amber-500",
+          light: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+        };
       case "HIGH":
-        return { bg: "bg-orange-500", text: "text-orange-500", light: "bg-orange-100 dark:bg-orange-900" };
+        return {
+          bg: "bg-orange-500",
+          text: "text-orange-500",
+          light: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+        };
       case "CRITICAL":
-        return { bg: "bg-red-500", text: "text-red-500", light: "bg-red-100 dark:bg-red-900" };
+        return {
+          bg: "bg-red-500",
+          text: "text-red-500",
+          light: "bg-red-500/10 text-red-600 dark:text-red-400",
+        };
       default:
-        return { bg: "bg-blue-500", text: "text-blue-500", light: "bg-blue-100 dark:bg-blue-900" };
+        return {
+          bg: "bg-cyan-500",
+          text: "text-cyan-500",
+          light: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
+        };
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case "IMPROVING":
-        return <TrendingUp className="h-5 w-5 text-green-500" />;
+        return <TrendingUp className="h-5 w-5 text-emerald-500" />;
       case "DECLINING":
         return <TrendingDown className="h-5 w-5 text-red-500" />;
       default:
-        return <Minus className="h-5 w-5 text-yellow-500" />;
+        return <Minus className="h-5 w-5 text-amber-500" />;
     }
   };
 
@@ -120,10 +142,10 @@ export function WellbeingTab() {
         <div className="animate-pulse space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-40 bg-muted rounded-xl" />
+              <div key={i} className="h-40 bg-muted rounded-2xl border border-border" />
             ))}
           </div>
-          <div className="h-64 bg-muted rounded-xl" />
+          <div className="h-64 bg-muted rounded-2xl border border-border" />
         </div>
       </div>
     );
@@ -143,37 +165,33 @@ export function WellbeingTab() {
           <RefreshCw
             className={cn("h-4 w-4", isRefreshing && "animate-spin")}
           />
-          Actualizar
+          {t("refresh")}
         </Button>
       </div>
 
       {/* Burnout Risk Gauge */}
       {burnout && (
-        <Card className="overflow-hidden">
-          <div className={cn("h-2", getRiskColor(burnout.riskLevel).bg)} />
+        <Card className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className={cn("h-1.5", getRiskColor(burnout.riskLevel).bg)} />
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Riesgo de Burnout
+                <Activity className="h-5 w-5 text-cyan-500" />
+                {t("burnoutRisk")}
               </span>
               <span
                 className={cn(
-                  "px-3 py-1 rounded-full text-sm font-medium",
-                  getRiskColor(burnout.riskLevel).light,
-                  getRiskColor(burnout.riskLevel).text
+                  "px-3 py-1 rounded-full text-xs font-medium",
+                  getRiskColor(burnout.riskLevel).light
                 )}
               >
-                {burnout.riskLevel === "LOW" && "Bajo"}
-                {burnout.riskLevel === "MODERATE" && "Moderado"}
-                {burnout.riskLevel === "HIGH" && "Alto"}
-                {burnout.riskLevel === "CRITICAL" && "Crítico"}
+                {t(`riskLevels.${burnout.riskLevel}`)}
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6 mb-6">
-              <div className="relative w-32 h-32">
+            <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+              <div className="relative w-32 h-32 flex-shrink-0">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle
                     cx="64"
@@ -202,17 +220,17 @@ export function WellbeingTab() {
                   </span>
                 </div>
               </div>
-              <div className="flex-1">
-                <h4 className="font-medium mb-2">Factores Detectados</h4>
+              <div className="flex-1 w-full">
+                <h4 className="font-medium mb-2">{t("factorsDetected")}</h4>
                 <div className="space-y-2">
                   {burnout.warnings?.slice(0, 3).map((warning, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       {warning.severity === "SEVERE" ? (
-                        <AlertTriangle className="h-4 w-4 text-red-500" />
+                        <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />
                       ) : warning.severity === "MODERATE" ? (
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
                       ) : (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                       )}
                       <span className="text-muted-foreground">
                         {warning.message}
@@ -224,10 +242,10 @@ export function WellbeingTab() {
             </div>
 
             {burnout.warnings?.length > 0 && (
-              <div className="border-t pt-4">
+              <div className="border-t border-border pt-4">
                 <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Brain className="h-4 w-4" />
-                  Sugerencias Inmediatas
+                  <Brain className="h-4 w-4 text-cyan-500" />
+                  {t("immediateSuggestions")}
                 </h4>
                 <ul className="grid gap-2">
                   {burnout.warnings?.slice(0, 3).map((warning, idx) => (
@@ -235,7 +253,7 @@ export function WellbeingTab() {
                       key={idx}
                       className="flex items-start gap-2 text-sm text-muted-foreground"
                     >
-                      <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                      <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-500 flex-shrink-0" />
                       {warning.recommendation}
                     </li>
                   ))}
@@ -249,59 +267,59 @@ export function WellbeingTab() {
       {/* Work Patterns */}
       {patterns && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4">
+          <Card className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
-                <Clock className="h-5 w-5 text-blue-500" />
+              <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-500">
+                <Clock className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
                   {(patterns.averageHoursPerDay ?? 0).toFixed(1)}h
                 </p>
-                <p className="text-xs text-muted-foreground">Horas/día</p>
+                <p className="text-xs text-muted-foreground">{t("hoursPerDay")}</p>
               </div>
             </div>
           </Card>
-          <Card className="p-4">
+          <Card className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
-                <Moon className="h-5 w-5 text-purple-500" />
+              <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-500">
+                <Moon className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
                   {patterns.nightWorkPercentage ?? 0}%
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Trabajo nocturno
+                  {t("patterns.lateNightWork")}
                 </p>
               </div>
             </div>
           </Card>
-          <Card className="p-4">
+          <Card className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
-                <Calendar className="h-5 w-5 text-orange-500" />
+              <div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-500">
+                <Calendar className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
                   {patterns.weekendWorkPercentage ?? 0}%
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Fines de semana
+                  {t("weekends")}
                 </p>
               </div>
             </div>
           </Card>
-          <Card className="p-4">
+          <Card className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900">
-                <Coffee className="h-5 w-5 text-green-500" />
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500">
+                <Coffee className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
                   {patterns.averageBreakMinutes ?? 0}m
                 </p>
-                <p className="text-xs text-muted-foreground">Descansos</p>
+                <p className="text-xs text-muted-foreground">{t("breaks")}</p>
               </div>
             </div>
           </Card>
@@ -310,52 +328,52 @@ export function WellbeingTab() {
 
       {/* Weekly Summary */}
       {weekly && (
-        <Card>
+        <Card className="rounded-2xl border border-border bg-card">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <Sun className="h-5 w-5" />
-                Resumen Semanal
+                <Sun className="h-5 w-5 text-amber-500" />
+                {t("weeklySummary")}
               </span>
               <div className="flex items-center gap-2">
                 {getTrendIcon(weekly.trend)}
                 <span className="text-sm text-muted-foreground">
-                  {weekly.trend === "IMPROVING" && "Mejorando"}
-                  {weekly.trend === "STABLE" && "Estable"}
-                  {weekly.trend === "DECLINING" && "Bajando"}
+                  {weekly.trend === "IMPROVING" && t("trends.improving")}
+                  {weekly.trend === "STABLE" && t("trends.stable")}
+                  {weekly.trend === "DECLINING" && t("trends.declining")}
                 </span>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-muted">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border border-border">
               <div className="text-4xl font-bold">{weekly.overallScore}</div>
               <div className="flex-1">
-                <div className="h-2 bg-muted-foreground rounded-full overflow-hidden">
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
                       weekly.overallScore >= 80
-                        ? "bg-green-500"
+                        ? "bg-emerald-500"
                         : weekly.overallScore >= 50
-                        ? "bg-yellow-500"
+                        ? "bg-amber-500"
                         : "bg-red-500"
                     )}
                     style={{ width: `${weekly.overallScore}%` }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Puntuación de bienestar
+                  {t("wellbeingScore")}
                 </p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               {weekly.highlights.length > 0 && (
-                <div className="p-4 rounded-xl bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-800">
-                  <h4 className="font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-2">
+                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                  <h4 className="font-medium text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />
-                    Lo positivo
+                    {t("positive")}
                   </h4>
                   <ul className="space-y-1">
                     {weekly.highlights.map((h, idx) => (
@@ -370,10 +388,10 @@ export function WellbeingTab() {
                 </div>
               )}
               {weekly.concerns.length > 0 && (
-                <div className="p-4 rounded-xl bg-orange-100 dark:bg-orange-900 border border-orange-200 dark:border-orange-800">
-                  <h4 className="font-medium text-orange-600 dark:text-orange-400 mb-2 flex items-center gap-2">
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <h4 className="font-medium text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4" />
-                    Áreas de mejora
+                    {t("concerns")}
                   </h4>
                   <ul className="space-y-1">
                     {weekly.concerns.map((c, idx) => (
@@ -390,9 +408,9 @@ export function WellbeingTab() {
             </div>
 
             {weekly.recommendations && weekly.recommendations.length > 0 && (
-              <div className="p-4 rounded-xl bg-blue-100 dark:bg-blue-900 border border-blue-200 dark:border-blue-800">
-                <p className="text-sm flex items-start gap-2">
-                  <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                <p className="text-sm flex items-start gap-2 text-foreground">
+                  <Sparkles className="h-4 w-4 text-cyan-500 mt-0.5 flex-shrink-0" />
                   <span>{weekly.recommendations[0]}</span>
                 </p>
               </div>
@@ -403,11 +421,11 @@ export function WellbeingTab() {
 
       {/* Rest Recommendations */}
       {recommendations.length > 0 && (
-        <Card>
+        <Card className="rounded-2xl border border-border bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Coffee className="h-5 w-5" />
-              Recomendaciones de Descanso
+              <Coffee className="h-5 w-5 text-cyan-500" />
+              {t("restRecommendations")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -415,10 +433,10 @@ export function WellbeingTab() {
               {recommendations.map((rec, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted transition-colors"
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors"
                 >
-                  <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
-                    <Heart className="h-4 w-4 text-primary" />
+                  <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500">
+                    <Heart className="h-4 w-4" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">{rec.message}</p>
@@ -437,16 +455,17 @@ export function WellbeingTab() {
 
       {/* Empty state */}
       {!burnout && !patterns && !weekly && (
-        <Card className="p-12 text-center">
-          <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Sin datos de bienestar</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Continúa usando Ordo para que podamos analizar tus patrones de
-            trabajo
+        <Card className="p-12 text-center rounded-2xl border border-dashed border-border bg-card">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-500">
+            <Heart className="h-7 w-7" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">{t("empty.title")}</h3>
+          <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+            {t("empty.description")}
           </p>
           <Button onClick={fetchData} variant="outline" className="gap-2">
             <RefreshCw className="h-4 w-4" />
-            Intentar de nuevo
+            {t("empty.retry")}
           </Button>
         </Card>
       )}

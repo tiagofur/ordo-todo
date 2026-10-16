@@ -79,7 +79,7 @@ export default function ObjectiveDetailPage() {
         <Button
           variant="ghost"
           onClick={() => router.push("/goals")}
-          className="w-fit pl-0 hover:bg-transparent hover:text-primary -ml-2"
+          className="w-fit pl-0 hover:bg-transparent hover:text-orange-500 -ml-2"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("backToList")}
@@ -130,8 +130,8 @@ export default function ObjectiveDetailPage() {
             </div>
 
             {/* Progress Card */}
-            <div className="flex items-center gap-3 bg-card p-3 sm:p-4 rounded-xl border shadow-sm">
-              <div className="text-2xl sm:text-3xl font-black text-primary">
+            <div className="flex items-center gap-3 bg-card p-3 sm:p-4 rounded-2xl border border-border shadow-xs">
+              <div className="text-2xl sm:text-3xl font-black text-orange-500">
                 {Math.round(objective.progress)}%
               </div>
               <span className="text-xs font-bold text-muted-foreground uppercase">
@@ -142,7 +142,7 @@ export default function ObjectiveDetailPage() {
         </div>
 
         {/* Key Results Section */}
-        <div className="bg-card border rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm">
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div>
@@ -152,7 +152,7 @@ export default function ObjectiveDetailPage() {
             <Button
               variant="default"
               onClick={() => setShowCreateKR(true)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto bg-orange-500 text-white shadow-sm shadow-orange-500/25 hover:bg-orange-600 transition-all duration-200"
             >
               <Plus className="mr-2 h-4 w-4" />
               {t("keyResults.add")}
@@ -165,7 +165,7 @@ export default function ObjectiveDetailPage() {
               objective.keyResults.map((kr) => (
                 <div
                   key={kr.id}
-                  className="p-4 sm:p-5 bg-background hover:bg-muted/30 transition-colors rounded-xl sm:rounded-2xl border group"
+                  className="p-4 sm:p-5 bg-card hover:bg-muted/40 transition-colors rounded-xl sm:rounded-2xl border border-border group"
                 >
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                     <div className="flex-1 min-w-0">
@@ -200,7 +200,7 @@ export default function ObjectiveDetailPage() {
                   <div className="mt-4 space-y-1">
                     <div className="h-2 sm:h-3 w-full bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-primary transition-all duration-500 ease-out"
+                        className="h-full bg-orange-500 transition-all duration-500 ease-out"
                         style={{ width: `${Math.min(100, Math.max(0, kr.progress))}%` }}
                       />
                     </div>

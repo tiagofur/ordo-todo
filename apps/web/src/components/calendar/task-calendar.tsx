@@ -3,28 +3,31 @@
 import { useState, useMemo } from "react";
 import { Calendar, dateFnsLocalizer, Views, View } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import { format, parse, startOfWeek, getDay, addHours, isSameDay } from "date-fns";
-import { es } from "date-fns/locale";
-import { useTranslations } from "next-intl";
+import { format, parse, startOfWeek, getDay, addHours } from "date-fns";
+import { es, enUS, ptBR } from "date-fns/locale";
+import { useLocale, useTranslations } from "next-intl";
 import { useTasks, useUpdateTask } from "@/lib/api-hooks";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { Task } from "@ordo-todo/api-client";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@ordo-todo/ui";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { DragStore } from "@/lib/drag-store";
+import { toast } from "sonner";
+import { ConnectedTaskDetailPanel } from "@/components/task/task-card-compact";
 
 // Setup localizer
 const locales = {
-  es: es,
+  es,
+  en: enUS,
+  "pt-br": ptBR,
 };
 
 const localizer = dateFnsLocalizer({
   format,
   parse,
-  startOfWeek,
+  startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 1 }),
   getDay,
   locales,
 });
@@ -43,7 +46,8 @@ const DnDCalendar = withDragAndDrop<TaskEvent>(Calendar);
 // Custom Toolbar Component
 const CustomToolbar = (toolbar: any) => {
   const t = useTranslations("Calendar");
-  const tCommon = useTranslations("common"); // Check if common namespace is available or use keys directly
+  const locale = useLocale();
+  const dateLocale = (locales as any)[locale] || es;
   
   const goToBack = () => {
     toolbar.onNavigate('PREV');
@@ -61,7 +65,7 @@ const CustomToolbar = (toolbar: any) => {
     const date = toolbar.date;
     return (
       <span className="capitalize text-lg font-semibold">
-        {format(date, 'MMMM yyyy', { locale: es })}
+        {format(date, 'MMMM yyyy', { locale: dateLocale })}
       </span>
     );
   };
@@ -123,24 +127,29 @@ const CustomToolbar = (toolbar: any) => {
 };
 
 // Custom Event Component
+const priorityColors: Record<string, string> = {
+  URGENT: '#ef4444',
+  HIGH: '#f97316',
+  MEDIUM: '#eab308',
+  LOW: '#3b82f6',
+};
+
 const CustomEvent = ({ event }: { event: TaskEvent }) => {
   const task = event.resource;
+  const priorityColor = priorityColors[task.priority] || priorityColors.LOW;
   
   return (
-    <div className={cn(
-       "h-full w-full px-2 py-1 rounded-md border-l-4 overflow-hidden text-xs transition-all hover:brightness-95",
-       task.status === 'COMPLETED' ? "bg-muted text-muted-foreground line-through opacity-70" : "bg-blue-100 dark:bg-blue-900 text-primary-foreground border-primary"
-    )}
-    style={{
-        backgroundColor: "hsl(var(--card))",
-        color: "hsl(var(--foreground))",
-        borderLeftColor: task.priority === 'URGENT' ? '#ef4444' : 
-                         task.priority === 'HIGH' ? '#f97316' : 
-                         task.priority === 'MEDIUM' ? '#eab308' : '#3b82f6',
-        border: '1px solid hsl(var(--border))',
-        borderLeftWidth: '4px'
-    }}
+    <div
+      className={cn(
+        "h-full w-full px-2 py-1 rounded-md border border-border/80 overflow-hidden text-xs transition-all hover:bg-muted/50 flex items-center gap-1.5 bg-card text-card-foreground shadow-xs",
+        task.status === 'COMPLETED' && "opacity-60 line-through"
+      )}
     >
+      <span
+        className="h-1.5 w-1.5 shrink-0 rounded-full"
+        style={{ backgroundColor: priorityColor }}
+        aria-hidden="true"
+      />
       <div className="font-medium truncate">{event.title}</div>
     </div>
   );
@@ -149,11 +158,12 @@ const CustomEvent = ({ event }: { event: TaskEvent }) => {
 export function TaskCalendar() {
   const t = useTranslations("Calendar");
   const tCommon = useTranslations("common");
-  const router = useRouter();
+  const locale = useLocale();
   const { data: tasks, isLoading } = useTasks();
   const updateTaskMutation = useUpdateTask();
   const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState(new Date());
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const events = useMemo(() => {
     if (!tasks) return [];
@@ -194,7 +204,7 @@ export function TaskCalendar() {
       .filter(Boolean) as TaskEvent[];
   }, [tasks]);
 
-  const onDropFromOutside = async ({ start, end, allDay }: any) => {
+  const onDropFromOutside = async ({ start, end }: any) => {
     const task = DragStore.getDraggedTask();
     if (!task) return;
     
@@ -209,8 +219,9 @@ export function TaskCalendar() {
             }
         });
         DragStore.setDraggedTask(null);
+        toast.success(t("taskScheduled"));
     } catch {
-        // Mutation error handled by React Query
+        toast.error(t("taskScheduleError"));
     }
   };
 
@@ -228,8 +239,9 @@ export function TaskCalendar() {
                 isTimeBlocked: true
             }
         });
+        toast.success(t("taskMoved"));
     } catch {
-        // Mutation error handled by React Query
+        toast.error(t("taskMoveError"));
     }
   };
 
@@ -247,13 +259,14 @@ export function TaskCalendar() {
                 isTimeBlocked: true
             }
         });
+        toast.success(t("taskMoved"));
     } catch {
-        // Mutation error handled by React Query
+        toast.error(t("taskMoveError"));
     }
   };
 
   const handleSelectEvent = (event: TaskEvent) => {
-      router.push(`/tasks/${event.id}`);
+      setSelectedTaskId(event.id);
   };
 
   if (isLoading) {
@@ -294,7 +307,7 @@ export function TaskCalendar() {
         onView={setView}
         date={date}
         onNavigate={setDate}
-        culture="es"
+        culture={locale}
         components={{
             toolbar: CustomToolbar,
             event: CustomEvent
@@ -314,6 +327,17 @@ export function TaskCalendar() {
         resizable
         selectable
       />
+
+      {/* Task Details Modal on event click */}
+      {selectedTaskId && (
+        <ConnectedTaskDetailPanel
+          taskId={selectedTaskId}
+          open={!!selectedTaskId}
+          onOpenChange={(open) => {
+            if (!open) setSelectedTaskId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

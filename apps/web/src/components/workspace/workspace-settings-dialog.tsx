@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import { Trash2, Save, X } from "lucide-react";
 import { useWorkspace, useUpdateWorkspace, useDeleteWorkspace } from "@/lib/api-hooks";
@@ -24,6 +25,7 @@ export function WorkspaceSettingsDialog({
   open,
   onOpenChange,
 }: WorkspaceSettingsDialogProps) {
+  const router = useRouter();
   const t = useTranslations('WorkspaceSettingsDialog');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
@@ -78,8 +80,8 @@ export function WorkspaceSettingsDialog({
       await deleteWorkspaceMutation.mutateAsync(workspaceId);
       toast.success(t('toast.deleted'));
       onOpenChange(false);
-      // Redirect to first available workspace or create new one
-      window.location.href = "/workspaces";
+      // Redirect to workspaces list
+      router.push("/workspaces");
     } catch (error) {
       toast.error(getErrorMessage(error, t('toast.deleteError')));
     }

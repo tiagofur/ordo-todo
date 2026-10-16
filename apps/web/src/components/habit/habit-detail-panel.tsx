@@ -133,10 +133,9 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                 <motion.div
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg"
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
                   style={{
                     backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40`,
                   }}
                 >
                   <Sparkles className="h-7 w-7" />
@@ -161,7 +160,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
                         {t("status.paused")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                         <CheckCircle2 className="h-3 w-3" />
                         {t("status.active")}
                       </span>

@@ -24,13 +24,13 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop Sidebar */}
-      <DesktopSidebar />
+      <DesktopSidebar collapsed={sidebarCollapsed} />
 
       {/* Mobile Sidebar (Sheet) */}
       <MobileSidebar open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} />
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
+      <div className={`flex flex-1 flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
         <TopBar onMenuClick={() => setMobileMenuOpen(true)} />
         <main 
           id="main-content"

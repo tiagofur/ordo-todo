@@ -111,10 +111,10 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-background">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-indigo-600 rounded-lg shadow-md">
-            <Sparkles className="h-4 w-4 text-white" />
+          <div className="p-1.5 bg-primary rounded-lg shadow-xs">
+            <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
-          <h3 className="font-semibold text-indigo-600 dark:text-indigo-400">
+          <h3 className="font-semibold text-foreground">
             {t('title')}
           </h3>
         </div>
@@ -134,10 +134,10 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
               } animate-in fade-in slide-in-from-bottom-2 duration-300`}
             >
               <div
-                className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300"
+                    : "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
                 }`}
               >
                 {msg.role === "user" ? (
@@ -147,7 +147,7 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
                 )}
               </div>
               <div
-                className={`rounded-2xl p-3 text-sm max-w-[85%] shadow-sm ${
+                className={`rounded-2xl p-3 text-sm max-w-[85%] shadow-xs ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground rounded-tr-none"
                     : "bg-muted rounded-tl-none border"
@@ -158,14 +158,14 @@ export function AIAssistantSidebar({ isOpen, onClose }: AIAssistantSidebarProps)
             </div>
           ))}
           {isLoading && (
-            <div className="flex gap-3 animate-pulse">
-              <div className="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 flex items-center justify-center shrink-0">
+            <div className="flex gap-3">
+              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground flex items-center justify-center shrink-0">
                 <Bot className="h-4 w-4" />
               </div>
               <div className="bg-muted rounded-2xl rounded-tl-none p-3 text-sm flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-0"></span>
-                <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce delay-150"></span>
-                <span className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-bounce delay-300"></span>
+                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse"></span>
+                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse [animation-delay:150ms]"></span>
+                <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse [animation-delay:300ms]"></span>
               </div>
             </div>
           )}

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
+import { formatCalendarDateInput, serializeCalendarDateForApi } from '@ordo-todo/core';
 import { 
   useTaskComments, 
   useCreateComment, 
@@ -290,7 +291,7 @@ export function TaskDetailPanel({
         description: task.description || '',
         status: task.status || 'TODO',
         priority: task.priority || 'MEDIUM',
-        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] ?? '' : '',
+        dueDate: formatCalendarDateInput(task.dueDate),
         estimatedMinutes: task.estimatedMinutes?.toString() || '',
       });
     }
@@ -309,7 +310,7 @@ export function TaskDetailPanel({
          description: formData.description,
          status: formData.status as TaskStatus,
          priority: formData.priority as TaskPriority,
-         dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
+         dueDate: (formData.dueDate ? serializeCalendarDateForApi(formData.dueDate) : null) as any,
          estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
        });
        setIsEditing(false);
@@ -678,7 +679,7 @@ export function TaskDetailPanel({
                                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                      handleFieldChange("dueDate", e.target.value);
                                      if (!isEditing && taskId && onUpdate) {
-                                       onUpdate(taskId, { dueDate: e.target.value ? new Date(e.target.value) : undefined });
+                                       onUpdate(taskId, { dueDate: (e.target.value ? serializeCalendarDateForApi(e.target.value) : null) as any });
                                      }
                                   }}
                                   className="h-7 text-sm bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0"

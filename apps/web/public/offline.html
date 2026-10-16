@@ -10,8 +10,8 @@
           -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0;
         padding: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background-color: #09090b;
+        color: #f4f4f5;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -19,48 +19,76 @@
       }
       .container {
         text-align: center;
-        padding: 2rem;
-        max-width: 400px;
+        padding: 2.5rem 2rem;
+        max-width: 420px;
+        background: #18181b;
+        border: 1px solid #27272a;
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
       }
-      .icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
+      .icon-container {
+        width: 3.5rem;
+        height: 3.5rem;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background: #27272a;
+        color: #f4f4f5;
       }
       h1 {
-        margin-bottom: 1rem;
-        font-size: 2rem;
+        margin: 0 0 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: #fafafa;
       }
       p {
-        margin-bottom: 2rem;
-        opacity: 0.9;
+        margin: 0 0 1.75rem;
+        color: #a1a1aa;
         line-height: 1.6;
+        font-size: 0.9375rem;
       }
       .retry-btn {
-        background: rgba(255, 255, 255, 0.2);
-        border: 2px solid white;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
+        background: #4f46e5;
+        border: none;
+        color: #ffffff;
+        padding: 0.75rem 1.75rem;
+        border-radius: 0.625rem;
         cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
       }
       .retry-btn:hover {
-        background: white;
-        color: #667eea;
+        background: #4338ca;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="icon">📱</div>
-      <h1>You're Offline</h1>
+      <div class="icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+      </div>
+      <h1>Sin conexión a internet</h1>
       <p>
-        It looks like you're not connected to the internet. Don't worry, your
-        tasks are safe and will sync when you're back online.
+        No estás conectado a la red. Tus tareas locales permanecen seguras y se sincronizarán en cuanto recuperes conexión.
       </p>
       <button class="retry-btn" onclick="window.location.reload()">
-        Try Again
+        Reintentar conexión
       </button>
     </div>
 

@@ -60,7 +60,7 @@ export function TaskCardSkeleton({ viewMode = "grid" }: { viewMode?: "list" | "g
   }
 
   return (
-    <div className="rounded-xl border border-t-4 border-border p-4 space-y-3 border-t-muted">
+    <div className="rounded-xl border border-border p-4 space-y-3">
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-2/3" />
       <div className="flex gap-2 pt-2">

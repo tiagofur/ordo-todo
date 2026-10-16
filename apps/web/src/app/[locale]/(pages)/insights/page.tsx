@@ -57,8 +57,6 @@ export default function InsightsPage() {
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("tab") || "analytics";
 
-  const accentColor = "#06b6d4";
-
   // Analytics data
   const today = new Date();
   const startOfDay = new Date(
@@ -97,13 +95,7 @@ export default function InsightsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
-              >
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25">
                 <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               Insights
@@ -119,15 +111,15 @@ export default function InsightsPage() {
           <TabsList>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              {t("title")}
+              {t("tabs.analytics")}
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Reportes
+              {t("tabs.reports")}
             </TabsTrigger>
             <TabsTrigger value="wellbeing" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
-              Bienestar
+              {t("tabs.wellbeing")}
             </TabsTrigger>
           </TabsList>
 
@@ -159,19 +151,19 @@ export default function InsightsPage() {
                   </h3>
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
-                      <span className="text-primary mt-1">•</span>
+                      <span className="text-cyan-500 mt-1">•</span>
                       <span>{t("focusScore.tips.reduceBreaks")}</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-primary mt-1">•</span>
+                      <span className="text-cyan-500 mt-1">•</span>
                       <span>{t("focusScore.tips.shortenBreaks")}</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-primary mt-1">•</span>
+                      <span className="text-cyan-500 mt-1">•</span>
                       <span>{t("focusScore.tips.usePomodoro")}</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-primary mt-1">•</span>
+                      <span className="text-cyan-500 mt-1">•</span>
                       <span>{t("focusScore.tips.eliminateDistractions")}</span>
                     </li>
                   </ul>
@@ -209,14 +201,15 @@ export default function InsightsPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center border border-dashed border-border rounded-2xl bg-card">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-500">
+                  <FileText className="h-7 w-7" />
+                </div>
                 <h3 className="text-lg font-semibold mb-2">
-                  No hay reportes todavía
+                  {t("reports.emptyTitle")}
                 </h3>
-                <p className="text-muted-foreground mb-6 max-w-md">
-                  Genera tu primer reporte de productividad para obtener
-                  insights personalizados sobre tu trabajo.
+                <p className="text-muted-foreground mb-6 max-w-md text-sm">
+                  {t("reports.emptyDesc")}
                 </p>
                 <GenerateReportDialog />
               </div>
@@ -238,7 +231,7 @@ export default function InsightsPage() {
                     >
                       <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <DialogTitle>Detalle del Reporte</DialogTitle>
+                    <DialogTitle>{t("reports.detailTitle")}</DialogTitle>
                   </div>
                 </DialogHeader>
                 {selectedReport && <ReportDetail report={selectedReport} />}

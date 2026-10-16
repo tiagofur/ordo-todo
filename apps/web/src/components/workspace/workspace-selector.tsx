@@ -17,12 +17,15 @@ import {
 } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useWorkspaces } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
 export interface WorkspaceSelectorItem {
   id: string;
   slug: string;
   name: string;
   color: string;
+  icon?: string;
   stats?: {
     projectCount?: number;
     taskCount?: number;
@@ -59,13 +62,43 @@ const DEFAULT_LABELS = {
 };
 
 export function WorkspaceSelector({
-  workspaces = [],
-  selectedWorkspaceId,
-  isLoading = false,
-  onSelect,
+  workspaces: propWorkspaces,
+  selectedWorkspaceId: propSelectedId,
+  isLoading: propIsLoading,
+  onSelect: propOnSelect,
   onCreateClick,
   labels = {},
 }: WorkspaceSelectorProps) {
+  const { data: fetchedWorkspaces, isLoading: isFetching } = useWorkspaces();
+  const { selectedWorkspaceId: storeSelectedId, setSelectedWorkspaceId } = useWorkspaceStore();
+
+  const workspaces: WorkspaceSelectorItem[] = useMemo(() => {
+    if (propWorkspaces) return propWorkspaces;
+    if (!fetchedWorkspaces) return [];
+    return fetchedWorkspaces.map((w: any) => ({
+      id: w.id,
+      slug: w.slug,
+      name: w.name,
+      color: w.color || "#2563EB",
+      icon: w.icon,
+      stats: {
+        projectCount: w.stats?.projectCount,
+        taskCount: w.stats?.taskCount,
+      },
+    }));
+  }, [propWorkspaces, fetchedWorkspaces]);
+
+  const selectedWorkspaceId = propSelectedId !== undefined ? propSelectedId : storeSelectedId;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : isFetching;
+
+  const handleSelectWorkspace = (workspace: WorkspaceSelectorItem) => {
+    if (propOnSelect) {
+      propOnSelect(workspace);
+    } else {
+      setSelectedWorkspaceId(workspace.id);
+    }
+  };
+
   const t = {
     ...DEFAULT_LABELS,
     ...labels,
@@ -129,7 +162,11 @@ export function WorkspaceSelector({
               selectedWorkspace?.color || "#06b6d4",
             )}
           >
-            <User className="h-4 w-4" />
+            {selectedWorkspace?.icon ? (
+              <span className="text-sm">{selectedWorkspace.icon}</span>
+            ) : (
+              <User className="h-4 w-4" />
+            )}
           </div>
           <div className="flex-1 text-left min-w-0">
             <div className="font-medium truncate">
@@ -172,7 +209,7 @@ export function WorkspaceSelector({
               <button
                 key={workspace.id}
                 onClick={() => {
-                  onSelect?.(workspace);
+                  handleSelectWorkspace(workspace);
                   setIsOpen(false);
                 }}
                 className={cn(
@@ -184,7 +221,11 @@ export function WorkspaceSelector({
                   className="flex h-10 w-10 items-center justify-center rounded-lg border flex-shrink-0"
                   style={getWorkspaceColorStyle(workspace.color)}
                 >
-                  <User className="h-5 w-5" />
+                  {workspace.icon ? (
+                    <span className="text-base">{workspace.icon}</span>
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <div className="font-medium truncate">{workspace.name}</div>

@@ -23,21 +23,17 @@ export function ProductivityStreakWidget({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.25 }}
-      whileHover={{ y: -5, scale: 1.02 }}
+      whileHover={{ y: -4 }}
       className={cn(
         "group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300",
-        "hover:shadow-xl"
+        "hover:shadow-lg hover:border-border/80"
       )}
-      style={{
-        borderLeftWidth: "4px",
-        borderLeftColor: isOnStreak ? "#f97316" : "#6b7280",
-      }}
     >
       <div className="flex items-center gap-4">
         <div
           className={cn(
-            "flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300",
-            "group-hover:scale-110 group-hover:rotate-3"
+            "flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300",
+            "group-hover:scale-105"
           )}
           style={{
             backgroundColor: isOnStreak ? "#f9731615" : "#6b728015",

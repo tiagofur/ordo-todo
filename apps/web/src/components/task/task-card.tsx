@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TaskCard as UITaskCard, type TaskCardTask } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
+import { parseCalendarDate, isCalendarDateOverdue } from "@ordo-todo/core";
 import { TaskDetailPanel } from "./task-detail-panel";
 import { useLocale, useTranslations } from "next-intl";
 import { useDeleteTask } from "@/lib/api-hooks";
@@ -42,11 +43,12 @@ export function TaskCard({ task, index = 0 }: TaskCardProps) {
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    const dateObj = typeof date === "string" ? new Date(date) : date;
+    const dateObj = parseCalendarDate(date);
+    if (!dateObj) return null;
     return format(dateObj, "d MMM", { locale: dateLocale });
   };
   
-  const isOverdue = !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+  const isOverdue = isCalendarDateOverdue(task.dueDate, isCompleted);
 
   const handleDelete = () => {
     if (task.id) {
