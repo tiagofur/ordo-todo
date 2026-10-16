@@ -297,3 +297,97 @@ export function formatScheduledDateTime(
 
     return dateStr;
 }
+
+// ============ TIMEZONE-SAFE CALENDAR DATE UTILITIES ============
+
+/**
+ * Extracts the calendar date part (YYYY-MM-DD) safely without shifting due to timezones.
+ * Handles:
+ * - "2026-10-15" -> "2026-10-15"
+ * - "2026-10-15T00:00:00.000Z" (UTC midnight stored date) -> "2026-10-15"
+ * - Local Date objects -> formats in local "YYYY-MM-DD"
+ */
+export function toCalendarDateString(date: Date | string | null | undefined): string {
+    if (!date) return "";
+    if (typeof date === "string") {
+        const trimmed = date.trim();
+        // If it starts with YYYY-MM-DD
+        const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+            return `${match[1]}-${match[2]}-${match[3]}`;
+        }
+        const d = new Date(trimmed);
+        if (isNaN(d.getTime())) return "";
+        return formatLocalDateToYYYYMMDD(d);
+    }
+    if (isNaN(date.getTime())) return "";
+    return formatLocalDateToYYYYMMDD(date);
+}
+
+function formatLocalDateToYYYYMMDD(d: Date): string {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+/**
+ * Parse a calendar date (string or Date) into a local midnight Date object.
+ * This ensures that a date like "2026-10-15" or "2026-10-15T00:00:00.000Z"
+ * renders as October 15 in the user's local timezone, never shifting to Oct 14 or Oct 16.
+ */
+export function parseCalendarDate(date: Date | string | null | undefined): Date | null {
+    if (!date) return null;
+    const dateStr = toCalendarDateString(date);
+    if (!dateStr) return null;
+
+    const parts = dateStr.split("-");
+    if (parts.length < 3 || !parts[0] || !parts[1] || !parts[2]) return null;
+
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+
+    return new Date(year, month, day, 0, 0, 0, 0);
+}
+
+/**
+ * Format a calendar date for HTML <input type="date"> (YYYY-MM-DD)
+ */
+export function formatCalendarDateInput(date: Date | string | null | undefined): string {
+    return toCalendarDateString(date);
+}
+
+/**
+ * Prepare a calendar date string (YYYY-MM-DD) to send to the backend API.
+ * Ensures consistent ISO representation (UTC midnight) or null if empty.
+ */
+export function serializeCalendarDateForApi(date: Date | string | null | undefined): string | null {
+    const dateStr = toCalendarDateString(date);
+    if (!dateStr) return null;
+    return `${dateStr}T00:00:00.000Z`;
+}
+
+/**
+ * Check if a calendar date is today in the user's local timezone.
+ */
+export function isCalendarDateToday(date: Date | string | null | undefined): boolean {
+    if (!date) return false;
+    const todayStr = formatLocalDateToYYYYMMDD(new Date());
+    return toCalendarDateString(date) === todayStr;
+}
+
+/**
+ * Check if a calendar date is overdue in the user's local timezone.
+ * A task due on 2026-10-15 is NOT overdue on 2026-10-15; it only becomes overdue on 2026-10-16.
+ */
+export function isCalendarDateOverdue(
+    dueDate: Date | string | null | undefined,
+    isCompleted: boolean = false
+): boolean {
+    if (!dueDate || isCompleted) return false;
+    const dueStr = toCalendarDateString(dueDate);
+    if (!dueStr) return false;
+    const todayStr = formatLocalDateToYYYYMMDD(new Date());
+    return dueStr < todayStr;
+}

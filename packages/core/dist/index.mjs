@@ -845,6 +845,58 @@ function formatScheduledDateTime(scheduledDate, scheduledTime, locale = "en-US")
   }
   return dateStr;
 }
+function toCalendarDateString(date5) {
+  if (!date5) return "";
+  if (typeof date5 === "string") {
+    const trimmed = date5.trim();
+    const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+    const d = new Date(trimmed);
+    if (isNaN(d.getTime())) return "";
+    return formatLocalDateToYYYYMMDD(d);
+  }
+  if (isNaN(date5.getTime())) return "";
+  return formatLocalDateToYYYYMMDD(date5);
+}
+function formatLocalDateToYYYYMMDD(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+function parseCalendarDate(date5) {
+  if (!date5) return null;
+  const dateStr = toCalendarDateString(date5);
+  if (!dateStr) return null;
+  const parts = dateStr.split("-");
+  if (parts.length < 3 || !parts[0] || !parts[1] || !parts[2]) return null;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  return new Date(year, month, day, 0, 0, 0, 0);
+}
+function formatCalendarDateInput(date5) {
+  return toCalendarDateString(date5);
+}
+function serializeCalendarDateForApi(date5) {
+  const dateStr = toCalendarDateString(date5);
+  if (!dateStr) return null;
+  return `${dateStr}T00:00:00.000Z`;
+}
+function isCalendarDateToday(date5) {
+  if (!date5) return false;
+  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
+  return toCalendarDateString(date5) === todayStr;
+}
+function isCalendarDateOverdue(dueDate, isCompleted = false) {
+  if (!dueDate || isCompleted) return false;
+  const dueStr = toCalendarDateString(dueDate);
+  if (!dueStr) return false;
+  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
+  return dueStr < todayStr;
+}
 
 // src/shared/utils/time.utils.ts
 function formatDuration(minutes) {
@@ -922,7 +974,8 @@ function isWorkingHours(date5 = /* @__PURE__ */ new Date(), startHour = 9, endHo
 
 // src/shared/utils/string.utils.ts
 function generateSlug(text) {
-  return text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+  const slug = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug || "workspace";
 }
 function truncate(text, maxLength, ellipsis = "...") {
   if (text.length <= maxLength) return text;
@@ -15394,6 +15447,10 @@ var CreateTaskUseCase = class {
       description: input.description,
       priority: input.priority ?? "MEDIUM",
       dueDate: input.dueDate,
+      startDate: input.startDate,
+      scheduledDate: input.scheduledDate,
+      scheduledTime: input.scheduledTime,
+      scheduledEndTime: input.scheduledEndTime,
       projectId: input.projectId,
       ownerId: input.ownerId,
       assigneeId: input.assigneeId,
@@ -15768,16 +15825,18 @@ var CreateWorkspaceUseCase = class {
   async execute(props, ownerUsername) {
     const username = ownerUsername || this.ownerUsername;
     const workspaceNameSlug = this.generateSlug(props.name);
-    const slug = workspaceNameSlug;
-    let finalSlug = slug;
+    let finalSlug = workspaceNameSlug;
     let counter = 1;
     if (props.ownerId) {
-      while (await this.workspaceRepository.findBySlug(finalSlug, props.ownerId)) {
-        if (username) {
-          finalSlug = `${username}/${workspaceNameSlug}-${counter}`;
-        } else {
-          finalSlug = `${workspaceNameSlug}-${counter}`;
+      const checkExists = async (slugToCheck) => {
+        if (this.workspaceRepository.slugExistsForOwner) {
+          return this.workspaceRepository.slugExistsForOwner(slugToCheck, props.ownerId);
         }
+        const existing = await this.workspaceRepository.findBySlug(slugToCheck, props.ownerId);
+        return !!existing;
+      };
+      while (await checkExists(finalSlug)) {
+        finalSlug = `${workspaceNameSlug}-${counter}`;
         counter++;
       }
     }
@@ -15788,7 +15847,8 @@ var CreateWorkspaceUseCase = class {
     return this.workspaceRepository.create(workspace);
   }
   generateSlug(name) {
-    return name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+    const slug = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+    return slug || "workspace";
   }
 };
 
@@ -15859,7 +15919,7 @@ var RestoreWorkspaceUseCase = class {
     this.workspaceRepository = workspaceRepository;
   }
   async execute(id, userId) {
-    const workspace = await this.workspaceRepository.findById(id);
+    const workspace = this.workspaceRepository.findByIdIncludeDeleted ? await this.workspaceRepository.findByIdIncludeDeleted(id) : (await this.workspaceRepository.findDeleted(userId)).find((w) => w.id === id);
     if (!workspace) {
       throw new Error("Workspace not found");
     }
@@ -15876,7 +15936,7 @@ var PermanentDeleteWorkspaceUseCase = class {
     this.workspaceRepository = workspaceRepository;
   }
   async execute(id, userId) {
-    const workspace = await this.workspaceRepository.findById(id);
+    const workspace = this.workspaceRepository.findByIdIncludeDeleted ? await this.workspaceRepository.findByIdIncludeDeleted(id) : (await this.workspaceRepository.findDeleted(userId)).find((w) => w.id === id);
     if (!workspace) {
       throw new Error("Workspace not found");
     }
@@ -23547,6 +23607,7 @@ export {
   duplicateProjectSchema,
   endOfDay,
   endOfWeek,
+  formatCalendarDateInput,
   formatDate,
   formatDateShort,
   formatDuration,
@@ -23588,6 +23649,8 @@ export {
   isAllowedFileType,
   isAlphanumeric,
   isBefore,
+  isCalendarDateOverdue,
+  isCalendarDateToday,
   isDarkColor,
   isDueToday,
   isFuture,
@@ -23610,6 +23673,7 @@ export {
   minutesToSeconds,
   mixColors,
   normalizeWhitespace,
+  parseCalendarDate,
   parseDuration,
   pluralize,
   projectBaseSchema,
@@ -23622,6 +23686,7 @@ export {
   rgbToHex,
   sanitizeHtml,
   secondsToMinutes,
+  serializeCalendarDateForApi,
   shouldTakeLongBreak,
   snakeToTitle,
   startOfDay,
@@ -23633,6 +23698,7 @@ export {
   taskBaseSchema,
   taskDatesSchema,
   taskFilterSchema,
+  toCalendarDateString,
   transferOwnershipSchema,
   truncate,
   updateCommentSchema,
