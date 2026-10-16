@@ -11,6 +11,11 @@ import { useTask, useCompleteTask } from "@/lib/api-hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import { notify } from "@/lib/notify";
 import { AmbientAudioPlayer } from "@/components/focus/ambient-audio-player";
+import {
+  getAmbientSynthesizer,
+  isSynthesizable,
+  type AmbientSoundId,
+} from "@/lib/audio/ambient-synthesizer";
 
 export default function FocusPage() {
   const t = useTranslations('FocusMode');
@@ -36,6 +41,27 @@ export default function FocusPage() {
   const completeTaskMutation = useCompleteTask();
 
   const percentage = getProgress();
+
+  // Auto-play ambient audio if enabled in settings during WORK focus sessions
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const autoPlay = localStorage.getItem('ordo-ambient-auto') === 'true';
+    if (!autoPlay) return;
+
+    const synth = getAmbientSynthesizer();
+    if (isRunning && mode === 'WORK') {
+      if (!synth.isPlaying()) {
+        const savedTrack = (localStorage.getItem('ordo-ambient-last-track') ||
+          'rain-soft') as AmbientSoundId;
+        const trackToPlay = isSynthesizable(savedTrack) ? savedTrack : 'rain-soft';
+        void synth.play(trackToPlay, 1500);
+      }
+    } else if (isPaused || mode !== 'WORK' || !isRunning) {
+      if (synth.isPlaying()) {
+        void synth.stop(800);
+      }
+    }
+  }, [isRunning, isPaused, mode]);
 
   // Fullscreen toggle
   const toggleFullscreen = () => {

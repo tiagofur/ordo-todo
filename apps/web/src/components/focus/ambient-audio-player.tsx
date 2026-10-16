@@ -22,9 +22,9 @@ const AMBIENT_TRACKS: AmbientTrack[] = [
   { id: 'white-noise', name: 'Ruido Blanco', description: 'Ruido blanco puro', category: 'white-noise', iconEmoji: '📻', url: '/audio/ambient/white-noise.mp3', duration: 0, isPremium: false },
   { id: 'pink-noise', name: 'Ruido Rosa', description: 'Frecuencias relajantes', category: 'white-noise', iconEmoji: '🎵', url: '/audio/ambient/pink-noise.mp3', duration: 0, isPremium: false },
   { id: 'brown-noise', name: 'Ruido Marrón', description: 'Profundo y envolvente', category: 'white-noise', iconEmoji: '🔊', url: '/audio/ambient/brown-noise.mp3', duration: 0, isPremium: false },
-  // Premium
-  { id: 'focus-binaural', name: 'Focus (Beta)', description: 'Ondas beta', category: 'binaural', iconEmoji: '🧠', url: '/audio/ambient/focus-binaural.mp3', duration: 0, isPremium: true },
-  { id: 'lofi-beats', name: 'Lo-Fi Beats', description: 'Música lo-fi', category: 'music', iconEmoji: '🎧', url: '/audio/ambient/lofi-beats.mp3', duration: 0, isPremium: true },
+  // Premium/Focus tracks
+  { id: 'focus-binaural', name: 'Focus (Beta)', description: 'Ondas beta 14Hz', category: 'binaural', iconEmoji: '🧠', url: '/audio/ambient/focus-binaural.mp3', duration: 0, isPremium: false },
+  { id: 'lofi-beats', name: 'Lo-Fi Beats', description: 'Pad relajante y vinilo', category: 'music', iconEmoji: '🎧', url: '/audio/ambient/lofi-beats.mp3', duration: 0, isPremium: false },
 ];
 
 const CATEGORIES = [
