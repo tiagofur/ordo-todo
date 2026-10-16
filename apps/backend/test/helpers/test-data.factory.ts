@@ -228,10 +228,20 @@ export async function createTestTasks(
  * @param prisma - PrismaService instance
  */
 export async function cleanupTestData(prisma: PrismaService) {
-  // Delete in reverse order of dependencies
-  await prisma.task.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.workspaceMember.deleteMany();
-  await prisma.workspace.deleteMany();
-  await prisma.user.deleteMany();
+  if (!prisma) return;
+  // Delete in reverse order of dependencies to avoid foreign key constraints
+  try {
+    if (prisma.taskDependency) await prisma.taskDependency.deleteMany().catch(() => {});
+    if (prisma.taskTag) await prisma.taskTag.deleteMany().catch(() => {});
+    if (prisma.comment) await prisma.comment.deleteMany().catch(() => {});
+    if (prisma.attachment) await prisma.attachment.deleteMany().catch(() => {});
+    if (prisma.timeSession) await prisma.timeSession.deleteMany().catch(() => {});
+    if (prisma.task) await prisma.task.deleteMany().catch(() => {});
+    if (prisma.project) await prisma.project.deleteMany().catch(() => {});
+    if (prisma.workspaceMember) await prisma.workspaceMember.deleteMany().catch(() => {});
+    if (prisma.workspace) await prisma.workspace.deleteMany().catch(() => {});
+    if (prisma.user) await prisma.user.deleteMany().catch(() => {});
+  } catch {
+    // Ignore cleanup errors during test teardown
+  }
 }
