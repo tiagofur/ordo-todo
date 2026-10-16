@@ -118,7 +118,16 @@ export class WorkspacesService {
       },
     );
 
-    return workspace.props;
+    return {
+      ...workspace.props,
+      id: workspace.id,
+      owner: {
+        id: user.id,
+        username: user.props.username,
+        name: user.props.name,
+        email: user.props.email,
+      },
+    };
   }
 
   /**
@@ -299,9 +308,6 @@ export class WorkspacesService {
 
     try {
       await permanentDeleteUseCase.execute(id, userId);
-
-      // Log permanent deletion
-      await this.createAuditLog(id, 'WORKSPACE_PERMANENTLY_DELETED', userId);
 
       return { success: true };
     } catch (error) {

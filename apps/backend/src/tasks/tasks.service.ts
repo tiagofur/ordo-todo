@@ -19,6 +19,7 @@ import {
   RestoreTaskUseCase,
   PermanentDeleteTaskUseCase,
   GetDeletedTasksUseCase,
+  toCalendarDateString,
 } from '@ordo-todo/core';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -277,43 +278,57 @@ export class TasksService {
    * Categories: overdue, dueToday, scheduledToday, available, notYetAvailable
    */
   async findToday(userId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { timezone: true },
+    });
+    const timezone = user?.timezone || 'America/Mexico_City';
+
+    // Current date string in user's timezone (YYYY-MM-DD)
+    const userTodayStr = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
 
     const tasks = await this.taskRepository.findTodayTasks(
       userId,
-      today,
-      tomorrow,
+      new Date(),
+      new Date(),
     );
 
-    const overdue = tasks.filter(
-      (t) => t.props.dueDate && t.props.dueDate < today,
-    );
-    const dueToday = tasks.filter(
-      (t) =>
-        t.props.dueDate &&
-        t.props.dueDate >= today &&
-        t.props.dueDate < tomorrow,
-    );
-    const scheduledToday = tasks.filter(
-      (t) =>
-        t.props.scheduledDate &&
-        t.props.scheduledDate >= today &&
-        t.props.scheduledDate < tomorrow,
-    );
-    const notYetAvailable = tasks.filter(
-      (t) => t.props.startDate && t.props.startDate > today,
-    );
-    const available = tasks.filter(
-      (t) =>
-        (!t.props.startDate || t.props.startDate <= today) &&
-        (!t.props.scheduledDate ||
-          t.props.scheduledDate < today ||
-          t.props.scheduledDate >= tomorrow) &&
-        (!t.props.dueDate || t.props.dueDate >= tomorrow),
-    );
+    const overdue = tasks.filter((t) => {
+      const dueStr = toCalendarDateString(t.props.dueDate);
+      return dueStr !== '' && dueStr < userTodayStr;
+    });
+
+    const dueToday = tasks.filter((t) => {
+      const dueStr = toCalendarDateString(t.props.dueDate);
+      return dueStr === userTodayStr;
+    });
+
+    const scheduledToday = tasks.filter((t) => {
+      const schedStr = toCalendarDateString(t.props.scheduledDate);
+      return schedStr === userTodayStr;
+    });
+
+    const notYetAvailable = tasks.filter((t) => {
+      const startStr = toCalendarDateString(t.props.startDate);
+      return startStr !== '' && startStr > userTodayStr;
+    });
+
+    const available = tasks.filter((t) => {
+      const startStr = toCalendarDateString(t.props.startDate);
+      const schedStr = toCalendarDateString(t.props.scheduledDate);
+      const dueStr = toCalendarDateString(t.props.dueDate);
+
+      const isStarted = !startStr || startStr <= userTodayStr;
+      const isNotScheduledForToday = schedStr !== userTodayStr;
+      const isNotDueTodayOrOverdue = !dueStr || dueStr > userTodayStr;
+
+      return isStarted && isNotScheduledForToday && isNotDueTodayOrOverdue;
+    });
 
     return {
       overdue: overdue.map((t) => t.props),

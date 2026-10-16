@@ -40,6 +40,12 @@ export class SmartNotificationsService {
     for (const task of tasks) {
       if (!task.assigneeId && !task.ownerId) continue;
 
+      // If task has no specific time and is just stored at UTC midnight (00:00:00),
+      // it's a calendar date, not an exact time deadline expiring in 1 hour.
+      if (!task.scheduledTime && task.dueDate && task.dueDate.toISOString().endsWith('T00:00:00.000Z')) {
+        continue;
+      }
+
       const targetUserId = task.assigneeId || task.ownerId;
 
       const existing = await this.prisma.notification.findFirst({
