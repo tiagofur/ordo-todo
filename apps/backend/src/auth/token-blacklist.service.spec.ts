@@ -231,6 +231,9 @@ describe('TokenBlacklistService', () => {
       // Blacklist the token
       await service.blacklist(mockToken);
 
+      // Clear in-memory cache to verify distributed Redis check
+      (service as any).inMemoryBlacklist.clear();
+
       // Check if it's blacklisted
       const isBlacklisted = await service.isBlacklisted(mockToken);
 

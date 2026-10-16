@@ -42,6 +42,14 @@ export default function InternalLayout() {
             headerBackTitle: "Volver",
           }}
         />
+        <Stack.Screen
+          name="notes"
+          options={{
+            headerTitle: "Notas",
+            headerShown: false,
+            headerBackTitle: "Volver",
+          }}
+        />
       </Stack>
     </ForceAuthentication>
   );

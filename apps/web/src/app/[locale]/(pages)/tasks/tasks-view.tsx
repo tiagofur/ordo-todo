@@ -103,11 +103,7 @@ export function TasksView() {
             <motion.div
               initial={{ rotate: -10, scale: 0.9 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-              style={{
-                backgroundColor: "#a855f7",
-                boxShadow: `0 10px 15px -3px rgb(168 85 247), 0 4px 6px -4px rgb(168 85 247)`,
-              }}
+              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25"
             >
               <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6" />
             </motion.div>
@@ -156,13 +152,13 @@ export function TasksView() {
           />
 
           {/* View mode toggle */}
-          <div className="flex items-center border border-border rounded-lg overflow-hidden">
+          <div className="flex items-center border border-border rounded-lg overflow-hidden bg-card/60 p-0.5">
             <button
               onClick={() => setViewMode("list")}
               className={cn(
-                "p-2 transition-all duration-200",
+                "p-2 rounded-md transition-all duration-200",
                 viewMode === "list"
-                  ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                  ? "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 font-medium"
                   : "text-muted-foreground hover:bg-muted"
               )}
               title="Vista de lista"
@@ -172,9 +168,9 @@ export function TasksView() {
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
-                "p-2 transition-all duration-200",
+                "p-2 rounded-md transition-all duration-200",
                 viewMode === "grid"
-                  ? "bg-purple-100 dark:bg-purple-900 text-purple-500"
+                  ? "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 font-medium"
                   : "text-muted-foreground hover:bg-muted"
               )}
               title="Vista de cuadrícula"
@@ -184,14 +180,10 @@ export function TasksView() {
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateTask(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium text-white transition-all duration-200"
-            style={{
-              backgroundColor: "#a855f7",
-              boxShadow: `0 10px 15px -3px rgb(168 85 247), 0 4px 6px -4px rgb(168 85 247)`,
-            }}
+            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-purple-500 text-white shadow-sm shadow-purple-500/25 hover:bg-purple-600 transition-all duration-200"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{t("newTask")}</span>
@@ -279,7 +271,7 @@ export function TasksView() {
           ) : (
             <button
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-lg transition-all duration-200 hover:bg-purple-600 hover:scale-105"
+              className="flex items-center gap-2 rounded-xl bg-purple-500 px-6 py-3 text-sm font-medium text-white shadow-sm shadow-purple-500/25 transition-all duration-200 hover:bg-purple-600 hover:scale-[1.02]"
             >
               <Plus className="h-4 w-4" />
               {t("newTask")}

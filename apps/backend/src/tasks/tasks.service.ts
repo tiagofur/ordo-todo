@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Logger,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import type {
@@ -210,6 +211,16 @@ export class TasksService {
         userId,
         task.props.title,
       );
+    }
+
+    // Award XP if first completion
+    if (!wasAlreadyCompleted && !task.props.parentTaskId) {
+      await this.gamificationService.awardTaskCompletion(userId);
+    }
+
+    // Spawn next recurring task instance if applicable
+    if (!wasAlreadyCompleted) {
+      await this.handleRecurrenceOnCompletion(id, userId);
     }
 
     return task.props;
@@ -673,6 +684,9 @@ export class TasksService {
             // Award XP
             await this.gamificationService.awardTaskCompletion(userId);
           }
+
+          // Spawn next recurring task instance if applicable
+          await this.handleRecurrenceOnCompletion(id, userId);
         }
 
         // If status changed from COMPLETED to non-COMPLETED (reopening), decrement metrics
@@ -839,7 +853,10 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-    return task.props;
+    return {
+      ...task.props,
+      deletedAt: null,
+    };
   }
 
   /**
@@ -1011,12 +1028,26 @@ export class TasksService {
     if (hasReverse)
       throw new BadRequestException('Circular dependency detected');
 
+    // Check duplicate dependency
+    const existing = await this.taskDependencyRepository.exists(
+      blockingTaskId,
+      blockedTaskId,
+    );
+    if (existing) {
+      throw new ConflictException('Dependency already exists');
+    }
+
     const dependency = await this.taskDependencyRepository.create({
       blockingTaskId,
       blockedTaskId,
     });
 
-    return dependency;
+    return {
+      id: dependency.id,
+      blockingTaskId: dependency.props?.blockingTaskId ?? blockingTaskId,
+      blockedTaskId: dependency.props?.blockedTaskId ?? blockedTaskId,
+      createdAt: dependency.props?.createdAt,
+    };
   }
 
   /**
@@ -1076,5 +1107,104 @@ export class TasksService {
       blockedBy: blockedByTasks.filter((t) => t !== null).map((t) => t.props),
       blocking: blockingTasks.filter((t) => t !== null).map((t) => t.props),
     };
+  }
+
+  /**
+   * Calculates the next date and creates the next recurrence task instance upon task completion.
+   */
+  private async handleRecurrenceOnCompletion(
+    taskId: string,
+    userId: string,
+  ): Promise<void> {
+    try {
+      const taskWithRecurrence = await this.prisma.task.findUnique({
+        where: { id: taskId },
+        include: { recurrence: true },
+      });
+
+      if (!taskWithRecurrence || !taskWithRecurrence.recurrence) {
+        return;
+      }
+
+      const recurrence = taskWithRecurrence.recurrence;
+      const baseDate =
+        taskWithRecurrence.dueDate ||
+        taskWithRecurrence.scheduledDate ||
+        new Date();
+
+      const nextDate = new Date(baseDate);
+      const interval = Math.max(recurrence.interval || 1, 1);
+
+      switch (recurrence.pattern) {
+        case 'DAILY':
+          nextDate.setDate(nextDate.getDate() + interval);
+          break;
+        case 'WEEKLY':
+          nextDate.setDate(nextDate.getDate() + 7 * interval);
+          break;
+        case 'MONTHLY':
+          nextDate.setMonth(nextDate.getMonth() + interval);
+          break;
+        case 'YEARLY':
+          nextDate.setFullYear(nextDate.getFullYear() + interval);
+          break;
+        case 'CUSTOM':
+          nextDate.setDate(nextDate.getDate() + interval);
+          break;
+        default:
+          nextDate.setDate(nextDate.getDate() + interval);
+          break;
+      }
+
+      // Check if past recurrence end date
+      if (recurrence.endDate && nextDate > new Date(recurrence.endDate)) {
+        this.logger.log(
+          `[Recurrence] End date reached (${recurrence.endDate.toISOString()}) for task ${taskId}. No further tasks scheduled.`,
+        );
+        return;
+      }
+
+      // Transfer recurrence definition to the new occurrence so the chain continues
+      await this.prisma.task.create({
+        data: {
+          title: taskWithRecurrence.title,
+          description: taskWithRecurrence.description,
+          status: 'TODO',
+          priority: taskWithRecurrence.priority,
+          projectId: taskWithRecurrence.projectId,
+          ownerId: taskWithRecurrence.ownerId,
+          assigneeId: taskWithRecurrence.assigneeId,
+          dueDate: taskWithRecurrence.dueDate ? nextDate : null,
+          scheduledDate: taskWithRecurrence.scheduledDate ? nextDate : null,
+          scheduledTime: taskWithRecurrence.scheduledTime,
+          scheduledEndTime: taskWithRecurrence.scheduledEndTime,
+          isTimeBlocked: taskWithRecurrence.isTimeBlocked,
+          estimatedMinutes: taskWithRecurrence.estimatedMinutes,
+          recurrence: {
+            create: {
+              pattern: recurrence.pattern,
+              interval: recurrence.interval,
+              daysOfWeek: recurrence.daysOfWeek,
+              dayOfMonth: recurrence.dayOfMonth,
+              endDate: recurrence.endDate,
+            },
+          },
+        },
+      });
+
+      // Remove recurrence from the completed task to prevent duplicate triggers
+      await this.prisma.recurrence.delete({
+        where: { id: recurrence.id },
+      });
+
+      this.logger.log(
+        `[Recurrence] Successfully spawned next task for recurring task ${taskId} scheduled at ${nextDate.toISOString()}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `[Recurrence] Failed to handle recurrence for task ${taskId}`,
+        error,
+      );
+    }
   }
 }

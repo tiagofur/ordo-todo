@@ -6,6 +6,7 @@ import {
   HabitCompletionProps,
   HabitFrequency as CoreHabitFrequency,
   TimeOfDay as CoreTimeOfDay,
+  parseCalendarDateToUtcMidnight,
 } from '@ordo-todo/core';
 import { PrismaService } from '../database/prisma.service';
 import {
@@ -122,7 +123,7 @@ export class PrismaHabitRepository implements IHabitRepository {
       include: {
         completions: {
           where: {
-            completedDate: startOfDay(today),
+            completedDate: parseCalendarDateToUtcMidnight(today),
           },
         },
       },
@@ -200,7 +201,7 @@ export class PrismaHabitRepository implements IHabitRepository {
       include: {
         completions: {
           where: {
-            completedDate: startOfDay(new Date()),
+            completedDate: parseCalendarDateToUtcMidnight(new Date()),
           },
         },
       },
@@ -237,13 +238,13 @@ export class PrismaHabitRepository implements IHabitRepository {
     }
 
     // Calculate new streak
-    const yesterday = subDays(startOfDay(new Date()), 1);
+    const yesterday = subDays(new Date(), 1);
     const yesterdayCompletion =
       await this.prisma.client.habitCompletion.findUnique({
         where: {
           habitId_completedDate: {
             habitId,
-            completedDate: yesterday,
+            completedDate: parseCalendarDateToUtcMidnight(yesterday),
           },
         },
       });
@@ -262,7 +263,7 @@ export class PrismaHabitRepository implements IHabitRepository {
       include: {
         completions: {
           where: {
-            completedDate: startOfDay(new Date()),
+            completedDate: parseCalendarDateToUtcMidnight(new Date()),
           },
         },
       },
@@ -272,7 +273,7 @@ export class PrismaHabitRepository implements IHabitRepository {
   }
 
   async deleteCompletion(habitId: string, date: Date): Promise<void> {
-    const completedDate = startOfDay(date);
+    const completedDate = parseCalendarDateToUtcMidnight(date);
 
     await this.prisma.client.habitCompletion.delete({
       where: {
@@ -322,7 +323,7 @@ export class PrismaHabitRepository implements IHabitRepository {
       where: {
         habitId_completedDate: {
           habitId,
-          completedDate: startOfDay(date),
+          completedDate: parseCalendarDateToUtcMidnight(date),
         },
       },
     });

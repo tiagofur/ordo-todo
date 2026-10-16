@@ -29,6 +29,7 @@ import { createPortal } from "react-dom";
 import { SortableTask } from "./sortable-task";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseCalendarDate, isCalendarDateOverdue } from "@ordo-todo/core";
 
 interface ProjectBoardProps {
   projectId: string;
@@ -154,11 +155,13 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    return format(new Date(date), "d MMM", { locale: es });
+    const dateObj = parseCalendarDate(date);
+    if (!dateObj) return null;
+    return format(dateObj, "d MMM", { locale: es });
   };
 
   const isOverdue = (task: Task) => {
-    return task.status !== "COMPLETED" && task.dueDate && new Date(task.dueDate) < new Date();
+    return isCalendarDateOverdue(task.dueDate, task.status === "COMPLETED");
   };
 
   const overlayPortal = typeof document !== "undefined" && activeTask

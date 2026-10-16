@@ -23,9 +23,6 @@ export function Tasks() {
   const { data: tasks, isLoading } = useTasks();
   const { data: tags } = useTags(selectedWorkspaceId || "");
 
-  // Accent color (purple like Web)
-  const accentColor = "#a855f7"; // Purple-500
-
   // Filter tasks by tag if tagId is present
   const filteredTasks = tagId && tasks
     ? tasks.filter((task: any) =>
@@ -51,13 +48,7 @@ export function Tasks() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{
-                    backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                  }}
-                >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-tasks text-tasks-foreground shadow-lg shadow-tasks/25">
                   <CheckSquare className="h-6 w-6" />
                 </div>
                 {t("Tasks.title") || "Tareas"}
@@ -106,7 +97,7 @@ export function Tasks() {
                   className={cn(
                     "p-2 transition-all duration-200",
                     viewMode === "list"
-                      ? "bg-purple-500/10 text-purple-500"
+                      ? "bg-tasks/10 text-tasks"
                       : "text-muted-foreground hover:bg-muted/50"
                   )}
                   title={t("Tasks.listView") || "Vista de lista"}
@@ -118,7 +109,7 @@ export function Tasks() {
                   className={cn(
                     "p-2 transition-all duration-200",
                     viewMode === "grid"
-                      ? "bg-purple-500/10 text-purple-500"
+                      ? "bg-tasks/10 text-tasks"
                       : "text-muted-foreground hover:bg-muted/50"
                   )}
                   title={t("Tasks.gridView") || "Vista de cuadrícula"}
@@ -129,11 +120,7 @@ export function Tasks() {
 
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-tasks text-tasks-foreground shadow-lg shadow-tasks/25 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-tasks/30"
               >
                 <Plus className="h-4 w-4" />
                 {t("Tasks.newTask") || "Nueva Tarea"}
@@ -193,11 +180,7 @@ export function Tasks() {
               </p>
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex items-center gap-2 rounded-xl bg-tasks px-6 py-3 text-sm font-medium text-tasks-foreground shadow-lg shadow-tasks/25 transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-4 w-4" />
                 {t("Tasks.createTask") || "Crear Tarea"}

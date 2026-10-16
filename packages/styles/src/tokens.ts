@@ -37,13 +37,13 @@ export const lightColors = {
     popover: '#FFFFFF',
     popoverForeground: '#0A0A0B',
 
-    // Primary (Vibrant Violet)
-    primary: '#7C3AED',
+    // Primary (Cyan - Matching Web Dashboard)
+    primary: '#06B6D4',
     primaryForeground: '#FFFFFF',
 
     // Secondary
-    secondary: '#F5F3FF',
-    secondaryForeground: '#7C3AED',
+    secondary: '#ECFEFF',
+    secondaryForeground: '#0891B2',
 
     // Muted
     muted: '#F5F3FF',
@@ -60,17 +60,17 @@ export const lightColors = {
     // Border & Input
     border: '#E5E7EB',
     input: '#E5E7EB',
-    ring: '#7C3AED',
+    ring: '#06B6D4',
 
     // Sidebar
     sidebar: '#FAFAFA',
     sidebarForeground: '#1F2937',
-    sidebarPrimary: '#7C3AED',
+    sidebarPrimary: '#06B6D4',
     sidebarPrimaryForeground: '#FFFFFF',
-    sidebarAccent: '#F3F4F6',
-    sidebarAccentForeground: '#7C3AED',
+    sidebarAccent: '#ECFEFF',
+    sidebarAccentForeground: '#0891B2',
     sidebarBorder: '#E5E7EB',
-    sidebarRing: '#7C3AED',
+    sidebarRing: '#06B6D4',
 } as const;
 
 /**
@@ -86,13 +86,13 @@ export const darkColors = {
     popover: '#1A1A24',
     popoverForeground: '#FAFAFA',
 
-    // Primary (Bright Violet)
-    primary: '#A78BFA',
+    // Primary (Cyan - Bright)
+    primary: '#22D3EE',
     primaryForeground: '#1A1A24',
 
     // Secondary
-    secondary: '#27272A',
-    secondaryForeground: '#FAFAFA',
+    secondary: '#164E63', // Cyan-900 (Darker for secondary bg)
+    secondaryForeground: '#22D3EE',
 
     // Muted
     muted: '#27272A',
@@ -109,7 +109,7 @@ export const darkColors = {
     // Border & Input
     border: '#27272A',
     input: '#27272A',
-    ring: '#A78BFA',
+    ring: '#22D3EE',
 
     // Sidebar
     sidebar: '#18181B',
@@ -121,6 +121,12 @@ export const darkColors = {
     sidebarBorder: '#27272A',
     sidebarRing: '#A78BFA',
 } as const;
+
+/**
+ * Default colors (light theme)
+ * Convenience export for most common use case
+ */
+export const colors = lightColors;
 
 /**
  * Semantic colors used throughout the app
@@ -440,6 +446,23 @@ export const timerColors = {
     },
 } as const;
 
+// ============ SECTION COLORS ============
+
+/**
+ * App section specific colors (Creapolis Theme)
+ */
+export const sectionColors = {
+    dashboard: '#06B6D4',
+    tasks: '#8B5CF6',
+    projects: '#EC4899',
+    workspaces: '#F97316',
+    calendar: '#3B82F6',
+    goals: '#EC4899',
+    habits: '#10B981',
+    notes: '#EAB308',
+    wellbeing: '#F43F5E',
+} as const;
+
 // ============ HELPER FUNCTIONS ============
 
 /**
@@ -490,6 +513,7 @@ export const tokens = {
         priority: priorityColors,
         status: statusColors,
         timer: timerColors,
+        section: sectionColors,
     },
     spacing,
     namedSpacing,

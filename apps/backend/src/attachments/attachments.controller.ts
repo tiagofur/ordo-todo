@@ -180,10 +180,10 @@ export class AttachmentsController {
       throw new BadRequestException('No taskId provided');
     }
 
-    // SECURITY: Validate taskId is a valid UUID format (prevents injection attacks)
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(taskId)) {
+    // SECURITY: Validate taskId is a valid CUID, UUID, or task ID format (prevents injection attacks)
+    const idRegex =
+      /^([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|c[a-z0-9]{24,32}|task-[a-zA-Z0-9_-]+)$/i;
+    if (!idRegex.test(taskId)) {
       throw new BadRequestException('Invalid taskId format');
     }
 
@@ -230,8 +230,10 @@ export class AttachmentsController {
 
     return {
       success: true,
-      url: attachment.url,
+      id: attachment.id,
+      fileName: attachment.filename,
       filename: attachment.filename,
+      url: attachment.url,
       mimeType: attachment.mimeType,
       filesize: attachment.filesize,
       attachment,

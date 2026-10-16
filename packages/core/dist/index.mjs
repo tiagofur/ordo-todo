@@ -885,6 +885,10 @@ function serializeCalendarDateForApi(date5) {
   if (!dateStr) return null;
   return `${dateStr}T00:00:00.000Z`;
 }
+function parseCalendarDateToUtcMidnight(date5) {
+  const dateStr = toCalendarDateString(date5) || toCalendarDateString(/* @__PURE__ */ new Date());
+  return /* @__PURE__ */ new Date(`${dateStr}T00:00:00.000Z`);
+}
 function isCalendarDateToday(date5) {
   if (!date5) return false;
   const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
@@ -23674,6 +23678,7 @@ export {
   mixColors,
   normalizeWhitespace,
   parseCalendarDate,
+  parseCalendarDateToUtcMidnight,
   parseDuration,
   pluralize,
   projectBaseSchema,

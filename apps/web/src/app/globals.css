@@ -13,11 +13,30 @@
 /* Configure dark mode to use class strategy only */
 @variant dark (.dark &);
 
+/* Creator OS Dark Theme Variables */
+/* Creator OS Theme - Using Shared Styles
+ * The :root variables are imported from @ordo-todo/styles below.
+ * Do not redefine them here unless a conscious override is needed.
+ */
+
 /* Import shared styles from @ordo-todo/styles */
 @import "@ordo-todo/styles/src/variables.css";
 @import "@ordo-todo/styles/src/theme.css";
 @import "@ordo-todo/styles/src/base.css";
 @import "@ordo-todo/styles/src/components.css";
+
+/* Creator OS Global Styles Override */
+body {
+  background-color: #09090b; /* zinc-950 */
+  color: #fafafa; /* zinc-50 */
+}
+
+/* Glassmorphism utilities for the dashboard */
+.glass-panel {
+    background: rgba(24, 24, 27, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
 /* Web-specific overrides or additions can go here */
 /* Example: PWA-specific styles, desktop browser optimizations, etc. */

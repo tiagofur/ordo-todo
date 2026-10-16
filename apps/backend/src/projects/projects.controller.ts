@@ -198,8 +198,12 @@ export class ProjectsController {
     status: HttpStatus.FORBIDDEN,
     description: 'User does not have access to this project',
   })
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const project = await this.projectsService.findOne(id);
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+    return project;
   }
 
   @Get('by-slug/:workspaceSlug/:projectSlug')

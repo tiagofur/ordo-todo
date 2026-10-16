@@ -96,7 +96,7 @@ describe('AnalyticsController', () => {
         avgTasksPerDay: 5,
         completionRate: 85,
       };
-      analyticsService.getWeeklyMetrics.mockResolvedValue(mockMetrics);
+      analyticsService.getWeeklyMetrics.mockResolvedValue(mockMetrics as any);
 
       const result = await controller.getWeeklyMetrics(mockUser, '2024-01-01');
 
@@ -116,7 +116,7 @@ describe('AnalyticsController', () => {
         avgTasksPerDay: 4,
         daysWorked: 22,
       };
-      analyticsService.getMonthlyMetrics.mockResolvedValue(mockMetrics);
+      analyticsService.getMonthlyMetrics.mockResolvedValue(mockMetrics as any);
 
       const result = await controller.getMonthlyMetrics(mockUser, '2024-01');
 
@@ -160,7 +160,7 @@ describe('AnalyticsController', () => {
         tasksInProgress: 5,
         overdue: 2,
       };
-      analyticsService.getDashboardStats.mockResolvedValue(mockStats);
+      analyticsService.getDashboardStats.mockResolvedValue(mockStats as any);
 
       const result = await controller.getDashboardStats(mockUser);
 
@@ -177,7 +177,7 @@ describe('AnalyticsController', () => {
         { date: '2024-01-01', count: 5 },
         { date: '2024-01-02', count: 3 },
       ];
-      analyticsService.getHeatmapData.mockResolvedValue(mockHeatmap);
+      analyticsService.getHeatmapData.mockResolvedValue(mockHeatmap as any);
 
       const result = await controller.getHeatmap(mockUser);
 
@@ -193,7 +193,7 @@ describe('AnalyticsController', () => {
         { projectId: 'p2', projectName: 'Project 2', minutes: 200 },
       ];
       analyticsService.getProjectTimeDistribution.mockResolvedValue(
-        mockDistribution,
+        mockDistribution as any,
       );
 
       const result = await controller.getProjectDistribution(mockUser);
@@ -232,7 +232,9 @@ describe('AnalyticsController', () => {
         longest: 15,
         lastActiveDate: '2024-01-15',
       };
-      analyticsService.getProductivityStreak.mockResolvedValue(mockStreak);
+      analyticsService.getProductivityStreak.mockResolvedValue(
+        mockStreak as any,
+      );
 
       const result = await controller.getProductivityStreak(mockUser);
 
@@ -250,7 +252,7 @@ describe('AnalyticsController', () => {
         completedTasks: 30,
         members: [],
       };
-      analyticsService.getTeamMetrics.mockResolvedValue(mockTeamMetrics);
+      analyticsService.getTeamMetrics.mockResolvedValue(mockTeamMetrics as any);
 
       const result = await controller.getTeamMetrics(
         'workspace-123',

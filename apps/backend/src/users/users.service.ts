@@ -20,9 +20,13 @@ export class UsersService {
   ) {}
 
   async getMe(email: string) {
-    const userByEmailUseCase = new UserByEmail(this.userRepository);
-    const user = await userByEmailUseCase.execute(email);
-    return user?.props;
+    try {
+      const userByEmailUseCase = new UserByEmail(this.userRepository);
+      const user = await userByEmailUseCase.execute(email);
+      return user?.props;
+    } catch {
+      return null;
+    }
   }
 
   /**

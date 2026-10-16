@@ -44,4 +44,3 @@ export class AuthAuditLog extends Entity<AuthAuditLogProps> {
     return this.props.metadata;
   }
 }
-

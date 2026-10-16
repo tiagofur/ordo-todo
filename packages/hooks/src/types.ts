@@ -4,13 +4,46 @@
 
 import type {
   OrdoApiClient,
+  Notification,
+  UnreadCountResponse,
+  PublicTaskResponse,
+  TaskShareResponse,
+  Attachment,
+  // Creator OS
+  CreateSocialPostDto,
+  UpdateSocialPostDto,
+  BulkScheduleDto,
+  SocialPost,
+  SocialPostsListResponse,
+  ContentPlatform,
+  Idea,
+  CreateIdeaDto,
+  UpdateIdeaDto,
+  ContentPiece,
+  CreateContentPieceDto,
+  UpdateContentPieceDto
 } from '@ordo-todo/api-client';
+
+export type {
+  Idea,
+  CreateIdeaDto,
+  UpdateIdeaDto,
+  ContentPiece,
+  CreateContentPieceDto,
+  UpdateContentPieceDto,
+  CreateSocialPostDto,
+  UpdateSocialPostDto,
+  BulkScheduleDto,
+  SocialPost,
+  ContentPlatform
+};
 
 /**
  * API Client interface that the hooks expect.
  * This allows both OrdoApiClient class instances and plain object clients.
  */
-export type ApiClient = OrdoApiClient | {
+export type ApiClient = (OrdoApiClient & { [key: string]: any }) | {
+  [key: string]: any;
   // Auth
   register: OrdoApiClient['register'];
   login: OrdoApiClient['login'];
@@ -189,7 +222,67 @@ export type ApiClient = OrdoApiClient | {
   deleteCustomField: OrdoApiClient['deleteCustomField'];
   getTaskCustomValues: OrdoApiClient['getTaskCustomValues'];
   setTaskCustomValues: OrdoApiClient['setTaskCustomValues'];
+
+  // Creator OS - Ideas
+  getIdeas: (params?: { status?: string; search?: string; page?: number; limit?: number }) =>
+    Promise<{ data: Idea[]; total: number; page: number; limit: number }>;
+  getIdea: (id: string) => Promise<Idea>;
+  createIdea: (data: CreateIdeaDto) => Promise<Idea>;
+  updateIdea: (id: string, data: UpdateIdeaDto) => Promise<Idea>;
+  deleteIdea: (id: string) => Promise<void>;
+  archiveIdea: (id: string) => Promise<Idea>;
+
+  // Creator OS - Content Pieces
+  getContentPieces: (params?: {
+    status?: string;
+    seriesId?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => Promise<{ data: ContentPiece[]; total: number; page: number; limit: number }>;
+  getContentPiece: (id: string) => Promise<ContentPiece>;
+  getContentPipeline: () => Promise<{
+    scripting: ContentPiece[];
+    filming: ContentPiece[];
+    editing: ContentPiece[];
+    scheduled: ContentPiece[];
+    published: ContentPiece[];
+  }>;
+  createContentPiece: (data: CreateContentPieceDto) => Promise<ContentPiece>;
+  promoteFromIdea: (ideaId: string, data: CreateContentPieceDto) => Promise<ContentPiece>;
+  updateContentPiece: (id: string, data: UpdateContentPieceDto) => Promise<ContentPiece>;
+  updateContentStatus: (id: string, status: string) => Promise<ContentPiece>;
+  deleteContentPiece: (id: string) => Promise<void>;
+
+  // Creator OS - Series
+  getSeries: () => Promise<any[]>;
+  getSeriesById: (id: string) => Promise<any>;
+  createSeries: (data: any) => Promise<any>;
+
+  // Creator OS - Publishing
+  createSocialPost: (data: CreateSocialPostDto) => Promise<SocialPost>;
+  bulkSchedulePosts: (data: BulkScheduleDto) => Promise<SocialPost[]>;
+  getScheduledPosts: (params: {
+    from?: string;
+    to?: string;
+    platform?: ContentPlatform;
+    page?: number;
+    limit?: number;
+  }) => Promise<SocialPostsListResponse>;
+  getPublishingCalendar: (startDate: string, endDate: string) => Promise<SocialPost[]>;
+  getPostsByContentPiece: (contentPieceId: string) => Promise<SocialPost[]>;
+  getSocialPost: (id: string) => Promise<SocialPost>;
+  updateSocialPost: (id: string, data: UpdateSocialPostDto) => Promise<SocialPost>;
+  schedulePost: (id: string, scheduledAt: string) => Promise<SocialPost>;
+  unschedulePost: (id: string) => Promise<SocialPost>;
+  deleteSocialPost: (id: string) => Promise<void>;
 };
+
+/**
+ * Creator OS Types
+ */
+
+
 
 /**
  * Configuration for creating hooks

@@ -49,7 +49,7 @@ type ViewMode = "list" | "grid";
 export function Dashboard() {
   const { t, i18n } = useTranslation(); // Note: check translation namespace
   const navigate = useNavigate();
-  const accentColor = "#06b6d4"; // Cyan
+  const accentColor = "var(--theme-dashboard)"; // Use dashboard theme variable
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
@@ -203,25 +203,29 @@ export function Dashboard() {
       title: t("Dashboard.completed", "Completadas"),
       value: completedToday.toString(),
       icon: CheckCircle2,
-      color: accentColor,
+      color: "var(--theme-dashboard)",
+      bgClass: "bg-dashboard",
     },
     {
       title: "Subtareas",
       value: subtasksCompletedToday.toString(),
       icon: ListChecks,
-      color: "#8b5cf6", // Purple
+      color: "var(--theme-tasks)",
+      bgClass: "bg-tasks",
     },
     {
       title: t("Dashboard.timeWorked", "Tiempo"),
       value: timeWorkedText,
       icon: Clock,
-      color: "#f59e0b", // Amber
+      color: "var(--theme-calendar)",
+      bgClass: "bg-calendar",
     },
     {
       title: t("Dashboard.productivity", "Productividad"),
       value: productivity,
       icon: TrendingUp,
-      color: "#10b981", // Emerald
+      color: "var(--theme-habits)",
+      bgClass: "bg-habits",
     },
   ];
 
@@ -231,13 +235,7 @@ export function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
-            <div
-              className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lg"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-              }}
-            >
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-dashboard text-white shadow-lg shadow-dashboard/25">
               <Home className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             {t("Dashboard.today", "Hoy")}
@@ -273,11 +271,10 @@ export function Dashboard() {
           >
             <div className="flex items-center gap-4">
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
-                style={{
-                  backgroundColor: `${card.color}15`,
-                  color: card.color,
-                }}
+                className={cn(
+                  "flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 text-white",
+                  card.bgClass
+                )}
               >
                 <card.icon className="h-6 w-6" />
               </div>
@@ -295,11 +292,11 @@ export function Dashboard() {
         <ProductivityStreakWidget
           currentStreak={currentStreak}
           longestStreak={longestStreak}
-          accentColor={accentColor}
+          accentColor="var(--theme-tasks)"
         />
         {/* Using TimerWidget instead of DashboardTimerWidget - assumes TimerWidget fits context */}
         <TimerWidget onExpand={() => navigate("/timer")} />
-        <HabitsWidget accentColor="#8b5cf6" />
+        <HabitsWidget accentColor="var(--theme-habits)" />
         <OkrWidget />
       </div>
 
@@ -325,7 +322,7 @@ export function Dashboard() {
                 className={cn(
                   "p-1.5 transition-all duration-200",
                   viewMode === "list"
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-tasks/10 text-tasks"
                     : "text-muted-foreground hover:bg-muted/50"
                 )}
                 title="Vista de lista"
@@ -337,7 +334,7 @@ export function Dashboard() {
                 className={cn(
                   "p-1.5 transition-all duration-200",
                   viewMode === "grid"
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-tasks/10 text-tasks"
                     : "text-muted-foreground hover:bg-muted/50"
                 )}
                 title="Vista de cuadrícula"
@@ -366,7 +363,7 @@ export function Dashboard() {
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
                 showCompleted
-                  ? "bg-primary/10 border-primary/20 text-primary"
+                  ? "bg-tasks/10 border-tasks/20 text-tasks"
                   : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted"
               )}
             >
@@ -383,7 +380,7 @@ export function Dashboard() {
                   className={cn(
                     "px-1.5 py-0.5 rounded-full text-xs font-medium",
                     showCompleted
-                      ? "bg-primary/20 text-primary"
+                      ? "bg-tasks/20 text-tasks"
                       : "bg-muted text-muted-foreground"
                   )}
                 >
@@ -418,11 +415,7 @@ export function Dashboard() {
             ) : (
               <button
                 onClick={() => setShowCreateTaskDialog(true)}
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:scale-105"
+                className="flex items-center gap-2 rounded-xl bg-tasks px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-tasks/25 transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-4 w-4" />
                 {t("Dashboard.createTask", "Crear tarea")}
@@ -487,10 +480,7 @@ export function Dashboard() {
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                     Nuevo Proyecto
                   </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-                    style={{ backgroundColor: "#8b5cf6" }}
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-projects text-white shadow-sm shadow-projects/10">
                     <FolderPlus className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -510,10 +500,7 @@ export function Dashboard() {
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                     Iniciar Timer
                   </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-                    style={{ backgroundColor: "#f59e0b" }}
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-workspaces text-white shadow-sm shadow-workspaces/10">
                     <Timer className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -533,10 +520,7 @@ export function Dashboard() {
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                     Nueva Tarea
                   </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-                    style={{ backgroundColor: accentColor }}
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-tasks text-white shadow-sm shadow-tasks/10">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -551,13 +535,9 @@ export function Dashboard() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg transition-all duration-300",
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-dashboard text-white shadow-lg shadow-dashboard/25 transition-all duration-300",
             showQuickActions ? "rotate-45" : "rotate-0"
           )}
-          style={{
-            backgroundColor: accentColor,
-            boxShadow: `0 10px 25px -5px ${accentColor}60, 0 8px 10px -6px ${accentColor}40`,
-          }}
         >
           <Plus className="h-7 w-7" />
         </motion.button>

@@ -3,6 +3,7 @@
  *
  * Organized by domain:
  * - ui: Base components (Radix UI primitives)
+ * - content: Creator OS content components (Ideas, Pipeline, Publishing)
  * - timer: Timer/Pomodoro components
  * - task: Task management components
  * - project: Project and Kanban components
@@ -16,6 +17,7 @@
  * - shared: Shared utilities
  */
 export * from './ui/index.js';
+export * from './content/index.js';
 export * from './timer/index.js';
 export * from './task/index.js';
 export * from './project/index.js';

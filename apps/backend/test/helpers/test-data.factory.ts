@@ -1,4 +1,4 @@
-import { PrismaService } from '@ordo-todo/db';
+import { PrismaService } from '../../src/database/prisma.service';
 
 /**
  * Creates a test user in the database
@@ -12,17 +12,21 @@ export async function createTestUser(
   overrides: Partial<{
     id: string;
     email: string;
+    username: string;
     name: string;
   }> = {},
 ) {
   const id = overrides.id || `user-${Math.random().toString(36).substring(7)}`;
   const email = overrides.email || `test-${id}@example.com`;
+  const username =
+    overrides.username || `user_${id.replace(/[^a-zA-Z0-9]/g, '')}`;
   const name = overrides.name || 'Test User';
 
   return prisma.user.create({
     data: {
       id,
       email,
+      username,
       name,
       emailVerified: new Date(),
       image: null,
@@ -38,10 +42,22 @@ export async function createTestUser(
  * @returns Array of created users
  */
 export async function createTestUsers(prisma: PrismaService, count: number) {
-  const users = [];
+  const numberWords = [
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+    'Ten',
+  ];
+  const users: any[] = [];
   for (let i = 0; i < count; i++) {
     const user = await createTestUser(prisma, {
-      name: `Test User ${i + 1}`,
+      name: `Test User ${numberWords[i] || 'Extra'}`,
     });
     users.push(user);
   }
@@ -62,22 +78,22 @@ export async function createTestWorkspace(
   overrides: Partial<{
     id: string;
     name: string;
+    slug: string;
     description: string;
-    type: 'PERSONAL' | 'WORK' | 'TEAM';
   }> = {},
 ) {
   const id =
     overrides.id || `workspace-${Math.random().toString(36).substring(7)}`;
   const name = overrides.name || 'Test Workspace';
+  const slug = overrides.slug || `ws-${id}`;
   const description = overrides.description || 'Test workspace description';
-  const type = overrides.type || 'PERSONAL';
 
   const workspace = await prisma.workspace.create({
     data: {
       id,
       name,
+      slug,
       description,
-      type,
       ownerId: userId,
     },
   });
@@ -108,23 +124,46 @@ export async function createTestProject(
   overrides: Partial<{
     id: string;
     name: string;
+    slug: string;
     description: string;
     status: 'ACTIVE' | 'ARCHIVED';
+    workflowId: string;
   }> = {},
 ) {
   const id =
     overrides.id || `project-${Math.random().toString(36).substring(7)}`;
   const name = overrides.name || 'Test Project';
+  const slug = overrides.slug || `proj-${id}`;
   const description = overrides.description || 'Test project description';
   const status = overrides.status || 'ACTIVE';
+
+  let workflowId = overrides.workflowId;
+  if (!workflowId) {
+    const existingWorkflow = await prisma.workflow.findFirst({
+      where: { workspaceId },
+    });
+    if (existingWorkflow) {
+      workflowId = existingWorkflow.id;
+    } else {
+      const newWf = await prisma.workflow.create({
+        data: {
+          name: 'Default Workflow',
+          workspaceId,
+        },
+      });
+      workflowId = newWf.id;
+    }
+  }
 
   return prisma.project.create({
     data: {
       id,
       name,
+      slug,
       description,
       status,
       workspaceId,
+      workflowId,
     },
   });
 }
@@ -146,14 +185,17 @@ export async function createTestTask(
     id: string;
     title: string;
     description: string;
-    status: 'TODO' | 'IN_PROGRESS' | 'DONE' | 'BLOCKED';
+    status: 'TODO' | 'IN_PROGRESS' | 'DONE' | 'COMPLETED' | 'CANCELLED';
     priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   }> = {},
 ) {
   const id = overrides.id || `task-${Math.random().toString(36).substring(7)}`;
   const title = overrides.title || 'Test Task';
   const description = overrides.description || 'Test task description';
-  const status = overrides.status || 'TODO';
+  const status =
+    overrides.status === 'DONE'
+      ? 'COMPLETED'
+      : (overrides.status as any) || 'TODO';
   const priority = overrides.priority || 'MEDIUM';
 
   return prisma.task.create({
@@ -165,7 +207,7 @@ export async function createTestTask(
       priority,
       projectId,
       ownerId: userId,
-      order: 0,
+      position: 0,
     },
   });
 }
@@ -185,7 +227,7 @@ export async function createTestTasks(
   userId: string,
   count: number,
 ) {
-  const tasks = [];
+  const tasks: any[] = [];
   for (let i = 0; i < count; i++) {
     const task = await createTestTask(prisma, projectId, userId, {
       title: `Test Task ${i + 1}`,
@@ -201,10 +243,26 @@ export async function createTestTasks(
  * @param prisma - PrismaService instance
  */
 export async function cleanupTestData(prisma: PrismaService) {
-  // Delete in reverse order of dependencies
-  await prisma.task.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.workspaceMember.deleteMany();
-  await prisma.workspace.deleteMany();
-  await prisma.user.deleteMany();
+  if (!prisma) return;
+  // Delete in reverse order of dependencies to avoid foreign key constraints
+  try {
+    if (prisma.taskDependency)
+      await prisma.taskDependency.deleteMany().catch(() => {});
+    if (prisma.taskTag) await prisma.taskTag.deleteMany().catch(() => {});
+    if (prisma.comment) await prisma.comment.deleteMany().catch(() => {});
+    if (prisma.attachment) await prisma.attachment.deleteMany().catch(() => {});
+    if (prisma.note) await prisma.note.deleteMany().catch(() => {});
+    if (prisma.timeSession)
+      await prisma.timeSession.deleteMany().catch(() => {});
+    if (prisma.task) await prisma.task.deleteMany().catch(() => {});
+    if (prisma.project) await prisma.project.deleteMany().catch(() => {});
+    if (prisma.workspaceMember)
+      await prisma.workspaceMember.deleteMany().catch(() => {});
+    if (prisma.workspace) await prisma.workspace.deleteMany().catch(() => {});
+    if (prisma.authAuditLog)
+      await prisma.authAuditLog.deleteMany().catch(() => {});
+    if (prisma.user) await prisma.user.deleteMany().catch(() => {});
+  } catch {
+    // Ignore cleanup errors during test teardown
+  }
 }

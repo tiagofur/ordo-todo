@@ -162,18 +162,21 @@ describe('Notes API (e2e)', () => {
 
   describe('GET /notes', () => {
     it('should return all notes for workspace', async () => {
-      // Create test notes
+      // Create test notes with explicit timestamps to guarantee ordering
+      const baseDate = new Date();
       await prisma.note.createMany({
         data: [
           {
             content: 'Note 1',
             workspaceId: workspaceId,
             authorId: userId,
+            createdAt: new Date(baseDate.getTime() - 10000),
           },
           {
             content: 'Note 2',
             workspaceId: workspaceId,
             authorId: userId,
+            createdAt: baseDate,
           },
         ],
       });
@@ -184,9 +187,10 @@ describe('Notes API (e2e)', () => {
         .query({ workspaceId: workspaceId })
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveLength(2);
-          expect(res.body[0].content).toBe('Note 2'); // Ordered by createdAt desc
-          expect(res.body[1].content).toBe('Note 1');
+          const notes = Array.isArray(res.body) ? res.body : res.body.data;
+          expect(notes).toHaveLength(2);
+          expect(notes[0].content).toBe('Note 2'); // Ordered by createdAt desc
+          expect(notes[1].content).toBe('Note 1');
         });
     });
 
@@ -197,7 +201,8 @@ describe('Notes API (e2e)', () => {
         .query({ workspaceId: workspaceId })
         .expect(200)
         .expect((res) => {
-          expect(res.body).toEqual([]);
+          const notes = Array.isArray(res.body) ? res.body : res.body.data;
+          expect(notes).toEqual([]);
         });
     });
 

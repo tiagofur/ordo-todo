@@ -197,7 +197,7 @@ describe('TimersService', () => {
         LearnFromSessionUseCase.prototype,
         'execute',
       );
-      learnFromSessionSpy.mockResolvedValue(undefined);
+      learnFromSessionSpy.mockResolvedValue(undefined as any);
 
       mockGamificationService.awardPomodoroCompletion = jest
         .fn()
@@ -249,7 +249,7 @@ describe('TimersService', () => {
         LearnFromSessionUseCase.prototype,
         'execute',
       );
-      learnFromSessionSpy.mockResolvedValue(undefined);
+      learnFromSessionSpy.mockResolvedValue(undefined as any);
 
       const result = await service.stop(stopTimerDto as any, userId);
 
@@ -569,8 +569,8 @@ describe('TimersService', () => {
         userId,
       );
       expect(result).toHaveProperty('elapsedSeconds');
-      expect(result.elapsedSeconds).toBeGreaterThan(0);
-      expect(result.isPaused).toBe(false);
+      expect(result?.elapsedSeconds).toBeGreaterThan(0);
+      expect(result?.isPaused).toBe(false);
     });
 
     it('should calculate elapsed time correctly when paused', async () => {
@@ -598,8 +598,8 @@ describe('TimersService', () => {
 
       const result = await service.getActive(userId);
 
-      expect(result.isPaused).toBe(true);
-      expect(result.elapsedSeconds).toBeGreaterThan(0);
+      expect(result?.isPaused).toBe(true);
+      expect(result?.elapsedSeconds).toBeGreaterThan(0);
     });
 
     it('should return null when no active session', async () => {

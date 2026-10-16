@@ -116,6 +116,17 @@ export class TasksController {
     return this.tasksService.update(id, updateTaskDto, user.id);
   }
 
+  @Put(':id')
+  @UseGuards(TaskGuard)
+  @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
+  replace(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.tasksService.update(id, updateTaskDto, user.id);
+  }
+
   /**
    * Get tasks categorized for today view
    * Returns: overdue, dueToday, scheduledToday, available, notYetAvailable
@@ -392,6 +403,7 @@ export class TasksController {
   }
 
   @Delete(':id/dependencies/:blockingTaskId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(TaskGuard)
   @Roles(MemberRole.OWNER, MemberRole.ADMIN, MemberRole.MEMBER)
   removeDependency(

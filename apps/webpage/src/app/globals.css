@@ -18,18 +18,47 @@
 /* Configure dark mode to use class strategy only */
 @variant dark (.dark &);
 
+/* Creator OS Dark Theme Variables */
+:root {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 240 4% 16%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 240 4% 16%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 263 70% 50%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --ring: 263 70% 50%;
+  --radius: 0.75rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
-  /* Brand Colors */
-  --color-brand-cyan: #06B6D4;
-  --color-brand-pink: #EC4899;
-  --color-brand-orange: #F97316;
-  --color-brand-green: #10B981;
-  --color-brand-purple: #A855F7;
+  /* Brand Colors - Creator Neon */
+  --color-brand-cyan: #22d3ee;
+  --color-brand-pink: #f472b6;
+  --color-brand-orange: #fb923c;
+  --color-brand-green: #4ade80;
+  --color-brand-purple: #c084fc;
+
+  /* Dark Mode specific overrides */
+  --color-dark-bg: #09090b; /* zinc-950 */
+  --color-neon-purple: #d946ef;
+  --color-neon-blue: #0ea5e9;
 }
 
 /* Smooth scroll */
@@ -58,43 +87,52 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: rgba(6, 182, 212, 0.2);
-  color: inherit;
+  background-color: rgba(192, 132, 252, 0.3);
+  color: #fff;
 }
 
-/* Solid Color Section Backgrounds */
+/* Creator OS Global Styles */
+body {
+  background-color: #09090b; /* zinc-950 */
+  color: #fafafa; /* zinc-50 */
+}
+
+/* Creator OS Section Backgrounds - Dark & Neon */
 .section-cyan {
-  background-color: #06B6D4;
-  color: white;
+  background-color: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  color: #22d3ee;
 }
 
 .section-pink {
-  background-color: #EC4899;
-  color: white;
+  background-color: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  color: #f472b6;
 }
 
 .section-orange {
-  background-color: #F97316;
-  color: white;
+  background-color: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  color: #fb923c;
 }
 
 .section-green {
-  background-color: #10B981;
-  color: white;
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #4ade80;
 }
 
 .section-purple {
-  background-color: #A855F7;
-  color: white;
+  background-color: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  color: #c084fc;
 }
 
-/* Light Theme Section Alternates */
+/* Dark Theme Section Alternates */
 .section-alt {
-  background-color: #F8FAFC;
-}
-
-.dark .section-alt {
-  background-color: #0F172A;
+  background-color: #18181b; /* zinc-900 */
+  border-top: 1px solid #27272a;
+  border-bottom: 1px solid #27272a;
 }
 
 /* Accent backgrounds with solid colors */
@@ -138,29 +176,38 @@ html {
   background-color: #2E1065;
 }
 
-/* Geometric Shapes for decorations */
+/* Neon Glows instead of solid shapes */
 .shape-square {
   position: absolute;
-  border: 4px solid currentColor;
-  opacity: 0.1;
+  border: 1px solid currentColor;
+  box-shadow: 0 0 15px currentColor;
+  opacity: 0.2;
 }
 
 .shape-circle {
   position: absolute;
-  border: 4px solid currentColor;
+  border: 1px solid currentColor;
   border-radius: 50%;
-  opacity: 0.1;
+  box-shadow: 0 0 15px currentColor;
+  opacity: 0.2;
 }
 
-/* Solid shadows instead of blur/glow */
+/* Neon Glow Shadows */
 .shadow-solid-sm {
-  box-shadow: 4px 4px 0 currentColor;
+  box-shadow: 0 0 10px currentColor;
 }
 
 .shadow-solid-md {
-  box-shadow: 6px 6px 0 currentColor;
+  box-shadow: 0 0 20px currentColor;
 }
 
 .shadow-solid-lg {
-  box-shadow: 8px 8px 0 currentColor;
+  box-shadow: 0 0 30px currentColor;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: rgba(24, 24, 27, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }

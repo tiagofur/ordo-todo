@@ -11,6 +11,8 @@ import {
   Sparkles,
   Target,
   Users,
+  Zap,
+  Bot,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
@@ -53,6 +55,8 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
     {
       items: [
         { name: t("today"), href: "/dashboard", icon: Home, color: "cyan" },
+        { name: "Creator OS", href: "/creator", icon: Zap, color: "yellow" },
+        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
         { name: t("tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
         { name: t("calendar"), href: "/calendar", icon: Calendar, color: "blue" },
       ],

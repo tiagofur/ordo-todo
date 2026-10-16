@@ -32,6 +32,7 @@ import {
   Badge,
 } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
+import { toCalendarDateString, isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
 
 // Filter preset types
 export interface FilterPreset {
@@ -366,7 +367,7 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
                   key={color}
                   className={cn(
                     "h-8 w-8 rounded-full transition-all",
-                    selectedColor === color && "ring-2 ring-offset-2 ring-primary"
+                    selectedColor === color && "ring-2 ring-offset-2 ring-purple-500"
                   )}
                   style={{ backgroundColor: color }}
                   onClick={() => setSelectedColor(color)}
@@ -396,7 +397,11 @@ function CreatePresetDialog({ open, onOpenChange, onSave }: CreatePresetDialogPr
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={!name.trim()}>
+            <Button
+              onClick={handleSave}
+              disabled={!name.trim()}
+              className="bg-purple-500 hover:bg-purple-600 text-white shadow-sm shadow-purple-500/25 border-0"
+            >
               Guardar
             </Button>
           </div>
@@ -432,29 +437,34 @@ export function useQuickFilters() {
 
       // Due date range filter
       if (filters.dueDateRange) {
-        const dueDate = item.dueDate ? new Date(item.dueDate) : null;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
+        const hasDueDate = !!item.dueDate;
+        const dueStr = toCalendarDateString(item.dueDate);
+        const now = new Date();
+        const todayStr = toCalendarDateString(now);
+
+        const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        const endOfWeek = new Date(today);
+        const tomorrowStr = toCalendarDateString(tomorrow);
+
+        const endOfWeek = new Date(now);
         endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()));
+        const endOfWeekStr = toCalendarDateString(endOfWeek);
 
         switch (filters.dueDateRange) {
           case "overdue":
-            if (!dueDate || dueDate >= today) return false;
+            if (!hasDueDate || !isCalendarDateOverdue(item.dueDate, item.status === "COMPLETED")) return false;
             break;
           case "today":
-            if (!dueDate || dueDate.toDateString() !== today.toDateString()) return false;
+            if (!hasDueDate || !isCalendarDateToday(item.dueDate)) return false;
             break;
           case "tomorrow":
-            if (!dueDate || dueDate.toDateString() !== tomorrow.toDateString()) return false;
+            if (!hasDueDate || dueStr !== tomorrowStr) return false;
             break;
           case "thisWeek":
-            if (!dueDate || dueDate < today || dueDate > endOfWeek) return false;
+            if (!hasDueDate || dueStr < todayStr || dueStr > endOfWeekStr) return false;
             break;
           case "noDate":
-            if (dueDate) return false;
+            if (hasDueDate) return false;
             break;
         }
       }

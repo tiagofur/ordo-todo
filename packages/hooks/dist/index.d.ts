@@ -1,9 +1,9 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import * as _ordo_todo_api_client from '@ordo-todo/api-client';
-import { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto } from '@ordo-todo/api-client';
-import { C as CreateHooksConfig } from './use-username-validation-CdoX1Tq7.js';
-export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-CdoX1Tq7.js';
+import { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto, Idea, CreateIdeaDto, UpdateIdeaDto, ContentPiece, CreateContentPieceDto, UpdateContentPieceDto, CreateSocialPostDto, BulkScheduleDto, ContentPlatform, UpdateSocialPostDto } from '@ordo-todo/api-client';
+import { C as CreateHooksConfig } from './use-username-validation-DSpdLO6J.js';
+export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-DSpdLO6J.js';
 import { z } from 'zod';
 
 /**
@@ -338,6 +338,84 @@ declare function createHooks(config: CreateHooksConfig): {
         data: UpdateNoteDto;
     }, unknown>;
     useDeleteNote: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
+    useIdeas: (params?: {
+        status?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    }) => _tanstack_react_query.UseQueryResult<{
+        data: Idea[];
+        total: number;
+        page: number;
+        limit: number;
+    }, Error>;
+    useIdea: (id: string) => _tanstack_react_query.UseQueryResult<Idea, Error>;
+    useCreateIdea: () => _tanstack_react_query.UseMutationResult<Idea, Error, CreateIdeaDto, unknown>;
+    useUpdateIdea: () => _tanstack_react_query.UseMutationResult<Idea, Error, {
+        id: string;
+        data: UpdateIdeaDto;
+    }, unknown>;
+    useDeleteIdea: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
+    useArchiveIdea: () => _tanstack_react_query.UseMutationResult<Idea, Error, string, unknown>;
+    useContentPieces: (params?: {
+        status?: string;
+        seriesId?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    }) => _tanstack_react_query.UseQueryResult<{
+        data: ContentPiece[];
+        total: number;
+        page: number;
+        limit: number;
+    }, Error>;
+    useContentPiece: (id: string) => _tanstack_react_query.UseQueryResult<ContentPiece, Error>;
+    useContentPipeline: () => _tanstack_react_query.UseQueryResult<{
+        scripting: ContentPiece[];
+        filming: ContentPiece[];
+        editing: ContentPiece[];
+        scheduled: ContentPiece[];
+        published: ContentPiece[];
+    }, Error>;
+    useCreateContentPiece: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, CreateContentPieceDto, unknown>;
+    usePromoteFromIdea: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, {
+        ideaId: string;
+        data: CreateContentPieceDto;
+    }, unknown>;
+    useUpdateContentPiece: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, {
+        id: string;
+        data: UpdateContentPieceDto;
+    }, unknown>;
+    useUpdateContentStatus: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, {
+        id: string;
+        status: string;
+    }, unknown>;
+    useDeleteContentPiece: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
+    useSeries: () => _tanstack_react_query.UseQueryResult<any[], Error>;
+    useSeriesById: (id: string) => _tanstack_react_query.UseQueryResult<any, Error>;
+    useCreateSeries: () => _tanstack_react_query.UseMutationResult<any, Error, any, unknown>;
+    useCreateSocialPost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, CreateSocialPostDto, unknown>;
+    useBulkSchedulePosts: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost[], Error, BulkScheduleDto, unknown>;
+    useScheduledPosts: (params?: {
+        from?: string;
+        to?: string;
+        platform?: ContentPlatform;
+        page?: number;
+        limit?: number;
+    }) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPostsListResponse, Error>;
+    usePublishingCalendar: (startDate: string, endDate: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPost[], Error>;
+    usePostsByContentPiece: (contentPieceId: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPost[], Error>;
+    useSocialPost: (id: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPost, Error>;
+    useUpdateSocialPost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, {
+        id: string;
+        data: UpdateSocialPostDto;
+    }, unknown>;
+    useSchedulePost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, {
+        id: string;
+        scheduledAt: string;
+    }, unknown>;
+    useUnschedulePost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, string, unknown>;
+    useDeleteSocialPost: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
     invalidateAllTasks: (queryClient: ReturnType<typeof useQueryClient>) => void;
 };
 /**
@@ -471,6 +549,51 @@ declare const queryKeys: {
     readonly taskCustomValues: (taskId: string) => readonly ["task-custom-values", string];
     readonly notes: (workspaceId: string) => readonly ["notes", string];
     readonly note: (id: string) => readonly ["notes", "detail", string];
+    readonly ideas: (params?: {
+        status?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    }) => readonly ["ideas", {
+        status?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    } | undefined];
+    readonly idea: (id: string) => readonly ["ideas", string];
+    readonly contentPieces: (params?: {
+        status?: string;
+        seriesId?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    }) => readonly ["content", {
+        status?: string;
+        seriesId?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    } | undefined];
+    readonly contentPiece: (id: string) => readonly ["content", string];
+    readonly contentPipeline: () => readonly ["content", "pipeline"];
+    readonly series: () => readonly ["series"];
+    readonly seriesContent: (seriesId: string) => readonly ["series", string, "content"];
+    readonly scheduledPosts: (params?: {
+        from?: string;
+        to?: string;
+        platform?: string;
+        page?: number;
+        limit?: number;
+    }) => readonly ["publishing", "scheduled", {
+        from?: string;
+        to?: string;
+        platform?: string;
+        page?: number;
+        limit?: number;
+    } | undefined];
+    readonly publishingCalendar: (startDate: string, endDate: string) => readonly ["publishing", "calendar", string, string];
+    readonly socialPost: (id: string) => readonly ["publishing", "post", string];
+    readonly contentPiecePosts: (contentPieceId: string) => readonly ["publishing", "content", string];
 };
 
 /**
@@ -647,4 +770,118 @@ declare const inviteMemberSchema: z.ZodObject<{
     message: z.ZodOptional<z.ZodString>;
 }, z.core.$strip>;
 
-export { CreateHooksConfig, type Hooks, MEMBER_ROLES, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, type SessionData, TASK_LIMITS, TASK_STATUS_VALUES, type TimerConfig, type TimerMode, type TimerType, type UseTimerProps, type UseTimerReturn, WORKSPACE_LIMITS, createHooks, createProjectSchema, createTaskSchema, formatTimerDisplay, inviteMemberSchema, projectBaseSchema, queryKeys, taskBaseSchema, useTimer };
+/**
+ * useDashboardData - Composite Hook for Dashboard
+ *
+ * This hook aggregates all the data needed for the Dashboard screen,
+ * providing a consistent data structure across Web, Desktop, and Mobile.
+ *
+ * @example
+ * ```tsx
+ * import { useDashboardData } from '@/lib/shared-hooks';
+ *
+ * function Dashboard() {
+ *   const { stats, tasks, streak, objectives, habits, isLoading } = useDashboardData();
+ *   // ...
+ * }
+ * ```
+ */
+interface DashboardStats {
+    tasksCompleted: number;
+    subtasksCompleted: number;
+    totalMinutesWorked: number;
+    productivityRate: number;
+    pendingTasks: number;
+    todayTasks: number;
+}
+interface DashboardStreak {
+    currentStreak: number;
+    longestStreak: number;
+}
+interface DashboardObjective {
+    id: string;
+    title: string;
+    progress: number;
+    color?: string;
+    daysRemaining: number;
+    keyResultsCount: number;
+}
+interface DashboardObjectivesSummary {
+    total: number;
+    completed: number;
+    atRisk: number;
+    averageProgress: number;
+    objectives: DashboardObjective[];
+}
+interface DashboardHabit {
+    id: string;
+    name: string;
+    color?: string;
+    isPaused?: boolean;
+    completions?: any[];
+    currentStreak: number;
+}
+interface DashboardHabitsSummary {
+    total: number;
+    completed: number;
+    remaining: number;
+    percentage: number;
+    habits: DashboardHabit[];
+}
+interface DashboardTask {
+    id: string;
+    title: string;
+    description?: string;
+    status: string;
+    priority: string;
+    dueDate?: string | Date | null;
+    completedAt?: string | Date | null;
+    estimatedMinutes?: number;
+    projectId?: string;
+    project?: {
+        name: string;
+        color?: string;
+    } | null;
+    isToday: boolean;
+}
+interface DashboardData {
+    stats: DashboardStats;
+    streak: DashboardStreak;
+    objectives: DashboardObjectivesSummary;
+    habits: DashboardHabitsSummary;
+    todaysTasks: DashboardTask[];
+    allTasks: DashboardTask[];
+    isLoading: boolean;
+    errors: {
+        tasks?: Error;
+        metrics?: Error;
+        streak?: Error;
+        objectives?: Error;
+        habits?: Error;
+        timer?: Error;
+    };
+    refetch: () => Promise<void>;
+}
+interface HooksBundle {
+    useTasks: (projectId?: string, tags?: string[], options?: {
+        assignedToMe?: boolean;
+    }) => any;
+    useDailyMetrics: (params?: {
+        startDate?: Date | string;
+        endDate?: Date | string;
+    }) => any;
+    useProductivityStreak: () => any;
+    useObjectivesDashboard: () => any;
+    useTodayHabits: () => any;
+    useTimerStats: (params?: {
+        startDate?: string;
+        endDate?: string;
+    }) => any;
+}
+/**
+ * Creates the useDashboardData hook using the provided hooks bundle.
+ * This allows each app to provide its own hooks implementation.
+ */
+declare function createUseDashboardData(hooks: HooksBundle): () => DashboardData;
+
+export { CreateHooksConfig, type DashboardData, type DashboardHabit, type DashboardHabitsSummary, type DashboardObjective, type DashboardObjectivesSummary, type DashboardStats, type DashboardStreak, type DashboardTask, type Hooks, MEMBER_ROLES, PRIORITY_VALUES, PROJECT_COLORS, PROJECT_LIMITS, type SessionData, TASK_LIMITS, TASK_STATUS_VALUES, type TimerConfig, type TimerMode, type TimerType, type UseTimerProps, type UseTimerReturn, WORKSPACE_LIMITS, createHooks, createProjectSchema, createTaskSchema, createUseDashboardData, formatTimerDisplay, inviteMemberSchema, projectBaseSchema, queryKeys, taskBaseSchema, useTimer };

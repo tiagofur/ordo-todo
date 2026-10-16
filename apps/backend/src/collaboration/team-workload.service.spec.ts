@@ -30,7 +30,7 @@ describe('TeamWorkloadService', () => {
     userId: 'user-123',
     userName: 'John Doe',
     userEmail: 'john@example.com',
-    avatarUrl: null,
+    avatarUrl: undefined,
     assignedTasks: 5,
     completedTasks: 3,
     overdueTasks: 1,
@@ -38,10 +38,10 @@ describe('TeamWorkloadService', () => {
     hoursWorkedThisWeek: 20,
     avgHoursPerDay: 4,
     workloadScore: 60,
-    workloadLevel: 'BALANCED',
+    workloadLevel: 'MODERATE',
     capacityRemaining: 20,
     trend: 'STABLE',
-    currentTask: null,
+    currentTask: undefined,
   };
 
   const mockSuggestions: WorkloadSuggestion[] = [

@@ -193,4 +193,52 @@ export class GamificationService implements OnModuleInit {
 
     this.logger.log(`User ${userId} unlocked achievement ${achievementCode}`);
   }
+
+  /**
+   * Retrieves user's XP, level, unlocked achievements, and available achievements.
+   */
+  async getUserGamificationProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, xp: true, level: true },
+    });
+
+    const [allAchievements, unlockedUserAchievements] = await Promise.all([
+      this.prisma.achievement.findMany(),
+      this.prisma.userAchievement.findMany({
+        where: { userId },
+        include: { achievement: true },
+      }),
+    ]);
+
+    const unlockedMap = new Map(
+      unlockedUserAchievements.map((ua) => [ua.achievementId, ua.unlockedAt]),
+    );
+
+    const achievementsWithStatus = allAchievements.map((ach) => ({
+      id: ach.id,
+      code: ach.code,
+      name: ach.name,
+      description: ach.description,
+      icon: ach.icon,
+      xpReward: ach.xpReward,
+      isUnlocked: unlockedMap.has(ach.id),
+      unlockedAt: unlockedMap.get(ach.id) || null,
+    }));
+
+    const currentXp = user?.xp || 0;
+    const currentLevel = user?.level || 1;
+    const nextLevelXp = currentLevel * 1000;
+    const currentLevelProgress = currentXp % 1000;
+
+    return {
+      xp: currentXp,
+      level: currentLevel,
+      currentLevelProgress,
+      nextLevelXp: 1000,
+      achievementsTotal: allAchievements.length,
+      achievementsUnlocked: unlockedUserAchievements.length,
+      achievements: achievementsWithStatus,
+    };
+  }
 }

@@ -369,6 +369,15 @@ export function serializeCalendarDateForApi(date: Date | string | null | undefin
 }
 
 /**
+ * Returns a Date instance representing UTC midnight for the calendar date.
+ * Useful for matching PostgreSQL @db.Date columns in Prisma.
+ */
+export function parseCalendarDateToUtcMidnight(date: Date | string | null | undefined): Date {
+    const dateStr = toCalendarDateString(date) || toCalendarDateString(new Date());
+    return new Date(`${dateStr}T00:00:00.000Z`);
+}
+
+/**
  * Check if a calendar date is today in the user's local timezone.
  */
 export function isCalendarDateToday(date: Date | string | null | undefined): boolean {

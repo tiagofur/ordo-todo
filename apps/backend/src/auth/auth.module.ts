@@ -66,4 +66,4 @@ import type { StringValue } from 'ms';
   ],
   exports: [AuthService, SessionsService, PkceService],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -14,26 +14,26 @@
   /* Border Radius */
   --radius: 0.625rem;
   
-  /* Vibrant Light Theme Colors */
+  /* Vibrant Light Theme Colors (Cyan) */
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.45 0.24 275); /* Vibrant Violet */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.01 275);
-  --secondary-foreground: oklch(0.45 0.24 275);
-  --muted: oklch(0.96 0.01 275);
-  --muted-foreground: oklch(0.55 0.05 275);
-  --accent: oklch(0.96 0.01 275);
-  --accent-foreground: oklch(0.45 0.24 275);
+  --primary: #06b6d4; /* Cyan-500 */
+  --primary-foreground: #ffffff;
+  --secondary: #ecfeff; /* Cyan-50 */
+  --secondary-foreground: #0891b2; /* Cyan-700 */
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #ecfeff;
+  --accent-foreground: #0891b2;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.01 275);
-  --input: oklch(0.92 0.01 275);
-  --ring: oklch(0.45 0.24 275);
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #06b6d4;
   
   /* Chart Colors */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -43,14 +43,14 @@
   --chart-5: oklch(0.769 0.188 70.08);
   
   /* Sidebar Colors (Light) */
-  --sidebar: oklch(0.985 0.005 275);
-  --sidebar-foreground: oklch(0.2 0.02 275);
-  --sidebar-primary: oklch(0.45 0.24 275);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.94 0.02 275);
-  --sidebar-accent-foreground: oklch(0.45 0.24 275);
-  --sidebar-border: oklch(0.9 0.01 275);
-  --sidebar-ring: oklch(0.45 0.24 275);
+  --sidebar: #fafafa;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #06b6d4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ecfeff;
+  --sidebar-accent-foreground: #0891b2;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #06b6d4;
 
   /* Vibrant Color Palette - Modern Design */
   --color-cyan: #06B6D4;
@@ -68,6 +68,19 @@
   --color-green: #10B981;
   --color-green-light: #34D399;
   --color-green-dark: #059669;
+  
+  /* App Sections Theming (Creapolis Philosophy: Colorful & Fun) */
+  --theme-dashboard: #06B6D4;     /* Cyan */
+  --theme-tasks: #8b5cf6;         /* Violet-500 */
+  --theme-tasks-foreground: #ffffff;
+  --theme-projects: #ec4899;      /* Pink-500 */
+  --theme-projects-foreground: #ffffff;
+  --theme-workspaces: #f97316;    /* Orange-500 */
+  --theme-calendar: #3b82f6;      /* Blue-500 */
+  --theme-goals: #ec4899;         /* Pink-500 */
+  --theme-habits: #10B981;        /* Emerald-500 */
+  --theme-notes: #eab308;         /* Yellow-500 */
+  --theme-wellbeing: #f43f5e;     /* Rose-500 */
   
   /* Workspace Theming */
   --workspace-color: #2563EB;
@@ -88,19 +101,19 @@
   --card-foreground: oklch(0.98 0.01 275);
   --popover: oklch(0.15 0.02 275);
   --popover-foreground: oklch(0.98 0.01 275);
-  --primary: oklch(0.7 0.15 280); /* Bright Violet */
-  --primary-foreground: oklch(0.1 0.05 280);
-  --secondary: oklch(0.2 0.05 275);
-  --secondary-foreground: oklch(0.98 0.01 275);
-  --muted: oklch(0.2 0.05 275);
-  --muted-foreground: oklch(0.7 0.05 275);
-  --accent: oklch(0.25 0.08 275);
-  --accent-foreground: oklch(0.98 0.01 275);
+  --primary: #22d3ee; /* Cyan-400 */
+  --primary-foreground: #1A1A24;
+  --secondary: #164e63; /* Cyan-900 */
+  --secondary-foreground: #22d3ee;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #164e63;
+  --accent-foreground: #22d3ee;
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.2 0.05 275);
-  --input: oklch(0.2 0.05 275);
-  --ring: oklch(0.7 0.15 280);
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #22d3ee;
   
   /* Chart Colors */
   --chart-1: oklch(0.488 0.243 264.376);
@@ -110,12 +123,12 @@
   --chart-5: oklch(0.645 0.246 16.439);
   
   /* Sidebar Colors (Dark) */
-  --sidebar: oklch(0.12 0.02 275);
-  --sidebar-foreground: oklch(0.98 0.01 275);
-  --sidebar-primary: oklch(0.7 0.15 280);
-  --sidebar-primary-foreground: oklch(0.1 0.05 280);
-  --sidebar-accent: oklch(0.2 0.05 275);
-  --sidebar-accent-foreground: oklch(0.98 0.01 275);
-  --sidebar-border: oklch(0.2 0.05 275);
-  --sidebar-ring: oklch(0.7 0.15 280);
+  --sidebar: #18181b;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #22d3ee;
+  --sidebar-primary-foreground: #111827;
+  --sidebar-accent: #27272a;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #22d3ee;
 }

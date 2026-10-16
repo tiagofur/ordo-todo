@@ -11,7 +11,12 @@ import {
   Shield,
   Target,
   Calendar,
-  Zap
+  Zap,
+  Repeat,
+  Trash2,
+  Share2,
+  Mic,
+  Clapperboard
 } from 'lucide-react';
 
 const FEATURE_COLORS = {
@@ -26,13 +31,50 @@ const FEATURE_COLORS = {
 export function Features() {
   const t = useTranslations('Features');
 
+  // Overriding translations for now to hardcode the new Creator features
   const features = [
-    { icon: Layout, key: 'organization', color: 'cyan' },
-    { icon: Clock, key: 'time_management', color: 'pink' },
-    { icon: Sparkles, key: 'ai_powered', color: 'purple' },
-    { icon: Smartphone, key: 'cross_platform', color: 'orange' },
-    { icon: BarChart3, key: 'productivity', color: 'green' },
-    { icon: Shield, key: 'privacy', color: 'blue' },
+    {
+      icon: Clapperboard,
+      key: 'pipeline',
+      title: 'Content Pipeline',
+      description: 'A dedicated Kanban board for creators. Move from Idea to Scripting, Filming, Editing, and Published.',
+      color: 'cyan'
+    },
+    {
+      icon: Mic,
+      key: 'capture',
+      title: 'Frictionless Capture',
+      description: 'Record voice notes on the go. Our AI transcribes and converts them into actionable video ideas instantly.',
+      color: 'pink'
+    },
+    {
+      icon: Repeat,
+      key: 'remix',
+      title: 'The Remix Engine',
+      description: 'Turn one YouTube video into a Twitter Thread, LinkedIn Post, and TikTok Short automatically.',
+      color: 'purple'
+    },
+    {
+      icon: Trash2,
+      key: 'graveyard',
+      title: 'Idea Graveyard',
+      description: 'We auto-archive stale ideas to keep your mind clear. Focus on what is fresh and exciting.',
+      color: 'orange'
+    },
+    {
+      icon: BarChart3,
+      key: 'consistency',
+      title: 'Consistency Score',
+      description: 'Gamified metrics that actually matter. Track your publishing streak, not just task completion.',
+      color: 'green'
+    },
+    {
+      icon: Share2,
+      key: 'previews',
+      title: 'Social Previews',
+      description: 'See exactly how your post will look on Twitter or LinkedIn before you hit publish.',
+      color: 'blue'
+    },
   ];
 
   return (
@@ -50,15 +92,15 @@ export function Features() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#06B6D4] text-white mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#d946ef] text-white mb-6 shadow-[0_0_10px_rgba(217,70,239,0.4)]">
             <Zap className="h-4 w-4" />
-            <span className="text-sm font-medium">{t('badge')}</span>
+            <span className="text-sm font-medium">Built for Creators</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6 text-foreground">
-            {t('title')}
+            More than just a To-Do List.
           </h2>
           <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
-            {t('subtitle')}
+            A complete operating system designed to handle the chaos of content creation.
           </p>
         </motion.div>
 
@@ -98,10 +140,12 @@ export function Features() {
 
                   {/* Content */}
                   <h3 className="relative text-xl font-semibold mb-3 group-hover:text-foreground transition-colors">
-                    {t(`${feature.key}.title`)}
+                    {/* @ts-ignore */}
+                    {feature.title}
                   </h3>
                   <p className="relative text-muted-foreground leading-relaxed">
-                    {t(`${feature.key}.description`)}
+                    {/* @ts-ignore */}
+                    {feature.description}
                   </p>
 
                   {/* Corner Accent - solid color */}

@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 export class JwtSecretRotationService {
   private readonly logger = new Logger(JwtSecretRotationService.name);
 
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   rotateSecret(): void {
     const currentSecret = this.configService.get<string>('JWT_SECRET');
@@ -112,8 +112,8 @@ export class JwtSecretRotationService {
     return {
       currentSecret: currentSecret
         ? `${currentSecret.substring(0, 8)}...${currentSecret.substring(
-          currentSecret.length - 8,
-        )}`
+            currentSecret.length - 8,
+          )}`
         : null,
       lastRotation: lastRotationDate?.toISOString() || null,
       daysSinceRotation,

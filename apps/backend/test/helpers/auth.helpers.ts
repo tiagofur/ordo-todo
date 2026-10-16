@@ -1,4 +1,4 @@
-import { PrismaService } from '@ordo-todo/db';
+import { PrismaService } from '../../src/database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { createTestUser } from './test-data.factory';
 

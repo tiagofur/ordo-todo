@@ -17,7 +17,7 @@ export class AuthSecurityController {
     private readonly authService: AuthService,
     private readonly jwtSecretRotationService: JwtSecretRotationService,
     private readonly authAuditService: AuthAuditService,
-  ) { }
+  ) {}
 
   @Get('jwt-secret/rotation-info')
   @ApiOperation({
@@ -100,4 +100,3 @@ export class AuthSecurityController {
     return [];
   }
 }
-

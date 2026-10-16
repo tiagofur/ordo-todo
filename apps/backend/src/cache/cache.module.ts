@@ -29,13 +29,7 @@ import { RedisModule } from './redis.module';
     }),
     RedisModule, // Redis for distributed caching and token blacklist
   ],
-  providers: [
-    CacheService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
+  providers: [CacheService],
   exports: [CacheService, RedisModule],
 })
 export class CacheModule {}

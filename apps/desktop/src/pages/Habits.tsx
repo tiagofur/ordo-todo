@@ -22,8 +22,6 @@ import { toast } from "sonner";
 import { CreateHabitDialog } from "@/components/habit/create-habit-dialog";
 import { HabitDetailPanel } from "@/components/habit/habit-detail-panel";
 
-const accentColor = "#10B981"; // Emerald
-
 export function Habits() {
   const { t } = (useTranslation as any)();
 
@@ -72,7 +70,7 @@ export function Habits() {
       value: `${summary.completed}/${summary.total}`,
       subtitle: `${summary.percentage}%`,
       icon: Target,
-      color: accentColor,
+      color: "#10B981",
     },
     {
       title: t("Habits.stats.currentStreak", "Sequência atual"),
@@ -100,36 +98,29 @@ export function Habits() {
   return (
     <PageTransition>
       <div className="space-y-6">
-        {/* Header */}
+        {/* Header - Standard Iconic Design */}
         <SlideIn direction="top">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{
-                    backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                  }}
-                >
-                  <Sparkles className="h-6 w-6" />
-                </div>
-                {t("Habits.title", "Hábitos")}
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                {t("Habits.subtitle", "Construa rotinas positivas e mantenha o ritmo")}
-              </p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+            <div className="flex items-start gap-4 flex-1 min-w-0">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-habits text-white shadow-lg shadow-habits/25 shrink-0">
+                <Sparkles className="h-7 w-7" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h1 className="text-3xl font-bold tracking-tight truncate">
+                  {t("Habits.title", "Hábitos")}
+                </h1>
+                <p className="text-muted-foreground mt-1 line-clamp-1">
+                  {t("Habits.subtitle", "Construa rotinas positivas e mantenha o ritmo")}
+                </p>
+              </div>
             </div>
 
             <button
               onClick={() => setShowCreateHabit(true)}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-              }}
+              className="flex items-center justify-center gap-2 rounded-xl bg-habits px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-habits/25 transition-all duration-200 hover:scale-105"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-5 w-5" />
               {t("Habits.newHabit", "Novo Hábito")}
             </button>
           </div>
@@ -183,10 +174,9 @@ export function Habits() {
               </div>
               <div className="h-3 rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  className="h-full rounded-full bg-habits transition-all duration-500 ease-out"
                   style={{
                     width: `${summary.percentage}%`,
-                    backgroundColor: accentColor,
                   }}
                 />
               </div>
@@ -203,7 +193,7 @@ export function Habits() {
 
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-habits" />
               </div>
             ) : habits.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -216,8 +206,7 @@ export function Habits() {
                 </p>
                 <button
                   onClick={() => setShowCreateHabit(true)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white"
-                  style={{ backgroundColor: accentColor }}
+                  className="flex items-center gap-2 rounded-xl bg-habits px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-habits/25"
                 >
                   <Plus className="h-4 w-4" />
                   {t("Habits.createHabit", "Criar Hábito")}
@@ -251,8 +240,8 @@ export function Habits() {
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300",
                           isCompleted
-                            ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-muted-foreground/30 hover:border-emerald-500 hover:bg-emerald-500/10"
+                            ? "border-habits bg-habits text-white"
+                            : "border-muted-foreground/30 hover:border-habits hover:bg-habits/10"
                         )}
                       >
                         <CheckCircle2
@@ -266,7 +255,7 @@ export function Habits() {
                       {/* Habit Icon */}
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-xl text-white"
-                        style={{ backgroundColor: habit.color || accentColor }}
+                        style={{ backgroundColor: habit.color || "#10B981" }}
                       >
                         <Sparkles className="h-5 w-5" />
                       </div>

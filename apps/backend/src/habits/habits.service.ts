@@ -10,7 +10,13 @@ import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
 import { GamificationService } from '../gamification/gamification.service';
-import { Habit, HabitFrequency, TimeOfDay, toCalendarDateString } from '@ordo-todo/core';
+import {
+  Habit,
+  HabitFrequency,
+  TimeOfDay,
+  toCalendarDateString,
+  parseCalendarDateToUtcMidnight,
+} from '@ordo-todo/core';
 import type { IHabitRepository } from '@ordo-todo/core';
 import {
   startOfDay,
@@ -140,7 +146,7 @@ export class HabitsService {
       filteredHabits.map(async (habit) => {
         const completion = await this.habitRepository.getCompletionForDate(
           habit.id,
-          startOfDay(today),
+          parseCalendarDateToUtcMidnight(today),
         );
         return {
           ...habit.props,
@@ -262,7 +268,7 @@ export class HabitsService {
       throw new NotFoundException(`Habit with ID ${id} not found`);
     }
 
-    const today = startOfDay(new Date());
+    const today = parseCalendarDateToUtcMidnight(new Date());
     const completedAt = completeDto.completedAt
       ? new Date(completeDto.completedAt)
       : new Date();
@@ -278,10 +284,10 @@ export class HabitsService {
     }
 
     // Calculate new streak
-    const yesterday = subDays(today, 1);
+    const yesterday = parseCalendarDateToUtcMidnight(subDays(new Date(), 1));
     const yesterdayCompletion = await this.habitRepository.getCompletionForDate(
       id,
-      startOfDay(yesterday),
+      yesterday,
     );
 
     const isConsecutive =

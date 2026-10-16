@@ -9,6 +9,7 @@ import {
   Pressable,
   Vibration,
   Platform,
+  Dimensions,
 } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -16,15 +17,16 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
+  FadeIn,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useThemeColors } from '@/app/data/hooks/use-theme-colors.hook';
 import Card from '@/app/components/shared/card.component';
 import { apiClient } from '@/app/lib/api-client';
 import { useTranslation } from 'react-i18next';
+
+const { width } = Dimensions.get('window');
 
 interface BurnoutAnalysis {
   riskScore: number;
@@ -66,6 +68,7 @@ export default function WellbeingScreen() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
 
   const energyScale = useSharedValue(1);
+  const accentColor = '#f43f5e'; // Rose
 
   const fetchData = async () => {
     try {
@@ -155,7 +158,7 @@ export default function WellbeingScreen() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={accentColor} />
         <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
           Analizando tu bienestar...
         </Text>
@@ -165,32 +168,64 @@ export default function WellbeingScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <LinearGradient
-        colors={['#ec4899', '#f472b6']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>Tu espacio de</Text>
-          <Text style={styles.title}>Bienestar</Text>
-        </Animated.View>
+      {/* Standard Iconic Header */}
+      <View style={[styles.headerMainContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        {/* Decorative Background Elements */}
+        <Animated.View entering={FadeIn.delay(200).duration(1000)} style={[styles.headerDecorationCircle1, { backgroundColor: accentColor }]} />
+        <Animated.View entering={FadeIn.delay(400).duration(1000)} style={[styles.headerDecorationCircle2, { backgroundColor: accentColor }]} />
 
+        <View style={styles.headerContainer}>
+            {/* Icon Box */}
+            <Animated.View entering={FadeInDown.delay(200).springify()} style={[styles.iconBox, { backgroundColor: accentColor, shadowColor: accentColor }]}>
+                <Ionicons name="heart" size={28} color="#FFFFFF" />
+            </Animated.View>
+
+            {/* Title & Subtitle */}
+            <View style={styles.headerTextContainer}>
+                <Animated.Text entering={FadeInDown.delay(300).springify()} style={[styles.headerTitle, { color: colors.text }]}>
+                    Bienestar
+                </Animated.Text>
+                <Animated.Text entering={FadeInDown.delay(400).springify()} style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+                    Tu equilibrio personal
+                </Animated.Text>
+            </View>
+
+            {/* Action Button (Optional, Refresh) */}
+             <Pressable 
+                onPress={onRefresh}
+                style={({ pressed }) => [
+                    styles.headerActionButton,
+                    pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] },
+                    { backgroundColor: colors.background }
+                ]}
+            >
+                <Ionicons name="refresh" size={20} color={colors.textSecondary} />
+            </Pressable>
+        </View>
+      </View>
+
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={accentColor} />
+        }
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/* Energy Level - Mobile Feature */}
         {weekly && (
-          <Animated.View entering={FadeInDown.delay(200)}>
+          <Animated.View entering={FadeInDown.delay(200).springify()}>
             <Pressable onPress={handleEnergyPress}>
-              <Animated.View style={[styles.energyCard, animatedEnergyStyle]}>
+              <Animated.View style={[styles.energyCard, animatedEnergyStyle, { backgroundColor: colors.card, shadowColor: colors.shadowColor }]}>
                 <View style={styles.energyContent}>
-                  <View style={styles.energyIconContainer}>
-                    <Feather name="battery-charging" size={28} color="#fff" />
+                  <View style={[styles.energyIconContainer, { backgroundColor: accentColor }]}>
+                    <Feather name="battery-charging" size={24} color="#fff" />
                   </View>
                   <View style={styles.energyTextContainer}>
-                    <Text style={styles.energyLabel}>Nivel de Energía</Text>
+                    <Text style={[styles.energyLabel, { color: colors.textSecondary }]}>Nivel de Energía</Text>
                     <View style={styles.energyScoreRow}>
-                      <Text style={styles.energyScore}>{weekly.overallScore}</Text>
-                      <Text style={styles.energyMax}>/100</Text>
+                      <Text style={[styles.energyScore, { color: colors.text }]}>{weekly.overallScore}</Text>
+                      <Text style={[styles.energyMax, { color: colors.textMuted }]}>/100</Text>
                     </View>
                   </View>
                   <View style={styles.trendContainer}>
@@ -205,22 +240,14 @@ export default function WellbeingScreen() {
                   </View>
                 </View>
                 {/* Progress Bar */}
-                <View style={styles.energyProgressBg}>
-                  <View style={[styles.energyProgress, { width: `${weekly.overallScore}%` }]} />
+                <View style={[styles.energyProgressBg, { backgroundColor: colors.border }]}>
+                  <View style={[styles.energyProgress, { width: `${weekly.overallScore}%`, backgroundColor: accentColor }]} />
                 </View>
               </Animated.View>
             </Pressable>
           </Animated.View>
         )}
-      </LinearGradient>
 
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-        }
-      >
         {/* Burnout Risk */}
         {burnout && (
           <Animated.View entering={FadeInDown.delay(300).springify()}>
@@ -241,7 +268,7 @@ export default function WellbeingScreen() {
               <View style={styles.scoreCircleContainer}>
                 <View style={[styles.scoreCircle, { borderColor: getRiskColor(burnout.riskLevel) }]}>
                   <Text style={[styles.scoreText, { color: colors.text }]}>{burnout.riskScore}</Text>
-                  <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>puntos</Text>
+                  <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>PUNTOS</Text>
                 </View>
               </View>
 
@@ -255,6 +282,7 @@ export default function WellbeingScreen() {
                         name={warning.severity === 'SEVERE' ? 'alert-triangle' : 'info'} 
                         size={16} 
                         color={warning.severity === 'SEVERE' ? colors.error : colors.warning} 
+                        style={{ marginTop: 2 }}
                       />
                       <Text style={[styles.warningText, { color: colors.textSecondary }]}>
                         {warning.message}
@@ -316,21 +344,25 @@ export default function WellbeingScreen() {
           <Animated.View entering={FadeInDown.delay(500).springify()}>
             <Card style={styles.recommendationsCard}>
               <View style={styles.recommendationsHeader}>
-                <Feather name="heart" size={20} color="#ec4899" />
+                <Feather name="zap" size={20} color={accentColor} />
                 <Text style={[styles.cardTitle, { color: colors.text }]}>Recomendaciones</Text>
               </View>
               {recommendations.slice(0, 4).map((rec, idx) => (
                 <Pressable 
                   key={idx} 
-                  style={styles.recommendationItem}
+                  style={[
+                      styles.recommendationItem, 
+                      { borderBottomColor: colors.border },
+                      idx === recommendations.length - 1 && { borderBottomWidth: 0 }
+                  ]}
                   onPress={() => {
                     if (Platform.OS === 'ios') {
                       Haptics.selectionAsync();
                     }
                   }}
                 >
-                  <View style={[styles.recIcon, { backgroundColor: '#ec4899' + '20' }]}>
-                    <Feather name="zap" size={16} color="#ec4899" />
+                  <View style={[styles.recIcon, { backgroundColor: accentColor + '20' }]}>
+                    <Feather name="star" size={16} color={accentColor} />
                   </View>
                   <View style={styles.recContent}>
                     <Text style={[styles.recMessage, { color: colors.text }]}>{rec.message}</Text>
@@ -340,7 +372,6 @@ export default function WellbeingScreen() {
                       </Text>
                     )}
                   </View>
-                  <Feather name="chevron-right" size={16} color={colors.textMuted} />
                 </Pressable>
               ))}
             </Card>
@@ -350,9 +381,9 @@ export default function WellbeingScreen() {
         {/* Weekly Summary Quick Tips */}
         {weekly && weekly.recommendations && weekly.recommendations.length > 0 && (
           <Animated.View entering={FadeInDown.delay(600).springify()}>
-            <Card style={[styles.tipCard, { backgroundColor: '#ec4899' + '15' }]}>
+            <Card style={[styles.tipCard, { backgroundColor: accentColor + '10', borderColor: accentColor + '30', borderWidth: 1 }]}>
               <View style={styles.tipContent}>
-                <Feather name="star" size={24} color="#ec4899" />
+                <Feather name="info" size={24} color={accentColor} />
                 <Text style={[styles.tipText, { color: colors.text }]}>
                   {weekly.recommendations[0]}
                 </Text>
@@ -360,8 +391,6 @@ export default function WellbeingScreen() {
             </Card>
           </Animated.View>
         )}
-
-        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
@@ -379,225 +408,293 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
   },
-  header: {
-    paddingTop: 20,
+  // Premium Header Styles
+  headerMainContainer: {
+    paddingTop: Platform.OS === 'android' ? 50 : 60,
     paddingBottom: 24,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    overflow: 'hidden',
+    position: 'relative',
   },
-  greeting: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    opacity: 0.9,
+  headerDecorationCircle1: {
+    position: 'absolute',
+    top: -50,
+    right: -50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    opacity: 0.05,
   },
-  title: {
-    fontSize: 32,
+  headerDecorationCircle2: {
+    position: 'absolute',
+    bottom: -30,
+    left: -30,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    opacity: 0.05,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    zIndex: 1,
+  },
+  iconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 20,
-    letterSpacing: -1,
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  headerActionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  // Content Styles
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   energyCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   energyContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   energyIconContainer: {
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 14,
   },
   energyTextContainer: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 14,
   },
   energyLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 13,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   energyScoreRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
   energyScore: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '900',
+    letterSpacing: -1,
   },
   energyMax: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '600',
     marginLeft: 2,
   },
   trendContainer: {
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   trendLabel: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     marginTop: 2,
   },
   energyProgressBg: {
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 3,
+    height: 8,
+    borderRadius: 4,
     overflow: 'hidden',
   },
   energyProgress: {
     height: '100%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 3,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    borderRadius: 4,
   },
   riskCard: {
     marginBottom: 16,
-    padding: 16,
+    padding: 20,
   },
   riskHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   riskTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
   },
   riskBadge: {
     paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 6,
+    borderRadius: 100,
   },
   riskBadgeText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   scoreCircleContainer: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   scoreCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 6,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   scoreText: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: 40,
+    fontWeight: '900',
+    letterSpacing: -1,
   },
   scoreLabel: {
     fontSize: 12,
+    fontWeight: '700',
+    marginTop: 4,
   },
   warningsContainer: {
     marginTop: 8,
+    backgroundColor: 'rgba(0,0,0,0.02)',
+    borderRadius: 16,
+    padding: 16,
   },
   warningsTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontWeight: '700',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    opacity: 0.7,
   },
   warningItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 8,
-    marginBottom: 6,
+    gap: 12,
+    marginBottom: 12,
   },
   warningText: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
   },
   patternsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   patternCard: {
-    width: '47%',
+    width: (width - 52) / 2, // 2 columns with spacing
     padding: 16,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   patternIcon: {
     padding: 10,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   patternValue: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
   },
   patternLabel: {
-    fontSize: 11,
-    marginTop: 2,
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.7,
+    fontWeight: '500',
   },
   recommendationsCard: {
-    marginBottom: 16,
-    padding: 16,
+    marginBottom: 20,
+    padding: 0,
+    overflow: 'hidden',
   },
   recommendationsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    gap: 10,
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   recommendationItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   recIcon: {
-    padding: 8,
-    borderRadius: 10,
-    marginRight: 12,
+    padding: 10,
+    borderRadius: 12,
+    marginRight: 14,
   },
   recContent: {
     flex: 1,
   },
   recMessage: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 4,
   },
   recAction: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: 13,
   },
   tipCard: {
-    marginBottom: 16,
+    marginBottom: 30,
     padding: 16,
     borderRadius: 16,
   },
   tipContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   tipText: {
     flex: 1,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
     lineHeight: 20,
   },
 });

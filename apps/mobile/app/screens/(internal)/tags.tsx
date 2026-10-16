@@ -6,10 +6,14 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
-import { useTags, useDeleteTag, useTasks } from "../../lib/shared-hooks";
+import { useTags, useDeleteTag, useTasks, useCreateTag, useUpdateTag } from "../../lib/shared-hooks";
 import { useThemeColors } from "../../data/hooks/use-theme-colors.hook";
 import { useWorkspaceStore } from "@ordo-todo/stores";
 
@@ -18,11 +22,21 @@ export default function TagsScreen() {
   const { selectedWorkspaceId } = useWorkspaceStore();
   const [showCreateTag, setShowCreateTag] = useState(false);
   const [editingTag, setEditingTag] = useState<any>(null);
+  const [tagName, setTagName] = useState("");
+  const [tagColor, setTagColor] = useState("#6366f1");
 
   const { data: tags, isLoading } = useTags(selectedWorkspaceId || "");
   const { data: allTasks } = useTasks();
   const deleteTagMutation = useDeleteTag();
-  const accentColor = "#22c55e";
+  const createTagMutation = useCreateTag();
+  const updateTagMutation = useUpdateTag();
+  
+  const accentColor = "#6366f1"; // Indigo
+
+  const tagColors = [
+    "#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", 
+    "#EC4899", "#6366F1", "#14B8A6", "#F97316", "#84CC16"
+  ];
 
   const getTaskCount = (tagId: string) => {
     if (!allTasks) return 0;
@@ -39,9 +53,6 @@ export default function TagsScreen() {
         style: "destructive",
         onPress: () => {
           deleteTagMutation.mutate(tagId, {
-            onSuccess: () => {
-              console.log("Tag deleted");
-            },
             onError: (error: any) => {
               Alert.alert("Error", error.message || "Failed to delete tag");
             },
@@ -53,6 +64,8 @@ export default function TagsScreen() {
 
   const handleEdit = (tag: any) => {
     setEditingTag(tag);
+    setTagName(tag.name);
+    setTagColor(tag.color || accentColor);
     setShowCreateTag(true);
   };
 
@@ -62,31 +75,68 @@ export default function TagsScreen() {
       return;
     }
     setEditingTag(null);
+    setTagName("");
+    setTagColor(accentColor);
     setShowCreateTag(true);
+  };
+
+  const handleSubmit = () => {
+    if (!tagName.trim()) {
+      Alert.alert("Error", "Tag name is required");
+      return;
+    }
+
+    if (!selectedWorkspaceId) return;
+
+    if (editingTag) {
+      updateTagMutation.mutate({
+        tagId: editingTag.id,
+        data: { name: tagName, color: tagColor, workspaceId: selectedWorkspaceId }
+      }, {
+        onSuccess: () => setShowCreateTag(false),
+        onError: (e: any) => Alert.alert("Error", e.message)
+      });
+    } else {
+      createTagMutation.mutate({
+        name: tagName,
+        color: tagColor,
+        workspaceId: selectedWorkspaceId
+      }, {
+        onSuccess: () => setShowCreateTag(false),
+        onError: (e: any) => Alert.alert("Error", e.message)
+      });
+    }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Animated.View
-          entering={FadeIn}
-          style={[styles.iconContainer, { backgroundColor: accentColor }]}
-        >
-          <Feather name="tag" size={24} color="#FFFFFF" />
-        </Animated.View>
-        <View style={styles.titleContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>Tags</Text>
-          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            Organize your tasks with tags
-          </Text>
-        </View>
-        <TouchableOpacity
-          onPress={handleOpenCreateDialog}
-          style={[styles.addButton, { backgroundColor: accentColor }]}
-        >
-          <Feather name="plus" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+      <View style={styles.headerContainer}>
+          <View style={[styles.headerMainContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+             {/* Decoration */}
+             <View style={[styles.headerDecoration, { backgroundColor: `${accentColor}10` }]} />
+             <View style={[styles.headerDecorationSmall, { backgroundColor: `${accentColor}10` }]} />
+
+             <View style={styles.headerContent}>
+                 <Animated.View 
+                    entering={FadeIn.duration(600)}
+                    style={[styles.headerIconBox, { backgroundColor: accentColor, shadowColor: accentColor }]}
+                 >
+                    <Feather name="tag" size={28} color="white" />
+                 </Animated.View>
+                 <View style={styles.headerTexts}>
+                     <Text style={[styles.headerTitle, { color: colors.text }]}>Tags</Text>
+                     <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>Organize your tasks</Text>
+                 </View>
+             </View>
+             
+             <TouchableOpacity
+               onPress={handleOpenCreateDialog}
+               style={[styles.addButton, { backgroundColor: accentColor, shadowColor: accentColor }]}
+             >
+               <Feather name="plus" size={24} color="#FFFFFF" />
+             </TouchableOpacity>
+          </View>
       </View>
 
       {/* Tags List */}
@@ -133,7 +183,7 @@ export default function TagsScreen() {
                       >
                         <Feather
                           name="tag"
-                          size={28}
+                          size={24}
                           color={tag.color || accentColor}
                         />
                       </View>
@@ -204,6 +254,66 @@ export default function TagsScreen() {
           </Animated.View>
         )}
       </ScrollView>
+
+      {/* Create/Edit Modal */}
+      <Modal
+        visible={showCreateTag}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCreateTag(false)}
+      >
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.modalOverlay}
+        >
+            <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                    {editingTag ? "Edit Tag" : "New Tag"}
+                </Text>
+
+                <TextInput
+                    style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
+                    placeholder="Tag Name"
+                    placeholderTextColor={colors.textMuted}
+                    value={tagName}
+                    onChangeText={setTagName}
+                    autoFocus
+                />
+
+                <Text style={[styles.label, { color: colors.textMuted }]}>Color</Text>
+                <View style={styles.colorGrid}>
+                    {tagColors.map(color => (
+                        <TouchableOpacity
+                            key={color}
+                            onPress={() => setTagColor(color)}
+                            style={[
+                                styles.colorButton, 
+                                { backgroundColor: color },
+                                tagColor === color && styles.selectedColor
+                            ]}
+                        />
+                    ))}
+                </View>
+
+                <View style={styles.modalButtons}>
+                    <TouchableOpacity 
+                        onPress={() => setShowCreateTag(false)}
+                        style={[styles.modalButton, styles.cancelButton, { borderColor: colors.border }]}
+                    >
+                        <Text style={{ color: colors.text }}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        onPress={handleSubmit}
+                        style={[styles.modalButton, { backgroundColor: accentColor }]}
+                    >
+                        <Text style={{ color: "white", fontWeight: "bold" }}>
+                            {editingTag ? "Save" : "Create"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -212,37 +322,66 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
+  headerContainer: {
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    gap: 12,
   },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+  headerMainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 24,
+    borderRadius: 32,
+    borderWidth: 1,
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'space-between',
   },
-  titleContainer: {
-    flex: 1,
+  headerDecoration: {
+    position: 'absolute',
+    top: -30,
+    right: -30,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    letterSpacing: -0.5,
+  headerDecorationSmall: {
+    position: 'absolute',
+    bottom: -20,
+    left: -20,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
-  subtitle: {
-    fontSize: 14,
-    marginTop: 2,
+  headerContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+      flex: 1,
+  },
+  headerIconBox: {
+      width: 56,
+      height: 56,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      elevation: 8,
+      transform: [{ rotate: '-5deg' }]
+  },
+  headerTexts: {
+      flex: 1,
+  },
+  headerTitle: {
+      fontSize: 28,
+      fontWeight: '900',
+      letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+      fontSize: 15,
+      fontWeight: '500',
   },
   addButton: {
     width: 48,
@@ -250,7 +389,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -261,22 +399,23 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingTop: 0,
   },
   loadingContainer: {
     gap: 12,
   },
   skeleton: {
-    height: 120,
-    borderRadius: 16,
+    height: 100,
+    borderRadius: 24,
   },
   tagsGrid: {
     gap: 12,
   },
   tagCard: {
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 24,
     borderWidth: 1,
-    borderLeftWidth: 4,
+    borderLeftWidth: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -296,9 +435,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tagIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -309,7 +448,7 @@ const styles = StyleSheet.create({
   },
   tagActions: {
     flexDirection: "row",
-    gap: 4,
+    gap: 8,
   },
   actionButton: {
     padding: 8,
@@ -325,8 +464,10 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
   },
   taskCount: {
-    fontSize: 14,
-    fontWeight: "500",
+    fontSize: 13,
+    fontWeight: "600",
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   emptyState: {
     alignItems: "center",
@@ -366,5 +507,69 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
+  },
+  modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      padding: 20,
+  },
+  modalContent: {
+      borderRadius: 24,
+      padding: 24,
+      borderWidth: 1,
+      elevation: 5,
+  },
+  modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'center',
+  },
+  input: {
+      borderWidth: 1,
+      borderRadius: 12,
+      padding: 12,
+      fontSize: 16,
+      marginBottom: 20,
+  },
+  label: {
+      fontSize: 14,
+      fontWeight: '600',
+      marginBottom: 10,
+  },
+  colorGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+      marginBottom: 24,
+  },
+  colorButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+  },
+  selectedColor: {
+      borderWidth: 3,
+      borderColor: 'white',
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3,
+      elevation: 3,
+  },
+  modalButtons: {
+      flexDirection: 'row',
+      gap: 12,
+  },
+  modalButton: {
+      flex: 1,
+      padding: 16,
+      borderRadius: 16,
+      alignItems: 'center',
+  },
+  cancelButton: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
   },
 });

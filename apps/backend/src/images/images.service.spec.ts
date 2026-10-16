@@ -4,6 +4,23 @@ import { ConfigService } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
 import * as fs from 'fs/promises';
 
+const mockSharpInstance = {
+  metadata: jest.fn(),
+  resize: jest.fn().mockReturnThis(),
+  jpeg: jest.fn().mockReturnThis(),
+  toBuffer: jest.fn(),
+};
+
+jest.mock('sharp', () => {
+  return jest.fn(() => mockSharpInstance);
+});
+
+jest.mock('fs/promises', () => ({
+  mkdir: jest.fn(),
+  unlink: jest.fn(),
+  writeFile: jest.fn(),
+}));
+
 describe('ImagesService', () => {
   let service: ImagesService;
   let configService: ConfigService;
@@ -14,6 +31,23 @@ describe('ImagesService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+
+    mockSharpInstance.metadata.mockResolvedValue({
+      width: 1024,
+      height: 768,
+    });
+    mockSharpInstance.toBuffer.mockResolvedValue({
+      data: Buffer.from('processed-image'),
+      info: {
+        width: 256,
+        height: 256,
+        size: 5000,
+      },
+    });
+
+    (fs.mkdir as jest.Mock).mockResolvedValue(undefined);
+    (fs.unlink as jest.Mock).mockResolvedValue(undefined);
+    (fs.writeFile as jest.Mock).mockResolvedValue(undefined);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -37,30 +71,6 @@ describe('ImagesService', () => {
         size: 1024 * 1024, // 1MB
         buffer: Buffer.from('test-image-data'),
       } as Express.Multer.File;
-
-      // Mock sharp to return processed image
-      const mockSharp = {
-        metadata: jest.fn().mockResolvedValue({
-          width: 1024,
-          height: 768,
-        }),
-        resize: jest.fn().mockReturnThis(),
-        jpeg: jest.fn().mockReturnThis(),
-        toBuffer: jest.fn().mockResolvedValue({
-          data: Buffer.from('processed-image'),
-          info: {
-            width: 256,
-            height: 256,
-            size: 5000,
-          },
-        }),
-      };
-
-      // Mock sharp module
-      jest.doMock('sharp', () => ({
-        __esModule: true,
-        default: jest.fn(() => mockSharp),
-      }));
 
       const result = await service.processAvatar(file);
 
@@ -107,17 +117,10 @@ describe('ImagesService', () => {
         buffer: Buffer.from('test-image'),
       } as Express.Multer.File;
 
-      const mockSharp = {
-        metadata: jest.fn().mockResolvedValue({
-          width: 5000, // Over 4000 limit
-          height: 5000,
-        }),
-      };
-
-      jest.doMock('sharp', () => ({
-        __esModule: true,
-        default: jest.fn(() => mockSharp),
-      }));
+      mockSharpInstance.metadata.mockResolvedValueOnce({
+        width: 5000, // Over 4000 limit
+        height: 5000,
+      });
 
       await expect(service.processAvatar(file)).rejects.toThrow(
         new BadRequestException(
@@ -132,13 +135,9 @@ describe('ImagesService', () => {
       const buffer = Buffer.from('test-image');
       const userId = 'user-123';
 
-      // Mock fs.writeFile
-      jest.spyOn(fs, 'writeFile').mockResolvedValue(undefined);
-      jest.spyOn(fs, 'mkdir').mockResolvedValue(undefined);
-
       const result = await service.saveAvatar(buffer, userId);
 
-      expect(result).toMatch(/^\/uploads\/avatars\/avatar-user-\d+\.jpg$/);
+      expect(result).toMatch(/^\/uploads\/avatars\/avatar-user-123-\d+\.jpg$/);
       expect(fs.mkdir).toHaveBeenCalled();
       expect(fs.writeFile).toHaveBeenCalled();
     });
@@ -146,9 +145,6 @@ describe('ImagesService', () => {
     it('should create uploads directory if not exists', async () => {
       const buffer = Buffer.from('test-image');
       const userId = 'user-123';
-
-      jest.spyOn(fs, 'writeFile').mockResolvedValue(undefined);
-      jest.spyOn(fs, 'mkdir').mockResolvedValue(undefined);
 
       await service.saveAvatar(buffer, userId);
 
@@ -163,8 +159,6 @@ describe('ImagesService', () => {
     it('should delete avatar file', async () => {
       const imageUrl = '/uploads/avatars/user-123-1234567890.jpg';
 
-      jest.spyOn(fs, 'unlink').mockResolvedValue(undefined);
-
       await service.deleteAvatar(imageUrl);
 
       expect(fs.unlink).toHaveBeenCalledWith(
@@ -175,7 +169,9 @@ describe('ImagesService', () => {
     it('should handle missing file gracefully', async () => {
       const imageUrl = '/uploads/avatars/user-123-1234567890.jpg';
 
-      jest.spyOn(fs, 'unlink').mockRejectedValue(new Error('File not found'));
+      (fs.unlink as jest.Mock).mockRejectedValueOnce(
+        new Error('File not found'),
+      );
 
       // Should not throw
       await expect(service.deleteAvatar(imageUrl)).resolves.toBeUndefined();
@@ -183,21 +179,18 @@ describe('ImagesService', () => {
 
     it('should handle invalid URL gracefully', async () => {
       const invalidUrl = '/invalid/path/';
-      const unlinkSpy = jest.spyOn(fs, 'unlink');
 
       // Should not throw and should not attempt to delete
       await expect(service.deleteAvatar(invalidUrl)).resolves.toBeUndefined();
-      expect(unlinkSpy).not.toHaveBeenCalled();
+      expect(fs.unlink).not.toHaveBeenCalled();
     });
 
     it('should handle empty URL gracefully', async () => {
-      const unlinkSpy = jest.spyOn(fs, 'unlink');
-
       await expect(service.deleteAvatar('')).resolves.toBeUndefined();
-      expect(unlinkSpy).not.toHaveBeenCalled();
+      expect(fs.unlink).not.toHaveBeenCalled();
 
       await expect(service.deleteAvatar(null as any)).resolves.toBeUndefined();
-      expect(unlinkSpy).not.toHaveBeenCalled();
+      expect(fs.unlink).not.toHaveBeenCalled();
     });
   });
 
@@ -209,18 +202,6 @@ describe('ImagesService', () => {
         size: 1024 * 1024,
         buffer: Buffer.from('test-image'),
       } as Express.Multer.File;
-
-      const mockSharp = {
-        metadata: jest.fn().mockResolvedValue({
-          width: 1024,
-          height: 768,
-        }),
-      };
-
-      jest.doMock('sharp', () => ({
-        __esModule: true,
-        default: jest.fn(() => mockSharp),
-      }));
 
       await expect(service.validateImage(file)).resolves.toBeUndefined();
     });
@@ -259,17 +240,10 @@ describe('ImagesService', () => {
         buffer: Buffer.from('test-image'),
       } as Express.Multer.File;
 
-      const mockSharp = {
-        metadata: jest.fn().mockResolvedValue({
-          width: 5000,
-          height: 5000,
-        }),
-      };
-
-      jest.doMock('sharp', () => ({
-        __esModule: true,
-        default: jest.fn(() => mockSharp),
-      }));
+      mockSharpInstance.metadata.mockResolvedValueOnce({
+        width: 5000,
+        height: 5000,
+      });
 
       await expect(service.validateImage(file)).rejects.toThrow(
         new BadRequestException(

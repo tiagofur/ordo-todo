@@ -2,6 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { TagsController } from './tags.controller';
 import { TagsService } from './tags.service';
+import { TagGuard } from '../common/guards/tag.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import {
+  CacheInterceptor,
+  CacheInvalidateInterceptor,
+} from '../common/decorators/cache';
 
 describe('TagsController', () => {
   let controller: TagsController;
@@ -20,8 +26,20 @@ describe('TagsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TagsController],
-      providers: [{ provide: TagsService, useValue: mockTagsService }],
-    }).compile();
+      providers: [
+        { provide: TagsService, useValue: mockTagsService },
+        { provide: 'RedisService', useValue: {} },
+      ],
+    })
+      .overrideGuard(TagGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideInterceptor(CacheInvalidateInterceptor)
+      .useValue({ intercept: (_ctx: any, next: any) => next.handle() })
+      .overrideInterceptor(CacheInterceptor)
+      .useValue({ intercept: (_ctx: any, next: any) => next.handle() })
+      .compile();
 
     controller = module.get<TagsController>(TagsController);
     tagsService = module.get<TagsService>(

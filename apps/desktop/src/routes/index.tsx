@@ -21,6 +21,7 @@ import {
   LazyFocusMode,
   LazyWorkspaces,
   LazyWorkspaceDetail,
+  LazyCreatorHub,
 } from "../pages/lazy";
 
 
@@ -180,6 +181,14 @@ export const router = createHashRouter([
         element: (
           <LazyPage fallback={<PageLoader message="Loading profile..." />}>
             <LazyProfile />
+          </LazyPage>
+        ),
+      },
+      {
+        path: "creator",
+        element: (
+          <LazyPage fallback={<PageLoader message="Loading Creator Hub..." />}>
+            <LazyCreatorHub />
           </LazyPage>
         ),
       },

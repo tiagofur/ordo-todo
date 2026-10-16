@@ -1,9 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateTag } from "@/hooks/api";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -12,21 +10,31 @@ import {
   DialogHeader,
   DialogTitle,
   Label,
+  Button,
+  Input
 } from "@ordo-todo/ui";
-import { toast } from "sonner";
 
 const createTagSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   color: z.string().optional(),
-  workspaceId: z.string().min(1, "Workspace es requerido"),
+  workspaceId: z.string().optional(),
 });
 
 type CreateTagForm = z.infer<typeof createTagSchema>;
+
+interface TagFormData {
+  name: string;
+  color: string;
+  workspaceId?: string;
+}
 
 interface CreateTagDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workspaceId?: string;
+  tagToEdit?: { id: string; name: string; color?: string; workspaceId: string };
+  onSubmit?: (data: TagFormData, isEdit: boolean) => void;
+  isPending?: boolean;
 }
 
 const tagColors = [
@@ -42,55 +50,75 @@ const tagColors = [
   "#84CC16", // lime
 ];
 
-export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }: CreateTagDialogProps) {
-  const queryClient = useQueryClient();
-  const [selectedColor, setSelectedColor] = useState(tagColors[0]);
+export function CreateTagDialog({ 
+  open, 
+  onOpenChange, 
+  workspaceId,
+  tagToEdit,
+  onSubmit, 
+  isPending 
+}: CreateTagDialogProps) {
+  const [selectedColor, setSelectedColor] = useState(tagToEdit?.color || tagColors[0]);
 
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<CreateTagForm>({
     resolver: zodResolver(createTagSchema),
     defaultValues: {
       workspaceId: workspaceId,
-      color: tagColors[0],
+      name: tagToEdit?.name || "",
+      color: tagToEdit?.color || tagColors[0],
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      if (tagToEdit) {
+        setValue("name", tagToEdit.name);
+        setSelectedColor(tagToEdit.color || tagColors[0]);
+        setValue("workspaceId", tagToEdit.workspaceId);
+      } else {
+        reset({
+          workspaceId: workspaceId,
+          name: "",
+          color: tagColors[0],
+        });
+        setSelectedColor(tagColors[0]);
+      }
+    }
+  }, [open, tagToEdit, workspaceId, reset, setValue]);
+
   const tagName = watch("name");
 
-  const createTagMutation = useCreateTag();
-
-  const onSubmit = (data: CreateTagForm) => {
-    createTagMutation.mutate({
-      ...data,
-      color: selectedColor,
-      // CreateTagDto needs workspaceId, name, color.
-    }, {
-      onSuccess: () => {
-        toast.success("Etiqueta creada exitosamente");
-        // Invalidation handled by hook
-        reset();
-        onOpenChange(false);
-      },
-      onError: (error) => toast.error(error.message || "Error al crear etiqueta")
-    });
+  const handleFormSubmit = (data: CreateTagForm) => {
+    if (onSubmit) {
+      onSubmit(
+        {
+          name: data.name,
+          color: selectedColor || tagColors[0],
+          workspaceId: data.workspaceId,
+        },
+        !!tagToEdit
+      );
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
-          <DialogTitle>Crear Etiqueta</DialogTitle>
+          <DialogTitle>{tagToEdit ? "Editar Etiqueta" : "Crear Etiqueta"}</DialogTitle>
           <DialogDescription>
-            Organiza tus tareas con etiquetas personalizadas
+            {tagToEdit ? "Modifica el nombre o color de la etiqueta" : "Organiza tus tareas con etiquetas personalizadas"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {/* Color Picker */}
           <div className="space-y-2">
             <Label>Color</Label>
@@ -112,10 +140,9 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name">Nombre *</Label>
-            <input
+            <Input
               id="name"
               {...register("name")}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Ej: Urgente, Personal, Trabajo..."
               autoFocus
             />
@@ -140,24 +167,20 @@ export function CreateTagDialog({ open, onOpenChange, workspaceId = "default" }:
             </div>
           </div>
 
-          {/* Hidden workspace ID */}
-          <input type="hidden" {...register("workspaceId")} />
-
           <DialogFooter>
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={createTagMutation.isPending}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              disabled={isPending}
             >
-              {createTagMutation.isPending ? "Creando..." : "Crear Etiqueta"}
-            </button>
+              {isPending ? (tagToEdit ? "Guardando..." : "Creando...") : (tagToEdit ? "Guardar" : "Crear Etiqueta")}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

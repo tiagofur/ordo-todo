@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { BaseResourceGuard } from './base-resource.guard';
 
 @Injectable()
@@ -32,7 +32,9 @@ export class ProjectGuard extends BaseResourceGuard {
       select: { workspaceId: true },
     });
 
-    if (!project) return null;
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
 
     return project.workspaceId;
   }

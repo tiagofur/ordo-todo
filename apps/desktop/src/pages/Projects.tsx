@@ -13,9 +13,6 @@ export function Projects() {
   const { selectedWorkspaceId } = useWorkspaceStore();
   const { data: projects, isLoading } = useProjects(selectedWorkspaceId ?? "");
 
-  // Accent color (pink like Web)
-  const accentColor = "#ec4899"; // Pink-500
-
   return (
     <PageTransition>
       <div className="space-y-6">
@@ -24,13 +21,7 @@ export function Projects() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{
-                    backgroundColor: accentColor,
-                    boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                  }}
-                >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-projects text-white shadow-lg shadow-projects/25">
                   <FolderKanban className="h-6 w-6" />
                 </div>
                 {t("Projects.title")}
@@ -41,11 +32,7 @@ export function Projects() {
             </div>
             <button
               onClick={() => setShowCreateProject(true)}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-              }}
+              className="flex items-center gap-2 rounded-xl bg-projects px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-projects/25 transition-all duration-200 hover:scale-105"
             >
               <Plus className="h-4 w-4" />
               {t("Projects.newProject") || "Nuevo Proyecto"}
@@ -102,11 +89,7 @@ export function Projects() {
               </p>
               <button
                 onClick={() => setShowCreateProject(true)}
-                className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 10px 15px -3px ${accentColor}40, 0 4px 6px -4px ${accentColor}40`,
-                }}
+                className="flex items-center gap-2 rounded-xl bg-projects px-6 py-3 text-sm font-medium text-white shadow-lg shadow-projects/25 transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-4 w-4" />
                 {t("Projects.createProject") || "Crear Proyecto"}

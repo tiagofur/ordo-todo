@@ -4,6 +4,7 @@ import { PrismaService } from '../database/prisma.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
+import { MemberRole } from '@ordo-todo/core';
 
 describe('WorkspacesService', () => {
   let service: WorkspacesService;
@@ -23,6 +24,7 @@ describe('WorkspacesService', () => {
     findMember: jest.fn(),
     findByOwnerAndSlugWithStats: jest.fn(),
     findDeleted: jest.fn(),
+    findByIdIncludeDeleted: jest.fn(),
     restore: jest.fn(),
     permanentDelete: jest.fn(),
     listMembers: jest.fn(),
@@ -127,7 +129,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -168,7 +169,15 @@ describe('WorkspacesService', () => {
       const result = await service.create(createWorkspaceDto, userId);
 
       expect(mockWorkspaceRepository.create).toHaveBeenCalled();
-      expect(result).toEqual(mockWorkspace.props);
+      expect(result).toEqual({
+        ...mockWorkspace.props,
+        owner: {
+          id: userId,
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
+      });
     });
 
     it('should create workspace with custom description and color', async () => {
@@ -176,7 +185,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'WORK',
         description: 'A custom workspace',
         color: '#FF5733',
       };
@@ -222,7 +230,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -254,7 +261,15 @@ describe('WorkspacesService', () => {
 
       const result = await service.create(createWorkspaceDto, userId);
 
-      expect(result).toEqual(mockWorkspace.props);
+      expect(result).toEqual({
+        ...mockWorkspace.props,
+        owner: {
+          id: userId,
+          username: 'testuser',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
+      });
       expect(mockWorkflowRepository.save).toHaveBeenCalled();
     });
 
@@ -263,7 +278,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -303,7 +317,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'existing-slug',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -344,7 +357,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'new-slug',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup
@@ -386,7 +398,6 @@ describe('WorkspacesService', () => {
       const createWorkspaceDto: CreateWorkspaceDto = {
         name: 'My Workspace',
         slug: 'my-workspace',
-        type: 'PERSONAL',
       };
 
       // Mock user lookup for user2
@@ -1336,7 +1347,7 @@ describe('WorkspacesService', () => {
           'ws-nonexistent',
           'user-123',
           'email@test.com',
-          'MEMBER',
+          MemberRole.MEMBER,
         ),
       ).rejects.toThrow(NotFoundException);
     });
@@ -1374,7 +1385,7 @@ describe('WorkspacesService', () => {
         workspaceId,
         userId,
         email,
-        'MEMBER',
+        MemberRole.MEMBER,
       );
 
       expect(result.success).toBe(true);
@@ -1887,15 +1898,17 @@ describe('WorkspacesService', () => {
         restore: jest.fn(),
       };
 
-      mockWorkspaceRepository.findById.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue(
+        mockWorkspace as any,
+      );
       mockWorkspaceRepository.restore.mockResolvedValue(undefined);
       mockAuditLogRepository.create.mockResolvedValue({} as any);
 
       const result = await service.restore(workspaceId, userId);
 
-      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(
-        workspaceId,
-      );
+      expect(
+        mockWorkspaceRepository.findByIdIncludeDeleted,
+      ).toHaveBeenCalledWith(workspaceId);
       expect(mockWorkspaceRepository.restore).toHaveBeenCalledWith(workspaceId);
       expect(result).toEqual({ success: true });
     });
@@ -1912,7 +1925,9 @@ describe('WorkspacesService', () => {
         },
       };
 
-      mockWorkspaceRepository.findById.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue(
+        mockWorkspace as any,
+      );
 
       await expect(service.restore(workspaceId, userId)).rejects.toThrow(
         ForbiddenException,
@@ -1926,7 +1941,7 @@ describe('WorkspacesService', () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockWorkspaceRepository.findById.mockResolvedValue(null);
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue(null);
 
       await expect(service.restore(workspaceId, userId)).rejects.toThrow(
         NotFoundException,
@@ -1951,15 +1966,17 @@ describe('WorkspacesService', () => {
         delete: jest.fn(),
       };
 
-      mockWorkspaceRepository.findById.mockResolvedValue(mockWorkspace as any);
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue(
+        mockWorkspace as any,
+      );
       mockWorkspaceRepository.permanentDelete.mockResolvedValue(undefined);
       mockAuditLogRepository.create.mockResolvedValue({} as any);
 
       const result = await service.permanentDelete(workspaceId, userId);
 
-      expect(mockWorkspaceRepository.findById).toHaveBeenCalledWith(
-        workspaceId,
-      );
+      expect(
+        mockWorkspaceRepository.findByIdIncludeDeleted,
+      ).toHaveBeenCalledWith(workspaceId);
       expect(mockWorkspaceRepository.permanentDelete).toHaveBeenCalledWith(
         workspaceId,
       );
@@ -1970,7 +1987,7 @@ describe('WorkspacesService', () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockWorkspaceRepository.findById.mockResolvedValue({
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue({
         id: workspaceId,
         props: {
           ownerId: 'different-user',
@@ -1987,7 +2004,7 @@ describe('WorkspacesService', () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockWorkspaceRepository.findById.mockResolvedValue(null);
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue(null);
 
       await expect(
         service.permanentDelete(workspaceId, userId),
@@ -1998,7 +2015,7 @@ describe('WorkspacesService', () => {
       const userId = 'user-123';
       const workspaceId = 'ws-123';
 
-      mockWorkspaceRepository.findById.mockResolvedValue({
+      mockWorkspaceRepository.findByIdIncludeDeleted.mockResolvedValue({
         id: workspaceId,
         props: {
           ownerId: userId,

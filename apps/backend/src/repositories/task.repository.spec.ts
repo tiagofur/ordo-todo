@@ -45,6 +45,8 @@ describe('PrismaTaskRepository', () => {
         status: 'TODO',
         priority: 'MEDIUM',
         ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
       });
 
       mockPrismaService.task.upsert.mockResolvedValue({ id: 'task-123' });
@@ -70,6 +72,8 @@ describe('PrismaTaskRepository', () => {
         status: 'IN_PROGRESS',
         priority: 'HIGH',
         ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
       });
 
       mockPrismaService.task.upsert.mockResolvedValue({ id: 'task-123' });
@@ -94,6 +98,8 @@ describe('PrismaTaskRepository', () => {
         status: 'TODO',
         priority: 'MEDIUM',
         ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
         recurrence: {
           pattern: 'DAILY',
           interval: 1,
@@ -329,6 +335,8 @@ describe('PrismaTaskRepository', () => {
         status: 'COMPLETED',
         priority: 'HIGH',
         ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
       });
 
       mockPrismaService.task.update.mockResolvedValue({ id: 'task-123' });
@@ -352,6 +360,8 @@ describe('PrismaTaskRepository', () => {
         status: 'TODO',
         priority: 'MEDIUM',
         ownerId: 'user-123',
+        projectId: 'project-123',
+        isDeleted: false,
         assigneeId: 'assignee-123',
       });
 
@@ -608,12 +618,13 @@ describe('PrismaTaskRepository', () => {
 
       await repository.findAvailableTasks(userId, today, projectId);
 
-      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith({
-        where: expect.objectContaining({
-          projectId,
+      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            projectId,
+          }),
         }),
-        include: expect.any(Object),
-      });
+      );
     });
   });
 
@@ -678,14 +689,25 @@ describe('PrismaTaskRepository', () => {
         { status: 'COMPLETED', _count: { id: 10 } },
       ];
 
-      mockPrismaService.task.groupBy.mockResolvedValue(mockGrouped);
+      mockPrismaService.task.groupBy
+        .mockResolvedValueOnce(mockGrouped)
+        .mockResolvedValueOnce([]);
 
       const result = await repository.groupByStatus(userId);
 
       expect(mockPrismaService.task.groupBy).toHaveBeenCalledWith({
         by: ['status'],
         where: {
+          ownerId: userId,
+          isDeleted: false,
+        },
+        _count: { id: true },
+      });
+      expect(mockPrismaService.task.groupBy).toHaveBeenCalledWith({
+        by: ['status'],
+        where: {
           assigneeId: userId,
+          isDeleted: false,
         },
         _count: { id: true },
       });

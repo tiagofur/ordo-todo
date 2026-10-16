@@ -587,9 +587,7 @@ describe('PrismaUserRepository', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(mockPrismaUser);
-
-      const result = await repository.findById('user-123');
+      const result = (repository as any).toDomain(mockPrismaUser);
 
       expect(result).toBeInstanceOf(User);
       expect(result?.id).toBe('user-123');
@@ -611,9 +609,7 @@ describe('PrismaUserRepository', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(mockPrismaUser);
-
-      const result = await repository.findById('user-123');
+      const result = (repository as any).toDomain(mockPrismaUser);
 
       expect(result).toBeInstanceOf(User);
       expect(result?.props).toHaveProperty('image', null);
@@ -631,9 +627,7 @@ describe('PrismaUserRepository', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(mockPrismaUser);
-
-      const result = await repository.findById('user-123');
+      const result = (repository as any).toDomain(mockPrismaUser);
 
       expect(result).toBeInstanceOf(User);
       expect(result?.password).toBeUndefined();

@@ -2017,10 +2017,26 @@
   },
   "Timer": {
     "title": "Cronômetro",
-    "subtitle": "Gerencie seu tempo com Pomodoro",
+    "pomodoro": "Pomodoro",
+    "subtitle": "Mantenha o foco e rastreie seu tempo de trabalho.",
     "tabs": {
       "timer": "Cronômetro",
       "history": "Histórico"
+    },
+    "onboarding": {
+      "welcomeTitle": "Timer de Produtividade",
+      "welcomeDesc": "Sua ferramenta para manter o foco. Escolha entre Pomodoro ou modo contínuo de acordo com seu estilo de trabalho.",
+      "pomodoroTitle": "Técnica Pomodoro",
+      "pomodoroDesc": "Trabalhe 25 minutos, descanse 5. Após 4 pomodoros, faça uma pausa longa de 15 minutos. Comprovado cientificamente!",
+      "continuousTitle": "Modo Contínuo",
+      "continuousDesc": "Prefere fluir sem interrupções? O modo contínuo rastreia seu tempo sem pausas forçadas.",
+      "tasksTitle": "Vincule Tarefas",
+      "tasksDesc": "Associe cada sessão a uma tarefa específica para saber exatamente quanto tempo dedica a cada projeto.",
+      "statsTitle": "Estatísticas",
+      "statsDesc": "Revise seu histórico de sessões e aprenda com seus padrões de produtividade.",
+      "skip": "Pular",
+      "next": "Próximo",
+      "getStarted": "Focar Agora!"
     },
     "modes": {
       "work": "Trabalho",
@@ -2329,10 +2345,24 @@
   },
   "Meetings": {
     "title": "Assistente de Reuniões",
-    "subtitle": "Analise transcrições e extraia itens de ação",
+    "subtitle": "Analise transcrições e extraia itens de ação automaticamente",
     "analyze": "Analisar",
     "analyzing": "Analisando...",
-    "transcriptPlaceholder": "Cole a transcrição da sua reunião aqui...",
+    "transcriptPlaceholder": "Cole a transcrição da sua reunião aqui...\n\nExemplo:\nJoão: Bom dia a todos, vamos começar com a revisão do projeto.\nMaria: Sim, precisamos definir os prazos para a próxima semana.\nPedro: Proponho que o design fique pronto até sexta-feira.\nJoão: Perfeito, Maria cuidará da revisão final.",
+    "meetingTranscript": "Transcrição da Reunião",
+    "characters": "caracteres",
+    "dragFile": "Ou arraste um arquivo .txt aqui",
+    "analyzeWithAi": "Analisar com IA",
+    "pleaseEnterTranscript": "Por favor insira uma transcrição",
+    "analysisCompleted": "Análise concluída",
+    "analysisError": "Erro ao analisar transcrição. Tente novamente.",
+    "errorTitle": "Erro ao analisar",
+    "featureSummaryTitle": "Resumo Inteligente",
+    "featureSummaryDesc": "Gera um resumo conciso da reunião",
+    "featureActionItemsTitle": "Itens de Ação",
+    "featureActionItemsDesc": "Extrai tarefas com responsáveis e prioridades",
+    "featureDecisionsTitle": "Decisões",
+    "featureDecisionsDesc": "Identifica decisões-chave tomadas",
     "summary": "Resumo",
     "keyPoints": "Pontos Principais",
     "actionItems": "Itens de Ação",
@@ -2345,6 +2375,13 @@
     "converting": "Convertendo...",
     "tasksCreated": "{count} tarefas criadas",
     "noActionItems": "Nenhum item de ação encontrado",
+    "copied": "Copiado para a área de transferência",
+    "copy": "Copiar",
+    "priorities": {
+      "HIGH": "Alta",
+      "MEDIUM": "Média",
+      "LOW": "Baixa"
+    },
     "sentiments": {
       "POSITIVE": "Positivo",
       "NEUTRAL": "Neutro",
@@ -2359,7 +2396,7 @@
   },
   "Workload": {
     "title": "Carga de Trabalho",
-    "subtitle": "Monitore e equilibre a carga da equipe",
+    "subtitle": "Visualize e equilibre a carga da equipe",
     "myWorkload": "Minha Carga",
     "teamWorkload": "Carga da Equipe",
     "assignedTasks": "Tarefas Atribuídas",
@@ -2369,11 +2406,26 @@
     "capacityRemaining": "Capacidade disponível",
     "workloadScore": "Pontuação de Carga",
     "trend": "Tendência",
+    "refresh": "Atualizar",
+    "refreshing": "Atualizando...",
+    "teamMembers": "Membros da equipe",
+    "averageWorkload": "Carga média",
+    "teamBalance": "Balanço da equipe",
+    "aiSuggestions": "Sugestões de IA",
+    "membersSectionTitle": "Membros da Equipe",
+    "tasks": "Tarefas",
+    "today": "Hoje",
+    "hours": "Horas",
+    "load": "Carga",
+    "selectWorkspace": "Selecionar espaço",
+    "selectWorkspacePrompt": "Selecione um espaço de trabalho",
+    "selectWorkspaceDesc": "Escolha um espaço de trabalho para ver a carga da equipe",
+    "tasksCount": "({count} tarefas)",
     "levels": {
-      "LOW": "Baixa",
-      "MODERATE": "Moderada",
-      "HIGH": "Alta",
-      "OVERLOADED": "Sobrecarregado"
+      "LOW": "Baixa carga",
+      "MODERATE": "Ideal",
+      "HIGH": "Alta carga",
+      "OVERLOADED": "Crítico"
     },
     "trends": {
       "INCREASING": "Aumentando",
@@ -2602,6 +2654,8 @@
     "projects": "projetos",
     "tasks": "tarefas",
     "restore": "Restaurar",
+    "deletePermanently": "Excluir permanentemente",
+    "unknownDate": "Data desconhecida",
     "confirmDelete": "Tem certeza de que deseja excluir permanentemente este item? Esta ação NÃO pode ser desfeita."
   },
   "notFound": {

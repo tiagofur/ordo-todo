@@ -62,6 +62,15 @@ export function AppLayout() {
     return () => stopTimerInterval();
   }, [isRunning, isPaused]);
 
+  // Detect platform for layout adjustments
+  const [platform, setPlatform] = useState<string>('unknown');
+
+  useEffect(() => {
+    if (window.electronAPI?.platform) {
+      setPlatform(window.electronAPI.platform);
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center" role="status" aria-label="Loading application">
@@ -73,15 +82,6 @@ export function AppLayout() {
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
-
-  // Detect platform for layout adjustments
-  const [platform, setPlatform] = useState<string>('unknown');
-
-  useEffect(() => {
-    if (window.electronAPI?.platform) {
-      setPlatform(window.electronAPI.platform);
-    }
-  }, []);
 
   // Content top padding: adjust for TitleBar on Windows/Linux
   const contentTopPadding = platform === 'darwin' ? 'pt-8' : 'pt-10';

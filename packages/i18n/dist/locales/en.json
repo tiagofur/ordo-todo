@@ -2008,10 +2008,26 @@
   },
   "Timer": {
     "title": "Timer",
-    "subtitle": "Manage your time with Pomodoro",
+    "pomodoro": "Pomodoro",
+    "subtitle": "Stay focused and track your work time.",
     "tabs": {
       "timer": "Timer",
       "history": "History"
+    },
+    "onboarding": {
+      "welcomeTitle": "Productivity Timer",
+      "welcomeDesc": "Your tool to maintain focus. Choose between Pomodoro or continuous mode according to your work style.",
+      "pomodoroTitle": "Pomodoro Technique",
+      "pomodoroDesc": "Work for 25 minutes, rest for 5. After 4 pomodoros, take a long 15-minute break. Scientifically proven!",
+      "continuousTitle": "Continuous Mode",
+      "continuousDesc": "Prefer to flow without interruptions? Continuous mode tracks your time without forced pauses.",
+      "tasksTitle": "Link Tasks",
+      "tasksDesc": "Associate each session with a specific task to know exactly how much time you dedicate to each project.",
+      "statsTitle": "Statistics",
+      "statsDesc": "Review your session history and learn from your productivity patterns.",
+      "skip": "Skip",
+      "next": "Next",
+      "getStarted": "Get Focused!"
     },
     "modes": {
       "work": "Work",
@@ -2337,10 +2353,24 @@
   },
   "Meetings": {
     "title": "Meeting Assistant",
-    "subtitle": "Analyze transcripts and extract action items",
+    "subtitle": "Analyze transcripts and extract action items automatically",
     "analyze": "Analyze",
     "analyzing": "Analyzing...",
-    "transcriptPlaceholder": "Paste your meeting transcript here...",
+    "transcriptPlaceholder": "Paste your meeting transcript here...\n\nExample:\nJohn: Good morning everyone, let's start with the project review.\nMary: Yes, we need to set the deadlines for next week.\nPeter: I propose the design be ready by Friday.\nJohn: Perfect, Mary will handle the final review.",
+    "meetingTranscript": "Meeting Transcript",
+    "characters": "characters",
+    "dragFile": "Or drag a .txt file here",
+    "analyzeWithAi": "Analyze with AI",
+    "pleaseEnterTranscript": "Please enter a transcript",
+    "analysisCompleted": "Analysis completed",
+    "analysisError": "Error analyzing transcript. Please try again.",
+    "errorTitle": "Analysis error",
+    "featureSummaryTitle": "Smart Summary",
+    "featureSummaryDesc": "Generate a concise meeting summary",
+    "featureActionItemsTitle": "Action Items",
+    "featureActionItemsDesc": "Extract tasks with assignees and priorities",
+    "featureDecisionsTitle": "Decisions",
+    "featureDecisionsDesc": "Identify key decisions made",
     "summary": "Summary",
     "keyPoints": "Key Points",
     "actionItems": "Action Items",
@@ -2353,6 +2383,13 @@
     "converting": "Converting...",
     "tasksCreated": "{count} tasks created",
     "noActionItems": "No action items found",
+    "copied": "Copied to clipboard",
+    "copy": "Copy",
+    "priorities": {
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
+    },
     "sentiments": {
       "POSITIVE": "Positive",
       "NEUTRAL": "Neutral",
@@ -2367,7 +2404,7 @@
   },
   "Workload": {
     "title": "Workload",
-    "subtitle": "Monitor and balance team workload",
+    "subtitle": "Visualize and balance team workload",
     "myWorkload": "My Workload",
     "teamWorkload": "Team Workload",
     "assignedTasks": "Assigned Tasks",
@@ -2377,11 +2414,26 @@
     "capacityRemaining": "Capacity remaining",
     "workloadScore": "Workload Score",
     "trend": "Trend",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "teamMembers": "Team members",
+    "averageWorkload": "Average workload",
+    "teamBalance": "Team balance",
+    "aiSuggestions": "AI Suggestions",
+    "membersSectionTitle": "Team Members",
+    "tasks": "Tasks",
+    "today": "Today",
+    "hours": "Hours",
+    "load": "Load",
+    "selectWorkspace": "Select workspace",
+    "selectWorkspacePrompt": "Select a workspace",
+    "selectWorkspaceDesc": "Choose a workspace to view the team's workload",
+    "tasksCount": "({count} tasks)",
     "levels": {
-      "LOW": "Low",
-      "MODERATE": "Moderate",
-      "HIGH": "High",
-      "OVERLOADED": "Overloaded"
+      "LOW": "Low load",
+      "MODERATE": "Optimal",
+      "HIGH": "High load",
+      "OVERLOADED": "Critical"
     },
     "trends": {
       "INCREASING": "Increasing",
@@ -2610,6 +2662,8 @@
     "projects": "projects",
     "tasks": "tasks",
     "restore": "Restore",
+    "deletePermanently": "Delete permanently",
+    "unknownDate": "Unknown date",
     "confirmDelete": "Are you sure you want to permanently delete this item? This action CANNOT be undone."
   },
   "notFound": {

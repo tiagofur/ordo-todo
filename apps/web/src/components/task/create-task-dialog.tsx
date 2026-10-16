@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { Briefcase, Sparkles, Calendar as CalendarIcon, Flag, Clock } from 'lucide-react';
+import { serializeCalendarDateForApi } from '@ordo-todo/core';
 import { RecurrenceSelector, RecurrenceValue } from './recurrence-selector';
 
 
@@ -159,7 +160,7 @@ export function CreateTaskDialog({
       projectId: data.projectId,
       priority: data.priority,
       estimatedMinutes: data.estimatedMinutes || undefined,
-      dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+      dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
       recurrence: data.recurrence as RecurrenceValue | undefined,
     };
 
@@ -231,7 +232,7 @@ export function CreateTaskDialog({
                   type="button"
                   onClick={handleAIMagic}
                   disabled={isGenerating}
-                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-blue-100 dark:bg-blue-900 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 disabled:opacity-50"
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-500/10 rounded-full hover:bg-purple-500/20 transition-colors duration-200 disabled:opacity-50"
                 >
                   <Sparkles
                     className={`w-3.5 h-3.5 ${
@@ -393,6 +394,7 @@ export function CreateTaskDialog({
               <Button
                 type="submit"
                 disabled={isPending}
+                className="bg-purple-500 hover:bg-purple-600 text-white shadow-sm shadow-purple-500/25 border-0"
               >
                 {isPending ? t.buttons.creating : t.buttons.create}
               </Button>

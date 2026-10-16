@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target, Heart, Users, Sparkles, StickyNote, LayoutGrid, MessageSquare, Trash2 } from "lucide-react";
+import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target, Heart, Users, Sparkles, StickyNote, LayoutGrid, MessageSquare, Trash2, Bot } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -48,6 +48,8 @@ export function Sidebar() {
 
   const navigation = [
     { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
+    { name: "Creator OS", href: "/creator", icon: Sparkles, color: "yellow" },
+    { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
     { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
     { name: t("Sidebar.notes"), href: "/notes", icon: StickyNote, color: "yellow" },
     { name: t("Sidebar.habits"), href: "/habits", icon: Sparkles, color: "green" },

@@ -69,17 +69,16 @@ describe('CustomThrottleGuard', () => {
       reflector.get.mockReturnValue(false);
       const context = createMockExecutionContext('/auth/register', 'POST');
 
-      // Mock storage service to return under limit
       (storageService.increment as jest.Mock).mockResolvedValue({
         totalHits: 1,
-        timeToExpire: 60000,
+        timeToExpire: 3600000,
       });
 
       const result = await guard.canActivate(context);
 
       expect(storageService.increment).toHaveBeenCalledWith(
         '127.0.0.1',
-        60000,
+        3600000,
         3,
         0,
         'default',
@@ -99,7 +98,7 @@ describe('CustomThrottleGuard', () => {
 
       await expect(guard.canActivate(context)).rejects.toThrow(HttpException);
       await expect(guard.canActivate(context)).rejects.toThrow(
-        'Too many registration attempts. Please try again later.',
+        'Too many registration attempts. Please try again in 1 hour.',
       );
     });
 
@@ -134,7 +133,7 @@ describe('CustomThrottleGuard', () => {
       });
 
       await expect(guard.canActivate(context)).rejects.toThrow(
-        'Too many login attempts. Please try again later.',
+        'Too many login attempts. Please try again in 1 minute.',
       );
     });
 
@@ -222,8 +221,8 @@ describe('CustomThrottleGuard', () => {
 
       expect(rateLimit).toEqual({
         limit: 3,
-        ttl: 60000,
-        message: 'Too many registration attempts. Please try again later.',
+        ttl: 3600000,
+        message: 'Too many registration attempts. Please try again in 1 hour.',
       });
     });
 
@@ -236,7 +235,7 @@ describe('CustomThrottleGuard', () => {
       expect(rateLimit).toEqual({
         limit: 5,
         ttl: 60000,
-        message: 'Too many login attempts. Please try again later.',
+        message: 'Too many login attempts. Please try again in 1 minute.',
       });
     });
 
@@ -294,7 +293,7 @@ describe('CustomThrottleGuard', () => {
       expect(rateLimit).toEqual({
         limit: 5,
         ttl: 60000,
-        message: 'Too many login attempts. Please try again later.',
+        message: 'Too many login attempts. Please try again in 1 minute.',
       });
     });
   });
@@ -400,7 +399,7 @@ describe('CustomThrottleGuard', () => {
       });
 
       await expect(guard.canActivate(context)).rejects.toThrow(
-        'Too many login attempts. Please try again later.',
+        'Too many login attempts. Please try again in 1 minute.',
       );
     });
 
@@ -412,7 +411,7 @@ describe('CustomThrottleGuard', () => {
       for (let i = 0; i < 3; i++) {
         (storageService.increment as jest.Mock).mockResolvedValue({
           totalHits: i + 1,
-          timeToExpire: 60000,
+          timeToExpire: 3600000,
         });
 
         const result = await guard.canActivate(context);
@@ -422,11 +421,11 @@ describe('CustomThrottleGuard', () => {
       // 4th request should fail (over limit of 3)
       (storageService.increment as jest.Mock).mockResolvedValue({
         totalHits: 4,
-        timeToExpire: 60000,
+        timeToExpire: 3600000,
       });
 
       await expect(guard.canActivate(context)).rejects.toThrow(
-        'Too many registration attempts. Please try again later.',
+        'Too many registration attempts. Please try again in 1 hour.',
       );
     });
 

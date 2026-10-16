@@ -107,7 +107,7 @@ describe('NotificationsService', () => {
       expect(mockNotificationRepository.findByUserId).toHaveBeenCalledWith(
         userId,
       );
-      expect(result).toEqual(notifications);
+      expect(result).toEqual(notifications.map((n) => n.props));
     });
   });
 

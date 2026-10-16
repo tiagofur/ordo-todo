@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CollaborationGateway } from './collaboration.gateway';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../database/prisma.service';
 import { Socket, Server } from 'socket.io';
 
 describe('CollaborationGateway', () => {
@@ -48,11 +49,23 @@ describe('CollaborationGateway', () => {
       }),
     };
 
+    const mockPrismaService = {
+      workspace: {
+        findFirst: jest.fn().mockResolvedValue({ id: 'workspace-1' }),
+      },
+      task: {
+        findFirst: jest
+          .fn()
+          .mockResolvedValue({ id: 'task-1', workspaceId: 'workspace-1' }),
+      },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CollaborationGateway,
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: PrismaService, useValue: mockPrismaService },
       ],
     }).compile();
 
@@ -114,11 +127,11 @@ describe('CollaborationGateway', () => {
   });
 
   describe('handleJoinWorkspace', () => {
-    it('should join user to workspace room', () => {
+    it('should join user to workspace room', async () => {
       const mockSocket = createMockSocket('user-123');
       const data = { workspaceId: 'ws-456' };
 
-      gateway.handleJoinWorkspace(mockSocket, data);
+      await gateway.handleJoinWorkspace(mockSocket, data);
 
       expect(mockSocket.join).toHaveBeenCalledWith('workspace:ws-456');
     });
@@ -136,11 +149,11 @@ describe('CollaborationGateway', () => {
   });
 
   describe('handleJoinTask', () => {
-    it('should join user to task room', () => {
+    it('should join user to task room', async () => {
       const mockSocket = createMockSocket('user-123');
       const data = { taskId: 'task-789', workspaceId: 'ws-123' };
 
-      gateway.handleJoinTask(mockSocket, data);
+      await gateway.handleJoinTask(mockSocket, data);
 
       expect(mockSocket.join).toHaveBeenCalledWith('task:task-789');
     });
@@ -158,8 +171,9 @@ describe('CollaborationGateway', () => {
   });
 
   describe('handleTaskUpdate', () => {
-    it('should broadcast task update to room', () => {
+    it('should broadcast task update to room', async () => {
       const mockSocket = createMockSocket('user-123');
+      mockSocket.data.currentTaskId = 'task-789';
       const data = {
         taskId: 'task-789',
         changes: { status: 'COMPLETED' },

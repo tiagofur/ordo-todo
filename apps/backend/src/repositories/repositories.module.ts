@@ -285,8 +285,7 @@ import { AuthAuditLogRepository } from './auth-audit-log.repository';
     },
     {
       provide: 'AuthAuditLogRepository',
-      useFactory: (prisma: PrismaService) =>
-        new AuthAuditLogRepository(prisma),
+      useFactory: (prisma: PrismaService) => new AuthAuditLogRepository(prisma),
       inject: [PrismaService],
     },
   ],
@@ -335,4 +334,4 @@ import { AuthAuditLogRepository } from './auth-audit-log.repository';
     'AuthAuditLogRepository',
   ],
 })
-export class RepositoriesModule { }
+export class RepositoriesModule {}

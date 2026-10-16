@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui';
 import { ScrollArea } from '@/components/ui';
-import { Briefcase, Check, Palette, LayoutTemplate } from 'lucide-react';
+import { Briefcase, Check, Palette, LayoutTemplate, CheckSquare, Sparkles, Layers } from 'lucide-react';
 import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/hooks';
 
 // Interfaces for props
@@ -52,6 +52,7 @@ export interface CreateProjectFormData {
   name: string;
   description?: string;
   color: string;
+  type: 'STANDARD' | 'SERIES' | 'FOCUS' | 'CREATOR' | 'HYBRID';
   workspaceId: string;
   workflowId?: string;
 }
@@ -104,6 +105,45 @@ interface CreateProjectDialogProps {
   };
 }
 
+const projectTypes = [
+  {
+    value: 'STANDARD',
+    label: 'Standard',
+    description: 'Classic To-Do with checklists and boards',
+    icon: CheckSquare,
+    color: 'text-slate-600 dark:text-slate-400',
+    bgColor: 'bg-slate-50 dark:bg-slate-900',
+    borderColor: 'border-slate-200 dark:border-slate-800',
+  },
+  {
+    value: 'FOCUS',
+    label: 'Focus',
+    description: 'Personal productivity mode',
+    icon: CheckSquare,
+    color: 'text-cyan-600 dark:text-cyan-400',
+    bgColor: 'bg-cyan-50 dark:bg-cyan-950',
+    borderColor: 'border-cyan-200 dark:border-cyan-800',
+  },
+  {
+    value: 'CREATOR',
+    label: 'Creator',
+    description: 'Content pipeline with scripting & publishing',
+    icon: Sparkles,
+    color: 'text-amber-600 dark:text-amber-400',
+    bgColor: 'bg-amber-50 dark:bg-amber-950',
+    borderColor: 'border-amber-200 dark:border-amber-800',
+  },
+  {
+    value: 'HYBRID',
+    label: 'Hybrid',
+    description: 'Both Focus and Creator modes available',
+    icon: Layers,
+    color: 'text-violet-600 dark:text-violet-400',
+    bgColor: 'bg-violet-50 dark:bg-violet-950',
+    borderColor: 'border-violet-200 dark:border-violet-800',
+  },
+] as const;
+
 /**
  * CreateProjectDialog - Platform-agnostic project creation dialog
  * 
@@ -150,6 +190,7 @@ export function CreateProjectDialog({
   const [selectedColor, setSelectedColor] = useState<(typeof PROJECT_COLORS)[number]>(
     PROJECT_COLORS[3]
   );
+  const [selectedType, setSelectedType] = useState<'STANDARD' | 'SERIES' | 'FOCUS' | 'CREATOR' | 'HYBRID'>('STANDARD');
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
 
@@ -157,6 +198,7 @@ export function CreateProjectDialog({
   const formSchema = createProjectSchema.extend({
     name: z.string().min(1, nameRequired),
     workspaceId: z.string().min(1, workspaceRequired),
+    type: z.enum(['STANDARD', 'SERIES', 'FOCUS', 'CREATOR', 'HYBRID']),
   });
 
   type CreateProjectForm = z.infer<typeof formSchema>;
@@ -173,6 +215,7 @@ export function CreateProjectDialog({
     defaultValues: {
       workspaceId: workspaceId || '',
       color: PROJECT_COLORS[3],
+      type: 'STANDARD',
       workflowId: '',
     },
   });
@@ -219,7 +262,7 @@ export function CreateProjectDialog({
   const handleFormSubmit = async (data: CreateProjectForm) => {
     try {
       await onSubmit(
-        { ...data, color: selectedColor },
+        { ...data, color: selectedColor, type: selectedType },
         selectedTemplate?.tasks
       );
       reset();
@@ -331,6 +374,47 @@ export function CreateProjectDialog({
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Project Type Selector */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-foreground">
+                    Project Type
+                  </Label>
+                  <input type="hidden" {...register('type')} value={selectedType} />
+                  <div className="grid grid-cols-2 gap-3">
+                    {projectTypes.map((type) => {
+                      const Icon = type.icon;
+                      return (
+                        <button
+                          key={type.value}
+                          type="button"
+                          onClick={() => setSelectedType(type.value as any)}
+                          className={`
+                            flex items-center gap-3 p-3 rounded-lg border-2 text-left
+                            transition-all duration-200
+                            ${selectedType === type.value
+                              ? `ring-2 ring-offset-2 ${type.borderColor} ${type.bgColor}`
+                              : 'border-border hover:bg-muted'
+                            }
+                          `}
+                        >
+                          <Icon className={`h-5 w-5 flex-shrink-0 ${type.color}`} />
+                          <div className="min-w-0">
+                            <div className={`font-medium text-sm ${type.color}`}>
+                              {type.label}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {type.description}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.type && (
+                    <p className="text-sm text-destructive">{errors.type.message}</p>
+                  )}
                 </div>
 
                 {/* Name */}

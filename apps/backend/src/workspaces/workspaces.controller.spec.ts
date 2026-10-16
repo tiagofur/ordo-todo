@@ -111,7 +111,6 @@ describe('WorkspacesController', () => {
       const createDto: CreateWorkspaceDto = {
         name: 'New Workspace',
         slug: 'new-workspace',
-        type: 'PERSONAL',
         description: 'A test workspace',
       };
       const mockWorkspace = {
@@ -136,7 +135,6 @@ describe('WorkspacesController', () => {
       const createDto: CreateWorkspaceDto = {
         name: 'Minimal Workspace',
         slug: 'minimal',
-        type: 'PERSONAL',
       };
       const mockWorkspace = {
         id: 'ws-123',

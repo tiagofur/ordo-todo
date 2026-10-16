@@ -1,36 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
+import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
+import { useDesignTokens } from "@/app/lib/use-design-tokens";
 import { useTasks } from "@/app/lib/shared-hooks";
 import { useWorkspaceStore } from "@ordo-todo/stores";
+import { useMediaQuery } from "@/app/lib/hooks/use-media-query";
 import { parseCalendarDate } from "@ordo-todo/core";
-import DateTimePicker from "@react-native-community/datetimepicker";
 
 type FilterType = "ALL" | "TODO" | "IN_PROGRESS" | "COMPLETED";
 type SortType = "DUE_DATE" | "PRIORITY" | "CREATED_AT";
-
-export interface Task {
-  id: string;
-  title: string;
-  description: string | null;
-  status: "TODO" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  dueDate: Date | null;
-  projectId: string;
-  projectName?: string;
-  tags?: string[];
-  createdAt: Date;
-}
 
 interface FilterBadge {
   label: string;
@@ -39,7 +27,8 @@ interface FilterBadge {
 }
 
 export default function AllTasksScreen() {
-  const colors = useThemeColors();
+  const { colors, spacing, borderRadius } = useDesignTokens();
+  const { isTablet } = useMediaQuery();
   const [filter, setFilter] = useState<FilterType>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("DUE_DATE");
@@ -82,7 +71,7 @@ export default function AllTasksScreen() {
         );
       case "PRIORITY":
         const priorityOrder = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+        return priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder];
       case "CREATED_AT":
         return (
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -93,23 +82,21 @@ export default function AllTasksScreen() {
   });
 
   const getPriorityColor = (priority: string) => {
-    const colorMap: Record<string, string> = {
-      LOW: "#48BB78",
-      MEDIUM: "#ECC94B",
-      HIGH: "#F56565",
-      URGENT: "#DC2626",
-    };
-    return colorMap[priority] || colors.textMuted;
+    const p = priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    return (colors as any).priority?.[p]?.background || colors.muted;
+  };
+
+  const getPriorityForeground = (priority: string) => {
+    const p = priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    return (colors as any).priority?.[p]?.foreground || colors.mutedForeground;
   };
 
   const getStatusColor = (status: string) => {
-    const colorMap: Record<string, string> = {
-      TODO: "#6B7280",
-      IN_PROGRESS: "#3B82F6",
-      COMPLETED: "#10B981",
-      CANCELLED: "#9CA3AF",
-    };
-    return colorMap[status] || colors.textMuted;
+    return (colors as any).status?.[status]?.foreground || colors.mutedForeground;
+  };
+
+  const getStatusBg = (status: string) => {
+    return (colors as any).status?.[status]?.background || colors.muted;
   };
 
   const getStatusIcon = (status: string) => {
@@ -136,6 +123,148 @@ export default function AllTasksScreen() {
     setSelectedTaskId(selectedTaskId === taskId ? null : taskId);
   };
 
+  const renderItem = useCallback(({ item: task, index }: { item: any; index: number }) => {
+    const isSelected = selectedTaskId === task.id;
+
+    return (
+      <Animated.View
+        entering={FadeInDown.delay(index * 50).springify().damping(15)}
+        layout={LinearTransition.springify()}
+        style={[
+          { marginBottom: 12 },
+          isTablet ? { flex: 1, marginHorizontal: 8 } : { marginHorizontal: 16 }
+        ]}
+      >
+        <TouchableOpacity
+          style={[
+            styles.taskCard,
+            {
+              backgroundColor: isSelected ? colors.section.tasks + "10" : colors.card,
+              borderColor: isSelected ? colors.section.tasks : colors.border,
+            },
+          ]}
+          onPress={() => handleTaskPress(task.id)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.taskHeader}>
+            {/* Status Icon */}
+            <View
+              style={[
+                styles.statusContainer,
+                {
+                  backgroundColor: getStatusBg(task.status),
+                },
+              ]}
+            >
+              <Feather
+                name={getStatusIcon(task.status)}
+                size={14}
+                color={getStatusColor(task.status)}
+              />
+            </View>
+
+            {/* Task Content */}
+            <View style={styles.taskContent}>
+              <Text
+                style={[
+                  styles.taskTitle,
+                  {
+                    color:
+                      task.status === "COMPLETED" ||
+                        task.status === "CANCELLED"
+                        ? colors.mutedForeground
+                        : colors.foreground,
+                    textDecorationLine:
+                      task.status === "COMPLETED"
+                        ? "line-through"
+                        : "none",
+                  },
+                ]}
+                numberOfLines={2}
+              >
+                {task.title}
+              </Text>
+
+              {/* Meta */}
+              <View style={styles.taskMeta}>
+                {task.projectName && (
+                  <Text
+                    style={[styles.projectTag, { color: colors.section.tasks, backgroundColor: colors.section.tasks + '15' }]}
+                  >
+                    {task.projectName}
+                  </Text>
+                )}
+                {task.tags && task.tags.length > 0 && (
+                  <View style={styles.tagsContainer}>
+                    {task.tags.slice(0, 2).map((tag: any) => (
+                      <View
+                        key={tag}
+                        style={[
+                          styles.tag,
+                          { backgroundColor: colors.muted },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.tagText,
+                            { color: colors.mutedForeground },
+                          ]}
+                        >
+                          {tag}
+                        </Text>
+                      </View>
+                    ))}
+                    {task.tags.length > 2 && (
+                      <Text
+                        style={[
+                          styles.tagsMore,
+                          { color: colors.mutedForeground },
+                        ]}
+                      >
+                        +{task.tags.length - 2}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {/* Priority Badge */}
+              <View
+                style={[
+                  styles.priorityBadge,
+                  { backgroundColor: getPriorityColor(task.priority) },
+                ]}
+              >
+                <Text style={[styles.priorityText, { color: getPriorityForeground(task.priority) }]}>
+                  {task.priority}
+                </Text>
+              </View>
+
+              {/* Due Date */}
+              {task.dueDate && (
+                <View style={styles.dueDateContainer}>
+                  <Feather
+                    name="calendar"
+                    size={14}
+                    color={colors.mutedForeground}
+                  />
+                  <Text
+                    style={[
+                      styles.dueDateText,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    {formatDate(task.dueDate)}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }, [colors, selectedTaskId]);
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -144,10 +273,10 @@ export default function AllTasksScreen() {
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <View>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>
             Todas las Tareas
           </Text>
-          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
+          <Text style={[styles.headerSubtitle, { color: colors.mutedForeground }]}>
             {filteredTasks.length} tareas
           </Text>
         </View>
@@ -156,14 +285,14 @@ export default function AllTasksScreen() {
         <View
           style={[
             styles.searchContainer,
-            { backgroundColor: colors.surface, borderColor: colors.border },
+            { backgroundColor: colors.card, borderColor: colors.border },
           ]}
         >
-          <Feather name="search" size={18} color={colors.textMuted} />
+          <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
+            style={[styles.searchInput, { color: colors.foreground }]}
             placeholder="Buscar tareas..."
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.mutedForeground}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -172,7 +301,7 @@ export default function AllTasksScreen() {
               style={styles.clearButton}
               onPress={() => setSearchQuery("")}
             >
-              <Feather name="x" size={16} color={colors.textMuted} />
+              <Feather name="x" size={16} color={colors.mutedForeground} />
             </TouchableOpacity>
           )}
         </View>
@@ -180,27 +309,26 @@ export default function AllTasksScreen() {
 
       {/* Filters */}
       <View style={styles.filtersContainer}>
-        <ScrollView
+        <FlatList
           horizontal
+          data={FILTERS}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filtersScroll}
-        >
-          {FILTERS.map((f) => {
+          keyExtractor={(item) => item.value}
+          renderItem={({ item: f }) => {
             const count =
               f.value === "ALL"
                 ? tasks.length
                 : tasks.filter((t) => t.status === f.value).length;
+            const isActive = filter === f.value;
 
             return (
               <TouchableOpacity
-                key={f.value}
                 style={[
                   styles.filterButton,
                   {
-                    backgroundColor:
-                      filter === f.value ? colors.primary : colors.surface,
-                    borderColor:
-                      filter === f.value ? colors.primary : colors.border,
+                    backgroundColor: isActive ? colors.section.tasks : colors.card,
+                    borderColor: isActive ? colors.section.tasks : colors.border,
                   },
                 ]}
                 onPress={() => setFilter(f.value as FilterType)}
@@ -209,9 +337,8 @@ export default function AllTasksScreen() {
                   style={[
                     styles.filterText,
                     {
-                      color:
-                        filter === f.value ? "#FFFFFF" : colors.textSecondary,
-                      fontWeight: filter === f.value ? "700" : "500",
+                      color: isActive ? "#FFFFFF" : colors.mutedForeground,
+                      fontWeight: isActive ? "700" : "500",
                     },
                   ]}
                 >
@@ -221,22 +348,22 @@ export default function AllTasksScreen() {
                   <View
                     style={[
                       styles.filterCount,
-                      { backgroundColor: colors.primary },
+                      { backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : colors.muted },
                     ]}
                   >
-                    <Text style={styles.filterCountText}>{count}</Text>
+                    <Text style={[styles.filterCountText, { color: isActive ? '#fff' : colors.mutedForeground }]}>{count}</Text>
                   </View>
                 )}
               </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+            )
+          }}
+        />
 
         {/* Sort Selector */}
         <TouchableOpacity
           style={[
             styles.sortButton,
-            { backgroundColor: colors.surface, borderColor: colors.border },
+            { backgroundColor: colors.card, borderColor: colors.border },
           ]}
           onPress={() => {
             const currentIndex = SORT_OPTIONS.indexOf(sortBy);
@@ -253,219 +380,50 @@ export default function AllTasksScreen() {
                   : "clock"
             }
             size={16}
-            color={colors.textSecondary}
+            color={colors.mutedForeground}
           />
         </TouchableOpacity>
       </View>
 
       {/* Tasks List */}
-      <ScrollView style={styles.tasksList} showsVerticalScrollIndicator={false}>
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator color={colors.primary} size="large" />
-            <Text style={[styles.loadingText, { color: colors.textMuted }]}>
-              Cargando tareas...
-            </Text>
-          </View>
-        ) : sortedTasks.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Feather
-              name="inbox"
-              size={64}
-              color={colors.textMuted}
-              style={styles.emptyIcon}
-            />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>
-              Sin tareas
-            </Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
-              {filter === "ALL"
-                ? "No tienes tareas"
-                : `No hay tareas ${FILTERS.find((f) => f.value === filter)?.label.toLowerCase()}`}
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.tasksContainer}>
-            {sortedTasks.map((task) => (
-              <TouchableOpacity
-                key={task.id}
-                style={[
-                  styles.taskCard,
-                  {
-                    backgroundColor:
-                      selectedTaskId === task.id
-                        ? colors.primary + "10"
-                        : colors.surface,
-                    borderColor:
-                      selectedTaskId === task.id
-                        ? colors.primary
-                        : colors.border,
-                  },
-                ]}
-                onPress={() => handleTaskPress(task.id)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.taskHeader}>
-                  {/* Status Icon */}
-                  <View
-                    style={[
-                      styles.statusContainer,
-                      {
-                        backgroundColor: getStatusColor(task.status) + "15",
-                      },
-                    ]}
-                  >
-                    <Feather
-                      name={getStatusIcon(task.status)}
-                      size={14}
-                      color={getStatusColor(task.status)}
-                    />
-                  </View>
-
-                  {/* Task Content */}
-                  <View style={styles.taskContent}>
-                    <Text
-                      style={[
-                        styles.taskTitle,
-                        {
-                          color:
-                            task.status === "COMPLETED" ||
-                            task.status === "CANCELLED"
-                              ? colors.textMuted
-                              : colors.text,
-                          textDecorationLine:
-                            task.status === "COMPLETED"
-                              ? "line-through"
-                              : "none",
-                        },
-                      ]}
-                      numberOfLines={2}
-                    >
-                      {task.title}
-                    </Text>
-
-                    {/* Meta */}
-                    <View style={styles.taskMeta}>
-                      {(task as any).projectName && (
-                        <Text
-                          style={[styles.projectTag, { color: colors.primary }]}
-                        >
-                          {(task as any).projectName}
-                        </Text>
-                      )}
-                      {(task as any).tags && (task as any).tags.length > 0 && (
-                        <View style={styles.tagsContainer}>
-                          {(task as any).tags.slice(0, 2).map((tag: any) => (
-                            <View
-                              key={tag}
-                              style={[
-                                styles.tag,
-                                { backgroundColor: colors.surface + "50" },
-                              ]}
-                            >
-                              <Text
-                                style={[
-                                  styles.tagText,
-                                  { color: colors.textSecondary },
-                                ]}
-                              >
-                                {tag}
-                              </Text>
-                            </View>
-                          ))}
-                          {(task as any).tags.length > 2 && (
-                            <Text
-                              style={[
-                                styles.tagsMore,
-                                { color: colors.textMuted },
-                              ]}
-                            >
-                              +{(task as any).tags.length - 2}
-                            </Text>
-                          )}
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Priority Badge */}
-                    <View
-                      style={[
-                        styles.priorityBadge,
-                        { backgroundColor: getPriorityColor(task.priority) },
-                      ]}
-                    >
-                      <Text style={[styles.priorityText, { color: "#FFFFFF" }]}>
-                        {task.priority}
-                      </Text>
-                    </View>
-
-                    {/* Due Date */}
-                    {task.dueDate && (
-                      <View style={styles.dueDateContainer}>
-                        <Feather
-                          name="calendar"
-                          size={14}
-                          color={colors.textMuted}
-                        />
-                        <Text
-                          style={[
-                            styles.dueDateText,
-                            { color: colors.textMuted },
-                          ]}
-                        >
-                          {formatDate(task.dueDate)}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-
-                {/* Actions */}
-                <View style={styles.taskActions}>
-                  <TouchableOpacity
-                    style={[
-                      styles.actionButton,
-                      {
-                        backgroundColor:
-                          task.status === "COMPLETED"
-                            ? "#10B981" + "15"
-                            : colors.background + "50",
-                      },
-                    ]}
-                    onPress={() => {
-                      console.log("Toggle task status:", task.id);
-                    }}
-                  >
-                    <Feather
-                      name={
-                        task.status === "COMPLETED" ? "check-circle" : "circle"
-                      }
-                      size={18}
-                      color={
-                        task.status === "COMPLETED"
-                          ? "#10B981"
-                          : colors.textSecondary
-                      }
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.actionButton,
-                      { backgroundColor: colors.background + "50" },
-                    ]}
-                  >
-                    <Feather
-                      name="chevron-right"
-                      size={18}
-                      color={colors.textSecondary}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={colors.section.tasks} size="large" />
+          <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>
+            Cargando tareas...
+          </Text>
+        </View>
+      ) : (
+        <Animated.FlatList
+          key={isTablet ? 'tablet' : 'mobile'}
+          numColumns={isTablet ? 2 : 1}
+          columnWrapperStyle={isTablet ? { gap: 16 } : undefined}
+          data={sortedTasks}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.tasksContainer}
+          showsVerticalScrollIndicator={false}
+          itemLayoutAnimation={LinearTransition}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Feather
+                name="inbox"
+                size={64}
+                color={colors.muted}
+                style={styles.emptyIcon}
+              />
+              <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
+                Sin tareas
+              </Text>
+              <Text style={[styles.emptySubtitle, { color: colors.mutedForeground }]}>
+                {filter === "ALL"
+                  ? "No tienes tareas"
+                  : `No hay tareas ${FILTERS.find((f) => f.value === filter)?.label.toLowerCase()}`}
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -494,32 +452,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     gap: 12,
-    marginBottom: 16,
+    marginTop: 8,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
+    height: 24,
   },
   clearButton: {
     padding: 4,
   },
   filtersContainer: {
-    gap: 12,
-    marginBottom: 16,
+    flexDirection: 'row',
+    marginBottom: 8,
     paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
   },
   filtersScroll: {
-    paddingHorizontal: 16,
+    gap: 8,
+    paddingRight: 8,
   },
   filterButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 1.5,
+    borderRadius: 20, // More rounded like chips
+    borderWidth: 1,
     gap: 6,
-    minWidth: 120,
   },
   filterText: {
     fontSize: 13,
@@ -534,23 +495,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   filterCountText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
-    color: "#FFFFFF",
   },
   sortButton: {
-    flexDirection: "row",
+    width: 40,
+    height: 40, // Match filter button height approx
+    borderRadius: 20,
     alignItems: "center",
-    padding: 12,
-    borderRadius: 10,
+    justifyContent: "center",
     borderWidth: 1,
-    gap: 8,
-  },
-  tasksList: {
-    flex: 1,
   },
   tasksContainer: {
-    padding: 0,
+    paddingBottom: 40,
   },
   loadingContainer: {
     alignItems: "center",
@@ -567,7 +524,7 @@ const styles = StyleSheet.create({
   },
   emptyIcon: {
     marginBottom: 16,
-    opacity: 0.3,
+    opacity: 0.5,
   },
   emptyTitle: {
     fontSize: 20,
@@ -582,65 +539,65 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16, // Consistent with dashboard
     borderWidth: 1,
-    marginHorizontal: 16,
-    marginBottom: 12,
   },
   taskHeader: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 12,
     flex: 1,
   },
   statusContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 2,
   },
   taskContent: {
     flex: 1,
-    gap: 8,
+    gap: 6,
   },
   taskTitle: {
     fontSize: 15,
-    fontWeight: "500",
-    lineHeight: 20,
+    fontWeight: "600",
+    lineHeight: 22,
   },
   taskMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     flexWrap: "wrap",
   },
   projectTag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 6,
-    fontSize: 12,
-    fontWeight: "500",
+    fontSize: 11,
+    fontWeight: "600",
   },
   tagsContainer: {
     flexDirection: "row",
     gap: 4,
   },
   tag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 4,
   },
   tagText: {
-    fontSize: 11,
+    fontSize: 10,
   },
   tagsMore: {
-    fontSize: 12,
+    fontSize: 10,
   },
   priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
   },
   priorityText: {
     fontSize: 10,
@@ -650,20 +607,9 @@ const styles = StyleSheet.create({
   dueDateContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
   },
   dueDateText: {
     fontSize: 12,
-  },
-  taskActions: {
-    gap: 8,
-    flexDirection: "row",
-  },
-  actionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

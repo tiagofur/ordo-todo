@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -225,7 +226,7 @@ export class WorkspacesController {
    * Gets workspace by slug (globally - first match)
    * Note: With user namespaces, this may be ambiguous
    */
-  @Get('by-slug/:slug')
+  @Get(['by-slug/:slug', 'slug/:slug'])
   @ApiOperation({
     summary: 'Get workspace by slug',
     description:
@@ -784,6 +785,19 @@ export class WorkspacesController {
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Workspace not found' })
   update(
+    @Param('id') id: string,
+    @Body() updateWorkspaceDto: UpdateWorkspaceDto,
+  ) {
+    return this.workspacesService.update(id, updateWorkspaceDto);
+  }
+
+  @Patch(':id')
+  @UseInterceptors(CacheInvalidateInterceptor)
+  @CacheInvalidate('workspaces')
+  @UseGuards(WorkspaceGuard)
+  @WorkspaceContext({ type: 'direct', paramName: 'id' })
+  @Roles(CoreMemberRole.OWNER, CoreMemberRole.ADMIN)
+  patch(
     @Param('id') id: string,
     @Body() updateWorkspaceDto: UpdateWorkspaceDto,
   ) {

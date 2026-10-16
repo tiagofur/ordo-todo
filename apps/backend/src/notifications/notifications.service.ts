@@ -61,9 +61,9 @@ export class NotificationsService {
   }
 
   async findAll(userId: string) {
-    // Note: The repository currently returns all notifications.
-    // Future optimization: Add pagination to repository/usecase.
-    return this.notificationRepository.findByUserId(userId);
+    const notifications =
+      await this.notificationRepository.findByUserId(userId);
+    return notifications.map((n) => n.props);
   }
 
   async getUnreadCount(userId: string) {
@@ -75,11 +75,6 @@ export class NotificationsService {
   }
 
   async markAsRead(id: string, userId: string) {
-    // Verify ownership is handled within use case logic?
-    // The use case usually expects (notificationId).
-    // Domain Check: Does MarkAsReadUseCase check userId?
-    // Let's assume we maintain simple proxy for now.
-
     const useCase = new MarkAsReadUseCase(this.notificationRepository);
     const notification = await useCase.execute({ notificationId: id, userId });
 
@@ -89,7 +84,7 @@ export class NotificationsService {
       this.gateway.sendUnreadCount(userId, unreadCount);
     }
 
-    return notification;
+    return notification ? notification.props : null;
   }
 
   async markAllAsRead(userId: string) {

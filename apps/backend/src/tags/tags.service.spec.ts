@@ -9,6 +9,8 @@ describe('TagsService', () => {
   const mockTagRepository = {
     findByTaskId: jest.fn(),
     findById: jest.fn(),
+    findByWorkspaceIdWithTaskCount: jest.fn(),
+    findByIdWithTaskCount: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
@@ -55,7 +57,7 @@ describe('TagsService', () => {
           color: '#FF0000',
           workspaceId,
           createdAt: new Date(),
-          _count: { tasks: 5 },
+          taskCount: 5,
         },
         {
           id: 'tag-2',
@@ -63,22 +65,19 @@ describe('TagsService', () => {
           color: '#00FF00',
           workspaceId,
           createdAt: new Date(),
-          _count: { tasks: 3 },
+          taskCount: 3,
         },
       ];
 
-      mockPrismaService.tag.findMany.mockResolvedValue(mockTags);
+      mockTagRepository.findByWorkspaceIdWithTaskCount.mockResolvedValue(
+        mockTags,
+      );
 
       const result = await service.findAll(workspaceId);
 
-      expect(mockPrismaService.tag.findMany).toHaveBeenCalledWith({
-        where: { workspaceId },
-        include: {
-          _count: {
-            select: { tasks: true },
-          },
-        },
-      });
+      expect(
+        mockTagRepository.findByWorkspaceIdWithTaskCount,
+      ).toHaveBeenCalledWith(workspaceId);
       expect(result).toHaveLength(2);
       expect(result[0].taskCount).toBe(5);
       expect(result[1].taskCount).toBe(3);
@@ -87,7 +86,7 @@ describe('TagsService', () => {
     it('should return empty array when no tags found', async () => {
       const workspaceId = 'workspace-123';
 
-      mockPrismaService.tag.findMany.mockResolvedValue([]);
+      mockTagRepository.findByWorkspaceIdWithTaskCount.mockResolvedValue([]);
 
       const result = await service.findAll(workspaceId);
 

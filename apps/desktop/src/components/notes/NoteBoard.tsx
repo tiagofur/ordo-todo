@@ -9,9 +9,10 @@ import { useTranslation } from 'react-i18next';
 interface NoteBoardProps {
   workspaceId: string;
   notes: Note[] | null | undefined;
+  hideAddButton?: boolean;
 }
 
-export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
+export function NoteBoard({ workspaceId, notes, hideAddButton }: NoteBoardProps) {
   // Ensure notes is always an array
   const safeNotes = Array.isArray(notes) ? notes : [];
   const { t } = useTranslation();
@@ -57,22 +58,24 @@ export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="relative w-full h-full p-4 overflow-auto bg-dot-pattern">
-        <div className="absolute top-8 right-8 z-50">
-           <Button 
-             onClick={handleAddNote} 
-             disabled={createNote.isPending}
-             className="bg-yellow-500 hover:bg-yellow-600 text-white shadow-xl shadow-yellow-500/20 border-none px-6 py-6 rounded-2xl transition-all hover:scale-105 active:scale-95"
-           >
-             {createNote.isPending ? (
-               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-             ) : (
-               <Plus className="mr-2 h-5 w-5" />
-             )}
-             <span className="text-base font-semibold">
-               {t('Notes.add', 'Agregar Nota')}
-             </span>
-           </Button>
-        </div>
+        {!hideAddButton && (
+          <div className="absolute top-8 right-8 z-50">
+            <Button 
+              onClick={handleAddNote} 
+              disabled={createNote.isPending}
+              className="bg-notes text-white shadow-lg shadow-notes/25 border-none px-6 py-6 rounded-2xl transition-all hover:scale-105 active:scale-95"
+            >
+              {createNote.isPending ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-5 w-5" />
+              )}
+              <span className="text-base font-semibold">
+                {t('Notes.add', 'Agregar Nota')}
+              </span>
+            </Button>
+          </div>
+        )}
         
         <div className="relative min-w-full min-h-full w-[2000px] h-[2000px]">
             {safeNotes.map((note) => (

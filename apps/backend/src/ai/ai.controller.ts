@@ -433,6 +433,16 @@ export class AIController {
     return this.aiService.getProfile(user.id);
   }
 
+  @Get('model-stats')
+  @ApiOperation({
+    summary: 'Get model usage statistics',
+    description:
+      'Returns Gemini model usage statistics and estimated cost savings.',
+  })
+  getModelStats() {
+    return this.aiService.getModelStats();
+  }
+
   @Patch('profile')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

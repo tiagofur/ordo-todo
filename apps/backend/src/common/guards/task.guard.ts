@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { BaseResourceGuard } from './base-resource.guard';
 
 @Injectable()
@@ -57,14 +57,7 @@ export class TaskGuard extends BaseResourceGuard {
     });
 
     if (!task) {
-      // We throw NotFound here so we don't leak existence of tasks to non-members
-      // BUT wait, if we throw NotFound here, we haven't checked auth yet.
-      // Actually, returning null here would mean the guard passes (based on Base logic),
-      // then the Controller tries to find it and throws NotFound.
-      // However, standard security practice: don't reveal existence.
-      // But if the ID is random UUID, enumeration is hard.
-      // Let's return null and let the controller handle NotFound.
-      return null;
+      throw new NotFoundException('Task not found');
     }
 
     return task.project.workspaceId;

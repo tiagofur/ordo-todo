@@ -1,2 +1,2 @@
-export { g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-CdoX1Tq7.mjs';
+export { g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-DSpdLO6J.mjs';
 import '@ordo-todo/api-client';

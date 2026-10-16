@@ -1,28 +1,26 @@
-import { Timer, Play, Pause, SkipForward, RotateCcw } from "lucide-react";
-import { cn, Button } from "@ordo-todo/ui";
+/**
+ * TimerWidget - Desktop Wrapper
+ * 
+ * This is a wrapper around the shared DashboardTimerWidget from @ordo-todo/ui.
+ * It provides:
+ * - Timer state from context
+ * - Control handlers
+ * - i18n translations via react-i18next
+ */
+
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useTimer } from "@/contexts/timer-context";
+import { DashboardTimerWidget as SharedTimerWidget } from "@ordo-todo/ui";
 
 interface TimerWidgetProps {
   onExpand?: () => void;
 }
 
-const MODE_LABELS: Record<string, string> = {
-  WORK: "Trabajo",
-  SHORT_BREAK: "Descanso Corto",
-  LONG_BREAK: "Descanso Largo",
-  IDLE: "Inactivo",
-  CONTINUOUS: "Continuo",
-};
-
-const MODE_COLORS: Record<string, string> = {
-  WORK: "#ef4444",
-  SHORT_BREAK: "#22c55e",
-  LONG_BREAK: "#3b82f6",
-  IDLE: "#6b7280",
-  CONTINUOUS: "#8b5cf6",
-};
-
 export function TimerWidget({ onExpand }: TimerWidgetProps) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  
   const {
     mode,
     isRunning,
@@ -35,7 +33,6 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
     resume,
     stop,
     skipToNext,
-    activeSession,
     completedPomodoros,
   } = useTimer();
 
@@ -49,115 +46,39 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
     }
   };
 
-  const activeTaskTitle = activeSession?.task?.title;
+  const handleReset = () => {
+    stop();
+  };
 
-  const progress = getProgress();
-  const timeFormatted = formatTime(timeLeft);
-  const modeColor = MODE_COLORS[mode] || MODE_COLORS.IDLE;
+  const handleSkip = () => {
+    skipToNext();
+  };
 
   return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-2xl border-2 bg-card p-6 transition-all duration-300",
-        "hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20"
-      )}
-      style={{ borderColor: modeColor }}
-    >
-      {/* Progress background */}
-      <div
-        className="absolute inset-0 opacity-10 transition-all duration-1000"
-        style={{
-          background: `linear-gradient(90deg, ${modeColor} ${progress}%, transparent ${progress}%)`,
-        }}
-      />
-
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl"
-              style={{ backgroundColor: `${modeColor}20`, color: modeColor }}
-            >
-              <Timer className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">{MODE_LABELS[mode] || mode}</h3>
-              <p className="text-xs text-muted-foreground">
-                {completedPomodoros} pomodoros completados
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Timer Display */}
-        <div className="text-center mb-4">
-          <p
-            className="text-5xl font-bold font-mono tracking-wider"
-            style={{ color: isRunning ? modeColor : undefined }}
-          >
-            {timeFormatted}
-          </p>
-          {activeTaskTitle && (
-            <p className="text-sm text-muted-foreground mt-2 truncate">
-              📋 {activeTaskTitle}
-            </p>
-          )}
-        </div>
-
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => stop()}
-            disabled={!isRunning && mode === "WORK" && !isPaused} // Can reset if running/paused
-            className="h-10 w-10"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-
-          <Button
-            size="lg"
-            onClick={handleToggle}
-            className="h-12 w-24"
-            style={{
-              backgroundColor: modeColor,
-              color: "white",
-            }}
-          >
-            {isRunning && !isPaused ? (
-              <Pause className="h-5 w-5" />
-            ) : (
-              <Play className="h-5 w-5 ml-1" />
-            )}
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => skipToNext()}
-            disabled={!isRunning && !isPaused}
-            className="h-10 w-10"
-          >
-            <SkipForward className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Mode indicators */}
-        <div className="flex items-center justify-center gap-2 mt-4">
-          {["WORK", "SHORT_BREAK", "LONG_BREAK"].map((m) => (
-            <div
-              key={m}
-              className={cn(
-                "h-2 w-2 rounded-full transition-all duration-300",
-                mode === m ? "scale-125" : "opacity-30"
-              )}
-              style={{ backgroundColor: MODE_COLORS[m] }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+    <SharedTimerWidget
+      mode={mode}
+      isRunning={isRunning}
+      isPaused={isPaused}
+      timeLeft={timeLeft}
+      completedPomodoros={completedPomodoros}
+      progress={getProgress()}
+      onToggle={handleToggle}
+      onReset={handleReset}
+      onSkip={handleSkip}
+      onClick={onExpand || (() => navigate("/timer"))}
+      formatTime={formatTime}
+      labels={{
+        work: t("Timer.work", "Trabajo"),
+        shortBreak: t("Timer.shortBreak", "Descanso Corto"),
+        longBreak: t("Timer.longBreak", "Descanso Largo"),
+        continuous: t("Timer.continuous", "Continuo"),
+        idle: t("Timer.idle", "Inactivo"),
+        completedPomodoros: t("Timer.completedPomodoros", "pomodoros completados"),
+        reset: t("Timer.reset", "Reiniciar"),
+        start: t("Timer.start", "Iniciar"),
+        pause: t("Timer.pause", "Pausar"),
+        skip: t("Timer.skip", "Saltar"),
+      }}
+    />
   );
 }

@@ -101,7 +101,9 @@ describe('AIController', () => {
         confidence: 'HIGH' as const,
         reasoning: 'Parsed from natural language',
       };
-      aiService.parseNaturalLanguageTask.mockResolvedValue(expectedResult);
+      aiService.parseNaturalLanguageTask.mockResolvedValue(
+        expectedResult as any,
+      );
 
       const result = await controller.parseTask(parseDto);
 
@@ -185,7 +187,7 @@ describe('AIController', () => {
       const dto = {
         projectName: 'New App',
         projectDescription: 'Mobile app',
-        objectives: 'Launch by Q1',
+        objectives: ['Launch by Q1'],
       };
       const expectedResult = {
         phases: [
@@ -257,7 +259,7 @@ describe('AIController', () => {
         peakHours: [9, 10, 11],
         avgSessionDuration: 25,
       };
-      aiService.getProfile.mockResolvedValue(expectedProfile);
+      aiService.getProfile.mockResolvedValue(expectedProfile as any);
 
       const result = await controller.getProfile(mockUser);
 

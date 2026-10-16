@@ -37,13 +37,13 @@ export const lightColors = {
     popover: '#FFFFFF',
     popoverForeground: '#0A0A0B',
 
-    // Primary (Vibrant Violet)
-    primary: '#7C3AED',
+    // Primary (Cyan - Matching Web)
+    primary: '#06B6D4',
     primaryForeground: '#FFFFFF',
 
     // Secondary
-    secondary: '#F5F3FF',
-    secondaryForeground: '#7C3AED',
+    secondary: '#ECFEFF',
+    secondaryForeground: '#0891B2',
 
     // Muted
     muted: '#F5F3FF',
@@ -86,8 +86,8 @@ export const darkColors = {
     popover: '#1A1A24',
     popoverForeground: '#FAFAFA',
 
-    // Primary (Bright Violet)
-    primary: '#A78BFA',
+    // Primary (Cyan - Bright)
+    primary: '#22D3EE',
     primaryForeground: '#1A1A24',
 
     // Secondary
@@ -109,7 +109,7 @@ export const darkColors = {
     // Border & Input
     border: '#27272A',
     input: '#27272A',
-    ring: '#A78BFA',
+    ring: '#22D3EE',
 
     // Sidebar
     sidebar: '#18181B',
@@ -440,6 +440,23 @@ export const timerColors = {
     },
 } as const;
 
+// ============ SECTION COLORS ============
+
+/**
+ * App section specific colors (Creapolis Theme)
+ */
+export const sectionColors = {
+    dashboard: '#06B6D4',
+    tasks: '#8B5CF6',
+    projects: '#EC4899',
+    workspaces: '#F97316',
+    calendar: '#3B82F6',
+    goals: '#EC4899',
+    habits: '#10B981',
+    notes: '#EAB308',
+    wellbeing: '#F43F5E',
+} as const;
+
 // ============ HELPER FUNCTIONS ============
 
 /**
@@ -490,6 +507,7 @@ export const tokens = {
         priority: priorityColors,
         status: statusColors,
         timer: timerColors,
+        section: sectionColors,
     },
     spacing,
     namedSpacing,

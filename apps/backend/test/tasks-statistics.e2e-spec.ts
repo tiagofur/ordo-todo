@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '@ordo-todo/db';
+import { PrismaService } from '../src/database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   createTestUser,
@@ -77,7 +77,7 @@ describe('Tasks Statistics (e2e)', () => {
 
   afterAll(async () => {
     await cleanupTestData(prisma);
-    await prisma.$disconnect();
+    await prisma.client.$disconnect();
     await app.close();
   });
 
@@ -94,7 +94,7 @@ describe('Tasks Statistics (e2e)', () => {
       });
       await createTestTask(prisma, project.id, user.id, {
         title: 'Owned Task 3',
-        status: 'DONE',
+        status: 'COMPLETED',
       });
 
       const response = await request(app.getHttpServer())
@@ -112,7 +112,7 @@ describe('Tasks Statistics (e2e)', () => {
       // Verify counts
       expect(statusMap.get('TODO')).toBe(1);
       expect(statusMap.get('IN_PROGRESS')).toBe(1);
-      expect(statusMap.get('DONE')).toBe(1);
+      expect(statusMap.get('COMPLETED')).toBe(1);
     });
 
     it('should include tasks assigned to user', async () => {
@@ -131,7 +131,7 @@ describe('Tasks Statistics (e2e)', () => {
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id, // Assigned to test user
-          order: 0,
+          position: 0,
         },
       });
 
@@ -143,7 +143,7 @@ describe('Tasks Statistics (e2e)', () => {
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id, // Assigned to test user
-          order: 0,
+          position: 0,
         },
       });
 
@@ -189,19 +189,19 @@ describe('Tasks Statistics (e2e)', () => {
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id,
-          order: 0,
+          position: 0,
         },
       });
 
       await prisma.task.create({
         data: {
           id: `task-${Math.random().toString(36).substring(7)}`,
-          title: 'Assigned DONE',
-          status: 'DONE',
+          title: 'Assigned COMPLETED',
+          status: 'COMPLETED' as any,
           projectId: project.id,
           ownerId: otherUser.id,
           assigneeId: user.id,
-          order: 0,
+          position: 0,
         },
       });
 
@@ -221,8 +221,8 @@ describe('Tasks Statistics (e2e)', () => {
       expect(statusMap.get('TODO')).toBe(2);
       // IN_PROGRESS: 1 owned + 0 assigned = 1 total
       expect(statusMap.get('IN_PROGRESS')).toBe(1);
-      // DONE: 0 owned + 1 assigned = 1 total
-      expect(statusMap.get('DONE')).toBe(1);
+      // COMPLETED: 0 owned + 1 assigned = 1 total
+      expect(statusMap.get('COMPLETED')).toBe(1);
     });
 
     it('should exclude soft-deleted tasks', async () => {

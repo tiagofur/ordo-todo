@@ -118,7 +118,7 @@ export class WorkflowsController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(@Query('workspaceId') workspaceId: string) {
+  findAll(@Query('workspaceId') workspaceId?: string) {
     return this.workflowsService.findAll(workspaceId);
   }
 

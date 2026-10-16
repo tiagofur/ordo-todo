@@ -11,9 +11,10 @@ import { useTranslations } from 'next-intl';
 interface NoteBoardProps {
   workspaceId: string;
   notes: Note[];
+  hideAddButton?: boolean;
 }
 
-export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
+export function NoteBoard({ workspaceId, notes, hideAddButton }: NoteBoardProps) {
   const t = useTranslations('Notes');
   const createNote = useCreateNote();
   const updateNote = useUpdateNote();
@@ -57,12 +58,17 @@ export function NoteBoard({ workspaceId, notes }: NoteBoardProps) {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="relative w-full h-full p-4 overflow-auto">
-        <div className="absolute top-4 right-4 z-50">
-           <Button onClick={handleAddNote} className="shadow-lg">
-             <Plus className="mr-2 h-4 w-4" />
-             {t('add')}
-           </Button>
-        </div>
+        {!hideAddButton && (
+          <div className="absolute top-4 right-4 z-50">
+            <Button 
+              onClick={handleAddNote} 
+              className="bg-notes text-white shadow-lg shadow-notes/25 hover:bg-notes/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t('add')}
+            </Button>
+          </div>
+        )}
         
         <div className="relative min-w-full min-h-full w-[2000px] h-[2000px]">
             {notes.map((note) => (

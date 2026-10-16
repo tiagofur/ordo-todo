@@ -50,7 +50,7 @@ describe('Collaboration API (e2e)', () => {
       .send({
         email: `userb-${Date.now()}@example.com`,
         password: 'Password123!',
-        name: 'UserB',
+        name: 'User B',
         username: `userb${Date.now()}`,
       })
       .expect(201);
@@ -72,7 +72,7 @@ describe('Collaboration API (e2e)', () => {
       .post(`/workspaces/${workspaceId}/members`)
       .set('Authorization', `Bearer ${userAToken}`)
       .send({
-        email: registerResponseB.body.user.email,
+        userId: userBId,
         role: 'MEMBER',
       });
 
@@ -168,6 +168,9 @@ describe('Collaboration API (e2e)', () => {
     });
 
     it("User B should receive a notification about User A's comment", async () => {
+      // Small delay to ensure async notifications are processed
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const response = await request(app.getHttpServer())
         .get('/notifications')
         .set('Authorization', `Bearer ${userBToken}`)

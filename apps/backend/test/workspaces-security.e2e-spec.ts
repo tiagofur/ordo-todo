@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '@ordo-todo/db';
+import { PrismaService } from '../src/database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   createTestUser,
   createTestWorkspace,
+  createTestProject,
   cleanupTestData,
   generateAuthToken,
   authHeaders,
@@ -58,11 +59,11 @@ describe('Workspaces Security (e2e)', () => {
     // Create two test users
     const user1 = await createTestUser(prisma, {
       email: 'user1@example.com',
-      name: 'User 1',
+      name: 'User One',
     });
     const user2 = await createTestUser(prisma, {
       email: 'user2@example.com',
-      name: 'User 2',
+      name: 'User Two',
     });
 
     // Generate auth tokens
@@ -85,7 +86,7 @@ describe('Workspaces Security (e2e)', () => {
 
   afterAll(async () => {
     await cleanupTestData(prisma);
-    await prisma.$disconnect();
+    await prisma.client.$disconnect();
     await app.close();
   });
 

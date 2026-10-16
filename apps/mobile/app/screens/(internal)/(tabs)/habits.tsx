@@ -1,4 +1,5 @@
-import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
+import { useDesignTokens } from "@/app/lib/use-design-tokens";
+import { useMediaQuery } from "@/app/lib/hooks/use-media-query";
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl, Alert } from "react-native";
 import React, { useState, useCallback } from "react";
 import Animated, {
@@ -6,7 +7,6 @@ import Animated, {
   FadeInRight,
   Layout,
 } from "react-native-reanimated";
-import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import Card from "@/app/components/shared/card.component";
 import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/app/lib/shared-hooks";
@@ -14,7 +14,8 @@ import type { Habit } from "@ordo-todo/api-client";
 import { useTranslation } from "react-i18next";
 
 export default function Habits() {
-  const colors = useThemeColors();
+  const { colors } = useDesignTokens();
+  const { isTablet } = useMediaQuery();
   const { t } = useTranslation();
   
   // Hooks
@@ -56,7 +57,7 @@ export default function Habits() {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.section.habits} />
       </View>
     );
   }
@@ -64,9 +65,9 @@ export default function Habits() {
   if (error) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.error, marginBottom: 10 }}>{t('Mobile.habits.loadError')}</Text>
+        <Text style={{ color: colors.destructive, marginBottom: 10 }}>{t('Mobile.habits.loadError')}</Text>
         <Pressable onPress={() => refetch()} style={{ padding: 10, backgroundColor: colors.card, borderRadius: 8 }}>
-          <Text style={{ color: colors.primary, fontWeight: 'bold' }}>{t('Mobile.habits.retry')}</Text>
+          <Text style={{ color: colors.section.habits, fontWeight: 'bold' }}>{t('Mobile.habits.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -79,46 +80,60 @@ export default function Habits() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header com gradiente */}
-      <LinearGradient
-        colors={["#10B981", "#059669"]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Animated.View entering={FadeInDown.delay(100)}>
-          <Text style={styles.greeting}>✨ {t('Mobile.tabs.habits')}</Text>
-          <Text style={styles.title}>{t('Mobile.habits.progress')}</Text>
-        </Animated.View>
+      {/* Header - Standard Iconic Design */}
+      <View style={[styles.headerContainer, isTablet && { paddingHorizontal: 32, paddingTop: 80 }]}>
+        <View style={styles.headerMain}>
+          <View style={[
+            styles.headerIconBox, 
+            { 
+              backgroundColor: colors.section.habits, 
+              shadowColor: colors.section.habits, 
+              shadowOpacity: 0.3, 
+              shadowRadius: 10, 
+              elevation: 5,
+              width: isTablet ? 64 : 52,
+              height: isTablet ? 64 : 52,
+            }
+          ]}>
+            <Feather name="star" size={isTablet ? 32 : 26} color="#FFF" />
+          </View>
+          <View>
+            <Text style={[styles.headerTitle, { color: colors.foreground, fontSize: isTablet ? 36 : 28 }]}>{t('Mobile.tabs.habits')}</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontSize: isTablet ? 16 : 14 }]}>
+              {t('Mobile.habits.progress')}
+            </Text>
+          </View>
+        </View>
+      </View>
 
-        <Animated.View
-          entering={FadeInDown.delay(200)}
-          style={styles.statsContainer}
-        >
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{summary.completed}/{summary.total}</Text>
-            <Text style={styles.statLabel}>{t('Mobile.habits.completed')}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{summary.percentage}%</Text>
-            <Text style={styles.statLabel}>{t('Mobile.habits.progress')}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{bestStreak}</Text>
-            <Text style={styles.statLabel}>🔥 {t('Mobile.habits.streak')}</Text>
-          </View>
-        </Animated.View>
-      </LinearGradient>
+      {/* Progress Cards */}
+      <Animated.View
+        entering={FadeInDown.delay(100).duration(300)}
+        style={[styles.statsContainer, isTablet && { paddingHorizontal: 32, gap: 16 }]}
+      >
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderLeftColor: colors.section.habits, borderLeftWidth: 4 }]}>
+          <Text style={[styles.statNumber, { color: colors.foreground }]}>{summary.completed}/{summary.total}</Text>
+          <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>{t('Mobile.habits.completed')}</Text>
+        </View>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderLeftColor: colors.section.habits, borderLeftWidth: 4 }]}>
+          <Text style={[styles.statNumber, { color: colors.foreground }]}>{summary.percentage}%</Text>
+          <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>{t('Mobile.habits.progress')}</Text>
+        </View>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderLeftColor: colors.semantic.warning, borderLeftWidth: 4 }]}>
+          <Text style={[styles.statNumber, { color: colors.foreground }]}>{bestStreak}</Text>
+          <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>🔥 {t('Mobile.habits.streak')}</Text>
+        </View>
+      </Animated.View>
 
       {/* Progress Bar */}
-      <Animated.View entering={FadeInRight.delay(300)} style={styles.progressContainer}>
-        <View style={[styles.progressBar, { backgroundColor: colors.backgroundSecondary }]}>
+      <Animated.View entering={FadeInRight.delay(300)} style={[styles.progressContainer, isTablet && { paddingHorizontal: 32 }]}>
+        <View style={[styles.progressBar, { backgroundColor: colors.muted }]}>
           <View 
             style={[
               styles.progressFill, 
               { 
                 width: `${summary.percentage}%`,
-                backgroundColor: "#10B981"
+                backgroundColor: colors.section.habits
               }
             ]} 
           />
@@ -135,8 +150,8 @@ export default function Habits() {
       >
         {habits.length === 0 ? (
           <View style={{ padding: 40, alignItems: 'center' }}>
-            <Feather name="star" size={48} color={colors.textMuted} style={{ marginBottom: 10, opacity: 0.5 }} />
-            <Text style={{ color: colors.textSecondary, textAlign: 'center' }}>
+            <Feather name="star" size={48} color={colors.mutedForeground} style={{ marginBottom: 10, opacity: 0.5 }} />
+            <Text style={{ color: colors.mutedForeground, textAlign: 'center' }}>
               {t('Mobile.habits.noHabits')}{"\n"}{t('Mobile.habits.createFirst')}
             </Text>
           </View>
@@ -165,8 +180,8 @@ export default function Habits() {
                         style={[
                           styles.checkButton,
                           { 
-                            borderColor: isCompleted ? "#10B981" : colors.border,
-                            backgroundColor: isCompleted ? "#10B981" : "transparent"
+                            borderColor: isCompleted ? colors.section.habits : colors.border,
+                            backgroundColor: isCompleted ? colors.section.habits : "transparent"
                           }
                         ]}
                       >
@@ -179,7 +194,7 @@ export default function Habits() {
                       <View 
                         style={[
                           styles.habitIcon,
-                          { backgroundColor: habit.color || "#10B981" }
+                          { backgroundColor: habit.color || colors.section.habits }
                         ]}
                       >
                         <Feather name="star" size={18} color="#fff" />
@@ -190,7 +205,7 @@ export default function Habits() {
                           style={[
                             styles.habitTitle, 
                             { 
-                              color: colors.text,
+                              color: colors.foreground,
                               textDecorationLine: isCompleted ? 'line-through' : 'none',
                               opacity: isCompleted ? 0.6 : 1
                             }
@@ -200,7 +215,7 @@ export default function Habits() {
                         </Text>
                         {habit.description && (
                           <Text
-                            style={[styles.habitDescription, { color: colors.textSecondary }]}
+                            style={[styles.habitDescription, { color: colors.mutedForeground }]}
                             numberOfLines={1}
                           >
                             {habit.description}
@@ -212,8 +227,8 @@ export default function Habits() {
 
                   <View style={styles.habitFooter}>
                     {/* Frequency Badge */}
-                    <View style={[styles.badge, { backgroundColor: colors.backgroundSecondary }]}>
-                      <Text style={[styles.badgeText, { color: colors.textSecondary }]}>
+                    <View style={[styles.badge, { backgroundColor: colors.muted }]}>
+                      <Text style={[styles.badgeText, { color: colors.mutedForeground }]}>
                         {habit.frequency === 'DAILY' ? 'Diário' : 
                          habit.frequency === 'WEEKLY' ? 'Semanal' : 
                          habit.frequency}
@@ -222,8 +237,8 @@ export default function Habits() {
 
                     {/* Streak */}
                     {(habit.currentStreak || 0) > 0 && (
-                      <View style={[styles.streakBadge, { backgroundColor: "#fef3c7" }]}>
-                        <Text style={styles.streakText}>
+                      <View style={[styles.streakBadge, { backgroundColor: `${colors.semantic.warning}20` }]}>
+                        <Text style={[styles.streakText, { color: colors.semantic.warning }]}>
                           🔥 {habit.currentStreak}
                         </Text>
                       </View>
@@ -231,9 +246,9 @@ export default function Habits() {
 
                     {/* Paused Badge */}
                     {isPaused && (
-                      <View style={[styles.badge, { backgroundColor: colors.backgroundSecondary }]}>
-                        <Feather name="pause" size={12} color={colors.textMuted} />
-                        <Text style={[styles.badgeText, { color: colors.textMuted, marginLeft: 4 }]}>
+                      <View style={[styles.badge, { backgroundColor: colors.muted }]}>
+                        <Feather name="pause" size={12} color={colors.mutedForeground} />
+                        <Text style={[styles.badgeText, { color: colors.mutedForeground, marginLeft: 4 }]}>
                           Pausado
                         </Text>
                       </View>
@@ -259,46 +274,52 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {
-    paddingTop: 20,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+  headerContainer: {
+    padding: 24,
+    paddingTop: 60,
+    marginBottom: 8,
   },
-  greeting: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    fontWeight: "600",
-    opacity: 0.9,
+  headerMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "800",
-    color: "#FFFFFF",
-    marginBottom: 20,
-    letterSpacing: -1,
+  headerIconBox: {
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  headerTitle: {
+    fontWeight: '800',
+    letterSpacing: -0.5
+  },
+  headerSubtitle: {
+    fontWeight: '500',
+    marginTop: 2
   },
   statsContainer: {
     flexDirection: "row",
+    paddingHorizontal: 20,
     gap: 12,
+    marginBottom: 16,
   },
   statCard: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 16,
     padding: 16,
-    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   statNumber: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#FFFFFF",
   },
   statLabel: {
     fontSize: 11,
-    color: "#FFFFFF",
-    opacity: 0.9,
     marginTop: 4,
     fontWeight: "600",
   },
@@ -385,6 +406,5 @@ const styles = StyleSheet.create({
   streakText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#f59e0b",
   },
 });

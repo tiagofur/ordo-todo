@@ -38,7 +38,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly csrfService: CsrfService,
-  ) { }
+  ) {}
 
   /**
    * Register a new user account
@@ -185,7 +185,9 @@ export class AuthController {
       try {
         await this.authService.logout(token);
       } catch (err: any) {
-        this.logger.warn(`Logout token blacklist skipped/failed: ${err?.message}`);
+        this.logger.warn(
+          `Logout token blacklist skipped/failed: ${err?.message}`,
+        );
       }
     }
 
@@ -230,7 +232,8 @@ export class AuthController {
     @Res({ passthrough: true }) res?: Response,
   ) {
     // Extract refresh token from httpOnly cookie or request body (for mobile/API clients)
-    const refreshToken = req?.cookies?.refresh_token || refreshTokenDto?.refreshToken;
+    const refreshToken =
+      req?.cookies?.refresh_token || refreshTokenDto?.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
@@ -338,7 +341,7 @@ export class AuthController {
     summary: 'Google OAuth login',
     description: 'Redirects to Google OAuth consent screen',
   })
-  async googleAuth() { }
+  async googleAuth() {}
 
   /**
    * Google OAuth callback
@@ -405,7 +408,7 @@ export class AuthController {
     summary: 'GitHub OAuth login',
     description: 'Redirects to GitHub OAuth consent screen',
   })
-  async githubAuth() { }
+  async githubAuth() {}
 
   /**
    * GitHub OAuth callback
@@ -461,4 +464,3 @@ export class AuthController {
     );
   }
 }
-
