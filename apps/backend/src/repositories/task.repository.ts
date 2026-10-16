@@ -223,6 +223,12 @@ export class PrismaTaskRepository implements TaskRepository {
           : undefined,
       },
     });
+
+    if (task.props.recurrence === null) {
+      await this.prisma.recurrence.deleteMany({
+        where: { taskId: task.id },
+      });
+    }
   }
 
   async findById(id: string): Promise<Task | null> {
@@ -477,6 +483,12 @@ export class PrismaTaskRepository implements TaskRepository {
           : undefined,
       },
     });
+
+    if (task.props.recurrence === null) {
+      await this.prisma.recurrence.deleteMany({
+        where: { taskId: task.id },
+      });
+    }
   }
 
   async delete(id: string): Promise<void> {

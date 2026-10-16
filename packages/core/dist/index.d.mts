@@ -1902,14 +1902,14 @@ interface TaskProps extends EntityProps<string> {
     deletedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
-    recurrence?: TaskRecurrenceInfo;
+    recurrence?: TaskRecurrenceInfo | null;
 }
 interface TaskRecurrenceInfo {
     pattern: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "CUSTOM";
     interval?: number;
     daysOfWeek?: number[];
-    dayOfMonth?: number;
-    endDate?: Date | null;
+    dayOfMonth?: number | null;
+    endDate?: Date | string | null;
 }
 declare class Task extends Entity<TaskProps> {
     constructor(props: TaskProps);
@@ -2243,7 +2243,7 @@ interface CreateTaskInput {
     ownerId: string;
     assigneeId?: string | null;
     parentTaskId?: string | null;
-    recurrence?: TaskRecurrenceInfo;
+    recurrence?: TaskRecurrenceInfo | null;
 }
 declare class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
     private readonly repository;

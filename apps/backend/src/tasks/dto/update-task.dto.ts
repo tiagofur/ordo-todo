@@ -7,8 +7,10 @@ import {
   Matches,
   IsBoolean,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CreateRecurrenceDto } from './create-task.dto';
 
 export class UpdateTaskDto {
   @IsString()
@@ -70,4 +72,10 @@ export class UpdateTaskDto {
   @IsString()
   @IsOptional()
   assigneeId?: string | null;
+
+  @ValidateIf((_, val) => val !== null)
+  @ValidateNested()
+  @Type(() => CreateRecurrenceDto)
+  @IsOptional()
+  recurrence?: CreateRecurrenceDto | null;
 }
