@@ -20,6 +20,7 @@ import {
   useProjects,
 } from "@/app/lib/shared-hooks";
 import { useWorkspaceStore } from "@ordo-todo/stores";
+import { parseCalendarDate, serializeCalendarDateForApi } from "@ordo-todo/core";
 import CustomTextInput from "../../components/shared/text-input.component";
 import CustomButton from "../../components/shared/button.component";
 import { Feather } from "@expo/vector-icons";
@@ -102,13 +103,13 @@ export default function TaskScreen() {
       setDescription(existingTask.description || "");
       setPriority(existingTask.priority);
       if (existingTask.dueDate) {
-        setDueDate(new Date(existingTask.dueDate));
+        setDueDate(parseCalendarDate(existingTask.dueDate) ?? undefined);
       }
       if (existingTask.startDate) {
-        setStartDate(new Date(existingTask.startDate));
+        setStartDate(parseCalendarDate(existingTask.startDate) ?? undefined);
       }
       if (existingTask.scheduledDate) {
-        setScheduledDate(new Date(existingTask.scheduledDate));
+        setScheduledDate(parseCalendarDate(existingTask.scheduledDate) ?? undefined);
       }
       if ((existingTask as any).scheduledTime) {
         setScheduledTime((existingTask as any).scheduledTime || "");
@@ -145,11 +146,11 @@ export default function TaskScreen() {
             title,
             description,
             priority: priority as any,
-            dueDate: dueDate ? dueDate.toISOString() : undefined,
-            startDate: startDate ? startDate.toISOString() : undefined,
-            scheduledDate: scheduledDate
-              ? scheduledDate.toISOString()
-              : undefined,
+            dueDate: (dueDate ? serializeCalendarDateForApi(dueDate) : null) as any,
+            startDate: (startDate ? serializeCalendarDateForApi(startDate) : null) as any,
+            scheduledDate: (scheduledDate
+              ? serializeCalendarDateForApi(scheduledDate)
+              : null) as any,
             scheduledTime: scheduledTime || null,
             scheduledEndTime: scheduledEndTime || null,
             isTimeBlocked,
@@ -160,8 +161,8 @@ export default function TaskScreen() {
           title,
           description,
           priority: priority as any,
-          dueDate: dueDate ? dueDate.toISOString() : undefined,
-          startDate: startDate ? startDate.toISOString() : undefined,
+          dueDate: (dueDate ? serializeCalendarDateForApi(dueDate) : undefined) as any,
+          startDate: (startDate ? serializeCalendarDateForApi(startDate) : undefined) as any,
           projectId: targetProjectId!,
         });
 

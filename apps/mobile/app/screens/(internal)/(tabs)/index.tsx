@@ -12,6 +12,7 @@ import Card from "@/app/components/shared/card.component";
 import { useTasks, useCompleteTask, useObjectivesDashboardSummary } from "@/app/lib/shared-hooks";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { parseCalendarDate, isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
 
 // Filter keys for translation
 const FILTER_KEYS = ["all", "today", "upcoming", "completed"] as const;
@@ -77,7 +78,9 @@ export default function Home() {
 
   const formattedDate = (dateString?: string | Date) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const parsed = parseCalendarDate(dateString);
+    if (!parsed) return "";
+    return parsed.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
   };
 
   const filteredTasks = React.useMemo(() => {
@@ -86,13 +89,12 @@ export default function Home() {
     if (selectedFilter === "completed") return tasks.filter(t => t.status === "COMPLETED");
     if (selectedFilter === "all") return tasks.filter(t => t.status !== "COMPLETED");
     
-    const today = new Date().toISOString().split('T')[0];
     if (selectedFilter === "today") {
-      return tasks.filter(t => t.status !== "COMPLETED" && t.dueDate && new Date(t.dueDate).toISOString().startsWith(today));
+      return tasks.filter(t => t.status !== "COMPLETED" && t.dueDate && isCalendarDateToday(t.dueDate));
     }
     
     if (selectedFilter === "upcoming") {
-       return tasks.filter(t => t.status !== "COMPLETED" && t.dueDate && new Date(t.dueDate).toISOString().split('T')[0] > today);
+       return tasks.filter(t => t.status !== "COMPLETED" && t.dueDate && !isCalendarDateToday(t.dueDate) && !isCalendarDateOverdue(t.dueDate, false));
     }
 
     return tasks.filter(t => t.status !== "COMPLETED");

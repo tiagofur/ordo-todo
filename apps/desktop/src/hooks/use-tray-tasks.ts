@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useTasks } from '@/hooks/api';
-import { format, isToday, isFuture, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { parseCalendarDate, isCalendarDateToday, isCalendarDateOverdue } from '@ordo-todo/core';
 
 /**
  * Hook to update the System Tray with task information
@@ -18,22 +19,21 @@ export function useTrayTasks() {
     const pendingCount = pendingTasks.length;
 
     // Find next upcoming task (with due date, not overdue, not today)
-    const now = new Date();
     const nextTask = pendingTasks
       .filter((task: any) => {
         if (!task.dueDate) return false;
-        const dueDate = parseISO(task.dueDate);
-        return isFuture(dueDate) && !isToday(dueDate);
+        return !isCalendarDateToday(task.dueDate) && !isCalendarDateOverdue(task.dueDate, false);
       })
       .sort((a: any, b: any) => {
-        const dateA = parseISO(a.dueDate);
-        const dateB = parseISO(b.dueDate);
-        return dateA.getTime() - dateB.getTime();
+        const dateA = (parseCalendarDate(a.dueDate) || new Date(a.dueDate)).getTime();
+        const dateB = (parseCalendarDate(b.dueDate) || new Date(b.dueDate)).getTime();
+        return dateA - dateB;
       })[0] as any;
 
     // Format next task due date
-    const nextTaskDue = nextTask?.dueDate
-      ? format(parseISO(nextTask.dueDate), 'd MMM yyyy', { locale: es })
+    const nextTaskDate = nextTask?.dueDate ? parseCalendarDate(nextTask.dueDate) : null;
+    const nextTaskDue = nextTaskDate
+      ? format(nextTaskDate, 'd MMM yyyy', { locale: es })
       : null;
 
     // Update tray with task information

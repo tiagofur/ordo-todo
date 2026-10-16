@@ -22,6 +22,7 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { parseTaskInput } from "@/utils/smart-capture";
 import { TemplateSelector } from "./template-selector";
 import { TaskTemplate } from "@/hooks/api";
+import { formatCalendarDateInput, serializeCalendarDateForApi } from "@ordo-todo/core";
 import { VoiceInputButton } from "@/components/voice/voice-input";
 import { CustomFieldInputs, useCustomFieldForm } from "./custom-field-inputs";
 
@@ -96,7 +97,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
       const createdTask = await createTask.mutateAsync({
         ...taskData,
         priority: data.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
-        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+        dueDate: data.dueDate ? (serializeCalendarDateForApi(data.dueDate) as any) : undefined,
         projectId: data.projectId,
         estimatedMinutes: estimatedMinutes ? Math.round(estimatedMinutes) : undefined,
       });
@@ -132,7 +133,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
         // We handle it as 'any' to be safe and inspect properties.
         if (parsed.title) setValue("title", parsed.title);
         if (parsed.priority) setValue("priority", parsed.priority);
-        if (parsed.dueDate) setValue("dueDate", parsed.dueDate.toISOString().split('T')[0]);
+        if (parsed.dueDate) setValue("dueDate", formatCalendarDateInput(parsed.dueDate));
         // If it also returns raw text, append?
         // But for now replacing fields seems correct for "Voice Input" that parses.
     };
@@ -145,7 +146,7 @@ export function CreateTaskDialog({ open, onOpenChange, projectId }: CreateTaskDi
             const parsed = parseTaskInput(title);
             if (parsed.title) setValue("title", parsed.title);
             if (parsed.priority) setValue("priority", parsed.priority);
-            if (parsed.dueDate) setValue("dueDate", parsed.dueDate.toISOString().split('T')[0]);
+            if (parsed.dueDate) setValue("dueDate", formatCalendarDateInput(parsed.dueDate));
             // if (parsed.estimatedMinutes) setValue("estimatedMinutes", parsed.estimatedMinutes); // Not supported yet
             toast.success("Tarea procesada con Smart Capture");
         } catch (error) {

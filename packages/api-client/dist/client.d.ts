@@ -762,7 +762,7 @@ export declare class OrdoApiClient {
     getWorkspaceInvitations(workspaceId: string): Promise<WorkspaceInvitation[]>;
     /**
      * Invite a member to a workspace
-     * POST /workspaces/:id/invite
+     * POST /workspaces/:id/invitations
      */
     inviteWorkspaceMember(workspaceId: string, data: InviteMemberDto): Promise<WorkspaceInvitation>;
     /**
@@ -807,7 +807,7 @@ export declare class OrdoApiClient {
     updateTag(tagId: string, data: UpdateTagDto): Promise<Tag>;
     /**
      * Get all timer sessions for a task
-     * GET /timers?taskId=xxx
+     * GET /timers/task/:taskId
      */
     getTimerSessions(taskId: string): Promise<TimeSession[]>;
     /**

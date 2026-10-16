@@ -1,5 +1,6 @@
 import { Calendar, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { parseCalendarDate } from "@ordo-todo/core";
 
 interface Task {
   id: string;
@@ -28,19 +29,19 @@ export function UpcomingTasksWidget({ tasks, onTaskClick }: UpcomingTasksWidgetP
   // Sort by due date (soonest first)
   const sortedTasks = [...tasks]
     .sort((a, b) => {
-      const dateA = new Date(a.dueDate).getTime();
-      const dateB = new Date(b.dueDate).getTime();
+      const dateA = (parseCalendarDate(a.dueDate) || new Date(a.dueDate)).getTime();
+      const dateB = (parseCalendarDate(b.dueDate) || new Date(b.dueDate)).getTime();
       return dateA - dateB;
     })
     .slice(0, 5);
 
   const getDaysUntilDue = (dueDate: Date | string) => {
-    const due = new Date(dueDate);
+    const due = parseCalendarDate(dueDate) || new Date(dueDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     due.setHours(0, 0, 0, 0);
     const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 

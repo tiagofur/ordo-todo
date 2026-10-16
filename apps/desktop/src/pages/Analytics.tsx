@@ -4,6 +4,7 @@ import { Calendar, ChevronLeft, ChevronRight, Timer, CheckCircle2, Flame, Target
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseCalendarDate, toCalendarDateString } from "@ordo-todo/core";
 import {
   WeeklyChart,
   PeakHoursHeatmap,
@@ -34,13 +35,16 @@ export function Analytics() {
   const { data: streakData } = useProductivityStreak();
 
   // Transform Weekly Metrics
-  const weeklyData = weeklyMetrics?.map((m: any) => ({
-    date: new Date(m.date).toISOString().split('T')[0],
-    dayName: format(new Date(m.date), "EEE", { locale: es }),
-    pomodoros: m.pomodorosCount || 0,
-    focusMinutes: m.focusDuration || 0,
-    tasksCompleted: m.tasksCompletedCount || 0,
-  })) || [];
+  const weeklyData = weeklyMetrics?.map((m: any) => {
+    const calendarDate = parseCalendarDate(m.date) || new Date(m.date);
+    return {
+      date: toCalendarDateString(m.date),
+      dayName: format(calendarDate, "EEE", { locale: es }),
+      pomodoros: m.pomodorosCount || 0,
+      focusMinutes: m.focusDuration || 0,
+      tasksCompleted: m.tasksCompletedCount || 0,
+    };
+  }) || [];
   
   const totalPomodoros = stats?.pomodoros || 0;
   const totalTasks = stats?.tasks || 0;

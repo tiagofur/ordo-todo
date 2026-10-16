@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useTasks } from "@/hooks/api";
 import { useUpdateTask } from "@/hooks/api";
 import { Task } from "@ordo-todo/api-client";
+import { parseCalendarDate } from "@ordo-todo/core";
 import { cn, Button, Badge } from "@ordo-todo/ui";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { DragStore } from "@/lib/drag-store";
@@ -170,9 +171,12 @@ export function TaskCalendar() {
       .filter((task) => task.scheduledDate || (task.dueDate && task.isTimeBlocked))
       .map((task) => {
         // Use scheduledDate preferably, fallback to dueDate if time blocked (compatibility)
-        const dateBase = task.scheduledDate ? new Date(task.scheduledDate) : (task.dueDate ? new Date(task.dueDate) : new Date());
+        const dateBase = parseCalendarDate(task.scheduledDate) || 
+                         (task.isTimeBlocked ? parseCalendarDate(task.dueDate) : null) || 
+                         parseCalendarDate(task.dueDate) || 
+                         new Date();
         
-        let start = dateBase;
+        let start = new Date(dateBase);
         
         // Parse time if exists
         if (task.scheduledTime) {

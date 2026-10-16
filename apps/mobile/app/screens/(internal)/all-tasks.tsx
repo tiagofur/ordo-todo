@@ -13,6 +13,7 @@ import { Feather } from "@expo/vector-icons";
 import { useThemeColors } from "@/app/data/hooks/use-theme-colors.hook";
 import { useTasks } from "@/app/lib/shared-hooks";
 import { useWorkspaceStore } from "@ordo-todo/stores";
+import { parseCalendarDate } from "@ordo-todo/core";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 type FilterType = "ALL" | "TODO" | "IN_PROGRESS" | "COMPLETED";
@@ -123,7 +124,9 @@ export default function AllTasksScreen() {
 
   const formatDate = (date: Date | string | null) => {
     if (!date) return "Sin fecha";
-    return new Date(date).toLocaleDateString("es", {
+    const parsed = parseCalendarDate(date);
+    if (!parsed) return "Sin fecha";
+    return parsed.toLocaleDateString("es", {
       month: "short",
       day: "numeric",
     });
