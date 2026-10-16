@@ -14,6 +14,7 @@ const LoadingSpinner = () => (
 );
 
 // Lazy loading wrapper
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function LazyLoad<T extends React.ComponentType<any>>(
   factory: () => Promise<{ default: T }>,
   fallback?: React.ReactNode
@@ -32,6 +33,7 @@ export function LazyLoad<T extends React.ComponentType<any>>(
 }
 
 // Preload component (for critical paths)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function preloadComponent(factory: () => Promise<{ default: any }>) {
   factory();
 }

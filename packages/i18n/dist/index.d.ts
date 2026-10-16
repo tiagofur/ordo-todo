@@ -35,6 +35,28 @@ export declare const locales: {
             agenda: string;
             previous: string;
             next: string;
+            unscheduledTasks: string;
+            noUnscheduledTasks: string;
+            noUnscheduledTasksDescription: string;
+            taskScheduled: string;
+            taskScheduleError: string;
+            taskMoved: string;
+            taskMoveError: string;
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                dragdropTitle: string;
+                dragdropDesc: string;
+                schedulingTitle: string;
+                schedulingDesc: string;
+                viewsTitle: string;
+                viewsDesc: string;
+                getstartedTitle: string;
+                getstartedDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
         };
         Sidebar: {
             today: string;
@@ -111,6 +133,79 @@ export declare const locales: {
             version: string;
             platform: string;
             developer: string;
+            modes: {
+                pomodoro: string;
+                pomodoroDesc: string;
+                continuous: string;
+                continuousDesc: string;
+            };
+            ai: {
+                title: string;
+                insightsTitle: string;
+                insightsDesc: string;
+                enableInsights: string;
+                enableInsightsDesc: string;
+                smartScheduling: string;
+                smartSchedulingDesc: string;
+                wellbeingTitle: string;
+                wellbeingDesc: string;
+                burnoutDetection: string;
+                burnoutDetectionDesc: string;
+                restReminders: string;
+                restRemindersDesc: string;
+                sensitivity: string;
+                sensitivityLevels: {
+                    low: string;
+                    medium: string;
+                    high: string;
+                };
+                focusAudioTitle: string;
+                focusAudioDesc: string;
+                ambientAudio: string;
+                ambientAudioDesc: string;
+                defaultVolume: string;
+            };
+            tour: {
+                title: string;
+                aiFeatures: string;
+                aiFeaturesDesc: string;
+                startTour: string;
+                retakeTour: string;
+                starting: string;
+                guideText: string;
+            };
+            security: string;
+            sessions: {
+                title: string;
+                single: string;
+                multiple: string;
+                closeOthers: string;
+                confirm: string;
+                closing: string;
+                cancel: string;
+                current: string;
+                loading: string;
+                loadError: string;
+                revokeSuccess: string;
+                revokeError: string;
+                revokeOthersSuccess: string;
+                tipsTitle: string;
+                tips: {
+                    tip1: string;
+                    tip2: string;
+                    tip3: string;
+                };
+                relativeTime: {
+                    justNow: string;
+                    minute: string;
+                    minutes: string;
+                    hour: string;
+                    hours: string;
+                    day: string;
+                    days: string;
+                };
+            };
+            languageChanged: string;
         };
         TimerWidget: {
             startTimer: string;
@@ -149,6 +244,21 @@ export declare const locales: {
                 startTimer: string;
                 newTask: string;
             };
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                tasksTitle: string;
+                tasksDesc: string;
+                timerTitle: string;
+                timerDesc: string;
+                habitsTitle: string;
+                habitsDesc: string;
+                getstartedTitle: string;
+                getstartedDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
         };
         Tasks: {
             title: string;
@@ -161,6 +271,46 @@ export declare const locales: {
             confirmDeleteTask: string;
             taskDeleted: string;
             taskDeleteError: string;
+            noResults: string;
+            noResultsDescription: string;
+            clearFilters: string;
+            taskCompleted: string;
+            taskReopened: string;
+            taskUpdateError: string;
+            taskMoved: string;
+            taskMoveError: string;
+            listView: string;
+            gridView: string;
+            eisenhowerView: string;
+            eisenhower: {
+                title: string;
+                urgentCount: string;
+                importantCount: string;
+                quadrants: {
+                    do: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    schedule: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    delegate: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    delete: {
+                        title: string;
+                        subtitle: string;
+                    };
+                };
+                empty: string;
+                dragHere: string;
+                legend: {
+                    do: string;
+                    schedule: string;
+                };
+            };
         };
         Notes: {
             title: string;
@@ -276,6 +426,25 @@ export declare const locales: {
             noTagsDescription: string;
             createTag: string;
             tagCreated: string;
+            tagUpdated: string;
+            saveError: string;
+            selectWorkspaceFirst: string;
+            dialog: {
+                titleCreate: string;
+                titleEdit: string;
+                descriptionCreate: string;
+                descriptionEdit: string;
+                colorLabel: string;
+                nameLabel: string;
+                namePlaceholder: string;
+                nameRequired: string;
+                previewLabel: string;
+                cancel: string;
+                save: string;
+                saving: string;
+                create: string;
+                creating: string;
+            };
         };
         Habits: {
             title: string;
@@ -295,6 +464,8 @@ export declare const locales: {
                 completionRate: string;
                 thisWeek: string;
                 thisMonth: string;
+                days: string;
+                completedCount: string;
             };
             frequency: {
                 DAILY: string;
@@ -408,9 +579,17 @@ export declare const locales: {
             avgPerDay: string;
             tabs: {
                 overview: string;
+                analytics: string;
+                reports: string;
+                wellbeing: string;
                 weekly: string;
                 focus: string;
                 aiInsights: string;
+            };
+            reports: {
+                emptyTitle: string;
+                emptyDesc: string;
+                detailTitle: string;
             };
             focusScore: {
                 label: string;
@@ -1228,6 +1407,7 @@ export declare const locales: {
             actions: {
                 viewEdit: string;
                 delete: string;
+                moreOptions: string;
             };
             status: {
                 completed: string;
@@ -1926,6 +2106,21 @@ export declare const locales: {
             noObjectives: string;
             noObjectivesDescription: string;
             listTitle: string;
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                objectivesTitle: string;
+                objectivesDesc: string;
+                keyresultsTitle: string;
+                keyresultsDesc: string;
+                linkingTitle: string;
+                linkingDesc: string;
+                progressTitle: string;
+                progressDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
             backToList: string;
             createDescription: string;
             cancel: string;
@@ -2247,6 +2442,26 @@ export declare const locales: {
                 strongWarning: string;
                 criticalAlert: string;
             };
+            refresh: string;
+            factorsDetected: string;
+            immediateSuggestions: string;
+            hoursPerDay: string;
+            weekends: string;
+            breaks: string;
+            trends: {
+                improving: string;
+                stable: string;
+                declining: string;
+            };
+            wellbeingScore: string;
+            positive: string;
+            concerns: string;
+            restRecommendations: string;
+            empty: {
+                title: string;
+                description: string;
+                retry: string;
+            };
         };
         Mobile: {
             home: {
@@ -2410,6 +2625,37 @@ export declare const locales: {
             description: string;
             goToDashboard: string;
             goToHome: string;
+        };
+        Auth: {
+            login: {
+                title: string;
+                subtitle: string;
+                emailLabel: string;
+                emailPlaceholder: string;
+                passwordLabel: string;
+                passwordPlaceholder: string;
+                forgotPassword: string;
+                rememberMe: string;
+                submitButton: string;
+                submitting: string;
+                orContinueWith: string;
+                google: string;
+                github: string;
+                noAccount: string;
+                signUpFree: string;
+                termsPrefix: string;
+                terms: string;
+                termsAnd: string;
+                privacy: string;
+                errors: {
+                    requiredFields: string;
+                    invalidEmail: string;
+                    invalidCredentials: string;
+                    googleFailed: string;
+                    githubFailed: string;
+                };
+                success: string;
+            };
         };
     };
     readonly es: {
@@ -2423,6 +2669,28 @@ export declare const locales: {
             agenda: string;
             previous: string;
             next: string;
+            unscheduledTasks: string;
+            noUnscheduledTasks: string;
+            noUnscheduledTasksDescription: string;
+            taskScheduled: string;
+            taskScheduleError: string;
+            taskMoved: string;
+            taskMoveError: string;
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                dragdropTitle: string;
+                dragdropDesc: string;
+                schedulingTitle: string;
+                schedulingDesc: string;
+                viewsTitle: string;
+                viewsDesc: string;
+                getstartedTitle: string;
+                getstartedDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
         };
         Sidebar: {
             today: string;
@@ -2499,6 +2767,79 @@ export declare const locales: {
             version: string;
             platform: string;
             developer: string;
+            modes: {
+                pomodoro: string;
+                pomodoroDesc: string;
+                continuous: string;
+                continuousDesc: string;
+            };
+            ai: {
+                title: string;
+                insightsTitle: string;
+                insightsDesc: string;
+                enableInsights: string;
+                enableInsightsDesc: string;
+                smartScheduling: string;
+                smartSchedulingDesc: string;
+                wellbeingTitle: string;
+                wellbeingDesc: string;
+                burnoutDetection: string;
+                burnoutDetectionDesc: string;
+                restReminders: string;
+                restRemindersDesc: string;
+                sensitivity: string;
+                sensitivityLevels: {
+                    low: string;
+                    medium: string;
+                    high: string;
+                };
+                focusAudioTitle: string;
+                focusAudioDesc: string;
+                ambientAudio: string;
+                ambientAudioDesc: string;
+                defaultVolume: string;
+            };
+            tour: {
+                title: string;
+                aiFeatures: string;
+                aiFeaturesDesc: string;
+                startTour: string;
+                retakeTour: string;
+                starting: string;
+                guideText: string;
+            };
+            security: string;
+            sessions: {
+                title: string;
+                single: string;
+                multiple: string;
+                closeOthers: string;
+                confirm: string;
+                closing: string;
+                cancel: string;
+                current: string;
+                loading: string;
+                loadError: string;
+                revokeSuccess: string;
+                revokeError: string;
+                revokeOthersSuccess: string;
+                tipsTitle: string;
+                tips: {
+                    tip1: string;
+                    tip2: string;
+                    tip3: string;
+                };
+                relativeTime: {
+                    justNow: string;
+                    minute: string;
+                    minutes: string;
+                    hour: string;
+                    hours: string;
+                    day: string;
+                    days: string;
+                };
+            };
+            languageChanged: string;
         };
         TimerWidget: {
             startTimer: string;
@@ -2537,6 +2878,21 @@ export declare const locales: {
                 startTimer: string;
                 newTask: string;
             };
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                tasksTitle: string;
+                tasksDesc: string;
+                timerTitle: string;
+                timerDesc: string;
+                habitsTitle: string;
+                habitsDesc: string;
+                getstartedTitle: string;
+                getstartedDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
         };
         Tasks: {
             title: string;
@@ -2549,6 +2905,46 @@ export declare const locales: {
             confirmDeleteTask: string;
             taskDeleted: string;
             taskDeleteError: string;
+            noResults: string;
+            noResultsDescription: string;
+            clearFilters: string;
+            taskCompleted: string;
+            taskReopened: string;
+            taskUpdateError: string;
+            taskMoved: string;
+            taskMoveError: string;
+            listView: string;
+            gridView: string;
+            eisenhowerView: string;
+            eisenhower: {
+                title: string;
+                urgentCount: string;
+                importantCount: string;
+                quadrants: {
+                    do: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    schedule: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    delegate: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    delete: {
+                        title: string;
+                        subtitle: string;
+                    };
+                };
+                empty: string;
+                dragHere: string;
+                legend: {
+                    do: string;
+                    schedule: string;
+                };
+            };
         };
         Notes: {
             title: string;
@@ -2664,6 +3060,25 @@ export declare const locales: {
             noTagsDescription: string;
             createTag: string;
             tagCreated: string;
+            tagUpdated: string;
+            saveError: string;
+            selectWorkspaceFirst: string;
+            dialog: {
+                titleCreate: string;
+                titleEdit: string;
+                descriptionCreate: string;
+                descriptionEdit: string;
+                colorLabel: string;
+                nameLabel: string;
+                namePlaceholder: string;
+                nameRequired: string;
+                previewLabel: string;
+                cancel: string;
+                save: string;
+                saving: string;
+                create: string;
+                creating: string;
+            };
         };
         Habits: {
             title: string;
@@ -2683,6 +3098,8 @@ export declare const locales: {
                 completionRate: string;
                 thisWeek: string;
                 thisMonth: string;
+                days: string;
+                completedCount: string;
             };
             frequency: {
                 DAILY: string;
@@ -2796,9 +3213,17 @@ export declare const locales: {
             avgPerDay: string;
             tabs: {
                 overview: string;
+                analytics: string;
+                reports: string;
+                wellbeing: string;
                 weekly: string;
                 focus: string;
                 aiInsights: string;
+            };
+            reports: {
+                emptyTitle: string;
+                emptyDesc: string;
+                detailTitle: string;
             };
             focusScore: {
                 label: string;
@@ -3616,6 +4041,7 @@ export declare const locales: {
             actions: {
                 viewEdit: string;
                 delete: string;
+                moreOptions: string;
             };
             status: {
                 completed: string;
@@ -4314,6 +4740,21 @@ export declare const locales: {
             noObjectives: string;
             noObjectivesDescription: string;
             listTitle: string;
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                objectivesTitle: string;
+                objectivesDesc: string;
+                keyresultsTitle: string;
+                keyresultsDesc: string;
+                linkingTitle: string;
+                linkingDesc: string;
+                progressTitle: string;
+                progressDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
             backToList: string;
             notFound: string;
             edit: string;
@@ -4635,6 +5076,26 @@ export declare const locales: {
                 strongWarning: string;
                 criticalAlert: string;
             };
+            refresh: string;
+            factorsDetected: string;
+            immediateSuggestions: string;
+            hoursPerDay: string;
+            weekends: string;
+            breaks: string;
+            trends: {
+                improving: string;
+                stable: string;
+                declining: string;
+            };
+            wellbeingScore: string;
+            positive: string;
+            concerns: string;
+            restRecommendations: string;
+            empty: {
+                title: string;
+                description: string;
+                retry: string;
+            };
         };
         Mobile: {
             home: {
@@ -4799,6 +5260,37 @@ export declare const locales: {
             goToDashboard: string;
             goToHome: string;
         };
+        Auth: {
+            login: {
+                title: string;
+                subtitle: string;
+                emailLabel: string;
+                emailPlaceholder: string;
+                passwordLabel: string;
+                passwordPlaceholder: string;
+                forgotPassword: string;
+                rememberMe: string;
+                submitButton: string;
+                submitting: string;
+                orContinueWith: string;
+                google: string;
+                github: string;
+                noAccount: string;
+                signUpFree: string;
+                termsPrefix: string;
+                terms: string;
+                termsAnd: string;
+                privacy: string;
+                errors: {
+                    requiredFields: string;
+                    invalidEmail: string;
+                    invalidCredentials: string;
+                    googleFailed: string;
+                    githubFailed: string;
+                };
+                success: string;
+            };
+        };
     };
     readonly 'pt-br': {
         Calendar: {
@@ -4811,6 +5303,28 @@ export declare const locales: {
             agenda: string;
             previous: string;
             next: string;
+            unscheduledTasks: string;
+            noUnscheduledTasks: string;
+            noUnscheduledTasksDescription: string;
+            taskScheduled: string;
+            taskScheduleError: string;
+            taskMoved: string;
+            taskMoveError: string;
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                dragdropTitle: string;
+                dragdropDesc: string;
+                schedulingTitle: string;
+                schedulingDesc: string;
+                viewsTitle: string;
+                viewsDesc: string;
+                getstartedTitle: string;
+                getstartedDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
         };
         Sidebar: {
             today: string;
@@ -4887,6 +5401,79 @@ export declare const locales: {
             version: string;
             platform: string;
             developer: string;
+            modes: {
+                pomodoro: string;
+                pomodoroDesc: string;
+                continuous: string;
+                continuousDesc: string;
+            };
+            ai: {
+                title: string;
+                insightsTitle: string;
+                insightsDesc: string;
+                enableInsights: string;
+                enableInsightsDesc: string;
+                smartScheduling: string;
+                smartSchedulingDesc: string;
+                wellbeingTitle: string;
+                wellbeingDesc: string;
+                burnoutDetection: string;
+                burnoutDetectionDesc: string;
+                restReminders: string;
+                restRemindersDesc: string;
+                sensitivity: string;
+                sensitivityLevels: {
+                    low: string;
+                    medium: string;
+                    high: string;
+                };
+                focusAudioTitle: string;
+                focusAudioDesc: string;
+                ambientAudio: string;
+                ambientAudioDesc: string;
+                defaultVolume: string;
+            };
+            tour: {
+                title: string;
+                aiFeatures: string;
+                aiFeaturesDesc: string;
+                startTour: string;
+                retakeTour: string;
+                starting: string;
+                guideText: string;
+            };
+            security: string;
+            sessions: {
+                title: string;
+                single: string;
+                multiple: string;
+                closeOthers: string;
+                confirm: string;
+                closing: string;
+                cancel: string;
+                current: string;
+                loading: string;
+                loadError: string;
+                revokeSuccess: string;
+                revokeError: string;
+                revokeOthersSuccess: string;
+                tipsTitle: string;
+                tips: {
+                    tip1: string;
+                    tip2: string;
+                    tip3: string;
+                };
+                relativeTime: {
+                    justNow: string;
+                    minute: string;
+                    minutes: string;
+                    hour: string;
+                    hours: string;
+                    day: string;
+                    days: string;
+                };
+            };
+            languageChanged: string;
         };
         TimerWidget: {
             startTimer: string;
@@ -4925,6 +5512,21 @@ export declare const locales: {
                 startTimer: string;
                 newTask: string;
             };
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                tasksTitle: string;
+                tasksDesc: string;
+                timerTitle: string;
+                timerDesc: string;
+                habitsTitle: string;
+                habitsDesc: string;
+                getstartedTitle: string;
+                getstartedDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
         };
         Tasks: {
             title: string;
@@ -4937,6 +5539,46 @@ export declare const locales: {
             confirmDeleteTask: string;
             taskDeleted: string;
             taskDeleteError: string;
+            noResults: string;
+            noResultsDescription: string;
+            clearFilters: string;
+            taskCompleted: string;
+            taskReopened: string;
+            taskUpdateError: string;
+            taskMoved: string;
+            taskMoveError: string;
+            listView: string;
+            gridView: string;
+            eisenhowerView: string;
+            eisenhower: {
+                title: string;
+                urgentCount: string;
+                importantCount: string;
+                quadrants: {
+                    do: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    schedule: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    delegate: {
+                        title: string;
+                        subtitle: string;
+                    };
+                    delete: {
+                        title: string;
+                        subtitle: string;
+                    };
+                };
+                empty: string;
+                dragHere: string;
+                legend: {
+                    do: string;
+                    schedule: string;
+                };
+            };
         };
         Projects: {
             title: string;
@@ -5045,6 +5687,25 @@ export declare const locales: {
             noTagsDescription: string;
             createTag: string;
             tagCreated: string;
+            tagUpdated: string;
+            saveError: string;
+            selectWorkspaceFirst: string;
+            dialog: {
+                titleCreate: string;
+                titleEdit: string;
+                descriptionCreate: string;
+                descriptionEdit: string;
+                colorLabel: string;
+                nameLabel: string;
+                namePlaceholder: string;
+                nameRequired: string;
+                previewLabel: string;
+                cancel: string;
+                save: string;
+                saving: string;
+                create: string;
+                creating: string;
+            };
         };
         Habits: {
             title: string;
@@ -5064,6 +5725,8 @@ export declare const locales: {
                 completionRate: string;
                 thisWeek: string;
                 thisMonth: string;
+                days: string;
+                completedCount: string;
             };
             frequency: {
                 DAILY: string;
@@ -5177,9 +5840,17 @@ export declare const locales: {
             avgPerDay: string;
             tabs: {
                 overview: string;
+                analytics: string;
+                reports: string;
+                wellbeing: string;
                 weekly: string;
                 focus: string;
                 aiInsights: string;
+            };
+            reports: {
+                emptyTitle: string;
+                emptyDesc: string;
+                detailTitle: string;
             };
             focusScore: {
                 label: string;
@@ -5930,6 +6601,7 @@ export declare const locales: {
             actions: {
                 viewEdit: string;
                 delete: string;
+                moreOptions: string;
             };
             status: {
                 completed: string;
@@ -6695,6 +7367,21 @@ export declare const locales: {
             noObjectives: string;
             noObjectivesDescription: string;
             listTitle: string;
+            onboarding: {
+                welcomeTitle: string;
+                welcomeDesc: string;
+                objectivesTitle: string;
+                objectivesDesc: string;
+                keyresultsTitle: string;
+                keyresultsDesc: string;
+                linkingTitle: string;
+                linkingDesc: string;
+                progressTitle: string;
+                progressDesc: string;
+                skip: string;
+                next: string;
+                getStarted: string;
+            };
             backToList: string;
             createDescription: string;
             cancel: string;
@@ -7016,6 +7703,26 @@ export declare const locales: {
                 strongWarning: string;
                 criticalAlert: string;
             };
+            refresh: string;
+            factorsDetected: string;
+            immediateSuggestions: string;
+            hoursPerDay: string;
+            weekends: string;
+            breaks: string;
+            trends: {
+                improving: string;
+                stable: string;
+                declining: string;
+            };
+            wellbeingScore: string;
+            positive: string;
+            concerns: string;
+            restRecommendations: string;
+            empty: {
+                title: string;
+                description: string;
+                retry: string;
+            };
         };
         Mobile: {
             home: {
@@ -7179,6 +7886,37 @@ export declare const locales: {
             description: string;
             goToDashboard: string;
             goToHome: string;
+        };
+        Auth: {
+            login: {
+                title: string;
+                subtitle: string;
+                emailLabel: string;
+                emailPlaceholder: string;
+                passwordLabel: string;
+                passwordPlaceholder: string;
+                forgotPassword: string;
+                rememberMe: string;
+                submitButton: string;
+                submitting: string;
+                orContinueWith: string;
+                google: string;
+                github: string;
+                noAccount: string;
+                signUpFree: string;
+                termsPrefix: string;
+                terms: string;
+                termsAnd: string;
+                privacy: string;
+                errors: {
+                    requiredFields: string;
+                    invalidEmail: string;
+                    invalidCredentials: string;
+                    googleFailed: string;
+                    githubFailed: string;
+                };
+                success: string;
+            };
         };
     };
 };
