@@ -22,8 +22,10 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Trophy,
 } from "lucide-react";
+import { apiClient } from "@/lib/api-client";
 import { useUsernameValidation } from "@ordo-todo/hooks";
 import * as Tabs from "@radix-ui/react-tabs";
 import { cn } from "@ordo-todo/ui";
@@ -204,6 +206,27 @@ export function ProfileTabs({
     weeklyDigestEmail: true,
     marketingEmail: false,
   });
+
+  // Gamification state
+  const [gamification, setGamification] = useState<any>(null);
+  const [isLoadingGamification, setIsLoadingGamification] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingGamification(true);
+    apiClient
+      .getGamificationProfile()
+      .then((data) => {
+        if (isMounted) setGamification(data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted) setIsLoadingGamification(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Username validation hook
   const { validationResult, validateUsername, resetValidation } = useUsernameValidation({
@@ -438,6 +461,19 @@ export function ProfileTabs({
         >
           <CreditCard className="h-4 w-4" />
           <span className="hidden sm:inline">Subscription</span>
+        </Tabs.Trigger>
+        <Tabs.Trigger
+          value="gamification"
+          className={cn(
+            "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-background transition-all",
+            "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "disabled:pointer-events-none disabled:opacity-50",
+            "flex items-center gap-2"
+          )}
+        >
+          <Trophy className="h-4 w-4 text-amber-500" />
+          <span className="hidden sm:inline">Level & XP</span>
         </Tabs.Trigger>
         <Tabs.Trigger
           value="account"
@@ -1165,6 +1201,116 @@ export function ProfileTabs({
                 </AlertDialog>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </Tabs.Content>
+
+      {/* Gamification & Achievements Tab */}
+      <Tabs.Content value="gamification">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-500" />
+              <CardTitle>Level & Achievements</CardTitle>
+            </div>
+            <CardDescription>
+              Earn experience points (XP) and unlock achievements by completing tasks, habits, and focus sessions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {isLoadingGamification ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                {/* Level and XP Overview */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl border border-border bg-card">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                      Current Level
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-extrabold text-foreground">
+                        Level {gamification?.level || 1}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <div className="flex justify-between text-xs text-muted-foreground font-medium">
+                      <span>Total XP: {gamification?.xp || 0}</span>
+                      <span>Next Level: {gamification?.currentLevelProgress || 0} / 1,000 XP</span>
+                    </div>
+                    <div className="w-full h-3 bg-muted rounded-full overflow-hidden border border-border">
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-500 to-violet-500 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            ((gamification?.currentLevelProgress || 0) / 1000) * 100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Achievements Grid */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                      Unlocked Achievements ({gamification?.achievementsUnlocked || 0} / {gamification?.achievementsTotal || 0})
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {gamification?.achievements?.map((ach: any) => (
+                      <div
+                        key={ach.id}
+                        className={cn(
+                          "flex items-start gap-3.5 p-4 rounded-xl border transition-colors",
+                          ach.isUnlocked
+                            ? "border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/10"
+                            : "border-border/60 bg-muted/20 opacity-60"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "p-2.5 rounded-xl border flex items-center justify-center flex-shrink-0",
+                            ach.isUnlocked
+                              ? "bg-amber-500/15 border-amber-500/30 text-amber-500"
+                              : "bg-muted border-border text-muted-foreground"
+                          )}
+                        >
+                          <Trophy className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-semibold leading-snug">{ach.name}</p>
+                            <Badge
+                              variant={ach.isUnlocked ? "default" : "outline"}
+                              className={cn(
+                                "text-[10px] font-semibold px-1.5 py-0",
+                                ach.isUnlocked && "bg-amber-500 hover:bg-amber-600 text-white"
+                              )}
+                            >
+                              +{ach.xpReward} XP
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 leading-normal">
+                            {ach.description}
+                          </p>
+                          {ach.isUnlocked && ach.unlockedAt && (
+                            <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mt-2">
+                              Unlocked {new Date(ach.unlockedAt).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </Tabs.Content>

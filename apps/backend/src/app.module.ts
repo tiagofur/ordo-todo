@@ -97,7 +97,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     CustomFieldsModule,
     FocusModule,
     MeetingsModule,
-    // SearchModule,
+    SearchModule,
     BlogPostModule,
     ChangelogModule,
     NewsletterModule,

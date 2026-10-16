@@ -37,12 +37,17 @@ interface BurnoutAnalysis {
 }
 
 interface WorkPattern {
-  averageHoursPerDay: number;
-  nightWorkPercentage: number;
-  weekendWorkPercentage: number;
-  longSessionsCount: number;
-  averageBreakMinutes: number;
-  consistencyScore: number;
+  avgDailyWorkHours?: number;
+  averageHoursPerDay?: number;
+  lateNightPercentage?: number;
+  nightWorkPercentage?: number;
+  weekendWorkPercentage?: number;
+  avgSessionWithoutBreak?: number;
+  averageBreakMinutes?: number;
+  longestSessionWithoutBreak?: number;
+  urgentTaskCount?: number;
+  overdueTaskCount?: number;
+  consistencyScore?: number;
 }
 
 interface WeeklySummary {
@@ -274,7 +279,7 @@ export function WellbeingTab() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {(patterns.averageHoursPerDay ?? 0).toFixed(1)}h
+                  {(patterns.avgDailyWorkHours ?? patterns.averageHoursPerDay ?? 0).toFixed(1)}h
                 </p>
                 <p className="text-xs text-muted-foreground">{t("hoursPerDay")}</p>
               </div>
@@ -287,7 +292,7 @@ export function WellbeingTab() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {patterns.nightWorkPercentage ?? 0}%
+                  {(patterns.lateNightPercentage ?? patterns.nightWorkPercentage ?? 0).toFixed(0)}%
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {t("patterns.lateNightWork")}
@@ -302,7 +307,7 @@ export function WellbeingTab() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {patterns.weekendWorkPercentage ?? 0}%
+                  {(patterns.weekendWorkPercentage ?? 0).toFixed(0)}%
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {t("weekends")}
@@ -317,7 +322,7 @@ export function WellbeingTab() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {patterns.averageBreakMinutes ?? 0}m
+                  {(patterns.avgSessionWithoutBreak ?? patterns.averageBreakMinutes ?? 0).toFixed(0)}m
                 </p>
                 <p className="text-xs text-muted-foreground">{t("breaks")}</p>
               </div>

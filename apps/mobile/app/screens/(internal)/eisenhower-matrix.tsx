@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseCalendarDate } from "@ordo-todo/core";
 import type { Task } from "@ordo-todo/api-client";
 
 interface TaskWithExtras extends Task {
@@ -84,9 +85,11 @@ function getTaskQuadrant(
 
 function isTaskDueSoon(task: Task): boolean {
   if (!task.dueDate) return false;
-  const dueDate = new Date(task.dueDate);
+  const dueDate = parseCalendarDate(task.dueDate) || new Date(task.dueDate);
   const now = new Date();
-  const diffDays = Math.ceil(
+  now.setHours(0, 0, 0, 0);
+  dueDate.setHours(0, 0, 0, 0);
+  const diffDays = Math.round(
     (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
   );
   return diffDays <= 2 && diffDays >= 0;
@@ -159,7 +162,7 @@ function TaskItem({ task, onToggle }: { task: Task; onToggle: () => void }) {
               {isTaskDueSoon(task) && (
                 <Ionicons name="warning" size={12} color="#EF4444" />
               )}
-              {format(new Date(task.dueDate), "d MMM", { locale: es })}
+              {format(parseCalendarDate(task.dueDate) || new Date(task.dueDate), "d MMM", { locale: es })}
             </Text>
           )}
         </View>

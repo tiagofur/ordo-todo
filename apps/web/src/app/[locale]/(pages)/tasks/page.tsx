@@ -160,7 +160,7 @@ function TasksPageContent() {
               <motion.div
                 initial={{ rotate: -10, scale: 0.9 }}
                 animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-500 text-white shadow-sm shadow-purple-500/25"
               >
                 <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6" />
               </motion.div>
@@ -215,7 +215,7 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 rounded-md transition-all duration-200",
                   viewMode === "list"
-                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium"
+                    ? "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 )}
                 title={t("listView")}
@@ -228,7 +228,7 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 rounded-md transition-all duration-200",
                   viewMode === "grid"
-                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium"
+                    ? "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 )}
                 title={t("gridView")}
@@ -241,7 +241,7 @@ function TasksPageContent() {
                 className={cn(
                   "p-2 rounded-md transition-all duration-200",
                   viewMode === "eisenhower"
-                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium"
+                    ? "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 font-medium"
                     : "text-muted-foreground hover:bg-muted"
                 )}
                 title={t("eisenhowerView")}
@@ -255,7 +255,7 @@ function TasksPageContent() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateTask(true)}
-              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 transition-all duration-200"
+              className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-purple-500 text-white shadow-sm shadow-purple-500/25 hover:bg-purple-600 transition-all duration-200"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">{t("newTask")}</span>
@@ -360,7 +360,7 @@ function TasksPageContent() {
             ) : (
               <button
                 onClick={() => setShowCreateTask(true)}
-                className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-sm font-medium shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02]"
+                className="flex items-center gap-2 rounded-xl bg-purple-500 text-white px-6 py-3 text-sm font-medium shadow-sm shadow-purple-500/25 transition-all duration-200 hover:bg-purple-600 hover:scale-[1.02]"
               >
                 <Plus className="h-4 w-4" />
                 {t("newTask")}

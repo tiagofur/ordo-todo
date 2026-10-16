@@ -643,6 +643,26 @@ export const apiClient = {
   getTaskByPublicToken: (token: string): Promise<PublicTaskResponse> =>
     axiosInstance.get(`/tasks/share/${token}`).then((res) => res.data),
 
+  // Task Dependencies
+  getTaskDependencies: (
+    taskId: string,
+  ): Promise<{ blockedBy: Task[]; blocking: Task[] }> =>
+    axiosInstance.get(`/tasks/${taskId}/dependencies`).then((res) => res.data),
+  addTaskDependency: (
+    taskId: string,
+    blockingTaskId: string,
+  ): Promise<{ success: boolean }> =>
+    axiosInstance
+      .post(`/tasks/${taskId}/dependencies`, { blockingTaskId })
+      .then((res) => res.data),
+  removeTaskDependency: (
+    taskId: string,
+    blockingTaskId: string,
+  ): Promise<{ success: boolean }> =>
+    axiosInstance
+      .delete(`/tasks/${taskId}/dependencies/${blockingTaskId}`)
+      .then((res) => res.data),
+
   // Tag
   getTags: (workspaceId: string): Promise<Tag[]> =>
     axiosInstance
@@ -977,7 +997,7 @@ export const apiClient = {
       .then((res) => res.data),
   deleteCustomField: (fieldId: string): Promise<void> =>
     axiosInstance.delete(`/custom-fields/${fieldId}`).then((res) => res.data),
-  getTaskCustomValues: (taskId: string): Promise<Record<string, any>> =>
+  getTaskCustomValues: (taskId: string): Promise<CustomFieldValue[]> =>
     axiosInstance.get(`/tasks/${taskId}/custom-values`).then((res) => res.data),
   setTaskCustomValues: (
     taskId: string,
@@ -1098,6 +1118,26 @@ export const apiClient = {
     axiosInstance.delete(`/sessions/${sessionId}`).then((res) => res.data),
   revokeAllOtherSessions: (): Promise<void> =>
     axiosInstance.delete("/sessions/others/all").then((res) => res.data),
+
+  // Gamification
+  getGamificationProfile: (): Promise<{
+    xp: number;
+    level: number;
+    currentLevelProgress: number;
+    nextLevelXp: number;
+    achievementsTotal: number;
+    achievementsUnlocked: number;
+    achievements: Array<{
+      id: string;
+      code: string;
+      name: string;
+      description: string;
+      icon: string;
+      xpReward: number;
+      isUnlocked: boolean;
+      unlockedAt: string | null;
+    }>;
+  }> => axiosInstance.get("/gamification/me").then((res) => res.data),
 };
 // Export apiClient as default for convenient importing
 export default apiClient;

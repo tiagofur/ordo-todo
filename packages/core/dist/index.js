@@ -335,6 +335,7 @@ __export(index_exports, {
   mixColors: () => mixColors,
   normalizeWhitespace: () => normalizeWhitespace,
   parseCalendarDate: () => parseCalendarDate,
+  parseCalendarDateToUtcMidnight: () => parseCalendarDateToUtcMidnight,
   parseDuration: () => parseDuration,
   pluralize: () => pluralize,
   projectBaseSchema: () => projectBaseSchema,
@@ -1257,6 +1258,10 @@ function serializeCalendarDateForApi(date5) {
   const dateStr = toCalendarDateString(date5);
   if (!dateStr) return null;
   return `${dateStr}T00:00:00.000Z`;
+}
+function parseCalendarDateToUtcMidnight(date5) {
+  const dateStr = toCalendarDateString(date5) || toCalendarDateString(/* @__PURE__ */ new Date());
+  return /* @__PURE__ */ new Date(`${dateStr}T00:00:00.000Z`);
 }
 function isCalendarDateToday(date5) {
   if (!date5) return false;
@@ -24048,6 +24053,7 @@ var UserIntegration = class extends Entity {
   mixColors,
   normalizeWhitespace,
   parseCalendarDate,
+  parseCalendarDateToUtcMidnight,
   parseDuration,
   pluralize,
   projectBaseSchema,

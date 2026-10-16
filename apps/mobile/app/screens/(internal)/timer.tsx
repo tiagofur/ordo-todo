@@ -50,15 +50,15 @@ export default function TimerScreen() {
   
   // Fetch History
   const historyQuery = useSessionHistory({ limit: 20 });
-  const sessions = historyQuery.data?.items || [];
+  const sessions = historyQuery.data?.sessions || [];
 
   // Map tasks for selector
   const mappedTasks = useMemo(() => {
     return tasks?.map(t => ({
       id: t.id,
       title: t.title,
-      projectName: t.project?.name,
-      projectColor: t.project?.color
+      projectName: (t as any).project?.name,
+      projectColor: (t as any).project?.color
     })) || [];
   }, [tasks]);
 

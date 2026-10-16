@@ -18,8 +18,13 @@ import {
   Copy,
   Link as LinkIcon,
   Tag as TagIcon,
-  Plus
+  Plus,
+  GitBranch,
+  ShieldAlert,
+  SlidersHorizontal,
 } from 'lucide-react';
+import { TaskCustomFieldsEditor } from './task-custom-fields-editor';
+import { apiClient } from '@/lib/api-client';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
 import { formatCalendarDateInput, serializeCalendarDateForApi } from '@ordo-todo/core';
@@ -156,6 +161,7 @@ const DEFAULT_LABELS = {
   tabsComments: 'Comments',
   tabsAttachments: 'Attachments',
   tabsActivity: 'Activity',
+  tabsDependencies: 'Dependencies',
   tagsNone: 'No tags',
   tagsAdd: 'Add Tag',
   tagsAvailable: 'Available Tags',
@@ -196,7 +202,7 @@ export function TaskDetailPanel({
   const t = { ...DEFAULT_LABELS, ...labels };
 
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'subtasks' | 'comments' | 'attachments' | 'activity'>('subtasks');
+  const [activeTab, setActiveTab] = useState<'subtasks' | 'comments' | 'attachments' | 'activity' | 'dependencies' | 'customFields'>('subtasks');
   const [showCreateTagDialog, setShowCreateTagDialog] = useState(false);
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -283,6 +289,61 @@ export function TaskDetailPanel({
       toast.error('Error al eliminar archivo adjunto');
     }
   };
+
+  // Dependencies Logic
+  const [dependencies, setDependencies] = useState<{ blockedBy: any[]; blocking: any[] }>({
+    blockedBy: [],
+    blocking: [],
+  });
+  const [availableProjectTasks, setAvailableProjectTasks] = useState<any[]>([]);
+  const [selectedBlockingId, setSelectedBlockingId] = useState<string>('');
+  const [isLoadingDeps, setIsLoadingDeps] = useState(false);
+
+  const fetchDependencies = async () => {
+    if (!taskId) return;
+    setIsLoadingDeps(true);
+    try {
+      const deps = await apiClient.getTaskDependencies(taskId);
+      setDependencies(deps);
+      if (task?.projectId) {
+        const tasks = await apiClient.getTasks(task.projectId);
+        setAvailableProjectTasks(tasks.filter((t: any) => t.id !== taskId));
+      }
+    } catch {
+      // Ignore dependencies error
+    } finally {
+      setIsLoadingDeps(false);
+    }
+  };
+
+  const handleAddDependency = async () => {
+    if (!taskId || !selectedBlockingId) return;
+    try {
+      await apiClient.addTaskDependency(taskId, selectedBlockingId);
+      toast.success('Dependencia agregada');
+      setSelectedBlockingId('');
+      fetchDependencies();
+    } catch {
+      toast.error('Error al agregar dependencia');
+    }
+  };
+
+  const handleRemoveDependency = async (blockingTaskId: string) => {
+    if (!taskId) return;
+    try {
+      await apiClient.removeTaskDependency(taskId, blockingTaskId);
+      toast.success('Dependencia eliminada');
+      fetchDependencies();
+    } catch {
+      toast.error('Error al eliminar dependencia');
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'dependencies' && taskId) {
+      fetchDependencies();
+    }
+  }, [activeTab, taskId]);
 
   useEffect(() => {
     if (task) {
@@ -751,6 +812,21 @@ export function TaskDetailPanel({
                        icon={Activity}
                        label={t.tabsActivity}
                      />
+                     <TabButton
+                       active={activeTab === 'dependencies'}
+                       onClick={() => setActiveTab('dependencies')}
+                       icon={GitBranch}
+                       label={t.tabsDependencies}
+                       count={dependencies.blockedBy.length + dependencies.blocking.length}
+                     />
+                     {task?.projectId && (
+                       <TabButton
+                         active={activeTab === 'customFields'}
+                         onClick={() => setActiveTab('customFields')}
+                         icon={SlidersHorizontal}
+                         label="Custom Fields"
+                       />
+                     )}
                     </div>
                     
                     <div className="min-h-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -793,6 +869,109 @@ export function TaskDetailPanel({
                          )
                        )}
                        {activeTab === 'activity' && taskId && renderActivity && renderActivity(taskId)}
+                       {activeTab === 'dependencies' && taskId && (
+                         <div className="space-y-6">
+                           <div className="p-3.5 rounded-xl border border-border bg-card space-y-3">
+                             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                               <GitBranch className="h-4 w-4 text-violet-500" />
+                               Add Blocking Dependency
+                             </h4>
+                             <p className="text-xs text-muted-foreground">
+                               Select a task that must be completed before this task can be completed.
+                             </p>
+                             <div className="flex items-center gap-2">
+                               <Select
+                                 value={selectedBlockingId}
+                                 onValueChange={setSelectedBlockingId}
+                               >
+                                 <SelectTrigger className="flex-1 text-xs">
+                                   <SelectValue placeholder="Choose a blocking task..." />
+                                 </SelectTrigger>
+                                 <SelectContent>
+                                   {availableProjectTasks.map((pt) => (
+                                     <SelectItem key={pt.id} value={pt.id}>
+                                       {pt.title} ({pt.status})
+                                     </SelectItem>
+                                   ))}
+                                 </SelectContent>
+                               </Select>
+                               <Button
+                                 size="sm"
+                                 disabled={!selectedBlockingId}
+                                 onClick={handleAddDependency}
+                               >
+                                 Add
+                               </Button>
+                             </div>
+                           </div>
+
+                           <div className="space-y-2">
+                             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                               <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
+                               Blocked By ({dependencies.blockedBy.length})
+                             </h4>
+                             {dependencies.blockedBy.length === 0 ? (
+                               <p className="text-xs text-muted-foreground italic">No blocking tasks.</p>
+                             ) : (
+                               <div className="space-y-2">
+                                 {dependencies.blockedBy.map((depTask: any) => (
+                                   <div
+                                     key={depTask.id}
+                                     className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/30"
+                                   >
+                                     <div>
+                                       <p className="text-sm font-medium">{depTask.title}</p>
+                                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                         {depTask.status}
+                                       </span>
+                                     </div>
+                                     <Button
+                                       size="sm"
+                                       variant="ghost"
+                                       onClick={() => handleRemoveDependency(depTask.id)}
+                                     >
+                                       <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                     </Button>
+                                   </div>
+                                 ))}
+                                </div>
+                             )}
+                           </div>
+
+                           <div className="space-y-2">
+                             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                               Blocking Other Tasks ({dependencies.blocking.length})
+                             </h4>
+                             {dependencies.blocking.length === 0 ? (
+                               <p className="text-xs text-muted-foreground italic">This task isn't blocking any other tasks.</p>
+                             ) : (
+                               <div className="space-y-2">
+                                 {dependencies.blocking.map((depTask: any) => (
+                                   <div
+                                     key={depTask.id}
+                                     className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/30"
+                                   >
+                                     <div>
+                                       <p className="text-sm font-medium">{depTask.title}</p>
+                                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                         {depTask.status}
+                                       </span>
+                                     </div>
+                                   </div>
+                                 ))}
+                               </div>
+                             )}
+                           </div>
+                         </div>
+                       )}
+                       {activeTab === 'customFields' && taskId && (
+                         <div className="pt-2">
+                           <TaskCustomFieldsEditor
+                             taskId={taskId}
+                             projectId={task?.projectId}
+                           />
+                         </div>
+                       )}
                     </div>
                  </div>
                </div>

@@ -14,10 +14,11 @@ import { colors } from '@ordo-todo/styles/tokens';
 
 export interface TimerSession {
   id: string;
-  startedAt: Date;
-  endedAt: Date;
-  duration: number; // seconds
-  mode: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
+  startedAt: Date | string;
+  endedAt?: Date | string;
+  duration?: number; // seconds
+  mode?: 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | string;
+  type?: string;
   task?: {
     id: string;
     title: string;
@@ -91,8 +92,10 @@ export function SessionHistory({
   };
 
   const renderSession = ({ item }: { item: TimerSession }) => {
-    const minutes = Math.round(item.duration / 60);
-    const color = MODE_COLORS[item.mode];
+    const minutes = Math.round((item.duration || 0) / 60);
+    const modeKey = ((item.mode || item.type || 'WORK') as keyof typeof MODE_COLORS);
+    const color = MODE_COLORS[modeKey] || MODE_COLORS.WORK;
+    const dateObj = typeof item.startedAt === 'string' ? new Date(item.startedAt) : item.startedAt;
 
     return (
       <Card style={styles.sessionCard}>
@@ -109,7 +112,7 @@ export function SessionHistory({
                 {item.task?.title || (item.mode === 'WORK' ? 'Work Session' : 'Break')}
               </Text>
               <Text style={styles.sessionDate}>
-                {formatDate(item.startedAt)} • {formatTime(item.startedAt)}
+                {formatDate(dateObj)} • {formatTime(dateObj)}
               </Text>
             </View>
           </View>
@@ -121,7 +124,7 @@ export function SessionHistory({
           <Text
             style={[
               styles.statusText,
-              { color: item.wasCompleted ? colors.success : colors.mutedForeground },
+              { color: item.wasCompleted ? '#10B981' : colors.mutedForeground },
             ]}
           >
             {item.wasCompleted ? completed : interrupted}

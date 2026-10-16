@@ -141,9 +141,9 @@ export default function SharedTaskScreen() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'DONE':
-        return <CheckCircle2 size={24} color={colors.success} strokeWidth={2.5} />;
+        return <CheckCircle2 size={24} color="#10B981" strokeWidth={2.5} />;
       case 'IN_PROGRESS':
-        return <Circle size={24} color={colors.warning} strokeWidth={2} fill={colors.warning} />;
+        return <Circle size={24} color="#F59E0B" strokeWidth={2} fill="#F59E0B" />;
       default:
         return <Circle size={24} color={colors.mutedForeground} strokeWidth={2} />;
     }

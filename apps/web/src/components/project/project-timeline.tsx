@@ -4,6 +4,7 @@ import { useTasks } from "@/lib/api-hooks";
 import { ProjectTimeline as UIProjectTimeline } from "@ordo-todo/ui";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { parseCalendarDate } from "@ordo-todo/core";
 import { useTranslations } from "next-intl";
 import type { Task } from "@ordo-todo/api-client";
 
@@ -32,9 +33,14 @@ export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
 
   const timelineTasks = tasks
     ?.filter((t: Task) => t.dueDate)
-    .sort((a: Task, b: Task) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+    .sort((a: Task, b: Task) => {
+      const dateA = (parseCalendarDate(a.dueDate) || new Date(a.dueDate!)).getTime();
+      const dateB = (parseCalendarDate(b.dueDate) || new Date(b.dueDate!)).getTime();
+      return dateA - dateB;
+    })
     .map((task: Task) => {
       const priorityInfo = getPriorityInfo(task.priority);
+      const calendarDate = parseCalendarDate(task.dueDate) || new Date(task.dueDate!);
       return {
         id: task.id,
         title: task.title,
@@ -42,7 +48,7 @@ export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
         isCompleted: task.status === "COMPLETED",
         priorityLabel: priorityInfo.label,
         priorityColorClass: priorityInfo.color,
-        formattedDate: format(new Date(task.dueDate!), "MMM d, yyyy", { locale: es }),
+        formattedDate: format(calendarDate, "MMM d, yyyy", { locale: es }),
       };
     }) || [];
 

@@ -17,5 +17,5 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "../../packages/ui-mobile/src/nativewind-env.d.ts"]
 }

@@ -22,34 +22,53 @@ import { Button, Card, CardContent, CardHeader, CardTitle } from "@ordo-todo/ui"
 import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface ActionItem {
-  action: string;
+  action?: string;
+  title?: string;
+  description?: string;
   assignee?: string;
-  priority: "HIGH" | "MEDIUM" | "LOW";
+  priority: "HIGH" | "MEDIUM" | "LOW" | "URGENT";
   dueDate?: string;
+  context?: string;
 }
 
 interface Decision {
   decision: string;
   madeBy?: string;
   context?: string;
+  participants?: string[];
+}
+
+interface Participant {
+  name: string;
+  role?: string;
+  speakingTime?: number;
+}
+
+interface Topic {
+  topic: string;
+  duration?: number;
+  summary?: string;
 }
 
 interface MeetingAnalysis {
   summary: string;
   keyPoints: string[];
   actionItems: ActionItem[];
-  decisions: Decision[];
-  participants: string[];
+  decisions: (Decision | string)[];
+  participants: (Participant | string)[];
   duration?: string;
   sentiment: "POSITIVE" | "NEUTRAL" | "NEGATIVE" | "MIXED";
-  topics: string[];
+  topics: (Topic | string)[];
 }
 
 export function MeetingAnalyzer() {
+  const t = useTranslations("Meetings");
   const [transcript, setTranscript] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const [analysis, setAnalysis] = useState<MeetingAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -57,9 +76,39 @@ export function MeetingAnalyzer() {
   );
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
 
+  const handleConvertToTasks = async () => {
+    if (!analysis?.actionItems || analysis.actionItems.length === 0) {
+      toast.error(t("noActionItems"));
+      return;
+    }
+
+    setIsConverting(true);
+    try {
+      const itemsToConvert = analysis.actionItems.map((item) => ({
+        title: item.title || item.action || "Untitled Task",
+        description: item.description,
+        assignee: item.assignee,
+        priority: item.priority || "MEDIUM",
+        dueDate: item.dueDate,
+        context: item.context || "",
+      }));
+
+      const res = await apiClient.convertActionsToTasks(itemsToConvert);
+      toast.success(
+        res?.created
+          ? `${res.created} ${t("tasksCreated")}`
+          : t("tasksCreated")
+      );
+    } catch (err) {
+      toast.error(t("errorConvertingTasks"));
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
   const handleAnalyze = async () => {
     if (!transcript.trim()) {
-      toast.error("Por favor ingresa una transcripción");
+      toast.error(t("pleaseEnterTranscript"));
       return;
     }
 
@@ -69,10 +118,10 @@ export function MeetingAnalyzer() {
     try {
       const result = await apiClient.analyzeMeetingTranscript(transcript);
       setAnalysis(result);
-      toast.success("Análisis completado");
+      toast.success(t("analysisCompleted"));
     } catch (err) {
-      setError("Error al analizar la transcripción. Inténtalo de nuevo.");
-      toast.error("Error al analizar");
+      setError(t("analysisError"));
+      toast.error(t("errorTitle"));
     } finally {
       setIsAnalyzing(false);
     }
@@ -89,43 +138,67 @@ export function MeetingAnalyzer() {
   };
 
   const copyToClipboard = async (text: string, id: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopiedItem(id);
-    setTimeout(() => setCopiedItem(null), 2000);
-  };
-
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case "POSITIVE":
-        return "text-green-500 bg-green-100 dark:bg-green-900";
-      case "NEGATIVE":
-        return "text-red-500 bg-red-100 dark:bg-red-900";
-      case "MIXED":
-        return "text-yellow-500 bg-yellow-100 dark:bg-yellow-900";
-      default:
-        return "text-blue-500 bg-blue-100 dark:bg-blue-900";
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItem(id);
+      toast.success(t("copied"));
+      setTimeout(() => setCopiedItem(null), 2000);
+    } catch (e) {
+      // Ignore clipboard error
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getSentimentStyles = (sentiment: string) => {
+    switch (sentiment) {
+      case "POSITIVE":
+        return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+      case "NEGATIVE":
+        return "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20";
+      case "MIXED":
+        return "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20";
+      default:
+        return "text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20";
+    }
+  };
+
+  const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case "HIGH":
-        return "bg-red-100 dark:bg-red-900 text-red-600 border-red-400";
+        return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
       case "MEDIUM":
-        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-600 border-yellow-400";
+        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
       default:
-        return "bg-green-100 dark:bg-green-900 text-green-600 border-green-400";
+        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case "HIGH": return t("priorities.HIGH");
+      case "MEDIUM": return t("priorities.MEDIUM");
+      case "LOW": return t("priorities.LOW");
+      default: return priority;
+    }
+  };
+
+  const getSentimentLabel = (sentiment: string) => {
+    switch (sentiment) {
+      case "POSITIVE": return t("sentiments.POSITIVE");
+      case "NEUTRAL": return t("sentiments.NEUTRAL");
+      case "NEGATIVE": return t("sentiments.NEGATIVE");
+      case "MIXED": return t("sentiments.MIXED");
+      default: return sentiment;
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Input Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            Transcripción de la Reunión
+      <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2.5 text-base sm:text-lg">
+            <MessageSquare className="h-5 w-5 text-violet-500" />
+            {t("meetingTranscript")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -133,50 +206,45 @@ export function MeetingAnalyzer() {
             <textarea
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
-              placeholder="Pega aquí la transcripción de tu reunión...
-
-Ejemplo:
-Juan: Buenos días a todos, empecemos con la revisión del proyecto.
-María: Sí, tenemos que definir las fechas de entrega para la próxima semana.
-Pedro: Propongo que el diseño esté listo para el viernes.
-Juan: Perfecto, María se encargará de la revisión final.
-..."
-              className="w-full h-64 p-4 rounded-xl border bg-muted resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm"
+              placeholder={t("transcriptPlaceholder")}
+              className="w-full h-60 p-4 rounded-xl border border-border bg-muted/40 resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-sm leading-relaxed"
               disabled={isAnalyzing}
             />
-            <div className="absolute bottom-3 right-3 text-xs text-muted-foreground">
-              {transcript.length} caracteres
+            <div className="absolute bottom-3 right-3 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded-md backdrop-blur-xs border border-border/50">
+              {transcript.length} {t("characters")}
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
               <Upload className="h-4 w-4" />
-              <span>O arrastra un archivo .txt aquí</span>
+              <span>{t("dragFile")}</span>
             </div>
-            <Button
-              onClick={handleAnalyze}
-              disabled={isAnalyzing || !transcript.trim()}
-              className="gap-2"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Analizando...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Analizar con IA
-                </>
-              )}
-            </Button>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleAnalyze}
+                disabled={isAnalyzing || !transcript.trim()}
+                className="gap-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-white shadow-sm shadow-violet-500/25 transition-all duration-200"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("analyzing")}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    {t("analyzeWithAi")}
+                  </>
+                )}
+              </Button>
+            </motion.div>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-100 dark:bg-red-900 text-red-600 text-sm">
-              <AlertCircle className="h-4 w-4" />
-              {error}
+            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-sm">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
             </div>
           )}
         </CardContent>
@@ -186,73 +254,78 @@ Juan: Perfecto, María se encargará de la revisión final.
       <AnimatePresence>
         {analysis && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: -16 }}
             className="space-y-4"
           >
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+              <div className="rounded-2xl border border-border bg-card p-4.5 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
-                    <Users className="h-5 w-5 text-blue-500" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+                    <Users className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{analysis.participants.length}</p>
-                    <p className="text-xs text-muted-foreground">Participantes</p>
+                    <p className="text-xl sm:text-2xl font-bold tracking-tight">{analysis.participants.length}</p>
+                    <p className="text-xs text-muted-foreground">{t("participants")}</p>
                   </div>
                 </div>
-              </Card>
-              <Card className="p-4">
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-4.5 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
-                    <ListTodo className="h-5 w-5 text-purple-500" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500">
+                    <ListTodo className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{analysis.actionItems.length}</p>
-                    <p className="text-xs text-muted-foreground">Action Items</p>
+                    <p className="text-xl sm:text-2xl font-bold tracking-tight">{analysis.actionItems.length}</p>
+                    <p className="text-xs text-muted-foreground">{t("actionItems")}</p>
                   </div>
                 </div>
-              </Card>
-              <Card className="p-4">
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-4.5 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                    <CheckCircle2 className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{analysis.decisions.length}</p>
-                    <p className="text-xs text-muted-foreground">Decisiones</p>
+                    <p className="text-xl sm:text-2xl font-bold tracking-tight">{analysis.decisions.length}</p>
+                    <p className="text-xs text-muted-foreground">{t("decisions")}</p>
                   </div>
                 </div>
-              </Card>
-              <Card className="p-4">
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-4.5 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className={cn("p-2 rounded-lg", getSentimentColor(analysis.sentiment))}>
+                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl border", getSentimentStyles(analysis.sentiment))}>
                     <MessageSquare className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold capitalize">{analysis.sentiment.toLowerCase()}</p>
-                    <p className="text-xs text-muted-foreground">Sentimiento</p>
+                    <p className="text-sm sm:text-base font-bold tracking-tight">{getSentimentLabel(analysis.sentiment)}</p>
+                    <p className="text-xs text-muted-foreground">{t("sentiment")}</p>
                   </div>
                 </div>
-              </Card>
+              </div>
             </div>
 
             {/* Summary */}
-            <Card>
+            <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
               <button
+                type="button"
+                aria-expanded={expandedSections.has("summary")}
                 onClick={() => toggleSection("summary")}
-                className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors rounded-t-xl"
+                className="w-full p-4.5 flex items-center justify-between hover:bg-muted/40 transition-colors text-left"
               >
-                <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Resumen</span>
+                <div className="flex items-center gap-2.5">
+                  <FileText className="h-5 w-5 text-violet-500" />
+                  <span className="font-semibold text-base">{t("summary")}</span>
                 </div>
                 {expandedSections.has("summary") ? (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
               <AnimatePresence>
@@ -263,17 +336,17 @@ Juan: Perfecto, María se encargará de la revisión final.
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <CardContent className="pt-0">
-                      <p className="text-sm leading-relaxed">{analysis.summary}</p>
+                    <div className="p-4.5 pt-0 space-y-4">
+                      <p className="text-sm leading-relaxed text-foreground/90">{analysis.summary}</p>
                       
                       {analysis.keyPoints.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-border">
-                          <h4 className="text-sm font-medium mb-2">Puntos Clave:</h4>
+                        <div className="pt-4 border-t border-border/80">
+                          <h4 className="text-sm font-semibold mb-2.5">{t("keyPoints")}:</h4>
                           <ul className="space-y-2">
                             {analysis.keyPoints.map((point, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-sm">
-                                <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                                <span className="text-muted-foreground">{point}</span>
+                              <li key={idx} className="flex items-start gap-2.5 text-sm">
+                                <div className="mt-2 h-1.5 w-1.5 rounded-full bg-violet-500 flex-shrink-0" />
+                                <span className="text-muted-foreground leading-normal">{point}</span>
                               </li>
                             ))}
                           </ul>
@@ -281,40 +354,48 @@ Juan: Perfecto, María se encargará de la revisión final.
                       )}
 
                       {analysis.topics.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {analysis.topics.map((topic, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-primary text-xs"
-                            >
-                              {topic}
-                            </span>
-                          ))}
+                        <div className="pt-2 flex flex-wrap gap-2">
+                          {analysis.topics.map((tItem, idx) => {
+                            const topicLabel =
+                              typeof tItem === "string"
+                                ? tItem
+                                : tItem.topic || tItem.summary || "";
+                            return (
+                              <span
+                                key={idx}
+                                className="px-2.5 py-1 rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 text-xs font-medium"
+                              >
+                                {topicLabel}
+                              </span>
+                            );
+                          })}
                         </div>
                       )}
-                    </CardContent>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </Card>
+            </div>
 
             {/* Action Items */}
-            <Card>
+            <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
               <button
+                type="button"
+                aria-expanded={expandedSections.has("actionItems")}
                 onClick={() => toggleSection("actionItems")}
-                className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors rounded-t-xl"
+                className="w-full p-4.5 flex items-center justify-between hover:bg-muted/40 transition-colors text-left"
               >
-                <div className="flex items-center gap-2">
-                  <ListTodo className="h-5 w-5 text-purple-500" />
-                  <span className="font-semibold">Action Items</span>
-                  <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-600 px-2 py-0.5 rounded-full">
+                <div className="flex items-center gap-2.5">
+                  <ListTodo className="h-5 w-5 text-violet-500" />
+                  <span className="font-semibold text-base">{t("actionItems")}</span>
+                  <span className="text-xs bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 px-2 py-0.5 rounded-full font-medium">
                     {analysis.actionItems.length}
                   </span>
                 </div>
                 {expandedSections.has("actionItems") ? (
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
               <AnimatePresence>
@@ -325,80 +406,95 @@ Juan: Perfecto, María se encargará de la revisión final.
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <CardContent className="pt-0 space-y-3">
-                      {analysis.actionItems.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-muted transition-colors group"
-                        >
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{item.action}</p>
-                            <div className="flex items-center gap-3 mt-2">
-                              {item.assignee && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Users className="h-3 w-3" />
-                                  {item.assignee}
-                                </span>
-                              )}
-                              {item.dueDate && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {item.dueDate}
-                                </span>
-                              )}
-                              <span
-                                className={cn(
-                                  "text-xs px-2 py-0.5 rounded-full border",
-                                  getPriorityColor(item.priority)
-                                )}
-                              >
-                                {item.priority}
-                              </span>
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                            onClick={() => copyToClipboard(item.action, `action-${idx}`)}
+                    <div className="p-4.5 pt-0 space-y-3">
+                      {analysis.actionItems.map((item, idx) => {
+                        const actionTitle = item.title || item.action || "";
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-3 p-3.5 rounded-xl border border-border/80 bg-muted/20 hover:bg-muted/40 transition-colors group"
                           >
-                            {copiedItem === `action-${idx}` ? (
-                              <Check className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <Copy className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      ))}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium leading-snug">{actionTitle}</p>
+                              {item.description && (
+                                <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                              )}
+                              <div className="flex items-center gap-3 mt-2.5 flex-wrap">
+                                {item.assignee && (
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                    <Users className="h-3.5 w-3.5" />
+                                    {item.assignee}
+                                  </span>
+                                )}
+                                {item.dueDate && (
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {item.dueDate}
+                                  </span>
+                                )}
+                                <span
+                                  className={cn(
+                                    "text-xs px-2.5 py-0.5 rounded-md border font-medium",
+                                    getPriorityBadge(item.priority)
+                                  )}
+                                >
+                                  {getPriorityLabel(item.priority)}
+                                </span>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              type="button"
+                              aria-label={t("copy")}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 rounded-lg hover:bg-muted"
+                              onClick={() => copyToClipboard(actionTitle, `action-${idx}`)}
+                            >
+                              {copiedItem === `action-${idx}` ? (
+                                <Check className="h-4 w-4 text-emerald-500" />
+                              ) : (
+                                <Copy className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
+                        );
+                      })}
                       
-                      <Button className="w-full mt-4" variant="outline">
-                        <ListTodo className="h-4 w-4 mr-2" />
-                        Convertir a Tareas
+                      <Button
+                        className="w-full mt-3 rounded-xl border border-border bg-card hover:bg-muted/60 text-foreground transition-all duration-200"
+                        variant="outline"
+                        disabled={isConverting}
+                        onClick={handleConvertToTasks}
+                      >
+                        <ListTodo className="h-4 w-4 mr-2 text-violet-500" />
+                        {isConverting ? t("converting") || "Converting..." : t("convertToTasks")}
                       </Button>
-                    </CardContent>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </Card>
+            </div>
 
             {/* Decisions */}
             {analysis.decisions.length > 0 && (
-              <Card>
+              <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
                 <button
+                  type="button"
+                  aria-expanded={expandedSections.has("decisions")}
                   onClick={() => toggleSection("decisions")}
-                  className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors rounded-t-xl"
+                  className="w-full p-4.5 flex items-center justify-between hover:bg-muted/40 transition-colors text-left"
                 >
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    <span className="font-semibold">Decisiones</span>
-                    <span className="text-xs bg-green-100 dark:bg-green-900 text-green-600 px-2 py-0.5 rounded-full">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                    <span className="font-semibold text-base">{t("decisions")}</span>
+                    <span className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
                       {analysis.decisions.length}
                     </span>
                   </div>
                   {expandedSections.has("decisions") ? (
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
                 <AnimatePresence>
@@ -409,48 +505,63 @@ Juan: Perfecto, María se encargará de la revisión final.
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <CardContent className="pt-0 space-y-3">
-                        {analysis.decisions.map((decision, idx) => (
-                          <div
-                            key={idx}
-                            className="p-3 rounded-lg border bg-card"
-                          >
-                            <p className="text-sm font-medium">{decision.decision}</p>
-                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                              {decision.madeBy && (
-                                <span className="flex items-center gap-1">
-                                  <Users className="h-3 w-3" />
-                                  {decision.madeBy}
-                                </span>
-                              )}
-                              {decision.context && (
-                                <span className="italic">"{decision.context}"</span>
+                      <div className="p-4.5 pt-0 space-y-3">
+                        {analysis.decisions.map((decisionItem, idx) => {
+                          const decisionText =
+                            typeof decisionItem === "string"
+                              ? decisionItem
+                              : decisionItem.decision || "";
+                          const madeBy =
+                            typeof decisionItem === "object" ? decisionItem.madeBy : undefined;
+                          const context =
+                            typeof decisionItem === "object" ? decisionItem.context : undefined;
+
+                          return (
+                            <div
+                              key={idx}
+                              className="p-3.5 rounded-xl border border-border/80 bg-muted/20"
+                            >
+                              <p className="text-sm font-medium leading-snug">{decisionText}</p>
+                              {(madeBy || context) && (
+                                <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                                  {madeBy && (
+                                    <span className="flex items-center gap-1.5">
+                                      <Users className="h-3.5 w-3.5" />
+                                      {madeBy}
+                                    </span>
+                                  )}
+                                  {context && (
+                                    <span className="italic">"{context}"</span>
+                                  )}
+                                </div>
                               )}
                             </div>
-                          </div>
-                        ))}
-                      </CardContent>
+                          );
+                        })}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </Card>
+              </div>
             )}
 
             {/* Participants */}
             {analysis.participants.length > 0 && (
-              <Card>
+              <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
                 <button
+                  type="button"
+                  aria-expanded={expandedSections.has("participants")}
                   onClick={() => toggleSection("participants")}
-                  className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors rounded-t-xl"
+                  className="w-full p-4.5 flex items-center justify-between hover:bg-muted/40 transition-colors text-left"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <Users className="h-5 w-5 text-blue-500" />
-                    <span className="font-semibold">Participantes</span>
+                    <span className="font-semibold text-base">{t("participants")}</span>
                   </div>
                   {expandedSections.has("participants") ? (
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
                 <AnimatePresence>
@@ -461,25 +572,39 @@ Juan: Perfecto, María se encargará de la revisión final.
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <CardContent className="pt-0">
-                        <div className="flex flex-wrap gap-2">
-                          {analysis.participants.map((participant, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center gap-2 px-3 py-2 rounded-full bg-blue-100 dark:bg-blue-900 border border-blue-400"
-                            >
-                              <div className="h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium">
-                                {participant[0]?.toUpperCase()}
+                      <div className="p-4.5 pt-0">
+                        <div className="flex flex-wrap gap-2.5">
+                          {analysis.participants.map((pItem, idx) => {
+                            const name =
+                              typeof pItem === "string" ? pItem : pItem.name || "";
+                            const role =
+                              typeof pItem === "object" ? pItem.role : undefined;
+
+                            return (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/60 border border-border/80"
+                              >
+                                <div className="h-6 w-6 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center text-xs font-semibold">
+                                  {name[0]?.toUpperCase() || "?"}
+                                </div>
+                                <span className="text-xs sm:text-sm font-medium text-foreground">
+                                  {name}
+                                  {role && (
+                                    <span className="text-muted-foreground font-normal ml-1">
+                                      ({role})
+                                    </span>
+                                  )}
+                                </span>
                               </div>
-                              <span className="text-sm">{participant}</span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
-                      </CardContent>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </Card>
+              </div>
             )}
           </motion.div>
         )}
@@ -487,3 +612,4 @@ Juan: Perfecto, María se encargará de la revisión final.
     </div>
   );
 }
+

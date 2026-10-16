@@ -382,7 +382,7 @@ export function TaskCardCompact({
               <Icon className="h-4 w-4" style={{ color: status.color }} />
               <span>{status.label}</span>
               {task.status === status.value && (
-                <CheckCircle2 className="h-3 w-3 ml-auto text-primary" />
+                <CheckCircle2 className="h-3 w-3 ml-auto text-purple-500" />
               )}
             </DropdownMenuItem>
           );

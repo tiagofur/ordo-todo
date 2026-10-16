@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@ordo-todo/api-client';
+import { apiClient } from '@/lib/api-client';
 import type {
     CustomField,
     CustomFieldValue,
