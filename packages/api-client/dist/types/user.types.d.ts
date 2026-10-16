@@ -74,6 +74,13 @@ export interface UserPreferences {
     timeSessionsRetention: number | null;
 }
 export interface UpdatePreferencesDto {
+    timerMode?: 'POMODORO' | 'CONTINUOUS' | 'HYBRID';
+    pomodoroDuration?: number;
+    shortBreakDuration?: number;
+    longBreakDuration?: number;
+    pomodorosUntilLongBreak?: number;
+    enableSounds?: boolean;
+    enableNotifications?: boolean;
     enableAI?: boolean;
     aiAggressiveness?: number;
     aiSuggestTaskDurations?: boolean;

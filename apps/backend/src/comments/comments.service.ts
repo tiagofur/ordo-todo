@@ -156,11 +156,13 @@ export class CommentsService {
     const commentWithAuthor = await this.enrichWithAuthor(comment);
 
     // Send notifications and log activity
-    await this.handleCommentNotifications(commentWithAuthor, userId, mentions).catch(
-      (error) => {
-        this.logger.error('Failed to send comment notifications', error);
-      },
-    );
+    await this.handleCommentNotifications(
+      commentWithAuthor,
+      userId,
+      mentions,
+    ).catch((error) => {
+      this.logger.error('Failed to send comment notifications', error);
+    });
 
     return commentWithAuthor;
   }

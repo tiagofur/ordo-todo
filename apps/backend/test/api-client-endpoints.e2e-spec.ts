@@ -105,7 +105,9 @@ describe('API Client Endpoints (e2e)', () => {
         if (response.status === 200) {
           expect(response.body).toHaveProperty('authUrl');
           expect(typeof response.body.authUrl).toBe('string');
-          expect(response.body.authUrl).toContain('https://accounts.google.com');
+          expect(response.body.authUrl).toContain(
+            'https://accounts.google.com',
+          );
         } else if (response.status === 302) {
           expect(response.headers.location).toContain('accounts.google.com');
         }
