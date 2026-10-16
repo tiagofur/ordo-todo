@@ -191,14 +191,16 @@ export class PrismaUserRepository implements UserRepository {
     return this.toDomain(user as any);
   }
 
-  async create(props: CreateUserProps): Promise<User> {
+  async create(
+    props: CreateUserProps & { password?: string; avatar?: string },
+  ): Promise<User> {
     const user = await this.prisma.user.create({
       data: {
         email: props.email,
         username: props.username,
         name: props.name,
-        image: props.image,
-        hashedPassword: undefined,
+        image: props.image ?? props.avatar ?? undefined,
+        hashedPassword: props.password,
       },
       select: this.userSelectFields,
     });

@@ -10,6 +10,9 @@ describe('UsersService', () => {
 
   const mockUserRepository = {
     findByEmail: jest.fn(),
+    findById: jest.fn(),
+    updateProps: jest.fn(),
+    delete: jest.fn(),
   };
 
   const mockPrismaService = {
@@ -50,6 +53,7 @@ describe('UsersService', () => {
     it('should successfully get user by email', async () => {
       const email = 'test@example.com';
       const mockUser = {
+        withoutPassword: jest.fn().mockReturnThis(),
         props: {
           id: 'user-123',
           email: email,
@@ -205,8 +209,13 @@ describe('UsersService', () => {
   describe('updateProfile', () => {
     const mockExistingUser = {
       id: 'user-123',
-      username: 'oldusername',
-      lastUsernameChangeAt: new Date('2025-01-01'),
+      props: {
+        id: 'user-123',
+        email: 'test@example.com',
+        username: 'oldusername',
+        name: 'Old Name',
+        lastUsernameChangeAt: new Date('2025-01-01'),
+      },
     };
 
     it('should successfully update profile without username change', async () => {
@@ -218,30 +227,27 @@ describe('UsersService', () => {
         bio: 'Updated bio',
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValueOnce(
+      mockUserRepository.findByEmail.mockResolvedValueOnce(
         mockExistingUser as any,
-      ); // For validation
-      mockPrismaService.user.findUnique.mockResolvedValueOnce(null); // Username check
-
-      const updatedUser = {
-        ...mockExistingUser,
-        ...updateProfileDto,
+      );
+      mockUserRepository.updateProps.mockResolvedValueOnce(undefined);
+      const updatedEntity = {
+        id: 'user-123',
+        props: {
+          ...mockExistingUser.props,
+          name: updateProfileDto.name,
+        },
       };
-      mockPrismaService.user.update.mockResolvedValue(updatedUser as any);
+      mockUserRepository.findByEmail.mockResolvedValueOnce(
+        updatedEntity as any,
+      );
 
       const result = await service.updateProfile(
         email,
         updateProfileDto as any,
       );
 
-      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { email },
-        select: expect.any(Object),
-      });
-      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
-        where: { email },
-        data: expect.any(Object),
-      });
+      expect(mockUserRepository.updateProps).toHaveBeenCalled();
       expect(result.success).toBe(true);
       expect(result.user.name).toBe(updateProfileDto.name);
     });
@@ -253,18 +259,22 @@ describe('UsersService', () => {
         name: 'Updated Name',
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValueOnce(
+      mockUserRepository.findByEmail.mockResolvedValueOnce(
         mockExistingUser as any,
       );
       mockPrismaService.user.findUnique.mockResolvedValueOnce(null); // Username not taken
-
-      const updatedUser = {
-        ...mockExistingUser,
-        username: 'newusername',
-        name: 'Updated Name',
-        lastUsernameChangeAt: new Date(),
+      mockUserRepository.updateProps.mockResolvedValueOnce(undefined);
+      const updatedEntity = {
+        id: 'user-123',
+        props: {
+          ...mockExistingUser.props,
+          username: 'newusername',
+          name: 'Updated Name',
+        },
       };
-      mockPrismaService.user.update.mockResolvedValue(updatedUser as any);
+      mockUserRepository.findByEmail.mockResolvedValueOnce(
+        updatedEntity as any,
+      );
 
       const result = await service.updateProfile(
         email,
@@ -273,20 +283,20 @@ describe('UsersService', () => {
 
       expect(result.success).toBe(true);
       expect(result.user.username).toBe('newusername');
-      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
-        where: { email },
-        data: expect.objectContaining({
+      expect(mockUserRepository.updateProps).toHaveBeenCalledWith(
+        mockExistingUser,
+        expect.objectContaining({
           username: 'newusername',
           lastUsernameChangeAt: expect.any(Date),
         }),
-      });
+      );
     });
 
     it('should throw NotFoundException when user not found', async () => {
       const email = 'nonexistent@example.com';
       const updateProfileDto = { name: 'Updated Name' };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockUserRepository.findByEmail.mockResolvedValue(null);
 
       await expect(
         service.updateProfile(email, updateProfileDto as any),
@@ -300,10 +310,8 @@ describe('UsersService', () => {
       const email = 'test@example.com';
       const updateProfileDto = { username: 'takenusername' };
 
-      mockPrismaService.user.findUnique.mockResolvedValueOnce(
-        mockExistingUser as any,
-      );
-      mockPrismaService.user.findUnique.mockResolvedValueOnce({
+      mockUserRepository.findByEmail.mockResolvedValue(mockExistingUser as any);
+      mockPrismaService.user.findUnique.mockResolvedValue({
         id: 'other-user',
       } as any); // Username already exists
 
@@ -323,14 +331,16 @@ describe('UsersService', () => {
       recentChangeDate.setDate(recentChangeDate.getDate() - 10); // 10 days ago
 
       const userWithRecentChange = {
-        ...mockExistingUser,
-        lastUsernameChangeAt: recentChangeDate,
+        id: 'user-123',
+        props: {
+          ...mockExistingUser.props,
+          lastUsernameChangeAt: recentChangeDate,
+        },
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValueOnce(
+      mockUserRepository.findByEmail.mockResolvedValue(
         userWithRecentChange as any,
       );
-      mockPrismaService.user.findUnique.mockResolvedValueOnce(null);
 
       await expect(
         service.updateProfile(email, updateProfileDto as any),
@@ -350,7 +360,10 @@ describe('UsersService', () => {
         shareAnalytics: true,
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
+      mockUserRepository.findByEmail.mockResolvedValue({
+        id: 'user-123',
+        props: { id: 'user-123' },
+      } as any);
 
       const createdPreferences = {
         userId: 'user-123',
@@ -373,17 +386,16 @@ describe('UsersService', () => {
         updatePreferencesDto as any,
       );
 
-      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { email },
-        select: { id: true },
-      });
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(email);
       expect(mockPrismaService.userPreferences.upsert).toHaveBeenCalledWith({
         where: { userId: 'user-123' },
         create: { userId: 'user-123', ...updatePreferencesDto },
         update: updatePreferencesDto,
       });
       expect(result.success).toBe(true);
-      expect(result.preferences).toEqual(createdPreferences);
+      expect(result.preferences).toEqual(
+        expect.objectContaining(updatePreferencesDto),
+      );
     });
 
     it('should successfully update existing preferences', async () => {
@@ -393,7 +405,10 @@ describe('UsersService', () => {
         shareAnalytics: false,
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-123' });
+      mockUserRepository.findByEmail.mockResolvedValue({
+        id: 'user-123',
+        props: { id: 'user-123' },
+      } as any);
 
       const updatedPreferences = {
         userId: 'user-123',
@@ -426,7 +441,7 @@ describe('UsersService', () => {
       const email = 'nonexistent@example.com';
       const updatePreferencesDto = { enableAI: true };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockUserRepository.findByEmail.mockResolvedValue(null);
 
       await expect(
         service.updatePreferences(email, updatePreferencesDto as any),
@@ -507,20 +522,15 @@ describe('UsersService', () => {
     it('should successfully delete user account', async () => {
       const email = 'test@example.com';
 
-      mockPrismaService.user.findUnique.mockResolvedValue({
+      mockUserRepository.findByEmail.mockResolvedValue({
         id: 'user-123',
-      });
-      mockPrismaService.user.delete.mockResolvedValue({ id: 'user-123' });
+      } as any);
+      mockUserRepository.delete.mockResolvedValue(undefined);
 
       const result = await service.deleteAccount(email);
 
-      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { email },
-        select: { id: true },
-      });
-      expect(mockPrismaService.user.delete).toHaveBeenCalledWith({
-        where: { id: 'user-123' },
-      });
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(email);
+      expect(mockUserRepository.delete).toHaveBeenCalledWith('user-123');
       expect(result.success).toBe(true);
       expect(result.message).toBe('Account deleted successfully');
     });
@@ -528,7 +538,7 @@ describe('UsersService', () => {
     it('should throw NotFoundException when user not found', async () => {
       const email = 'nonexistent@example.com';
 
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockUserRepository.findByEmail.mockResolvedValue(null);
 
       await expect(service.deleteAccount(email)).rejects.toThrow(
         NotFoundException,

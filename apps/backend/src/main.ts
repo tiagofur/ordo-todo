@@ -44,7 +44,8 @@ async function bootstrap() {
     },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept, Authorization, x-csrf-token, X-Correlation-ID',
+    allowedHeaders:
+      'Content-Type, Accept, Authorization, x-csrf-token, X-Correlation-ID',
   });
 
   // Security headers

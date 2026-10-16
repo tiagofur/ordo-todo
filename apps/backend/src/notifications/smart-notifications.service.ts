@@ -42,7 +42,11 @@ export class SmartNotificationsService {
 
       // If task has no specific time and is just stored at UTC midnight (00:00:00),
       // it's a calendar date, not an exact time deadline expiring in 1 hour.
-      if (!task.scheduledTime && task.dueDate && task.dueDate.toISOString().endsWith('T00:00:00.000Z')) {
+      if (
+        !task.scheduledTime &&
+        task.dueDate &&
+        task.dueDate.toISOString().endsWith('T00:00:00.000Z')
+      ) {
         continue;
       }
 

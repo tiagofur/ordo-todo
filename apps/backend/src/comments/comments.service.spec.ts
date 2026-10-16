@@ -30,7 +30,7 @@ describe('CommentsService', () => {
   };
 
   // Mock PrismaService
-  const mockPrismaService: jest.Mocked<Partial<PrismaService>> = {
+  const mockPrismaService: any = {
     comment: {
       findUnique: jest.fn(),
       findMany: jest.fn(),
@@ -41,6 +41,11 @@ describe('CommentsService', () => {
     user: {
       findUnique: jest.fn(),
       findMany: jest.fn(),
+    },
+    workspaceMember: {
+      findUnique: jest
+        .fn()
+        .mockResolvedValue({ id: 'member-1', role: 'MEMBER' }),
     },
   };
 
@@ -110,6 +115,7 @@ describe('CommentsService', () => {
         title: 'Task 1',
         ownerId: userId,
         assigneeId: userId, // Same as author, no notification
+        project: { workspaceId: 'ws-1' },
       });
 
       // Mock user lookup for mentions (none in this case)
@@ -161,6 +167,7 @@ describe('CommentsService', () => {
         title: 'Task 1',
         ownerId: userId,
         assigneeId: assigneeId,
+        project: { workspaceId: 'ws-1' },
       });
 
       (prismaService.user?.findMany as jest.Mock).mockResolvedValue([]);
@@ -208,6 +215,7 @@ describe('CommentsService', () => {
         title: 'Task 1',
         ownerId: userId,
         assigneeId: userId,
+        project: { workspaceId: 'ws-1' },
       });
 
       // Mock mentioned user lookup

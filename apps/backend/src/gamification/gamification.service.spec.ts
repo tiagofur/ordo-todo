@@ -38,6 +38,9 @@ describe('GamificationService', () => {
     xpReward: 100,
   });
 
+  let mockUserRepository: any;
+  let mockAnalyticsRepository: any;
+
   beforeEach(async () => {
     gamificationRepository = {
       findAchievementByCode: jest.fn(),
@@ -49,10 +52,27 @@ describe('GamificationService', () => {
       findUserAchievements: jest.fn(),
     } as any;
 
+    mockUserRepository = {
+      findById: jest.fn(),
+      update: jest.fn(),
+      updateXpAndLevel: jest.fn().mockResolvedValue({}),
+    };
+
+    mockAnalyticsRepository = {
+      countTasks: jest.fn().mockResolvedValue(1),
+      getProductivityStats: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GamificationService,
         { provide: 'GamificationRepository', useValue: gamificationRepository },
+        { provide: 'UserRepository', useValue: mockUserRepository },
+        {
+          provide: 'TimerRepository',
+          useValue: { findActiveByUserId: jest.fn(), findByUserId: jest.fn() },
+        },
+        { provide: 'AnalyticsRepository', useValue: mockAnalyticsRepository },
         { provide: PrismaService, useValue: mockPrisma },
         { provide: NotificationsService, useValue: mockNotificationsService },
       ],
@@ -85,17 +105,14 @@ describe('GamificationService', () => {
         xp: 50,
         level: 1,
       });
-      prisma.client.user.update.mockResolvedValue({});
 
       await service.addXp('user-123', 50, 'Test');
 
-      expect(prisma.client.user.update).toHaveBeenCalledWith({
-        where: { id: 'user-123' },
-        data: {
-          xp: 100,
-          level: 2,
-        },
-      });
+      expect(mockUserRepository.updateXpAndLevel).toHaveBeenCalledWith(
+        'user-123',
+        100,
+        2,
+      );
     });
 
     it('should handle level up and send notification', async () => {
@@ -103,7 +120,6 @@ describe('GamificationService', () => {
         xp: 50,
         level: 1,
       });
-      prisma.client.user.update.mockResolvedValue({});
 
       await service.addXp('user-123', 100, 'Test');
 
@@ -114,8 +130,6 @@ describe('GamificationService', () => {
   describe('awardTaskCompletion', () => {
     it('should add XP for task completion', async () => {
       prisma.client.user.findUnique.mockResolvedValue({ xp: 0, level: 1 });
-      prisma.client.user.update.mockResolvedValue({});
-      prisma.client.task.count.mockResolvedValue(1);
       gamificationRepository.findAchievementByCode.mockResolvedValue(
         mockAchievement,
       );
@@ -123,14 +137,17 @@ describe('GamificationService', () => {
 
       await service.awardTaskCompletion('user-123');
 
-      expect(prisma.client.user.update).toHaveBeenCalled();
+      expect(mockUserRepository.updateXpAndLevel).toHaveBeenCalledWith(
+        'user-123',
+        50,
+        1,
+      );
     });
   });
 
   describe('unlockAchievement', () => {
     it('should unlock achievement if not already unlocked', async () => {
       const userId = 'user-123';
-      const achievementCode = 'FIRST_TASK';
 
       gamificationRepository.findAchievementByCode.mockResolvedValue(
         mockAchievement,
@@ -140,9 +157,7 @@ describe('GamificationService', () => {
 
       // Mock addXp dependencies
       prisma.client.user.findUnique.mockResolvedValue({ xp: 0, level: 1 });
-      prisma.client.user.update.mockResolvedValue({});
 
-      // Accessing private method for testing purpose or just triggering through awardTaskCompletion
       await service.awardTaskCompletion(userId);
 
       expect(gamificationRepository.unlockAchievement).toHaveBeenCalled();

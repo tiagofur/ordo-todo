@@ -311,4 +311,3 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.consistencyScore;
   }
 }
-

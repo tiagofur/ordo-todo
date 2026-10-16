@@ -4,8 +4,8 @@ import { SeriesService } from './series.service';
 import { SeriesRepository } from './series.repository';
 
 @Module({
-    controllers: [SeriesController],
-    providers: [SeriesService, SeriesRepository],
-    exports: [SeriesService],
+  controllers: [SeriesController],
+  providers: [SeriesService, SeriesRepository],
+  exports: [SeriesService],
 })
-export class SeriesModule { }
+export class SeriesModule {}

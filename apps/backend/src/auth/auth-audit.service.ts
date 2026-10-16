@@ -19,9 +19,10 @@ export class AuthAuditService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Optional() @Inject('AuthAuditLogRepository')
+    @Optional()
+    @Inject('AuthAuditLogRepository')
     private readonly auditLogRepository?: AuthAuditLogRepository,
-  ) { }
+  ) {}
 
   async logEvent(event: AuthAuditEvent): Promise<void> {
     this.logger.log(
@@ -47,7 +48,9 @@ export class AuthAuditService {
           metadata: event.metadata,
         });
       } catch (error) {
-        this.logger.warn(`Failed to persist audit log: ${(error as Error).message}`);
+        this.logger.warn(
+          `Failed to persist audit log: ${(error as Error).message}`,
+        );
       }
     }
   }

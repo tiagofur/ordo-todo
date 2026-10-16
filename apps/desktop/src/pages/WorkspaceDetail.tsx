@@ -49,11 +49,12 @@ export function WorkspaceDetail() {
   const workspaceId = id || workspaceSlug;
   const actualSlug = slug || workspaceSlug || "";
 
-  // Use the appropriate hook based on what we have
-  // Priority: ID > username+slug > slug only
-  const { data: workspace, isLoading: isLoadingWorkspace } = workspaceId
-    ? useWorkspace(workspaceId)  // ID-based lookup (old Desktop route)
-    : useDesktopWorkspaceBySlug(actualSlug, username);  // Slug-based lookup (new route)
+  // Use the appropriate query based on what params exist
+  const workspaceByIdQuery = useWorkspace(workspaceId || "");
+  const workspaceBySlugQuery = useDesktopWorkspaceBySlug(workspaceId ? "" : actualSlug, username);
+
+  const workspace = workspaceId ? workspaceByIdQuery.data : workspaceBySlugQuery.data;
+  const isLoadingWorkspace = workspaceId ? workspaceByIdQuery.isLoading : workspaceBySlugQuery.isLoading;
 
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

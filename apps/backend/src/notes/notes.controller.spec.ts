@@ -128,8 +128,7 @@ describe('NotesController', () => {
       } as any);
 
       const result = await controller.findAll(
-        workspaceId,
-        {} as any,
+        { workspaceId } as any,
         mockRequestUser,
       );
 
@@ -153,8 +152,7 @@ describe('NotesController', () => {
       } as any);
 
       const result = await controller.findAll(
-        workspaceId,
-        {} as any,
+        { workspaceId } as any,
         mockRequestUser,
       );
 
@@ -177,7 +175,7 @@ describe('NotesController', () => {
       );
 
       await expect(
-        controller.findAll(workspaceId, {} as any, mockRequestUser),
+        controller.findAll({ workspaceId } as any, mockRequestUser),
       ).rejects.toThrow(ForbiddenException);
     });
   });

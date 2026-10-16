@@ -4,8 +4,8 @@ import { ConsistencyService } from './consistency.service';
 import { ConsistencyRepository } from './consistency.repository';
 
 @Module({
-    controllers: [ConsistencyController],
-    providers: [ConsistencyService, ConsistencyRepository],
-    exports: [ConsistencyService],
+  controllers: [ConsistencyController],
+  providers: [ConsistencyService, ConsistencyRepository],
+  exports: [ConsistencyService],
 })
-export class ConsistencyModule { }
+export class ConsistencyModule {}

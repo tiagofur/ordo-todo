@@ -10,7 +10,13 @@ import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 import { CompleteHabitDto } from './dto/complete-habit.dto';
 import { GamificationService } from '../gamification/gamification.service';
-import { Habit, HabitFrequency, TimeOfDay, toCalendarDateString, parseCalendarDateToUtcMidnight } from '@ordo-todo/core';
+import {
+  Habit,
+  HabitFrequency,
+  TimeOfDay,
+  toCalendarDateString,
+  parseCalendarDateToUtcMidnight,
+} from '@ordo-todo/core';
 import type { IHabitRepository } from '@ordo-todo/core';
 import {
   startOfDay,

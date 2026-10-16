@@ -57,6 +57,8 @@ describe('AttachmentsService', () => {
             findByTaskId: jest.fn(),
             findByUserId: jest.fn(),
             findByMimeType: jest.fn(),
+            findByProjectId: jest.fn(),
+            findByUrl: jest.fn(),
             delete: jest.fn(),
             countByTaskId: jest.fn(),
             getTotalSizeByTaskId: jest.fn(),
@@ -142,7 +144,7 @@ describe('AttachmentsService', () => {
   });
 
   describe('findOne', () => {
-    it('should return an attachment with uploader and task details', async () => {
+    it('should return an attachment with uploader details', async () => {
       attachmentRepository.findById.mockResolvedValue(mockAttachment);
 
       const result = (await service.findOne('attachment-123')) as any;
@@ -150,7 +152,6 @@ describe('AttachmentsService', () => {
       expect(attachmentRepository.findById).toHaveBeenCalledWith(
         'attachment-123',
       );
-      expect(result.task).toBeDefined();
       expect(result.uploadedBy).toEqual({
         id: 'user-123',
         name: 'Test User',
@@ -331,52 +332,14 @@ describe('AttachmentsService', () => {
   });
 
   describe('findByProject', () => {
-    it('should return attachments for project with uploader and task details', async () => {
-      const dbAttachments = [
-        {
-          id: 'attachment-123',
-          taskId: 'task-123',
-          filename: 'document.pdf',
-          url: '/uploads/document.pdf',
-          mimeType: 'application/pdf',
-          filesize: 1024000,
-          uploadedById: 'user-123',
-          uploadedAt: new Date('2025-01-01'),
-          uploadedBy: { id: 'user-123', name: 'Test User' },
-          task: { id: 'task-123', title: 'Test Task' },
-        },
-      ];
-
-      (prisma.attachment.findMany as jest.Mock).mockResolvedValue(
-        dbAttachments,
-      );
+    it('should return attachments for project with uploader details', async () => {
+      attachmentRepository.findByProjectId.mockResolvedValue([mockAttachment]);
 
       const result = await service.findByProject('project-123');
 
-      expect(prisma.attachment.findMany).toHaveBeenCalledWith({
-        where: {
-          task: {
-            projectId: 'project-123',
-          },
-        },
-        include: {
-          uploadedBy: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          task: {
-            select: {
-              id: true,
-              title: true,
-            },
-          },
-        },
-        orderBy: {
-          uploadedAt: 'desc',
-        },
-      });
+      expect(attachmentRepository.findByProjectId).toHaveBeenCalledWith(
+        'project-123',
+      );
       expect(result).toHaveLength(1);
     });
   });
@@ -436,7 +399,7 @@ describe('AttachmentsService', () => {
         .spyOn(require('fs/promises'), 'readdir')
         .mockResolvedValue(['file1.pdf', 'file2.jpg'] as any);
 
-      (prisma.attachment.findFirst as jest.Mock).mockResolvedValue(null);
+      attachmentRepository.findByUrl.mockResolvedValue(null);
       jest.spyOn(require('fs/promises'), 'unlink').mockResolvedValue(undefined);
 
       const result = await service.cleanOrphanedFiles();

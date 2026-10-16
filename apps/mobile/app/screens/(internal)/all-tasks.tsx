@@ -82,28 +82,22 @@ export default function AllTasksScreen() {
   });
 
   const getPriorityColor = (priority: string) => {
-    // Fallback to colors.priority if direct mapping fails, but using direct hardcoded tokens mapping for consistency with design-tokens.ts structure if needed
-    // Actually, useDesignTokens exposes priorityColors
     const p = priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-    // @ts-ignore - Dynamic access to priority colors
-    return colors.priority[p]?.background || colors.muted;
+    return (colors as any).priority?.[p]?.background || colors.muted;
   };
 
   const getPriorityForeground = (priority: string) => {
     const p = priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-    // @ts-ignore
-    return colors.priority[p]?.foreground || colors.mutedForeground;
-  }
+    return (colors as any).priority?.[p]?.foreground || colors.mutedForeground;
+  };
 
   const getStatusColor = (status: string) => {
-    // @ts-ignore
-    return colors.status[status]?.foreground || colors.mutedForeground;
+    return (colors as any).status?.[status]?.foreground || colors.mutedForeground;
   };
 
   const getStatusBg = (status: string) => {
-    // @ts-ignore
-    return colors.status[status]?.background || colors.muted;
-  }
+    return (colors as any).status?.[status]?.background || colors.muted;
+  };
 
   const getStatusIcon = (status: string) => {
     const iconMap: Record<string, string> = {

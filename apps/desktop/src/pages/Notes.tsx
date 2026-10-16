@@ -17,6 +17,7 @@ export function Notes() {
 
   // Fetch notes
   const { data: notes, isLoading: isLoadingNotes } = useNotes(selectedWorkspaceId || "");
+  const createNote = useCreateNote();
 
   if (!selectedWorkspaceId) {
     return (
@@ -35,8 +36,6 @@ export function Notes() {
       </div>
     );
   }
-
-  const createNote = useCreateNote();
 
   const handleAddNote = () => {
     if (!selectedWorkspaceId) return;

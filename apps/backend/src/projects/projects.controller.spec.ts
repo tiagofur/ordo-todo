@@ -2,6 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectsService } from './projects.service';
 import { ProjectsController } from './projects.controller';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ProjectGuard } from '../common/guards/project.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import {
+  CacheInterceptor,
+  CacheInvalidateInterceptor,
+} from '../common/decorators/cache';
+
+import { WorkspacesService } from '../workspaces/workspaces.service';
 
 describe('ProjectsController', () => {
   let controller: ProjectsController;
@@ -10,15 +18,29 @@ describe('ProjectsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProjectsController],
-      providers: [ProjectsService],
-    }).compile();
+      providers: [
+        ProjectsService,
+        { provide: 'ProjectRepository', useValue: {} },
+        { provide: 'RedisService', useValue: {} },
+        { provide: WorkspacesService, useValue: {} },
+      ],
+    })
+      .overrideGuard(ProjectGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideInterceptor(CacheInvalidateInterceptor)
+      .useValue({ intercept: (_ctx: any, next: any) => next.handle() })
+      .overrideInterceptor(CacheInterceptor)
+      .useValue({ intercept: (_ctx: any, next: any) => next.handle() })
+      .compile();
 
     controller = module.get<ProjectsController>(ProjectsController);
     service = module.get<ProjectsService>(ProjectsService);
   });
 
   describe('GET /projects', () => {
-    it('should return all projects for a user', async () => {
+    it('should return all projects for a workspace', async () => {
       const mockProjects = [
         { id: 'proj-1', name: 'Project 1', status: 'ACTIVE' },
         { id: 'proj-2', name: 'Project 2', status: 'ACTIVE' },
@@ -26,22 +48,9 @@ describe('ProjectsController', () => {
 
       jest.spyOn(service, 'findAll').mockResolvedValue(mockProjects as any);
 
-      const result = await controller.findAll('user-123');
+      const result = await controller.findAll('ws-123');
 
-      expect(service.findAll).toHaveBeenCalledWith('user-123');
-      expect(result).toEqual(mockProjects);
-    });
-
-    it('should filter projects by workspace ID', async () => {
-      const mockProjects = [
-        { id: 'proj-1', name: 'Project 1', workspaceId: 'ws-123' },
-      ];
-
-      jest.spyOn(service, 'findAll').mockResolvedValue(mockProjects as any);
-
-      const result = await controller.findAll('user-123', 'ws-123');
-
-      expect(service.findAll).toHaveBeenCalledWith('user-123', 'ws-123');
+      expect(service.findAll).toHaveBeenCalledWith('ws-123');
       expect(result).toEqual(mockProjects);
     });
   });
@@ -56,16 +65,16 @@ describe('ProjectsController', () => {
 
       jest.spyOn(service, 'findOne').mockResolvedValue(mockProject as any);
 
-      const result = await controller.findOne('proj-123', 'user-123');
+      const result = await controller.findOne('proj-123');
 
-      expect(service.findOne).toHaveBeenCalledWith('proj-123', 'user-123');
+      expect(service.findOne).toHaveBeenCalledWith('proj-123');
       expect(result).toEqual(mockProject);
     });
 
     it('should throw NotFoundException when project not found', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(null);
 
-      await expect(controller.findOne('not-found', 'user-123')).rejects.toThrow(
+      await expect(controller.findOne('not-found')).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -86,9 +95,9 @@ describe('ProjectsController', () => {
 
       jest.spyOn(service, 'create').mockResolvedValue(mockProject as any);
 
-      const result = await controller.create(createDto, 'user-123');
+      const result = await controller.create(createDto);
 
-      expect(service.create).toHaveBeenCalledWith(createDto, 'user-123');
+      expect(service.create).toHaveBeenCalledWith(createDto);
       expect(result).toEqual(mockProject);
     });
 
@@ -103,9 +112,9 @@ describe('ProjectsController', () => {
         .spyOn(service, 'create')
         .mockRejectedValue(new BadRequestException('Project name is required'));
 
-      await expect(
-        controller.create(createDto as any, 'user-123'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(controller.create(createDto as any)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -123,13 +132,9 @@ describe('ProjectsController', () => {
 
       jest.spyOn(service, 'update').mockResolvedValue(mockProject as any);
 
-      const result = await controller.update('proj-123', updateDto, 'user-123');
+      const result = await controller.update('proj-123', updateDto);
 
-      expect(service.update).toHaveBeenCalledWith(
-        'proj-123',
-        updateDto,
-        'user-123',
-      );
+      expect(service.update).toHaveBeenCalledWith('proj-123', updateDto);
       expect(result).toEqual(mockProject);
     });
   });
@@ -140,9 +145,9 @@ describe('ProjectsController', () => {
 
       jest.spyOn(service, 'remove').mockResolvedValue(mockDeleted as any);
 
-      const result = await controller.remove('proj-123', 'user-123');
+      const result = await controller.remove('proj-123');
 
-      expect(service.remove).toHaveBeenCalledWith('proj-123', 'user-123');
+      expect(service.remove).toHaveBeenCalledWith('proj-123');
       expect(result).toEqual(mockDeleted);
     });
 
@@ -151,7 +156,7 @@ describe('ProjectsController', () => {
         .spyOn(service, 'remove')
         .mockRejectedValue(new NotFoundException('Project not found'));
 
-      await expect(controller.remove('not-found', 'user-123')).rejects.toThrow(
+      await expect(controller.remove('not-found')).rejects.toThrow(
         NotFoundException,
       );
     });

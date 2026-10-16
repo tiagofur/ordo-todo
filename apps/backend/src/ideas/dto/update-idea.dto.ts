@@ -5,11 +5,11 @@ import { IdeaStatus } from '@prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateIdeaDto extends PartialType(CreateIdeaDto) {
-    @ApiPropertyOptional({
-        description: 'The status of the idea',
-        enum: IdeaStatus,
-    })
-    @IsEnum(IdeaStatus)
-    @IsOptional()
-    status?: IdeaStatus;
+  @ApiPropertyOptional({
+    description: 'The status of the idea',
+    enum: IdeaStatus,
+  })
+  @IsEnum(IdeaStatus)
+  @IsOptional()
+  status?: IdeaStatus;
 }

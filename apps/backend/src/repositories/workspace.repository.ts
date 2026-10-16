@@ -189,14 +189,14 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     if (!workspace) return null;
 
     const domainWorkspace = this.toDomain(workspace);
-    const taskCount = workspace.projects.reduce(
-      (acc, p) => acc + p._count.tasks,
+    const taskCount = (workspace.projects || []).reduce(
+      (acc, p) => acc + (p._count?.tasks ?? 0),
       0,
     );
 
     return domainWorkspace.setStats({
-      projectCount: workspace._count.projects,
-      memberCount: workspace._count.members,
+      projectCount: workspace._count?.projects ?? 0,
+      memberCount: workspace._count?.members ?? 0,
       taskCount: taskCount,
     });
   }
@@ -265,8 +265,8 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
     }
 
     // Format stats manually
-    const taskCount = workspace.projects.reduce(
-      (acc, p) => acc + p._count.tasks,
+    const taskCount = (workspace.projects || []).reduce(
+      (acc, p) => acc + (p._count?.tasks ?? 0),
       0,
     );
 
@@ -375,11 +375,14 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
     return workspaces.map((w) => {
       const domainWorkspace = this.toDomain(w);
-      const taskCount = w.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+      const taskCount = (w.projects || []).reduce(
+        (acc, p) => acc + (p._count?.tasks ?? 0),
+        0,
+      );
 
       return domainWorkspace.setStats({
-        projectCount: w._count.projects,
-        memberCount: w._count.members,
+        projectCount: w._count?.projects ?? 0,
+        memberCount: w._count?.members ?? 0,
         taskCount: taskCount,
       });
     });
@@ -413,11 +416,14 @@ export class PrismaWorkspaceRepository implements WorkspaceRepository {
 
     return workspaces.map((w) => {
       const domainWorkspace = this.toDomain(w);
-      const taskCount = w.projects.reduce((acc, p) => acc + p._count.tasks, 0);
+      const taskCount = (w.projects || []).reduce(
+        (acc, p) => acc + (p._count?.tasks ?? 0),
+        0,
+      );
 
       return domainWorkspace.setStats({
-        projectCount: w._count.projects,
-        memberCount: w._count.members,
+        projectCount: w._count?.projects ?? 0,
+        memberCount: w._count?.members ?? 0,
         taskCount: taskCount,
       });
     });

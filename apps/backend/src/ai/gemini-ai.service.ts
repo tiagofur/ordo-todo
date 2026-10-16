@@ -1,4 +1,9 @@
-import { Injectable, Logger, ServiceUnavailableException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  BadRequestException,
+} from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 import { ConfigService } from '@nestjs/config';
 import type {
@@ -260,7 +265,9 @@ Responde SOLO con JSON válido:
         };
       }
 
-      throw new BadRequestException('Failed to parse AI response: invalid JSON');
+      throw new BadRequestException(
+        'Failed to parse AI response: invalid JSON',
+      );
     } catch (error) {
       this.logger.error('Task decomposition failed', error);
       return this.getDefaultDecomposition(taskTitle);
@@ -459,7 +466,9 @@ Ejemplos:
         };
       }
 
-      throw new BadRequestException('Failed to parse AI response: invalid JSON');
+      throw new BadRequestException(
+        'Failed to parse AI response: invalid JSON',
+      );
     } catch (error) {
       this.logger.error('Failed to parse task', error);
       return this.extractTaskLocally(input);
@@ -568,7 +577,9 @@ Sé empático, constructivo y evita ser alarmista. Usa español.`;
         };
       }
 
-      throw new BadRequestException('Failed to parse AI response: invalid format');
+      throw new BadRequestException(
+        'Failed to parse AI response: invalid format',
+      );
     } catch (error) {
       this.logger.error('Wellbeing analysis failed', error);
       return {
@@ -724,7 +735,9 @@ Limita a 3-4 fases con 3-5 tareas cada una. Usa español.`;
         return JSON.parse(jsonMatch[0]);
       }
 
-      throw new BadRequestException('Failed to parse AI response: invalid format');
+      throw new BadRequestException(
+        'Failed to parse AI response: invalid format',
+      );
     } catch (error) {
       this.logger.error('Workflow suggestion failed', error);
       return this.getDefaultWorkflowSuggestion(projectName);
@@ -845,7 +858,9 @@ Responde SOLO con este JSON exacto:
         return JSON.parse(jsonMatch[0]);
       }
 
-      throw new BadRequestException('Failed to parse AI response: invalid JSON');
+      throw new BadRequestException(
+        'Failed to parse AI response: invalid JSON',
+      );
     } catch (error) {
       this.logger.error('Blog generation failed', error);
       throw error;
@@ -1012,7 +1027,9 @@ Be specific, actionable, and positive. Focus on helping the user improve. Use Sp
           reasoning: data.reasoning || 'Estimación automática generada por IA.',
         };
       }
-      throw new BadRequestException('Failed to parse AI response: invalid format');
+      throw new BadRequestException(
+        'Failed to parse AI response: invalid format',
+      );
     } catch (e) {
       this.logger.error('Failed to estimate duration', e);
       return {

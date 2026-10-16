@@ -2,51 +2,51 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IdeaSource, IdeaStatus } from '@prisma/client';
 
 export class IdeaResponseDto {
-    @ApiProperty()
-    id: string;
+  @ApiProperty()
+  id: string;
 
-    @ApiProperty()
-    title: string;
+  @ApiProperty()
+  title: string;
 
-    @ApiPropertyOptional()
-    description?: string;
+  @ApiPropertyOptional()
+  description?: string;
 
-    @ApiProperty({ enum: IdeaSource })
-    source: IdeaSource;
+  @ApiProperty({ enum: IdeaSource })
+  source: IdeaSource;
 
-    @ApiPropertyOptional()
-    voiceNoteUrl?: string;
+  @ApiPropertyOptional()
+  voiceNoteUrl?: string;
 
-    @ApiPropertyOptional()
-    screenshot?: string;
+  @ApiPropertyOptional()
+  screenshot?: string;
 
-    @ApiPropertyOptional()
-    sourceUrl?: string;
+  @ApiPropertyOptional()
+  sourceUrl?: string;
 
-    @ApiProperty({ enum: IdeaStatus })
-    status: IdeaStatus;
+  @ApiProperty({ enum: IdeaStatus })
+  status: IdeaStatus;
 
-    @ApiPropertyOptional()
-    archivedAt?: Date;
+  @ApiPropertyOptional()
+  archivedAt?: Date;
 
-    @ApiPropertyOptional()
-    promotedAt?: Date;
+  @ApiPropertyOptional()
+  promotedAt?: Date;
 
-    @ApiPropertyOptional()
-    contentPieceId?: string;
+  @ApiPropertyOptional()
+  contentPieceId?: string;
 
-    @ApiProperty()
-    userId: string;
+  @ApiProperty()
+  userId: string;
 
-    @ApiProperty()
-    workspaceId: string;
+  @ApiProperty()
+  workspaceId: string;
 
-    @ApiProperty()
-    createdAt: Date;
+  @ApiProperty()
+  createdAt: Date;
 
-    @ApiProperty()
-    updatedAt: Date;
+  @ApiProperty()
+  updatedAt: Date;
 
-    @ApiPropertyOptional({ type: [Object] })
-    tags?: Array<{ id: string; name: string; color: string }>;
+  @ApiPropertyOptional({ type: [Object] })
+  tags?: Array<{ id: string; name: string; color: string }>;
 }

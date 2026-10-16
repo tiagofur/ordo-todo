@@ -95,36 +95,12 @@ describe('HabitsService', () => {
         workspaceId: 'ws-123',
       };
 
-      prismaService.client.habit.create.mockResolvedValue({
-        id: 'habit-123',
-        name: createDto.name,
-        description: createDto.description,
-        frequency: createDto.frequency,
-        color: '#10B981',
-        userId: 'user-123',
-        icon: null,
-        workspaceId: createDto.workspaceId,
-        targetDaysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-        targetCount: 1,
-        preferredTime: null,
-        timeOfDay: null,
-        currentStreak: 0,
-        longestStreak: 0,
-        totalCompletions: 0,
-        isActive: true,
-        isPaused: false,
-        pausedAt: null,
-        archivedAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        completions: [],
-      });
-
-      prismaService.client.habit.count.mockResolvedValue(1);
+      habitRepository.create.mockResolvedValue(mockHabit);
+      habitRepository.findByUserId.mockResolvedValue([mockHabit]);
 
       const result = await service.create(createDto, 'user-123');
 
-      expect(prismaService.client.habit.create).toHaveBeenCalled();
+      expect(habitRepository.create).toHaveBeenCalled();
       expect(result.name).toBe(createDto.name);
     });
   });
@@ -132,70 +108,23 @@ describe('HabitsService', () => {
   describe('findAll', () => {
     it('should return all habits for a user', async () => {
       const userId = 'user-123';
-      const mockHabits = [
-        {
-          id: 'habit-1',
-          name: 'Habit 1',
-          frequency: 'DAILY',
-          color: '#10B981',
-          userId,
-          description: null,
-          icon: null,
-          workspaceId: null,
-          targetDaysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-          targetCount: 1,
-          preferredTime: null,
-          timeOfDay: null,
-          currentStreak: 0,
-          longestStreak: 0,
-          totalCompletions: 0,
-          isActive: true,
-          isPaused: false,
-          pausedAt: null,
-          archivedAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          completions: [],
-        },
-      ];
 
-      prismaService.client.habit.findMany.mockResolvedValue(mockHabits);
+      habitRepository.findActiveByUserId.mockResolvedValue([mockHabit]);
+      habitRepository.getCompletions.mockResolvedValue([]);
 
       const result = await service.findAll(userId);
 
-      expect(result).toEqual(mockHabits);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(mockHabit.id);
     });
   });
 
   describe('findOne', () => {
     it('should return a habit by ID', async () => {
       const habitId = 'habit-123';
-      const mockHabitData = {
-        id: habitId,
-        name: 'Test Habit',
-        frequency: 'DAILY',
-        color: '#10B981',
-        userId: 'user-123',
-        description: null,
-        icon: null,
-        workspaceId: null,
-        targetDaysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-        targetCount: 1,
-        preferredTime: null,
-        timeOfDay: null,
-        currentStreak: 0,
-        longestStreak: 0,
-        totalCompletions: 0,
-        isActive: true,
-        isPaused: false,
-        pausedAt: null,
-        archivedAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        completions: [],
-      };
 
-      prismaService.client.habit.findFirst.mockResolvedValue(mockHabitData);
+      habitRepository.findById.mockResolvedValue(mockHabit);
+      habitRepository.getCompletions.mockResolvedValue([]);
 
       const result = await service.findOne(habitId, 'user-123');
 
@@ -203,7 +132,7 @@ describe('HabitsService', () => {
     });
 
     it('should throw NotFoundException when habit not found', async () => {
-      prismaService.client.habit.findFirst.mockResolvedValue(null);
+      habitRepository.findById.mockResolvedValue(null);
 
       await expect(service.findOne('not-found', 'user-123')).rejects.toThrow(
         NotFoundException,
@@ -215,44 +144,17 @@ describe('HabitsService', () => {
     it('should delete a habit', async () => {
       const habitId = 'habit-123';
 
-      prismaService.client.habit.findFirst.mockResolvedValue({
-        id: habitId,
-        name: 'Test Habit',
-        frequency: 'DAILY',
-        color: '#10B981',
-        userId: 'user-123',
-        description: null,
-        icon: null,
-        workspaceId: null,
-        targetDaysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-        targetCount: 1,
-        preferredTime: null,
-        timeOfDay: null,
-        currentStreak: 0,
-        longestStreak: 0,
-        totalCompletions: 0,
-        isActive: true,
-        isPaused: false,
-        pausedAt: null,
-        archivedAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        completions: [],
-      });
-
-      prismaService.client.habit.delete.mockResolvedValue(undefined as never);
+      habitRepository.findById.mockResolvedValue(mockHabit);
+      habitRepository.delete.mockResolvedValue(undefined as never);
 
       const result = await service.remove(habitId, 'user-123');
 
-      expect(prismaService.client.habit.delete).toHaveBeenCalledWith({
-        where: { id: habitId },
-      });
-
+      expect(habitRepository.delete).toHaveBeenCalledWith(habitId);
       expect(result).toEqual({ success: true });
     });
 
     it('should throw NotFoundException when habit not found', async () => {
-      prismaService.client.habit.findFirst.mockResolvedValue(null);
+      habitRepository.findById.mockResolvedValue(null);
 
       await expect(service.remove('not-found', 'user-123')).rejects.toThrow(
         NotFoundException,

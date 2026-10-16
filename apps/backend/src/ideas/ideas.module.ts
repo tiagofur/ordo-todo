@@ -4,8 +4,8 @@ import { IdeasService } from './ideas.service';
 import { IdeasRepository } from './ideas.repository';
 
 @Module({
-    controllers: [IdeasController],
-    providers: [IdeasService, IdeasRepository],
-    exports: [IdeasService],
+  controllers: [IdeasController],
+  providers: [IdeasService, IdeasRepository],
+  exports: [IdeasService],
 })
-export class IdeasModule { }
+export class IdeasModule {}

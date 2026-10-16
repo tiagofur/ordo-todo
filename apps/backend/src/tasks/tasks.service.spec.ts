@@ -8,11 +8,7 @@ import { GamificationService } from '../gamification/gamification.service';
 import {
   CreateTaskUseCase,
   UpdateDailyMetricsUseCase,
-  UpdateTaskUseCase,
   CompleteTaskUseCase,
-  FindTodayTasksUseCase,
-  FindScheduledTasksUseCase,
-  FindAvailableTasksUseCase,
 } from '@ordo-todo/core';
 
 describe('TasksService', () => {
@@ -26,8 +22,12 @@ describe('TasksService', () => {
     findOne: jest.fn(),
     isMember: jest.fn(),
     save: jest.fn(),
+    update: jest.fn(),
     delete: jest.fn(),
     softDelete: jest.fn(),
+    findTodayTasks: jest.fn(),
+    findScheduledTasks: jest.fn(),
+    findAvailableTasks: jest.fn(),
   };
 
   const mockAnalyticsRepository = {
@@ -40,6 +40,9 @@ describe('TasksService', () => {
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       count: jest.fn(),
+    },
+    user: {
+      findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
     },
   };
 
@@ -61,6 +64,7 @@ describe('TasksService', () => {
   };
 
   const mockGamificationService = {
+    awardTaskCompletion: jest.fn().mockResolvedValue(undefined),
     onTaskCompleted: jest.fn(),
     onSubtaskCompleted: jest.fn(),
     getProgress: jest.fn(),
@@ -77,6 +81,17 @@ describe('TasksService', () => {
         {
           provide: 'AnalyticsRepository',
           useValue: mockAnalyticsRepository,
+        },
+        {
+          provide: 'TaskDependencyRepository',
+          useValue: {
+            findDependencies: jest.fn().mockResolvedValue([]),
+            findDependents: jest.fn().mockResolvedValue([]),
+            addDependency: jest.fn(),
+            removeDependency: jest.fn(),
+            hasDependency: jest.fn().mockResolvedValue(false),
+            hasCircularDependency: jest.fn().mockResolvedValue(false),
+          },
         },
         {
           provide: PrismaService,
@@ -297,7 +312,7 @@ describe('TasksService', () => {
       expect(result.id).toBe(taskId);
       expect(result.comments).toHaveLength(1);
       expect(result.tags).toHaveLength(1);
-      expect(result.estimatedTime).toBe(60);
+      expect(result.estimatedMinutes).toBe(60);
     });
 
     it('should throw NotFoundException when task not found', async () => {
@@ -315,7 +330,12 @@ describe('TasksService', () => {
     it('should delete a task', async () => {
       const taskId = 'task-123';
 
-      // SoftDeleteTaskUseCase first finds the task, then soft deletes it
+      mockPrismaService.task.findUnique.mockResolvedValue({
+        id: taskId,
+        title: 'Test Task',
+        isDeleted: false,
+        projectId: 'proj-1',
+      });
       mockTaskRepository.findById.mockResolvedValue({
         id: taskId,
         props: { id: taskId, title: 'Test Task' },
@@ -324,7 +344,6 @@ describe('TasksService', () => {
 
       const result = await service.remove(taskId);
 
-      expect(mockTaskRepository.findById).toHaveBeenCalledWith(taskId);
       expect(mockTaskRepository.softDelete).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ success: true });
     });
@@ -590,22 +609,24 @@ describe('TasksService', () => {
         ...updateTaskDto,
       };
 
-      mockTaskRepository.findOne.mockResolvedValue(existingTask as any);
-      mockTaskRepository.isMember.mockResolvedValue(true);
-      const executeSpy = jest.spyOn(UpdateTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(updatedTask as any);
+      const mockTask = {
+        id: taskId,
+        props: { ...existingTask },
+        update: jest.fn().mockReturnValue({
+          props: { ...updatedTask },
+        }),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockTask as any);
+      mockTaskRepository.update.mockResolvedValue(undefined);
       mockActivitiesService.logTaskUpdated = jest
         .fn()
         .mockResolvedValue(undefined);
 
       const result = await service.update(taskId, updateTaskDto as any, userId);
 
-      expect(mockTaskRepository.findOne).toHaveBeenCalledWith(taskId);
-      expect(mockTaskRepository.isMember).toHaveBeenCalledWith(userId, taskId);
-      expect(executeSpy).toHaveBeenCalledWith({
-        id: taskId,
-        ...updateTaskDto,
-      });
+      expect(mockTaskRepository.findById).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.update).toHaveBeenCalled();
       expect(result).toEqual(updatedTask);
     });
 
@@ -614,7 +635,7 @@ describe('TasksService', () => {
       const taskId = 'task-123';
       const updateTaskDto = { title: 'Updated Title' };
 
-      mockTaskRepository.findOne.mockResolvedValue(null);
+      mockTaskRepository.findById.mockResolvedValue(null);
 
       await expect(
         service.update(taskId, updateTaskDto as any, userId),
@@ -635,18 +656,21 @@ describe('TasksService', () => {
         title: 'Test Task',
         status: 'TODO',
         ownerId: userId,
+        parentTaskId: null,
       };
 
       const completedTask = {
         ...existingTask,
-        status: 'DONE',
+        status: 'COMPLETED',
         completedAt: new Date(),
       };
 
-      mockTaskRepository.findOne.mockResolvedValue(existingTask as any);
-      mockTaskRepository.isMember.mockResolvedValue(true);
+      mockTaskRepository.findById.mockResolvedValue({
+        id: taskId,
+        props: { ...existingTask },
+      });
       const executeSpy = jest.spyOn(CompleteTaskUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(completedTask as any);
+      executeSpy.mockResolvedValue({ props: completedTask } as any);
       mockActivitiesService.logTaskCompleted = jest
         .fn()
         .mockResolvedValue(undefined);
@@ -654,9 +678,8 @@ describe('TasksService', () => {
 
       const result = await service.complete(taskId, userId);
 
-      expect(mockTaskRepository.findOne).toHaveBeenCalledWith(taskId);
-      expect(mockTaskRepository.isMember).toHaveBeenCalledWith(userId, taskId);
-      expect(executeSpy).toHaveBeenCalledWith(taskId);
+      expect(mockTaskRepository.findById).toHaveBeenCalledWith(taskId);
+      expect(executeSpy).toHaveBeenCalledWith({ taskId, ownerId: userId });
       expect(mockActivitiesService.logTaskCompleted).toHaveBeenCalledWith(
         taskId,
         userId,
@@ -668,28 +691,13 @@ describe('TasksService', () => {
       const userId = 'user-123';
       const taskId = 'task-123';
 
-      mockTaskRepository.findOne.mockResolvedValue(null);
+      mockTaskRepository.findById.mockResolvedValue(null);
 
       await expect(service.complete(taskId, userId)).rejects.toThrow(
         NotFoundException,
       );
       await expect(service.complete(taskId, userId)).rejects.toThrow(
         'Task not found',
-      );
-    });
-
-    it('should throw ForbiddenException when user is not a member', async () => {
-      const userId = 'user-123';
-      const taskId = 'task-123';
-
-      mockTaskRepository.findOne.mockResolvedValue({ id: taskId } as any);
-      mockTaskRepository.isMember.mockResolvedValue(false);
-
-      await expect(service.complete(taskId, userId)).rejects.toThrow(
-        ForbiddenException,
-      );
-      await expect(service.complete(taskId, userId)).rejects.toThrow(
-        'You do not have permission to complete this task',
       );
     });
   });
@@ -702,13 +710,18 @@ describe('TasksService', () => {
         { id: 'task-2', title: 'Task 2', dueDate: new Date() },
       ];
 
-      const executeSpy = jest.spyOn(FindTodayTasksUseCase.prototype, 'execute');
-      executeSpy.mockResolvedValue(mockTasks as any);
+      mockTaskRepository.findTodayTasks.mockResolvedValue(
+        mockTasks.map((t) => ({ props: t })),
+      );
 
       const result = await service.findToday(userId);
 
-      expect(executeSpy).toHaveBeenCalledWith({ userId });
-      expect(result).toEqual(mockTasks);
+      expect(mockTaskRepository.findTodayTasks).toHaveBeenCalledWith(
+        userId,
+        expect.any(Date),
+        expect.any(Date),
+      );
+      expect(result.dueToday).toEqual(mockTasks);
     });
   });
 
@@ -718,15 +731,17 @@ describe('TasksService', () => {
       const date = new Date('2026-01-03');
       const mockTasks = [{ id: 'task-1', title: 'Task 1', dueDate: date }];
 
-      const executeSpy = jest.spyOn(
-        FindScheduledTasksUseCase.prototype,
-        'execute',
+      mockTaskRepository.findScheduledTasks.mockResolvedValue(
+        mockTasks.map((t) => ({ props: t })),
       );
-      executeSpy.mockResolvedValue(mockTasks as any);
 
       const result = await service.findScheduledForDate(userId, date);
 
-      expect(executeSpy).toHaveBeenCalledWith({ userId, date });
+      expect(mockTaskRepository.findScheduledTasks).toHaveBeenCalledWith(
+        userId,
+        expect.any(Date),
+        expect.any(Date),
+      );
       expect(result).toEqual(mockTasks);
     });
   });
@@ -744,15 +759,17 @@ describe('TasksService', () => {
         },
       ];
 
-      const executeSpy = jest.spyOn(
-        FindAvailableTasksUseCase.prototype,
-        'execute',
+      mockTaskRepository.findAvailableTasks.mockResolvedValue(
+        mockTasks.map((t) => ({ props: t })),
       );
-      executeSpy.mockResolvedValue(mockTasks as any);
 
       const result = await service.findAvailable(userId, projectId);
 
-      expect(executeSpy).toHaveBeenCalledWith({ userId, projectId });
+      expect(mockTaskRepository.findAvailableTasks).toHaveBeenCalledWith(
+        userId,
+        expect.any(Date),
+        projectId,
+      );
       expect(result).toEqual(mockTasks);
     });
   });

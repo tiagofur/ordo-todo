@@ -5,9 +5,9 @@ import { PublishingRepository } from './publishing.repository';
 import { ContentPiecesModule } from '../content-pieces/content-pieces.module';
 
 @Module({
-    imports: [ContentPiecesModule],
-    controllers: [PublishingController],
-    providers: [PublishingService, PublishingRepository],
-    exports: [PublishingService],
+  imports: [ContentPiecesModule],
+  controllers: [PublishingController],
+  providers: [PublishingService, PublishingRepository],
+  exports: [PublishingService],
 })
-export class PublishingModule { }
+export class PublishingModule {}
