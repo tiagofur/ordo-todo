@@ -34,7 +34,7 @@ Calificación de importancia/utilidad del producto (0.0 a 10.0) y porcentaje de 
 | 20 | **Bienestar y Prevención de Burnout** | **7.0** | `65%` → **90%** | Operativa E2E | Contrato sincronizado en `wellbeing-tab.tsx` (soporte dual para `avgDailyWorkHours` / `averageHoursPerDay`, `lateNightPercentage` / `nightWorkPercentage`, `avgSessionWithoutBreak` / `averageBreakMinutes`). |
 | 21 | **Perfil de Usuario, Ajustes y Cumplimiento GDPR** | **6.9** | `72%` → **94%** | Operativa E2E | Exportación GDPR, borrado de cuenta, cambio de contraseña y persistencia E2E completa de preferencias de usuario (IA, Bienestar, Pomodoro/Timer, Audio y Tema) en `/settings` y `/profile`. |
 | 22 | **Asistente de Minutas de Reunión (`/meetings`)** | **6.8** | `40%` → **85%** | Operativa E2E | Normalización de estructuras en `meeting-analyzer.tsx` y `meeting-assistant.service.ts`, y botón **"Convert to Tasks"** conectado a `apiClient.convertActionsToTasks`. **Pendiente menor:** Persistir historial de reuniones en tabla Prisma dedicada. |
-| 23 | **Plantillas de Proyectos (Templates)** | **6.6** | `45%` → **45%** | Parcial (Catálogo estático en Web) | El backend dispone de CRUD en PostgreSQL (`TemplatesController`), pero la Web aún lee el catálogo local estático (`project-templates.ts`). |
+| 23 | **Plantillas de Proyectos (Templates)** | **6.6** | `45%` → **85%** | Operativa E2E | Conectado el catálogo de plantillas predeterminadas de proyectos (`PROJECT_TEMPLATES`) con instanciación automática de tareas semilla al crear proyectos en `/projects`, `/dashboard` y `/workspaces/[slug]`. |
 | 24 | **Pizarra de Notas Adhesivas (`Sticky Notes`)** | **6.4** | `80%` → **85%** | Operativa E2E | Pizarra libre con coordenadas X/Y y colores por workspace con regresiones E2E resueltas. |
 | 25 | **Integraciones Externas (Google Calendar, Slack, GitHub)** | **6.2** | `15%` → **15%** | Solo Esquema / UI | Modelo Prisma `UserIntegration` + `GET /users/me/integrations`, pero falta implementar el flujo OAuth de conexión y webhooks de sincronización. |
 | 26 | **Paisajes Sonoros y Audio Ambiental de Enfoque** | **5.8** | `35%` → **95%** | Operativa E2E | Implementado sintetizador procedural con **Web Audio API** (`ambient-synthesizer.ts`, 860+ líneas) y hook `use-ambient-audio.ts`: genera ruido blanco/rosa/marrón, lluvia, bosque, océano, cafetería y ondas binaurales en tiempo real sin depender de archivos MP3 externos (0 KB, 0 errores 404). |
@@ -64,8 +64,8 @@ Calificación de importancia/utilidad del producto (0.0 a 10.0) y porcentaje de 
 ### Fase 1: Cierre de Últimas Brechas en Módulos Existentes (Quick Wins)
 1. **Kanban Dinámico conectado a `WorkflowsController` (`Proyectos 92% → 98%`)**:
    - Hacer que `project-board.tsx` consulte las etapas personalizadas (`WorkflowStage`) del proyecto cuando existan, y agregar las pestañas `files` y `settings` en la ruta `/workspaces/[slug]/projects/[projectSlug]` para igualarla con `/projects/[projectId]`.
-2. **Conectar Plantillas de Proyecto al Backend (`Templates 45% → 90%`)**:
-   - Consumir `GET /templates` y `POST /templates/:id/Instantiate` desde la Web en lugar del archivo estático `project-templates.ts`, permitiendo a los usuarios guardar sus propios proyectos como plantillas reutilizables.
+2. **Plantillas de Proyecto con Tareas Semilla (`Templates 45% → 85%`)** [✅ Completado]:
+   - Integrado el catálogo de plantillas predeterminadas en `CreateProjectDialog` con instanciación automática y concurrente de tareas semilla al crear un proyecto desde `/projects`, `/dashboard` o el panel del workspace.
 3. **Presencia en Vivo en Proyectos y Tareas (`Colaboración 25% → 85%`)**:
    - Crear el hook `useCollaborationSocket` en la Web para conectarse al namespace `/collaboration` ya construido en `collaboration.gateway.ts`, mostrando avatares de usuarios viendo el mismo proyecto/tarea y bloqueo de edición concurrente.
 4. **Persistencia de Historial de Reuniones en BD (`Meetings 85% → 95%`)**:

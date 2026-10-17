@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import { FolderKanban, Plus } from "lucide-react";
-import { useProjects, useCreateProject, useWorkflows, useCreateWorkflow } from "@/lib/api-hooks";
+import { useProjects, useCreateProject, useWorkflows, useCreateWorkflow, useCreateTask } from "@/lib/api-hooks";
 import { ProjectCard } from "@/components/project/project-card";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
+import type { TaskPriority } from "@ordo-todo/api-client";
 
 const CreateProjectDialog = dynamic(
   () =>
@@ -26,6 +27,7 @@ export default function ProjectsPage() {
 
   const { data: projects, isLoading, error } = useProjects(selectedWorkspaceId as string);
   const { mutateAsync: createProject } = useCreateProject();
+  const { mutateAsync: createTask } = useCreateTask();
 
   const { data: workflows } = useWorkflows(selectedWorkspaceId || "");
   const { mutateAsync: createWorkflow } = useCreateWorkflow();
@@ -140,7 +142,7 @@ export default function ProjectsPage() {
           onOpenChange={setShowCreateProject}
           workspaceId={selectedWorkspaceId || undefined}
           workflows={workflows?.map(w => ({ id: w.id, name: w.name })) || []}
-          onSubmit={async (data) => {
+          onSubmit={async (data, templateTasks) => {
             let workflowId = data.workflowId;
 
             if (!workflowId || workflowId === "NEW") {
@@ -155,13 +157,27 @@ export default function ProjectsPage() {
                }
             }
 
-            await createProject({
+            const newProject = await createProject({
               name: data.name,
               description: data.description,
               color: data.color,
               workspaceId: data.workspaceId,
-              workflowId: workflowId || "", // Should be valid now
+              workflowId: workflowId || "",
             });
+
+            if (templateTasks && templateTasks.length > 0 && newProject?.id) {
+              await Promise.all(
+                templateTasks.map((task) =>
+                  createTask({
+                    title: task.title,
+                    description: task.description,
+                    priority: (task.priority as TaskPriority) || 'MEDIUM',
+                    projectId: newProject.id,
+                  })
+                )
+              );
+            }
+
             setShowCreateProject(false);
           }}
           onCreateWorkflow={async (wsId) => {

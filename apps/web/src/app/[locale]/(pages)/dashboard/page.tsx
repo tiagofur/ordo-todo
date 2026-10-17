@@ -642,7 +642,7 @@ export default function DashboardPage() {
         workspaces={workspaces.map((w: any) => ({ id: w.id, name: w.name }))}
         isLoadingWorkspaces={isLoadingWorkspaces}
         workflows={workflows.map((w: any) => ({ id: w.id, name: w.name }))}
-        onSubmit={async (data) => {
+        onSubmit={async (data, templateTasks) => {
           let workflowId = data.workflowId;
 
           if (!workflowId || workflowId === "NEW") {
@@ -658,13 +658,27 @@ export default function DashboardPage() {
             }
           }
 
-          await createProject({
+          const newProject = await createProject({
             name: data.name,
             description: data.description,
             color: data.color,
             workspaceId: data.workspaceId,
             workflowId: workflowId || "",
           });
+
+          if (templateTasks && templateTasks.length > 0 && newProject?.id) {
+            await Promise.all(
+              templateTasks.map((task) =>
+                createTask({
+                  title: task.title,
+                  description: task.description,
+                  priority: (task.priority as TaskPriority) || 'MEDIUM',
+                  projectId: newProject.id,
+                })
+              )
+            );
+          }
+
           setShowCreateProjectDialog(false);
         }}
         onCreateWorkflow={async (wsId) => {
