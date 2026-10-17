@@ -159,7 +159,10 @@ export class ProjectsService {
     try {
       await restoreProjectUseCase.execute(id);
     } catch (error: any) {
-      if (error.message?.includes('not found') || error.message === 'Project not found') {
+      if (
+        error.message?.includes('not found') ||
+        error.message === 'Project not found'
+      ) {
         throw new NotFoundException('Project not found');
       }
       throw error;
@@ -184,7 +187,10 @@ export class ProjectsService {
       await permanentDeleteProjectUseCase.execute(id);
       return { success: true };
     } catch (error: any) {
-      if (error.message?.includes('not found') || error.message === 'Project not found') {
+      if (
+        error.message?.includes('not found') ||
+        error.message === 'Project not found'
+      ) {
         throw new NotFoundException('Project not found');
       }
       throw error;

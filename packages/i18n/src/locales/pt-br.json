@@ -179,7 +179,9 @@
         "days": "Há {count} dias"
       }
     },
-    "languageChanged": "Idioma alterado para {lang}"
+    "languageChanged": "Idioma alterado para {lang}",
+    "settingsSaved": "Configurações salvas com sucesso",
+    "errorSaving": "Erro ao salvar configurações"
   },
   "TimerWidget": {
     "startTimer": "Iniciar cronômetro"
@@ -232,7 +234,18 @@
       "skip": "Pular",
       "next": "Próximo",
       "getStarted": "Começar!"
-    }
+    },
+    "streak": {
+      "currentStreak": "Sequência atual",
+      "day": "dia",
+      "days": "dias",
+      "personalBest": "Melhor marca",
+      "bestStreak": "Melhor sequência"
+    },
+    "aiInsights": "Insights de IA",
+    "noInsights": "Sem insights no momento",
+    "aiSuggestion": "Continue concluindo tarefas para receber sugestões inteligentes",
+    "viewAllInsights": "Ver todos os insights"
   },
   "Tasks": {
     "title": "Tarefas",
@@ -294,7 +307,9 @@
     "selectWorkspaceDescription": "Para começar, selecione um espaço de trabalho da lista para ver seus projetos.",
     "noProjects": "Ainda sem projetos",
     "noProjectsDescription": "Crie seu primeiro projeto para começar a organizar suas tarefas.",
-    "createProject": "Criar Projeto"
+    "createProject": "Criar Projeto",
+    "error": "Erro ao carregar projetos",
+    "errorDescription": "Não foi possível carregar os projetos. Tente novamente."
   },
   "Workspaces": {
     "title": "Espaços de Trabalho",
@@ -302,7 +317,11 @@
     "newWorkspace": "Novo Espaço de Trabalho",
     "noWorkspaces": "Você não tem espaços de trabalho",
     "noWorkspacesDescription": "Crie seu primeiro espaço de trabalho para começar a organizar seus projetos e tarefas",
-    "createWorkspace": "Criar Espaço de Trabalho"
+    "createWorkspace": "Criar Espaço de Trabalho",
+    "error": "Erro ao carregar espaços de trabalho",
+    "errorDescription": "Não foi possível carregar os espaços de trabalho. Tente novamente.",
+    "createSuccess": "Espaço de trabalho criado com sucesso",
+    "createError": "Erro ao criar espaço de trabalho"
   },
   "WorkspaceCard": {
     "types": {
@@ -550,7 +569,8 @@
       "skip": "Pular",
       "next": "Próximo",
       "getStarted": "Começar"
-    }
+    },
+    "viewAll": "Ver todos"
   },
   "Analytics": {
     "title": "Análises",
@@ -1049,7 +1069,6 @@
     },
     "backToWorkspace": "Voltar ao workspace"
   },
-
   "WorkspaceInfoBar": {
     "types": {
       "PERSONAL": "Pessoal",
@@ -1107,10 +1126,10 @@
         }
       },
       "color": {
-         "label": "Cor"
+        "label": "Cor"
       },
       "icon": {
-         "label": "Ícone"
+        "label": "Ícone"
       }
     },
     "dangerZone": {
@@ -1712,7 +1731,11 @@
       "tasks": "Tarefas",
       "members": "Membros"
     },
-    "deleteError": "Erro ao excluir widget do painel"
+    "deleteError": "Erro ao excluir widget do painel",
+    "error": "Erro ao carregar espaço de trabalho",
+    "noProjects": "Nenhum projeto ainda",
+    "noProjectsDescription": "Crie seu primeiro projeto para organizar suas tarefas.",
+    "createProject": "Criar Projeto"
   },
   "WorkspaceActivityLog": {
     "empty": {
@@ -1766,9 +1789,11 @@
     "columns": {
       "todo": "A Fazer",
       "inProgress": "Em Progresso",
-      "completed": "Concluído"
+      "completed": "Concluído",
+      "cancelled": "Canceladas"
     },
-    "addTask": "Adicionar Tarefa"
+    "addTask": "Adicionar Tarefa",
+    "toggleCancelled": "Mostrar canceladas"
   },
   "ProjectList": {
     "columns": {
@@ -2057,7 +2082,17 @@
       "last30Days": "Últimos 30 dias",
       "last90Days": "Últimos 90 dias",
       "page": "Página"
-    }
+    },
+    "work": "Foco",
+    "shortBreak": "Pausa curta",
+    "longBreak": "Pausa longa",
+    "continuous": "Contínuo",
+    "idle": "Inativo",
+    "completedPomodoros": "Pomodoros concluídos",
+    "reset": "Reiniciar",
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "skip": "Pular"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Relatório Semanal",
@@ -2225,7 +2260,9 @@
     "editDescription": "Atualize os detalhes do seu objetivo.",
     "update": "Atualizar Objetivo",
     "updated": "Objetivo atualizado com sucesso",
-    "updateError": "Erro ao atualizar objetivo"
+    "updateError": "Erro ao atualizar objetivo",
+    "error": "Erro ao carregar metas",
+    "errorDescription": "Não foi possível carregar as metas. Tente novamente."
   },
   "CustomFields": {
     "title": "Campos Personalizados",
@@ -2392,7 +2429,8 @@
       "executive": "Executivo",
       "detailed": "Detalhado",
       "bulletPoints": "Pontos"
-    }
+    },
+    "errorConvertingTasks": "Erro ao converter notas em tarefas"
   },
   "Workload": {
     "title": "Carga de Trabalho",
@@ -2693,6 +2731,30 @@
         "githubFailed": "Não foi possível entrar com o GitHub"
       },
       "success": "Sessão iniciada com sucesso"
+    },
+    "forgotPassword": {
+      "title": "Recuperar Senha",
+      "subtitle": "Insira seu e-mail e enviaremos as instruções para redefini-la",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "submitButton": "Enviar link de recuperação",
+      "submitting": "Enviando...",
+      "backToLogin": "Voltar para o login",
+      "successTitle": "Verifique sua caixa de entrada",
+      "successSubtitle": "Se existir uma conta associada a {email}, você receberá um link para redefinir sua senha em breve.",
+      "tryAnotherEmail": "Tentar com outro e-mail",
+      "errors": {
+        "requiredEmail": "Por favor insira seu e-mail",
+        "invalidEmail": "Insira um e-mail válido",
+        "failed": "Ocorreu um erro ao processar a solicitação"
+      }
     }
+  },
+  "Notes": {
+    "subtitle": "Capture pensamentos rápidos e ideias"
+  },
+  "ProjectTimeline": {
+    "emptyTitle": "Sem tarefas agendadas",
+    "emptyDescription": "Defina prazos ou blocos de tempo para ver a linha do tempo."
   }
 }

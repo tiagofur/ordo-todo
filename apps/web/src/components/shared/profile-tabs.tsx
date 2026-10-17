@@ -26,6 +26,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { ChangePasswordDialog } from "./change-password-dialog";
 import { useUsernameValidation } from "@ordo-todo/hooks";
 import * as Tabs from "@radix-ui/react-tabs";
 import { cn } from "@ordo-todo/ui";
@@ -165,6 +166,7 @@ export function ProfileTabs({
   const [username, setUsername] = useState("");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   // Profile form state
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -889,7 +891,12 @@ export function ProfileTabs({
                 <Label className="text-base">Password</Label>
                 <p className="text-sm text-muted-foreground">Last changed: 3 months ago</p>
               </div>
-              <Button variant="outline">Change Password</Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsChangePasswordOpen(true)}
+              >
+                Change Password
+              </Button>
             </div>
 
             {/* 2FA */}
@@ -1314,6 +1321,11 @@ export function ProfileTabs({
           </CardContent>
         </Card>
       </Tabs.Content>
+
+      <ChangePasswordDialog
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      />
     </Tabs.Root>
   );
 }

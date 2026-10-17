@@ -34,6 +34,7 @@ import {
   useCreateProject,
   useWorkflows,
   useCreateWorkflow,
+  useCreateTask,
 } from "@/lib/api-hooks";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
 import { ProjectCard } from "@/components/project/project-card";
@@ -45,7 +46,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useTranslations } from "next-intl";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
-import type { Workspace, WorkspaceAuditLog } from "@ordo-todo/api-client";
+import type { Workspace, WorkspaceAuditLog, TaskPriority } from "@ordo-todo/api-client";
 import type { LucideIcon } from "lucide-react";
 
 interface WorkspaceDashboardProps {
@@ -65,6 +66,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   const { data: auditLogData, isLoading: isLoadingActivity } =
     useWorkspaceAuditLogs(workspace.id, { limit: 5 });
   const { mutateAsync: createProject } = useCreateProject();
+  const { mutateAsync: createTask } = useCreateTask();
   const { data: workflows } = useWorkflows(workspace.id);
   const { mutateAsync: createWorkflow } = useCreateWorkflow();
 
@@ -345,13 +347,27 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
             }
           }
 
-          await createProject({
+          const newProject = await createProject({
             name: data.name,
             description: data.description,
             color: data.color,
             workspaceId: data.workspaceId,
             workflowId: workflowId,
           });
+
+          if (templateTasks && templateTasks.length > 0 && newProject?.id) {
+            await Promise.all(
+              templateTasks.map((task) =>
+                createTask({
+                  title: task.title,
+                  description: task.description,
+                  priority: (task.priority as TaskPriority) || 'MEDIUM',
+                  projectId: newProject.id,
+                })
+              )
+            );
+          }
+
           setShowCreateProject(false);
         }}
         onCreateWorkflow={async (wsId) => {

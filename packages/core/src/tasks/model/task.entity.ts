@@ -33,15 +33,15 @@ export interface TaskProps extends EntityProps<string> {
   deletedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
-  recurrence?: TaskRecurrenceInfo;
+  recurrence?: TaskRecurrenceInfo | null;
 }
 
 export interface TaskRecurrenceInfo {
   pattern: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "CUSTOM";
   interval?: number;
   daysOfWeek?: number[];
-  dayOfMonth?: number;
-  endDate?: Date | null;
+  dayOfMonth?: number | null;
+  endDate?: Date | string | null;
 }
 
 export class Task extends Entity<TaskProps> {

@@ -26,6 +26,7 @@ import type {
   InviteMemberDto,
   AcceptInvitationDto,
   RefreshTokenDto,
+  ChangePasswordDto,
   AuthResponse,
   // Chat
   // Chat
@@ -442,6 +443,18 @@ export const apiClient = {
   ): Promise<{ available: boolean }> =>
     axiosInstance
       .post("/auth/check-username", { username })
+      .then((res) => res.data),
+  changePassword: (
+    data: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/change-password", data)
+      .then((res) => res.data),
+  forgotPassword: (
+    email: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/forgot-password", { email })
       .then((res) => res.data),
 
   // User
@@ -1058,6 +1071,22 @@ export const apiClient = {
     axiosInstance
       .post("/meetings/quick-analyze", { transcript, projectId })
       .then((res) => res.data),
+  saveMeeting: (data: {
+    title: string;
+    date: string | Date;
+    duration: number;
+    transcript?: string;
+    audioUrl?: string;
+    analysis?: any;
+    projectId?: string;
+  }) =>
+    axiosInstance.post("/meetings/save", data).then((res) => res.data),
+  getMeetings: (params?: { projectId?: string; limit?: number }) =>
+    axiosInstance.get("/meetings", { params }).then((res) => res.data),
+  getMeetingById: (id: string) =>
+    axiosInstance.get(`/meetings/${id}`).then((res) => res.data),
+  deleteMeeting: (id: string) =>
+    axiosInstance.delete(`/meetings/${id}`).then((res) => res.data),
 
   // Focus Audio
   getFocusTracks: () =>

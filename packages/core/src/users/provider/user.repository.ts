@@ -131,7 +131,7 @@ export default interface UserRepository {
    * }
    * ```
    */
-  findById(id: string): Promise<User | null>;
+  findById(id: string, withPassword?: boolean): Promise<User | null>;
 
   /**
    * Finds a user by their OAuth provider information.

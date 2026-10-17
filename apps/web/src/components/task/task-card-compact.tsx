@@ -16,6 +16,7 @@ import {
   PauseCircle,
   ListTodo,
   ChevronDown,
+  Repeat,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -35,6 +36,7 @@ import {
 } from '@/lib/api-hooks';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { parseCalendarDate, isCalendarDateOverdue } from '@ordo-todo/core';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
 import { TaskDetailPanel } from './task-detail-panel';
@@ -51,6 +53,7 @@ export interface TaskCompactData {
   estimatedMinutes?: number | null;
   tags?: Array<{ id: string; name: string; color: string }>;
   project?: { id: string; name: string; color: string };
+  recurrence?: { pattern: string; interval?: number; daysOfWeek?: number[] } | null;
 }
 
 interface TaskCardCompactProps {
@@ -293,7 +296,8 @@ export function TaskCardCompact({
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const dateObj = parseCalendarDate(date);
+    if (!dateObj) return null;
     return format(
       dateObj,
       'd MMM',
@@ -302,7 +306,7 @@ export function TaskCardCompact({
   };
 
   const isOverdue =
-    !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+    !isCompleted && isCalendarDateOverdue(task.dueDate, isCompleted);
 
   const handleClick = () => {
     if (onTaskClick && task.id) {
@@ -496,6 +500,12 @@ export function TaskCardCompact({
                   {task.estimatedMinutes}m
                 </span>
               )}
+              {task.recurrence && (
+                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <Repeat className="h-3 w-3" />
+                  <span className="capitalize">{task.recurrence.pattern.toLowerCase()}</span>
+                </span>
+              )}
               {/* Tags */}
               {task.tags && task.tags.length > 0 && !isCompleted && (
                 <div className="flex items-center gap-1.5">
@@ -656,6 +666,12 @@ export function TaskCardCompact({
                 >
                   <Calendar className="h-3.5 w-3.5" />
                   {formatDueDate(task.dueDate)}
+                </span>
+              )}
+              {task.recurrence && (
+                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <Repeat className="h-3 w-3" />
+                  <span className="capitalize">{task.recurrence.pattern.toLowerCase()}</span>
                 </span>
               )}
             </div>

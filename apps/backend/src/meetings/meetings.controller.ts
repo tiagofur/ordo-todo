@@ -1,4 +1,15 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -435,5 +446,51 @@ export class MeetingsController {
       actionItems,
       actionItemCount: actionItems.length,
     };
+  }
+
+  /**
+   * List saved meetings for current user
+   */
+  @Get()
+  @ApiOperation({ summary: 'List saved meetings' })
+  @ApiResponse({ status: 200, description: 'List of meetings retrieved successfully' })
+  async getMeetings(
+    @CurrentUser() user: RequestUser,
+    @Query('projectId') projectId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.meetingService.getMeetings(user.id, {
+      projectId,
+      limit: limit ? parseInt(limit, 10) : undefined,
+    });
+  }
+
+  /**
+   * Get single meeting details
+   */
+  @Get(':id')
+  @ApiOperation({ summary: 'Get meeting by ID' })
+  @ApiResponse({ status: 200, description: 'Meeting details retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Meeting not found' })
+  async getMeetingById(
+    @Param('id') id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.meetingService.getMeetingById(user.id, id);
+  }
+
+  /**
+   * Delete meeting record
+   */
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete meeting' })
+  @ApiResponse({ status: 204, description: 'Meeting deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Meeting not found' })
+  async deleteMeeting(
+    @Param('id') id: string,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.meetingService.deleteMeeting(user.id, id);
   }
 }

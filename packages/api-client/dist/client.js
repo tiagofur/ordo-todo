@@ -287,6 +287,22 @@ class OrdoApiClient {
         return response.data;
     }
     /**
+     * Change user password
+     * POST /auth/change-password
+     */
+    async changePassword(data) {
+        const response = await this.axios.post("/auth/change-password", data);
+        return response.data;
+    }
+    /**
+     * Request password reset instructions
+     * POST /auth/forgot-password
+     */
+    async forgotPassword(email) {
+        const response = await this.axios.post("/auth/forgot-password", { email });
+        return response.data;
+    }
+    /**
      * Logout (clear tokens from storage)
      * This is a client-side only operation
      */

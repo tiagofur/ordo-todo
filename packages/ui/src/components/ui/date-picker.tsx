@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Calendar } from "./calendar.js";
 import {
   Popover,
@@ -14,16 +15,29 @@ interface DatePickerProps {
   setDate: (date: Date | undefined) => void;
   placeholder?: string;
   className?: string;
-  // Popover state (lifted up for platform-agnostic design)
+  // Popover state (optional controlled state, fallback to internal state)
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-export function DatePicker({ date, setDate, placeholder = "Pick a date", className, open = false, onOpenChange }: DatePickerProps) {
+export function DatePicker({
+  date,
+  setDate,
+  placeholder = "Pick a date",
+  className,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: DatePickerProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const onOpenChange = isControlled ? controlledOnOpenChange : setInternalOpen;
+
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
+          type="button"
           variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal",

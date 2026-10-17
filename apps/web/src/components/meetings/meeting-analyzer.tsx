@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
@@ -17,6 +17,7 @@ import {
   ListTodo,
   Copy,
   Check,
+  History,
 } from "lucide-react";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
@@ -75,6 +76,21 @@ export function MeetingAnalyzer() {
     new Set(["summary", "actionItems"])
   );
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  const [pastMeetings, setPastMeetings] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const loadPastMeetings = async () => {
+    try {
+      const meetings = await apiClient.getMeetings({ limit: 8 });
+      setPastMeetings(meetings || []);
+    } catch {
+      // Ignore
+    }
+  };
+
+  useEffect(() => {
+    loadPastMeetings();
+  }, []);
 
   const handleConvertToTasks = async () => {
     if (!analysis?.actionItems || analysis.actionItems.length === 0) {
@@ -119,6 +135,22 @@ export function MeetingAnalyzer() {
       const result = await apiClient.analyzeMeetingTranscript(transcript);
       setAnalysis(result);
       toast.success(t("analysisCompleted"));
+
+      // Auto-save meeting note to database
+      try {
+        const titleMatch = transcript.trim().match(/^([^\n]+)/);
+        const title = titleMatch ? titleMatch[1].slice(0, 80) : "Meeting Analysis";
+        await apiClient.saveMeeting({
+          title,
+          date: new Date().toISOString(),
+          duration: 30,
+          transcript,
+          analysis: result,
+        });
+        loadPastMeetings();
+      } catch (saveErr) {
+        console.warn("Failed to persist meeting record:", saveErr);
+      }
     } catch (err) {
       setError(t("analysisError"));
       toast.error(t("errorTitle"));
@@ -195,13 +227,53 @@ export function MeetingAnalyzer() {
     <div className="space-y-6">
       {/* Input Section */}
       <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2.5 text-base sm:text-lg">
             <MessageSquare className="h-5 w-5 text-violet-500" />
             {t("meetingTranscript")}
           </CardTitle>
+          {pastMeetings.length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowHistory(!showHistory)}
+              className="text-xs gap-1.5 h-8 text-muted-foreground hover:text-foreground rounded-xl"
+            >
+              <History className="h-3.5 w-3.5 text-violet-500" />
+              <span>History ({pastMeetings.length})</span>
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
+          {showHistory && pastMeetings.length > 0 && (
+            <div className="p-3.5 rounded-xl border border-border bg-muted/30 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-muted-foreground">Saved Meeting Notes</p>
+                <span className="text-[10px] text-muted-foreground">Click to load</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {pastMeetings.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      setTranscript(m.transcript || "");
+                      if (m.analysis) setAnalysis(m.analysis);
+                      setShowHistory(false);
+                      toast.info(`Loaded: ${m.title}`);
+                    }}
+                    className="flex flex-col items-start p-2.5 rounded-lg border border-border bg-card hover:border-violet-500/50 hover:bg-violet-500/5 text-left transition-all"
+                  >
+                    <span className="text-xs font-medium text-foreground truncate w-full">{m.title}</span>
+                    <span className="text-[10px] text-muted-foreground mt-0.5">
+                      {new Date(m.date).toLocaleDateString()} • {m.analysis?.actionItems?.length || 0} action items
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="relative">
             <textarea
               value={transcript}
@@ -337,18 +409,33 @@ export function MeetingAnalyzer() {
                     className="overflow-hidden"
                   >
                     <div className="p-4.5 pt-0 space-y-4">
-                      <p className="text-sm leading-relaxed text-foreground/90">{analysis.summary}</p>
+                      <p className="text-sm leading-relaxed text-foreground/90">
+                        {typeof analysis.summary === "string"
+                          ? analysis.summary
+                          : (analysis.summary as any)?.text ||
+                            (analysis.summary as any)?.summary ||
+                            String(analysis.summary)}
+                      </p>
                       
                       {analysis.keyPoints.length > 0 && (
                         <div className="pt-4 border-t border-border/80">
                           <h4 className="text-sm font-semibold mb-2.5">{t("keyPoints")}:</h4>
                           <ul className="space-y-2">
-                            {analysis.keyPoints.map((point, idx) => (
-                              <li key={idx} className="flex items-start gap-2.5 text-sm">
-                                <div className="mt-2 h-1.5 w-1.5 rounded-full bg-violet-500 flex-shrink-0" />
-                                <span className="text-muted-foreground leading-normal">{point}</span>
-                              </li>
-                            ))}
+                            {analysis.keyPoints.map((point, idx) => {
+                              const pointText =
+                                typeof point === "string"
+                                  ? point
+                                  : (point as any)?.point ||
+                                    (point as any)?.text ||
+                                    (point as any)?.keyPoint ||
+                                    JSON.stringify(point);
+                              return (
+                                <li key={idx} className="flex items-start gap-2.5 text-sm">
+                                  <div className="mt-2 h-1.5 w-1.5 rounded-full bg-violet-500 flex-shrink-0" />
+                                  <span className="text-muted-foreground leading-normal">{pointText}</span>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                       )}

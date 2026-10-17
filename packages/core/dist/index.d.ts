@@ -671,7 +671,7 @@ declare function formatScheduledDateTime(scheduledDate: Date | string | null | u
  * - "2026-10-15T00:00:00.000Z" (UTC midnight stored date) -> "2026-10-15"
  * - Local Date objects -> formats in local "YYYY-MM-DD"
  */
-declare function toCalendarDateString(date: Date | string | null | undefined): string;
+declare function toCalendarDateString(date: Date | string | null | undefined, timezone?: string): string;
 /**
  * Parse a calendar date (string or Date) into a local midnight Date object.
  * This ensures that a date like "2026-10-15" or "2026-10-15T00:00:00.000Z"
@@ -1703,7 +1703,7 @@ interface UserRepository {
      * }
      * ```
      */
-    findById(id: string): Promise<User | null>;
+    findById(id: string, withPassword?: boolean): Promise<User | null>;
     /**
      * Finds a user by their OAuth provider information.
      *
@@ -1902,14 +1902,14 @@ interface TaskProps extends EntityProps<string> {
     deletedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
-    recurrence?: TaskRecurrenceInfo;
+    recurrence?: TaskRecurrenceInfo | null;
 }
 interface TaskRecurrenceInfo {
     pattern: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "CUSTOM";
     interval?: number;
     daysOfWeek?: number[];
-    dayOfMonth?: number;
-    endDate?: Date | null;
+    dayOfMonth?: number | null;
+    endDate?: Date | string | null;
 }
 declare class Task extends Entity<TaskProps> {
     constructor(props: TaskProps);
@@ -2243,7 +2243,7 @@ interface CreateTaskInput {
     ownerId: string;
     assigneeId?: string | null;
     parentTaskId?: string | null;
-    recurrence?: TaskRecurrenceInfo;
+    recurrence?: TaskRecurrenceInfo | null;
 }
 declare class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {
     private readonly repository;
@@ -3592,6 +3592,7 @@ interface ProjectProps extends EntityProps {
     completedAt?: Date;
     isDeleted: boolean;
     deletedAt?: Date;
+    settings?: any;
     createdAt?: Date;
     updatedAt?: Date;
 }

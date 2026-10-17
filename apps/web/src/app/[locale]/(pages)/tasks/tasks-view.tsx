@@ -283,6 +283,7 @@ export function TasksView() {
       <CreateTaskDialog
         open={showCreateTask}
         onOpenChange={setShowCreateTask}
+        projects={projects?.map((p: any) => ({ id: p.id, name: p.name }))}
         onSubmit={async (data) => {
             await createTask({
             ...data,

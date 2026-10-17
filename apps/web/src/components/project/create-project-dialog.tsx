@@ -21,6 +21,7 @@ import { EmptyState } from '@/components/ui';
 import { ScrollArea } from '@/components/ui';
 import { Briefcase, Check, Palette, LayoutTemplate, CheckSquare, Sparkles, Layers } from 'lucide-react';
 import { PROJECT_COLORS, createProjectSchema } from '@ordo-todo/hooks';
+import { PROJECT_TEMPLATES } from '@/data/project-templates';
 
 // Interfaces for props
 export interface WorkspaceOption {
@@ -35,7 +36,7 @@ export interface WorkflowOption {
 
 export interface ProjectTemplateTask {
   title: string;
-  description: string;
+  description?: string;
   priority: string;
 }
 
@@ -157,7 +158,7 @@ export function CreateProjectDialog({
   workspaces = [],
   isLoadingWorkspaces = false,
   workflows = [],
-  templates = [],
+  templates = PROJECT_TEMPLATES,
   isPending = false,
   onSubmit,
   onCreateWorkflow: _onCreateWorkflow,

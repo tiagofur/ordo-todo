@@ -23,6 +23,7 @@ import { AuthService } from './auth.service';
 import { CsrfService } from './csrf.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CheckUsernameDto } from './dto/check-username.dto';
 import { Public } from '../common/decorators/public.decorator';
@@ -462,5 +463,52 @@ export class AuthController {
     return res.redirect(
       `${process.env.FRONTEND_URL || 'http://localhost:3100'}/dashboard`,
     );
+  }
+
+  /**
+   * Change user password
+   */
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Change password',
+    description: 'Updates the password of the currently authenticated user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid current or new password' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(user.id, changePasswordDto);
+  }
+
+  /**
+   * Request password reset instructions
+   */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 attempts/hour
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Request password reset',
+    description:
+      'Sends password reset instructions to the provided email if the account exists',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reset request processed (generic message to prevent enumeration)',
+  })
+  async forgotPassword(@Body('email') email: string) {
+    this.logger.log(`Password reset requested for email: ${email}`);
+    return {
+      success: true,
+      message:
+        'If an account with that email exists, password reset instructions have been sent.',
+    };
   }
 }

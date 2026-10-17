@@ -307,24 +307,47 @@ export function formatScheduledDateTime(
  * - "2026-10-15T00:00:00.000Z" (UTC midnight stored date) -> "2026-10-15"
  * - Local Date objects -> formats in local "YYYY-MM-DD"
  */
-export function toCalendarDateString(date: Date | string | null | undefined): string {
+export function toCalendarDateString(date: Date | string | null | undefined, timezone?: string): string {
     if (!date) return "";
     if (typeof date === "string") {
         const trimmed = date.trim();
-        // If it starts with YYYY-MM-DD
-        const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
-        if (match) {
-            return `${match[1]}-${match[2]}-${match[3]}`;
+        // If it's a pure YYYY-MM-DD date without time (length 10)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+            return trimmed;
+        }
+        // If it's an ISO date string stored as UTC midnight (e.g. "2026-10-15T00:00:00.000Z")
+        const isoMatch = /^(\d{4}-\d{2}-\d{2})(?:T00:00:00(?:\.000)?Z?)?$/.exec(trimmed);
+        if (isoMatch && isoMatch[1]) {
+            return isoMatch[1];
         }
         const d = new Date(trimmed);
         if (isNaN(d.getTime())) return "";
-        return formatLocalDateToYYYYMMDD(d);
+        return formatLocalDateToYYYYMMDD(d, timezone);
     }
     if (isNaN(date.getTime())) return "";
-    return formatLocalDateToYYYYMMDD(date);
+    // If Date is stored as UTC midnight, extract UTC date parts to prevent timezone shift
+    if (date.getUTCHours() === 0 && date.getUTCMinutes() === 0 && date.getUTCSeconds() === 0) {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(date.getUTCDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+    return formatLocalDateToYYYYMMDD(date, timezone);
 }
 
-function formatLocalDateToYYYYMMDD(d: Date): string {
+function formatLocalDateToYYYYMMDD(d: Date, timezone?: string): string {
+    if (timezone) {
+        try {
+            return new Intl.DateTimeFormat('en-CA', {
+                timeZone: timezone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            }).format(d);
+        } catch {
+            // fallback if timezone string is invalid
+        }
+    }
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");

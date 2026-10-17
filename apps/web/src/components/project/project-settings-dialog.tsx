@@ -24,6 +24,16 @@ export interface ProjectSettingsData {
   name: string;
   description?: string | null;
   color?: string | null;
+  settings?: {
+    wipLimits?: {
+      TODO?: number;
+      IN_PROGRESS?: number;
+      COMPLETED?: number;
+      CANCELLED?: number;
+      [key: string]: number | undefined;
+    };
+    [key: string]: any;
+  } | null;
 }
 
 interface ProjectSettingsDialogProps {
@@ -36,7 +46,12 @@ interface ProjectSettingsDialogProps {
   /** Whether update is pending */
   isPending?: boolean;
   /** Called when form is submitted */
-  onSubmit?: (data: { name: string; description?: string; color: string }) => void;
+  onSubmit?: (data: {
+    name: string;
+    description?: string;
+    color: string;
+    settings?: any;
+  }) => void;
   /** Custom labels for i18n */
   labels?: {
     title?: string;
@@ -126,10 +141,24 @@ export function ProjectSettingsDialog({
     }
   }, [project, reset]);
 
-  const handleFormSubmit = (data: UpdateProjectForm) => {
+  const handleFormSubmit = (data: UpdateProjectForm, e?: React.BaseSyntheticEvent) => {
+    const formElement = e?.target as HTMLFormElement | undefined;
+    const wipInput = formElement?.querySelector<HTMLInputElement>('[name="wipLimitInProgress"]');
+    const parsedWip = wipInput ? parseInt(wipInput.value, 10) : undefined;
+
+    const currentSettings = project?.settings || {};
+    const updatedSettings = {
+      ...currentSettings,
+      wipLimits: {
+        ...(currentSettings.wipLimits || {}),
+        IN_PROGRESS: isNaN(parsedWip as number) ? 5 : parsedWip,
+      },
+    };
+
     onSubmit?.({
       ...data,
       color: selectedColor,
+      settings: updatedSettings,
     });
   };
 
@@ -193,6 +222,33 @@ export function ProjectSettingsDialog({
                 placeholder={descriptionPlaceholder}
                 className="min-h-[100px] resize-none"
               />
+            </div>
+
+            {/* Kanban Settings */}
+            <div className="space-y-3 pt-2 border-t border-border">
+              <Label className="text-sm font-semibold text-foreground">
+                Kanban & Flujo de Trabajo
+              </Label>
+              <div className="grid grid-cols-2 gap-4 p-3 rounded-lg border border-border bg-muted/40">
+                <div className="space-y-1.5">
+                  <Label htmlFor="wipLimitInProgress" className="text-xs font-medium text-muted-foreground">
+                    Límite WIP (En Progreso)
+                  </Label>
+                  <Input
+                    id="wipLimitInProgress"
+                    type="number"
+                    min={1}
+                    max={50}
+                    defaultValue={project?.settings?.wipLimits?.IN_PROGRESS ?? 5}
+                    id-name="wipLimitInProgress"
+                    name="wipLimitInProgress"
+                    className="h-8 text-xs bg-background"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Máximo de tareas simultáneas recomendadas
+                  </p>
+                </div>
+              </div>
             </div>
 
             <DialogFooter className="pt-2">

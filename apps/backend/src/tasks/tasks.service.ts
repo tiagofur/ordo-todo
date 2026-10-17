@@ -310,29 +310,29 @@ export class TasksService {
     );
 
     const overdue = tasks.filter((t) => {
-      const dueStr = toCalendarDateString(t.props.dueDate);
+      const dueStr = toCalendarDateString(t.props.dueDate, timezone);
       return dueStr !== '' && dueStr < userTodayStr;
     });
 
     const dueToday = tasks.filter((t) => {
-      const dueStr = toCalendarDateString(t.props.dueDate);
+      const dueStr = toCalendarDateString(t.props.dueDate, timezone);
       return dueStr === userTodayStr;
     });
 
     const scheduledToday = tasks.filter((t) => {
-      const schedStr = toCalendarDateString(t.props.scheduledDate);
+      const schedStr = toCalendarDateString(t.props.scheduledDate, timezone);
       return schedStr === userTodayStr;
     });
 
     const notYetAvailable = tasks.filter((t) => {
-      const startStr = toCalendarDateString(t.props.startDate);
+      const startStr = toCalendarDateString(t.props.startDate, timezone);
       return startStr !== '' && startStr > userTodayStr;
     });
 
     const available = tasks.filter((t) => {
-      const startStr = toCalendarDateString(t.props.startDate);
-      const schedStr = toCalendarDateString(t.props.scheduledDate);
-      const dueStr = toCalendarDateString(t.props.dueDate);
+      const startStr = toCalendarDateString(t.props.startDate, timezone);
+      const schedStr = toCalendarDateString(t.props.scheduledDate, timezone);
+      const dueStr = toCalendarDateString(t.props.dueDate, timezone);
 
       const isStarted = !startStr || startStr <= userTodayStr;
       const isNotScheduledForToday = schedStr !== userTodayStr;
@@ -1119,7 +1119,7 @@ export class TasksService {
     try {
       const taskWithRecurrence = await this.prisma.task.findUnique({
         where: { id: taskId },
-        include: { recurrence: true },
+        include: { recurrence: true, tags: true, subTasks: true },
       });
 
       if (!taskWithRecurrence || !taskWithRecurrence.recurrence) {
@@ -1127,10 +1127,37 @@ export class TasksService {
       }
 
       const recurrence = taskWithRecurrence.recurrence;
-      const baseDate =
+      const rawBaseDate =
         taskWithRecurrence.dueDate ||
         taskWithRecurrence.scheduledDate ||
         new Date();
+
+      const now = new Date();
+      // If task was overdue (scheduled/due prior to today),
+      // advance calculation base to today while preserving original time of day.
+      const todayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
+      const baseStart = new Date(
+        rawBaseDate.getFullYear(),
+        rawBaseDate.getMonth(),
+        rawBaseDate.getDate(),
+      );
+
+      let baseDate = new Date(rawBaseDate);
+      if (baseStart < todayStart) {
+        baseDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          rawBaseDate.getHours(),
+          rawBaseDate.getMinutes(),
+          rawBaseDate.getSeconds(),
+          rawBaseDate.getMilliseconds(),
+        );
+      }
 
       const nextDate = new Date(baseDate);
       const interval = Math.max(recurrence.interval || 1, 1);
@@ -1139,18 +1166,81 @@ export class TasksService {
         case 'DAILY':
           nextDate.setDate(nextDate.getDate() + interval);
           break;
-        case 'WEEKLY':
-          nextDate.setDate(nextDate.getDate() + 7 * interval);
+
+        case 'WEEKLY': {
+          const daysOfWeek = (recurrence.daysOfWeek || [])
+            .map(Number)
+            .filter((d) => d >= 0 && d <= 6)
+            .sort((a, b) => a - b);
+
+          if (daysOfWeek.length > 0) {
+            const currentDay = baseDate.getDay();
+            // Find next weekday in current week
+            const nextDayInWeek = daysOfWeek.find((d) => d > currentDay);
+
+            if (nextDayInWeek !== undefined) {
+              nextDate.setDate(
+                nextDate.getDate() + (nextDayInWeek - currentDay),
+              );
+            } else {
+              // Wrap to first selected day in next interval cycle
+              const firstDay = daysOfWeek[0];
+              const daysUntilNextWeek = 7 - currentDay;
+              const additionalWeeks = (interval - 1) * 7;
+              nextDate.setDate(
+                nextDate.getDate() +
+                  daysUntilNextWeek +
+                  additionalWeeks +
+                  firstDay,
+              );
+            }
+          } else {
+            nextDate.setDate(nextDate.getDate() + 7 * interval);
+          }
           break;
-        case 'MONTHLY':
-          nextDate.setMonth(nextDate.getMonth() + interval);
+        }
+
+        case 'MONTHLY': {
+          const currentYear = baseDate.getFullYear();
+          const currentMonth = baseDate.getMonth();
+          const targetDay = recurrence.dayOfMonth || baseDate.getDate();
+
+          const totalMonths = currentMonth + interval;
+          const targetYear = currentYear + Math.floor(totalMonths / 12);
+          const targetMonth = ((totalMonths % 12) + 12) % 12;
+
+          // Days in target month (day 0 of next month returns last day of target month)
+          const daysInTargetMonth = new Date(
+            targetYear,
+            targetMonth + 1,
+            0,
+          ).getDate();
+          const clampedDay = Math.min(targetDay, daysInTargetMonth);
+
+          nextDate.setFullYear(targetYear, targetMonth, clampedDay);
           break;
-        case 'YEARLY':
-          nextDate.setFullYear(nextDate.getFullYear() + interval);
+        }
+
+        case 'YEARLY': {
+          const targetYear = baseDate.getFullYear() + interval;
+          const targetMonth = baseDate.getMonth();
+          const targetDay = baseDate.getDate();
+
+          const daysInTargetMonth = new Date(
+            targetYear,
+            targetMonth + 1,
+            0,
+          ).getDate();
+          const clampedDay = Math.min(targetDay, daysInTargetMonth);
+
+          nextDate.setFullYear(targetYear, targetMonth, clampedDay);
           break;
+        }
+
         case 'CUSTOM':
           nextDate.setDate(nextDate.getDate() + interval);
           break;
+
         default:
           nextDate.setDate(nextDate.getDate() + interval);
           break;
@@ -1164,8 +1254,24 @@ export class TasksService {
         return;
       }
 
-      // Transfer recurrence definition to the new occurrence so the chain continues
-      await this.prisma.task.create({
+      // Maintain relative offset between dueDate and scheduledDate if both are present
+      let nextDueDate: Date | null = null;
+      let nextScheduledDate: Date | null = null;
+
+      if (taskWithRecurrence.dueDate && taskWithRecurrence.scheduledDate) {
+        const offsetMs =
+          taskWithRecurrence.scheduledDate.getTime() -
+          taskWithRecurrence.dueDate.getTime();
+        nextDueDate = nextDate;
+        nextScheduledDate = new Date(nextDate.getTime() + offsetMs);
+      } else if (taskWithRecurrence.dueDate) {
+        nextDueDate = nextDate;
+      } else if (taskWithRecurrence.scheduledDate) {
+        nextScheduledDate = nextDate;
+      }
+
+      // Transfer recurrence definition, subtasks, and tags to the new occurrence so the chain continues
+      const nextTask = await this.prisma.task.create({
         data: {
           title: taskWithRecurrence.title,
           description: taskWithRecurrence.description,
@@ -1174,12 +1280,33 @@ export class TasksService {
           projectId: taskWithRecurrence.projectId,
           ownerId: taskWithRecurrence.ownerId,
           assigneeId: taskWithRecurrence.assigneeId,
-          dueDate: taskWithRecurrence.dueDate ? nextDate : null,
-          scheduledDate: taskWithRecurrence.scheduledDate ? nextDate : null,
+          parentTaskId: taskWithRecurrence.parentTaskId,
+          dueDate: nextDueDate,
+          scheduledDate: nextScheduledDate,
           scheduledTime: taskWithRecurrence.scheduledTime,
           scheduledEndTime: taskWithRecurrence.scheduledEndTime,
           isTimeBlocked: taskWithRecurrence.isTimeBlocked,
           estimatedMinutes: taskWithRecurrence.estimatedMinutes,
+          tags: taskWithRecurrence.tags?.length
+            ? {
+                create: taskWithRecurrence.tags.map((t) => ({
+                  tagId: t.tagId,
+                })),
+              }
+            : undefined,
+          subTasks: taskWithRecurrence.subTasks?.length
+            ? {
+                create: taskWithRecurrence.subTasks.map((st) => ({
+                  title: st.title,
+                  description: st.description,
+                  status: 'TODO',
+                  priority: st.priority,
+                  projectId: st.projectId,
+                  ownerId: st.ownerId,
+                  assigneeId: st.assigneeId,
+                })),
+              }
+            : undefined,
           recurrence: {
             create: {
               pattern: recurrence.pattern,
@@ -1196,6 +1323,9 @@ export class TasksService {
       await this.prisma.recurrence.delete({
         where: { id: recurrence.id },
       });
+
+      // Log activity for the newly spawned task
+      await this.activitiesService.logTaskCreated(nextTask.id, userId);
 
       this.logger.log(
         `[Recurrence] Successfully spawned next task for recurring task ${taskId} scheduled at ${nextDate.toISOString()}`,

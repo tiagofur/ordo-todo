@@ -29,6 +29,11 @@ export interface RefreshTokenDto {
   refreshToken: string;
 }
 
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface SessionInfo {
   id: string;
   deviceName: string;

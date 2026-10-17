@@ -1,10 +1,11 @@
 "use client";
 
-import { useTasks, useUpdateTask, useCreateTask } from "@/lib/api-hooks";
+import { useTasks, useUpdateTask, useCreateTask, useProject } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useState, useMemo, useEffect } from "react";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
+import { cn } from "@/lib/utils";
 import { 
   ProjectBoard as ProjectBoardLayout, 
   BoardColumn, 
@@ -38,6 +39,7 @@ interface ProjectBoardProps {
 export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const t = useTranslations("ProjectBoard");
   const tCard = useTranslations("TaskCard");
+  const { data: project } = useProject(projectId);
   const { data: serverTasks, isLoading } = useTasks(projectId);
   const updateTaskMutation = useUpdateTask();
   const { mutateAsync: createTask } = useCreateTask();
@@ -48,6 +50,11 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [originalStatus, setOriginalStatus] = useState<string | null>(null);
+  const [showCancelled, setShowCancelled] = useState(false);
+
+  const hasCancelledTasks = useMemo(() => {
+    return tasks.some((t) => t.status === "CANCELLED");
+  }, [tasks]);
 
   useEffect(() => {
     if (serverTasks) {
@@ -64,11 +71,36 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     })
   );
 
-  const columns = useMemo(() => [
-    { id: "TODO", title: t("columns.todo"), color: "border-slate-200" },
-    { id: "IN_PROGRESS", title: t("columns.inProgress"), color: "border-blue-200" },
-    { id: "COMPLETED", title: t("columns.completed"), color: "border-green-200" },
-  ], [t]);
+  const columns = useMemo(() => {
+    const projectSettings = (project as any)?.settings;
+    const wipLimits = projectSettings?.wipLimits || {};
+
+    // Base workflow stages from project settings if configured, otherwise standard statuses
+    const configuredStages = projectSettings?.stages as Array<{ id: string; title: string; color?: string; wipLimit?: number }> | undefined;
+
+    if (configuredStages && Array.isArray(configuredStages) && configuredStages.length > 0) {
+      return configuredStages;
+    }
+
+    const inProgressWip = typeof wipLimits.IN_PROGRESS === 'number' ? wipLimits.IN_PROGRESS : 5;
+    const todoWip = typeof wipLimits.TODO === 'number' ? wipLimits.TODO : undefined;
+    const completedWip = typeof wipLimits.COMPLETED === 'number' ? wipLimits.COMPLETED : undefined;
+
+    const cols = [
+      { id: "TODO", title: t("columns.todo"), color: "border-slate-200", wipLimit: todoWip },
+      { id: "IN_PROGRESS", title: t("columns.inProgress"), color: "border-blue-200", wipLimit: inProgressWip },
+      { id: "COMPLETED", title: t("columns.completed"), color: "border-green-200", wipLimit: completedWip },
+    ];
+    if (showCancelled || hasCancelledTasks) {
+      cols.push({
+        id: "CANCELLED",
+        title: (t as any)("columns.cancelled") || "Canceladas",
+        color: "border-rose-200 dark:border-rose-900/50",
+        wipLimit: typeof wipLimits.CANCELLED === 'number' ? wipLimits.CANCELLED : undefined,
+      });
+    }
+    return cols;
+  }, [t, showCancelled, hasCancelledTasks, project]);
 
   const onDragStart = (event: DragStartEvent) => {
     if (event.active.data.current?.type === "Task") {
@@ -183,6 +215,26 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
 
   return (
     <>
+      <div className="flex items-center justify-end mb-3 px-1">
+        <button
+          type="button"
+          onClick={() => setShowCancelled((prev) => !prev)}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card/60 hover:bg-muted cursor-pointer"
+        >
+          <span
+            className={cn(
+              "h-2 w-2 rounded-full transition-colors",
+              showCancelled || hasCancelledTasks
+                ? "bg-rose-500"
+                : "bg-muted-foreground/30"
+            )}
+          />
+          {showCancelled || hasCancelledTasks
+            ? (t as any)("columns.cancelled") || "Canceladas"
+            : (t as any)("toggleCancelled") || "Mostrar canceladas"}
+        </button>
+      </div>
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -196,7 +248,8 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
               key={column.id}
               id={column.id}
               title={column.title}
-              color={column.color}
+              color={column.color || "border-slate-200"}
+              wipLimit={column.wipLimit}
               tasksCount={tasks.filter((t) => t.status === column.id).length}
               onAddTask={() => handleAddTask(column.id)}
               labels={{ addTask: t("addTask") }}

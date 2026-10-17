@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ordo-todo/ui";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useProjectBySlug } from "@/hooks/use-projects";
 import { useTasks, useArchiveProject, useDeleteProject, useCreateTask } from "@/lib/api-hooks";
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -19,6 +20,8 @@ import {
   LayoutDashboard,
   FolderKanban,
   Clock,
+  Paperclip,
+  Settings2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
@@ -30,6 +33,8 @@ import { TaskCard } from "@/components/task/task-card";
 import { ProjectSettingsDialog } from "@/components/project/project-settings-dialog";
 import { ProjectBoard } from "@/components/project/project-board";
 import { ProjectTimeline } from "@/components/project/project-timeline";
+import { ProjectFiles } from "@/components/project/project-files";
+import { CustomFieldsEditor } from "@/components/project/custom-fields-editor";
 import { TaskPriority } from "@ordo-todo/api-client";
 
 type ViewMode = "list" | "grid";
@@ -269,6 +274,14 @@ export default function ProjectDetailPage() {
             <Clock className="w-4 h-4" />
             {t("tabs.timeline")}
           </TabsTrigger>
+          <TabsTrigger value="files" className="gap-2">
+            <Paperclip className="w-4 h-4" />
+            {t("tabs.files") || "Files"}
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings2 className="w-4 h-4" />
+            {t("tabs.settings") || "Settings"}
+          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -485,6 +498,16 @@ export default function ProjectDetailPage() {
         {/* Timeline Tab */}
         <TabsContent value="timeline">
           <ProjectTimeline projectId={project.id} />
+        </TabsContent>
+
+        {/* Files Tab */}
+        <TabsContent value="files">
+          <ProjectFiles projectId={project.id} />
+        </TabsContent>
+
+        {/* Settings Tab */}
+        <TabsContent value="settings" className="space-y-6">
+          <CustomFieldsEditor projectId={project.id} />
         </TabsContent>
       </Tabs>
 

@@ -179,7 +179,9 @@
         "days": "{count} days ago"
       }
     },
-    "languageChanged": "Language changed to {lang}"
+    "languageChanged": "Language changed to {lang}",
+    "settingsSaved": "Settings saved successfully",
+    "errorSaving": "Error saving settings"
   },
   "TimerWidget": {
     "startTimer": "Start timer"
@@ -232,7 +234,18 @@
       "skip": "Skip",
       "next": "Next",
       "getStarted": "Get Started!"
-    }
+    },
+    "streak": {
+      "currentStreak": "Current Streak",
+      "day": "day",
+      "days": "days",
+      "personalBest": "Personal Best",
+      "bestStreak": "Best Streak"
+    },
+    "aiInsights": "AI Insights",
+    "noInsights": "No insights yet",
+    "aiSuggestion": "Keep completing tasks to receive smart suggestions",
+    "viewAllInsights": "View all insights"
   },
   "Tasks": {
     "title": "Tasks",
@@ -291,9 +304,9 @@
     "add": "New Note",
     "delete": "Delete",
     "noNotes": "No notes yet",
-    "placeholder": "Write something..."
+    "placeholder": "Write something...",
+    "subtitle": "Capture quick thoughts and ideas"
   },
-
   "Projects": {
     "title": "Projects",
     "subtitle": "Manage all your projects in one place.",
@@ -302,7 +315,9 @@
     "selectWorkspaceDescription": "To start, select a workspace from the list to see its projects.",
     "noProjects": "No projects yet",
     "noProjectsDescription": "Create your first project to start organizing your tasks.",
-    "createProject": "Create Project"
+    "createProject": "Create Project",
+    "error": "Error loading projects",
+    "errorDescription": "Could not load projects. Please try again."
   },
   "Workspaces": {
     "title": "Workspaces",
@@ -310,7 +325,11 @@
     "newWorkspace": "New Workspace",
     "noWorkspaces": "You have no workspaces",
     "noWorkspacesDescription": "Create your first workspace to start organizing your projects and tasks",
-    "createWorkspace": "Create Workspace"
+    "createWorkspace": "Create Workspace",
+    "error": "Error loading workspaces",
+    "errorDescription": "Could not load workspaces. Please try again.",
+    "createSuccess": "Workspace created successfully",
+    "createError": "Error creating workspace"
   },
   "WorkspaceCard": {
     "types": {
@@ -558,7 +577,8 @@
       "skip": "Skip",
       "next": "Next",
       "getStarted": "Get Started"
-    }
+    },
+    "viewAll": "View all"
   },
   "Analytics": {
     "title": "Analytics",
@@ -1057,7 +1077,6 @@
     },
     "backToWorkspace": "Back to workspace"
   },
-
   "WorkspaceInfoBar": {
     "types": {
       "PERSONAL": "Personal",
@@ -1092,7 +1111,11 @@
       "tasks": "Tasks",
       "members": "Members"
     },
-    "deleteError": "Error deleting dashboard widget"
+    "deleteError": "Error deleting dashboard widget",
+    "error": "Error loading workspace",
+    "noProjects": "No projects yet",
+    "noProjectsDescription": "Create your first project to organize your tasks.",
+    "createProject": "Create Project"
   },
   "WorkspaceSelector": {
     "create": "Create Workspace",
@@ -1134,10 +1157,10 @@
         }
       },
       "color": {
-         "label": "Color"
+        "label": "Color"
       },
       "icon": {
-         "label": "Icon"
+        "label": "Icon"
       }
     },
     "dangerZone": {
@@ -1774,9 +1797,11 @@
     "columns": {
       "todo": "To Do",
       "inProgress": "In Progress",
-      "completed": "Completed"
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
-    "addTask": "Add Task"
+    "addTask": "Add Task",
+    "toggleCancelled": "Show cancelled"
   },
   "ProjectList": {
     "columns": {
@@ -2048,7 +2073,17 @@
       "last30Days": "Last 30 days",
       "last90Days": "Last 90 days",
       "page": "Page"
-    }
+    },
+    "work": "Focus",
+    "shortBreak": "Short Break",
+    "longBreak": "Long Break",
+    "continuous": "Continuous",
+    "idle": "Idle",
+    "completedPomodoros": "Completed Pomodoros",
+    "reset": "Reset",
+    "start": "Start",
+    "pause": "Pause",
+    "skip": "Skip"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Weekly Report",
@@ -2233,7 +2268,9 @@
     "editDescription": "Update the details of your objective.",
     "update": "Update Objective",
     "updated": "Objective updated successfully",
-    "updateError": "Error updating objective"
+    "updateError": "Error updating objective",
+    "error": "Error loading goals",
+    "errorDescription": "Could not load goals. Please try again."
   },
   "CustomFields": {
     "title": "Custom Fields",
@@ -2400,7 +2437,8 @@
       "executive": "Executive",
       "detailed": "Detailed",
       "bulletPoints": "Bullet Points"
-    }
+    },
+    "errorConvertingTasks": "Error converting notes to tasks"
   },
   "Workload": {
     "title": "Workload",
@@ -2701,6 +2739,27 @@
         "githubFailed": "Could not sign in with GitHub"
       },
       "success": "Signed in successfully"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email address and we'll send you instructions to reset your password",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "you@email.com",
+      "submitButton": "Send Reset Link",
+      "submitting": "Sending...",
+      "backToLogin": "Back to Sign In",
+      "successTitle": "Check your inbox",
+      "successSubtitle": "If an account exists for {email}, you will receive a password reset link shortly.",
+      "tryAnotherEmail": "Try another email",
+      "errors": {
+        "requiredEmail": "Please enter your email address",
+        "invalidEmail": "Please enter a valid email address",
+        "failed": "An error occurred while processing your request"
+      }
     }
+  },
+  "ProjectTimeline": {
+    "emptyTitle": "No scheduled tasks",
+    "emptyDescription": "Assign due dates or time blocks to tasks to see the timeline."
   }
 }

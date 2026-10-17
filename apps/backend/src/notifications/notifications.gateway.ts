@@ -86,9 +86,21 @@ export class NotificationsGateway
    */
   async handleConnection(client: Socket) {
     try {
+      const cookieHeader = client.handshake?.headers?.cookie;
+      let cookieToken: string | undefined;
+      if (cookieHeader) {
+        const cookies = cookieHeader.split(';').reduce((res, c) => {
+          const [key, val] = c.trim().split('=');
+          if (key && val) res[key] = decodeURIComponent(val);
+          return res;
+        }, {} as Record<string, string>);
+        cookieToken = cookies['access_token'] || cookies['token'];
+      }
+
       const token =
-        client.handshake.auth.token ||
-        client.handshake.headers.authorization?.split(' ')[1];
+        client.handshake?.auth?.token ||
+        client.handshake?.headers?.authorization?.split(' ')[1] ||
+        cookieToken;
 
       if (!token) {
         this.logger.warn('Connection rejected: No auth token');

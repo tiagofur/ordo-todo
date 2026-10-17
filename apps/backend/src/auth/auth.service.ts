@@ -1,6 +1,7 @@
 import {
   Injectable,
   UnauthorizedException,
+  BadRequestException,
   Inject,
   ConflictException,
   forwardRef,
@@ -20,6 +21,7 @@ import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuthDto } from './dto/oauth.dto';
 import { WorkspacesService } from '../workspaces/workspaces.service';
@@ -449,5 +451,41 @@ export class AuthService {
       this.logger.error('Failed to logout user', error);
       throw new UnauthorizedException('Failed to logout');
     }
+  }
+
+  /**
+   * Change user password securely
+   */
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const user = await this.userRepository.findById(userId, true);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (user.password) {
+      const isValid = await this.cryptoProvider.compare(
+        changePasswordDto.currentPassword,
+        user.password,
+      );
+      if (!isValid) {
+        throw new BadRequestException('Current password is incorrect');
+      }
+    }
+
+    const hashedPassword = await this.cryptoProvider.encrypt(
+      changePasswordDto.newPassword,
+    );
+
+    await this.userRepository.updateProps(user, {
+      password: hashedPassword,
+    });
+
+    return {
+      success: true,
+      message: 'Password updated successfully',
+    };
   }
 }
