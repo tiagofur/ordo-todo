@@ -33,7 +33,7 @@ Calificación de importancia/utilidad del producto (0.0 a 10.0) y porcentaje de 
 | 19 | **Balance de Carga del Equipo (`/workload`)** | **7.2** | `85%` → **90%** | Operativa E2E | Capacidad por miembro, detección de sobrecarga, sugerencias de redistribución con IA y UI pulida. |
 | 20 | **Bienestar y Prevención de Burnout** | **7.0** | `65%` → **90%** | Operativa E2E | Contrato sincronizado en `wellbeing-tab.tsx` (soporte dual para `avgDailyWorkHours` / `averageHoursPerDay`, `lateNightPercentage` / `nightWorkPercentage`, `avgSessionWithoutBreak` / `averageBreakMinutes`). |
 | 21 | **Perfil de Usuario, Ajustes y Cumplimiento GDPR** | **6.9** | `72%` → **94%** | Operativa E2E | Exportación GDPR, borrado de cuenta, cambio de contraseña y persistencia E2E completa de preferencias de usuario (IA, Bienestar, Pomodoro/Timer, Audio y Tema) en `/settings` y `/profile`. |
-| 22 | **Asistente de Minutas de Reunión (`/meetings`)** | **6.8** | `40%` → **85%** | Operativa E2E | Normalización de estructuras en `meeting-analyzer.tsx` y `meeting-assistant.service.ts`, y botón **"Convert to Tasks"** conectado a `apiClient.convertActionsToTasks`. **Pendiente menor:** Persistir historial de reuniones en tabla Prisma dedicada. |
+| 22 | **Asistente de Minutas de Reunión (`/meetings`)** | **6.8** | `40%` → **95%** | Operativa E2E | Normalización de estructuras, endpoints `GET /meetings`, `GET /meetings/:id`, `DELETE /meetings/:id`, persistencia real en modelo Prisma `Meeting`, botón **"Convert to Tasks"** conectado y panel de historial de reuniones guardadas con recarga en 1 clic. |
 | 23 | **Plantillas de Proyectos (Templates)** | **6.6** | `45%` → **85%** | Operativa E2E | Conectado el catálogo de plantillas predeterminadas de proyectos (`PROJECT_TEMPLATES`) con instanciación automática de tareas semilla al crear proyectos en `/projects`, `/dashboard` y `/workspaces/[slug]`. |
 | 24 | **Pizarra de Notas Adhesivas (`Sticky Notes`)** | **6.4** | `80%` → **85%** | Operativa E2E | Pizarra libre con coordenadas X/Y y colores por workspace con regresiones E2E resueltas. |
 | 25 | **Integraciones Externas (Google Calendar, Slack, GitHub)** | **6.2** | `15%` → **15%** | Solo Esquema / UI | Modelo Prisma `UserIntegration` + `GET /users/me/integrations`, pero falta implementar el flujo OAuth de conexión y webhooks de sincronización. |
@@ -68,8 +68,8 @@ Calificación de importancia/utilidad del producto (0.0 a 10.0) y porcentaje de 
    - Integrado el catálogo de plantillas predeterminadas en `CreateProjectDialog` con instanciación automática y concurrente de tareas semilla al crear un proyecto desde `/projects`, `/dashboard` o el panel del workspace.
 3. **Presencia en Vivo en Proyectos y Tareas (`Colaboración 25% → 85%`)** [✅ Completado]:
    - Creado hook `useCollaborationSocket` (`/collaboration`), soporte para autenticación de cookies en los Gateways del backend, y componente `PresenceAvatars` con indicador de usuarios activos en `TopBar` y en el encabezado de `TaskDetailPanel` con avisos de cambios concurrentes.
-4. **Persistencia de Historial de Reuniones en BD (`Meetings 85% → 95%`)**:
-   - Reemplazar el mock en memoria de `saveMeeting` por un modelo Prisma `MeetingNote` para conservar las transcripciones, resúmenes y acuerdos históricos del equipo.
+4. **Persistencia de Historial de Reuniones en BD (`Meetings 85% → 95%`)** [✅ Completado]:
+   - Reemplazado el mock en memoria de `saveMeeting` por persistencia en el modelo Prisma `Meeting`, implementados endpoints CRUD de historial en `MeetingsController` (`GET /meetings`, `GET /meetings/:id`, `DELETE /meetings/:id`) y conectado el panel de notas históricas en `MeetingAnalyzer` con auto-guardado y recarga instantánea.
 
 ### Fase 2: Nuevas Capacidades Clave de Producto (Diferenciadores)
 1. **Ritual Guiado de "Planificar mi Día" y "Cierre del Día" (Daily Planning / Shutdown Ritual)**:
