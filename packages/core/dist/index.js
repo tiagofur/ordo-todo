@@ -1219,22 +1219,32 @@ function formatScheduledDateTime(scheduledDate, scheduledTime, locale = "en-US")
   }
   return dateStr;
 }
-function toCalendarDateString(date5) {
+function toCalendarDateString(date5, timezone) {
   if (!date5) return "";
   if (typeof date5 === "string") {
     const trimmed = date5.trim();
-    const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-      return `${match[1]}-${match[2]}-${match[3]}`;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return trimmed;
     }
     const d = new Date(trimmed);
     if (isNaN(d.getTime())) return "";
-    return formatLocalDateToYYYYMMDD(d);
+    return formatLocalDateToYYYYMMDD(d, timezone);
   }
   if (isNaN(date5.getTime())) return "";
-  return formatLocalDateToYYYYMMDD(date5);
+  return formatLocalDateToYYYYMMDD(date5, timezone);
 }
-function formatLocalDateToYYYYMMDD(d) {
+function formatLocalDateToYYYYMMDD(d, timezone) {
+  if (timezone) {
+    try {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: timezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(d);
+    } catch {
+    }
+  }
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");

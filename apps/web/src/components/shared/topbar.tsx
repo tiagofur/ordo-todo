@@ -9,6 +9,7 @@ import { SmartSearch } from "@/components/search/smart-search";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Dialog, DialogContent } from "@ordo-todo/ui";
+import { useGamificationProfile } from "@/lib/api-hooks";
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -18,6 +19,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const t = useTranslations("TopBar");
   const tSearch = useTranslations("Search");
   const { user, logout } = useAuth();
+  const { data: gamification } = useGamificationProfile({ enabled: !!user });
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -41,8 +43,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         user={{
           name: user?.name,
           email: user?.email,
-          level: (user as any)?.level,
-          xp: (user as any)?.xp,
+          level: gamification?.level ?? (user as any)?.level ?? 1,
+          xp: gamification?.xp ?? (user as any)?.xp ?? 0,
         }}
         onLogout={logout}
         onProfileClick={() => router.push("/profile")}

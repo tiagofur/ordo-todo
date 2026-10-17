@@ -73,7 +73,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const columns = useMemo(() => {
     const cols = [
       { id: "TODO", title: t("columns.todo"), color: "border-slate-200" },
-      { id: "IN_PROGRESS", title: t("columns.inProgress"), color: "border-blue-200" },
+      { id: "IN_PROGRESS", title: t("columns.inProgress"), color: "border-blue-200", wipLimit: 5 },
       { id: "COMPLETED", title: t("columns.completed"), color: "border-green-200" },
     ];
     if (showCancelled || hasCancelledTasks) {
@@ -233,6 +233,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
               id={column.id}
               title={column.title}
               color={column.color}
+              wipLimit={column.wipLimit}
               tasksCount={tasks.filter((t) => t.status === column.id).length}
               onAddTask={() => handleAddTask(column.id)}
               labels={{ addTask: t("addTask") }}

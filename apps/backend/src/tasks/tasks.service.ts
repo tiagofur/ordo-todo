@@ -310,29 +310,29 @@ export class TasksService {
     );
 
     const overdue = tasks.filter((t) => {
-      const dueStr = toCalendarDateString(t.props.dueDate);
+      const dueStr = toCalendarDateString(t.props.dueDate, timezone);
       return dueStr !== '' && dueStr < userTodayStr;
     });
 
     const dueToday = tasks.filter((t) => {
-      const dueStr = toCalendarDateString(t.props.dueDate);
+      const dueStr = toCalendarDateString(t.props.dueDate, timezone);
       return dueStr === userTodayStr;
     });
 
     const scheduledToday = tasks.filter((t) => {
-      const schedStr = toCalendarDateString(t.props.scheduledDate);
+      const schedStr = toCalendarDateString(t.props.scheduledDate, timezone);
       return schedStr === userTodayStr;
     });
 
     const notYetAvailable = tasks.filter((t) => {
-      const startStr = toCalendarDateString(t.props.startDate);
+      const startStr = toCalendarDateString(t.props.startDate, timezone);
       return startStr !== '' && startStr > userTodayStr;
     });
 
     const available = tasks.filter((t) => {
-      const startStr = toCalendarDateString(t.props.startDate);
-      const schedStr = toCalendarDateString(t.props.scheduledDate);
-      const dueStr = toCalendarDateString(t.props.dueDate);
+      const startStr = toCalendarDateString(t.props.startDate, timezone);
+      const schedStr = toCalendarDateString(t.props.scheduledDate, timezone);
+      const dueStr = toCalendarDateString(t.props.dueDate, timezone);
 
       const isStarted = !startStr || startStr <= userTodayStr;
       const isNotScheduledForToday = schedStr !== userTodayStr;

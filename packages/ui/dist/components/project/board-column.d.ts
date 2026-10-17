@@ -20,10 +20,12 @@ interface BoardColumnProps {
     style?: React.CSSProperties;
     /** Reference for droppable node - passed as callback/prop to be agnostic */
     setNodeRef?: (node: HTMLElement | null) => void;
+    /** Optional Work-In-Progress (WIP) limit */
+    wipLimit?: number;
 }
 /**
  * BoardColumn - Platform-agnostic Kanban column layout
  */
-export declare function BoardColumn({ id: _id, title, tasksCount, headerColorClass, onAddTask, children, labels, className, style, setNodeRef, }: BoardColumnProps): import("react/jsx-runtime").JSX.Element;
+export declare function BoardColumn({ id: _id, title, tasksCount, headerColorClass, onAddTask, children, labels, className, style, setNodeRef, wipLimit, }: BoardColumnProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=board-column.d.ts.map

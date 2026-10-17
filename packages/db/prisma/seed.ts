@@ -5,14 +5,20 @@ const prisma = new PrismaClient();
 async function main() {
     console.log("🌱 Seeding database...");
 
+    // Demo credentials: demo@ordo-todo.app / Password123!
+    const DEMO_PASSWORD_HASH = "$2b$12$/8h2yooCCT/nejNQsuK2ue7/lKbI/wNPTA4cHhZsKxYBMIYB.OxEi";
+
     // Create demo user
     const user = await prisma.user.upsert({
         where: { email: "demo@ordo-todo.app" },
-        update: {},
+        update: {
+            hashedPassword: DEMO_PASSWORD_HASH,
+        },
         create: {
             name: "Demo User",
             email: "demo@ordo-todo.app",
             username: "demo_user",
+            hashedPassword: DEMO_PASSWORD_HASH,
             preferences: {
                 create: {
                     theme: Theme.AUTO,

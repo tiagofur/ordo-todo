@@ -512,3 +512,15 @@ export function useDeleteKeyResultCompat() {
 // Re-export with original name for backwards compatibility
 export { useDeleteKeyResultCompat as useDeleteKeyResult };
 
+/**
+ * Hook to fetch gamification profile (XP, Level, Achievements)
+ */
+export function useGamificationProfile(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["gamification", "me"],
+    queryFn: () => apiClient.getGamificationProfile(),
+    staleTime: 30 * 1000,
+    ...options,
+  });
+}
+

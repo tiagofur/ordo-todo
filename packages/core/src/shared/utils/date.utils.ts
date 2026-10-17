@@ -307,24 +307,35 @@ export function formatScheduledDateTime(
  * - "2026-10-15T00:00:00.000Z" (UTC midnight stored date) -> "2026-10-15"
  * - Local Date objects -> formats in local "YYYY-MM-DD"
  */
-export function toCalendarDateString(date: Date | string | null | undefined): string {
+export function toCalendarDateString(date: Date | string | null | undefined, timezone?: string): string {
     if (!date) return "";
     if (typeof date === "string") {
         const trimmed = date.trim();
-        // If it starts with YYYY-MM-DD
-        const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
-        if (match) {
-            return `${match[1]}-${match[2]}-${match[3]}`;
+        // If it's a pure YYYY-MM-DD date without time (length 10)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+            return trimmed;
         }
         const d = new Date(trimmed);
         if (isNaN(d.getTime())) return "";
-        return formatLocalDateToYYYYMMDD(d);
+        return formatLocalDateToYYYYMMDD(d, timezone);
     }
     if (isNaN(date.getTime())) return "";
-    return formatLocalDateToYYYYMMDD(date);
+    return formatLocalDateToYYYYMMDD(date, timezone);
 }
 
-function formatLocalDateToYYYYMMDD(d: Date): string {
+function formatLocalDateToYYYYMMDD(d: Date, timezone?: string): string {
+    if (timezone) {
+        try {
+            return new Intl.DateTimeFormat('en-CA', {
+                timeZone: timezone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            }).format(d);
+        } catch {
+            // fallback if timezone string is invalid
+        }
+    }
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");

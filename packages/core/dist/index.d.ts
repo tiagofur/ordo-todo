@@ -671,7 +671,7 @@ declare function formatScheduledDateTime(scheduledDate: Date | string | null | u
  * - "2026-10-15T00:00:00.000Z" (UTC midnight stored date) -> "2026-10-15"
  * - Local Date objects -> formats in local "YYYY-MM-DD"
  */
-declare function toCalendarDateString(date: Date | string | null | undefined): string;
+declare function toCalendarDateString(date: Date | string | null | undefined, timezone?: string): string;
 /**
  * Parse a calendar date (string or Date) into a local midnight Date object.
  * This ensures that a date like "2026-10-15" or "2026-10-15T00:00:00.000Z"
