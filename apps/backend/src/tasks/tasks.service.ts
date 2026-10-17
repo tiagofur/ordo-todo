@@ -1119,7 +1119,7 @@ export class TasksService {
     try {
       const taskWithRecurrence = await this.prisma.task.findUnique({
         where: { id: taskId },
-        include: { recurrence: true, tags: true },
+        include: { recurrence: true, tags: true, subTasks: true },
       });
 
       if (!taskWithRecurrence || !taskWithRecurrence.recurrence) {
@@ -1270,8 +1270,8 @@ export class TasksService {
         nextScheduledDate = nextDate;
       }
 
-      // Transfer recurrence definition and tags to the new occurrence so the chain continues
-      await this.prisma.task.create({
+      // Transfer recurrence definition, subtasks, and tags to the new occurrence so the chain continues
+      const nextTask = await this.prisma.task.create({
         data: {
           title: taskWithRecurrence.title,
           description: taskWithRecurrence.description,
@@ -1280,6 +1280,7 @@ export class TasksService {
           projectId: taskWithRecurrence.projectId,
           ownerId: taskWithRecurrence.ownerId,
           assigneeId: taskWithRecurrence.assigneeId,
+          parentTaskId: taskWithRecurrence.parentTaskId,
           dueDate: nextDueDate,
           scheduledDate: nextScheduledDate,
           scheduledTime: taskWithRecurrence.scheduledTime,
@@ -1290,6 +1291,19 @@ export class TasksService {
             ? {
                 create: taskWithRecurrence.tags.map((t) => ({
                   tagId: t.tagId,
+                })),
+              }
+            : undefined,
+          subTasks: taskWithRecurrence.subTasks?.length
+            ? {
+                create: taskWithRecurrence.subTasks.map((st) => ({
+                  title: st.title,
+                  description: st.description,
+                  status: 'TODO',
+                  priority: st.priority,
+                  projectId: st.projectId,
+                  ownerId: st.ownerId,
+                  assigneeId: st.assigneeId,
                 })),
               }
             : undefined,
@@ -1309,6 +1323,9 @@ export class TasksService {
       await this.prisma.recurrence.delete({
         where: { id: recurrence.id },
       });
+
+      // Log activity for the newly spawned task
+      await this.activitiesService.logTaskCreated(nextTask.id, userId);
 
       this.logger.log(
         `[Recurrence] Successfully spawned next task for recurring task ${taskId} scheduled at ${nextDate.toISOString()}`,

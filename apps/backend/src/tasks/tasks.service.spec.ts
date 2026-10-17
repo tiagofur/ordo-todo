@@ -1090,5 +1090,92 @@ describe('TasksService', () => {
         }),
       });
     });
+
+    it('should clone subtasks and preserve parentTaskId when spawning recurring task', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T08:00:00.000Z'));
+
+      const baseDueDate = new Date('2026-06-01T10:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Sprint Planning',
+          status: 'TODO',
+          priority: 'HIGH',
+          ownerId: userId,
+          dueDate: baseDueDate,
+          parentTaskId: 'parent-epic-1',
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Sprint Planning',
+        description: 'Bi-weekly sprint planning',
+        priority: 'HIGH',
+        projectId: 'project-1',
+        ownerId: userId,
+        assigneeId: userId,
+        parentTaskId: 'parent-epic-1',
+        dueDate: baseDueDate,
+        scheduledDate: null,
+        tags: [],
+        subTasks: [
+          {
+            title: 'Review backlog',
+            description: null,
+            priority: 'MEDIUM',
+            projectId: 'project-1',
+            ownerId: userId,
+            assigneeId: userId,
+          },
+        ],
+        recurrence: {
+          id: 'rec-6',
+          pattern: 'WEEKLY',
+          interval: 2,
+          daysOfWeek: [],
+          dayOfMonth: null,
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({ id: 'spawned-task-id' });
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          title: 'Sprint Planning',
+          status: 'TODO',
+          parentTaskId: 'parent-epic-1',
+          subTasks: {
+            create: [
+              {
+                title: 'Review backlog',
+                description: null,
+                status: 'TODO',
+                priority: 'MEDIUM',
+                projectId: 'project-1',
+                ownerId: userId,
+                assigneeId: userId,
+              },
+            ],
+          },
+        }),
+      });
+      expect(mockActivitiesService.logTaskCreated).toHaveBeenCalledWith(
+        'spawned-task-id',
+        userId,
+      );
+    });
   });
 });

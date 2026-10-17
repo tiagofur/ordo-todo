@@ -22,8 +22,10 @@ import {
   GitBranch,
   ShieldAlert,
   SlidersHorizontal,
+  Repeat,
 } from 'lucide-react';
 import { TaskCustomFieldsEditor } from './task-custom-fields-editor';
+import { RecurrenceSelector, type RecurrenceValue } from './recurrence-selector';
 import { apiClient } from '@/lib/api-client';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
@@ -217,6 +219,7 @@ export function TaskDetailPanel({
     dueDate: '',
     estimatedMinutes: '',
   });
+  const [recurrence, setRecurrence] = useState<RecurrenceValue | null | undefined>(null);
 
   // Comments & Mentions Logic
   const { data: comments = [] } = useTaskComments(taskId as string);
@@ -355,11 +358,20 @@ export function TaskDetailPanel({
         dueDate: formatCalendarDateInput(task.dueDate),
         estimatedMinutes: task.estimatedMinutes?.toString() || '',
       });
+      setRecurrence((task.recurrence as RecurrenceValue) || null);
     }
   }, [task]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleRecurrenceChange = (val?: RecurrenceValue) => {
+    const updated = val || null;
+    setRecurrence(updated);
+    if (!isEditing && taskId && onUpdate) {
+      onUpdate(taskId, { recurrence: updated as any });
+    }
   };
 
   const handleSave = async () => {
@@ -373,6 +385,7 @@ export function TaskDetailPanel({
          priority: formData.priority as TaskPriority,
          dueDate: (formData.dueDate ? serializeCalendarDateForApi(formData.dueDate) : null) as any,
          estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
+         recurrence: (recurrence ?? null) as any,
        });
        setIsEditing(false);
      } catch {
@@ -772,6 +785,15 @@ export function TaskDetailPanel({
                              </div>
                            </div>
                            
+                           <Separator className="my-3" />
+                           
+                           <div className="space-y-2">
+                             <RecurrenceSelector
+                               value={recurrence ?? undefined}
+                               onChange={handleRecurrenceChange}
+                             />
+                           </div>
+
                            <Separator className="my-3" />
                            
                            {renderAssigneeSelector && taskId && renderAssigneeSelector(taskId, task?.assignee)}

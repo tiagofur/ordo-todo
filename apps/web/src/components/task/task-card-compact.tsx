@@ -16,6 +16,7 @@ import {
   PauseCircle,
   ListTodo,
   ChevronDown,
+  Repeat,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -51,6 +52,7 @@ export interface TaskCompactData {
   estimatedMinutes?: number | null;
   tags?: Array<{ id: string; name: string; color: string }>;
   project?: { id: string; name: string; color: string };
+  recurrence?: { pattern: string; interval?: number; daysOfWeek?: number[] } | null;
 }
 
 interface TaskCardCompactProps {
@@ -496,6 +498,12 @@ export function TaskCardCompact({
                   {task.estimatedMinutes}m
                 </span>
               )}
+              {task.recurrence && (
+                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <Repeat className="h-3 w-3" />
+                  <span className="capitalize">{task.recurrence.pattern.toLowerCase()}</span>
+                </span>
+              )}
               {/* Tags */}
               {task.tags && task.tags.length > 0 && !isCompleted && (
                 <div className="flex items-center gap-1.5">
@@ -656,6 +664,12 @@ export function TaskCardCompact({
                 >
                   <Calendar className="h-3.5 w-3.5" />
                   {formatDueDate(task.dueDate)}
+                </span>
+              )}
+              {task.recurrence && (
+                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <Repeat className="h-3 w-3" />
+                  <span className="capitalize">{task.recurrence.pattern.toLowerCase()}</span>
                 </span>
               )}
             </div>

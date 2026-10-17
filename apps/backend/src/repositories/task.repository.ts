@@ -191,7 +191,9 @@ export class PrismaTaskRepository implements TaskRepository {
           interval: task.props.recurrence.interval,
           daysOfWeek: task.props.recurrence.daysOfWeek,
           dayOfMonth: task.props.recurrence.dayOfMonth,
-          endDate: task.props.recurrence.endDate,
+          endDate: task.props.recurrence.endDate
+            ? new Date(task.props.recurrence.endDate)
+            : null,
         },
       };
     }
@@ -209,14 +211,18 @@ export class PrismaTaskRepository implements TaskRepository {
                   interval: task.props.recurrence.interval,
                   daysOfWeek: task.props.recurrence.daysOfWeek,
                   dayOfMonth: task.props.recurrence.dayOfMonth,
-                  endDate: task.props.recurrence.endDate,
+                  endDate: task.props.recurrence.endDate
+                    ? new Date(task.props.recurrence.endDate)
+                    : null,
                 },
                 update: {
                   pattern: task.props.recurrence.pattern,
                   interval: task.props.recurrence.interval,
                   daysOfWeek: task.props.recurrence.daysOfWeek,
                   dayOfMonth: task.props.recurrence.dayOfMonth,
-                  endDate: task.props.recurrence.endDate,
+                  endDate: task.props.recurrence.endDate
+                    ? new Date(task.props.recurrence.endDate)
+                    : null,
                 },
               },
             }
@@ -469,14 +475,18 @@ export class PrismaTaskRepository implements TaskRepository {
                   interval: task.props.recurrence.interval,
                   daysOfWeek: task.props.recurrence.daysOfWeek,
                   dayOfMonth: task.props.recurrence.dayOfMonth,
-                  endDate: task.props.recurrence.endDate,
+                  endDate: task.props.recurrence.endDate
+                    ? new Date(task.props.recurrence.endDate)
+                    : null,
                 },
                 update: {
                   pattern: task.props.recurrence.pattern,
                   interval: task.props.recurrence.interval,
                   daysOfWeek: task.props.recurrence.daysOfWeek,
                   dayOfMonth: task.props.recurrence.dayOfMonth,
-                  endDate: task.props.recurrence.endDate,
+                  endDate: task.props.recurrence.endDate
+                    ? new Date(task.props.recurrence.endDate)
+                    : null,
                 },
               },
             }
@@ -570,6 +580,7 @@ export class PrismaTaskRepository implements TaskRepository {
         project: { select: { id: true, name: true, color: true } },
         assignee: { select: { id: true, name: true, image: true } },
         tags: { include: { tag: true } },
+        recurrence: true,
       },
       orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
     });
@@ -594,6 +605,7 @@ export class PrismaTaskRepository implements TaskRepository {
         project: { select: { id: true, name: true, color: true } },
         assignee: { select: { id: true, name: true, image: true } },
         tags: { include: { tag: true } },
+        recurrence: true,
       },
       orderBy: [{ scheduledTime: 'asc' }, { priority: 'desc' }],
     });
@@ -619,6 +631,7 @@ export class PrismaTaskRepository implements TaskRepository {
         project: { select: { id: true, name: true, color: true } },
         assignee: { select: { id: true, name: true, image: true } },
         tags: { include: { tag: true } },
+        recurrence: true,
       },
       orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
     });
@@ -644,6 +657,7 @@ export class PrismaTaskRepository implements TaskRepository {
       include: {
         project: { select: { id: true, name: true, color: true } },
         tags: { include: { tag: true } },
+        recurrence: true,
       },
       orderBy: [{ scheduledDate: 'asc' }, { scheduledTime: 'asc' }],
     });
