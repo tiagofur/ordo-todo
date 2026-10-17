@@ -110,11 +110,7 @@ export class JwtSecretRotationService {
       this.configService.get<number>('JWT_SECRET_ROTATION_DAYS') || 30;
 
     return {
-      currentSecret: currentSecret
-        ? `${currentSecret.substring(0, 8)}...${currentSecret.substring(
-            currentSecret.length - 8,
-          )}`
-        : null,
+      currentSecret: currentSecret ? '********' : null,
       lastRotation: lastRotationDate?.toISOString() || null,
       daysSinceRotation,
       rotationInterval,

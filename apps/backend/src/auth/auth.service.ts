@@ -47,7 +47,10 @@ export class AuthService {
     private readonly emailService: EmailService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+  async register(
+    registerDto: RegisterDto,
+    requestContext?: { ip?: string; userAgent?: string },
+  ): Promise<AuthResponseDto> {
     try {
       const registerUseCase = new RegisterUser(
         this.userRepository,
@@ -72,10 +75,13 @@ export class AuthService {
         );
 
       // After registration, log the user in
-      return this.login({
-        email: registerDto.email,
-        password: registerDto.password,
-      });
+      return this.login(
+        {
+          email: registerDto.email,
+          password: registerDto.password,
+        },
+        requestContext,
+      );
     } catch (error) {
       if (
         error instanceof UserAlreadyExistsError ||
@@ -89,15 +95,20 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+  async login(
+    loginDto: LoginDto,
+    requestContext?: { ip?: string; userAgent?: string },
+  ): Promise<AuthResponseDto> {
     try {
       const user = await this.userRepository.findByEmail(loginDto.email, true);
+      const clientIp = this.getRequestIp(requestContext);
+      const clientUserAgent = this.getRequestUserAgent(requestContext);
 
       if (!user) {
         await this.authAuditService.loginFailed(
           loginDto.email,
-          this.getRequestIp(),
-          this.getRequestUserAgent(),
+          clientIp,
+          clientUserAgent,
           'User not found',
         );
 
@@ -108,8 +119,8 @@ export class AuthService {
       if (!user.password) {
         await this.authAuditService.loginFailed(
           loginDto.email,
-          this.getRequestIp(),
-          this.getRequestUserAgent(),
+          clientIp,
+          clientUserAgent,
           'No password set (OAuth user)',
         );
 
@@ -124,8 +135,8 @@ export class AuthService {
       if (!isValid) {
         await this.authAuditService.loginFailed(
           loginDto.email,
-          this.getRequestIp(),
-          this.getRequestUserAgent(),
+          clientIp,
+          clientUserAgent,
           'Invalid password',
         );
 
@@ -161,8 +172,8 @@ export class AuthService {
       await this.authAuditService.loginSuccess(
         user.id,
         user.email,
-        this.getRequestIp(),
-        this.getRequestUserAgent(),
+        clientIp,
+        clientUserAgent,
       );
 
       return {
@@ -442,12 +453,18 @@ export class AuthService {
     };
   }
 
-  private getRequestIp(): string {
-    return 'unknown'; // TODO: Get real IP from request
+  private getRequestIp(requestContext?: {
+    ip?: string;
+    userAgent?: string;
+  }): string {
+    return requestContext?.ip || 'unknown';
   }
 
-  private getRequestUserAgent(): string {
-    return 'unknown'; // TODO: Get real user agent from request headers
+  private getRequestUserAgent(requestContext?: {
+    ip?: string;
+    userAgent?: string;
+  }): string {
+    return requestContext?.userAgent || 'unknown';
   }
 
   /**

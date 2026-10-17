@@ -42,6 +42,25 @@ export class AuthController {
     private readonly csrfService: CsrfService,
   ) {}
 
+  private extractRequestContext(req?: Request):
+    | { ip?: string; userAgent?: string }
+    | undefined {
+    if (!req) return undefined;
+    const forwardedFor = req.headers?.['x-forwarded-for'];
+    const ip =
+      (Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : forwardedFor?.split(',')[0]?.trim()) ||
+      req.ip ||
+      req.socket?.remoteAddress ||
+      'unknown';
+    const userAgent =
+      (typeof req.headers?.['user-agent'] === 'string'
+        ? req.headers['user-agent']
+        : undefined) || 'unknown';
+    return { ip, userAgent };
+  }
+
   /**
    * Register a new user account
    * Creates user, default workspace, and sets JWT tokens as httpOnly cookies
@@ -77,9 +96,12 @@ export class AuthController {
   async register(
     @Body() registerDto: RegisterDto,
     @Res({ passthrough: true }) res?: Response,
+    @Req() req?: Request,
   ) {
-    const { accessToken, refreshToken, user } =
-      await this.authService.register(registerDto);
+    const reqCtx = this.extractRequestContext(req);
+    const { accessToken, refreshToken, user } = reqCtx
+      ? await this.authService.register(registerDto, reqCtx)
+      : await this.authService.register(registerDto);
 
     // Set httpOnly cookies for security (XSS protection)
     res?.cookie?.('access_token', accessToken, {
@@ -133,9 +155,12 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res?: Response,
+    @Req() req?: Request,
   ) {
-    const { accessToken, refreshToken, user } =
-      await this.authService.login(loginDto);
+    const reqCtx = this.extractRequestContext(req);
+    const { accessToken, refreshToken, user } = reqCtx
+      ? await this.authService.login(loginDto, reqCtx)
+      : await this.authService.login(loginDto);
 
     // Set httpOnly cookies for security (XSS protection)
     res?.cookie?.('access_token', accessToken, {

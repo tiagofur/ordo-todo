@@ -74,6 +74,7 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
   const columns = useMemo(() => {
     const projectSettings = (project as any)?.settings;
     const wipLimits = projectSettings?.wipLimits || {};
+    const columnTitles = projectSettings?.columnTitles || {};
 
     // Base workflow stages from project settings if configured, otherwise standard statuses
     const configuredStages = projectSettings?.stages as Array<{ id: string; title: string; color?: string; wipLimit?: number }> | undefined;
@@ -87,14 +88,14 @@ export function ProjectBoard({ projectId }: ProjectBoardProps) {
     const completedWip = typeof wipLimits.COMPLETED === 'number' ? wipLimits.COMPLETED : undefined;
 
     const cols = [
-      { id: "TODO", title: t("columns.todo"), color: "border-slate-200", wipLimit: todoWip },
-      { id: "IN_PROGRESS", title: t("columns.inProgress"), color: "border-blue-200", wipLimit: inProgressWip },
-      { id: "COMPLETED", title: t("columns.completed"), color: "border-green-200", wipLimit: completedWip },
+      { id: "TODO", title: columnTitles.TODO || t("columns.todo"), color: "border-slate-200", wipLimit: todoWip },
+      { id: "IN_PROGRESS", title: columnTitles.IN_PROGRESS || t("columns.inProgress"), color: "border-blue-200", wipLimit: inProgressWip },
+      { id: "COMPLETED", title: columnTitles.COMPLETED || t("columns.completed"), color: "border-green-200", wipLimit: completedWip },
     ];
     if (showCancelled || hasCancelledTasks) {
       cols.push({
         id: "CANCELLED",
-        title: (t as any)("columns.cancelled") || "Canceladas",
+        title: columnTitles.CANCELLED || (t as any)("columns.cancelled") || "Canceladas",
         color: "border-rose-200 dark:border-rose-900/50",
         wipLimit: typeof wipLimits.CANCELLED === 'number' ? wipLimits.CANCELLED : undefined,
       });
