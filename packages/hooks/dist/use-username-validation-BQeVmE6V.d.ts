@@ -1,4 +1,4 @@
-import { OrdoApiClient, Idea, CreateIdeaDto, UpdateIdeaDto, ContentPiece, CreateContentPieceDto, UpdateContentPieceDto, CreateSocialPostDto, SocialPost, BulkScheduleDto, ContentPlatform, SocialPostsListResponse, UpdateSocialPostDto } from '@ordo-todo/api-client';
+import { OrdoApiClient } from '@ordo-todo/api-client';
 
 /**
  * Types for the hooks package
@@ -144,70 +144,7 @@ type ApiClient = (OrdoApiClient & {
     deleteCustomField: OrdoApiClient['deleteCustomField'];
     getTaskCustomValues: OrdoApiClient['getTaskCustomValues'];
     setTaskCustomValues: OrdoApiClient['setTaskCustomValues'];
-    getIdeas: (params?: {
-        status?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    }) => Promise<{
-        data: Idea[];
-        total: number;
-        page: number;
-        limit: number;
-    }>;
-    getIdea: (id: string) => Promise<Idea>;
-    createIdea: (data: CreateIdeaDto) => Promise<Idea>;
-    updateIdea: (id: string, data: UpdateIdeaDto) => Promise<Idea>;
-    deleteIdea: (id: string) => Promise<void>;
-    archiveIdea: (id: string) => Promise<Idea>;
-    getContentPieces: (params?: {
-        status?: string;
-        seriesId?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    }) => Promise<{
-        data: ContentPiece[];
-        total: number;
-        page: number;
-        limit: number;
-    }>;
-    getContentPiece: (id: string) => Promise<ContentPiece>;
-    getContentPipeline: () => Promise<{
-        scripting: ContentPiece[];
-        filming: ContentPiece[];
-        editing: ContentPiece[];
-        scheduled: ContentPiece[];
-        published: ContentPiece[];
-    }>;
-    createContentPiece: (data: CreateContentPieceDto) => Promise<ContentPiece>;
-    promoteFromIdea: (ideaId: string, data: CreateContentPieceDto) => Promise<ContentPiece>;
-    updateContentPiece: (id: string, data: UpdateContentPieceDto) => Promise<ContentPiece>;
-    updateContentStatus: (id: string, status: string) => Promise<ContentPiece>;
-    deleteContentPiece: (id: string) => Promise<void>;
-    getSeries: () => Promise<any[]>;
-    getSeriesById: (id: string) => Promise<any>;
-    createSeries: (data: any) => Promise<any>;
-    createSocialPost: (data: CreateSocialPostDto) => Promise<SocialPost>;
-    bulkSchedulePosts: (data: BulkScheduleDto) => Promise<SocialPost[]>;
-    getScheduledPosts: (params: {
-        from?: string;
-        to?: string;
-        platform?: ContentPlatform;
-        page?: number;
-        limit?: number;
-    }) => Promise<SocialPostsListResponse>;
-    getPublishingCalendar: (startDate: string, endDate: string) => Promise<SocialPost[]>;
-    getPostsByContentPiece: (contentPieceId: string) => Promise<SocialPost[]>;
-    getSocialPost: (id: string) => Promise<SocialPost>;
-    updateSocialPost: (id: string, data: UpdateSocialPostDto) => Promise<SocialPost>;
-    schedulePost: (id: string, scheduledAt: string) => Promise<SocialPost>;
-    unschedulePost: (id: string) => Promise<SocialPost>;
-    deleteSocialPost: (id: string) => Promise<void>;
 };
-/**
- * Creator OS Types
- */
 /**
  * Configuration for creating hooks
  */

@@ -276,38 +276,4 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get authAuditLog() {
     return this.prisma.authAuditLog;
   }
-
-  // ========== CREATOR OS MODELS ==========
-
-  get idea() {
-    return this.prisma.idea;
-  }
-
-  get ideaTag() {
-    return this.prisma.ideaTag;
-  }
-
-  get contentPiece() {
-    return this.prisma.contentPiece;
-  }
-
-  get series() {
-    return this.prisma.series;
-  }
-
-  get socialPost() {
-    return this.prisma.socialPost;
-  }
-
-  get contentAsset() {
-    return this.prisma.contentAsset;
-  }
-
-  get atomizedContent() {
-    return this.prisma.atomizedContent;
-  }
-
-  get consistencyScore() {
-    return this.prisma.consistencyScore;
-  }
 }

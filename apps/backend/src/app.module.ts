@@ -42,13 +42,6 @@ import { FAQModule } from './faq/faq.module';
 import { KnowledgeBaseModule } from './knowledge-base/knowledge-base.module';
 import { EmailModule } from './email/email.module';
 
-// ========== CREATOR OS MODULES ==========
-import { IdeasModule } from './ideas/ideas.module';
-import { ContentPiecesModule } from './content-pieces/content-pieces.module';
-import { SeriesModule } from './series/series.module';
-import { PublishingModule } from './publishing/publishing.module';
-import { ConsistencyModule } from './consistency/consistency.module';
-
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
 import { WinstonModule } from 'nest-winston';
@@ -107,13 +100,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     FAQModule,
     KnowledgeBaseModule,
     EmailModule,
-
-    // ========== CREATOR OS ==========
-    IdeasModule,
-    ContentPiecesModule,
-    SeriesModule,
-    PublishingModule,
-    ConsistencyModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],

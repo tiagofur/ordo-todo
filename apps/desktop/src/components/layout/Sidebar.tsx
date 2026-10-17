@@ -48,7 +48,6 @@ export function Sidebar() {
 
   const navigation = [
     { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
-    { name: "Creator OS", href: "/creator", icon: Sparkles, color: "yellow" },
     { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
     { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
     { name: t("Sidebar.notes"), href: "/notes", icon: StickyNote, color: "yellow" },
