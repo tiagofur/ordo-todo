@@ -9,6 +9,7 @@ import { WorkspaceSettingsDialog } from "./workspace-settings-dialog";
 import { useTranslations } from "next-intl";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import type { Workspace } from "@ordo-todo/api-client";
 
 interface WorkspaceCardProps {
@@ -19,6 +20,7 @@ interface WorkspaceCardProps {
 export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   const t = useTranslations('WorkspaceCard');
   const router = useRouter();
+  const { confirm, ConfirmModal } = useConfirm();
   const [showSettings, setShowSettings] = useState(false);
 
   const deleteWorkspaceMutation = useDeleteWorkspace();
@@ -33,7 +35,13 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
   };
 
   const handleDelete = async (workspaceId: string) => {
-    if (confirm(t('confirmDelete', { name: workspace.name }))) {
+    const confirmed = await confirm({
+      title: t('actions.delete'),
+      description: t('confirmDelete', { name: workspace.name }),
+      confirmLabel: t('actions.delete'),
+      variant: 'destructive',
+    });
+    if (confirmed) {
       try {
         await deleteWorkspaceMutation.mutateAsync(workspaceId);
         toast.success(t('toast.deleted'));
@@ -89,6 +97,7 @@ export function WorkspaceCard({ workspace, index = 0 }: WorkspaceCardProps) {
         open={showSettings}
         onOpenChange={setShowSettings}
       />
+      <ConfirmModal />
     </>
   );
 }

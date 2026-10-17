@@ -22,6 +22,7 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { TaskPriority } from "@ordo-todo/api-client";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 
 type ViewMode = "list" | "grid";
 
@@ -30,6 +31,7 @@ export function TasksView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedWorkspaceId } = useWorkspaceStore();
+  const { confirm, ConfirmModal } = useConfirm();
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
@@ -46,8 +48,12 @@ export function TasksView() {
   const { mutateAsync: createTask } = useCreateTask();
   const deleteTask = useDeleteTask();
 
-  const handleDeleteTask = (taskId: string) => {
-    if (confirm(t("confirmDeleteTask") || "Are you sure you want to delete this task?")) {
+  const handleDeleteTask = async (taskId: string) => {
+    const confirmed = await confirm({
+      description: t("confirmDeleteTask") || "Are you sure you want to delete this task?",
+      variant: "destructive",
+    });
+    if (confirmed) {
       deleteTask.mutate(taskId, {
         onSuccess: () => {
           notify.success(t("taskDeleted") || "Task deleted successfully");
@@ -292,6 +298,7 @@ export function TasksView() {
             setShowCreateTask(false);
         }}
       />
+      <ConfirmModal />
     </div>
   );
 }

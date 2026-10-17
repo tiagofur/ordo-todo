@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { calculateProgress } from "@ordo-todo/core";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import type { Project, Task } from "@ordo-todo/api-client";
 import { motion } from "framer-motion";
 
@@ -30,6 +31,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const t = useTranslations("ProjectCard");
   const router = useRouter();
+  const { confirm, ConfirmModal } = useConfirm();
 
   const { data: tasks } = useTasks();
   const projectTasks =
@@ -65,7 +67,13 @@ export function ProjectCard({
   };
 
   const handleDelete = async (projectId: string) => {
-    if (confirm(t("confirmDelete"))) {
+    const confirmed = await confirm({
+      title: t("actions.delete"),
+      description: t("confirmDelete"),
+      confirmLabel: t("actions.delete"),
+      variant: "destructive",
+    });
+    if (confirmed) {
       try {
         await deleteProjectMutation.mutateAsync(projectId);
         toast.success(t("toast.deleted"));
@@ -76,33 +84,36 @@ export function ProjectCard({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      whileHover={{ y: -4 }}
-    >
-      <UIProjectCard
-        project={project as any}
-        onProjectClick={handleCardClick}
-        onArchive={canArchive ? handleArchive : undefined}
-        onDelete={canDelete ? handleDelete : undefined}
-        progressPercent={progressPercent}
-        formattedTasksProgress={t("tasksProgress", {
-          completed: completedTasks,
-          total: totalTasks,
-        })}
-        labels={{
-          actions: {
-            archive: t("actions.archive"),
-            unarchive: t("actions.unarchive"),
-            delete: t("actions.delete"),
-          },
-          progressLabel: t("progress"),
-          archived: t("archived"),
-          moreOptions: t("actions.moreOptions"),
-        }}
-      />
-    </motion.div>
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: index * 0.05 }}
+        whileHover={{ y: -4 }}
+      >
+        <UIProjectCard
+          project={project as any}
+          onProjectClick={handleCardClick}
+          onArchive={canArchive ? handleArchive : undefined}
+          onDelete={canDelete ? handleDelete : undefined}
+          progressPercent={progressPercent}
+          formattedTasksProgress={t("tasksProgress", {
+            completed: completedTasks,
+            total: totalTasks,
+          })}
+          labels={{
+            actions: {
+              archive: t("actions.archive"),
+              unarchive: t("actions.unarchive"),
+              delete: t("actions.delete"),
+            },
+            progressLabel: t("progress"),
+            archived: t("archived"),
+            moreOptions: t("actions.moreOptions"),
+          }}
+        />
+      </motion.div>
+      <ConfirmModal />
+    </>
   );
 }

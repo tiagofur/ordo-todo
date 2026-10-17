@@ -9,6 +9,7 @@ import { ArrowLeft, Plus, Calendar, Edit2, Trash2, Target } from "lucide-react";
 import { AppLayout } from "@/components/shared/app-layout";
 import { CreateKeyResultDialog } from "@/components/goals/create-key-result-dialog";
 import { EditObjectiveDialog } from "@/components/goals/edit-objective-dialog";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import { notify } from "@/lib/notify";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -17,6 +18,7 @@ export default function ObjectiveDetailPage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("Goals");
+  const { confirm, ConfirmModal } = useConfirm();
   const { data: objective, isLoading, error } = useObjective(params.id as string);
   const deleteKeyResult = useDeleteKeyResult();
 
@@ -24,7 +26,11 @@ export default function ObjectiveDetailPage() {
   const [showEditObjective, setShowEditObjective] = useState(false);
 
   const handleDeleteKR = async (krId: string) => {
-    if (!confirm(t("keyResults.confirmDelete") || "¿Eliminar este resultado clave?")) return;
+    const confirmed = await confirm({
+      description: t("keyResults.confirmDelete") || "¿Eliminar este resultado clave?",
+      variant: "destructive",
+    });
+    if (!confirmed) return;
 
     try {
       await deleteKeyResult.mutateAsync({
@@ -248,6 +254,7 @@ export default function ObjectiveDetailPage() {
         onOpenChange={setShowEditObjective}
         objective={objective}
       />
+      <ConfirmModal />
     </AppLayout>
   );
 }
