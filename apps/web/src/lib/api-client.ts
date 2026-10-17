@@ -26,6 +26,7 @@ import type {
   InviteMemberDto,
   AcceptInvitationDto,
   RefreshTokenDto,
+  ChangePasswordDto,
   AuthResponse,
   // Chat
   // Chat
@@ -103,6 +104,8 @@ import type {
   CreateNoteDto,
   UpdateNoteDto,
 } from "@ordo-todo/api-client";
+
+export type { UserIntegration } from "@ordo-todo/api-client";
 
 import { useSyncStore } from "@/stores/sync-store";
 import { PendingActionType } from "@/lib/offline-storage";
@@ -443,6 +446,25 @@ export const apiClient = {
     axiosInstance
       .post("/auth/check-username", { username })
       .then((res) => res.data),
+  changePassword: (
+    data: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/change-password", data)
+      .then((res) => res.data),
+  forgotPassword: (
+    email: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/forgot-password", { email })
+      .then((res) => res.data),
+  resetPassword: (data: {
+    token: string;
+    newPassword: string;
+  }): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/reset-password", data)
+      .then((res) => res.data),
 
   // User
   getCurrentUser: (): Promise<User> =>
@@ -457,6 +479,24 @@ export const apiClient = {
     axiosInstance.patch("/users/me/preferences", data).then((res) => res.data),
   getIntegrations: (): Promise<UserIntegration[]> =>
     axiosInstance.get("/users/me/integrations").then((res) => res.data),
+  connectIntegration: (
+    provider: string,
+    data?: Record<string, any>,
+  ): Promise<{ success: boolean; message: string; integration?: any }> =>
+    axiosInstance
+      .post(`/users/me/integrations/${provider}/connect`, data || {})
+      .then((res) => res.data),
+  disconnectIntegration: (
+    provider: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .delete(`/users/me/integrations/${provider}`)
+      .then((res) => res.data),
+  getCalendarFeedToken: (): Promise<{
+    token: string;
+    feedUrl: string;
+    webcalUrl: string;
+  }> => axiosInstance.get("/tasks/calendar-token").then((res) => res.data),
   exportData: (): Promise<Blob> =>
     axiosInstance
       .post<Blob>("/users/me/export", null, { responseType: "blob" })
@@ -1058,6 +1098,22 @@ export const apiClient = {
     axiosInstance
       .post("/meetings/quick-analyze", { transcript, projectId })
       .then((res) => res.data),
+  saveMeeting: (data: {
+    title: string;
+    date: string | Date;
+    duration: number;
+    transcript?: string;
+    audioUrl?: string;
+    analysis?: any;
+    projectId?: string;
+  }) =>
+    axiosInstance.post("/meetings/save", data).then((res) => res.data),
+  getMeetings: (params?: { projectId?: string; limit?: number }) =>
+    axiosInstance.get("/meetings", { params }).then((res) => res.data),
+  getMeetingById: (id: string) =>
+    axiosInstance.get(`/meetings/${id}`).then((res) => res.data),
+  deleteMeeting: (id: string) =>
+    axiosInstance.delete(`/meetings/${id}`).then((res) => res.data),
 
   // Focus Audio
   getFocusTracks: () =>

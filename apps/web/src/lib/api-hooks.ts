@@ -226,43 +226,6 @@ const isAuthenticated = () => {
   return true; // Let the API determine auth state via cookies
 };
 
-// ============ CREATOR OS - IDEAS ============
-export function useIdeas(params?: { status?: string; search?: string; page?: number; limit?: number }) { return getHooks().useIdeas(params); }
-export function useIdea(id: string) { return getHooks().useIdea(id); }
-export function useCreateIdea() { return getHooks().useCreateIdea(); }
-export function useUpdateIdea() { return getHooks().useUpdateIdea(); }
-export function useDeleteIdea() { return getHooks().useDeleteIdea(); }
-export function useArchiveIdea() { return getHooks().useArchiveIdea(); }
-
-// ============ CREATOR OS - CONTENT PIECES ============
-export function useContentPieces(params?: { status?: string; seriesId?: string; search?: string; page?: number; limit?: number }) {
-  return getHooks().useContentPieces(params);
-}
-export function useContentPiece(id: string) { return getHooks().useContentPiece(id); }
-export function useContentPipeline() { return getHooks().useContentPipeline(); }
-export function useCreateContentPiece() { return getHooks().useCreateContentPiece(); }
-export function usePromoteFromIdea() { return getHooks().usePromoteFromIdea(); }
-export function useUpdateContentPiece() { return getHooks().useUpdateContentPiece(); }
-export function useUpdateContentStatus() { return getHooks().useUpdateContentStatus(); }
-export function useDeleteContentPiece() { return getHooks().useDeleteContentPiece(); }
-
-// ============ CREATOR OS - SERIES ============
-export function useSeries() { return getHooks().useSeries(); }
-export function useSeriesById(id: string) { return getHooks().useSeriesById(id); }
-export function useCreateSeries() { return getHooks().useCreateSeries(); }
-
-// ============ CREATOR OS - PUBLISHING ============
-export function useCreateSocialPost() { return getHooks().useCreateSocialPost(); }
-export function useBulkSchedulePosts() { return getHooks().useBulkSchedulePosts(); }
-export function useScheduledPosts(params: any) { return getHooks().useScheduledPosts(params); }
-export function usePublishingCalendar(startDate: string, endDate: string) { return getHooks().usePublishingCalendar(startDate, endDate); }
-export function usePostsByContentPiece(contentPieceId: string) { return getHooks().usePostsByContentPiece(contentPieceId); }
-export function useSocialPost(id: string) { return getHooks().useSocialPost(id); }
-export function useUpdateSocialPost() { return getHooks().useUpdateSocialPost(); }
-export function useSchedulePost() { return getHooks().useSchedulePost(); }
-export function useUnschedulePost() { return getHooks().useUnschedulePost(); }
-export function useDeleteSocialPost() { return getHooks().useDeleteSocialPost(); }
-
 // ============ WEB-SPECIFIC HOOKS ============
 // These hooks have web-specific behavior not in the shared package
 
@@ -511,4 +474,16 @@ export function useDeleteKeyResultCompat() {
 
 // Re-export with original name for backwards compatibility
 export { useDeleteKeyResultCompat as useDeleteKeyResult };
+
+/**
+ * Hook to fetch gamification profile (XP, Level, Achievements)
+ */
+export function useGamificationProfile(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["gamification", "me"],
+    queryFn: () => apiClient.getGamificationProfile(),
+    staleTime: 30 * 1000,
+    ...options,
+  });
+}
 

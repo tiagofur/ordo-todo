@@ -28,6 +28,7 @@ import {
   useResumeHabit 
 } from "@/lib/api-hooks";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 
 interface HabitDetailPanelProps {
   habitId: string | null;
@@ -37,6 +38,7 @@ interface HabitDetailPanelProps {
 
 export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPanelProps) {
   const t = useTranslations("Habits");
+  const { confirm, ConfirmModal } = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
@@ -78,7 +80,12 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
 
   const handleDelete = async () => {
     if (!habitId) return;
-    if (!confirm(t("confirmDelete"))) return;
+    const ok = await confirm({
+      title: t("actions.delete"),
+      description: t("confirmDelete"),
+      variant: "destructive",
+    });
+    if (!ok) return;
 
     try {
       await deleteHabit.mutateAsync(habitId);
@@ -346,6 +353,7 @@ export function HabitDetailPanel({ habitId, open, onOpenChange }: HabitDetailPan
           </div>
         )}
       </SheetContent>
+      <ConfirmModal />
     </Sheet>
   );
 }

@@ -9,6 +9,11 @@ import { SmartSearch } from "@/components/search/smart-search";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Dialog, DialogContent } from "@ordo-todo/ui";
+import { useGamificationProfile } from "@/lib/api-hooks";
+import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useCollaborationSocket } from "@/hooks/use-collaboration-socket";
+import { useNotificationsSocket } from "@/hooks/use-notifications-socket";
+import { PresenceAvatars } from "@/components/collaboration/presence-avatars";
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -18,8 +23,17 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const t = useTranslations("TopBar");
   const tSearch = useTranslations("Search");
   const { user, logout } = useAuth();
+  const { data: gamification } = useGamificationProfile({ enabled: !!user });
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useNotificationsSocket();
+
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { workspaceUsers } = useCollaborationSocket({
+    workspaceId: selectedWorkspaceId,
+    enabled: !!selectedWorkspaceId && !!user,
+  });
 
   // Keyboard shortcut handler
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -41,8 +55,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         user={{
           name: user?.name,
           email: user?.email,
-          level: (user as any)?.level,
-          xp: (user as any)?.xp,
+          level: gamification?.level ?? (user as any)?.level ?? 1,
+          xp: gamification?.xp ?? (user as any)?.xp ?? 0,
         }}
         onLogout={logout}
         onProfileClick={() => router.push("/profile")}
@@ -54,7 +68,20 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           router.push("/ai-chat");
         }}
         renderNotifications={() => <NotificationPopover />}
-        renderSyncStatus={() => <SyncStatusIndicator size="sm" />}
+        renderSyncStatus={() => (
+          <div className="flex items-center gap-2">
+            {workspaceUsers.length > 0 && (
+              <div className="flex items-center pr-2 border-r border-border/60">
+                <PresenceAvatars
+                  users={workspaceUsers}
+                  currentUserId={user?.id}
+                  size="sm"
+                />
+              </div>
+            )}
+            <SyncStatusIndicator size="sm" />
+          </div>
+        )}
         labels={{
           searchPlaceholder: tSearch("placeholderWithAI"),
           myAccount: t("myAccount"),

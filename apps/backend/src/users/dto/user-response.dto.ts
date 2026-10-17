@@ -38,6 +38,17 @@ export class UserProfileResponseDto extends UserResponseDto {
 
   // Preferences summary
   preferences: {
+    theme?: string;
+    defaultView?: string;
+    startOfWeek?: number;
+    timerMode?: string;
+    pomodoroDuration?: number;
+    shortBreakDuration?: number;
+    longBreakDuration?: number;
+    pomodorosUntilLongBreak?: number;
+    enableSounds?: boolean;
+    enableNotifications?: boolean;
+    focusAudio?: any;
     enableAI: boolean;
     aiAggressiveness: number;
     aiSuggestTaskDurations: boolean;

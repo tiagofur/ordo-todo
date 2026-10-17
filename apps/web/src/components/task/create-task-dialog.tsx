@@ -220,8 +220,8 @@ export function CreateTaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 space-y-6">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden bg-background border-border">
+        <div className="p-6 pb-4 border-b border-border flex-shrink-0">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-semibold text-foreground">
@@ -247,14 +247,16 @@ export function CreateTaskDialog({
               {t.description}
             </DialogDescription>
           </DialogHeader>
+        </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit(handleFormSubmit)(e);
-            }}
-            className="space-y-6"
-          >
+        <form
+          id="create-task-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(handleFormSubmit)(e);
+          }}
+          className="flex-1 overflow-y-auto p-6 space-y-5"
+        >
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title" className="text-sm font-medium text-foreground">
@@ -382,25 +384,25 @@ export function CreateTaskDialog({
               value={watch('recurrence')}
               onChange={(val) => setValue('recurrence', val)}
             />
-
-            <DialogFooter className="pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => onOpenChange(false)}
-              >
-                {t.buttons.cancel}
-              </Button>
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="bg-purple-500 hover:bg-purple-600 text-white shadow-sm shadow-purple-500/25 border-0"
-              >
-                {isPending ? t.buttons.creating : t.buttons.create}
-              </Button>
-            </DialogFooter>
           </form>
-        </div>
+
+          <DialogFooter className="p-4 border-t border-border bg-muted/30 flex-shrink-0 flex items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
+              {t.buttons.cancel}
+            </Button>
+            <Button
+              type="submit"
+              form="create-task-form"
+              disabled={isPending}
+              className="bg-purple-500 hover:bg-purple-600 text-white shadow-sm shadow-purple-500/25 border-0"
+            >
+              {isPending ? t.buttons.creating : t.buttons.create}
+            </Button>
+          </DialogFooter>
       </DialogContent>
     </Dialog>
   );

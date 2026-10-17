@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Checkbox } from '@/components/ui';
+import { useConfirm } from '@/components/shared/confirm-dialog';
 
 export interface Subtask {
   id: string | number;
@@ -78,6 +79,7 @@ export function SubtaskList({
   labels = {},
   className = '',
 }: SubtaskListProps) {
+  const { confirm, ConfirmModal } = useConfirm();
   const [isAdding, setIsAdding] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -106,8 +108,13 @@ export function SubtaskList({
     onToggleComplete?.(subtaskId, currentStatus);
   };
 
-  const handleDelete = (subtaskId: string) => {
-    if (confirm(confirmDelete)) {
+  const handleDelete = async (subtaskId: string) => {
+    const ok = await confirm({
+      title: tooltipDelete,
+      description: confirmDelete,
+      variant: 'destructive',
+    });
+    if (ok) {
       onDelete?.(subtaskId);
     }
   };
@@ -313,6 +320,7 @@ export function SubtaskList({
           {nested}
         </div>
       )}
+      <ConfirmModal />
     </div>
   );
 }

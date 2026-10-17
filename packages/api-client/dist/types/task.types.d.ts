@@ -37,9 +37,26 @@ export interface Task {
     parentTaskId: string | null;
     position: number;
     createdAt: Date;
-    updatedAt: Date;
+    updatedAt?: Date | null;
     /** Public sharing token for task */
     publicToken?: string | null;
+    /** Recurrence rule if task repeats */
+    recurrence?: TaskRecurrence | null;
+}
+export interface TaskRecurrence {
+    id?: string;
+    pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
+    interval?: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number | null;
+    endDate?: Date | string | null;
+}
+export interface CreateRecurrenceDto {
+    pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
+    interval?: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+    endDate?: Date | string | null;
 }
 export interface TaskWithRelations extends Task {
     subTasks?: Task[];
@@ -80,6 +97,7 @@ export interface CreateTaskDto {
     projectId: string;
     estimatedMinutes?: number;
     assigneeId?: string;
+    recurrence?: CreateRecurrenceDto | null;
 }
 export interface UpdateTaskDto {
     title?: string;
@@ -94,6 +112,7 @@ export interface UpdateTaskDto {
     isTimeBlocked?: boolean;
     estimatedMinutes?: number;
     assigneeId?: string | null;
+    recurrence?: CreateRecurrenceDto | null;
 }
 export interface CreateSubtaskDto {
     title: string;

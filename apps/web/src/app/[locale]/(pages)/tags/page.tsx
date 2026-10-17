@@ -17,11 +17,13 @@ import {
 } from "@/components/ui";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useTranslations } from "next-intl";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 
 export default function TagsPage() {
   const t = useTranslations('Tags');
   const router = useRouter();
   const { selectedWorkspaceId } = useWorkspaceStore();
+  const { confirm, ConfirmModal } = useConfirm();
   const [showCreateTag, setShowCreateTag] = useState(false);
   const [editingTag, setEditingTag] = useState<any>(null);
   
@@ -39,9 +41,13 @@ export default function TagsPage() {
     ).length;
   };
 
-  const handleDelete = (tagId: string | number | undefined) => {
+  const handleDelete = async (tagId: string | number | undefined) => {
     if (!tagId) return;
-    if (confirm(t('confirmDelete'))) {
+    const confirmed = await confirm({
+      description: t('confirmDelete'),
+      variant: 'destructive',
+    });
+    if (confirmed) {
       deleteTag.mutate(String(tagId), {
         onSuccess: () => notify.success(t('tagDeleted')),
         onError: (error: any) => notify.error(error.message || t('deleteError')),
@@ -242,6 +248,7 @@ export default function TagsPage() {
           }
         }}
       />
+      <ConfirmModal />
     </AppLayout>
   );
 }

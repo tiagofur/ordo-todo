@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
@@ -40,6 +41,11 @@ describe('TasksService', () => {
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       count: jest.fn(),
+      create: jest.fn(),
+    },
+    recurrence: {
+      delete: jest.fn(),
+      deleteMany: jest.fn(),
     },
     user: {
       findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
@@ -108,6 +114,13 @@ describe('TasksService', () => {
         {
           provide: GamificationService,
           useValue: mockGamificationService,
+        },
+        {
+          provide: JwtService,
+          useValue: {
+            sign: jest.fn().mockReturnValue('mock-jwt-token'),
+            verify: jest.fn().mockReturnValue({ sub: 'user-1', type: 'calendar_feed' }),
+          },
         },
       ],
     }).compile();
@@ -773,4 +786,443 @@ describe('TasksService', () => {
       expect(result).toEqual(mockTasks);
     });
   });
+
+  describe('handleRecurrenceOnCompletion (via complete)', () => {
+    const userId = 'user-123';
+    const taskId = 'task-rec-1';
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockPrismaService.user.findUnique = jest
+        .fn()
+        .mockResolvedValue({ timezone: 'UTC' });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should spawn next daily task and preserve tags while removing recurrence from old task', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T08:00:00.000Z'));
+
+      const baseDueDate = new Date('2026-06-01T10:00:00.000Z');
+      const expectedDueDate = new Date('2026-06-03T10:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Daily Standup',
+          status: 'TODO',
+          priority: 'HIGH',
+          ownerId: userId,
+          dueDate: baseDueDate,
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Daily Standup',
+        description: 'Standup notes',
+        priority: 'HIGH',
+        projectId: 'project-1',
+        ownerId: userId,
+        assigneeId: userId,
+        dueDate: baseDueDate,
+        scheduledDate: null,
+        scheduledTime: '10:00',
+        scheduledEndTime: '10:30',
+        isTimeBlocked: false,
+        estimatedMinutes: 30,
+        tags: [{ tagId: 'tag-work' }],
+        recurrence: {
+          id: 'rec-1',
+          pattern: 'DAILY',
+          interval: 2,
+          daysOfWeek: [],
+          dayOfMonth: null,
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({});
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          title: 'Daily Standup',
+          status: 'TODO',
+          dueDate: expectedDueDate,
+          tags: {
+            create: [{ tagId: 'tag-work' }],
+          },
+          recurrence: {
+            create: {
+              pattern: 'DAILY',
+              interval: 2,
+              daysOfWeek: [],
+              dayOfMonth: null,
+              endDate: null,
+            },
+          },
+        }),
+      });
+
+      expect(mockPrismaService.recurrence.delete).toHaveBeenCalledWith({
+        where: { id: 'rec-1' },
+      });
+    });
+
+    it('should advance weekly recurrence to next selected dayOfWeek', async () => {
+      // 2026-06-01 is Monday (day 1)
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T08:00:00.000Z'));
+
+      const mondayDate = new Date('2026-06-01T10:00:00.000Z');
+      // Next day in [1, 3, 5] is Wednesday 2026-06-03 (day 3)
+      const expectedWednesday = new Date('2026-06-03T10:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Weekly Sync',
+          status: 'TODO',
+          ownerId: userId,
+          dueDate: mondayDate,
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Weekly Sync',
+        projectId: 'project-1',
+        ownerId: userId,
+        dueDate: mondayDate,
+        scheduledDate: null,
+        tags: [],
+        recurrence: {
+          id: 'rec-2',
+          pattern: 'WEEKLY',
+          interval: 1,
+          daysOfWeek: [1, 3, 5],
+          dayOfMonth: null,
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({});
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          dueDate: expectedWednesday,
+        }),
+      });
+    });
+
+    it('should wrap weekly recurrence across week boundary', async () => {
+      // 2026-06-05 is Friday (day 5)
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-05T08:00:00.000Z'));
+
+      const fridayDate = new Date('2026-06-05T10:00:00.000Z');
+      // Next week Monday is 2026-06-08 (day 1)
+      const expectedMonday = new Date('2026-06-08T10:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Weekly Sync',
+          status: 'TODO',
+          ownerId: userId,
+          dueDate: fridayDate,
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Weekly Sync',
+        projectId: 'project-1',
+        ownerId: userId,
+        dueDate: fridayDate,
+        scheduledDate: null,
+        tags: [],
+        recurrence: {
+          id: 'rec-3',
+          pattern: 'WEEKLY',
+          interval: 1,
+          daysOfWeek: [1, 3, 5],
+          dayOfMonth: null,
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({});
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          dueDate: expectedMonday,
+        }),
+      });
+    });
+
+    it('should clamp monthly recurrence to target month max days', async () => {
+      // 2026-01-31 (31st of January)
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-31T08:00:00.000Z'));
+
+      const jan31 = new Date('2026-01-31T12:00:00.000Z');
+      // February 2026 has 28 days -> clamped to 2026-02-28
+      const expectedFeb28 = new Date('2026-02-28T12:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Monthly Report',
+          status: 'TODO',
+          ownerId: userId,
+          dueDate: jan31,
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Monthly Report',
+        projectId: 'project-1',
+        ownerId: userId,
+        dueDate: jan31,
+        scheduledDate: null,
+        tags: [],
+        recurrence: {
+          id: 'rec-4',
+          pattern: 'MONTHLY',
+          interval: 1,
+          dayOfMonth: 31,
+          daysOfWeek: [],
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({});
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          dueDate: expectedFeb28,
+        }),
+      });
+    });
+
+    it('should schedule overdue task forward from today', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-10-16T12:00:00.000Z'));
+
+      const overdueDate = new Date('2020-01-01T15:00:00.000Z');
+      const expectedTomorrow = new Date('2026-10-17T15:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Overdue Task',
+          status: 'TODO',
+          ownerId: userId,
+          dueDate: overdueDate,
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Overdue Task',
+        projectId: 'project-1',
+        ownerId: userId,
+        dueDate: overdueDate,
+        scheduledDate: null,
+        tags: [],
+        recurrence: {
+          id: 'rec-5',
+          pattern: 'DAILY',
+          interval: 1,
+          dayOfMonth: null,
+          daysOfWeek: [],
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({});
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          dueDate: expectedTomorrow,
+        }),
+      });
+    });
+
+    it('should clone subtasks and preserve parentTaskId when spawning recurring task', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T08:00:00.000Z'));
+
+      const baseDueDate = new Date('2026-06-01T10:00:00.000Z');
+
+      const mockDomainTask = {
+        id: taskId,
+        props: {
+          id: taskId,
+          title: 'Sprint Planning',
+          status: 'TODO',
+          priority: 'HIGH',
+          ownerId: userId,
+          dueDate: baseDueDate,
+          parentTaskId: 'parent-epic-1',
+        },
+        clone: jest.fn().mockImplementation((newProps) => ({
+          id: taskId,
+          props: { ...mockDomainTask.props, ...newProps },
+        })),
+      };
+
+      mockTaskRepository.findById.mockResolvedValue(mockDomainTask);
+
+      mockPrismaService.task.findUnique = jest.fn().mockResolvedValue({
+        id: taskId,
+        title: 'Sprint Planning',
+        description: 'Bi-weekly sprint planning',
+        priority: 'HIGH',
+        projectId: 'project-1',
+        ownerId: userId,
+        assigneeId: userId,
+        parentTaskId: 'parent-epic-1',
+        dueDate: baseDueDate,
+        scheduledDate: null,
+        tags: [],
+        subTasks: [
+          {
+            title: 'Review backlog',
+            description: null,
+            priority: 'MEDIUM',
+            projectId: 'project-1',
+            ownerId: userId,
+            assigneeId: userId,
+          },
+        ],
+        recurrence: {
+          id: 'rec-6',
+          pattern: 'WEEKLY',
+          interval: 2,
+          daysOfWeek: [],
+          dayOfMonth: null,
+          endDate: null,
+        },
+      });
+
+      mockPrismaService.task.create = jest.fn().mockResolvedValue({ id: 'spawned-task-id' });
+      mockPrismaService.recurrence.delete = jest.fn().mockResolvedValue({});
+
+      await service.complete(taskId, userId);
+
+      expect(mockPrismaService.task.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          title: 'Sprint Planning',
+          status: 'TODO',
+          parentTaskId: 'parent-epic-1',
+          subTasks: {
+            create: [
+              {
+                title: 'Review backlog',
+                description: null,
+                status: 'TODO',
+                priority: 'MEDIUM',
+                projectId: 'project-1',
+                ownerId: userId,
+                assigneeId: userId,
+              },
+            ],
+          },
+        }),
+      });
+      expect(mockActivitiesService.logTaskCreated).toHaveBeenCalledWith(
+        'spawned-task-id',
+        userId,
+      );
+    });
+  });
+
+  describe('Calendar Export & Token', () => {
+    it('should generate a calendar feed token', async () => {
+      const res = await service.getCalendarToken('user-1');
+      expect(res).toHaveProperty('token');
+      expect(res).toHaveProperty('feedUrl');
+      expect(res).toHaveProperty('webcalUrl');
+      expect(res.feedUrl).toContain('/tasks/export/calendar.ics?token=');
+      expect(res.webcalUrl).toContain('webcal://');
+    });
+
+    it('should verify calendar token and return userId', async () => {
+      const userId = await service.verifyCalendarToken('valid-token');
+      expect(userId).toBe('user-1');
+    });
+
+    it('should find tasks for calendar export', async () => {
+      (mockPrismaService.task as any).findMany = jest.fn().mockResolvedValue([
+        {
+          id: 'task-1',
+          title: 'Launch feature',
+          dueDate: new Date(),
+          isTimeBlocked: false,
+        },
+      ]);
+
+      const tasks = await service.findTasksForCalendarExport('user-1');
+      expect(tasks).toHaveLength(1);
+      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            ownerId: 'user-1',
+            isDeleted: false,
+          }),
+        }),
+      );
+    });
+  });
 });
+

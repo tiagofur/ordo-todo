@@ -24,6 +24,23 @@ export interface ProjectSettingsData {
   name: string;
   description?: string | null;
   color?: string | null;
+  settings?: {
+    wipLimits?: {
+      TODO?: number;
+      IN_PROGRESS?: number;
+      COMPLETED?: number;
+      CANCELLED?: number;
+      [key: string]: number | undefined;
+    };
+    columnTitles?: {
+      TODO?: string;
+      IN_PROGRESS?: string;
+      COMPLETED?: string;
+      CANCELLED?: string;
+      [key: string]: string | undefined;
+    };
+    [key: string]: any;
+  } | null;
 }
 
 interface ProjectSettingsDialogProps {
@@ -36,7 +53,12 @@ interface ProjectSettingsDialogProps {
   /** Whether update is pending */
   isPending?: boolean;
   /** Called when form is submitted */
-  onSubmit?: (data: { name: string; description?: string; color: string }) => void;
+  onSubmit?: (data: {
+    name: string;
+    description?: string;
+    color: string;
+    settings?: any;
+  }) => void;
   /** Custom labels for i18n */
   labels?: {
     title?: string;
@@ -126,17 +148,44 @@ export function ProjectSettingsDialog({
     }
   }, [project, reset]);
 
-  const handleFormSubmit = (data: UpdateProjectForm) => {
+  const handleFormSubmit = (data: UpdateProjectForm, e?: React.BaseSyntheticEvent) => {
+    const formElement = e?.target as HTMLFormElement | undefined;
+    const wipInProgressInput = formElement?.querySelector<HTMLInputElement>('[name="wipLimitInProgress"]');
+    const wipTodoInput = formElement?.querySelector<HTMLInputElement>('[name="wipLimitTodo"]');
+    const titleTodoInput = formElement?.querySelector<HTMLInputElement>('[name="columnTitleTodo"]');
+    const titleInProgressInput = formElement?.querySelector<HTMLInputElement>('[name="columnTitleInProgress"]');
+    const titleCompletedInput = formElement?.querySelector<HTMLInputElement>('[name="columnTitleCompleted"]');
+
+    const parsedWipInProgress = wipInProgressInput ? parseInt(wipInProgressInput.value, 10) : undefined;
+    const parsedWipTodo = wipTodoInput && wipTodoInput.value ? parseInt(wipTodoInput.value, 10) : undefined;
+
+    const currentSettings = project?.settings || {};
+    const updatedSettings = {
+      ...currentSettings,
+      wipLimits: {
+        ...(currentSettings.wipLimits || {}),
+        TODO: parsedWipTodo && !isNaN(parsedWipTodo) ? parsedWipTodo : undefined,
+        IN_PROGRESS: isNaN(parsedWipInProgress as number) ? 5 : parsedWipInProgress,
+      },
+      columnTitles: {
+        ...(currentSettings.columnTitles || {}),
+        TODO: titleTodoInput?.value?.trim() || undefined,
+        IN_PROGRESS: titleInProgressInput?.value?.trim() || undefined,
+        COMPLETED: titleCompletedInput?.value?.trim() || undefined,
+      },
+    };
+
     onSubmit?.({
       ...data,
       color: selectedColor,
+      settings: updatedSettings,
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] gap-0 p-0 overflow-hidden bg-background border-border">
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">{title}</DialogTitle>
             <DialogDescription className="text-muted-foreground">{description}</DialogDescription>
@@ -191,8 +240,86 @@ export function ProjectSettingsDialog({
                 id="description"
                 {...register('description')}
                 placeholder={descriptionPlaceholder}
-                className="min-h-[100px] resize-none"
+                className="min-h-[80px] resize-none"
               />
+            </div>
+
+            {/* Kanban Settings */}
+            <div className="space-y-3 pt-2 border-t border-border">
+              <Label className="text-sm font-semibold text-foreground">
+                Kanban & Workflow Stages
+              </Label>
+              <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/40">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="wipLimitTodo" className="text-xs font-medium text-muted-foreground">
+                      WIP Limit (To Do)
+                    </Label>
+                    <Input
+                      id="wipLimitTodo"
+                      type="number"
+                      min={1}
+                      max={100}
+                      placeholder="Optional"
+                      defaultValue={project?.settings?.wipLimits?.TODO ?? ''}
+                      name="wipLimitTodo"
+                      className="h-8 text-xs bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="wipLimitInProgress" className="text-xs font-medium text-muted-foreground">
+                      WIP Limit (In Progress)
+                    </Label>
+                    <Input
+                      id="wipLimitInProgress"
+                      type="number"
+                      min={1}
+                      max={50}
+                      defaultValue={project?.settings?.wipLimits?.IN_PROGRESS ?? 5}
+                      name="wipLimitInProgress"
+                      className="h-8 text-xs bg-background"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <div className="space-y-1">
+                    <Label htmlFor="columnTitleTodo" className="text-[11px] font-medium text-muted-foreground">
+                      Stage 1 Title
+                    </Label>
+                    <Input
+                      id="columnTitleTodo"
+                      name="columnTitleTodo"
+                      placeholder="To Do"
+                      defaultValue={project?.settings?.columnTitles?.TODO ?? ''}
+                      className="h-8 text-xs bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="columnTitleInProgress" className="text-[11px] font-medium text-muted-foreground">
+                      Stage 2 Title
+                    </Label>
+                    <Input
+                      id="columnTitleInProgress"
+                      name="columnTitleInProgress"
+                      placeholder="In Progress"
+                      defaultValue={project?.settings?.columnTitles?.IN_PROGRESS ?? ''}
+                      className="h-8 text-xs bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="columnTitleCompleted" className="text-[11px] font-medium text-muted-foreground">
+                      Stage 3 Title
+                    </Label>
+                    <Input
+                      id="columnTitleCompleted"
+                      name="columnTitleCompleted"
+                      placeholder="Completed"
+                      defaultValue={project?.settings?.columnTitles?.COMPLETED ?? ''}
+                      className="h-8 text-xs bg-background"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <DialogFooter className="pt-2">

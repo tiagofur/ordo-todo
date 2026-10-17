@@ -24,4 +24,7 @@ export class UpdateProjectDto {
   @IsBoolean()
   @IsOptional()
   archived?: boolean;
+
+  @IsOptional()
+  settings?: any;
 }

@@ -36,6 +36,7 @@ import {
 import type { CustomField, CustomFieldType } from "@ordo-todo/api-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 
 const FIELD_TYPES: { value: CustomFieldType; label: string; icon: string }[] = [
   { value: "TEXT", label: "Text", icon: "📝" },
@@ -57,6 +58,7 @@ export function CustomFieldsEditor({ projectId }: CustomFieldsEditorProps) {
   const createField = useCreateCustomField();
   const updateField = useUpdateCustomField();
   const deleteField = useDeleteCustomField();
+  const { confirm, ConfirmModal } = useConfirm();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingField, setEditingField] = useState<CustomField | null>(null);
@@ -145,7 +147,12 @@ export function CustomFieldsEditor({ projectId }: CustomFieldsEditorProps) {
   };
 
   const handleDelete = async (fieldId: string) => {
-    if (!confirm("Delete this custom field? All values will be lost.")) return;
+    const ok = await confirm({
+      title: "Delete custom field",
+      description: "Delete this custom field? All values will be lost.",
+      variant: "destructive",
+    });
+    if (!ok) return;
     try {
       await deleteField.mutateAsync({ fieldId, projectId });
       toast.success("Field deleted");
@@ -365,6 +372,7 @@ export function CustomFieldsEditor({ projectId }: CustomFieldsEditorProps) {
           </div>
         )}
       </CardContent>
+      <ConfirmModal />
     </Card>
   );
 }

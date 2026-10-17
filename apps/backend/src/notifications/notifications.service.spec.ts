@@ -151,9 +151,9 @@ describe('NotificationsService', () => {
 
       expect(mockNotificationRepository.findById).toHaveBeenCalledWith(id);
       expect(mockNotificationRepository.update).toHaveBeenCalled();
-      expect(result.id).toBe(id);
-      expect(result.isRead).toBe(true);
-      expect(result.readAt).toBeInstanceOf(Date);
+      expect(result?.id).toBe(id);
+      expect(result?.isRead).toBe(true);
+      expect(result?.readAt).toBeInstanceOf(Date);
     });
   });
 

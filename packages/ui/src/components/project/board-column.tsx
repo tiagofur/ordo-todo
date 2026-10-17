@@ -24,6 +24,8 @@ interface BoardColumnProps {
   style?: React.CSSProperties;
   /** Reference for droppable node - passed as callback/prop to be agnostic */
   setNodeRef?: (node: HTMLElement | null) => void;
+  /** Optional Work-In-Progress (WIP) limit */
+  wipLimit?: number;
 }
 
 /**
@@ -40,7 +42,10 @@ export function BoardColumn({
   className = '',
   style,
   setNodeRef,
+  wipLimit,
 }: BoardColumnProps) {
+  const isWipExceeded = typeof wipLimit === 'number' && wipLimit > 0 && tasksCount > wipLimit;
+
   return (
     <div 
       className={cn("flex-shrink-0 w-80 flex flex-col gap-4", className)}
@@ -48,13 +53,29 @@ export function BoardColumn({
     >
       <div 
         className={cn(
-          "flex items-center justify-between p-3 rounded-lg border bg-slate-50 dark:bg-slate-900",
-          headerColorClass
+          "flex items-center justify-between p-3 rounded-lg border bg-slate-50 dark:bg-slate-900 transition-colors",
+          isWipExceeded
+            ? "border-amber-400 bg-amber-50/50 dark:bg-amber-950/30"
+            : headerColorClass
         )}
       >
-        <h3 className="font-semibold text-sm text-foreground">{title}</h3>
-        <span className="text-xs font-medium bg-white dark:bg-black px-2 py-0.5 rounded-full border border-border shadow-sm">
-          {tasksCount}
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-sm text-foreground">{title}</h3>
+          {isWipExceeded && (
+            <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              WIP
+            </span>
+          )}
+        </div>
+        <span
+          className={cn(
+            "text-xs font-medium px-2 py-0.5 rounded-full border border-border shadow-sm",
+            isWipExceeded
+              ? "bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700"
+              : "bg-white dark:bg-black"
+          )}
+        >
+          {wipLimit ? `${tasksCount}/${wipLimit}` : tasksCount}
         </span>
       </div>
 

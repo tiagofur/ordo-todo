@@ -15,7 +15,7 @@ export interface CreateTaskInput {
     ownerId: string;
     assigneeId?: string | null;
     parentTaskId?: string | null;
-    recurrence?: TaskRecurrenceInfo;
+    recurrence?: TaskRecurrenceInfo | null;
 }
 
 export class CreateTaskUseCase implements UseCase<CreateTaskInput, Task> {

@@ -248,10 +248,14 @@ export class ProjectsController {
       workspaceSlug,
       user.id,
     );
-    if (!workspace) {
-      throw new NotFoundException('Workspace not found');
+    const project = await this.projectsService.findBySlug(
+      projectSlug,
+      workspace.id as string,
+    );
+    if (!project) {
+      throw new NotFoundException('Project not found');
     }
-    return this.projectsService.findBySlug(projectSlug, workspace.id as string);
+    return project;
   }
 
   @Put(':id')

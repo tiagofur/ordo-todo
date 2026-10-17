@@ -169,15 +169,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="creator"
-        options={{
-          title: "Creator",
-          tabBarIcon: ({ focused, color }) => (
-            <TabBarIcon name="zap" color={color} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="calendar"
         options={{
           title: t("Mobile.tabs.calendar"),

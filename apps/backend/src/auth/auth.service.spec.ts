@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { User } from '@ordo-todo/core';
 import { AuthService } from './auth.service';
 import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
@@ -10,6 +14,7 @@ import { WorkspacesService } from '../workspaces/workspaces.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthAuditService } from './auth-audit.service';
+import { EmailService } from '../email/email.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -19,6 +24,8 @@ describe('AuthService', () => {
   const mockUserRepository = {
     findByEmail: jest.fn(),
     findByUsername: jest.fn(),
+    findById: jest.fn(),
+    updateProps: jest.fn(),
     save: jest.fn(),
     create: jest.fn(),
   };
@@ -106,6 +113,15 @@ describe('AuthService', () => {
         {
           provide: AuthAuditService,
           useValue: mockAuthAuditService,
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendEmail: jest.fn().mockResolvedValue({ success: true }),
+            sendWorkspaceInvitation: jest.fn().mockResolvedValue({ success: true }),
+            sendPasswordReset: jest.fn().mockResolvedValue({ success: true }),
+            sendWelcome: jest.fn().mockResolvedValue({ success: true }),
+          },
         },
       ],
     }).compile();
@@ -387,6 +403,61 @@ describe('AuthService', () => {
       await expect(service.refresh('some-token')).rejects.toThrow(
         'Failed to refresh token',
       );
+    });
+  });
+
+  describe('changePassword', () => {
+    it('should successfully change password when current password matches', async () => {
+      const mockUser = {
+        id: 'user-123',
+        password: '$2b$12$hashedcurrentpassword',
+      };
+      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockCryptoProvider.compare.mockResolvedValue(true);
+      mockCryptoProvider.encrypt.mockResolvedValue('$2b$12$newhashedpassword');
+      mockUserRepository.updateProps.mockResolvedValue(undefined);
+
+      const result = await service.changePassword('user-123', {
+        currentPassword: 'OldPassword123!',
+        newPassword: 'NewPassword456!',
+      });
+
+      expect(result.success).toBe(true);
+      expect(mockCryptoProvider.compare).toHaveBeenCalledWith(
+        'OldPassword123!',
+        mockUser.password,
+      );
+      expect(mockCryptoProvider.encrypt).toHaveBeenCalledWith('NewPassword456!');
+      expect(mockUserRepository.updateProps).toHaveBeenCalledWith(mockUser, {
+        password: '$2b$12$newhashedpassword',
+      });
+    });
+
+    it('should throw BadRequestException when current password does not match', async () => {
+      const mockUser = {
+        id: 'user-123',
+        password: '$2b$12$hashedcurrentpassword',
+      };
+      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockCryptoProvider.compare.mockResolvedValue(false);
+
+      await expect(
+        service.changePassword('user-123', {
+          currentPassword: 'WrongPassword123!',
+          newPassword: 'NewPassword456!',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw UnauthorizedException when user not found', async () => {
+      mockUserRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        service.changePassword('non-existent-user', {
+          currentPassword: 'OldPassword123!',
+          newPassword: 'NewPassword456!',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

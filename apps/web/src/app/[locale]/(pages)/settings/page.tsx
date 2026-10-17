@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { AppLayout } from "@/components/shared/app-layout";
 import {
@@ -34,15 +35,40 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { useAIFeaturesTour } from "@/components/onboarding/ai-features-tour";
 import { SessionsManager } from "@/components/settings/sessions-manager";
+import { useUserPreferences, useUpdatePreferences } from "@/lib/api-hooks";
+import type { UpdatePreferencesDto } from "@ordo-todo/api-client";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { settings, updateSettings, isLoaded } = useTimerSettings();
+  const { data: userPreferences } = useUserPreferences();
+  const updatePreferences = useUpdatePreferences();
   const t = useTranslations("Settings");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const { showTour, hasSeenTour } = useAIFeaturesTour();
+
+  const [ambientAudioAuto, setAmbientAudioAuto] = useState(false);
+  const [ambientVolume, setAmbientVolume] = useState(50);
+
+  useEffect(() => {
+    if (userPreferences?.focusAudio) {
+      if (userPreferences.focusAudio.auto !== undefined) {
+        setAmbientAudioAuto(Boolean(userPreferences.focusAudio.auto));
+        localStorage.setItem("ordo-ambient-auto", String(userPreferences.focusAudio.auto));
+      }
+      if (userPreferences.focusAudio.volume !== undefined) {
+        setAmbientVolume(Number(userPreferences.focusAudio.volume));
+        localStorage.setItem("ordo-ambient-volume", String(userPreferences.focusAudio.volume));
+      }
+    } else {
+      const savedAuto = localStorage.getItem("ordo-ambient-auto");
+      const savedVol = localStorage.getItem("ordo-ambient-volume");
+      if (savedAuto !== null) setAmbientAudioAuto(savedAuto === "true");
+      if (savedVol !== null) setAmbientVolume(parseInt(savedVol, 10) || 50);
+    }
+  }, [userPreferences?.focusAudio]);
 
   const handleLanguageChange = (newLocale: string) => {
     const segments = pathname.split("/");
@@ -57,6 +83,76 @@ export default function SettingsPage() {
         : "Português";
     toast.success(t("languageChanged", { lang: langName }));
   };
+
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    const mappedTheme =
+      newTheme === "system" ? "AUTO" : newTheme === "dark" ? "DARK" : "LIGHT";
+    updatePreferences.mutate({ theme: mappedTheme });
+  };
+
+  const handleTimerChange = (newTimerSettings: Parameters<typeof updateSettings>[0]) => {
+    updateSettings(newTimerSettings);
+    const backendPayload: Record<string, any> = {};
+    if (newTimerSettings.workDuration !== undefined)
+      backendPayload.pomodoroDuration = newTimerSettings.workDuration;
+    if (newTimerSettings.shortBreakDuration !== undefined)
+      backendPayload.shortBreakDuration = newTimerSettings.shortBreakDuration;
+    if (newTimerSettings.longBreakDuration !== undefined)
+      backendPayload.longBreakDuration = newTimerSettings.longBreakDuration;
+    if (newTimerSettings.pomodorosUntilLongBreak !== undefined)
+      backendPayload.pomodorosUntilLongBreak = newTimerSettings.pomodorosUntilLongBreak;
+    if (newTimerSettings.soundEnabled !== undefined)
+      backendPayload.enableSounds = newTimerSettings.soundEnabled;
+    if (newTimerSettings.notificationsEnabled !== undefined)
+      backendPayload.enableNotifications = newTimerSettings.notificationsEnabled;
+    if (newTimerSettings.defaultMode !== undefined)
+      backendPayload.timerMode = newTimerSettings.defaultMode;
+
+    if (Object.keys(backendPayload).length > 0) {
+      updatePreferences.mutate(backendPayload);
+    }
+  };
+
+  const handleAIPreferenceChange = async (updates: UpdatePreferencesDto) => {
+    try {
+      await updatePreferences.mutateAsync(updates);
+      toast.success(t("settingsSaved") || "Ajustes guardados");
+    } catch {
+      toast.error(t("errorSaving") || "Error al guardar ajustes");
+    }
+  };
+
+  const handleAmbientAutoChange = (enabled: boolean) => {
+    setAmbientAudioAuto(enabled);
+    localStorage.setItem("ordo-ambient-auto", String(enabled));
+    updatePreferences.mutate({
+      focusAudio: {
+        auto: enabled,
+        volume: ambientVolume,
+      },
+    });
+    toast.success(t("settingsSaved") || "Ajuste guardado");
+  };
+
+  const handleAmbientVolumeChange = (vol: number) => {
+    setAmbientVolume(vol);
+    localStorage.setItem("ordo-ambient-volume", String(vol));
+    updatePreferences.mutate({
+      focusAudio: {
+        auto: ambientAudioAuto,
+        volume: vol,
+      },
+    });
+  };
+
+  const currentAggressiveness = userPreferences?.aiAggressiveness ?? 5;
+  const currentSensitivity =
+    currentAggressiveness <= 3
+      ? "low"
+      : currentAggressiveness >= 8
+      ? "high"
+      : "medium";
 
   if (!isLoaded) return null;
 
@@ -98,7 +194,7 @@ export default function SettingsPage() {
               </p>
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:pb-0">
                 <button
-                  onClick={() => setTheme("light")}
+                  onClick={() => handleThemeChange("light")}
                   className={cn(
                     "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all min-w-[90px] flex-shrink-0 sm:min-w-0",
                     theme === "light"
@@ -112,7 +208,7 @@ export default function SettingsPage() {
                   </span>
                 </button>
                 <button
-                  onClick={() => setTheme("dark")}
+                  onClick={() => handleThemeChange("dark")}
                   className={cn(
                     "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all min-w-[90px] flex-shrink-0 sm:min-w-0",
                     theme === "dark"
@@ -126,7 +222,7 @@ export default function SettingsPage() {
                   </span>
                 </button>
                 <button
-                  onClick={() => setTheme("system")}
+                  onClick={() => handleThemeChange("system")}
                   className={cn(
                     "flex flex-col items-center gap-2 sm:gap-3 rounded-xl border-2 p-3 sm:p-4 transition-all min-w-[90px] flex-shrink-0 sm:min-w-0",
                     theme === "system"
@@ -216,7 +312,7 @@ export default function SettingsPage() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
-                    onClick={() => updateSettings({ defaultMode: "POMODORO" })}
+                    onClick={() => handleTimerChange({ defaultMode: "POMODORO" })}
                     className={cn(
                       "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all",
                       settings.defaultMode === "POMODORO"
@@ -237,7 +333,7 @@ export default function SettingsPage() {
                     </div>
                   </button>
                   <button
-                    onClick={() => updateSettings({ defaultMode: "CONTINUOUS" })}
+                    onClick={() => handleTimerChange({ defaultMode: "CONTINUOUS" })}
                     className={cn(
                       "flex flex-col items-center gap-3 rounded-xl border-2 p-4 transition-all",
                       settings.defaultMode === "CONTINUOUS"
@@ -272,7 +368,7 @@ export default function SettingsPage() {
                       max="120"
                       value={settings.workDuration}
                       onChange={(e) =>
-                        updateSettings({
+                        handleTimerChange({
                           workDuration: parseInt(e.target.value) || 25,
                         })
                       }
@@ -288,7 +384,7 @@ export default function SettingsPage() {
                       max="30"
                       value={settings.shortBreakDuration}
                       onChange={(e) =>
-                        updateSettings({
+                        handleTimerChange({
                           shortBreakDuration: parseInt(e.target.value) || 5,
                         })
                       }
@@ -304,7 +400,7 @@ export default function SettingsPage() {
                       max="60"
                       value={settings.longBreakDuration}
                       onChange={(e) =>
-                        updateSettings({
+                        handleTimerChange({
                           longBreakDuration: parseInt(e.target.value) || 15,
                         })
                       }
@@ -330,7 +426,7 @@ export default function SettingsPage() {
                       max="10"
                       value={settings.pomodorosUntilLongBreak}
                       onChange={(e) =>
-                        updateSettings({
+                        handleTimerChange({
                           pomodorosUntilLongBreak: parseInt(e.target.value) || 4,
                         })
                       }
@@ -354,7 +450,7 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={settings.autoStartBreaks}
                       onChange={(e) =>
-                        updateSettings({ autoStartBreaks: e.target.checked })
+                        handleTimerChange({ autoStartBreaks: e.target.checked })
                       }
                       className="h-5 w-5 rounded border-border text-indigo-600 focus:ring-indigo-600"
                     />
@@ -373,7 +469,7 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={settings.autoStartPomodoros}
                       onChange={(e) =>
-                        updateSettings({ autoStartPomodoros: e.target.checked })
+                        handleTimerChange({ autoStartPomodoros: e.target.checked })
                       }
                       className="h-5 w-5 rounded border-border text-indigo-600 focus:ring-indigo-600"
                     />
@@ -407,7 +503,7 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={settings.soundEnabled}
                       onChange={(e) =>
-                        updateSettings({ soundEnabled: e.target.checked })
+                        handleTimerChange({ soundEnabled: e.target.checked })
                       }
                       className="h-5 w-5 rounded border-border text-indigo-600 focus:ring-indigo-600"
                     />
@@ -430,7 +526,7 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={settings.notificationsEnabled}
                       onChange={(e) =>
-                        updateSettings({ notificationsEnabled: e.target.checked })
+                        handleTimerChange({ notificationsEnabled: e.target.checked })
                       }
                       className="h-5 w-5 rounded border-border text-indigo-600 focus:ring-indigo-600"
                     />
@@ -473,8 +569,11 @@ export default function SettingsPage() {
                     <input
                       id="aiInsightsEnabled"
                       type="checkbox"
-                      defaultChecked={true}
-                      className="h-5 w-5 rounded border-border text-purple-600 focus:ring-purple-600"
+                      checked={userPreferences?.enableAI ?? true}
+                      onChange={(e) =>
+                        handleAIPreferenceChange({ enableAI: e.target.checked })
+                      }
+                      className="h-5 w-5 rounded border-border text-purple-600 focus:ring-purple-600 cursor-pointer"
                     />
                   </div>
 
@@ -490,8 +589,13 @@ export default function SettingsPage() {
                     <input
                       id="smartScheduling"
                       type="checkbox"
-                      defaultChecked={true}
-                      className="h-5 w-5 rounded border-border text-purple-600 focus:ring-purple-600"
+                      checked={userPreferences?.aiSuggestScheduling ?? true}
+                      onChange={(e) =>
+                        handleAIPreferenceChange({
+                          aiSuggestScheduling: e.target.checked,
+                        })
+                      }
+                      className="h-5 w-5 rounded border-border text-purple-600 focus:ring-purple-600 cursor-pointer"
                     />
                   </div>
                 </div>
@@ -520,8 +624,13 @@ export default function SettingsPage() {
                     <input
                       id="burnoutDetection"
                       type="checkbox"
-                      defaultChecked={true}
-                      className="h-5 w-5 rounded border-border text-pink-600 focus:ring-pink-600"
+                      checked={userPreferences?.aiWeeklyReports ?? true}
+                      onChange={(e) =>
+                        handleAIPreferenceChange({
+                          aiWeeklyReports: e.target.checked,
+                        })
+                      }
+                      className="h-5 w-5 rounded border-border text-pink-600 focus:ring-pink-600 cursor-pointer"
                     />
                   </div>
 
@@ -537,8 +646,13 @@ export default function SettingsPage() {
                     <input
                       id="restReminders"
                       type="checkbox"
-                      defaultChecked={true}
-                      className="h-5 w-5 rounded border-border text-pink-600 focus:ring-pink-600"
+                      checked={userPreferences?.aiSuggestTaskDurations ?? true}
+                      onChange={(e) =>
+                        handleAIPreferenceChange({
+                          aiSuggestTaskDurations: e.target.checked,
+                        })
+                      }
+                      className="h-5 w-5 rounded border-border text-pink-600 focus:ring-pink-600 cursor-pointer"
                     />
                   </div>
 
@@ -546,15 +660,19 @@ export default function SettingsPage() {
                     <Label>{t("ai.sensitivity")}</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { key: "low", label: t("ai.sensitivityLevels.low") },
-                        { key: "medium", label: t("ai.sensitivityLevels.medium") },
-                        { key: "high", label: t("ai.sensitivityLevels.high") },
-                      ].map(({ key, label }) => (
+                        { key: "low", label: t("ai.sensitivityLevels.low"), value: 3 },
+                        { key: "medium", label: t("ai.sensitivityLevels.medium"), value: 5 },
+                        { key: "high", label: t("ai.sensitivityLevels.high"), value: 8 },
+                      ].map(({ key, label, value }) => (
                         <button
                           key={key}
+                          type="button"
+                          onClick={() =>
+                            handleAIPreferenceChange({ aiAggressiveness: value })
+                          }
                           className={cn(
                             "px-3 py-2 rounded-xl text-sm font-medium transition-all",
-                            key === "medium"
+                            currentSensitivity === key
                               ? "bg-pink-500/10 border-2 border-pink-500 text-pink-600 dark:text-pink-400"
                               : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           )}
@@ -590,8 +708,9 @@ export default function SettingsPage() {
                     <input
                       id="ambientAudio"
                       type="checkbox"
-                      defaultChecked={false}
-                      className="h-5 w-5 rounded border-border text-cyan-600 focus:ring-cyan-600"
+                      checked={ambientAudioAuto}
+                      onChange={(e) => handleAmbientAutoChange(e.target.checked)}
+                      className="h-5 w-5 rounded border-border text-cyan-600 focus:ring-cyan-600 cursor-pointer"
                     />
                   </div>
 
@@ -600,14 +719,17 @@ export default function SettingsPage() {
                       <Label htmlFor="defaultVolume">
                         {t("ai.defaultVolume")}
                       </Label>
-                      <span className="text-sm text-muted-foreground">50%</span>
+                      <span className="text-sm text-muted-foreground">{ambientVolume}%</span>
                     </div>
                     <input
                       id="defaultVolume"
                       type="range"
                       min="0"
                       max="100"
-                      defaultValue="50"
+                      value={ambientVolume}
+                      onChange={(e) =>
+                        handleAmbientVolumeChange(parseInt(e.target.value, 10) || 0)
+                      }
                       className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-cyan-500"
                     />
                   </div>

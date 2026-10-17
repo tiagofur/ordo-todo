@@ -26,9 +26,10 @@ export class CreateRecurrenceDto {
   @IsOptional()
   daysOfWeek?: number[];
 
+  @ValidateIf((_, val) => val !== null)
   @IsInt()
   @IsOptional()
-  dayOfMonth?: number;
+  dayOfMonth?: number | null;
 
   @ValidateIf((_, val) => val !== null)
   @IsDate()
@@ -98,8 +99,9 @@ export class CreateTaskDto {
   @IsOptional()
   estimatedMinutes?: number;
 
+  @ValidateIf((_, val) => val !== null)
   @ValidateNested()
   @Type(() => CreateRecurrenceDto)
   @IsOptional()
-  recurrence?: CreateRecurrenceDto;
+  recurrence?: CreateRecurrenceDto | null;
 }

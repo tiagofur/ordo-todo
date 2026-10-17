@@ -1,6 +1,7 @@
 import {
   Injectable,
   UnauthorizedException,
+  BadRequestException,
   Inject,
   ConflictException,
   forwardRef,
@@ -20,9 +21,12 @@ import { BcryptCryptoProvider } from './crypto/bcrypt-crypto.provider';
 import { TokenBlacklistService } from './token-blacklist.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuthDto } from './dto/oauth.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { EmailService } from '../email/email.service';
 import type { StringValue } from 'ms';
 import { AuthAuditService } from './auth-audit.service';
 
@@ -40,9 +44,13 @@ export class AuthService {
     private readonly workspacesService: WorkspacesService,
     private readonly tokenBlacklistService: TokenBlacklistService,
     private readonly authAuditService: AuthAuditService,
+    private readonly emailService: EmailService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+  async register(
+    registerDto: RegisterDto,
+    requestContext?: { ip?: string; userAgent?: string },
+  ): Promise<AuthResponseDto> {
     try {
       const registerUseCase = new RegisterUser(
         this.userRepository,
@@ -56,11 +64,24 @@ export class AuthService {
         password: registerDto.password,
       });
 
+      // Dispatch welcome email asynchronously without blocking registration
+      this.emailService
+        .sendWelcome({
+          to: registerDto.email,
+          userName: registerDto.name || registerDto.username,
+        })
+        .catch((err) =>
+          this.logger.warn(`Failed to dispatch welcome email: ${err.message}`),
+        );
+
       // After registration, log the user in
-      return this.login({
-        email: registerDto.email,
-        password: registerDto.password,
-      });
+      return this.login(
+        {
+          email: registerDto.email,
+          password: registerDto.password,
+        },
+        requestContext,
+      );
     } catch (error) {
       if (
         error instanceof UserAlreadyExistsError ||
@@ -74,15 +95,20 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+  async login(
+    loginDto: LoginDto,
+    requestContext?: { ip?: string; userAgent?: string },
+  ): Promise<AuthResponseDto> {
     try {
       const user = await this.userRepository.findByEmail(loginDto.email, true);
+      const clientIp = this.getRequestIp(requestContext);
+      const clientUserAgent = this.getRequestUserAgent(requestContext);
 
       if (!user) {
         await this.authAuditService.loginFailed(
           loginDto.email,
-          this.getRequestIp(),
-          this.getRequestUserAgent(),
+          clientIp,
+          clientUserAgent,
           'User not found',
         );
 
@@ -93,8 +119,8 @@ export class AuthService {
       if (!user.password) {
         await this.authAuditService.loginFailed(
           loginDto.email,
-          this.getRequestIp(),
-          this.getRequestUserAgent(),
+          clientIp,
+          clientUserAgent,
           'No password set (OAuth user)',
         );
 
@@ -109,8 +135,8 @@ export class AuthService {
       if (!isValid) {
         await this.authAuditService.loginFailed(
           loginDto.email,
-          this.getRequestIp(),
-          this.getRequestUserAgent(),
+          clientIp,
+          clientUserAgent,
           'Invalid password',
         );
 
@@ -146,8 +172,8 @@ export class AuthService {
       await this.authAuditService.loginSuccess(
         user.id,
         user.email,
-        this.getRequestIp(),
-        this.getRequestUserAgent(),
+        clientIp,
+        clientUserAgent,
       );
 
       return {
@@ -427,12 +453,18 @@ export class AuthService {
     };
   }
 
-  private getRequestIp(): string {
-    return 'unknown'; // TODO: Get real IP from request
+  private getRequestIp(requestContext?: {
+    ip?: string;
+    userAgent?: string;
+  }): string {
+    return requestContext?.ip || 'unknown';
   }
 
-  private getRequestUserAgent(): string {
-    return 'unknown'; // TODO: Get real user agent from request headers
+  private getRequestUserAgent(requestContext?: {
+    ip?: string;
+    userAgent?: string;
+  }): string {
+    return requestContext?.userAgent || 'unknown';
   }
 
   /**
@@ -448,6 +480,144 @@ export class AuthService {
     } catch (error) {
       this.logger.error('Failed to logout user', error);
       throw new UnauthorizedException('Failed to logout');
+    }
+  }
+
+  /**
+   * Change user password securely
+   */
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const user = await this.userRepository.findById(userId, true);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (user.password) {
+      const isValid = await this.cryptoProvider.compare(
+        changePasswordDto.currentPassword,
+        user.password,
+      );
+      if (!isValid) {
+        throw new BadRequestException('Current password is incorrect');
+      }
+    }
+
+    const hashedPassword = await this.cryptoProvider.encrypt(
+      changePasswordDto.newPassword,
+    );
+
+    await this.userRepository.updateProps(user, {
+      password: hashedPassword,
+    });
+
+    return {
+      success: true,
+      message: 'Password updated successfully',
+    };
+  }
+
+  /**
+   * Request password reset instructions
+   * Sends an email with a signed 1-hour JWT token if the user exists
+   */
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const user = await this.userRepository.findByEmail(email);
+      if (user) {
+        const resetToken = this.jwtService.sign(
+          {
+            sub: user.id,
+            email: user.props.email,
+            type: 'password_reset',
+          },
+          {
+            expiresIn: '1h',
+          },
+        );
+
+        await this.emailService.sendPasswordReset({
+          to: user.props.email || email,
+          userName: user.props.name || user.props.username,
+          resetToken,
+        });
+
+        this.logger.log(`Password reset email dispatched for ${email}`);
+      } else {
+        this.logger.warn(`Password reset requested for non-existent email: ${email}`);
+      }
+
+      // Always return identical message to prevent account enumeration
+      return {
+        success: true,
+        message:
+          'If an account with that email exists, password reset instructions have been sent.',
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Error processing password reset request: ${error.message}`,
+        error.stack,
+      );
+      return {
+        success: true,
+        message:
+          'If an account with that email exists, password reset instructions have been sent.',
+      };
+    }
+  }
+
+  /**
+   * Reset password using a valid reset token
+   */
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const payload = this.jwtService.verify(resetPasswordDto.token);
+
+      if (payload.type !== 'password_reset' || !payload.sub) {
+        throw new BadRequestException('Invalid password reset token');
+      }
+
+      const user = await this.userRepository.findById(payload.sub, true);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      const hashedPassword = await this.cryptoProvider.encrypt(
+        resetPasswordDto.newPassword,
+      );
+
+      await this.userRepository.updateProps(user, {
+        password: hashedPassword,
+      });
+
+      this.logger.log(`Password reset successfully completed for user: ${user.id}`);
+
+      return {
+        success: true,
+        message: 'Password has been reset successfully. You can now log in.',
+      };
+    } catch (error: any) {
+      if (
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      if (error.name === 'TokenExpiredError') {
+        throw new BadRequestException(
+          'Password reset link has expired. Please request a new one.',
+        );
+      }
+      if (error.name === 'JsonWebTokenError') {
+        throw new BadRequestException('Invalid password reset token.');
+      }
+      this.logger.error(`Reset password failed: ${error.message}`, error.stack);
+      throw new BadRequestException('Failed to reset password. Please try again.');
     }
   }
 }

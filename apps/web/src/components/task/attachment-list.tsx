@@ -18,6 +18,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui';
 import { Attachment } from '@ordo-todo/api-client';
+import { useConfirm } from '@/components/shared/confirm-dialog';
 
 
 interface AttachmentListProps {
@@ -71,6 +72,7 @@ export function AttachmentList({
   locale = 'en',
   labels = {},
 }: AttachmentListProps) {
+  const { confirm, ConfirmModal } = useConfirm();
   const t = {
     ...DEFAULT_LABELS,
     ...labels,
@@ -119,7 +121,12 @@ export function AttachmentList({
 
   const handleDelete = async (attachment: Attachment) => {
     const confirmMsg = t.confirmDelete ? t.confirmDelete(attachment.filename) : `Delete ${attachment.filename}?`;
-    if (window.confirm(confirmMsg)) {
+    const ok = await confirm({
+      title: t.tooltips?.delete || 'Delete',
+      description: confirmMsg,
+      variant: 'destructive',
+    });
+    if (ok) {
       if (onDelete) {
          try {
             await onDelete(String(attachment.id));
@@ -305,6 +312,7 @@ export function AttachmentList({
           )}
         </DialogContent>
       </Dialog>
+      <ConfirmModal />
     </div>
   );
 }

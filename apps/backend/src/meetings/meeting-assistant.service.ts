@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { GeminiAIService } from '../ai/gemini-ai.service';
 import { PrismaService } from '../database/prisma.service';
 
@@ -301,12 +301,21 @@ El resumen debe estar en español y ser profesional pero accesible.`;
     for (const item of actionItems) {
       try {
         // Build task data dynamically to handle optional fields
+        const title =
+          item.title || (item as any).action || 'Untitled Action Item';
+        const contextStr = item.context
+          ? `\n\n---\n📝 Contexto de la reunión: "${item.context}"`
+          : '';
+        const description = item.description
+          ? `${item.description}${contextStr}`
+          : item.context
+            ? `📝 Contexto de la reunión: "${item.context}"`
+            : undefined;
+
         const taskData: any = {
-          title: item.title,
-          description: item.description
-            ? `${item.description}\n\n---\n📝 Contexto de la reunión: "${item.context}"`
-            : `📝 Contexto de la reunión: "${item.context}"`,
-          priority: item.priority,
+          title,
+          description,
+          priority: item.priority || 'MEDIUM',
           status: 'TODO',
           ownerId: userId,
           metadata: {
@@ -356,22 +365,112 @@ El resumen debe estar en español y ser profesional pero accesible.`;
       analysis?: MeetingAnalysis;
       projectId?: string;
     },
-  ): Promise<any> {
-    // Note: This would require a Meeting model in Prisma schema
-    // For now, we'll store it in a JSON field or return the data
+  ): Promise<MeetingRecord> {
     this.logger.log(`Saving meeting: ${data.title}`);
 
-    // In a full implementation, this would be:
-    // return this.prisma.meeting.create({ data: { ...data, userId } });
+    const meeting = await this.prisma.meeting.create({
+      data: {
+        userId,
+        title: data.title,
+        date: data.date,
+        duration: data.duration,
+        transcript: data.transcript || null,
+        audioUrl: data.audioUrl || null,
+        analysis: data.analysis ? (data.analysis as any) : undefined,
+        projectId: data.projectId || null,
+      },
+    });
 
-    // For now, return the data as-is with a generated ID
     return {
-      id: `meeting_${Date.now()}`,
-      userId,
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      id: meeting.id,
+      userId: meeting.userId,
+      title: meeting.title,
+      date: meeting.date,
+      duration: meeting.duration,
+      transcript: meeting.transcript ?? undefined,
+      audioUrl: meeting.audioUrl ?? undefined,
+      analysis: (meeting.analysis as unknown as MeetingAnalysis) ?? undefined,
+      projectId: meeting.projectId ?? undefined,
+      createdAt: meeting.createdAt,
+      updatedAt: meeting.updatedAt,
     };
+  }
+
+  /**
+   * List saved meetings for a user
+   */
+  async getMeetings(
+    userId: string,
+    options?: { projectId?: string; limit?: number },
+  ): Promise<MeetingRecord[]> {
+    const where: any = { userId };
+    if (options?.projectId) {
+      where.projectId = options.projectId;
+    }
+
+    const meetings = await this.prisma.meeting.findMany({
+      where,
+      orderBy: { date: 'desc' },
+      take: options?.limit ?? 50,
+    });
+
+    return meetings.map((m) => ({
+      id: m.id,
+      userId: m.userId,
+      title: m.title,
+      date: m.date,
+      duration: m.duration,
+      transcript: m.transcript ?? undefined,
+      audioUrl: m.audioUrl ?? undefined,
+      analysis: (m.analysis as unknown as MeetingAnalysis) ?? undefined,
+      projectId: m.projectId ?? undefined,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+    }));
+  }
+
+  /**
+   * Get single meeting by ID
+   */
+  async getMeetingById(userId: string, id: string): Promise<MeetingRecord> {
+    const meeting = await this.prisma.meeting.findFirst({
+      where: { id, userId },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException(`Meeting with ID ${id} not found`);
+    }
+
+    return {
+      id: meeting.id,
+      userId: meeting.userId,
+      title: meeting.title,
+      date: meeting.date,
+      duration: meeting.duration,
+      transcript: meeting.transcript ?? undefined,
+      audioUrl: meeting.audioUrl ?? undefined,
+      analysis: (meeting.analysis as unknown as MeetingAnalysis) ?? undefined,
+      projectId: meeting.projectId ?? undefined,
+      createdAt: meeting.createdAt,
+      updatedAt: meeting.updatedAt,
+    };
+  }
+
+  /**
+   * Delete a meeting by ID
+   */
+  async deleteMeeting(userId: string, id: string): Promise<void> {
+    const meeting = await this.prisma.meeting.findFirst({
+      where: { id, userId },
+    });
+
+    if (!meeting) {
+      throw new NotFoundException(`Meeting with ID ${id} not found`);
+    }
+
+    await this.prisma.meeting.delete({
+      where: { id },
+    });
   }
 
   /**

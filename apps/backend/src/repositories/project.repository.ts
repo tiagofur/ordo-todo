@@ -23,6 +23,7 @@ export class PrismaProjectRepository implements ProjectRepository {
       completedAt: prismaProject.completedAt ?? undefined,
       isDeleted: prismaProject.isDeleted,
       deletedAt: prismaProject.deletedAt ?? undefined,
+      settings: prismaProject.settings ?? undefined,
       createdAt: prismaProject.createdAt,
       updatedAt: prismaProject.updatedAt,
     });
@@ -44,6 +45,7 @@ export class PrismaProjectRepository implements ProjectRepository {
       completedAt: project.props.completedAt,
       isDeleted: project.props.isDeleted ?? false,
       deletedAt: project.props.deletedAt ?? null,
+      settings: project.props.settings ?? null,
       updatedAt: project.props.updatedAt,
     };
 
@@ -112,6 +114,7 @@ export class PrismaProjectRepository implements ProjectRepository {
       completedAt: project.props.completedAt,
       isDeleted: project.props.isDeleted,
       deletedAt: project.props.deletedAt,
+      settings: project.props.settings ?? undefined,
       updatedAt: project.props.updatedAt,
     };
 

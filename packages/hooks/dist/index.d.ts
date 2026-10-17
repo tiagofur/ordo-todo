@@ -1,9 +1,9 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import * as _ordo_todo_api_client from '@ordo-todo/api-client';
-import { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto, Idea, CreateIdeaDto, UpdateIdeaDto, ContentPiece, CreateContentPieceDto, UpdateContentPieceDto, CreateSocialPostDto, BulkScheduleDto, ContentPlatform, UpdateSocialPostDto } from '@ordo-todo/api-client';
-import { C as CreateHooksConfig } from './use-username-validation-DSpdLO6J.js';
-export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-DSpdLO6J.js';
+import { RegisterDto, LoginDto, UpdateProfileDto, CreateWorkspaceDto, UpdateWorkspaceDto, AddMemberDto, InviteMemberDto, AcceptInvitationDto, CreateWorkflowDto, UpdateWorkflowDto, CreateProjectDto, UpdateProjectDto, CreateTaskDto, UpdateTaskDto, CreateSubtaskDto, CreateTagDto, UpdateTagDto, StartTimerDto, StopTimerDto, GetSessionsParams, GetDailyMetricsParams, CreateCommentDto, UpdateCommentDto, CreateAttachmentDto, CreateHabitDto, UpdateHabitDto, CompleteHabitDto, CreateObjectiveDto, UpdateObjectiveDto, CreateKeyResultDto, UpdateKeyResultDto, LinkTaskDto, CreateCustomFieldDto, UpdateCustomFieldDto, SetMultipleCustomFieldValuesDto, Note, CreateNoteDto, UpdateNoteDto } from '@ordo-todo/api-client';
+import { C as CreateHooksConfig } from './use-username-validation-BQeVmE6V.js';
+export { A as ApiClient, g as generateUsernameSuggestions, u as useUsernameValidation } from './use-username-validation-BQeVmE6V.js';
 import { z } from 'zod';
 
 /**
@@ -338,84 +338,6 @@ declare function createHooks(config: CreateHooksConfig): {
         data: UpdateNoteDto;
     }, unknown>;
     useDeleteNote: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
-    useIdeas: (params?: {
-        status?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    }) => _tanstack_react_query.UseQueryResult<{
-        data: Idea[];
-        total: number;
-        page: number;
-        limit: number;
-    }, Error>;
-    useIdea: (id: string) => _tanstack_react_query.UseQueryResult<Idea, Error>;
-    useCreateIdea: () => _tanstack_react_query.UseMutationResult<Idea, Error, CreateIdeaDto, unknown>;
-    useUpdateIdea: () => _tanstack_react_query.UseMutationResult<Idea, Error, {
-        id: string;
-        data: UpdateIdeaDto;
-    }, unknown>;
-    useDeleteIdea: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
-    useArchiveIdea: () => _tanstack_react_query.UseMutationResult<Idea, Error, string, unknown>;
-    useContentPieces: (params?: {
-        status?: string;
-        seriesId?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    }) => _tanstack_react_query.UseQueryResult<{
-        data: ContentPiece[];
-        total: number;
-        page: number;
-        limit: number;
-    }, Error>;
-    useContentPiece: (id: string) => _tanstack_react_query.UseQueryResult<ContentPiece, Error>;
-    useContentPipeline: () => _tanstack_react_query.UseQueryResult<{
-        scripting: ContentPiece[];
-        filming: ContentPiece[];
-        editing: ContentPiece[];
-        scheduled: ContentPiece[];
-        published: ContentPiece[];
-    }, Error>;
-    useCreateContentPiece: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, CreateContentPieceDto, unknown>;
-    usePromoteFromIdea: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, {
-        ideaId: string;
-        data: CreateContentPieceDto;
-    }, unknown>;
-    useUpdateContentPiece: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, {
-        id: string;
-        data: UpdateContentPieceDto;
-    }, unknown>;
-    useUpdateContentStatus: () => _tanstack_react_query.UseMutationResult<ContentPiece, Error, {
-        id: string;
-        status: string;
-    }, unknown>;
-    useDeleteContentPiece: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
-    useSeries: () => _tanstack_react_query.UseQueryResult<any[], Error>;
-    useSeriesById: (id: string) => _tanstack_react_query.UseQueryResult<any, Error>;
-    useCreateSeries: () => _tanstack_react_query.UseMutationResult<any, Error, any, unknown>;
-    useCreateSocialPost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, CreateSocialPostDto, unknown>;
-    useBulkSchedulePosts: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost[], Error, BulkScheduleDto, unknown>;
-    useScheduledPosts: (params?: {
-        from?: string;
-        to?: string;
-        platform?: ContentPlatform;
-        page?: number;
-        limit?: number;
-    }) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPostsListResponse, Error>;
-    usePublishingCalendar: (startDate: string, endDate: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPost[], Error>;
-    usePostsByContentPiece: (contentPieceId: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPost[], Error>;
-    useSocialPost: (id: string) => _tanstack_react_query.UseQueryResult<_ordo_todo_api_client.SocialPost, Error>;
-    useUpdateSocialPost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, {
-        id: string;
-        data: UpdateSocialPostDto;
-    }, unknown>;
-    useSchedulePost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, {
-        id: string;
-        scheduledAt: string;
-    }, unknown>;
-    useUnschedulePost: () => _tanstack_react_query.UseMutationResult<_ordo_todo_api_client.SocialPost, Error, string, unknown>;
-    useDeleteSocialPost: () => _tanstack_react_query.UseMutationResult<void, Error, string, unknown>;
     invalidateAllTasks: (queryClient: ReturnType<typeof useQueryClient>) => void;
 };
 /**
@@ -549,51 +471,6 @@ declare const queryKeys: {
     readonly taskCustomValues: (taskId: string) => readonly ["task-custom-values", string];
     readonly notes: (workspaceId: string) => readonly ["notes", string];
     readonly note: (id: string) => readonly ["notes", "detail", string];
-    readonly ideas: (params?: {
-        status?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    }) => readonly ["ideas", {
-        status?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    } | undefined];
-    readonly idea: (id: string) => readonly ["ideas", string];
-    readonly contentPieces: (params?: {
-        status?: string;
-        seriesId?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    }) => readonly ["content", {
-        status?: string;
-        seriesId?: string;
-        search?: string;
-        page?: number;
-        limit?: number;
-    } | undefined];
-    readonly contentPiece: (id: string) => readonly ["content", string];
-    readonly contentPipeline: () => readonly ["content", "pipeline"];
-    readonly series: () => readonly ["series"];
-    readonly seriesContent: (seriesId: string) => readonly ["series", string, "content"];
-    readonly scheduledPosts: (params?: {
-        from?: string;
-        to?: string;
-        platform?: string;
-        page?: number;
-        limit?: number;
-    }) => readonly ["publishing", "scheduled", {
-        from?: string;
-        to?: string;
-        platform?: string;
-        page?: number;
-        limit?: number;
-    } | undefined];
-    readonly publishingCalendar: (startDate: string, endDate: string) => readonly ["publishing", "calendar", string, string];
-    readonly socialPost: (id: string) => readonly ["publishing", "post", string];
-    readonly contentPiecePosts: (contentPieceId: string) => readonly ["publishing", "content", string];
 };
 
 /**

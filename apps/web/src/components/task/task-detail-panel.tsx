@@ -22,12 +22,17 @@ import {
   GitBranch,
   ShieldAlert,
   SlidersHorizontal,
+  Repeat,
 } from 'lucide-react';
 import { TaskCustomFieldsEditor } from './task-custom-fields-editor';
+import { RecurrenceSelector, type RecurrenceValue } from './recurrence-selector';
+import { PresenceAvatars } from '@/components/collaboration/presence-avatars';
+import { useCollaborationSocket } from '@/hooks/use-collaboration-socket';
 import { apiClient } from '@/lib/api-client';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
 import { formatCalendarDateInput, serializeCalendarDateForApi } from '@ordo-todo/core';
+import { useConfirm } from '@/components/shared/confirm-dialog';
 import { 
   useTaskComments, 
   useCreateComment, 
@@ -190,6 +195,7 @@ export function TaskDetailPanel({
   onAssignTag,
   onRemoveTag,
   onShare,
+  currentUserId: propCurrentUserId,
   renderSubtaskList,
   renderComments,
   renderAttachments,
@@ -217,16 +223,32 @@ export function TaskDetailPanel({
     dueDate: '',
     estimatedMinutes: '',
   });
+  const [recurrence, setRecurrence] = useState<RecurrenceValue | null | undefined>(null);
 
   // Comments & Mentions Logic
   const { data: comments = [] } = useTaskComments(taskId as string);
   const { data: currentUser } = useCurrentUser();
+  const currentUserId = currentUser?.id || propCurrentUserId;
   // Only fetch members if we have a task and it has a workspaceId
   const { data: workspaceMembers = [] } = useWorkspaceMembers(task?.project?.workspaceId ?? '');
   
   const createCommentMutation = useCreateComment();
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();
+
+  // Collaboration / Real-time Presence
+  const { taskUsers } = useCollaborationSocket({
+    workspaceId: task?.project?.workspaceId,
+    taskId: open && taskId ? taskId : null,
+    enabled: open && !!taskId,
+    onTaskUpdated: (event) => {
+      if (event.updatedBy?.userId !== currentUserId) {
+        toast.info(`${event.updatedBy?.userName || 'Another user'} updated this task`, {
+          icon: <Activity className="w-4 h-4 text-blue-500" />,
+        });
+      }
+    },
+  });
 
   // Transform workspace members to MentionUser format
   const mentionUsers = workspaceMembers
@@ -355,11 +377,20 @@ export function TaskDetailPanel({
         dueDate: formatCalendarDateInput(task.dueDate),
         estimatedMinutes: task.estimatedMinutes?.toString() || '',
       });
+      setRecurrence((task.recurrence as RecurrenceValue) || null);
     }
-  }, [task]);
+  }, [task?.id]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleRecurrenceChange = (val?: RecurrenceValue) => {
+    const updated = val || null;
+    setRecurrence(updated);
+    if (!isEditing && taskId && onUpdate) {
+      onUpdate(taskId, { recurrence: updated as any });
+    }
   };
 
   const handleSave = async () => {
@@ -373,6 +404,7 @@ export function TaskDetailPanel({
          priority: formData.priority as TaskPriority,
          dueDate: (formData.dueDate ? serializeCalendarDateForApi(formData.dueDate) : null) as any,
          estimatedMinutes: formData.estimatedMinutes ? parseInt(String(formData.estimatedMinutes)) : undefined,
+         recurrence: (recurrence ?? null) as any,
        });
        setIsEditing(false);
      } catch {
@@ -382,9 +414,16 @@ export function TaskDetailPanel({
      }
   };
 
+  const { confirm, ConfirmModal } = useConfirm();
+
   const handleDelete = async () => {
     if (!taskId || !onDelete) return;
-    if (window.confirm(t.confirmDelete)) {
+    const ok = await confirm({
+      title: t.btnDelete,
+      description: t.confirmDelete,
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
         await onDelete(taskId);
         onOpenChange(false);
@@ -503,6 +542,15 @@ export function TaskDetailPanel({
                 </div>
 
                 <div className="flex items-center gap-1">
+                  {taskUsers.length > 0 && (
+                    <div className="mr-1.5 flex items-center">
+                      <PresenceAvatars
+                        users={taskUsers}
+                        currentUserId={currentUserId}
+                        size="sm"
+                      />
+                    </div>
+                  )}
                   {isEditing ? (
                     <Button size="sm" onClick={handleSave} disabled={isUpdating} className="h-8 text-xs">
                       <Save className="w-3.5 h-3.5 sm:mr-1.5" />
@@ -774,6 +822,15 @@ export function TaskDetailPanel({
                            
                            <Separator className="my-3" />
                            
+                           <div className="space-y-2">
+                             <RecurrenceSelector
+                               value={recurrence ?? undefined}
+                               onChange={handleRecurrenceChange}
+                             />
+                           </div>
+
+                           <Separator className="my-3" />
+                           
                            {renderAssigneeSelector && taskId && renderAssigneeSelector(taskId, task?.assignee)}
                         </div>
                       </div>
@@ -1026,6 +1083,7 @@ export function TaskDetailPanel({
            </div>
          </DialogContent>
       </Dialog>
+      <ConfirmModal />
     </Sheet>
   );
 }

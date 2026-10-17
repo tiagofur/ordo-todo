@@ -19,8 +19,13 @@ export function WorkspaceAutoSelector() {
     // Don't do anything while loading
     if (isLoading) return;
 
-    // Don't do anything if no workspaces exist
-    if (!workspaces || workspaces.length === 0) return;
+    if (!workspaces) return;
+
+    // No workspaces: drop any stale persisted selection (e.g. from another user/DB)
+    if (workspaces.length === 0) {
+      if (selectedWorkspaceId) setSelectedWorkspaceId(null);
+      return;
+    }
 
     // If there's already a selected workspace and it exists in the list, keep it
     if (selectedWorkspaceId) {

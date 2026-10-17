@@ -2,13 +2,6 @@ name: Regenerate Lockfile
 
 on:
   workflow_dispatch: # Allow manual trigger
-  push:
-    paths:
-      - 'package.json'
-      - 'apps/**/package.json'
-      - 'packages/**/package.json'
-    branches:
-      - main
 
 permissions:
   contents: write

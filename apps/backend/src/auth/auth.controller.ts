@@ -23,6 +23,8 @@ import { AuthService } from './auth.service';
 import { CsrfService } from './csrf.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CheckUsernameDto } from './dto/check-username.dto';
 import { Public } from '../common/decorators/public.decorator';
@@ -39,6 +41,25 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly csrfService: CsrfService,
   ) {}
+
+  private extractRequestContext(req?: Request):
+    | { ip?: string; userAgent?: string }
+    | undefined {
+    if (!req) return undefined;
+    const forwardedFor = req.headers?.['x-forwarded-for'];
+    const ip =
+      (Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : forwardedFor?.split(',')[0]?.trim()) ||
+      req.ip ||
+      req.socket?.remoteAddress ||
+      'unknown';
+    const userAgent =
+      (typeof req.headers?.['user-agent'] === 'string'
+        ? req.headers['user-agent']
+        : undefined) || 'unknown';
+    return { ip, userAgent };
+  }
 
   /**
    * Register a new user account
@@ -75,9 +96,12 @@ export class AuthController {
   async register(
     @Body() registerDto: RegisterDto,
     @Res({ passthrough: true }) res?: Response,
+    @Req() req?: Request,
   ) {
-    const { accessToken, refreshToken, user } =
-      await this.authService.register(registerDto);
+    const reqCtx = this.extractRequestContext(req);
+    const { accessToken, refreshToken, user } = reqCtx
+      ? await this.authService.register(registerDto, reqCtx)
+      : await this.authService.register(registerDto);
 
     // Set httpOnly cookies for security (XSS protection)
     res?.cookie?.('access_token', accessToken, {
@@ -131,9 +155,12 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res?: Response,
+    @Req() req?: Request,
   ) {
-    const { accessToken, refreshToken, user } =
-      await this.authService.login(loginDto);
+    const reqCtx = this.extractRequestContext(req);
+    const { accessToken, refreshToken, user } = reqCtx
+      ? await this.authService.login(loginDto, reqCtx)
+      : await this.authService.login(loginDto);
 
     // Set httpOnly cookies for security (XSS protection)
     res?.cookie?.('access_token', accessToken, {
@@ -462,5 +489,68 @@ export class AuthController {
     return res.redirect(
       `${process.env.FRONTEND_URL || 'http://localhost:3100'}/dashboard`,
     );
+  }
+
+  /**
+   * Change user password
+   */
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Change password',
+    description: 'Updates the password of the currently authenticated user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid current or new password' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(user.id, changePasswordDto);
+  }
+
+  /**
+   * Request password reset instructions
+   */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 attempts/hour
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Request password reset',
+    description:
+      'Sends password reset instructions to the provided email if the account exists',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reset request processed (generic message to prevent enumeration)',
+  })
+  async forgotPassword(@Body('email') email: string) {
+    this.logger.log(`Password reset requested for email: ${email}`);
+    return this.authService.forgotPassword(email);
+  }
+
+  /**
+   * Reset password with reset token
+   */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 900000 } }) // 5 attempts per 15 min
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Resets user password using a valid signed reset token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

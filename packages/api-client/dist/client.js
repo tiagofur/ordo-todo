@@ -287,6 +287,22 @@ class OrdoApiClient {
         return response.data;
     }
     /**
+     * Change user password
+     * POST /auth/change-password
+     */
+    async changePassword(data) {
+        const response = await this.axios.post("/auth/change-password", data);
+        return response.data;
+    }
+    /**
+     * Request password reset instructions
+     * POST /auth/forgot-password
+     */
+    async forgotPassword(email) {
+        const response = await this.axios.post("/auth/forgot-password", { email });
+        return response.data;
+    }
+    /**
      * Logout (clear tokens from storage)
      * This is a client-side only operation
      */
@@ -1804,225 +1820,6 @@ class OrdoApiClient {
      */
     async deleteNote(id) {
         await this.axios.delete(`/notes/${id}`);
-    }
-    // ============ CREATOR OS - IDEAS ============
-    /**
-     * Get all ideas for current workspace
-     * GET /ideas?status=...&search=...&page=...&limit=...
-     */
-    async getIdeas(params) {
-        const response = await this.axios.get("/ideas", { params });
-        return response.data;
-    }
-    /**
-     * Get a specific idea
-     * GET /ideas/:id
-     */
-    async getIdea(id) {
-        const response = await this.axios.get(`/ideas/${id}`);
-        return response.data;
-    }
-    /**
-     * Create a new idea
-     * POST /ideas
-     */
-    async createIdea(data) {
-        const response = await this.axios.post("/ideas", data);
-        return response.data;
-    }
-    /**
-     * Update an idea
-     * PATCH /ideas/:id
-     */
-    async updateIdea(id, data) {
-        const response = await this.axios.patch(`/ideas/${id}`, data);
-        return response.data;
-    }
-    /**
-     * Delete an idea
-     * DELETE /ideas/:id
-     */
-    async deleteIdea(id) {
-        await this.axios.delete(`/ideas/${id}`);
-    }
-    /**
-     * Archive an idea
-     * POST /ideas/:id/archive
-     */
-    async archiveIdea(id) {
-        const response = await this.axios.post(`/ideas/${id}/archive`);
-        return response.data;
-    }
-    // ============ CREATOR OS - CONTENT PIECES ============
-    /**
-     * Get all content pieces
-     * GET /content?status=...&seriesId=...&search=...&page=...&limit=...
-     */
-    async getContentPieces(params) {
-        const response = await this.axios.get("/content", { params });
-        return response.data;
-    }
-    /**
-     * Get a specific content piece
-     * GET /content/:id
-     */
-    async getContentPiece(id) {
-        const response = await this.axios.get(`/content/${id}`);
-        return response.data;
-    }
-    /**
-     * Get pipeline view (content grouped by status)
-     * GET /content/pipeline
-     */
-    async getContentPipeline() {
-        const response = await this.axios.get("/content/pipeline");
-        return response.data;
-    }
-    /**
-     * Create a new content piece
-     * POST /content
-     */
-    async createContentPiece(data) {
-        const response = await this.axios.post("/content", data);
-        return response.data;
-    }
-    /**
-     * Promote an idea to content piece
-     * POST /content/promote/:ideaId
-     */
-    async promoteFromIdea(ideaId, data) {
-        const response = await this.axios.post(`/content/promote/${ideaId}`, data);
-        return response.data;
-    }
-    /**
-     * Update a content piece
-     * PATCH /content/:id
-     */
-    async updateContentPiece(id, data) {
-        const response = await this.axios.patch(`/content/${id}`, data);
-        return response.data;
-    }
-    /**
-     * Update content piece status (move in pipeline)
-     * PATCH /content/:id/status
-     */
-    async updateContentStatus(id, status) {
-        const response = await this.axios.patch(`/content/${id}/status`, { status });
-        return response.data;
-    }
-    /**
-     * Delete a content piece
-     * DELETE /content/:id
-     */
-    async deleteContentPiece(id) {
-        await this.axios.delete(`/content/${id}`);
-    }
-    // ============ CREATOR HUB: SERIES ============
-    /**
-     * Get all series
-     * GET /series
-     */
-    async getSeries() {
-        const response = await this.axios.get('/series');
-        return response.data;
-    }
-    /**
-     * Get series by ID
-     * GET /series/:id
-     */
-    async getSeriesById(id) {
-        const response = await this.axios.get(`/series/${id}`);
-        return response.data;
-    }
-    /**
-     * Create a new series
-     * POST /series
-     */
-    async createSeries(data) {
-        const response = await this.axios.post('/series', data);
-        return response.data;
-    }
-    // ============ CREATOR HUB: PUBLISHING ============
-    /**
-     * Create a social post draft or scheduled post
-     * POST /publishing
-     */
-    async createSocialPost(data) {
-        const response = await this.axios.post('/publishing', data);
-        return response.data;
-    }
-    /**
-     * Schedule content to multiple platforms at once
-     * POST /publishing/bulk-schedule
-     */
-    async bulkSchedulePosts(data) {
-        const response = await this.axios.post('/publishing/bulk-schedule', data);
-        return response.data;
-    }
-    /**
-     * Get all scheduled posts
-     * GET /publishing/scheduled
-     */
-    async getScheduledPosts(params) {
-        const response = await this.axios.get('/publishing/scheduled', { params });
-        return response.data;
-    }
-    /**
-     * Get calendar view of posts
-     * GET /publishing/calendar
-     */
-    async getPublishingCalendar(startDate, endDate) {
-        const response = await this.axios.get('/publishing/calendar', {
-            params: { startDate, endDate },
-        });
-        return response.data;
-    }
-    /**
-     * Get all posts for a content piece
-     * GET /publishing/content/:contentPieceId
-     */
-    async getPostsByContentPiece(contentPieceId) {
-        const response = await this.axios.get(`/publishing/content/${contentPieceId}`);
-        return response.data;
-    }
-    /**
-     * Get social post by ID
-     * GET /publishing/:id
-     */
-    async getSocialPost(id) {
-        const response = await this.axios.get(`/publishing/${id}`);
-        return response.data;
-    }
-    /**
-     * Update a social post
-     * PATCH /publishing/:id
-     */
-    async updateSocialPost(id, data) {
-        const response = await this.axios.patch(`/publishing/${id}`, data);
-        return response.data;
-    }
-    /**
-     * Schedule a draft post
-     * POST /publishing/:id/schedule
-     */
-    async schedulePost(id, scheduledAt) {
-        const response = await this.axios.post(`/publishing/${id}/schedule`, { scheduledAt });
-        return response.data;
-    }
-    /**
-     * Unschedule a post (move back to draft)
-     * POST /publishing/:id/unschedule
-     */
-    async unschedulePost(id) {
-        const response = await this.axios.post(`/publishing/${id}/unschedule`);
-        return response.data;
-    }
-    /**
-     * Delete a social post
-     * DELETE /publishing/:id
-     */
-    async deleteSocialPost(id) {
-        await this.axios.delete(`/publishing/${id}`);
     }
 }
 exports.OrdoApiClient = OrdoApiClient;

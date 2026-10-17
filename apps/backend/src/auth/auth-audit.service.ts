@@ -16,6 +16,8 @@ export interface AuthAuditEvent {
 @Injectable()
 export class AuthAuditService {
   private readonly logger = new Logger(AuthAuditService.name);
+  private readonly recentEvents: AuthAuditEvent[] = [];
+  private static readonly MAX_RECENT_EVENTS = 100;
 
   constructor(
     private readonly configService: ConfigService,
@@ -25,6 +27,11 @@ export class AuthAuditService {
   ) {}
 
   async logEvent(event: AuthAuditEvent): Promise<void> {
+    this.recentEvents.unshift(event);
+    if (this.recentEvents.length > AuthAuditService.MAX_RECENT_EVENTS) {
+      this.recentEvents.length = AuthAuditService.MAX_RECENT_EVENTS;
+    }
+
     this.logger.log(
       `[AUTH_AUDIT] ${event.type} - User: ${event.userId ?? 'Anonymous'} - IP: ${event.ip ?? 'unknown'}`,
       {
@@ -53,6 +60,41 @@ export class AuthAuditService {
         );
       }
     }
+  }
+
+  async getRecentLogs(options?: {
+    userId?: string;
+    limit?: number;
+  }): Promise<AuthAuditEvent[]> {
+    const limit = Math.min(Math.max(options?.limit ?? 50, 1), 100);
+
+    if (this.auditLogRepository) {
+      try {
+        const records = await this.auditLogRepository.findMany({
+          userId: options?.userId,
+          limit,
+        });
+        return records.map((record: any) => ({
+          type: record.type,
+          userId: record.userId ?? undefined,
+          email: record.email ?? undefined,
+          ip: record.ip ?? undefined,
+          userAgent: record.userAgent ?? undefined,
+          timestamp: record.createdAt ?? new Date(),
+          metadata: (record.metadata as Record<string, unknown>) ?? undefined,
+        }));
+      } catch (error) {
+        this.logger.warn(
+          `Failed to query audit log repository, falling back to memory buffer: ${(error as Error).message}`,
+        );
+      }
+    }
+
+    const filtered = options?.userId
+      ? this.recentEvents.filter((e) => e.userId === options.userId)
+      : this.recentEvents;
+
+    return filtered.slice(0, limit);
   }
 
   async loginSuccess(

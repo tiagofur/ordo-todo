@@ -26,6 +26,7 @@ export interface Project {
     workflowId: string;
     archived: boolean;
     archivedAt: Date | null;
+    settings?: any;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -40,6 +41,7 @@ export interface CreateProjectDto {
     dueDate?: Date | string;
     workspaceId: string;
     workflowId: string;
+    settings?: any;
 }
 export interface UpdateProjectDto {
     name?: string;
@@ -51,5 +53,6 @@ export interface UpdateProjectDto {
     startDate?: Date | string | null;
     dueDate?: Date | string | null;
     workflowId?: string;
+    settings?: any;
 }
 //# sourceMappingURL=project.types.d.ts.map

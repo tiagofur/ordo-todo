@@ -11,6 +11,7 @@ import { useWorkspaceMembers, useWorkspaceInvitations, useRemoveWorkspaceMember,
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import type { WorkspaceMember, WorkspaceInvitation } from "@ordo-todo/api-client";
 
 interface WorkspaceOwner {
@@ -28,6 +29,7 @@ interface WorkspaceMembersSettingsProps {
 
 export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedAt }: WorkspaceMembersSettingsProps) {
   const t = useTranslations("WorkspaceMembersSettings");
+  const { confirm, ConfirmModal } = useConfirm();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   const { data: workspace } = useWorkspace(workspaceId);
@@ -87,7 +89,12 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
   };
 
   const handleRemoveMember = async (userId: string) => {
-    if (confirm(t("confirmRemove"))) {
+    const ok = await confirm({
+      title: t("remove"),
+      description: t("confirmRemove"),
+      variant: "destructive",
+    });
+    if (ok) {
       try {
         await removeMemberMutation.mutateAsync({ workspaceId, userId });
         toast.success(t("removeSuccess"));
@@ -244,6 +251,7 @@ export function WorkspaceMembersSettings({ workspaceId, owner, workspaceCreatedA
         open={isInviteDialogOpen}
         onOpenChange={setIsInviteDialogOpen}
       />
+      <ConfirmModal />
     </div>
   );
 }

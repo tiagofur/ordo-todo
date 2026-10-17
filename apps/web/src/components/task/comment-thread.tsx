@@ -18,6 +18,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import { Comment } from '@ordo-todo/api-client';
+import { useConfirm } from '@/components/shared/confirm-dialog';
 
 interface MentionUser {
   id: string;
@@ -82,6 +83,7 @@ export function CommentThread({
   locale = 'en',
   labels = {},
 }: CommentThreadProps) {
+  const { confirm, ConfirmModal } = useConfirm();
   const t = {
     ...DEFAULT_LABELS,
     ...labels,
@@ -122,13 +124,16 @@ export function CommentThread({
     });
   };
 
-  const handleDeleteComment = (commentId: string | number) => {
+  const handleDeleteComment = async (commentId: string | number) => {
     if (!onDelete) return;
-    if (window.confirm(t.confirmDelete)) {
-      // Don't set global submitting for delete, maybe? or yes.
-      // onDelete is usually fast.
+    const ok = await confirm({
+      title: t.actions.delete,
+      description: t.confirmDelete,
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
-         onDelete(String(commentId));
+         await onDelete(String(commentId));
       } catch(e) { if (process.env.NODE_ENV === 'development') console.error(e); }
     }
   };
@@ -296,6 +301,7 @@ export function CommentThread({
           </Button>
         </div>
       </div>
+      <ConfirmModal />
     </div>
   );
 }

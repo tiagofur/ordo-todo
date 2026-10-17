@@ -119,29 +119,5 @@ export const queryKeys = {
   // ============ Notes ============
   notes: (workspaceId: string) => ['notes', workspaceId] as const,
   note: (id: string) => ['notes', 'detail', id] as const,
-
-  // ============ Creator OS - Ideas ============
-  ideas: (params?: { status?: string; search?: string; page?: number; limit?: number }) =>
-    ['ideas', params] as const,
-  idea: (id: string) => ['ideas', id] as const,
-
-  // ============ Creator OS - Content Pieces ============
-  contentPieces: (params?: { status?: string; seriesId?: string; search?: string; page?: number; limit?: number }) =>
-    ['content', params] as const,
-  contentPiece: (id: string) => ['content', id] as const,
-  contentPipeline: () => ['content', 'pipeline'] as const,
-
-  // ============ Creator OS - Series ============
-  series: () => ['series'] as const,
-  seriesContent: (seriesId: string) => ['series', seriesId, 'content'] as const,
-
-  // ============ Creator OS - Publishing ============
-  scheduledPosts: (params?: { from?: string; to?: string; platform?: string; page?: number; limit?: number }) =>
-    ['publishing', 'scheduled', params] as const,
-  publishingCalendar: (startDate: string, endDate: string) =>
-    ['publishing', 'calendar', startDate, endDate] as const,
-  socialPost: (id: string) => ['publishing', 'post', id] as const,
-  contentPiecePosts: (contentPieceId: string) =>
-    ['publishing', 'content', contentPieceId] as const,
 } as const;
 
