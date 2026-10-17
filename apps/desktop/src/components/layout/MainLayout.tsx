@@ -8,6 +8,8 @@ import { KeyboardShortcutsHelp } from "../keyboard-shortcuts/KeyboardShortcutsHe
 import { useGlobalKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useSystemIntegration } from "../system/SystemIntegration";
 
+import { desktopBridge } from "@/lib/desktop-bridge";
+
 export function MainLayout() {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -21,8 +23,8 @@ export function MainLayout() {
   useEffect(() => {
     // Check window state on mount
     const checkWindowState = async () => {
-      if (window.electronAPI) {
-        const maximized = await window.electronAPI.isMaximized();
+      if (desktopBridge.isNative()) {
+        const maximized = await desktopBridge.isMaximized();
         setIsMaximized(maximized);
       }
     };

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { formatTimerDisplay } from "@ordo-todo/core";
 import { useActiveTimer, useStartTimer, useStopTimer, usePauseTimer, useResumeTimer, useSwitchTask } from "@/hooks/api";
 import { toast } from "sonner";
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 
 export type TimerSessionMode = "WORK" | "SHORT_BREAK" | "LONG_BREAK" | "IDLE" | "CONTINUOUS";
@@ -53,17 +54,25 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
         }
     }, [config]);
 
-    // Sync to Electron
+    // Sync to Desktop
     useEffect(() => {
-        if (typeof window !== 'undefined' && window.electronAPI) {
-            window.electronAPI.sendTimerState({
-                timerActive: isRunning,
-                isPaused: isPaused,
-                timeRemaining: formatTimerDisplay(timeLeft),
-                currentTask: (activeSession as any)?.task || null,
-                mode: mode as any,
-            });
+        const formatted = formatTimerDisplay(timeLeft);
+        if (isRunning && !isPaused) {
+            desktopBridge.updateTrayTitle(formatted);
+        } else if (isPaused) {
+            desktopBridge.updateTrayTitle(`⏸ ${formatted}`);
+        } else {
+            desktopBridge.updateTrayTitle('Ordo');
         }
+
+        desktopBridge.broadcastTimerState({
+            timeRemaining: formatted,
+            mode: mode as any,
+            isRunning,
+            isPaused,
+            taskTitle: (activeSession as any)?.task?.title || null,
+            progress: 0,
+        });
     }, [isRunning, isPaused, timeLeft, mode, activeSession]);
 
     // Sync with backend active session

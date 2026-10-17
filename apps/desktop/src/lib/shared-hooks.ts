@@ -1,4 +1,5 @@
 import { createHooks } from '@ordo-todo/hooks';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './api-client';
 
 /**
@@ -181,3 +182,66 @@ export const {
     invalidateAllTasks,
 
 } = createHooks({ apiClient });
+
+// ============ DELETED PROJECTS HOOKS ============
+
+export function useDeletedProjects(workspaceId: string) {
+  return useQuery({
+    queryKey: ['projects', 'deleted', workspaceId],
+    queryFn: () => apiClient.getDeletedProjects(workspaceId),
+    enabled: !!workspaceId,
+  });
+}
+
+export function useRestoreProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (projectId: string) => apiClient.restoreProject(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['projects', 'deleted'] });
+    },
+  });
+}
+
+export function usePermanentDeleteProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (projectId: string) => apiClient.permanentDeleteProject(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', 'deleted'] });
+    },
+  });
+}
+
+// ============ DELETED TASKS HOOKS ============
+
+export function useDeletedTasks(projectId: string) {
+  return useQuery({
+    queryKey: ['tasks', 'deleted', projectId],
+    queryFn: () => apiClient.getDeletedTasks(projectId),
+    enabled: !!projectId,
+  });
+}
+
+export function useRestoreTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.restoreTask(taskId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'deleted'] });
+    },
+  });
+}
+
+export function usePermanentDeleteTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (taskId: string) => apiClient.permanentDeleteTask(taskId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'deleted'] });
+    },
+  });
+}
+

@@ -909,16 +909,16 @@ function parseCalendarDateToUtcMidnight(date5) {
   const dateStr = toCalendarDateString(date5) || toCalendarDateString(/* @__PURE__ */ new Date());
   return /* @__PURE__ */ new Date(`${dateStr}T00:00:00.000Z`);
 }
-function isCalendarDateToday(date5) {
+function isCalendarDateToday(date5, timezone) {
   if (!date5) return false;
-  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
-  return toCalendarDateString(date5) === todayStr;
+  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date(), timezone);
+  return toCalendarDateString(date5, timezone) === todayStr;
 }
-function isCalendarDateOverdue(dueDate, isCompleted = false) {
+function isCalendarDateOverdue(dueDate, isCompleted = false, timezone) {
   if (!dueDate || isCompleted) return false;
-  const dueStr = toCalendarDateString(dueDate);
+  const dueStr = toCalendarDateString(dueDate, timezone);
   if (!dueStr) return false;
-  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date());
+  const todayStr = formatLocalDateToYYYYMMDD(/* @__PURE__ */ new Date(), timezone);
   return dueStr < todayStr;
 }
 

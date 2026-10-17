@@ -10,6 +10,7 @@ import { DragStore } from "@/lib/drag-store";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Task } from "@ordo-todo/api-client";
+import { isCalendarDateOverdue } from "@ordo-todo/core";
 
 const dateLocaleMap: Record<string, typeof es> = {
   es,
@@ -109,7 +110,7 @@ export function UnscheduledTasks() {
                          <span>• {task.estimatedMinutes}m</span>
                        )}
                        {task.dueDate && (
-                         <span className={new Date(task.dueDate) < new Date() ? "text-destructive" : ""}>
+                         <span className={isCalendarDateOverdue(task.dueDate) ? "text-destructive" : ""}>
                            • {format(new Date(task.dueDate), "d MMM", { locale: dateLocale })}
                          </span>
                        )}

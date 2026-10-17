@@ -32,6 +32,7 @@ export default [
     ignores: [
       "dist/**",
       "dist-electron/**",
+      "src-tauri/**",
       "build/**",
       "node_modules/**",
       "scripts/**",

@@ -8,6 +8,7 @@ import { GripVertical, AlertCircle, CalendarClock } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, Badge } from "@ordo-todo/ui";
 import { DragStore } from "@/lib/drag-store";
 import { Task } from "@ordo-todo/api-client";
+import { isCalendarDateOverdue } from "@ordo-todo/core";
 
 export function UnscheduledTasks() {
   // Use available tasks (not scheduled)
@@ -90,7 +91,7 @@ export function UnscheduledTasks() {
                          <span>• {(task as any).estimatedMinutes}m</span>
                        )}
                        {task.dueDate && (
-                         <span className={new Date(task.dueDate) < new Date() ? "text-destructive" : ""}>
+                         <span className={isCalendarDateOverdue(task.dueDate) ? "text-destructive" : ""}>
                            • {format(new Date(task.dueDate), "d MMM", { locale: es })}
                          </span>
                        )}

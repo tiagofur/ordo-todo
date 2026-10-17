@@ -3,21 +3,21 @@ import { useUIStore } from "@/stores/ui-store";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2 } from "lucide-react";
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 export function AboutDialog() {
   const { t } = (useTranslation as any)();
   const { aboutDialogOpen, closeAboutDialog } = useUIStore();
-  const [version, setVersion] = useState("0.1.0");
-  const [electronVersion, setElectronVersion] = useState("");
-  const [platform, setPlatform] = useState("Desktop");
+  const [version, setVersion] = useState("1.0.0");
+  const [shellInfo, setShellInfo] = useState("Tauri v2");
+  const [platform, setPlatform] = useState("macOS (Native Rust)");
 
   useEffect(() => {
-    // Get version info from Electron
-    if (window.electronAPI) {
-      window.electronAPI.getVersion().then(setVersion);
-      setElectronVersion(window.electronAPI.versions.electron);
-      setPlatform(window.electronAPI.platform);
-    }
+    desktopBridge.getSystemInfo().then((info) => {
+      if (info.version) setVersion(info.version);
+      if (info.platform) setPlatform(`${info.platform} (${info.arch})`);
+      setShellInfo("Tauri v2 (Native Rust)");
+    });
   }, []);
 
   return (
@@ -26,7 +26,7 @@ export function AboutDialog() {
       onOpenChange={closeAboutDialog}
       versionInfo={{
         version,
-        electronVersion,
+        electronVersion: shellInfo,
         platform,
       }}
       renderLogo={() => (
@@ -43,7 +43,7 @@ export function AboutDialog() {
         title: "Ordo-Todo",
         description: t("About.description", "Your personal productivity companion"),
         version: t("About.version", "Version"),
-        electron: "Electron",
+        electron: "Shell",
         platform: t("About.platform", "Platform"),
         copyright: "© 2025 Ordo-Todo",
         madeWith: t("About.madeWith", "Made with ❤️ to boost your productivity"),

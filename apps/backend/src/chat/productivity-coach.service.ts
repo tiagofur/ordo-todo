@@ -2,7 +2,11 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { GeminiAIService } from '../ai/gemini-ai.service';
 import { ChatRole } from '@prisma/client';
-import type { TimerRepository, AnalyticsRepository } from '@ordo-todo/core';
+import {
+  isCalendarDateOverdue,
+  type TimerRepository,
+  type AnalyticsRepository,
+} from '@ordo-todo/core';
 
 export interface UserContext {
   pendingTasks: Array<{
@@ -12,6 +16,7 @@ export interface UserContext {
     dueDate: Date | null;
     estimatedMinutes: number | null;
   }>;
+  timezone?: string;
   todayCompleted: number;
   activeTimer: {
     isActive: boolean;
@@ -61,13 +66,17 @@ export class ProductivityCoachService {
    * Build comprehensive context for AI prompt
    */
   async buildContext(userId: string): Promise<UserContext> {
-    const [pendingTasks, todayCompleted, activeTimer, timerStats, profile] =
+    const [pendingTasks, todayCompleted, activeTimer, timerStats, profile, user] =
       await Promise.all([
         this.getPendingTasks(userId),
         this.getTodayCompletedCount(userId),
         this.getActiveTimer(userId),
         this.getTimerStats(userId),
         this.getProductivityProfile(userId),
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { timezone: true },
+        }),
       ]);
 
     return {
@@ -76,6 +85,7 @@ export class ProductivityCoachService {
       activeTimer,
       timerStats,
       profile,
+      timezone: user?.timezone || undefined,
       timestamp: new Date().toISOString(),
     };
   }
@@ -152,9 +162,9 @@ export class ProductivityCoachService {
       action?: { type: string; data: any };
     }> = [];
 
-    // Check for overdue tasks
+    // Check for overdue tasks using calendar date logic
     const overdueTasks = context.pendingTasks.filter(
-      (t) => t.dueDate && new Date(t.dueDate) < new Date(),
+      (t) => t.dueDate && isCalendarDateOverdue(t.dueDate, false, context.timezone),
     );
     if (overdueTasks.length > 0) {
       insights.push({

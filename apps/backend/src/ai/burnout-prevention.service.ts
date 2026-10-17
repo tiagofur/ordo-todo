@@ -238,6 +238,9 @@ export class BurnoutPreventionService {
           60
         : 0;
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     // Get task overload indicators using AnalyticsRepository
     const [urgentTasks, overdueTasks] = await Promise.all([
       this.analyticsRepository.countTasks(userId, {
@@ -246,7 +249,7 @@ export class BurnoutPreventionService {
       }),
       this.analyticsRepository.countTasks(userId, {
         status: { notIn: ['COMPLETED', 'CANCELLED'] },
-        dueDate: { lt: new Date() },
+        dueDate: { lt: startOfToday },
       }),
     ]);
 

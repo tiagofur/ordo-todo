@@ -11,19 +11,9 @@ import {
   Leaf,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { desktopBridge, type TimerMode, type TimerSyncState } from '@/lib/desktop-bridge'
 
-type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK' | 'IDLE'
-
-interface TimerWindowState {
-  timeRemaining: string
-  mode: TimerMode
-  isRunning: boolean
-  isPaused: boolean
-  taskTitle: string | null
-  progress: number
-}
-
-const defaultState: TimerWindowState = {
+const defaultState: TimerSyncState = {
   timeRemaining: '25:00',
   mode: 'IDLE',
   isRunning: false,
@@ -35,46 +25,38 @@ const defaultState: TimerWindowState = {
 /**
  * TimerFloatingWindow - Floating timer widget displayed in always-on-top window
  *
- * Enhanced version with:
+ * Enhanced version for Tauri v2 with:
+ * - Native inter-window broadcast sync
+ * - data-tauri-drag-region for native window dragging
  * - Mini-mode toggle for ultra-compact display
  * - Circular progress indicator
- * - Smooth animations
- * - Dynamic colors based on timer state
  */
 export function TimerFloatingWindow() {
-  const [state, setState] = useState<TimerWindowState>(defaultState)
-  const [isDragging, setIsDragging] = useState(false)
+  const [state, setState] = useState<TimerSyncState>(defaultState)
   const [isMiniMode, setIsMiniMode] = useState(false)
 
-  // Listen for state updates from main process
+  // Listen for state updates from main process / window
   useEffect(() => {
-    if (!window.electronAPI?.timerWindow) return
-
-    window.electronAPI.timerWindow.onStateUpdate((newState) => {
+    const unsubscribe = desktopBridge.onTimerStateUpdate((newState) => {
       setState((prev) => ({ ...prev, ...newState }))
     })
 
     return () => {
-      window.electronAPI?.removeAllListeners('timer-window:state-update')
+      unsubscribe()
     }
   }, [])
 
   const handleToggleTimer = useCallback(() => {
-    if (state.isRunning && !state.isPaused) {
-      window.electronAPI?.timerWindow.sendAction('timer:pause')
-    } else if (state.isPaused) {
-      window.electronAPI?.timerWindow.sendAction('timer:resume')
-    } else {
-      window.electronAPI?.timerWindow.sendAction('timer:start')
-    }
-  }, [state.isRunning, state.isPaused])
+    desktopBridge.sendTimerAction({ type: 'toggle' })
+  }, [])
 
   const handleSkip = useCallback(() => {
-    window.electronAPI?.timerWindow.sendAction('timer:skip')
+    desktopBridge.sendTimerAction({ type: 'skip' })
   }, [])
 
   const handleExpand = useCallback(() => {
-    window.electronAPI?.timerWindow.expand()
+    // Hide mini-timer and focus main window
+    desktopBridge.setMiniTimerVisible(false)
   }, [])
 
   const handleToggleMiniMode = useCallback(() => {
@@ -126,17 +108,17 @@ export function TimerFloatingWindow() {
   const strokeDashoffset = circumference - (state.progress / 100) * circumference
 
   if (isMiniMode) {
-    // Ultra-compact mini mode
     return (
       <div
+        data-tauri-drag-region
         className={cn(
-          'w-full h-full rounded-full shadow-2xl overflow-hidden',
+          'w-full h-full rounded-full shadow-2xl overflow-hidden select-none',
           'border-2 border-zinc-700',
           modeStyles.bg,
           'transition-all duration-300'
         )}
       >
-        <div className="flex items-center justify-center h-full px-2 py-1">
+        <div className="flex items-center justify-center h-full px-2 py-1" data-tauri-drag-region>
           <button
             onClick={handleToggleTimer}
             className={cn(
@@ -155,7 +137,6 @@ export function TimerFloatingWindow() {
           </button>
         </div>
 
-        {/* Mini mode toggle */}
         <button
           onClick={handleToggleMiniMode}
           className="absolute bottom-0 right-0 p-0.5 opacity-50 hover:opacity-100 transition-opacity"
@@ -167,28 +148,26 @@ export function TimerFloatingWindow() {
     )
   }
 
-  // Full mode with circular progress
   return (
     <div
+      data-tauri-drag-region
       className={cn(
-        'w-full h-full rounded-2xl shadow-2xl overflow-hidden relative',
+        'w-full h-full rounded-2xl shadow-2xl overflow-hidden relative select-none',
         modeStyles.bg,
         'transition-all duration-300'
       )}
     >
       {/* Drag handle */}
       <div
+        data-tauri-drag-region
         className="absolute top-1 left-1/2 -translate-x-1/2 cursor-move opacity-50 hover:opacity-100 transition-opacity z-10"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-        onMouseDown={() => setIsDragging(true)}
-        onMouseUp={() => setIsDragging(false)}
       >
         <GripHorizontal className="h-4 w-4 text-white/60" />
       </div>
 
-      <div className="flex items-center justify-between h-full px-3 py-2">
+      <div className="flex items-center justify-between h-full px-3 py-2" data-tauri-drag-region>
         {/* Left: Mode icon and circular progress */}
-        <div className="flex items-center gap-2 relative">
+        <div className="flex items-center gap-2 relative" data-tauri-drag-region>
           {/* Circular progress indicator */}
           <div className="relative">
             <svg
@@ -197,7 +176,6 @@ export function TimerFloatingWindow() {
               height="60"
               viewBox="0 0 100 100"
             >
-              {/* Background circle */}
               <circle
                 cx="50"
                 cy="50"
@@ -207,7 +185,6 @@ export function TimerFloatingWindow() {
                 fill="none"
                 className="text-white/20"
               />
-              {/* Progress circle */}
               <circle
                 cx="50"
                 cy="50"
@@ -225,7 +202,6 @@ export function TimerFloatingWindow() {
               />
             </svg>
 
-            {/* Center content */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <div className="text-lg font-bold tabular-nums text-white">
@@ -309,7 +285,7 @@ export function TimerFloatingWindow() {
         </div>
       </div>
 
-      {/* Subtle bottom progress bar as backup */}
+      {/* Subtle bottom progress bar */}
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/20">
         <div
           className={cn(

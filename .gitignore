@@ -56,8 +56,11 @@ apps/backend/logs/
 *.log
 *.txt
 
-# Desktop Electron build
+# Desktop Tauri build
 apps/desktop/dist-electron/
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+target/
 
 # Temporary scripts
 scripts/check-deleted-tasks.ts

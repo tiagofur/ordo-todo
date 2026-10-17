@@ -403,10 +403,10 @@ export function parseCalendarDateToUtcMidnight(date: Date | string | null | unde
 /**
  * Check if a calendar date is today in the user's local timezone.
  */
-export function isCalendarDateToday(date: Date | string | null | undefined): boolean {
+export function isCalendarDateToday(date: Date | string | null | undefined, timezone?: string): boolean {
     if (!date) return false;
-    const todayStr = formatLocalDateToYYYYMMDD(new Date());
-    return toCalendarDateString(date) === todayStr;
+    const todayStr = formatLocalDateToYYYYMMDD(new Date(), timezone);
+    return toCalendarDateString(date, timezone) === todayStr;
 }
 
 /**
@@ -415,11 +415,12 @@ export function isCalendarDateToday(date: Date | string | null | undefined): boo
  */
 export function isCalendarDateOverdue(
     dueDate: Date | string | null | undefined,
-    isCompleted: boolean = false
+    isCompleted: boolean = false,
+    timezone?: string
 ): boolean {
     if (!dueDate || isCompleted) return false;
-    const dueStr = toCalendarDateString(dueDate);
+    const dueStr = toCalendarDateString(dueDate, timezone);
     if (!dueStr) return false;
-    const todayStr = formatLocalDateToYYYYMMDD(new Date());
+    const todayStr = formatLocalDateToYYYYMMDD(new Date(), timezone);
     return dueStr < todayStr;
 }

@@ -1,0 +1,24 @@
+[package]
+name = "ordo-todo-desktop"
+version = "1.0.0"
+description = "Ordo-Todo Desktop Application - Modern Task & Pomodoro Management"
+authors = ["Ordo-Todo Team <support@ordo-todo.app>"]
+license = "MIT"
+edition = "2021"
+
+[lib]
+name = "ordo_todo_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-store = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

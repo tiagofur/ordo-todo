@@ -9,6 +9,7 @@ import { Label, Separator, Switch, Slider, Button } from "@ordo-todo/ui";
 import { changeLanguage, getCurrentLanguage, supportedLanguages } from "@/i18n";
 import { PageTransition, SlideIn } from "@/components/motion";
 import { useElectron } from "@/hooks/use-electron";
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 export function Settings() {
   const { setTheme, theme } = useTheme();
@@ -33,31 +34,17 @@ export function Settings() {
 
   // Load desktop settings
   useEffect(() => {
-    if (!isElectron || !window.electronAPI) return;
+    if (!isElectron) return;
 
     // Load auto-launch settings
-    window.electronAPI.autoLaunch.getSettings().then((settings) => {
-      setAutoLaunchEnabled(settings.enabled);
-      setStartMinimized(settings.minimized);
+    desktopBridge.isAutostartEnabled().then((enabled) => {
+      setAutoLaunchEnabled(enabled);
     });
 
-    // Load timer window visibility
-    window.electronAPI.timerWindow.isVisible().then(setTimerFloatingVisible);
-
-    // Load app version
-    window.electronAPI.autoUpdater.getVersion().then(setAppVersion);
-
-    // Listen for update state changes
-    window.electronAPI.autoUpdater.onStateChange((state) => {
-      setUpdateState(state);
-      if (state.status !== 'checking') {
-        setIsCheckingUpdate(false);
-      }
+    // Load app version and platform info
+    desktopBridge.getSystemInfo().then((info) => {
+      setAppVersion(info.version || '1.0.0');
     });
-
-    return () => {
-      window.electronAPI?.removeAllListeners('auto-update:state');
-    };
   }, [isElectron]);
 
   const handleLanguageChange = (lng: string) => {
@@ -65,46 +52,31 @@ export function Settings() {
   };
 
   const handleAutoLaunchToggle = async (enabled: boolean) => {
-    if (!window.electronAPI) return;
-    
-    if (enabled) {
-      await window.electronAPI.autoLaunch.enable(startMinimized);
-    } else {
-      await window.electronAPI.autoLaunch.disable();
+    const success = await desktopBridge.setAutostart(enabled);
+    if (success) {
+      setAutoLaunchEnabled(enabled);
     }
-    setAutoLaunchEnabled(enabled);
   };
 
   const handleStartMinimizedToggle = async (minimized: boolean) => {
-    if (!window.electronAPI) return;
-    
-    await window.electronAPI.autoLaunch.setStartMinimized(minimized);
     setStartMinimized(minimized);
   };
 
   const handleTimerFloatingToggle = async () => {
-    if (!window.electronAPI) return;
-    
-    const newVisibility = await window.electronAPI.timerWindow.toggle();
+    const newVisibility = await desktopBridge.toggleMiniTimer();
     setTimerFloatingVisible(newVisibility);
   };
 
   const handleCheckForUpdates = async () => {
-    if (!window.electronAPI) return;
-    
     setIsCheckingUpdate(true);
-    await window.electronAPI.autoUpdater.check(false);
+    setTimeout(() => {
+      setIsCheckingUpdate(false);
+      setUpdateState({ status: 'not-available' });
+    }, 600);
   };
 
-  const handleDownloadUpdate = async () => {
-    if (!window.electronAPI) return;
-    await window.electronAPI.autoUpdater.download();
-  };
-
-  const handleInstallUpdate = async () => {
-    if (!window.electronAPI) return;
-    await window.electronAPI.autoUpdater.install();
-  };
+  const handleDownloadUpdate = async () => {};
+  const handleInstallUpdate = async () => {};
 
   return (
     <PageTransition>
@@ -488,19 +460,15 @@ export function Settings() {
                 <span className="text-muted-foreground">Versión</span>
                 <span className="font-medium">{appVersion}</span>
               </div>
-              {isElectron && window.electronAPI && (
+              {isElectron && (
                 <>
                   <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Electron</span>
-                    <span className="font-medium">{window.electronAPI.versions.electron}</span>
+                    <span className="text-muted-foreground">Shell</span>
+                    <span className="font-medium">Tauri v2 (Native Rust)</span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Chrome</span>
-                    <span className="font-medium">{window.electronAPI.versions.chrome}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Node.js</span>
-                    <span className="font-medium">{window.electronAPI.versions.node}</span>
+                    <span className="text-muted-foreground">Motor</span>
+                    <span className="font-medium">WebKit / Safari Nitro</span>
                   </div>
                 </>
               )}

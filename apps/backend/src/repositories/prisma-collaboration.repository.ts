@@ -156,7 +156,7 @@ export class PrismaCollaborationRepository implements ICollaborationRepository {
           where: {
             ...taskFilter,
             status: { notIn: ['COMPLETED', 'CANCELLED'] },
-            dueDate: { lt: new Date() },
+            dueDate: { lt: this.getTodayStart() },
           },
         }),
         this.prisma.task.count({
@@ -402,5 +402,11 @@ export class PrismaCollaborationRepository implements ICollaborationRepository {
     const now = new Date();
     const dayOfWeek = now.getDay();
     return dayOfWeek === 0 ? 7 : dayOfWeek;
+  }
+
+  private getTodayStart(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
   }
 }

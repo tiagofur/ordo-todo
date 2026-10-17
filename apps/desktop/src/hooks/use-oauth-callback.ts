@@ -1,7 +1,5 @@
 /**
- * Hook to handle OAuth callback from deep links
- * 
- * Listens for ordo://auth/callback deep links and processes the tokens
+ * Hook to handle OAuth callback
  */
 
 import { useEffect, useCallback } from "react";
@@ -10,57 +8,42 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { parseOAuthCallback, storeOAuthTokens } from "@/lib/oauth";
 
-interface DeepLinkData {
-    type: "task" | "project" | "workspace" | "timer" | "settings" | "auth" | "unknown";
-    id?: string;
-    action?: string;
-    params?: Record<string, string>;
-}
-
 export function useOAuthCallback() {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-    const handleAuthCallback = useCallback(async (params: Record<string, string>) => {
-        const callbackData = parseOAuthCallback(params);
+  const handleAuthCallback = useCallback(async (params: Record<string, string>) => {
+    const callbackData = parseOAuthCallback(params);
 
-        if (callbackData.error) {
-            toast.error(`OAuth failed: ${callbackData.error}`);
-            return;
-        }
+    if (callbackData.error) {
+      toast.error(`OAuth failed: ${callbackData.error}`);
+      return;
+    }
 
-        const success = await storeOAuthTokens(callbackData);
+    const success = await storeOAuthTokens(callbackData);
 
-        if (success) {
-            // Invalidate current user query to trigger refetch
-            await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+    if (success) {
+      await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      toast.success("Successfully signed in!");
+      navigate("/dashboard");
+    } else {
+      toast.error("Failed to complete sign in");
+    }
+  }, [navigate, queryClient]);
 
-            toast.success("Successfully signed in!");
-            navigate("/dashboard");
-        } else {
-            toast.error("Failed to complete sign in");
-        }
-    }, [navigate, queryClient]);
-
-    useEffect(() => {
-        // Listen for deep link events from Electron
-        if (window.electronAPI?.deepLinks?.onDeepLink) {
-            const handleDeepLink = (data: DeepLinkData) => {
-                console.log("[OAuth] Deep link received:", data);
-
-                if (data.type === "auth" && data.id === "callback" && data.params) {
-                    handleAuthCallback(data.params);
-                }
-            };
-
-            window.electronAPI.deepLinks.onDeepLink(handleDeepLink);
-
-            // Cleanup listener on unmount
-            return () => {
-                window.electronAPI?.removeAllListeners?.("deep-link");
-            };
-        }
-    }, [handleAuthCallback]);
+  useEffect(() => {
+    // Check if current URL contains oauth callback params
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const params: Record<string, string> = {};
+      url.searchParams.forEach((val, key) => {
+        params[key] = val;
+      });
+      if (params.access_token || params.accessToken || params.token) {
+        handleAuthCallback(params);
+      }
+    }
+  }, [handleAuthCallback]);
 }
 
 export default useOAuthCallback;

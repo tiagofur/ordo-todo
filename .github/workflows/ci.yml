@@ -296,7 +296,7 @@ jobs:
                   NEXT_PUBLIC_API_URL: http://localhost:3001
 
     # =============================================================================
-    # Desktop (Electron)
+    # Desktop (Tauri v2 + React)
     # =============================================================================
     desktop:
         name: Desktop Lint & Build

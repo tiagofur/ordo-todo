@@ -167,11 +167,18 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock localStorage
+let localStoreMap: Record<string, string> = {};
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: vi.fn((key: string) => localStoreMap[key] ?? null),
+  setItem: vi.fn((key: string, value: string) => {
+    localStoreMap[key] = String(value);
+  }),
+  removeItem: vi.fn((key: string) => {
+    delete localStoreMap[key];
+  }),
+  clear: vi.fn(() => {
+    localStoreMap = {};
+  }),
 };
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,

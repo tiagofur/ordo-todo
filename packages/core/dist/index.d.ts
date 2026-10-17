@@ -695,12 +695,12 @@ declare function parseCalendarDateToUtcMidnight(date: Date | string | null | und
 /**
  * Check if a calendar date is today in the user's local timezone.
  */
-declare function isCalendarDateToday(date: Date | string | null | undefined): boolean;
+declare function isCalendarDateToday(date: Date | string | null | undefined, timezone?: string): boolean;
 /**
  * Check if a calendar date is overdue in the user's local timezone.
  * A task due on 2026-10-15 is NOT overdue on 2026-10-15; it only becomes overdue on 2026-10-16.
  */
-declare function isCalendarDateOverdue(dueDate: Date | string | null | undefined, isCompleted?: boolean): boolean;
+declare function isCalendarDateOverdue(dueDate: Date | string | null | undefined, isCompleted?: boolean, timezone?: string): boolean;
 
 /**
  * Time utility functions

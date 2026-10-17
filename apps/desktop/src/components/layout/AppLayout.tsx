@@ -22,6 +22,7 @@ import { Button } from "@ordo-todo/ui";
 import { Sparkles } from "lucide-react";
 import { ConnectionStatusIndicator } from "@/components/shared/connection-status-indicator";
 import { cn } from "@/lib/utils";
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 export function AppLayout() {
   const { user, isLoading } = useAuth();
@@ -66,9 +67,7 @@ export function AppLayout() {
   const [platform, setPlatform] = useState<string>('unknown');
 
   useEffect(() => {
-    if (window.electronAPI?.platform) {
-      setPlatform(window.electronAPI.platform);
-    }
+    setPlatform(desktopBridge.getPlatform());
   }, []);
 
   if (isLoading) {

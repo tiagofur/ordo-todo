@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "../workspace/WorkspaceSelector";
 import { CreateWorkspaceDialog } from "../workspace/CreateWorkspaceDialog";
 import { TimerWidget } from "../dashboard/TimerWidget";
+import { desktopBridge } from "@/lib/desktop-bridge";
 
 const colorClasses = {
   cyan: "group-hover:bg-cyan-500/10 group-hover:text-cyan-500",
@@ -37,9 +38,7 @@ export function Sidebar() {
 
   // Detect platform for proper spacing
   useEffect(() => {
-    if (window.electronAPI?.platform) {
-      setPlatform(window.electronAPI.platform);
-    }
+    setPlatform(desktopBridge.getPlatform());
   }, []);
 
   // macOS: add padding for traffic lights (48px)
