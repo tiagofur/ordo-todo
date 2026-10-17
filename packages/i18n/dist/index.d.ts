@@ -206,6 +206,8 @@ export declare const locales: {
                 };
             };
             languageChanged: string;
+            settingsSaved: string;
+            errorSaving: string;
         };
         TimerWidget: {
             startTimer: string;
@@ -259,6 +261,17 @@ export declare const locales: {
                 next: string;
                 getStarted: string;
             };
+            streak: {
+                currentStreak: string;
+                day: string;
+                days: string;
+                personalBest: string;
+                bestStreak: string;
+            };
+            aiInsights: string;
+            noInsights: string;
+            aiSuggestion: string;
+            viewAllInsights: string;
         };
         Tasks: {
             title: string;
@@ -318,6 +331,7 @@ export declare const locales: {
             delete: string;
             noNotes: string;
             placeholder: string;
+            subtitle: string;
         };
         Projects: {
             title: string;
@@ -328,6 +342,8 @@ export declare const locales: {
             noProjects: string;
             noProjectsDescription: string;
             createProject: string;
+            error: string;
+            errorDescription: string;
         };
         Workspaces: {
             title: string;
@@ -336,6 +352,10 @@ export declare const locales: {
             noWorkspaces: string;
             noWorkspacesDescription: string;
             createWorkspace: string;
+            error: string;
+            errorDescription: string;
+            createSuccess: string;
+            createError: string;
         };
         WorkspaceCard: {
             types: {
@@ -568,6 +588,7 @@ export declare const locales: {
                 next: string;
                 getStarted: string;
             };
+            viewAll: string;
         };
         Analytics: {
             title: string;
@@ -1101,6 +1122,10 @@ export declare const locales: {
                 members: string;
             };
             deleteError: string;
+            error: string;
+            noProjects: string;
+            noProjectsDescription: string;
+            createProject: string;
         };
         WorkspaceSelector: {
             create: string;
@@ -2059,6 +2084,16 @@ export declare const locales: {
                 last90Days: string;
                 page: string;
             };
+            work: string;
+            shortBreak: string;
+            longBreak: string;
+            continuous: string;
+            idle: string;
+            completedPomodoros: string;
+            reset: string;
+            start: string;
+            pause: string;
+            skip: string;
         };
         AIWeeklyReport: {
             weeklyReport: string;
@@ -2244,6 +2279,8 @@ export declare const locales: {
             update: string;
             updated: string;
             updateError: string;
+            error: string;
+            errorDescription: string;
         };
         CustomFields: {
             title: string;
@@ -2411,6 +2448,7 @@ export declare const locales: {
                 detailed: string;
                 bulletPoints: string;
             };
+            errorConvertingTasks: string;
         };
         Workload: {
             title: string;
@@ -2712,6 +2750,10 @@ export declare const locales: {
                 };
                 success: string;
             };
+        };
+        ProjectTimeline: {
+            emptyTitle: string;
+            emptyDescription: string;
         };
     };
     readonly es: {
@@ -2896,6 +2938,8 @@ export declare const locales: {
                 };
             };
             languageChanged: string;
+            settingsSaved: string;
+            errorSaving: string;
         };
         TimerWidget: {
             startTimer: string;
@@ -2949,6 +2993,17 @@ export declare const locales: {
                 next: string;
                 getStarted: string;
             };
+            streak: {
+                currentStreak: string;
+                day: string;
+                days: string;
+                personalBest: string;
+                bestStreak: string;
+            };
+            aiInsights: string;
+            noInsights: string;
+            aiSuggestion: string;
+            viewAllInsights: string;
         };
         Tasks: {
             title: string;
@@ -3008,6 +3063,7 @@ export declare const locales: {
             delete: string;
             noNotes: string;
             placeholder: string;
+            subtitle: string;
         };
         Projects: {
             title: string;
@@ -3018,6 +3074,8 @@ export declare const locales: {
             noProjects: string;
             noProjectsDescription: string;
             createProject: string;
+            error: string;
+            errorDescription: string;
         };
         Workspaces: {
             title: string;
@@ -3026,6 +3084,10 @@ export declare const locales: {
             noWorkspaces: string;
             noWorkspacesDescription: string;
             createWorkspace: string;
+            error: string;
+            errorDescription: string;
+            createSuccess: string;
+            createError: string;
         };
         WorkspaceCard: {
             types: {
@@ -3258,6 +3320,7 @@ export declare const locales: {
                 next: string;
                 getStarted: string;
             };
+            viewAll: string;
         };
         Analytics: {
             title: string;
@@ -3809,6 +3872,10 @@ export declare const locales: {
                 members: string;
             };
             deleteError: string;
+            error: string;
+            noProjects: string;
+            noProjectsDescription: string;
+            createProject: string;
         };
         WorkspaceSettingsDialog: {
             title: string;
@@ -4749,6 +4816,16 @@ export declare const locales: {
                 last90Days: string;
                 page: string;
             };
+            work: string;
+            shortBreak: string;
+            longBreak: string;
+            continuous: string;
+            idle: string;
+            completedPomodoros: string;
+            reset: string;
+            start: string;
+            pause: string;
+            skip: string;
         };
         AIWeeklyReport: {
             weeklyReport: string;
@@ -4934,6 +5011,8 @@ export declare const locales: {
             dueDate: string;
             okrsAtRisk: string;
             left: string;
+            error: string;
+            errorDescription: string;
         };
         CustomFields: {
             title: string;
@@ -5101,6 +5180,7 @@ export declare const locales: {
                 detailed: string;
                 bulletPoints: string;
             };
+            errorConvertingTasks: string;
         };
         Workload: {
             title: string;
@@ -5402,6 +5482,10 @@ export declare const locales: {
                 };
                 success: string;
             };
+        };
+        ProjectTimeline: {
+            emptyTitle: string;
+            emptyDescription: string;
         };
     };
     readonly 'pt-br': {
@@ -5586,6 +5670,8 @@ export declare const locales: {
                 };
             };
             languageChanged: string;
+            settingsSaved: string;
+            errorSaving: string;
         };
         TimerWidget: {
             startTimer: string;
@@ -5639,6 +5725,17 @@ export declare const locales: {
                 next: string;
                 getStarted: string;
             };
+            streak: {
+                currentStreak: string;
+                day: string;
+                days: string;
+                personalBest: string;
+                bestStreak: string;
+            };
+            aiInsights: string;
+            noInsights: string;
+            aiSuggestion: string;
+            viewAllInsights: string;
         };
         Tasks: {
             title: string;
@@ -5701,6 +5798,8 @@ export declare const locales: {
             noProjects: string;
             noProjectsDescription: string;
             createProject: string;
+            error: string;
+            errorDescription: string;
         };
         Workspaces: {
             title: string;
@@ -5709,6 +5808,10 @@ export declare const locales: {
             noWorkspaces: string;
             noWorkspacesDescription: string;
             createWorkspace: string;
+            error: string;
+            errorDescription: string;
+            createSuccess: string;
+            createError: string;
         };
         WorkspaceCard: {
             types: {
@@ -5941,6 +6044,7 @@ export declare const locales: {
                 next: string;
                 getStarted: string;
             };
+            viewAll: string;
         };
         Analytics: {
             title: string;
@@ -7102,6 +7206,10 @@ export declare const locales: {
                 members: string;
             };
             deleteError: string;
+            error: string;
+            noProjects: string;
+            noProjectsDescription: string;
+            createProject: string;
         };
         WorkspaceActivityLog: {
             empty: {
@@ -7449,6 +7557,16 @@ export declare const locales: {
                 last90Days: string;
                 page: string;
             };
+            work: string;
+            shortBreak: string;
+            longBreak: string;
+            continuous: string;
+            idle: string;
+            completedPomodoros: string;
+            reset: string;
+            start: string;
+            pause: string;
+            skip: string;
         };
         AIWeeklyReport: {
             weeklyReport: string;
@@ -7617,6 +7735,8 @@ export declare const locales: {
             update: string;
             updated: string;
             updateError: string;
+            error: string;
+            errorDescription: string;
         };
         CustomFields: {
             title: string;
@@ -7784,6 +7904,7 @@ export declare const locales: {
                 detailed: string;
                 bulletPoints: string;
             };
+            errorConvertingTasks: string;
         };
         Workload: {
             title: string;
@@ -8085,6 +8206,13 @@ export declare const locales: {
                 };
                 success: string;
             };
+        };
+        Notes: {
+            subtitle: string;
+        };
+        ProjectTimeline: {
+            emptyTitle: string;
+            emptyDescription: string;
         };
     };
 };

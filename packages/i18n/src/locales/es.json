@@ -179,7 +179,9 @@
         "days": "Hace {count} días"
       }
     },
-    "languageChanged": "Idioma cambiado a {lang}"
+    "languageChanged": "Idioma cambiado a {lang}",
+    "settingsSaved": "Ajustes guardados correctamente",
+    "errorSaving": "Error al guardar los ajustes"
   },
   "TimerWidget": {
     "startTimer": "Iniciar timer"
@@ -232,7 +234,18 @@
       "skip": "Saltar",
       "next": "Siguiente",
       "getStarted": "¡Empezar!"
-    }
+    },
+    "streak": {
+      "currentStreak": "Racha actual",
+      "day": "día",
+      "days": "días",
+      "personalBest": "Récord personal",
+      "bestStreak": "Mejor racha"
+    },
+    "aiInsights": "Insights de IA",
+    "noInsights": "Sin insights por ahora",
+    "aiSuggestion": "Sigue completando tareas para recibir sugerencias inteligentes",
+    "viewAllInsights": "Ver todos los insights"
   },
   "Tasks": {
     "title": "Tareas",
@@ -291,9 +304,9 @@
     "add": "Nueva Nota",
     "delete": "Eliminar",
     "noNotes": "No hay notas aún",
-    "placeholder": "Escribe algo..."
+    "placeholder": "Escribe algo...",
+    "subtitle": "Captura pensamientos rápidos e ideas"
   },
-
   "Projects": {
     "title": "Proyectos",
     "subtitle": "Gestiona todos tus proyectos en un solo lugar.",
@@ -302,7 +315,9 @@
     "selectWorkspaceDescription": "Para empezar, selecciona un workspace de la lista para ver sus proyectos.",
     "noProjects": "No hay proyectos todavía",
     "noProjectsDescription": "Crea tu primer proyecto para empezar a organizar tus tareas.",
-    "createProject": "Crear Proyecto"
+    "createProject": "Crear Proyecto",
+    "error": "Error al cargar proyectos",
+    "errorDescription": "No se pudieron obtener los proyectos. Intenta de nuevo."
   },
   "Workspaces": {
     "title": "Espacios de Trabajo",
@@ -310,7 +325,11 @@
     "newWorkspace": "Nuevo Workspace",
     "noWorkspaces": "No tienes workspaces",
     "noWorkspacesDescription": "Crea tu primer workspace para comenzar a organizar tus proyectos y tareas",
-    "createWorkspace": "Crear Workspace"
+    "createWorkspace": "Crear Workspace",
+    "error": "Error al cargar espacios de trabajo",
+    "errorDescription": "No se pudieron obtener los espacios de trabajo. Intenta de nuevo.",
+    "createSuccess": "Espacio de trabajo creado exitosamente",
+    "createError": "Error al crear el espacio de trabajo"
   },
   "WorkspaceCard": {
     "types": {
@@ -558,7 +577,8 @@
       "skip": "Saltar",
       "next": "Siguiente",
       "getStarted": "Comenzar"
-    }
+    },
+    "viewAll": "Ver todos"
   },
   "Analytics": {
     "title": "Analíticas",
@@ -1057,7 +1077,6 @@
     },
     "backToWorkspace": "Volver al workspace"
   },
-
   "WorkspaceInfoBar": {
     "types": {
       "PERSONAL": "Personal",
@@ -1110,7 +1129,11 @@
       "tasks": "Tareas",
       "members": "Miembros"
     },
-    "deleteError": "Error al eliminar widget del panel"
+    "deleteError": "Error al eliminar widget del panel",
+    "error": "Error al cargar el espacio de trabajo",
+    "noProjects": "Sin proyectos aún",
+    "noProjectsDescription": "Crea tu primer proyecto para organizar tus tareas.",
+    "createProject": "Crear Proyecto"
   },
   "WorkspaceSettingsDialog": {
     "title": "Configuración del Workspace",
@@ -1134,10 +1157,10 @@
         }
       },
       "color": {
-         "label": "Color"
+        "label": "Color"
       },
       "icon": {
-         "label": "Icono"
+        "label": "Icono"
       }
     },
     "dangerZone": {
@@ -2050,7 +2073,17 @@
       "last30Days": "Últimos 30 días",
       "last90Days": "Últimos 90 días",
       "page": "Página"
-    }
+    },
+    "work": "Enfoque",
+    "shortBreak": "Pausa corta",
+    "longBreak": "Pausa larga",
+    "continuous": "Continuo",
+    "idle": "Inactivo",
+    "completedPomodoros": "Pomodoros completados",
+    "reset": "Reiniciar",
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "skip": "Saltar"
   },
   "AIWeeklyReport": {
     "weeklyReport": "Reporte Semanal",
@@ -2235,7 +2268,9 @@
     "progress": "Progreso",
     "dueDate": "Fecha límite",
     "okrsAtRisk": "OKRs En Riesgo",
-    "left": "restantes"
+    "left": "restantes",
+    "error": "Error al cargar objetivos",
+    "errorDescription": "No se pudieron obtener los objetivos. Intenta de nuevo."
   },
   "CustomFields": {
     "title": "Campos Personalizados",
@@ -2402,7 +2437,8 @@
       "executive": "Ejecutivo",
       "detailed": "Detallado",
       "bulletPoints": "Puntos"
-    }
+    },
+    "errorConvertingTasks": "Error al convertir notas a tareas"
   },
   "Workload": {
     "title": "Carga de Trabajo",
@@ -2704,5 +2740,9 @@
       },
       "success": "Sesión iniciada exitosamente"
     }
+  },
+  "ProjectTimeline": {
+    "emptyTitle": "Sin tareas programadas",
+    "emptyDescription": "Asigna fechas de entrega o bloques de tiempo para ver la línea temporal."
   }
 }
