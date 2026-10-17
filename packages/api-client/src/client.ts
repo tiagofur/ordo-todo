@@ -6,6 +6,7 @@ import type {
   LoginDto,
   AuthResponse,
   RefreshTokenDto,
+  ChangePasswordDto,
   SessionInfo,
   // User
   User,
@@ -599,6 +600,34 @@ export class OrdoApiClient {
       available: boolean;
       message?: string;
     }>("/auth/check-username", { username });
+    return response.data;
+  }
+
+  /**
+   * Change user password
+   * POST /auth/change-password
+   */
+  async changePassword(
+    data: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await this.axios.post<{ success: boolean; message: string }>(
+      "/auth/change-password",
+      data,
+    );
+    return response.data;
+  }
+
+  /**
+   * Request password reset instructions
+   * POST /auth/forgot-password
+   */
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await this.axios.post<{ success: boolean; message: string }>(
+      "/auth/forgot-password",
+      { email },
+    );
     return response.data;
   }
 

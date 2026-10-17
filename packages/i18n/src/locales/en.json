@@ -2739,6 +2739,23 @@
         "githubFailed": "Could not sign in with GitHub"
       },
       "success": "Signed in successfully"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email address and we'll send you instructions to reset your password",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "you@email.com",
+      "submitButton": "Send Reset Link",
+      "submitting": "Sending...",
+      "backToLogin": "Back to Sign In",
+      "successTitle": "Check your inbox",
+      "successSubtitle": "If an account exists for {email}, you will receive a password reset link shortly.",
+      "tryAnotherEmail": "Try another email",
+      "errors": {
+        "requiredEmail": "Please enter your email address",
+        "invalidEmail": "Please enter a valid email address",
+        "failed": "An error occurred while processing your request"
+      }
     }
   },
   "ProjectTimeline": {

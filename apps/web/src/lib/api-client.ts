@@ -26,6 +26,7 @@ import type {
   InviteMemberDto,
   AcceptInvitationDto,
   RefreshTokenDto,
+  ChangePasswordDto,
   AuthResponse,
   // Chat
   // Chat
@@ -442,6 +443,18 @@ export const apiClient = {
   ): Promise<{ available: boolean }> =>
     axiosInstance
       .post("/auth/check-username", { username })
+      .then((res) => res.data),
+  changePassword: (
+    data: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/change-password", data)
+      .then((res) => res.data),
+  forgotPassword: (
+    email: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/forgot-password", { email })
       .then((res) => res.data),
 
   // User

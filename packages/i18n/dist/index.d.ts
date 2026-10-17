@@ -2750,6 +2750,23 @@ export declare const locales: {
                 };
                 success: string;
             };
+            forgotPassword: {
+                title: string;
+                subtitle: string;
+                emailLabel: string;
+                emailPlaceholder: string;
+                submitButton: string;
+                submitting: string;
+                backToLogin: string;
+                successTitle: string;
+                successSubtitle: string;
+                tryAnotherEmail: string;
+                errors: {
+                    requiredEmail: string;
+                    invalidEmail: string;
+                    failed: string;
+                };
+            };
         };
         ProjectTimeline: {
             emptyTitle: string;
@@ -5482,6 +5499,23 @@ export declare const locales: {
                 };
                 success: string;
             };
+            forgotPassword: {
+                title: string;
+                subtitle: string;
+                emailLabel: string;
+                emailPlaceholder: string;
+                submitButton: string;
+                submitting: string;
+                backToLogin: string;
+                successTitle: string;
+                successSubtitle: string;
+                tryAnotherEmail: string;
+                errors: {
+                    requiredEmail: string;
+                    invalidEmail: string;
+                    failed: string;
+                };
+            };
         };
         ProjectTimeline: {
             emptyTitle: string;
@@ -8205,6 +8239,23 @@ export declare const locales: {
                     githubFailed: string;
                 };
                 success: string;
+            };
+            forgotPassword: {
+                title: string;
+                subtitle: string;
+                emailLabel: string;
+                emailPlaceholder: string;
+                submitButton: string;
+                submitting: string;
+                backToLogin: string;
+                successTitle: string;
+                successSubtitle: string;
+                tryAnotherEmail: string;
+                errors: {
+                    requiredEmail: string;
+                    invalidEmail: string;
+                    failed: string;
+                };
             };
         };
         Notes: {

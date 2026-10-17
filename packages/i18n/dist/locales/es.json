@@ -2739,6 +2739,23 @@
         "githubFailed": "No se pudo iniciar sesión con GitHub"
       },
       "success": "Sesión iniciada exitosamente"
+    },
+    "forgotPassword": {
+      "title": "Recuperar Contraseña",
+      "subtitle": "Ingresa tu correo y te enviaremos las instrucciones para restablecerla",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "submitButton": "Enviar enlace de recuperación",
+      "submitting": "Enviando...",
+      "backToLogin": "Volver a iniciar sesión",
+      "successTitle": "Revisa tu bandeja de entrada",
+      "successSubtitle": "Si existe una cuenta asociada a {email}, recibirás un enlace para restablecer tu contraseña en breve.",
+      "tryAnotherEmail": "Intentar con otro correo",
+      "errors": {
+        "requiredEmail": "Por favor ingresa tu correo electrónico",
+        "invalidEmail": "Ingresa un correo electrónico válido",
+        "failed": "Ocurrió un error al procesar la solicitud"
+      }
     }
   },
   "ProjectTimeline": {
