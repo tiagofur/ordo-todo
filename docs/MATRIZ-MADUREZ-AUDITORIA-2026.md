@@ -72,8 +72,8 @@ Calificación de importancia/utilidad del producto (0.0 a 10.0) y porcentaje de 
    - Reemplazado el mock en memoria de `saveMeeting` por persistencia en el modelo Prisma `Meeting`, implementados endpoints CRUD de historial en `MeetingsController` (`GET /meetings`, `GET /meetings/:id`, `DELETE /meetings/:id`) y conectado el panel de notas históricas en `MeetingAnalyzer` con auto-guardado y recarga instantánea.
 
 ### Fase 2: Nuevas Capacidades Clave de Producto (Diferenciadores)
-1. **Ritual Guiado de "Planificar mi Día" y "Cierre del Día" (Daily Planning / Shutdown Ritual)**:
-   - Asistente interactivo de 2 minutos al iniciar la mañana que revise tareas vencidas de ayer, sugiera las prioridades de hoy y las asigne a bloques del calendario (`Time-Blocking`).
+1. **Ritual Guiado de "Planificar mi Día" y "Cierre del Día" (Daily Planning / Shutdown Ritual)** [✅ Completado]:
+   - Asistente interactivo guiado (`DailyRitualDialog`): triage de tareas vencidas con reagendación en 1-clic, selección de prioridades ("The Big 3"), y auto-asignación de bloques horarios (`Time-Blocking`) sincronizados con el calendario mediante recomendaciones de IA (`/ai/optimal-schedule`). Modo Cierre del Día con balance de tareas completadas, foco registrado, postergación en lote a mañana y afirmación de desconexión.
 2. **Servicio de Correo Transaccional Real (Resend / Nodemailer)**:
    - Conectar envío real de emails para cerrar el ciclo de invitaciones a Workspaces (reemplazando `devToken`), el enlace de recuperación en `/forgot-password` y el digest semanal por correo.
 3. **Sincronización con Google Calendar y Feed iCal (`.ics`)**:

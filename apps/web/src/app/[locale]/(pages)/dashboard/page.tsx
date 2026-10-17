@@ -20,7 +20,10 @@ import {
   Target,
   Zap,
   Rocket,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { DailyRitualDialog, type RitualMode } from "@/components/planning/daily-ritual-dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslations, useFormatter } from "next-intl";
@@ -110,6 +113,8 @@ export default function DashboardPage() {
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+  const [showDailyRitualDialog, setShowDailyRitualDialog] = useState(false);
+  const [dailyRitualMode, setDailyRitualMode] = useState<RitualMode>("morning");
   
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: createProject } = useCreateProject();
@@ -299,7 +304,7 @@ export default function DashboardPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
               <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25">
@@ -315,6 +320,35 @@ export default function DashboardPage() {
                 day: "numeric",
               })}
             </p>
+          </div>
+
+          {/* Daily Ritual Button */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const isEvening = new Date().getHours() >= 17;
+                setDailyRitualMode(isEvening ? "evening" : "morning");
+                setShowDailyRitualDialog(true);
+              }}
+              className={cn(
+                "group relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border shadow-xs hover:shadow-md cursor-pointer",
+                new Date().getHours() >= 17
+                  ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20"
+                  : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50"
+              )}
+            >
+              {new Date().getHours() >= 17 ? (
+                <>
+                  <Moon className="h-4 w-4 text-indigo-500 transition-transform group-hover:-rotate-12" />
+                  <span>Daily Shutdown</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="h-4 w-4 text-amber-500 transition-transform group-hover:rotate-45" />
+                  <span>Plan My Day</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 
@@ -688,6 +722,13 @@ export default function DashboardPage() {
           });
           return newWorkflow.id;
         }}
+      />
+
+      <DailyRitualDialog
+        open={showDailyRitualDialog}
+        onOpenChange={setShowDailyRitualDialog}
+        defaultMode={dailyRitualMode}
+        workspaceId={selectedWorkspaceId || undefined}
       />
 
       {/* Onboarding */}
