@@ -72,7 +72,7 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
     value?.endDate ? new Date(value.endDate) : undefined
   );
 
-  // Sync state when value changes externally
+  // Sync state only when value props change externally
   useEffect(() => {
     if (value) {
       setEnabled(true);
@@ -84,10 +84,17 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
     } else {
       setEnabled(false);
     }
-  }, [value]);
+  }, [
+    value?.pattern,
+    value?.interval,
+    JSON.stringify(value?.daysOfWeek),
+    value?.dayOfMonth,
+    value?.endDate,
+  ]);
 
-  useEffect(() => {
-    if (enabled) {
+  const handleToggleEnabled = (checked: boolean) => {
+    setEnabled(checked);
+    if (checked) {
       onChange({
         pattern,
         interval: Math.max(1, interval || 1),
@@ -98,15 +105,87 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
     } else {
       onChange(undefined);
     }
-  }, [enabled, pattern, interval, daysOfWeek, dayOfMonth, endDate]);
+  };
+
+  const handlePatternChange = (newPattern: RecurrenceValue['pattern']) => {
+    setPattern(newPattern);
+    const nextDays =
+      newPattern === 'WEEKLY' && daysOfWeek.length === 0
+        ? [new Date().getDay()]
+        : daysOfWeek;
+    if (newPattern === 'WEEKLY' && daysOfWeek.length === 0) {
+      setDaysOfWeek(nextDays);
+    }
+    if (enabled) {
+      onChange({
+        pattern: newPattern,
+        interval: Math.max(1, interval || 1),
+        daysOfWeek: newPattern === 'WEEKLY' ? nextDays : undefined,
+        dayOfMonth: newPattern === 'MONTHLY' ? dayOfMonth : undefined,
+        endDate,
+      });
+    }
+  };
+
+  const handleIntervalChange = (newInterval: number) => {
+    const val = Math.max(1, newInterval || 1);
+    setInterval(val);
+    if (enabled) {
+      onChange({
+        pattern,
+        interval: val,
+        daysOfWeek: pattern === 'WEEKLY' ? daysOfWeek : undefined,
+        dayOfMonth: pattern === 'MONTHLY' ? dayOfMonth : undefined,
+        endDate,
+      });
+    }
+  };
 
   const toggleDay = (day: number) => {
+    let nextDays: number[];
     if (daysOfWeek.includes(day)) {
       if (daysOfWeek.length > 1) {
-        setDaysOfWeek(daysOfWeek.filter((d) => d !== day));
+        nextDays = daysOfWeek.filter((d) => d !== day);
+      } else {
+        nextDays = daysOfWeek;
       }
     } else {
-      setDaysOfWeek([...daysOfWeek, day].sort((a, b) => a - b));
+      nextDays = [...daysOfWeek, day].sort((a, b) => a - b);
+    }
+    setDaysOfWeek(nextDays);
+    if (enabled) {
+      onChange({
+        pattern,
+        interval: Math.max(1, interval || 1),
+        daysOfWeek: nextDays,
+        endDate,
+      });
+    }
+  };
+
+  const handleDayOfMonthChange = (newDay: number) => {
+    const val = Math.min(31, Math.max(1, newDay || 1));
+    setDayOfMonth(val);
+    if (enabled) {
+      onChange({
+        pattern,
+        interval: Math.max(1, interval || 1),
+        dayOfMonth: val,
+        endDate,
+      });
+    }
+  };
+
+  const handleEndDateChange = (newEndDate?: Date) => {
+    setEndDate(newEndDate);
+    if (enabled) {
+      onChange({
+        pattern,
+        interval: Math.max(1, interval || 1),
+        daysOfWeek: pattern === 'WEEKLY' ? daysOfWeek : undefined,
+        dayOfMonth: pattern === 'MONTHLY' ? dayOfMonth : undefined,
+        endDate: newEndDate,
+      });
     }
   };
 
@@ -131,7 +210,7 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
         <Checkbox
           id="recurrence-enabled"
           checked={enabled}
-          onCheckedChange={(checked) => setEnabled(!!checked)}
+          onCheckedChange={(checked) => handleToggleEnabled(!!checked)}
         />
         <Label
           htmlFor="recurrence-enabled"
@@ -149,13 +228,9 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
               <Label className="text-xs text-muted-foreground">{t.frequency}</Label>
               <Select
                 value={pattern}
-                onValueChange={(val) => {
-                  const newPattern = val as RecurrenceValue['pattern'];
-                  setPattern(newPattern);
-                  if (newPattern === 'WEEKLY' && daysOfWeek.length === 0) {
-                    setDaysOfWeek([new Date().getDay()]);
-                  }
-                }}
+                onValueChange={(val) =>
+                  handlePatternChange(val as RecurrenceValue['pattern'])
+                }
               >
                 <SelectTrigger className="h-9">
                   <SelectValue />
@@ -178,7 +253,9 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
                 min={1}
                 max={365}
                 value={interval}
-                onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={(e) =>
+                  handleIntervalChange(parseInt(e.target.value) || 1)
+                }
                 className="h-9"
               />
             </div>
@@ -218,7 +295,7 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
                 max={31}
                 value={dayOfMonth}
                 onChange={(e) =>
-                  setDayOfMonth(Math.min(31, Math.max(1, parseInt(e.target.value) || 1)))
+                  handleDayOfMonthChange(parseInt(e.target.value) || 1)
                 }
                 className="h-9 w-28"
               />
@@ -227,7 +304,7 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
 
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">{t.endDate}</Label>
-            <DatePicker date={endDate} setDate={setEndDate} />
+            <DatePicker date={endDate} setDate={handleEndDateChange} />
           </div>
         </div>
       )}

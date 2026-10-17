@@ -360,7 +360,7 @@ export function TaskDetailPanel({
       });
       setRecurrence((task.recurrence as RecurrenceValue) || null);
     }
-  }, [task]);
+  }, [task?.id]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

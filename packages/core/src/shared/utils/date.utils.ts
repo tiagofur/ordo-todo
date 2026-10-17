@@ -315,11 +315,23 @@ export function toCalendarDateString(date: Date | string | null | undefined, tim
         if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
             return trimmed;
         }
+        // If it's an ISO date string stored as UTC midnight (e.g. "2026-10-15T00:00:00.000Z")
+        const isoMatch = /^(\d{4}-\d{2}-\d{2})(?:T00:00:00(?:\.000)?Z?)?$/.exec(trimmed);
+        if (isoMatch && isoMatch[1]) {
+            return isoMatch[1];
+        }
         const d = new Date(trimmed);
         if (isNaN(d.getTime())) return "";
         return formatLocalDateToYYYYMMDD(d, timezone);
     }
     if (isNaN(date.getTime())) return "";
+    // If Date is stored as UTC midnight, extract UTC date parts to prevent timezone shift
+    if (date.getUTCHours() === 0 && date.getUTCMinutes() === 0 && date.getUTCSeconds() === 0) {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(date.getUTCDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
     return formatLocalDateToYYYYMMDD(date, timezone);
 }
 

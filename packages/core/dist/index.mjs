@@ -852,11 +852,21 @@ function toCalendarDateString(date5, timezone) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
       return trimmed;
     }
+    const isoMatch = /^(\d{4}-\d{2}-\d{2})(?:T00:00:00(?:\.000)?Z?)?$/.exec(trimmed);
+    if (isoMatch && isoMatch[1]) {
+      return isoMatch[1];
+    }
     const d = new Date(trimmed);
     if (isNaN(d.getTime())) return "";
     return formatLocalDateToYYYYMMDD(d, timezone);
   }
   if (isNaN(date5.getTime())) return "";
+  if (date5.getUTCHours() === 0 && date5.getUTCMinutes() === 0 && date5.getUTCSeconds() === 0) {
+    const year = date5.getUTCFullYear();
+    const month = String(date5.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date5.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
   return formatLocalDateToYYYYMMDD(date5, timezone);
 }
 function formatLocalDateToYYYYMMDD(d, timezone) {

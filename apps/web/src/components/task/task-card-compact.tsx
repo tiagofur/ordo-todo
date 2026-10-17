@@ -36,6 +36,7 @@ import {
 } from '@/lib/api-hooks';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { parseCalendarDate, isCalendarDateOverdue } from '@ordo-todo/core';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui';
 import { TaskDetailPanel } from './task-detail-panel';
@@ -295,7 +296,8 @@ export function TaskCardCompact({
 
   const formatDueDate = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const dateObj = parseCalendarDate(date);
+    if (!dateObj) return null;
     return format(
       dateObj,
       'd MMM',
@@ -304,7 +306,7 @@ export function TaskCardCompact({
   };
 
   const isOverdue =
-    !isCompleted && task.dueDate && new Date(task.dueDate) < new Date();
+    !isCompleted && isCalendarDateOverdue(task.dueDate, isCompleted);
 
   const handleClick = () => {
     if (onTaskClick && task.id) {
