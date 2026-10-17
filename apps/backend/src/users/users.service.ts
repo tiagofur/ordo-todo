@@ -324,6 +324,94 @@ export class UsersService {
   }
 
   /**
+   * Connect or update a user integration (Google Calendar, etc.)
+   */
+  async connectIntegration(
+    email: string,
+    provider: any,
+    data: {
+      providerEmail?: string;
+      accessToken?: string;
+      refreshToken?: string;
+      settings?: Record<string, any>;
+    } = {},
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const integration = await this.prisma.userIntegration.upsert({
+      where: {
+        userId_provider: {
+          userId: user.id,
+          provider,
+        },
+      },
+      update: {
+        isActive: true,
+        providerEmail: data.providerEmail || user.email,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        settings: data.settings || {},
+        lastSyncAt: new Date(),
+      },
+      create: {
+        userId: user.id,
+        provider,
+        isActive: true,
+        providerEmail: data.providerEmail || user.email,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        settings: data.settings || {},
+        lastSyncAt: new Date(),
+      },
+    });
+
+    return {
+      success: true,
+      message: `${provider} connected successfully`,
+      integration: {
+        id: integration.id,
+        provider: integration.provider,
+        isActive: integration.isActive,
+        providerEmail: integration.providerEmail,
+        lastSyncAt: integration.lastSyncAt,
+      },
+    };
+  }
+
+  /**
+   * Disconnect a user integration
+   */
+  async disconnectIntegration(email: string, provider: any) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.userIntegration.deleteMany({
+      where: {
+        userId: user.id,
+        provider,
+      },
+    });
+
+    return {
+      success: true,
+      message: `${provider} disconnected successfully`,
+    };
+  }
+
+  /**
    * Delete user account and all associated data
    */
   async deleteAccount(email: string) {

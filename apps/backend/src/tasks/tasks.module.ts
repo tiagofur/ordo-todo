@@ -1,4 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '../database/database.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { TasksController } from './tasks.controller';
@@ -20,6 +22,13 @@ import { GamificationModule } from '../gamification/gamification.module';
     forwardRef(() => AttachmentsModule),
     NotificationsModule,
     GamificationModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET') || 'default-jwt-secret-ordo-calendar',
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [TasksController],
   providers: [TasksService],

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../database/prisma.service';
 import { ActivitiesService } from '../activities/activities.service';
@@ -113,6 +114,13 @@ describe('TasksService', () => {
         {
           provide: GamificationService,
           useValue: mockGamificationService,
+        },
+        {
+          provide: JwtService,
+          useValue: {
+            sign: jest.fn().mockReturnValue('mock-jwt-token'),
+            verify: jest.fn().mockReturnValue({ sub: 'user-1', type: 'calendar_feed' }),
+          },
         },
       ],
     }).compile();
@@ -1178,4 +1186,43 @@ describe('TasksService', () => {
       );
     });
   });
+
+  describe('Calendar Export & Token', () => {
+    it('should generate a calendar feed token', async () => {
+      const res = await service.getCalendarToken('user-1');
+      expect(res).toHaveProperty('token');
+      expect(res).toHaveProperty('feedUrl');
+      expect(res).toHaveProperty('webcalUrl');
+      expect(res.feedUrl).toContain('/tasks/export/calendar.ics?token=');
+      expect(res.webcalUrl).toContain('webcal://');
+    });
+
+    it('should verify calendar token and return userId', async () => {
+      const userId = await service.verifyCalendarToken('valid-token');
+      expect(userId).toBe('user-1');
+    });
+
+    it('should find tasks for calendar export', async () => {
+      (mockPrismaService.task as any).findMany = jest.fn().mockResolvedValue([
+        {
+          id: 'task-1',
+          title: 'Launch feature',
+          dueDate: new Date(),
+          isTimeBlocked: false,
+        },
+      ]);
+
+      const tasks = await service.findTasksForCalendarExport('user-1');
+      expect(tasks).toHaveLength(1);
+      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            ownerId: 'user-1',
+            isDeleted: false,
+          }),
+        }),
+      );
+    });
+  });
 });
+

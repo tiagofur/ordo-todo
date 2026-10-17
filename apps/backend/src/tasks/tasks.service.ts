@@ -5,7 +5,9 @@ import {
   Logger,
   BadRequestException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import type {
   TaskRepository,
@@ -47,6 +49,7 @@ export class TasksService {
     private readonly activitiesService: ActivitiesService,
     private readonly notificationsService: NotificationsService,
     private readonly gamificationService: GamificationService,
+    private readonly jwtService: JwtService,
   ) {}
 
   /**
@@ -405,6 +408,76 @@ export class TasksService {
       estimatedMinutes: task.props.estimatedMinutes,
       project: task.props.project,
       tags: task.props.tags,
+    }));
+  }
+
+  /**
+   * Generates a signed calendar feed token for the user (valid for 1 year)
+   */
+  getCalendarToken(userId: string): {
+    token: string;
+    feedUrl: string;
+    webcalUrl: string;
+  } {
+    const token = this.jwtService.sign(
+      { sub: userId, type: 'calendar_feed' },
+      { expiresIn: '365d' },
+    );
+    const baseUrl = process.env.API_URL || 'http://localhost:3000';
+    const feedUrl = `${baseUrl}/tasks/export/calendar.ics?token=${token}`;
+    const webcalUrl = feedUrl.replace(/^https?:\/\//, 'webcal://');
+
+    return { token, feedUrl, webcalUrl };
+  }
+
+  /**
+   * Verifies a calendar token and returns the userId
+   */
+  verifyCalendarToken(token: string): string {
+    try {
+      const payload = this.jwtService.verify(token);
+      if (payload.type === 'calendar_feed' && payload.sub) {
+        return payload.sub;
+      }
+      throw new UnauthorizedException('Invalid calendar feed token');
+    } catch {
+      throw new UnauthorizedException('Invalid or expired calendar feed token');
+    }
+  }
+
+  /**
+   * Find all tasks with dates for calendar feed export
+   */
+  async findTasksForCalendarExport(userId: string) {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        ownerId: userId,
+        isDeleted: false,
+        OR: [
+          { dueDate: { not: null } },
+          { scheduledDate: { not: null } },
+        ],
+      },
+      include: {
+        project: {
+          select: { name: true, color: true },
+        },
+      },
+      orderBy: [{ scheduledDate: 'asc' }, { dueDate: 'asc' }],
+    });
+
+    return tasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      status: t.status,
+      priority: t.priority,
+      dueDate: t.dueDate,
+      scheduledDate: t.scheduledDate,
+      scheduledTime: t.scheduledTime,
+      scheduledEndTime: t.scheduledEndTime,
+      estimatedMinutes: t.estimatedMinutes,
+      projectName: t.project?.name,
     }));
   }
 

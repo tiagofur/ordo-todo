@@ -105,6 +105,8 @@ import type {
   UpdateNoteDto,
 } from "@ordo-todo/api-client";
 
+export type { UserIntegration } from "@ordo-todo/api-client";
+
 import { useSyncStore } from "@/stores/sync-store";
 import { PendingActionType } from "@/lib/offline-storage";
 import { logger } from "@/lib/logger";
@@ -477,6 +479,24 @@ export const apiClient = {
     axiosInstance.patch("/users/me/preferences", data).then((res) => res.data),
   getIntegrations: (): Promise<UserIntegration[]> =>
     axiosInstance.get("/users/me/integrations").then((res) => res.data),
+  connectIntegration: (
+    provider: string,
+    data?: Record<string, any>,
+  ): Promise<{ success: boolean; message: string; integration?: any }> =>
+    axiosInstance
+      .post(`/users/me/integrations/${provider}/connect`, data || {})
+      .then((res) => res.data),
+  disconnectIntegration: (
+    provider: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .delete(`/users/me/integrations/${provider}`)
+      .then((res) => res.data),
+  getCalendarFeedToken: (): Promise<{
+    token: string;
+    feedUrl: string;
+    webcalUrl: string;
+  }> => axiosInstance.get("/tasks/calendar-token").then((res) => res.data),
   exportData: (): Promise<Blob> =>
     axiosInstance
       .post<Blob>("/users/me/export", null, { responseType: "blob" })

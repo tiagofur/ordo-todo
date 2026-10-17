@@ -524,7 +524,7 @@ export class AuthService {
         );
 
         await this.emailService.sendPasswordReset({
-          to: user.props.email,
+          to: user.props.email || email,
           userName: user.props.name || user.props.username,
           resetToken,
         });

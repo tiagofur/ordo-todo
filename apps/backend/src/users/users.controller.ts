@@ -13,6 +13,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
@@ -300,6 +301,39 @@ export class UsersController extends BaseController {
   })
   async getIntegrations(@CurrentUser() user: RequestUser) {
     return this.usersService.getIntegrations(user.email);
+  }
+
+  /**
+   * Connect or activate an integration (Google Calendar, etc.)
+   */
+  @Post('me/integrations/:provider/connect')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Connect integration',
+    description: 'Connects or updates a third-party integration like Google Calendar',
+  })
+  async connectIntegration(
+    @CurrentUser() user: RequestUser,
+    @Param('provider') provider: string,
+    @Body() body: any,
+  ) {
+    return this.usersService.connectIntegration(user.email, provider, body);
+  }
+
+  /**
+   * Disconnect an integration
+   */
+  @Delete('me/integrations/:provider')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Disconnect integration',
+    description: 'Disconnects and removes a third-party integration',
+  })
+  async disconnectIntegration(
+    @CurrentUser() user: RequestUser,
+    @Param('provider') provider: string,
+  ) {
+    return this.usersService.disconnectIntegration(user.email, provider);
   }
 
   /**

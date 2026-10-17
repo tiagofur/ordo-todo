@@ -17,7 +17,11 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  Res,
+  UnauthorizedException,
 } from '@nestjs/common';
+import type { Response } from 'express';
+import { generateIcsFeed } from './utils/ical-generator.util';
 import {
   ApiTags,
   ApiOperation,
@@ -185,6 +189,58 @@ export class TasksController {
     const end = endStr ? new Date(endStr) : defaultEnd;
 
     return this.tasksService.findTimeBlocks(user.id, start, end);
+  }
+
+  /**
+   * Get personalized calendar feed URL and token
+   */
+  @Get('calendar-token')
+  @ApiOperation({
+    summary: 'Get calendar subscription feed URL',
+    description:
+      'Returns a signed 1-year token, standard HTTPS feed URL, and webcal:// protocol link for subscribing to tasks from calendar clients.',
+  })
+  getCalendarToken(@CurrentUser() user: RequestUser) {
+    return this.tasksService.getCalendarToken(user.id);
+  }
+
+  /**
+   * Export tasks as standard RFC 5545 iCalendar (.ics) feed
+   * Publicly accessible with valid token for calendar apps (Apple Calendar, Google Calendar, Outlook)
+   */
+  @Public()
+  @Get('export/calendar.ics')
+  @ApiOperation({
+    summary: 'Export tasks as iCalendar feed (.ics)',
+    description:
+      'Returns RFC 5545 compliant calendar data with all scheduled and due tasks.',
+  })
+  async exportCalendarFeed(
+    @Query('token') token: string,
+    @CurrentUser() user: RequestUser,
+    @Res() res: Response,
+  ) {
+    let targetUserId = user?.id;
+
+    if (!targetUserId && token) {
+      targetUserId = this.tasksService.verifyCalendarToken(token);
+    }
+
+    if (!targetUserId) {
+      throw new UnauthorizedException(
+        'Authentication required or valid token parameter required in query (?token=...)',
+      );
+    }
+
+    const tasks = await this.tasksService.findTasksForCalendarExport(targetUserId);
+    const icsContent = generateIcsFeed(tasks, 'Ordo Tasks');
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="ordo-tasks.ics"',
+    );
+    return res.send(icsContent);
   }
 
   /**
