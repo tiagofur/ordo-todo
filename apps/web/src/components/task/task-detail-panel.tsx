@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { TaskCustomFieldsEditor } from './task-custom-fields-editor';
 import { RecurrenceSelector, type RecurrenceValue } from './recurrence-selector';
+import { PresenceAvatars } from '@/components/collaboration/presence-avatars';
+import { useCollaborationSocket } from '@/hooks/use-collaboration-socket';
 import { apiClient } from '@/lib/api-client';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
@@ -192,6 +194,7 @@ export function TaskDetailPanel({
   onAssignTag,
   onRemoveTag,
   onShare,
+  currentUserId: propCurrentUserId,
   renderSubtaskList,
   renderComments,
   renderAttachments,
@@ -224,12 +227,27 @@ export function TaskDetailPanel({
   // Comments & Mentions Logic
   const { data: comments = [] } = useTaskComments(taskId as string);
   const { data: currentUser } = useCurrentUser();
+  const currentUserId = currentUser?.id || propCurrentUserId;
   // Only fetch members if we have a task and it has a workspaceId
   const { data: workspaceMembers = [] } = useWorkspaceMembers(task?.project?.workspaceId ?? '');
   
   const createCommentMutation = useCreateComment();
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();
+
+  // Collaboration / Real-time Presence
+  const { taskUsers } = useCollaborationSocket({
+    workspaceId: task?.project?.workspaceId,
+    taskId: open && taskId ? taskId : null,
+    enabled: open && !!taskId,
+    onTaskUpdated: (event) => {
+      if (event.updatedBy?.userId !== currentUserId) {
+        toast.info(`${event.updatedBy?.userName || 'Another user'} updated this task`, {
+          icon: <Activity className="w-4 h-4 text-blue-500" />,
+        });
+      }
+    },
+  });
 
   // Transform workspace members to MentionUser format
   const mentionUsers = workspaceMembers
@@ -516,6 +534,15 @@ export function TaskDetailPanel({
                 </div>
 
                 <div className="flex items-center gap-1">
+                  {taskUsers.length > 0 && (
+                    <div className="mr-1.5 flex items-center">
+                      <PresenceAvatars
+                        users={taskUsers}
+                        currentUserId={currentUserId}
+                        size="sm"
+                      />
+                    </div>
+                  )}
                   {isEditing ? (
                     <Button size="sm" onClick={handleSave} disabled={isUpdating} className="h-8 text-xs">
                       <Save className="w-3.5 h-3.5 sm:mr-1.5" />

@@ -29,6 +29,7 @@ const getAllowedOrigins = (): string[] => {
 };
 
 @WebSocketGateway({
+  namespace: 'collaboration',
   cors: {
     origin: (
       origin: string,
@@ -64,9 +65,21 @@ export class CollaborationGateway
 
   async handleConnection(client: Socket) {
     try {
+      const cookieHeader = client.handshake?.headers?.cookie;
+      let cookieToken: string | undefined;
+      if (cookieHeader) {
+        const cookies = cookieHeader.split(';').reduce((res, c) => {
+          const [key, val] = c.trim().split('=');
+          if (key && val) res[key] = decodeURIComponent(val);
+          return res;
+        }, {} as Record<string, string>);
+        cookieToken = cookies['access_token'] || cookies['token'];
+      }
+
       const token =
-        client.handshake.auth.token ||
-        client.handshake.headers.authorization?.split(' ')[1];
+        client.handshake?.auth?.token ||
+        client.handshake?.headers?.authorization?.split(' ')[1] ||
+        cookieToken;
 
       if (!token) {
         client.disconnect();
@@ -75,7 +88,7 @@ export class CollaborationGateway
 
       const payload = await this.jwtService.verifyAsync(token);
       client.data.userId = payload.sub;
-      client.data.userName = payload.name || payload.email;
+      client.data.userName = payload.name || payload.email || 'User';
 
       this.logger.log(
         `Client connected: ${client.id} (User: ${client.data.userId})`,
