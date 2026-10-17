@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { ProjectCard as UIProjectCard } from "@ordo-todo/ui";
 import { useTasks, useArchiveProject, useDeleteProject } from "@/lib/api-hooks";
 import { toast } from "sonner";

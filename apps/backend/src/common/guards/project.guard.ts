@@ -9,8 +9,20 @@ export class ProjectGuard extends BaseResourceGuard {
 
     // If workspaceSlug is present (for /by-slug/:workspaceSlug/:projectSlug endpoint)
     if (workspaceSlug) {
+      const userId = request.user?.id;
       const workspace = await this.prisma.workspace.findFirst({
-        where: { slug: workspaceSlug },
+        where: {
+          slug: workspaceSlug,
+          isDeleted: false,
+          ...(userId
+            ? {
+                OR: [
+                  { ownerId: userId },
+                  { members: { some: { userId } } },
+                ],
+              }
+            : {}),
+        },
         select: { id: true },
       });
       return workspace?.id || null;
