@@ -55,7 +55,23 @@ export interface UserIntegration {
 }
 export type IntegrationProvider = 'GOOGLE_CALENDAR' | 'GOOGLE_TASKS' | 'SLACK' | 'GITHUB' | 'MICROSOFT_TEAMS' | 'NOTION' | 'ZAPIER';
 export type EnergyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export interface FocusAudioPreferences {
+    auto?: boolean;
+    volume?: number;
+    trackId?: string;
+}
 export interface UserPreferences {
+    theme?: 'LIGHT' | 'DARK' | 'AUTO';
+    defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+    startOfWeek?: number;
+    focusAudio?: FocusAudioPreferences | null;
+    timerMode?: 'POMODORO' | 'CONTINUOUS' | 'HYBRID';
+    pomodoroDuration?: number;
+    shortBreakDuration?: number;
+    longBreakDuration?: number;
+    pomodorosUntilLongBreak?: number;
+    enableSounds?: boolean;
+    enableNotifications?: boolean;
     enableAI: boolean;
     aiAggressiveness: number;
     aiSuggestTaskDurations: boolean;
@@ -74,6 +90,10 @@ export interface UserPreferences {
     timeSessionsRetention: number | null;
 }
 export interface UpdatePreferencesDto {
+    theme?: 'LIGHT' | 'DARK' | 'AUTO';
+    defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+    startOfWeek?: number;
+    focusAudio?: FocusAudioPreferences | null;
     timerMode?: 'POMODORO' | 'CONTINUOUS' | 'HYBRID';
     pomodoroDuration?: number;
     shortBreakDuration?: number;

@@ -53,11 +53,22 @@ export default function SettingsPage() {
   const [ambientVolume, setAmbientVolume] = useState(50);
 
   useEffect(() => {
-    const savedAuto = localStorage.getItem("ordo-ambient-auto");
-    const savedVol = localStorage.getItem("ordo-ambient-volume");
-    if (savedAuto !== null) setAmbientAudioAuto(savedAuto === "true");
-    if (savedVol !== null) setAmbientVolume(parseInt(savedVol, 10) || 50);
-  }, []);
+    if (userPreferences?.focusAudio) {
+      if (userPreferences.focusAudio.auto !== undefined) {
+        setAmbientAudioAuto(Boolean(userPreferences.focusAudio.auto));
+        localStorage.setItem("ordo-ambient-auto", String(userPreferences.focusAudio.auto));
+      }
+      if (userPreferences.focusAudio.volume !== undefined) {
+        setAmbientVolume(Number(userPreferences.focusAudio.volume));
+        localStorage.setItem("ordo-ambient-volume", String(userPreferences.focusAudio.volume));
+      }
+    } else {
+      const savedAuto = localStorage.getItem("ordo-ambient-auto");
+      const savedVol = localStorage.getItem("ordo-ambient-volume");
+      if (savedAuto !== null) setAmbientAudioAuto(savedAuto === "true");
+      if (savedVol !== null) setAmbientVolume(parseInt(savedVol, 10) || 50);
+    }
+  }, [userPreferences?.focusAudio]);
 
   const handleLanguageChange = (newLocale: string) => {
     const segments = pathname.split("/");
@@ -76,8 +87,8 @@ export default function SettingsPage() {
   const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
     setTheme(newTheme);
     const mappedTheme =
-      newTheme === "system" ? "SYSTEM" : newTheme === "dark" ? "DARK" : "LIGHT";
-    updatePreferences.mutate({ theme: mappedTheme } as any);
+      newTheme === "system" ? "AUTO" : newTheme === "dark" ? "DARK" : "LIGHT";
+    updatePreferences.mutate({ theme: mappedTheme });
   };
 
   const handleTimerChange = (newTimerSettings: Parameters<typeof updateSettings>[0]) => {
@@ -115,12 +126,24 @@ export default function SettingsPage() {
   const handleAmbientAutoChange = (enabled: boolean) => {
     setAmbientAudioAuto(enabled);
     localStorage.setItem("ordo-ambient-auto", String(enabled));
+    updatePreferences.mutate({
+      focusAudio: {
+        auto: enabled,
+        volume: ambientVolume,
+      },
+    });
     toast.success(t("settingsSaved") || "Ajuste guardado");
   };
 
   const handleAmbientVolumeChange = (vol: number) => {
     setAmbientVolume(vol);
     localStorage.setItem("ordo-ambient-volume", String(vol));
+    updatePreferences.mutate({
+      focusAudio: {
+        auto: ambientAudioAuto,
+        volume: vol,
+      },
+    });
   };
 
   const currentAggressiveness = userPreferences?.aiAggressiveness ?? 5;

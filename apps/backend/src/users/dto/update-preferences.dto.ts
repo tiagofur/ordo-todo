@@ -19,7 +19,39 @@ export enum TimerMode {
   HYBRID = 'HYBRID',
 }
 
+export enum Theme {
+  LIGHT = 'LIGHT',
+  DARK = 'DARK',
+  AUTO = 'AUTO',
+}
+
+export enum ViewType {
+  LIST = 'LIST',
+  KANBAN = 'KANBAN',
+  CALENDAR = 'CALENDAR',
+  TIMELINE = 'TIMELINE',
+  FOCUS = 'FOCUS',
+}
+
 export class UpdatePreferencesDto {
+  // UI Settings
+  @IsEnum(Theme)
+  @IsOptional()
+  theme?: Theme;
+
+  @IsEnum(ViewType)
+  @IsOptional()
+  defaultView?: ViewType;
+
+  @IsInt()
+  @Min(0)
+  @Max(6)
+  @IsOptional()
+  startOfWeek?: number;
+
+  @IsOptional()
+  focusAudio?: Record<string, any>;
+
   // Timer Settings
   @IsEnum(TimerMode)
   @IsOptional()

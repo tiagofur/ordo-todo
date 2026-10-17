@@ -71,7 +71,30 @@ export type IntegrationProvider =
 
 export type EnergyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
+export interface FocusAudioPreferences {
+  auto?: boolean;
+  volume?: number;
+  trackId?: string;
+}
+
 export interface UserPreferences {
+  // UI Settings
+  theme?: 'LIGHT' | 'DARK' | 'AUTO';
+  defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+  startOfWeek?: number;
+  focusAudio?: FocusAudioPreferences | null;
+
+  // Timer Settings
+  timerMode?: 'POMODORO' | 'CONTINUOUS' | 'HYBRID';
+  pomodoroDuration?: number;
+  shortBreakDuration?: number;
+  longBreakDuration?: number;
+  pomodorosUntilLongBreak?: number;
+
+  // Notifications & Sound
+  enableSounds?: boolean;
+  enableNotifications?: boolean;
+
   // AI General
   enableAI: boolean;
   aiAggressiveness: number;
@@ -102,6 +125,10 @@ export interface UserPreferences {
 }
 
 export interface UpdatePreferencesDto {
+  theme?: 'LIGHT' | 'DARK' | 'AUTO';
+  defaultView?: 'LIST' | 'KANBAN' | 'CALENDAR' | 'TIMELINE' | 'FOCUS';
+  startOfWeek?: number;
+  focusAudio?: FocusAudioPreferences | null;
   timerMode?: 'POMODORO' | 'CONTINUOUS' | 'HYBRID';
   pomodoroDuration?: number;
   shortBreakDuration?: number;
