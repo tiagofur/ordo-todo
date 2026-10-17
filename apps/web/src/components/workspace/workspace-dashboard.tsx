@@ -46,6 +46,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useTranslations } from "next-intl";
 import { getErrorMessage } from "@/lib/error-handler";
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import type { Workspace, WorkspaceAuditLog, TaskPriority } from "@ordo-todo/api-client";
 import type { LucideIcon } from "lucide-react";
 
@@ -56,6 +57,7 @@ interface WorkspaceDashboardProps {
 export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   const router = useRouter();
   const t = useTranslations("WorkspaceDashboard");
+  const { confirm, ConfirmModal } = useConfirm();
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
@@ -75,8 +77,13 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   // Check permissions for current user
   const permissions = useWorkspacePermissions(workspace);
 
-  const handleDelete = () => {
-    if (confirm(t("deleteConfirmation"))) {
+  const handleDelete = async () => {
+    const ok = await confirm({
+      title: t("delete"),
+      description: t("deleteConfirmation"),
+      variant: "destructive",
+    });
+    if (ok) {
       deleteWorkspace.mutate(workspace.id, {
         onSuccess: () => {
           toast.success(t("deleteSuccess"));
@@ -384,6 +391,7 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
         open={showSettings}
         onOpenChange={setShowSettings}
       />
+      <ConfirmModal />
     </div>
   );
 }

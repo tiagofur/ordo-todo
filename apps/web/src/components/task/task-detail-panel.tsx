@@ -32,6 +32,7 @@ import { apiClient } from '@/lib/api-client';
 import { CommentThread } from './comment-thread';
 import { AttachmentList } from './attachment-list';
 import { formatCalendarDateInput, serializeCalendarDateForApi } from '@ordo-todo/core';
+import { useConfirm } from '@/components/shared/confirm-dialog';
 import { 
   useTaskComments, 
   useCreateComment, 
@@ -413,9 +414,16 @@ export function TaskDetailPanel({
      }
   };
 
+  const { confirm, ConfirmModal } = useConfirm();
+
   const handleDelete = async () => {
     if (!taskId || !onDelete) return;
-    if (window.confirm(t.confirmDelete)) {
+    const ok = await confirm({
+      title: t.btnDelete,
+      description: t.confirmDelete,
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
         await onDelete(taskId);
         onOpenChange(false);
@@ -1075,6 +1083,7 @@ export function TaskDetailPanel({
            </div>
          </DialogContent>
       </Dialog>
+      <ConfirmModal />
     </Sheet>
   );
 }
