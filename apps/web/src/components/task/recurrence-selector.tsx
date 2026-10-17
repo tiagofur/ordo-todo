@@ -9,10 +9,10 @@ import {
   SelectValue,
   Label,
   Checkbox,
-  DatePicker,
   Input,
 } from '@/components/ui';
-import { Repeat } from 'lucide-react';
+import { Repeat, Calendar } from 'lucide-react';
+import { toCalendarDateString, parseCalendarDate } from '@ordo-todo/core';
 
 export interface RecurrenceValue {
   pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'CUSTOM';
@@ -303,8 +303,34 @@ export function RecurrenceSelector({ value, onChange, labels = {} }: RecurrenceS
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">{t.endDate}</Label>
-            <DatePicker date={endDate} setDate={handleEndDateChange} />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="recurrence-end-date" className="text-xs text-muted-foreground">
+                {t.endDate}
+              </Label>
+              {endDate && (
+                <button
+                  type="button"
+                  onClick={() => handleEndDateChange(undefined)}
+                  className="text-[11px] text-muted-foreground hover:text-foreground underline transition-colors"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            <div className="relative">
+              <Input
+                id="recurrence-end-date"
+                type="date"
+                value={endDate ? toCalendarDateString(endDate) : ''}
+                min={toCalendarDateString(new Date())}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  handleEndDateChange(val ? parseCalendarDate(val) || undefined : undefined);
+                }}
+                className="h-9 pr-10 text-xs"
+              />
+              <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+            </div>
           </div>
         </div>
       )}
