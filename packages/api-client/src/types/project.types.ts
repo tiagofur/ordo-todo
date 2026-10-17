@@ -42,6 +42,9 @@ export interface Project {
   archived: boolean;
   archivedAt: Date | null;
 
+  // Settings (Custom columns, WIP limits, etc.)
+  settings?: any;
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -58,6 +61,7 @@ export interface CreateProjectDto {
   dueDate?: Date | string;
   workspaceId: string;
   workflowId: string;
+  settings?: any;
 }
 
 export interface UpdateProjectDto {
@@ -70,4 +74,5 @@ export interface UpdateProjectDto {
   startDate?: Date | string | null;
   dueDate?: Date | string | null;
   workflowId?: string;
+  settings?: any;
 }

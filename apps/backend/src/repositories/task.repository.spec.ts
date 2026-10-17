@@ -119,6 +119,8 @@ describe('PrismaTaskRepository', () => {
               pattern: 'DAILY',
               interval: 1,
               daysOfWeek: [1, 2, 3, 4, 5],
+              dayOfMonth: undefined,
+              endDate: null,
             },
           },
         }),

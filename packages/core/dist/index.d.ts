@@ -3592,6 +3592,7 @@ interface ProjectProps extends EntityProps {
     completedAt?: Date;
     isDeleted: boolean;
     deletedAt?: Date;
+    settings?: any;
     createdAt?: Date;
     updatedAt?: Date;
 }
