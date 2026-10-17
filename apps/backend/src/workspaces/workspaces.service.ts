@@ -36,6 +36,7 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
 import { PrismaService } from '../database/prisma.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class WorkspacesService {
@@ -55,6 +56,7 @@ export class WorkspacesService {
     @Inject('HashService')
     private readonly hashService: HashService,
     private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -444,14 +446,28 @@ export class WorkspacesService {
         role,
       });
 
-      // In a real app, we would send the email here using result.token
+      // Fetch workspace and inviter user details for email template
+      const workspace = await this.workspaceRepository.findById(workspaceId);
+      const inviter = await this.userRepository.findById(userId);
+
+      // Dispatch invitation email via transactional EmailService
+      await this.emailService.sendWorkspaceInvitation({
+        to: email,
+        inviterName:
+          inviter?.props?.name || inviter?.props?.username || 'A team member',
+        workspaceName: workspace?.props?.name || 'Workspace',
+        workspaceColor: workspace?.props?.color,
+        token: result.token,
+      });
+
       return {
         success: true,
         message: 'Invitation created',
         invitationId: result.invitation.id,
-        // Returning token for dev purposes/MVP so we can test without email service
-        // IMPORTANT: The token is hashed in the database, this plain token should only be sent via email
-        devToken: result.token,
+        // Retain devToken for non-production environments to support automated tests
+        ...(process.env.NODE_ENV !== 'production'
+          ? { devToken: result.token }
+          : {}),
       };
     } catch (error) {
       if (error.message === 'Workspace not found') {

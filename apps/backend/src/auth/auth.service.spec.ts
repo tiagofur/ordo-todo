@@ -14,6 +14,7 @@ import { WorkspacesService } from '../workspaces/workspaces.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthAuditService } from './auth-audit.service';
+import { EmailService } from '../email/email.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -112,6 +113,15 @@ describe('AuthService', () => {
         {
           provide: AuthAuditService,
           useValue: mockAuthAuditService,
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendEmail: jest.fn().mockResolvedValue({ success: true }),
+            sendWorkspaceInvitation: jest.fn().mockResolvedValue({ success: true }),
+            sendPasswordReset: jest.fn().mockResolvedValue({ success: true }),
+            sendWelcome: jest.fn().mockResolvedValue({ success: true }),
+          },
         },
       ],
     }).compile();

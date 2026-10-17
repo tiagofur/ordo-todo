@@ -74,8 +74,8 @@ Calificación de importancia/utilidad del producto (0.0 a 10.0) y porcentaje de 
 ### Fase 2: Nuevas Capacidades Clave de Producto (Diferenciadores)
 1. **Ritual Guiado de "Planificar mi Día" y "Cierre del Día" (Daily Planning / Shutdown Ritual)** [✅ Completado]:
    - Asistente interactivo guiado (`DailyRitualDialog`): triage de tareas vencidas con reagendación en 1-clic, selección de prioridades ("The Big 3"), y auto-asignación de bloques horarios (`Time-Blocking`) sincronizados con el calendario mediante recomendaciones de IA (`/ai/optimal-schedule`). Modo Cierre del Día con balance de tareas completadas, foco registrado, postergación en lote a mañana y afirmación de desconexión.
-2. **Servicio de Correo Transaccional Real (Resend / Nodemailer)**:
-   - Conectar envío real de emails para cerrar el ciclo de invitaciones a Workspaces (reemplazando `devToken`), el enlace de recuperación en `/forgot-password` y el digest semanal por correo.
+2. **Servicio de Correo Transaccional Real (Resend / Nodemailer)** [✅ Completado]:
+   - Creado módulo global `EmailModule` y servicio `EmailService` con transporte SMTP/Resend configurable y fallback seguro en desarrollo/test, plantillas HTML/texto (`password-reset.template`, `workspace-invitation.template`, `welcome.template`). Conectado el envío real de correos para invitaciones de workspace (`workspaces.service`), reseteo de contraseña (`POST /auth/forgot-password`, `POST /auth/reset-password`) y la nueva pantalla `/[locale]/reset-password`.
 3. **Sincronización con Google Calendar y Feed iCal (`.ics`)**:
    - Exportar tareas bloqueadas en calendario mediante URL `.ics` y conectar OAuth de Google Calendar en `/settings` (`Integraciones 15% → 85%`) para ver reuniones reales junto a las tareas.
 4. **Interfaz Web para Creator OS**:

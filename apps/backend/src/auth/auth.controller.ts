@@ -24,6 +24,7 @@ import { CsrfService } from './csrf.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CheckUsernameDto } from './dto/check-username.dto';
 import { Public } from '../common/decorators/public.decorator';
@@ -505,10 +506,26 @@ export class AuthController {
   })
   async forgotPassword(@Body('email') email: string) {
     this.logger.log(`Password reset requested for email: ${email}`);
-    return {
-      success: true,
-      message:
-        'If an account with that email exists, password reset instructions have been sent.',
-    };
+    return this.authService.forgotPassword(email);
+  }
+
+  /**
+   * Reset password with reset token
+   */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 900000 } }) // 5 attempts per 15 min
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Resets user password using a valid signed reset token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

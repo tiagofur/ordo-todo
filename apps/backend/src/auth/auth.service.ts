@@ -24,7 +24,9 @@ import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { OAuthDto } from './dto/oauth.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { EmailService } from '../email/email.service';
 import type { StringValue } from 'ms';
 import { AuthAuditService } from './auth-audit.service';
 
@@ -42,6 +44,7 @@ export class AuthService {
     private readonly workspacesService: WorkspacesService,
     private readonly tokenBlacklistService: TokenBlacklistService,
     private readonly authAuditService: AuthAuditService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -57,6 +60,16 @@ export class AuthService {
         email: registerDto.email,
         password: registerDto.password,
       });
+
+      // Dispatch welcome email asynchronously without blocking registration
+      this.emailService
+        .sendWelcome({
+          to: registerDto.email,
+          userName: registerDto.name || registerDto.username,
+        })
+        .catch((err) =>
+          this.logger.warn(`Failed to dispatch welcome email: ${err.message}`),
+        );
 
       // After registration, log the user in
       return this.login({
@@ -487,5 +500,107 @@ export class AuthService {
       success: true,
       message: 'Password updated successfully',
     };
+  }
+
+  /**
+   * Request password reset instructions
+   * Sends an email with a signed 1-hour JWT token if the user exists
+   */
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const user = await this.userRepository.findByEmail(email);
+      if (user) {
+        const resetToken = this.jwtService.sign(
+          {
+            sub: user.id,
+            email: user.props.email,
+            type: 'password_reset',
+          },
+          {
+            expiresIn: '1h',
+          },
+        );
+
+        await this.emailService.sendPasswordReset({
+          to: user.props.email,
+          userName: user.props.name || user.props.username,
+          resetToken,
+        });
+
+        this.logger.log(`Password reset email dispatched for ${email}`);
+      } else {
+        this.logger.warn(`Password reset requested for non-existent email: ${email}`);
+      }
+
+      // Always return identical message to prevent account enumeration
+      return {
+        success: true,
+        message:
+          'If an account with that email exists, password reset instructions have been sent.',
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Error processing password reset request: ${error.message}`,
+        error.stack,
+      );
+      return {
+        success: true,
+        message:
+          'If an account with that email exists, password reset instructions have been sent.',
+      };
+    }
+  }
+
+  /**
+   * Reset password using a valid reset token
+   */
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const payload = this.jwtService.verify(resetPasswordDto.token);
+
+      if (payload.type !== 'password_reset' || !payload.sub) {
+        throw new BadRequestException('Invalid password reset token');
+      }
+
+      const user = await this.userRepository.findById(payload.sub, true);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      const hashedPassword = await this.cryptoProvider.encrypt(
+        resetPasswordDto.newPassword,
+      );
+
+      await this.userRepository.updateProps(user, {
+        password: hashedPassword,
+      });
+
+      this.logger.log(`Password reset successfully completed for user: ${user.id}`);
+
+      return {
+        success: true,
+        message: 'Password has been reset successfully. You can now log in.',
+      };
+    } catch (error: any) {
+      if (
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      if (error.name === 'TokenExpiredError') {
+        throw new BadRequestException(
+          'Password reset link has expired. Please request a new one.',
+        );
+      }
+      if (error.name === 'JsonWebTokenError') {
+        throw new BadRequestException('Invalid password reset token.');
+      }
+      this.logger.error(`Reset password failed: ${error.message}`, error.stack);
+      throw new BadRequestException('Failed to reset password. Please try again.');
+    }
   }
 }

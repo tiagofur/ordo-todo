@@ -5,6 +5,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { AddMemberDto } from './dto/add-member.dto';
 import { MemberRole } from '@ordo-todo/core';
+import { EmailService } from '../email/email.service';
 
 describe('WorkspacesService', () => {
   let service: WorkspacesService;
@@ -110,6 +111,13 @@ describe('WorkspacesService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendEmail: jest.fn().mockResolvedValue({ success: true }),
+            sendWorkspaceInvitation: jest.fn().mockResolvedValue({ success: true }),
+          },
         },
       ],
     }).compile();

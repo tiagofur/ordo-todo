@@ -456,6 +456,13 @@ export const apiClient = {
     axiosInstance
       .post("/auth/forgot-password", { email })
       .then((res) => res.data),
+  resetPassword: (data: {
+    token: string;
+    newPassword: string;
+  }): Promise<{ success: boolean; message: string }> =>
+    axiosInstance
+      .post("/auth/reset-password", data)
+      .then((res) => res.data),
 
   // User
   getCurrentUser: (): Promise<User> =>

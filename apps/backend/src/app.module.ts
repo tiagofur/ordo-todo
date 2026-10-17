@@ -40,6 +40,7 @@ import { NotesModule } from './notes/notes.module';
 import { ImagesModule } from './images/images.module';
 import { FAQModule } from './faq/faq.module';
 import { KnowledgeBaseModule } from './knowledge-base/knowledge-base.module';
+import { EmailModule } from './email/email.module';
 
 // ========== CREATOR OS MODULES ==========
 import { IdeasModule } from './ideas/ideas.module';
@@ -105,6 +106,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     RoadmapModule,
     FAQModule,
     KnowledgeBaseModule,
+    EmailModule,
 
     // ========== CREATOR OS ==========
     IdeasModule,
