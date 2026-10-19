@@ -5,9 +5,15 @@ import { TimersController } from './timers.controller';
 import { TimersService } from './timers.service';
 
 import { GamificationModule } from '../gamification/gamification.module';
+import { SlackModule } from '../slack/slack.module';
 
 @Module({
-  imports: [DatabaseModule, RepositoriesModule, GamificationModule],
+  imports: [
+    DatabaseModule,
+    RepositoriesModule,
+    GamificationModule,
+    SlackModule,
+  ],
   controllers: [TimersController],
   providers: [TimersService],
   exports: [TimersService],

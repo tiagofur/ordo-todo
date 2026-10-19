@@ -189,6 +189,62 @@ export class SlackOAuthService {
     this.logger.log(`Slack app_uninstalled: cleaned team ${teamId}`);
   }
 
+  async listTeams(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.prisma.slackWorkspaceMap.findMany({
+      where: { userId: user.id },
+      orderBy: { teamName: 'asc' },
+    });
+  }
+
+  async updateMapping(
+    email: string,
+    id: string,
+    data: {
+      channelId?: string | null;
+      projectId?: string | null;
+      dailySummary?: boolean;
+      summaryHour?: number | null;
+      focusSync?: boolean;
+      focusDnd?: boolean;
+    },
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const mapping = await this.prisma.slackWorkspaceMap.findFirst({
+      where: { id, userId: user.id },
+    });
+    if (!mapping) {
+      throw new NotFoundException('Slack mapping not found');
+    }
+    return this.prisma.slackWorkspaceMap.update({
+      where: { id },
+      data: {
+        ...(data.channelId !== undefined ? { channelId: data.channelId } : {}),
+        ...(data.projectId !== undefined ? { projectId: data.projectId } : {}),
+        ...(data.dailySummary !== undefined
+          ? { dailySummary: data.dailySummary }
+          : {}),
+        ...(data.summaryHour !== undefined
+          ? { summaryHour: data.summaryHour }
+          : {}),
+        ...(data.focusSync !== undefined ? { focusSync: data.focusSync } : {}),
+        ...(data.focusDnd !== undefined ? { focusDnd: data.focusDnd } : {}),
+      },
+    });
+  }
+
   private async postForm(
     url: string,
     body: URLSearchParams,

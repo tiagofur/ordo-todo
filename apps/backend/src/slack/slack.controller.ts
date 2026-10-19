@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Res,
@@ -60,6 +61,30 @@ export class SlackController {
     @Param('teamId') teamId: string,
   ): Promise<void> {
     return this.oauth.uninstall(user.email, teamId);
+  }
+
+  @Get('teams')
+  @ApiOperation({ summary: 'List connected Slack teams + mappings' })
+  teams(@CurrentUser() user: RequestUser) {
+    return this.oauth.listTeams(user.email);
+  }
+
+  @Patch('mappings/:id')
+  @ApiOperation({ summary: 'Update channel/project/summary/focus mapping' })
+  updateMapping(
+    @CurrentUser() user: RequestUser,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      channelId?: string | null;
+      projectId?: string | null;
+      dailySummary?: boolean;
+      summaryHour?: number | null;
+      focusSync?: boolean;
+      focusDnd?: boolean;
+    },
+  ) {
+    return this.oauth.updateMapping(user.email, id, body);
   }
 
   @Public()

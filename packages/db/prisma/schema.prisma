@@ -417,6 +417,7 @@ model SlackWorkspaceMap {
   dailySummary Boolean @default(false)
   summaryHour  Int?
   focusSync    Boolean @default(false)
+  focusDnd     Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
