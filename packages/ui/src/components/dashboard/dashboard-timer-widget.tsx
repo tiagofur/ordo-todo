@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { Play, Pause, Square, SkipForward, Target, Maximize2, ChevronsUpDown } from 'lucide-react';
+import { Play, Pause, Square, SkipForward, Target, Maximize2, ChevronsUpDown, Coffee, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
+import { TomatoIcon } from '../ui/custom-icons.js';
 
 export interface DashboardTimerWidgetProps {
   mode: string;
@@ -136,21 +137,42 @@ export function DashboardTimerWidget({
         {/* Left: Mode Badge */}
         <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border shadow-2xs shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border shadow-2xs shrink-0 select-none"
             style={{
               borderColor: `${activeModeColor}40`,
               backgroundColor: `${activeModeColor}15`,
               color: activeModeColor,
             }}
+            title={getModeLabel()}
+            aria-label={getModeLabel()}
           >
-            <span
-              className={cn(
-                'h-1.5 w-1.5 rounded-full shrink-0',
-                isActiveRun ? 'animate-pulse' : ''
-              )}
-              style={{ backgroundColor: activeModeColor }}
-            />
-            <span className="truncate">{getModeLabel()}</span>
+            {mode === 'WORK' || mode === 'POMODORO' ? (
+              <>
+                <TomatoIcon className={cn('h-3.5 w-3.5 shrink-0', isActiveRun ? 'animate-pulse' : '')} />
+                <span className="font-semibold tabular-nums text-xs">#{completedPomodoros + 1}</span>
+              </>
+            ) : mode === 'SHORT_BREAK' || mode === 'LONG_BREAK' ? (
+              <>
+                <Coffee className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs truncate">{mode === 'SHORT_BREAK' ? t.shortBreak : t.longBreak}</span>
+              </>
+            ) : mode === 'CONTINUOUS' || mode === 'STOPWATCH' ? (
+              <>
+                <Timer className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs truncate">{t.continuous}</span>
+              </>
+            ) : (
+              <>
+                <span
+                  className={cn(
+                    'h-1.5 w-1.5 rounded-full shrink-0',
+                    isActiveRun ? 'animate-pulse' : ''
+                  )}
+                  style={{ backgroundColor: activeModeColor }}
+                />
+                <span className="truncate">{getModeLabel()}</span>
+              </>
+            )}
           </div>
 
           {isPaused && (
@@ -160,7 +182,7 @@ export function DashboardTimerWidget({
           )}
 
           {isRunning && pauseCount > 0 && (
-            <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+            <span className="text-[10px] text-muted-foreground tabular-nums shrink-0 hidden sm:inline">
               {t.pauseCount(pauseCount)}
             </span>
           )}
@@ -169,10 +191,10 @@ export function DashboardTimerWidget({
         {/* Right: Compact Duration Chips & Focus Icon Button */}
         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
           {/* Subtle duration preset indicator */}
-          <div className="hidden xs:flex sm:flex items-center bg-muted/40 px-1.5 py-0.5 rounded-lg border border-border/40 text-[10px] font-semibold text-muted-foreground gap-1">
+          <div className="flex items-center bg-muted/40 px-1.5 py-0.5 rounded-lg border border-border/40 text-[10px] font-semibold text-muted-foreground gap-1 select-none">
             <span
               className={cn(
-                'px-1 py-0.2 rounded transition-colors',
+                'px-1 py-0.5 rounded transition-colors',
                 mode === 'WORK' || mode === 'POMODORO'
                   ? 'text-rose-500 font-bold bg-rose-500/10'
                   : 'opacity-60'
@@ -184,7 +206,7 @@ export function DashboardTimerWidget({
             <span className="opacity-30">•</span>
             <span
               className={cn(
-                'px-1 py-0.2 rounded transition-colors',
+                'px-1 py-0.5 rounded transition-colors',
                 mode === 'SHORT_BREAK'
                   ? 'text-emerald-500 font-bold bg-emerald-500/10'
                   : 'opacity-60'
@@ -196,7 +218,7 @@ export function DashboardTimerWidget({
             <span className="opacity-30">•</span>
             <span
               className={cn(
-                'px-1 py-0.2 rounded transition-colors',
+                'px-1 py-0.5 rounded transition-colors',
                 mode === 'LONG_BREAK'
                   ? 'text-teal-500 font-bold bg-teal-500/10'
                   : 'opacity-60'
