@@ -107,7 +107,7 @@ export function TaskCardCompact({
 
   const [showDetailInternal, setShowDetailInternal] = useState(false);
   const updateTask = useUpdateTask();
-  const deleteTask = useDeleteTask ? useDeleteTask() : null;
+  const deleteTask = useDeleteTask();
   const isCompleted = task.status === 'COMPLETED';
 
   const openDetail = () => {
