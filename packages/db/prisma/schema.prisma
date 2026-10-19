@@ -85,6 +85,9 @@ model User {
   // Personal Access Tokens (public API)
   apiTokens ApiToken[]
 
+  // Webhook subscriptions (public API)
+  webhookSubscriptions WebhookSubscription[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -423,6 +426,52 @@ model OAuthClient {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model WebhookSubscription {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  url        String
+  events     String[]
+  secretCiphertext String @db.Text
+  secretFingerprint String
+  isActive   Boolean  @default(true)
+
+  deliveries WebhookDelivery[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model WebhookDelivery {
+  id String @id @default(cuid())
+
+  subscription   WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscriptionId String
+
+  event       String
+  payload     Json
+  status      WebhookDeliveryStatus @default(pending)
+  attempts    Int                   @default(0)
+  lastError   String?               @db.Text
+  nextRetryAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subscriptionId])
+  @@index([status, nextRetryAt])
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  delivered
+  failed
 }
 
 model OAuthAuthorizationCode {

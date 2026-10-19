@@ -33,6 +33,8 @@ import { V1UsersController } from './v1-users.controller';
     V1ProjectsService,
     V1CommentsService,
   ],
-  exports: [PublicApiGuard],
+  // ApiTokensModule is re-exported so consumers of PublicApiGuard
+  // (e.g. WebhooksModule) can resolve its ApiTokenGuard dependency.
+  exports: [PublicApiGuard, ApiTokensModule],
 })
 export class V1Module {}

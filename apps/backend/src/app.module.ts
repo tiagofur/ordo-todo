@@ -44,6 +44,7 @@ import { EmailModule } from './email/email.module';
 import { ApiTokensModule } from './api-tokens/api-tokens.module';
 import { OAuthModule } from './oauth/oauth.module';
 import { V1Module } from './v1/v1.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
@@ -106,6 +107,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ApiTokensModule,
     OAuthModule,
     V1Module,
+    WebhooksModule,
 
     WinstonModule.forRoot(loggerConfig),
   ],
