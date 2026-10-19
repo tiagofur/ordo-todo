@@ -27,6 +27,7 @@
   "dependencies": {
     "@google/genai": "^1.33.0",
     "@liaoliaots/nestjs-redis": "^10.0.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.1.11",
     "@nestjs/config": "^4.0.2",
