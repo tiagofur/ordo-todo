@@ -22,13 +22,27 @@ import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
 import { CalendarConnectionsService } from './calendar-connections.service';
+import { CalendarConflictsService } from './calendar-conflicts.service';
 
 @ApiTags('Calendar Sync')
 @ApiBearerAuth()
 @Controller('integrations/calendar')
 @UseGuards(JwtAuthGuard)
 export class CalendarConnectionsController {
-  constructor(private readonly connections: CalendarConnectionsService) {}
+  constructor(
+    private readonly connections: CalendarConnectionsService,
+    private readonly conflicts: CalendarConflictsService,
+  ) {}
+
+  @Get('status')
+  @ApiOperation({ summary: 'Per-account sync status for the UI' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ok / error / re-auth-required / never-synced per provider.',
+  })
+  status(@CurrentUser() user: RequestUser) {
+    return this.conflicts.accountStatus(user.id);
+  }
 
   @Post(':provider/connect')
   @HttpCode(HttpStatus.OK)

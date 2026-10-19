@@ -6,6 +6,7 @@ import { CalendarConnectionsController } from './calendar-connections.controller
 import { CalendarConnectionsService } from './calendar-connections.service';
 import { CalendarPushService } from './calendar-push.service';
 import { CalendarPullService } from './calendar-pull.service';
+import { CalendarConflictsService } from './calendar-conflicts.service';
 import { GoogleCalendarProvider } from './google-calendar.provider';
 import { OutlookCalendarProvider } from './outlook-calendar.provider';
 
@@ -16,6 +17,7 @@ import { OutlookCalendarProvider } from './outlook-calendar.provider';
     CalendarConnectionsService,
     CalendarPushService,
     CalendarPullService,
+    CalendarConflictsService,
     GoogleCalendarProvider,
     OutlookCalendarProvider,
   ],
@@ -23,6 +25,7 @@ import { OutlookCalendarProvider } from './outlook-calendar.provider';
     CalendarConnectionsService,
     CalendarPushService,
     CalendarPullService,
+    CalendarConflictsService,
   ],
 })
 export class CalendarSyncModule {}
