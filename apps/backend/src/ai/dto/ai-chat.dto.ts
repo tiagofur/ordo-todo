@@ -31,6 +31,12 @@ export class ParsedTaskResult {
   tags: string[];
   confidence: 'LOW' | 'MEDIUM' | 'HIGH';
   reasoning: string;
+  // v2 additive fields (S1) — deterministic parser output, optional.
+  dueAt?: string;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  projectHint?: string;
+  confidenceScore?: number;
+  needsConfirmation?: boolean;
 }
 
 export class WellbeingIndicators {

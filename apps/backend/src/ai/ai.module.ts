@@ -5,12 +5,13 @@ import { RepositoriesModule } from '../repositories/repositories.module';
 import { AIController } from './ai.controller';
 import { AIService } from './ai.service';
 import { GeminiAIService } from './gemini-ai.service';
+import { TaskNlParserService } from './task-nl-parser.service';
 import { BurnoutPreventionService } from './burnout-prevention.service';
 
 @Module({
   imports: [ConfigModule, DatabaseModule, RepositoriesModule],
   controllers: [AIController],
-  providers: [AIService, GeminiAIService, BurnoutPreventionService],
+  providers: [AIService, GeminiAIService, TaskNlParserService, BurnoutPreventionService],
   exports: [AIService, GeminiAIService, BurnoutPreventionService],
 })
 export class AIModule {}
