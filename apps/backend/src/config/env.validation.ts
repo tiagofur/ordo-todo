@@ -48,6 +48,30 @@ export class EnvironmentVariables {
   @IsOptional()
   GEMINI_API_KEY?: string;
 
+  @IsString()
+  @IsOptional()
+  GOOGLE_CALENDAR_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  GOOGLE_CALENDAR_CLIENT_SECRET?: string;
+
+  @IsString()
+  @IsOptional()
+  GOOGLE_CALENDAR_REDIRECT_URI?: string;
+
+  @IsString()
+  @IsOptional()
+  MICROSOFT_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  MICROSOFT_CLIENT_SECRET?: string;
+
+  @IsString()
+  @IsOptional()
+  MICROSOFT_REDIRECT_URI?: string;
+
   @IsEnum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'])
   @IsOptional()
   LOG_LEVEL?: string;
