@@ -20,6 +20,8 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: WinstonModule.createLogger(loggerConfig),
+    // Required by Slack request verification (HMAC over the raw body).
+    rawBody: true,
   });
 
   // Parse cookies

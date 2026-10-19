@@ -72,6 +72,22 @@ export class EnvironmentVariables {
   @IsOptional()
   MICROSOFT_REDIRECT_URI?: string;
 
+  @IsString()
+  @IsOptional()
+  SLACK_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  SLACK_CLIENT_SECRET?: string;
+
+  @IsString()
+  @IsOptional()
+  SLACK_REDIRECT_URI?: string;
+
+  @IsString()
+  @IsOptional()
+  SLACK_SIGNING_SECRET?: string;
+
   @IsEnum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'])
   @IsOptional()
   LOG_LEVEL?: string;
