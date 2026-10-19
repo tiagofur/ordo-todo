@@ -19,6 +19,7 @@ import {
   useWorkspaces,
   useProjects,
 } from "@/app/lib/shared-hooks";
+import { useParseTask } from "@/app/lib/hooks/use-parse-task.hook";
 import { useWorkspaceStore } from "@ordo-todo/stores";
 import { parseCalendarDate, serializeCalendarDateForApi } from "@ordo-todo/core";
 import CustomTextInput from "../../components/shared/text-input.component";
@@ -50,6 +51,8 @@ export default function TaskScreen() {
   const params = useLocalSearchParams();
   const taskId = typeof params.id === "string" ? params.id : undefined;
   const isEditing = !!taskId;
+  // Shared-text draft (S6): ?text= pre-fills the title for NL parsing.
+  const sharedDraft = !isEditing && typeof params.text === "string" ? params.text : "";
 
   const colors = useThemeColors();
   const createTask = useCreateTask();
@@ -61,7 +64,7 @@ export default function TaskScreen() {
   const { selectedWorkspaceId } = useWorkspaceStore();
   const { data: projects } = useProjects(selectedWorkspaceId || "");
 
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(sharedDraft);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("MEDIUM");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
@@ -121,14 +124,43 @@ export default function TaskScreen() {
     }
   }, [existingTask]);
 
+  // Live NL parse of the title (creation only): prefills date /
+  // priority; empty fields only, manual edits always win.
+  const { parsed: nlParsed } = useParseTask(isEditing ? "" : title);
+
+  useEffect(() => {
+    if (isEditing || !nlParsed) return;
+    if (nlParsed.dueAt && !dueDate) {
+      setDueDate(parseCalendarDate(nlParsed.dueAt) ?? undefined);
+    }
+    if (nlParsed.priority && nlParsed.priority !== "MEDIUM") {
+      setPriority((current) =>
+        current === "MEDIUM" ? nlParsed.priority! : current,
+      );
+    }
+    // Intentionally not depending on dueDate: prefill once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nlParsed, isEditing]);
+
   const handleSubmit = async () => {
     if (!title.trim()) {
       Alert.alert("Error", "El título es obligatorio");
       return;
     }
 
-    // Determine projectId: Use existing task's project, or first available project, or error
-    const targetProjectId = existingTask?.projectId;
+    // Determine projectId: existing task's project, NL #hint match,
+    // first available project, or error.
+    const hint = !isEditing ? nlParsed?.projectHint?.toLowerCase() : undefined;
+    const hintMatch =
+      hint && projects
+        ? projects.find(
+            (project) =>
+              project.name.toLowerCase().includes(hint) ||
+              project.slug.toLowerCase() === hint,
+          )
+        : undefined;
+    const targetProjectId =
+      existingTask?.projectId ?? hintMatch?.id ?? projects?.[0]?.id;
 
     if (!targetProjectId && !isEditing) {
       Alert.alert(
@@ -255,6 +287,36 @@ export default function TaskScreen() {
               <Feather name="check-square" size={20} color={colors.textMuted} />
             }
           />
+          {!isEditing && nlParsed && title.trim() ? (
+            <View style={styles.nlPreview}>
+              {nlParsed.dueAt ? (
+                <View style={[styles.nlChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.nlChipText, { color: colors.text }]}>
+                    {new Date(nlParsed.dueAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              ) : null}
+              {nlParsed.priority && nlParsed.priority !== "MEDIUM" ? (
+                <View style={[styles.nlChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.nlChipText, { color: colors.text }]}>
+                    {nlParsed.priority}
+                  </Text>
+                </View>
+              ) : null}
+              {nlParsed.projectHint ? (
+                <View style={[styles.nlChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.nlChipText, { color: colors.text }]}>
+                    #{nlParsed.projectHint}
+                  </Text>
+                </View>
+              ) : null}
+              {nlParsed.needsConfirmation ? (
+                <Text style={[styles.nlReview, { color: colors.textMuted }]}>
+                  Revisa antes de crear
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.formGroup}>
@@ -606,6 +668,27 @@ const styles = StyleSheet.create({
   },
   formGroup: {
     marginBottom: 24,
+  },
+  nlPreview: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
+  },
+  nlChip: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  nlChipText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  nlReview: {
+    fontSize: 12,
+    fontStyle: "italic",
   },
   label: {
     fontSize: 16,

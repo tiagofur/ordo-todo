@@ -14,7 +14,10 @@
 | Dismiss | `Esc` or backdrop click | `packages/ui/src/components/task/quick-add.tsx` |
 
 Desktop: `Cmd/Ctrl+N` opens the same flow (`apps/desktop`, ODD 007 C4).
-Mobile: FAB / share text (ODD 007 C5).
+Mobile (S6): tab-bar FAB → task screen; `?text=` deep-link param
+(`ordotodo://…/task?text=…`, expo-router scheme) pre-fills the title;
+live NL parse prefills date/priority + `#hint` project resolution
+(`use-parse-task.hook.ts`, same fast endpoint as web/desktop).
 
 ## Command palette (S3)
 

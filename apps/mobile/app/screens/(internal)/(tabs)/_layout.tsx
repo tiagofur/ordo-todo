@@ -87,7 +87,9 @@ function FloatingActionButton() {
       <Pressable
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onPress={() => console.log("Add new task")}
+        onPress={() => router.push("/screens/(internal)/task")}
+        accessibilityRole="button"
+        accessibilityLabel="Add new task"
       >
         <Animated.View style={animatedStyle}>
           <LinearGradient
@@ -109,6 +111,7 @@ export default function TabsLayout() {
   const { t } = useTranslation();
 
   return (
+    <>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -245,6 +248,8 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+    <FloatingActionButton />
+    </>
   );
 }
 
