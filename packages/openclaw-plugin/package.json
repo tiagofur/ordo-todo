@@ -51,7 +51,6 @@
   "devDependencies": {
     "@ordo-todo/typescript-config": "*",
     "@types/node": "^25.0.8",
-    "openclaw": "2026.10.5",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

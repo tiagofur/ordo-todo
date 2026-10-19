@@ -1,4 +1,3 @@
-import { textResult } from 'openclaw/plugin-sdk/tool-results';
 import type { AgentToolResult } from 'openclaw/plugin-sdk/tool-results';
 import { OrdoMcpClient } from './mcp-client.js';
 import type { OrdoPluginConfig } from './mcp-client.js';
@@ -28,11 +27,16 @@ interface PluginApi {
   }) => void;
 }
 
-function text(payload: unknown, details?: unknown) {
-  return textResult(
-    JSON.stringify(payload, null, 2),
-    details ?? payload,
-  );
+// Same shape as the SDK's textResult(text, details) — inlined so this
+// module has zero runtime imports from `openclaw` (peer only).
+function text(
+  payload: unknown,
+  details?: unknown,
+): AgentToolResult<unknown> {
+  return {
+    content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }],
+    details: details ?? payload,
+  };
 }
 
 function clientFrom(ctx: ToolContext): OrdoMcpClient {
