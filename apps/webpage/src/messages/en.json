@@ -804,7 +804,9 @@
         "title": "Codex does not show Ordo tools",
         "fix": "Check that the URL in config.toml is exactly the one above, with no extra spaces or trailing slash, and restart Codex."
       }
-    }
+    },
+    "listing_title": "Official listing on the way",
+    "listing_text": "We are publishing Ordo to the ChatGPT directory. Meanwhile, the manual setup above uses the same secure connection."
   },
   "GuideConnectClaude": {
     "badge": "Claude",
@@ -850,7 +852,9 @@
         "title": "Claude answers without using your data",
         "fix": "Mention Ordo explicitly in your message, for example: using Ordo, what do I have today? That way Claude knows which connector to use."
       }
-    }
+    },
+    "listing_title": "Official listing on the way",
+    "listing_text": "We are registering the official Ordo connector. Meanwhile, the manual command above connects to the same server."
   },
   "GuideConnectHermes": {
     "badge": "Hermes",
@@ -942,7 +946,9 @@
         "title": "The assistant answers without your data",
         "fix": "Name Ordo in your message, for example: with Ordo, what is pending? That way it uses the right connection."
       }
-    }
+    },
+    "listing_title": "Official add-on on the way",
+    "listing_text": "The @ordo-todo/openclaw-plugin package is ready and under review for ClawHub. Meanwhile you can install it from the repository."
   },
   "GuideConnectSlack": {
     "badge": "Slack",
@@ -1000,6 +1006,8 @@
     },
     "example_title": "Example: important email → task",
     "example_text": "When an email marked important arrives, create an Ordo task with the subject as the title:",
-    "example_code": "Trigger: Gmail › New important email\nAction: Ordo › Create task\n  Title: {{email subject}}\n  Project: Inbox"
+    "example_code": "Trigger: Gmail › New important email\nAction: Ordo › Create task\n  Title: {{email subject}}\n  Project: Inbox",
+    "listing_title": "Native integration on the way",
+    "listing_text": "We are preparing the official Ordo app on Zapier. Meanwhile, the documented bridge above covers both directions."
   }
 }
