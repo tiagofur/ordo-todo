@@ -1,21 +1,30 @@
-
-import { Timer, Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { Play, Pause, Square, SkipForward, Target, Maximize2, ChevronsUpDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils/index.js';
 
-interface TimerWidgetProps {
+export interface DashboardTimerWidgetProps {
   mode: string;
   isRunning: boolean;
   isPaused: boolean;
   timeLeft: number;
   completedPomodoros: number;
   progress: number;
+  pauseCount?: number;
   accentColor?: string;
   className?: string;
   onToggle: () => void;
   onReset: () => void;
   onSkip: () => void;
   onClick?: () => void;
+  onFocusModeClick?: () => void;
+  TaskSelectorComponent?: ReactNode;
+  taskTitle?: string;
+  config?: {
+    workDuration?: number;
+    shortBreakDuration?: number;
+    longBreakDuration?: number;
+  };
   formatTime: (seconds: number) => string;
   labels?: {
     work?: string;
@@ -28,29 +37,43 @@ interface TimerWidgetProps {
     start?: string;
     pause?: string;
     skip?: string;
+    paused?: string;
+    focusMode?: string;
+    assignedTask?: string;
+    selectTaskPlaceholder?: string;
+    pomodoroCount?: (count: number) => string;
+    pauseCount?: (count: number) => string;
   };
 }
 
+export type TimerWidgetProps = DashboardTimerWidgetProps;
+
 const MODE_COLORS: Record<string, string> = {
-  WORK: '#ef4444',
-  SHORT_BREAK: '#22c55e',
-  LONG_BREAK: '#3b82f6',
-  CONTINUOUS: '#8b5cf6',
-  POMODORO: '#ef4444',
-  STOPWATCH: '#f59e0b',
+  WORK: '#f43f5e',
+  POMODORO: '#f43f5e',
+  SHORT_BREAK: '#10b981',
+  LONG_BREAK: '#0d9488',
+  CONTINUOUS: '#3b82f6',
+  STOPWATCH: '#3b82f6',
 };
 
 const DEFAULT_LABELS = {
-  work: 'Work',
-  shortBreak: 'Short Break',
-  longBreak: 'Long Break',
-  continuous: 'Continuous',
-  idle: 'Idle',
-  completedPomodoros: 'pomodoros completed',
-  reset: 'Reset',
-  start: 'Start',
-  pause: 'Pause',
-  skip: 'Skip',
+  work: 'Trabajo',
+  shortBreak: 'Descanso Corto',
+  longBreak: 'Descanso Largo',
+  continuous: 'Continuo',
+  idle: 'Inactivo',
+  completedPomodoros: 'pomodoros completados',
+  reset: 'Reiniciar',
+  start: 'Iniciar',
+  pause: 'Pausar',
+  skip: 'Saltar',
+  paused: 'En Pausa',
+  focusMode: 'Enfoque',
+  assignedTask: 'TAREA ASIGNADA',
+  selectTaskPlaceholder: 'Seleccionar tarea para trabajar...',
+  pomodoroCount: (count: number) => `Pomodoro ${count}`,
+  pauseCount: (count: number) => `${count} pausa${count !== 1 ? 's' : ''}`,
 };
 
 export function DashboardTimerWidget({
@@ -60,291 +83,293 @@ export function DashboardTimerWidget({
   timeLeft,
   completedPomodoros,
   progress,
-  accentColor = '#06b6d4',
+  pauseCount = 0,
+  accentColor: customAccentColor,
   onToggle,
   onReset,
   onSkip,
   onClick,
+  onFocusModeClick,
+  TaskSelectorComponent,
+  taskTitle,
+  config,
   formatTime,
   className,
   labels = {},
-}: TimerWidgetProps) {
+}: DashboardTimerWidgetProps) {
   const t = { ...DEFAULT_LABELS, ...labels };
 
-  const modeColor = MODE_COLORS[mode] || accentColor;
+  const activeModeColor = MODE_COLORS[mode] || customAccentColor || '#f43f5e';
   const isIdle = !isRunning && !isPaused;
   const isActiveRun = isRunning && !isPaused;
 
-  // Starts 100% full when idle or at 0% elapsed progress, and drains vertically to 0% as progress reaches 100%
   const clampedProgress = Number.isFinite(progress) ? Math.max(0, Math.min(100, progress)) : 0;
-  const fillPercent = isIdle
-    ? 100
-    : mode === 'CONTINUOUS'
-      ? 100
-      : Math.max(0, Math.min(100, 100 - clampedProgress));
 
-  const getModeLabel = (m: string) => {
-    switch (m) {
-      case 'WORK': return t.work;
-      case 'SHORT_BREAK': return t.shortBreak;
-      case 'LONG_BREAK': return t.longBreak;
-      case 'CONTINUOUS': return t.continuous;
-      default: return isIdle ? t.idle : m;
-    }
+  const getModeLabel = () => {
+    if (mode === 'CONTINUOUS' || mode === 'STOPWATCH') return t.continuous;
+    if (mode === 'WORK' || mode === 'POMODORO') return t.pomodoroCount(completedPomodoros + 1);
+    if (mode === 'SHORT_BREAK') return t.shortBreak;
+    if (mode === 'LONG_BREAK') return t.longBreak;
+    return isIdle ? t.idle : mode;
   };
 
   return (
     <motion.div
       whileHover={{
-        y: -3,
-        borderColor: `${modeColor}70`,
-        boxShadow: `0 12px 28px -6px ${modeColor}25`,
+        y: -2,
+        borderColor: `${activeModeColor}60`,
+        boxShadow: `0 12px 28px -6px ${activeModeColor}20`,
       }}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-border/60 bg-card/90 text-card-foreground backdrop-blur-xl p-5 transition-all duration-300 cursor-pointer flex flex-col justify-between shadow-xs h-full',
+        'group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-b from-card/95 via-card/85 to-card text-card-foreground backdrop-blur-xl p-4 sm:p-5 transition-all duration-300 flex flex-col justify-between shadow-xs h-full cursor-pointer',
         className
       )}
       onClick={onClick}
     >
-      {/* Subtle Glass Gauge Marks on Right Edge */}
-      <div className="pointer-events-none absolute inset-y-6 right-2.5 z-10 flex flex-col justify-between items-end opacity-25">
-        <span className="h-[1px] w-2 bg-foreground/60 rounded-full" />
-        <span className="h-[1px] w-1.5 bg-foreground/40 rounded-full" />
-        <span className="h-[1px] w-2.5 bg-foreground/60 rounded-full" />
-        <span className="h-[1px] w-1.5 bg-foreground/40 rounded-full" />
-        <span className="h-[1px] w-2 bg-foreground/60 rounded-full" />
-      </div>
-
-      {/* Emptying Glass Vertical Liquid Container (Drains Top -> Bottom) */}
+      {/* Ambient gradient glow in the corner */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 transition-[height] duration-1000 ease-linear"
-        style={{
-          height: `${fillPercent}%`,
-        }}
-      >
-        {/* Animated Wave Meniscus at Top of Liquid */}
+        className="pointer-events-none absolute -top-16 -left-16 h-48 w-48 rounded-full blur-3xl opacity-15 transition-colors duration-500"
+        style={{ backgroundColor: activeModeColor }}
+      />
+
+      {/* Preset Mode Chips */}
+      <div className="relative z-10 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
+        {/* Trabajo */}
         <div
           className={cn(
-            'absolute -top-3 inset-x-0 h-3.5 overflow-hidden transition-opacity duration-500',
-            fillPercent <= 0 ? 'opacity-0' : isActiveRun ? 'opacity-100' : 'opacity-60'
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all border shrink-0 whitespace-nowrap',
+            mode === 'WORK' || mode === 'POMODORO'
+              ? 'bg-rose-500/15 text-rose-500 dark:text-rose-400 border-rose-500/30 shadow-2xs'
+              : 'bg-muted/40 text-muted-foreground border-transparent hover:bg-muted/60'
           )}
         >
-          {/* Primary Wave */}
-          <svg
-            className="absolute top-0 left-0 h-full w-[200%]"
-            style={{
-              color: modeColor,
-              opacity: isActiveRun ? 0.24 : 0.14,
-              animation: isActiveRun
-                ? 'ordoLiquidWave 3.6s linear infinite'
-                : 'ordoLiquidWave 9s linear infinite',
-            }}
-            viewBox="0 0 1200 24"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,12 C150,24 300,0 450,12 C600,24 750,0 900,12 C1050,24 1200,0 1200,12 L1200,24 L0,24 Z"
-              fill="currentColor"
-            />
-          </svg>
-          {/* Secondary Counter-Wave for Depth */}
-          <svg
-            className="absolute top-0.5 left-0 h-full w-[200%]"
-            style={{
-              color: modeColor,
-              opacity: isActiveRun ? 0.18 : 0.1,
-              animation: isActiveRun
-                ? 'ordoLiquidWaveReverse 5.2s linear infinite'
-                : 'ordoLiquidWaveReverse 12s linear infinite',
-            }}
-            viewBox="0 0 1200 24"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,12 C200,0 400,24 600,12 C800,0 1000,24 1200,12 L1200,24 L0,24 Z"
-              fill="currentColor"
-            />
-          </svg>
+          <span
+            className={cn(
+              'h-1.5 w-1.5 rounded-full shrink-0',
+              mode === 'WORK' || mode === 'POMODORO'
+                ? 'bg-rose-500 animate-pulse'
+                : 'bg-muted-foreground/40'
+            )}
+          />
+          <span>{t.work} ({config?.workDuration || 25}m)</span>
         </div>
 
-        {/* Main Liquid Body */}
+        {/* Descanso Corto */}
         <div
-          className="h-full w-full transition-colors duration-500"
-          style={{
-            background: `linear-gradient(to top, ${modeColor}${isActiveRun ? '28' : '1c'} 0%, ${modeColor}${isActiveRun ? '18' : '10'} 70%, ${modeColor}${isActiveRun ? '24' : '14'} 100%)`,
-          }}
-        />
-
-        {/* Top Meniscus Highlight Line */}
-        {fillPercent > 1 && fillPercent < 99 && (
-          <div
-            className="absolute top-0 inset-x-0 h-[1.5px] transition-opacity duration-300"
-            style={{
-              backgroundColor: modeColor,
-              opacity: isActiveRun ? 0.45 : 0.25,
-            }}
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all border shrink-0 whitespace-nowrap',
+            mode === 'SHORT_BREAK'
+              ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 shadow-2xs'
+              : 'bg-muted/40 text-muted-foreground border-transparent hover:bg-muted/60'
+          )}
+        >
+          <span
+            className={cn(
+              'h-1.5 w-1.5 rounded-full shrink-0',
+              mode === 'SHORT_BREAK'
+                ? 'bg-emerald-500 animate-pulse'
+                : 'bg-muted-foreground/40'
+            )}
           />
-        )}
+          <span>{t.shortBreak} ({config?.shortBreakDuration || 5}m)</span>
+        </div>
 
-        {/* Rising Micro-Bubbles when Running */}
-        {isActiveRun && fillPercent > 10 && (
-          <div className="absolute inset-0 overflow-hidden">
-            <span
-              className="absolute bottom-2 left-[22%] h-1.5 w-1.5 rounded-full"
-              style={{
-                backgroundColor: modeColor,
-                opacity: 0.35,
-                animation: 'ordoBubbleRise 2.8s ease-in infinite',
-              }}
-            />
-            <span
-              className="absolute bottom-1 left-[54%] h-1 w-1 rounded-full"
-              style={{
-                backgroundColor: modeColor,
-                opacity: 0.3,
-                animation: 'ordoBubbleRise 3.4s ease-in 0.9s infinite',
-              }}
-            />
-            <span
-              className="absolute bottom-3 left-[76%] h-1.5 w-1.5 rounded-full"
-              style={{
-                backgroundColor: modeColor,
-                opacity: 0.28,
-                animation: 'ordoBubbleRise 2.5s ease-in 1.5s infinite',
-              }}
-            />
-          </div>
-        )}
+        {/* Descanso Largo */}
+        <div
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all border shrink-0 whitespace-nowrap',
+            mode === 'LONG_BREAK'
+              ? 'bg-teal-600/15 text-teal-600 dark:text-teal-400 border-teal-600/30 shadow-2xs'
+              : 'bg-muted/40 text-muted-foreground border-transparent hover:bg-muted/60'
+          )}
+        >
+          <span
+            className={cn(
+              'h-1.5 w-1.5 rounded-full shrink-0',
+              mode === 'LONG_BREAK'
+                ? 'bg-teal-600 animate-pulse'
+                : 'bg-muted-foreground/40'
+            )}
+          />
+          <span>{t.longBreak} ({config?.longBreakDuration || 15}m)</span>
+        </div>
+
+        {/* Continuo */}
+        <div
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all border shrink-0 whitespace-nowrap',
+            mode === 'CONTINUOUS' || mode === 'STOPWATCH'
+              ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 shadow-2xs'
+              : 'bg-muted/40 text-muted-foreground border-transparent hover:bg-muted/60'
+          )}
+        >
+          <span
+            className={cn(
+              'h-1.5 w-1.5 rounded-full shrink-0',
+              mode === 'CONTINUOUS' || mode === 'STOPWATCH'
+                ? 'bg-blue-500 animate-pulse'
+                : 'bg-muted-foreground/40'
+            )}
+          />
+          <span>{t.continuous}</span>
+        </div>
       </div>
 
-      {/* Foreground Content */}
-      <div className="relative z-10 flex flex-col h-full justify-between">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      {/* Cockpit Center / Main Display */}
+      <div className="relative z-10 my-2 space-y-2.5">
+        {/* Status Badge & Quick Actions */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105 shrink-0"
+              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border shadow-2xs"
               style={{
-                backgroundColor: `${modeColor}15`,
-                color: modeColor,
-                border: `1px solid ${modeColor}25`,
+                borderColor: `${activeModeColor}40`,
+                backgroundColor: `${activeModeColor}15`,
+                color: activeModeColor,
               }}
             >
-              <Timer className={cn('h-5 w-5', isActiveRun && 'animate-pulse')} />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold tracking-tight text-foreground truncate">
-                {getModeLabel(mode)}
-              </h3>
-              <p className="text-xs text-muted-foreground truncate">
-                {completedPomodoros} {t.completedPomodoros}
-              </p>
-            </div>
-          </div>
-
-          {/* Mode Dots / Fill Badge */}
-          <div className="flex items-center gap-1.5">
-            {!isIdle && mode !== 'CONTINUOUS' ? (
               <span
-                className="text-[11px] font-semibold tabular-nums px-2 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: `${modeColor}15`,
-                  color: modeColor,
-                }}
-              >
-                {Math.round(fillPercent)}%
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full',
+                  isActiveRun ? 'animate-pulse' : ''
+                )}
+                style={{ backgroundColor: activeModeColor }}
+              />
+              <span>{getModeLabel()}</span>
+            </div>
+
+            {isPaused && (
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+                {t.paused}
               </span>
-            ) : (
-              <div className="flex items-center gap-1.5 px-1">
-                {['WORK', 'SHORT_BREAK', 'LONG_BREAK'].map((m) => (
-                  <div
-                    key={m}
-                    className={cn(
-                      'h-1.5 w-1.5 rounded-full transition-all duration-300',
-                      mode === m ? 'scale-125 opacity-100' : 'opacity-30'
-                    )}
-                    style={{
-                      backgroundColor: MODE_COLORS[m] || '#6b7280',
-                    }}
-                  />
-                ))}
-              </div>
             )}
+
+            {isRunning && pauseCount > 0 && (
+              <span className="text-[11px] text-muted-foreground tabular-nums">
+                {t.pauseCount(pauseCount)}
+              </span>
+            )}
+          </div>
+
+          {onFocusModeClick && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFocusModeClick();
+              }}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-muted/50 cursor-pointer"
+              title={t.focusMode}
+            >
+              <Maximize2 className="h-3 w-3" />
+              <span>{t.focusMode}</span>
+            </button>
+          )}
+        </div>
+
+        {/* Time and Tactile Controls Row */}
+        <div className="flex items-center justify-between gap-3">
+          {/* Digits + percentage */}
+          <div className="flex items-baseline gap-2 min-w-0">
+            <span className="text-3xl sm:text-4xl font-bold font-mono tracking-tight tabular-nums text-foreground leading-none">
+              {formatTime(timeLeft)}
+            </span>
+            <span className="text-xs font-medium text-muted-foreground tabular-nums">
+              {Math.round(clampedProgress)}%
+            </span>
+          </div>
+
+          {/* Tactile Play/Pause & Secondary Controls */}
+          <div
+            className="flex items-center gap-1.5 shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(isRunning || isPaused) && (
+              <>
+                <button
+                  type="button"
+                  onClick={onReset}
+                  className="flex h-8 w-8 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-2xs"
+                  title={t.reset}
+                >
+                  <Square className="h-3.5 w-3.5" />
+                </button>
+
+                {(mode === 'WORK' || mode === 'POMODORO') && (
+                  <button
+                    type="button"
+                    onClick={onSkip}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 active:scale-95 cursor-pointer bg-card/80 shadow-2xs"
+                    title={t.skip}
+                  >
+                    <SkipForward className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Signature Squircle Play Button */}
+            <button
+              type="button"
+              onClick={onToggle}
+              className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl text-white shadow-md transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+              style={{
+                backgroundColor: activeModeColor,
+                boxShadow: `0 8px 20px -4px ${activeModeColor}60`,
+              }}
+              title={isActiveRun ? t.pause : t.start}
+            >
+              {isActiveRun ? (
+                <Pause className="h-5 w-5 fill-current" />
+              ) : (
+                <Play className="h-5 w-5 fill-current ml-0.5" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Timer Display */}
-        <div className="text-center my-3">
-          <p
-            className="text-4xl font-bold font-mono tracking-tight tabular-nums transition-colors duration-300 text-foreground"
-            style={{ color: isActiveRun ? modeColor : 'var(--foreground)' }}
-          >
-            {formatTime(timeLeft)}
-          </p>
-        </div>
-
-        {/* Controls */}
-        <div
-          className="flex items-center justify-center gap-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={onReset}
-            disabled={isIdle}
-            className={cn(
-              'h-9 w-9 flex items-center justify-center rounded-xl border border-border/60 bg-background/70 backdrop-blur-md transition-all duration-200',
-              isIdle ? 'opacity-40 cursor-not-allowed' : 'hover:bg-muted active:scale-95'
-            )}
-            title={t.reset}
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-
-          <button
-            onClick={onToggle}
-            className="h-10 px-6 flex items-center justify-center rounded-xl text-white font-medium shadow-sm transition-all duration-200 hover:brightness-105 active:scale-95"
-            style={{
-              backgroundColor: modeColor,
-              boxShadow: `0 4px 12px -2px ${modeColor}45`,
-            }}
-            title={isActiveRun ? t.pause : t.start}
-          >
-            {isActiveRun ? (
-              <Pause className="h-4 w-4 fill-current" />
-            ) : (
-              <Play className="h-4 w-4 fill-current ml-0.5" />
-            )}
-          </button>
-
-          <button
-            onClick={onSkip}
-            disabled={!isRunning}
-            className={cn(
-              'h-9 w-9 flex items-center justify-center rounded-xl border border-border/60 bg-background/70 backdrop-blur-md transition-all duration-200',
-              !isRunning ? 'opacity-40 cursor-not-allowed' : 'hover:bg-muted active:scale-95'
-            )}
-            title={t.skip}
-          >
-            <SkipForward className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+        {/* Sleek Horizontal Progress Bar */}
+        <div className="w-full">
+          <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden relative border border-border/30">
+            <div
+              className="h-full rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: `${clampedProgress}%`,
+                backgroundColor: activeModeColor,
+                boxShadow: `0 0 10px ${activeModeColor}80`,
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      <style>{`
-        @keyframes ordoLiquidWave {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes ordoLiquidWaveReverse {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-        @keyframes ordoBubbleRise {
-          0% { transform: translateY(0) scale(0.8); opacity: 0; }
-          30% { opacity: 0.4; }
-          100% { transform: translateY(-90px) scale(1.2); opacity: 0; }
-        }
-      `}</style>
+      {/* Bottom: Assigned Task */}
+      <div
+        className="relative z-10 pt-2.5 border-t border-border/50 space-y-1.5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+          <span className="flex items-center gap-1.5">
+            <Target className="h-3 w-3 text-muted-foreground" />
+            <span>{t.assignedTask}</span>
+          </span>
+        </div>
+
+        <div className="w-full">
+          {TaskSelectorComponent ? (
+            TaskSelectorComponent
+          ) : (
+            <button
+              type="button"
+              onClick={onClick}
+              className="flex w-full items-center justify-between rounded-lg border border-border/60 bg-background/50 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer"
+            >
+              <span className="truncate">{taskTitle || t.selectTaskPlaceholder}</span>
+              <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
+            </button>
+          )}
+        </div>
+      </div>
     </motion.div>
   );
 }
