@@ -181,7 +181,20 @@
     },
     "languageChanged": "Idioma cambiado a {lang}",
     "settingsSaved": "Ajustes guardados correctamente",
-    "errorSaving": "Error al guardar los ajustes"
+    "errorSaving": "Error al guardar los ajustes",
+    "calendar": {
+      "title": "Calendarios",
+      "description": "Conecta Google Calendar u Outlook para ver tus tareas junto a tus reuniones.",
+      "connect": "Conectar",
+      "disconnect": "Desconectar",
+      "reconnect": "Reconectar",
+      "connectedAs": "Conectado como",
+      "neverSynced": "Sin conectar",
+      "conflicts": "{count} conflictos de sincronización",
+      "loading": "Cargando conexiones…",
+      "disconnected": "{name} desconectado",
+      "disconnectError": "No se pudo desconectar {name}"
+    }
   },
   "TimerWidget": {
     "startTimer": "Iniciar timer"

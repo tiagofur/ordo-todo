@@ -50,6 +50,7 @@ import type {
   UserProfileResponse,
   UserPreferences,
   UserIntegration,
+  CalendarAccountStatus,
   Workspace,
   WorkspaceMember,
   WorkspaceInvitation,
@@ -479,6 +480,18 @@ export const apiClient = {
     axiosInstance.patch("/users/me/preferences", data).then((res) => res.data),
   getIntegrations: (): Promise<UserIntegration[]> =>
     axiosInstance.get("/users/me/integrations").then((res) => res.data),
+  getCalendarStatus: (): Promise<CalendarAccountStatus[]> =>
+    axiosInstance.get("/integrations/calendar/status").then((res) => res.data),
+  startCalendarConnect: (
+    provider: string,
+  ): Promise<{ authorizeUrl: string; state: string }> =>
+    axiosInstance
+      .post(`/integrations/calendar/${provider}/connect`)
+      .then((res) => res.data),
+  disconnectCalendar: (provider: string): Promise<void> =>
+    axiosInstance
+      .delete(`/integrations/calendar/${provider}`)
+      .then((res) => res.data),
   connectIntegration: (
     provider: string,
     data?: Record<string, any>,

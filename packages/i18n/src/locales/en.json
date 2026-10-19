@@ -181,7 +181,20 @@
     },
     "languageChanged": "Language changed to {lang}",
     "settingsSaved": "Settings saved successfully",
-    "errorSaving": "Error saving settings"
+    "errorSaving": "Error saving settings",
+    "calendar": {
+      "title": "Calendars",
+      "description": "Connect Google Calendar or Outlook to see tasks next to meetings.",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "reconnect": "Reconnect",
+      "connectedAs": "Connected as",
+      "neverSynced": "Not connected",
+      "conflicts": "{count} sync conflicts",
+      "loading": "Loading connections…",
+      "disconnected": "{name} disconnected",
+      "disconnectError": "Could not disconnect {name}"
+    }
   },
   "TimerWidget": {
     "startTimer": "Start timer"

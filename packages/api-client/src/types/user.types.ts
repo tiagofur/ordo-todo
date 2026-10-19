@@ -66,8 +66,23 @@ export type IntegrationProvider =
   | 'SLACK'
   | 'GITHUB'
   | 'MICROSOFT_TEAMS'
+  | 'MICROSOFT_CALENDAR'
   | 'NOTION'
   | 'ZAPIER';
+
+export type CalendarSyncStatus =
+  | 'ok'
+  | 'error'
+  | 're-auth-required'
+  | 'never-synced';
+
+export interface CalendarAccountStatus {
+  provider: string;
+  status: CalendarSyncStatus;
+  email: string | null;
+  lastSyncAt: Date | null;
+  conflicts: unknown[];
+}
 
 export type EnergyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
