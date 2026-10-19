@@ -21,18 +21,15 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // Global CMD+K / Ctrl+K listener for search
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-      e.preventDefault();
-      setIsSearchOpen((prev) => !prev);
-    }
-  }, []);
+  // Search is opened from the command palette (Cmd/Ctrl+K lives there
+  // now) via the ordo:open-search event, or by clicking the search box.
+  const openSearch = useCallback(() => setIsSearchOpen(true), []);
 
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+    const listener = () => openSearch();
+    document.addEventListener("ordo:open-search", listener);
+    return () => document.removeEventListener("ordo:open-search", listener);
+  }, [openSearch]);
 
   return (
     <>

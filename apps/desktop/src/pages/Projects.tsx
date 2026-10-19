@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Plus,
@@ -21,6 +21,15 @@ type ViewMode = "grid" | "list";
 export function Projects() {
   const { t } = (useTranslation as any)();
   const [showCreateProject, setShowCreateProject] = useState(false);
+
+  // Opened via the command palette (?action=new).
+  // Hash-router aware: the query lives after '#' in desktop.
+  useEffect(() => {
+    const hashQuery = window.location.hash.split("?")[1] ?? "";
+    if (new URLSearchParams(hashQuery).get("action") === "new") {
+      setShowCreateProject(true);
+    }
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");

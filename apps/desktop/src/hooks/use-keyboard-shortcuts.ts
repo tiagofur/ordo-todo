@@ -141,7 +141,9 @@ export const defaultShortcuts: KeyboardShortcut[] = [
     id: 'new-task',
     key: 'n',
     metaKey: true,
-    action: () => { window.location.hash = '/tasks?new=true'; },
+    action: () => {
+      window.dispatchEvent(new CustomEvent('openQuickAdd'));
+    },
     description: 'New Task',
     global: true,
   },

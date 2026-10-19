@@ -1,14 +1,19 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Search,
   Clock,
-  Calendar,
+  CalendarDays,
+  CheckSquare,
+  LayoutDashboard,
+  FolderKanban,
   Tag,
   FileText,
   Zap,
-  Command,
 } from 'lucide-react';
+import { useStartTimer } from '@/lib/shared-hooks';
 
 interface QuickAction {
   id: string;
@@ -19,137 +24,193 @@ interface QuickAction {
   category: 'task' | 'project' | 'timer' | 'navigation' | 'general';
 }
 
+/**
+ * Command palette (S3): Cmd/Ctrl+K everywhere.
+ * First 8 actions are the canonical list shared with web
+ * (see docs/guides/shortcuts.md); the rest are desktop extras.
+ */
 export function useQuickActions() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const startTimer = useStartTimer();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  const actions: QuickAction[] = [
-    // Task Actions
-    {
-      id: 'new-task',
-      label: 'New Task',
-      icon: Plus,
-      shortcut: 'Cmd+N',
-      category: 'task',
-      action: () => {
-        // Navigate to new task creation
-        window.location.hash = '/tasks?new=true';
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'quick-add',
-      label: 'Quick Add Task',
-      icon: Zap,
-      shortcut: 'Cmd+Shift+N',
-      category: 'task',
-      action: () => {
-        // Open quick add dialog
-        const event = new CustomEvent('openQuickAdd');
-        window.dispatchEvent(event);
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'search-tasks',
-      label: 'Search Tasks',
-      icon: Search,
-      shortcut: 'Cmd+K',
-      category: 'navigation',
-      action: () => {
-        // Focus search bar
-        const searchInput = document.querySelector('[data-search-input]') as HTMLInputElement;
-        searchInput?.focus();
-        setIsOpen(false);
-      },
-    },
+  const closeQuickActions = useCallback(() => {
+    setIsOpen(false);
+    setSearchTerm('');
+  }, []);
 
-    // Timer Actions
-    {
-      id: 'start-pomodoro',
-      label: 'Start Pomodoro',
-      icon: Clock,
-      shortcut: 'Cmd+T',
-      category: 'timer',
-      action: () => {
-        // Start pomodoro timer
-        window.location.hash = '/timer?start=pomodoro';
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'start-break',
-      label: 'Start Break',
-      icon: Coffee,
-      shortcut: 'Cmd+Shift+T',
-      category: 'timer',
-      action: () => {
-        // Start break timer
-        window.location.hash = '/timer?start=break';
-        setIsOpen(false);
-      },
-    },
+  const openQuickAdd = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('openQuickAdd'));
+    closeQuickActions();
+  }, [closeQuickActions]);
 
-    // Navigation Actions
-    {
-      id: 'today',
-      label: "Today's Tasks",
-      icon: Calendar,
-      shortcut: 'Cmd+1',
-      category: 'navigation',
-      action: () => {
-        window.location.hash = '/dashboard?filter=today';
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'projects',
-      label: 'Projects',
-      icon: FileText,
-      shortcut: 'Cmd+2',
-      category: 'navigation',
-      action: () => {
-        window.location.hash = '/projects';
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'tags',
-      label: 'Tags',
-      icon: Tag,
-      shortcut: 'Cmd+3',
-      category: 'navigation',
-      action: () => {
-        window.location.hash = '/tags';
-        setIsOpen(false);
-      },
-    },
+  const openSearch = useCallback(() => {
+    document.dispatchEvent(new Event('ordo:open-search'));
+    closeQuickActions();
+  }, [closeQuickActions]);
 
-    // System Actions
-    {
-      id: 'focus-mode',
-      label: 'Focus Mode',
-      icon: Zap,
-      shortcut: 'Cmd+Shift+F',
-      category: 'general',
-      action: () => {
-        window.location.hash = '/focus';
-        setIsOpen(false);
+  const actions: QuickAction[] = useMemo(
+    () => [
+      // Canonical 8 (same ids as web, translated labels)
+      {
+        id: 'go-dashboard',
+        label: t('CommandPalette.actions.go-dashboard', 'Go to dashboard'),
+        icon: LayoutDashboard,
+        category: 'navigation',
+        action: () => {
+          navigate('/dashboard');
+          closeQuickActions();
+        },
       },
-    },
-    {
-      id: 'floating-timer',
-      label: 'Floating Timer',
-      icon: Clock,
-      shortcut: 'Cmd+Shift+P',
-      category: 'general',
-      action: () => {
-        window.location.hash = '/timer/floating';
-        setIsOpen(false);
+      {
+        id: 'go-tasks',
+        label: t('CommandPalette.actions.go-tasks', 'Go to tasks'),
+        icon: CheckSquare,
+        category: 'navigation',
+        action: () => {
+          navigate('/tasks');
+          closeQuickActions();
+        },
       },
-    },
-  ];
+      {
+        id: 'go-projects',
+        label: t('CommandPalette.actions.go-projects', 'Go to projects'),
+        icon: FolderKanban,
+        category: 'navigation',
+        action: () => {
+          navigate('/projects');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'go-calendar',
+        label: t('CommandPalette.actions.go-calendar', 'Go to calendar'),
+        icon: CalendarDays,
+        category: 'navigation',
+        action: () => {
+          navigate('/calendar');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'new-task',
+        label: t('CommandPalette.actions.new-task', 'New task'),
+        icon: Plus,
+        shortcut: 'Cmd+N',
+        category: 'task',
+        action: openQuickAdd,
+      },
+      {
+        id: 'new-project',
+        label: t('CommandPalette.actions.new-project', 'New project'),
+        icon: FolderKanban,
+        category: 'task',
+        action: () => {
+          navigate('/projects?action=new');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'start-timer',
+        label: t('CommandPalette.actions.start-timer', 'Start timer'),
+        icon: Clock,
+        shortcut: 'Cmd+T',
+        category: 'timer',
+        action: () => {
+          startTimer.mutate({ type: 'WORK' });
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'search',
+        label: t('CommandPalette.actions.search', 'Search Ordo'),
+        icon: Search,
+        shortcut: 'Cmd+K',
+        category: 'navigation',
+        action: openSearch,
+      },
+
+      // Desktop extras (kept from the previous palette)
+      {
+        id: 'quick-add',
+        label: t('CommandPalette.actions.new-task', 'New task'),
+        icon: Zap,
+        shortcut: 'Cmd+Shift+N',
+        category: 'task',
+        action: openQuickAdd,
+      },
+      {
+        id: 'start-break',
+        label: 'Start Break',
+        icon: Coffee,
+        shortcut: 'Cmd+Shift+T',
+        category: 'timer',
+        action: () => {
+          navigate('/timer');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'today',
+        label: "Today's Tasks",
+        icon: CalendarDays,
+        shortcut: 'Cmd+1',
+        category: 'navigation',
+        action: () => {
+          navigate('/dashboard?filter=today');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'tags',
+        label: 'Tags',
+        icon: Tag,
+        shortcut: 'Cmd+3',
+        category: 'navigation',
+        action: () => {
+          navigate('/tags');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'focus-mode',
+        label: 'Focus Mode',
+        icon: Zap,
+        shortcut: 'Cmd+Shift+F',
+        category: 'general',
+        action: () => {
+          navigate('/focus');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'floating-timer',
+        label: 'Floating Timer',
+        icon: Clock,
+        shortcut: 'Cmd+Shift+P',
+        category: 'general',
+        action: () => {
+          navigate('/timer/floating');
+          closeQuickActions();
+        },
+      },
+      {
+        id: 'projects',
+        label: 'Projects',
+        icon: FileText,
+        shortcut: 'Cmd+2',
+        category: 'navigation',
+        action: () => {
+          navigate('/projects');
+          closeQuickActions();
+        },
+      },
+    ],
+    [t, navigate, closeQuickActions, openQuickAdd, openSearch, startTimer],
+  );
 
   const filteredActions = actions.filter(action =>
     action.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -168,11 +229,6 @@ export function useQuickActions() {
     }
     setSearchTerm('');
     setIsOpen(true);
-  }, []);
-
-  const closeQuickActions = useCallback(() => {
-    setIsOpen(false);
-    setSearchTerm('');
   }, []);
 
   // Keyboard shortcut handler
