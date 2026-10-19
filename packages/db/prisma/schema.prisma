@@ -82,6 +82,9 @@ model User {
   // Auth Audit Logs
   authAuditLogs AuthAuditLog[]
 
+  // Personal Access Tokens (public API)
+  apiTokens ApiToken[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -388,6 +391,24 @@ model UserIntegration {
 
   @@unique([userId, provider])
   @@index([userId])
+}
+
+model ApiToken {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  name        String
+  tokenHash   String   @db.Text
+  tokenPrefix String
+  scopes      String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([tokenPrefix])
 }
 
 enum IntegrationProvider {
