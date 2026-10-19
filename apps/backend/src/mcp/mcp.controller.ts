@@ -7,11 +7,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { McpProtocolService } from './mcp-protocol.service';
+import { McpAuthGuard } from './mcp-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
 
 /**
@@ -19,14 +21,18 @@ import { Public } from '../common/decorators/public.decorator';
  *
  * Stateless mode (`sessionIdGenerator: undefined`): every request gets
  * a fresh transport, no session tracking, no SSE streams held open.
- * Auth scoping (T2) runs before the SDK sees the request.
+ * {@link McpAuthGuard} authenticates (PAT or OAuth) before the SDK
+ * sees the request; per-tool scopes arrive with the catalog (T3).
  */
 @ApiTags('MCP')
 @Controller('mcp')
 export class McpController {
   constructor(private readonly protocol: McpProtocolService) {}
 
+  // @Public skips the global session-JWT guard; McpAuthGuard (PAT or
+  // OAuth) is the real authentication for this endpoint.
   @Public()
+  @UseGuards(McpAuthGuard)
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiExcludeEndpoint()
