@@ -5,10 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  OAuth2Client,
-  type Credentials,
-} from 'google-auth-library';
+import { OAuth2Client, type Credentials } from 'google-auth-library';
 import { GOOGLE_CALENDAR_SCOPE, ProviderTokens } from './calendar.constants';
 
 /**

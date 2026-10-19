@@ -276,4 +276,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get authAuditLog() {
     return this.prisma.authAuditLog;
   }
+
+  get calendarEventMapping() {
+    return this.prisma.calendarEventMapping;
+  }
+
+  get externalCalendarBlock() {
+    return this.prisma.externalCalendarBlock;
+  }
 }

@@ -14,10 +14,7 @@ import {
   MICROSOFT_SCOPES,
   MICROSOFT_TOKEN_URL,
 } from './calendar.constants';
-import type {
-  CalendarFetch,
-  ProviderTokens,
-} from './calendar.constants';
+import type { CalendarFetch, ProviderTokens } from './calendar.constants';
 
 const defaultFetch: CalendarFetch = async (url, init) => {
   const response = await fetch(url, init);
