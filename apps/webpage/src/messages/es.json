@@ -321,7 +321,8 @@
       "analytics": "Analíticas",
       "need_help": "¿Necesitas más ayuda?",
       "community_text": "Únete a nuestra comunidad para consejos y soporte.",
-      "community_link": "Unirse a la Comunidad"
+      "community_link": "Unirse a la Comunidad",
+      "connect": "Conectar tu asistente"
     },
     "main": {
       "badge": "Guía de Inicio Rápido",
@@ -373,6 +374,10 @@
       "analytics": {
         "title": "Analíticas",
         "description": "Rastrea y mejora tu productividad"
+      },
+      "connect": {
+        "title": "Conectar tu asistente",
+        "description": "Usa Ordo desde ChatGPT, Claude, Hermes u OpenClaw"
       }
     }
   },
@@ -719,5 +724,282 @@
     },
     "contact_title": "Contáctanos",
     "contact_text": "Si tienes alguna pregunta sobre estos Términos, por favor"
+  },
+  "GuideConnect": {
+    "badge": "Conectar tu asistente",
+    "title": "Conecta Ordo a tu asistente",
+    "subtitle": "Usa tus tareas, proyectos y hábitos desde ChatGPT, Claude, Hermes u OpenClaw. Sin tecnicismos: busca, conecta, aprueba.",
+    "how_title": "Dos formas de conectar",
+    "how_text": "Elige la que prefieras. Ambas usan la misma conexión segura: Ordo solo muestra a tu asistente lo que tú puedes ver.",
+    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_text": "Para todo el mundo. Menos de 60 segundos, sin copiar nada, sin pantallas raras.",
+    "manual_title": "Configuración manual",
+    "manual_text": "Para desarrolladores y herramientas de terminal. Bloques listos para copiar y pegar.",
+    "clients_title": "Elige tu asistente",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Conecta Ordo como aplicación desde el directorio"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Añade Ordo como conector en web o escritorio"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Tu ayudante personal con memoria, con Ordo dentro"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Opera Ordo desde WhatsApp, Telegram o Discord"
+      }
+    },
+    "more_title": "Más formas de usar Ordo",
+    "slack_title": "Ordo dentro de Slack",
+    "slack_text": "Adjunta Ordo a Slackbot y trabaja sin salir de tus canales.",
+    "zapier_title": "Puente con Zapier",
+    "zapier_text": "Conecta Ordo con miles de aplicaciones mientras llega la integración propia."
+  },
+  "GuideConnectChatGPT": {
+    "badge": "ChatGPT",
+    "title": "Conectar Ordo a ChatGPT",
+    "subtitle": "Pide a ChatGPT que organice tu día, cree tareas o resuma tu semana, con tus datos reales de Ordo.",
+    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_text": "No necesitas copiar nada ni entender nada técnico. Solo sigue estos pasos:",
+    "steps": {
+      "1": {
+        "title": "Abre el directorio de aplicaciones",
+        "description": "En ChatGPT, ve a Configuración y luego a Aplicaciones conectadas. Pulsa Añadir aplicación."
+      },
+      "2": {
+        "title": "Busca Ordo",
+        "description": "Escribe Ordo en el buscador y elige la aplicación oficial Ordo Todo."
+      },
+      "3": {
+        "title": "Pulsa Conectar y aprueba",
+        "description": "Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+      },
+      "4": {
+        "title": "Vuelve a ChatGPT y prueba",
+        "description": "Escribe algo como ¿qué tareas tengo hoy? ChatGPT responderá con tus datos reales de Ordo."
+      }
+    },
+    "manual_title": "Configuración manual (Codex y terminal)",
+    "manual_text": "Si usas Codex o prefieres configurarlo a mano, añade este bloque a tu archivo ~/.codex/config.toml:",
+    "config_title": "Bloque de configuración",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://ordotodo.app/mcp\"\n# Al primer uso, Codex abrirá el navegador para que apruebes con tu cuenta de Ordo.",
+    "verify_text": "Guarda el archivo, reinicia Codex y pide: lista mis proyectos de Ordo. Si responde con tus proyectos reales, está conectado.",
+    "verify_code": "Codex › ¿qué tareas vencen esta semana?",
+    "trouble_title": "Si algo falla",
+    "errors": {
+      "1": {
+        "title": "El navegador muestra un error al aprobar",
+        "fix": "Cierra la pestaña, asegúrate de haber iniciado sesión en Ordo en ese navegador e inténtalo de nuevo desde ChatGPT."
+      },
+      "2": {
+        "title": "ChatGPT dice que no encuentra Ordo",
+        "fix": "Vuelve a Configuración, Aplicaciones conectadas y comprueba que Ordo aparece como conectada. Si no, repite el paso 2."
+      },
+      "3": {
+        "title": "Codex no muestra las herramientas de Ordo",
+        "fix": "Revisa que la URL en config.toml sea exactamente la de arriba, sin espacios ni barra final de más, y reinicia Codex."
+      }
+    }
+  },
+  "GuideConnectClaude": {
+    "badge": "Claude",
+    "title": "Conectar Ordo a Claude",
+    "subtitle": "Delega en Claude tu planificación: que lea tus tareas, proponga el plan del día y lo ejecute contigo.",
+    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_text": "Funciona igual en la web de Claude, en la app de escritorio y en Claude Code:",
+    "steps": {
+      "1": {
+        "title": "Abre los conectores",
+        "description": "En Claude, ve a Configuración y luego a Conectores. Pulsa Añadir conector."
+      },
+      "2": {
+        "title": "Busca Ordo",
+        "description": "Escribe Ordo en el buscador y elige el conector oficial."
+      },
+      "3": {
+        "title": "Pulsa Conectar y aprueba",
+        "description": "Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+      },
+      "4": {
+        "title": "Vuelve a Claude y prueba",
+        "description": "Escribe algo como organízame el día. Claude leerá tus tareas y te propondrá un plan."
+      }
+    },
+    "manual_title": "Configuración manual (Claude Code y terminal)",
+    "manual_text": "Si usas la terminal, conecta Ordo con un solo comando:",
+    "config_title": "Comando de conexión",
+    "config_code": "claude mcp add --transport http ordo https://ordotodo.app/mcp\n# Después ejecuta /mcp dentro de Claude Code y aprueba en el navegador.",
+    "verify_text": "Pide: muéstrame mis objetivos del trimestre. Si Claude responde con tus objetivos reales, está conectado.",
+    "verify_code": "Claude Code › /mcp  (debe mostrar ordo como conectado)",
+    "trouble_title": "Si algo falla",
+    "errors": {
+      "1": {
+        "title": "El navegador muestra un error al aprobar",
+        "fix": "Cierra la pestaña, asegúrate de haber iniciado sesión en Ordo en ese navegador e inténtalo de nuevo."
+      },
+      "2": {
+        "title": "Claude Code dice que el servidor no responde",
+        "fix": "Ejecuta claude mcp list y comprueba que la URL sea exactamente la de arriba. Si la cambiaste, elimina y añade de nuevo."
+      },
+      "3": {
+        "title": "Claude responde sin usar tus datos",
+        "fix": "Menciona Ordo explícitamente en tu mensaje, por ejemplo: usando Ordo, ¿qué tengo hoy? Así Claude sabe qué conector usar."
+      }
+    }
+  },
+  "GuideConnectHermes": {
+    "badge": "Hermes",
+    "title": "Conectar Ordo a Hermes",
+    "subtitle": "Tu ayudante personal con memoria ahora conoce tus tareas: pídele que te organice por Telegram, Discord o donde lo uses.",
+    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_text": "Desde la app de Hermes, sin tocar archivos:",
+    "steps": {
+      "1": {
+        "title": "Abre las conexiones",
+        "description": "En Hermes, ve a Ajustes y luego a Conexiones. Pulsa Añadir conexión."
+      },
+      "2": {
+        "title": "Busca Ordo",
+        "description": "Escribe Ordo en el buscador y elige la conexión oficial."
+      },
+      "3": {
+        "title": "Pulsa Conectar y aprueba",
+        "description": "Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+      },
+      "4": {
+        "title": "Pídele algo a Hermes",
+        "description": "Escríbele a tu ayudante algo como recuérdame mis hábitos de hoy. Responderá con tus datos reales."
+      }
+    },
+    "manual_title": "Configuración manual (archivo YAML)",
+    "manual_text": "Si ejecutas Hermes desde terminal, añade esto a tu archivo ~/.hermes/config.yaml:",
+    "config_title": "Bloque de configuración",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://ordotodo.app/mcp\n      auth: oauth  # Hermes abrirá el navegador al primer uso",
+    "verify_text": "Reinicia Hermes y pregúntale por tus tareas de hoy. Si responde con datos reales, está conectado.",
+    "verify_code": "Hermes › ¿qué hábitos me quedan hoy?",
+    "trouble_title": "Si algo falla",
+    "errors": {
+      "1": {
+        "title": "El navegador muestra un error al aprobar",
+        "fix": "Cierra la pestaña, asegúrate de haber iniciado sesión en Ordo en ese navegador e inténtalo de nuevo."
+      },
+      "2": {
+        "title": "Hermes dice que la conexión falló",
+        "fix": "Revisa que la URL en config.yaml sea exactamente la de arriba, con https y sin barra final, y reinicia Hermes."
+      },
+      "3": {
+        "title": "Hermes responde sin tus datos",
+        "fix": "Nombra Ordo en tu mensaje, por ejemplo: en Ordo, ¿qué vence mañana? Así Hermes sabe dónde buscar."
+      }
+    }
+  },
+  "GuideConnectOpenClaw": {
+    "badge": "OpenClaw",
+    "title": "Conectar Ordo a OpenClaw",
+    "subtitle": "Opera Ordo desde WhatsApp, Telegram o Discord: crea tareas, consulta tu día y recibe resúmenes donde ya hablas.",
+    "oneclick_title": "Conexión en 1 clic",
+    "oneclick_text": "Desde el panel de OpenClaw, sin tocar archivos:",
+    "steps": {
+      "1": {
+        "title": "Abre el mercado de complementos",
+        "description": "En tu panel de OpenClaw, ve a Complementos y busca Ordo en ClawHub."
+      },
+      "2": {
+        "title": "Instala el complemento de Ordo",
+        "description": "Pulsa Instalar en la ficha oficial de Ordo y espera a que termine."
+      },
+      "3": {
+        "title": "Conecta tu cuenta y aprueba",
+        "description": "Pulsa Conectar. Se abrirá tu navegador en tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+      },
+      "4": {
+        "title": "Háblale a tu asistente",
+        "description": "Escríbele por tu canal habitual algo como organiza mi día con Ordo. Responderá con tu plan real."
+      }
+    },
+    "manual_title": "Configuración manual (terminal)",
+    "manual_text": "Si gestionas OpenClaw por terminal, añade el servidor remoto con este comando:",
+    "config_title": "Comando de conexión",
+    "config_code": "openclaw mcp add ordo https://ordotodo.app/mcp --auth oauth\n# Después aprueba en el navegador cuando OpenClaw te lo pida.",
+    "verify_text": "Pídele a tu asistente tu resumen del día. Si incluye tus tareas reales de Ordo, está conectado.",
+    "verify_code": "Tú › organiza mi día con Ordo",
+    "trouble_title": "Si algo falla",
+    "errors": {
+      "1": {
+        "title": "El navegador muestra un error al aprobar",
+        "fix": "Cierra la pestaña, asegúrate de haber iniciado sesión en Ordo en ese navegador e inténtalo de nuevo."
+      },
+      "2": {
+        "title": "OpenClaw no lista el complemento",
+        "fix": "Actualiza el índice de ClawHub desde el panel y vuelve a buscar Ordo. Si lo instalaste por terminal, reinicia el proceso de OpenClaw."
+      },
+      "3": {
+        "title": "El asistente responde sin tus datos",
+        "fix": "Nombra Ordo en tu mensaje, por ejemplo: con Ordo, ¿qué tengo pendiente? Así usa la conexión correcta."
+      }
+    }
+  },
+  "GuideConnectSlack": {
+    "badge": "Slack",
+    "title": "Usar Ordo dentro de Slack",
+    "subtitle": "Adjunta Ordo a Slackbot para consultar y crear tareas sin salir de tus canales.",
+    "steps_title": "Pasos",
+    "steps": {
+      "1": {
+        "title": "Abre los ajustes de tu app de Slack",
+        "description": "Ve a la configuración de tu espacio de trabajo de Slack y entra en Aplicaciones."
+      },
+      "2": {
+        "title": "Añade Ordo como servidor",
+        "description": "En la sección de servidores externos, añade la dirección de Ordo y elige iniciar sesión con tu cuenta cuando te lo pida."
+      },
+      "3": {
+        "title": "Aprueba en el navegador",
+        "description": "Se abrirá tu cuenta de Ordo. Si no habías iniciado sesión, inicia sesión primero y luego pulsa Autorizar."
+      },
+      "4": {
+        "title": "Activa Ordo en Slackbot",
+        "description": "Abre un mensaje directo con Slackbot, ve a Aplicaciones y activa Ordo con el botón +."
+      },
+      "5": {
+        "title": "Elige tus permisos",
+        "description": "La primera vez que Ordo quiera actuar, Slack te preguntará: permitir una vez, permitir siempre o denegar. Tú decides."
+      }
+    },
+    "permissions_title": "Tus permisos, tu control",
+    "permissions_sub": "Nada se ejecuta sin tu permiso",
+    "permissions_text": "Ordo solo puede ver lo que tú ves. Cada acción (crear una tarea, por ejemplo) te pide permiso la primera vez, y puedes cambiarlo cuando quieras desde Slackbot."
+  },
+  "GuideConnectZapier": {
+    "badge": "Zapier",
+    "title": "Conectar Ordo con Zapier",
+    "subtitle": "Usa Ordo junto a miles de aplicaciones a través de Zapier, mientras preparamos integraciones propias.",
+    "steps_title": "Pasos",
+    "steps": {
+      "1": {
+        "title": "Crea un Zap nuevo",
+        "description": "En Zapier, pulsa Crear Zap y elige la aplicación que disparará la automatización (por ejemplo, Gmail)."
+      },
+      "2": {
+        "title": "Añade el paso de Ordo",
+        "description": "Como acción, busca Ordo y elige lo que quieres hacer, como crear una tarea."
+      },
+      "3": {
+        "title": "Conecta tu cuenta y aprueba",
+        "description": "Zapier te pedirá conectar tu cuenta de Ordo. Se abrirá tu navegador: inicia sesión si hace falta y pulsa Autorizar."
+      },
+      "4": {
+        "title": "Prueba y activa",
+        "description": "Envía una prueba desde Zapier, comprueba que la tarea aparece en Ordo y activa el Zap."
+      }
+    },
+    "example_title": "Ejemplo: email importante → tarea",
+    "example_text": "Cuando llegue un email marcado como importante, crear una tarea en Ordo con el asunto como título:",
+    "example_code": "Disparador: Gmail › Nuevo email importante\nAcción: Ordo › Crear tarea\n  Título: {{asunto del email}}\n  Proyecto: Bandeja de entrada"
   }
 }
