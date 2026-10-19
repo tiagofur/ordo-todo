@@ -46,12 +46,18 @@ Fuera de alcance: scheduling (005 — consume esto), Slack (011), Apple bidirecc
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| T1 | S1 | OAuth real Google + Outlook + refresh + re-auth | delegada | pending | — |
-| T2 | S2 | Ordo → calendario (CRUD eventos + settings propagación) | delegada | pending | — |
-| T3 | S3 | Calendario → Ordo (bloqueos "ocupado", opt-in tareas) | delegada | pending | — |
-| T4 | S4–S5 | Conflictos + estado sync + cuotas + doc de límites | inline | pending | — |
-| T5 | S6 | UI conexión + errores humanos | inline | pending | — |
+| T1 | S1 | OAuth real Google + Outlook + refresh + re-auth | delegada | done | worktree /tmp/ordo-238, branch `feature/calendar-sync`, commits `chore(backend)` SDK + `feat(calendar)` T1. jest src/calendar-sync: 14/14; tsc: 0 errores; eslint: 0 errores. Migración enum `MICROSOFT_CALENDAR` validada en scratch DB. |
+| T2 | S2 | Ordo → calendario (CRUD eventos + settings propagación) | delegada | done | mismo worktree/branch, commit T2. jest: 20/20; tsc: 0 errores; eslint: 0 errores. Migración modelos validada en scratch DB (9 statements OK). |
+| T3 | S3 | Calendario → Ordo (bloqueos "ocupado", opt-in tareas) | delegada | done | mismo worktree/branch, commit T3. jest: 26/26; tsc: 0 errores; eslint: 0 errores. |
+| T4 | S4–S5 | Conflictos + estado sync + cuotas + doc de límites | inline | done | mismo worktree/branch, commit T4. jest: 32/32; tsc: 0 errores; eslint: 0 errores. `calendar-sync.md` con matriz de conflictos, cuotas y never-list. |
+| T5 | S6 | UI conexión + errores humanos | inline | done | mismo worktree/branch, commit T5. tsc web/ui/api-client limpios; web build verde; i18n trilingüe verificado. |
 
 ## Log
 
 L1. "integracion con las apps externas, calendarios..." (mensaje del usuario 2026-10-18; este doc cubre calendario real; Slack vive en 011).
+
+L2 (2026-10-19). T1–T5 completados en worktree aislado `/tmp/ordo-238`, branch `feature/calendar-sync` desde `main` post-#260. Dependencia única nueva: `google-auth-library@10.5.0` exacta (autorizada por padre); Microsoft va por REST directo sin SDK. Decisiones: `MICROSOFT_CALENDAR` como valor de enum honesto (no reusar MICROSOFT_TEAMS); tokens en `UserIntegration` existente (sin modelo nuevo para credenciales); refresh con skew de 5min + flag `re-auth-required` con mensaje humano al morir el grant; `Task.ownerId` (NO `userId`) como ownership; `dueDate` como fecha del evento (sin `doDate` hasta ODD 005); echo prevention por mapping + extended property `ordoTaskId`; 0 tareas fantasma (opt-in exige proyecto destino, spec-pineado); conflictos last-write-wins por `updatedAt` con log en settings (últimos 20); incremental syncToken/delta marcado follow-up honesto (pull actual = ventana 30d paginada); UI solo web en T5 (desktop sigue el mismo componente presentacional cuando toque). Barrido final: 71/71 jest (calendar-sync + users), tsc backend/web/ui/api-client limpios, web build verde, eslint 0 errores, 2 migraciones validadas en scratch DB. Nota: mensaje del commit T5 trae typo "MICRSOFT" (solo cosmético, el código dice MICROSOFT_CALENDAR). Pendiente padre: smoke real con cuentas test Google + Outlook + push + PRs (refs #238); `prisma migrate resolve` de la fallida ajena sigue bloqueando la dev DB local.
+
+L3 (2026-10-19). Push + PRs hechos ("siga"). 6 ramas/PRs apilados sobre `main`: #261 (SDK, base main) → #262 (T1) → #263 (T2) → #264 (T3) → #265 (T4) → #266 (T5 UI, closes #238). Comentario de tracking en #238. T1–T4 pasan 400 líneas pero son unidades mecánicas revisables (provider+spec, servicio+spec). CI corriendo en #261 a esta hora.
+
+L4 (2026-10-19). Merge secuencial estrategia A completado ("merge secuencial por ti"). Orden: #261 → #262 → #263 → #264 → #265 → #266, cada uno con CI verde antes de mergear (retarget + rebase --onto + trigger CI). Incidente único: rebase de T5 chocó con la nueva settings por tabs de `main` (trabajo del otro agente, PR #259); resuelto quedándome con `main` + re-aplicando la sección Calendar adaptada al estilo cards del tab general (verificado: tsc web limpio). #238 CLOSED. Ramas de la pila borradas (remotas + locales), worktree /tmp/ordo-238 eliminado. Pendiente humano: smoke real con cuentas Google + Outlook (credenciales OAuth app) + `prisma migrate resolve` de la fallida ajena.
