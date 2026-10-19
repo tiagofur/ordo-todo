@@ -12,6 +12,7 @@ import {
   type WeeklyReportContext,
 } from '@ordo-todo/core';
 import { GeminiAIService } from './gemini-ai.service';
+import { TaskNlParserService } from './task-nl-parser.service';
 import type { ChatMessageDto } from './dto/ai-chat.dto';
 import { PrismaService } from '../database/prisma.service';
 import type { Prisma } from '@prisma/client';
@@ -32,6 +33,7 @@ export class AIService {
     private readonly timerRepository: TimerRepository,
     private readonly geminiService: GeminiAIService,
     private readonly prisma: PrismaService,
+    private readonly nlParser: TaskNlParserService,
   ) {}
 
   // ============ AI CHAT ============
@@ -118,6 +120,10 @@ export class AIService {
     projectId?: string,
     timezone?: string,
   ) {
+    // Fast deterministic first pass (no LLM): dates, recurrence,
+    // #project, @priority, confidence. Enriched by Gemini below.
+    const local = this.nlParser.parse(input, new Date());
+
     const result = await this.geminiService.parseNaturalLanguageTask(
       input,
       timezone || 'America/Mexico_City',
@@ -125,7 +131,17 @@ export class AIService {
 
     return {
       ...result,
-      projectId,
+      // Deterministic wins where it is confident; Gemini fills the rest.
+      title: local.confidenceScore >= 0.6 ? local.title : result.title,
+      dueDate: local.dueAt ?? result.dueDate,
+      priority: local.confidenceScore >= 0.6 ? local.priority : result.priority,
+      projectId: projectId ?? local.projectHint,
+      // v2 additive fields (S1) — existing contract untouched.
+      dueAt: (local.dueAt ?? result.dueDate)?.toISOString(),
+      recurrence: local.recurrence,
+      projectHint: local.projectHint,
+      confidenceScore: local.confidenceScore,
+      needsConfirmation: local.confidenceScore < 0.6,
     };
   }
 
