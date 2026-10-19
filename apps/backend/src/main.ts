@@ -102,8 +102,11 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  // Global prefix
-  app.setGlobalPrefix(configService.get<string>('API_PREFIX')!);
+  // Global prefix. The public /v1 surface is mounted outside it so its
+  // URLs stay version-pinned and stable: /v1/... instead of /api/v1/v1/....
+  app.setGlobalPrefix(configService.get<string>('API_PREFIX')!, {
+    exclude: ['v1/{*path}'],
+  });
 
   // Swagger API documentation
   const config = new DocumentBuilder()
@@ -173,6 +176,10 @@ API endpoints are rate-limited. Exceeding limits will result in 429 errors.`,
     .addTag('Meetings', 'Meeting assistant and notes')
     .addTag('Gamification', 'Achievements and points')
     .addTag('Search', 'Semantic search')
+    .addTag(
+      'Public API v1',
+      'Stable public API: bearer PAT auth, versioned at /v1',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
