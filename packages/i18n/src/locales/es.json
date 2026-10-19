@@ -2799,5 +2799,13 @@
   "ProjectTimeline": {
     "emptyTitle": "Sin tareas programadas",
     "emptyDescription": "Asigna fechas de entrega o bloques de tiempo para ver la línea temporal."
+  },
+  "QuickAdd": {
+    "placeholder": "Escribe una tarea: comprar leche mañana 9h #casa",
+    "hint": "Enter crea · Esc cierra · Tab recorre campos · Escribe fechas y #proyectos en lenguaje natural",
+    "confirmHint": "Revisa antes de crear",
+    "created": "Tarea creada: {title}",
+    "noProject": "Crea un proyecto primero para capturar tareas",
+    "error": "No se pudo crear la tarea"
   }
 }

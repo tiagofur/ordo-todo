@@ -9,6 +9,29 @@ export interface AIProfile {
   updatedAt: Date;
 }
 
+export interface ParseTaskRequest {
+  input: string;
+  projectId?: string;
+  timezone?: string;
+  fast?: boolean;
+}
+
+export interface ParsedTaskInput {
+  title: string;
+  description?: string;
+  dueDate?: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  estimatedMinutes?: number;
+  tags: string[];
+  confidence: 'LOW' | 'MEDIUM' | 'HIGH';
+  reasoning: string;
+  dueAt?: string;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  projectHint?: string;
+  confidenceScore?: number;
+  needsConfirmation?: boolean;
+}
+
 export interface OptimalScheduleResponse {
   peakHours: Array<{
     hour: number;

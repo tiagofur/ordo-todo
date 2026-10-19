@@ -2793,5 +2793,13 @@
   "ProjectTimeline": {
     "emptyTitle": "Sem tarefas agendadas",
     "emptyDescription": "Defina prazos ou blocos de tempo para ver a linha do tempo."
+  },
+  "QuickAdd": {
+    "placeholder": "Digite uma tarefa: comprar leite amanhã 9h #casa",
+    "hint": "Enter cria · Esc fecha · Tab percorre campos · Digite datas e #projetos naturalmente",
+    "confirmHint": "Revise antes de criar",
+    "created": "Tarefa criada: {title}",
+    "noProject": "Crie um projeto primeiro para capturar tarefas",
+    "error": "Não foi possível criar a tarefa"
   }
 }
