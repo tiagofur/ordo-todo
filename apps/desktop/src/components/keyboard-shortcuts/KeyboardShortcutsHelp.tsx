@@ -108,7 +108,7 @@ const shortcutGroups: ShortcutGroup[] = [
     shortcuts: [
       {
         keys: ['⌘', 'K'],
-        description: 'Quick Actions / Search',
+        description: 'Command palette',
         global: true,
       },
       {

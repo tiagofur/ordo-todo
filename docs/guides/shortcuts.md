@@ -18,8 +18,10 @@ Mobile: FAB / share text (ODD 007 C5).
 
 ## Command palette (S3)
 
-`Cmd/Ctrl+K` everywhere in web (`apps/web/src/components/shared/command-palette.tsx`,
-mounted in `app-layout.tsx`). Same 8 canonical actions on web and desktop:
+`Cmd/Ctrl+K` in web (`apps/web/src/components/shared/command-palette.tsx`,
+mounted in `app-layout.tsx`) and desktop (`useQuickActions` +
+`QuickActionsOverlay`, mounted in `MainLayout`). Same 8 canonical
+actions on both (same ids, translated labels):
 
 | # | Action id | What it does |
 |---|---|---|
@@ -35,6 +37,8 @@ mounted in `app-layout.tsx`). Same 8 canonical actions on web and desktop:
 Behavior: type to filter, `Enter` runs the first match, `Esc`/backdrop
 click closes, filter resets on every open. Labels are translated
 (`CommandPalette` keys in `packages/i18n/src/locales/*.json`).
+Desktop keeps 7 extra actions after the canonical 8 (quick-add,
+start-break, today, tags, focus-mode, floating-timer, projects).
 
 ## Global map (web)
 
@@ -55,6 +59,26 @@ click closes, filter resets on every open. Labels are translated
 | `Esc` | Close dialog / cancel | Per dialog (`QuickAdd`, `CommandPalette`) |
 
 In-app help mirrors this table (`apps/web/src/components/shortcuts/keyboard-shortcuts-help.tsx`).
+
+## Global map (desktop)
+
+`apps/desktop/src/hooks/use-keyboard-shortcuts.ts` (`defaultShortcuts`,
+mounted in `MainLayout`). Desktop-only extras live here; the canonical
+Quick-Add + palette rows above apply to desktop too.
+
+| Shortcut | Action | Implementation |
+|---|---|---|
+| `Cmd/Ctrl+1..5` | Go to dashboard/tasks/projects/timer/analytics | `defaultShortcuts` |
+| `Cmd/Ctrl+T` | Start pomodoro | `defaultShortcuts` → `/timer?start=pomodoro` (param unread — navigates only) |
+| `Cmd/Ctrl+Shift+T` | Start break | `defaultShortcuts` → `/timer?start=break` (param unread — navigates only) |
+| `Cmd/Ctrl+Shift+P` | Open floating timer | `defaultShortcuts` → `/timer/floating` |
+| `Cmd/Ctrl+Shift+F` | Enter focus mode | `defaultShortcuts` → `/focus` |
+| `Cmd/Ctrl+D` | Duplicate current task | `defaultShortcuts` → `duplicateCurrentTask` event (no listener — reserved) |
+| `Cmd/Ctrl+Backspace` | Delete current task | `defaultShortcuts` → `deleteCurrentTask` event (no listener — reserved) |
+| `Cmd/Ctrl+Enter` | Complete current task | `defaultShortcuts` → `completeCurrentTask` event (no listener — reserved) |
+| `Cmd/Ctrl+I` | Toggle task details | `defaultShortcuts` → `toggleTaskDetails` event (no listener — reserved) |
+
+In-app help mirrors the real shortcuts (`KeyboardShortcutsHelp`).
 
 ## Notes
 
