@@ -2807,5 +2807,19 @@
     "created": "Tarea creada: {title}",
     "noProject": "Crea un proyecto primero para capturar tareas",
     "error": "No se pudo crear la tarea"
+  },
+  "CommandPalette": {
+    "placeholder": "Escribe un comando o busca…",
+    "noResults": "Sin resultados",
+    "actions": {
+      "go-dashboard": "Ir al panel",
+      "go-tasks": "Ir a tareas",
+      "go-projects": "Ir a proyectos",
+      "go-calendar": "Ir al calendario",
+      "new-task": "Nueva tarea",
+      "new-project": "Nuevo proyecto",
+      "start-timer": "Iniciar temporizador",
+      "search": "Buscar en Ordo"
+    }
   }
 }

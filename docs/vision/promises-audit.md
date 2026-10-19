@@ -155,6 +155,8 @@ Prometidos en alguna superficie (roadmap seeds, changelog, pricing, FAQ), estado
 
 **Corrección**: unificar en docs nuevas; reparar links README (una ruta canónica por doc); completar READMEs boilerplate. → `odd/tasks/013-marketing-docs-cleanup.md` S11–S12, captura real en `odd/tasks/007-omnipresent-capture.md`.
 
+> **Estado atajos (ODD 007 C3)**: unificado y verificado contra código — mapa canónico en `docs/guides/shortcuts.md`.
+
 ## I. Lo que existe y no se publicita
 
 Todo ✅ verificado en código, ausente o débil en landing. Las docs nuevas DEBEN incluirlo ("no prometer de menos"):
@@ -179,7 +181,7 @@ Checklist ejecutable (dueño: `odd/tasks/013-marketing-docs-cleanup.md`):
 5. [ ] Matriz de paridad por plataforma (web/desktop/móvil) en lugar de "real-time sync" genérico.
 6. [ ] Todo ❌ movido a roadmap/ODD, fuera de features.
 7. [ ] Prueba social retirada o verificada; dominios/email verificados.
-8. [ ] Links README reparados; READMEs boilerplate completados; atajos unificados.
+8. [ ] Links README reparados; READMEs boilerplate completados. Atajos unificados en `docs/guides/shortcuts.md` (ODD 007 C3 — solo esa parte).
 
 ## 📚 Referencias
 

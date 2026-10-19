@@ -2807,5 +2807,19 @@
     "created": "Task created: {title}",
     "noProject": "Create a project first to capture tasks",
     "error": "Could not create the task"
+  },
+  "CommandPalette": {
+    "placeholder": "Type a command or search…",
+    "noResults": "No results",
+    "actions": {
+      "go-dashboard": "Go to dashboard",
+      "go-tasks": "Go to tasks",
+      "go-projects": "Go to projects",
+      "go-calendar": "Go to calendar",
+      "new-task": "New task",
+      "new-project": "New project",
+      "start-timer": "Start timer",
+      "search": "Search Ordo"
+    }
   }
 }

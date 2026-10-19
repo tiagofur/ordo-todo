@@ -27,12 +27,13 @@ const shortcutCategories: ShortcutCategory[] = [
   {
     name: "Búsqueda",
     shortcuts: [
-      { key: "Ctrl+K / ⌘K", description: "Abrir búsqueda inteligente" },
+      { key: "Ctrl+K / ⌘K", description: "Abrir paleta de comandos" },
     ],
   },
   {
     name: "Creación",
     shortcuts: [
+      { key: "N", description: "Nueva tarea (atajo rápido)" },
       { key: "Ctrl+N", description: "Nueva tarea" },
       { key: "Ctrl+Shift+N", description: "Nuevo proyecto" },
     ],

@@ -2801,5 +2801,19 @@
     "created": "Tarefa criada: {title}",
     "noProject": "Crie um projeto primeiro para capturar tarefas",
     "error": "Não foi possível criar a tarefa"
+  },
+  "CommandPalette": {
+    "placeholder": "Digite um comando ou pesquise…",
+    "noResults": "Sem resultados",
+    "actions": {
+      "go-dashboard": "Ir ao painel",
+      "go-tasks": "Ir para tarefas",
+      "go-projects": "Ir para projetos",
+      "go-calendar": "Ir para o calendário",
+      "new-task": "Nova tarefa",
+      "new-project": "Novo projeto",
+      "start-timer": "Iniciar cronômetro",
+      "search": "Pesquisar no Ordo"
+    }
   }
 }
