@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '../database/database.module';
 import { CalendarConnectionsController } from './calendar-connections.controller';
 import { CalendarConnectionsService } from './calendar-connections.service';
+import { CalendarPushService } from './calendar-push.service';
 import { GoogleCalendarProvider } from './google-calendar.provider';
 import { OutlookCalendarProvider } from './outlook-calendar.provider';
 
@@ -11,9 +12,10 @@ import { OutlookCalendarProvider } from './outlook-calendar.provider';
   controllers: [CalendarConnectionsController],
   providers: [
     CalendarConnectionsService,
+    CalendarPushService,
     GoogleCalendarProvider,
     OutlookCalendarProvider,
   ],
-  exports: [CalendarConnectionsService],
+  exports: [CalendarConnectionsService, CalendarPushService],
 })
 export class CalendarSyncModule {}

@@ -88,6 +88,10 @@ model User {
   // Webhook subscriptions (public API)
   webhookSubscriptions WebhookSubscription[]
 
+  // Calendar sync (ODD 010)
+  calendarEventMappings CalendarEventMapping[]
+  externalCalendarBlocks ExternalCalendarBlock[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -394,6 +398,53 @@ model UserIntegration {
 
   @@unique([userId, provider])
   @@index([userId])
+}
+
+model CalendarEventMapping {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+
+  provider      IntegrationProvider
+  integrationId String
+  calendarId    String
+  eventId       String
+
+  lastSyncedHash String?
+  lastSyncedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([taskId, provider, calendarId])
+  @@index([userId])
+  @@index([integrationId])
+}
+
+model ExternalCalendarBlock {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  provider      IntegrationProvider
+  integrationId String
+  calendarId    String
+  eventId       String
+
+  title   String
+  startAt DateTime
+  endAt   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([integrationId, calendarId, eventId])
+  @@index([userId, startAt])
 }
 
 model ApiToken {
@@ -923,6 +974,9 @@ model Task {
   attachments Attachment[]
   comments    Comment[]
   activities  Activity[]
+
+  // Calendar sync (ODD 010)
+  calendarEventMappings CalendarEventMapping[]
 
   // AI Metadata
   aiSuggestions  Json? // Stores AI-generated suggestions
