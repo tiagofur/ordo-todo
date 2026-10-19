@@ -67,6 +67,18 @@ fn set_badge_count(_app: tauri::AppHandle, _count: Option<i64>) -> Result<(), St
     Ok(())
 }
 
+#[tauri::command]
+fn focus_main_window(app: tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("main") {
+        window.show().map_err(|e| e.to_string())?;
+        let _ = window.unminimize();
+        window.set_focus().map_err(|e| e.to_string())?;
+        Ok(())
+    } else {
+        Err("Main window not found".to_string())
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -165,6 +177,7 @@ pub fn run() {
             set_timer_window_visible,
             update_tray_title,
             set_badge_count,
+            focus_main_window,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

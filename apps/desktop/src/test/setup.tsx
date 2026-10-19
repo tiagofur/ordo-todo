@@ -9,8 +9,11 @@ vi.mock('@ordo-todo/ui', () => ({
       {children}
     </button>
   )),
-  Input: vi.fn(({ onChange, ...props }) => (
-    <input onChange={onChange ? (e) => onChange(e.target.value) : undefined} {...props} />
+  Input: vi.fn((props) => (
+    <input {...props} />
+  )),
+  Textarea: vi.fn(({ children, ...props }) => (
+    <textarea {...props}>{children}</textarea>
   )),
   Card: vi.fn(({ children, className, ...props }) => (
     <div className={className} {...props}>
