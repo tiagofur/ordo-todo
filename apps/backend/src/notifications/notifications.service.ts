@@ -10,6 +10,8 @@ import {
   ResourceType as CoreResourceType,
 } from '@ordo-todo/core';
 import type { NotificationRepository } from '@ordo-todo/core';
+import { SLACK_NOTIFIER } from '../slack/slack-notifier.port';
+import type { SlackNotifier } from '../slack/slack-notifier.port';
 
 @Injectable()
 export class NotificationsService {
@@ -17,6 +19,9 @@ export class NotificationsService {
     @Inject('NotificationRepository')
     private readonly notificationRepository: NotificationRepository,
     @Optional() private gateway?: NotificationsGateway,
+    @Optional()
+    @Inject(SLACK_NOTIFIER)
+    private readonly slack?: SlackNotifier,
   ) {}
 
   async create(data: {
@@ -55,6 +60,23 @@ export class NotificationsService {
       // Also send updated unread count
       const unreadCount = await this.getUnreadCount(data.userId);
       this.gateway.sendUnreadCount(data.userId, unreadCount);
+    }
+
+    // Route to Slack when available. Fire-and-forget: Slack failures
+    // must never break in-app notifications (the notifier logs them).
+    if (this.slack) {
+      void this.slack
+        .notify({
+          userId: data.userId,
+          type: String(data.type),
+          title: data.title,
+          message: data.message,
+          resourceId: data.resourceId,
+          resourceType: data.resourceType
+            ? String(data.resourceType)
+            : undefined,
+        })
+        .catch(() => undefined);
     }
 
     return notification;

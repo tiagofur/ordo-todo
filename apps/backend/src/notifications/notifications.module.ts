@@ -8,12 +8,14 @@ import { NotificationsGateway } from './notifications.gateway';
 import { DatabaseModule } from '../database/database.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { AIModule } from '../ai/ai.module';
+import { SlackModule } from '../slack/slack.module';
 
 @Module({
   imports: [
     DatabaseModule,
     RepositoriesModule,
     forwardRef(() => AIModule),
+    forwardRef(() => SlackModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
