@@ -1,11 +1,15 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../database/prisma.service';
+import { AuthAuditService } from '../auth/auth-audit.service';
+import { AuthEventType } from '../auth/types/auth-event.types';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { webhookDelegates } from './webhook.delegate';
 import { WebhookCryptoService } from './webhook-crypto.service';
@@ -44,6 +48,9 @@ export class WebhooksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly crypto: WebhookCryptoService,
+    @Optional()
+    @Inject(AuthAuditService)
+    private readonly audit?: AuthAuditService,
   ) {}
 
   async create(userId: string, dto: CreateWebhookDto): Promise<CreatedWebhook> {
@@ -81,6 +88,16 @@ export class WebhooksService {
     this.logger.log(
       `Webhook subscription created for user ${userId} (${created.id})`,
     );
+    await this.audit?.logEvent({
+      type: AuthEventType.WEBHOOK_CREATED,
+      userId,
+      timestamp: new Date(),
+      metadata: {
+        subscriptionId: created.id,
+        url: created.url,
+        events: created.events,
+      },
+    });
 
     return {
       id: created.id,
@@ -130,6 +147,12 @@ export class WebhooksService {
     this.logger.log(
       `Webhook subscription ${subscriptionId} removed by user ${userId}`,
     );
+    await this.audit?.logEvent({
+      type: AuthEventType.WEBHOOK_DELETED,
+      userId,
+      timestamp: new Date(),
+      metadata: { subscriptionId },
+    });
   }
 
   async listDeliveries(

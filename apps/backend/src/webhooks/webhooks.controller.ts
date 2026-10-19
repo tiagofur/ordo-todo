@@ -16,6 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PublicApiGuard } from '../v1/public-api.guard';
+import { TokenRateLimitGuard } from '../v1/token-rate-limit.guard';
 import { WebhooksService } from './webhooks.service';
 import { WebhookDispatcherService } from './webhook-dispatcher.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -30,7 +31,7 @@ import {
 @ApiTags('Public API v1 - Webhooks')
 @ApiBearerAuth()
 @Controller('v1/webhooks')
-@UseGuards(PublicApiGuard)
+@UseGuards(PublicApiGuard, TokenRateLimitGuard)
 export class WebhooksController {
   constructor(
     private readonly webhooksService: WebhooksService,

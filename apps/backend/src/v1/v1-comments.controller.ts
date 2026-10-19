@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PublicApiGuard } from './public-api.guard';
+import { TokenRateLimitGuard } from './token-rate-limit.guard';
 import { V1CommentsService } from './v1-comments.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
@@ -18,7 +19,7 @@ import { CreateCommentDto } from '../comments/dto/create-comment.dto';
 @ApiTags('Public API v1 - Comments')
 @ApiBearerAuth()
 @Controller('v1/comments')
-@UseGuards(PublicApiGuard)
+@UseGuards(PublicApiGuard, TokenRateLimitGuard)
 export class V1CommentsController {
   constructor(private readonly v1CommentsService: V1CommentsService) {}
 
