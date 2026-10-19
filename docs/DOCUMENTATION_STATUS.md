@@ -71,7 +71,7 @@
 
 ### Reference Documentation
 
-- [ ] [API Reference](./reference/api-reference.md) - All API endpoints
+- [x] [API Reference](./reference/api-reference.md) - Public API v1 + webhooks + OAuth (ODD 009-T6)
 - [ ] [Database Schema](./reference/database-schema.md) - Prisma schema
 - [ ] [Design Tokens Reference](./reference/design-tokens.md) - All tokens documented
 
@@ -124,7 +124,7 @@ docs/
 │   └── social-previews.md              ⏳
 │
 └── reference/
-    ├── api-reference.md                ⏳
+    ├── api-reference.md                ✅ Public v1 (ODD 009)
     ├── database-schema.md              ⏳
     └── design-tokens.md                ⏳
 ```
