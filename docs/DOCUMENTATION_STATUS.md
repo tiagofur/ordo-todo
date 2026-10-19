@@ -80,7 +80,7 @@
 
 ### Reference Documentation
 
-- [ ] [API Reference](./reference/api-reference.md) - Public API v1 + webhooks (owner: ODD 009)
+- [x] [API Reference](./reference/api-reference.md) - Public API v1 + webhooks + OAuth (ODD 009-T6)
 - [ ] [MCP Server](./reference/mcp-server.md) - MCP transport/auth/tools (owner: ODD 001)
 - [ ] [Database Schema](./reference/database-schema.md) - Prisma schema
 - [ ] [Design Tokens Reference](./reference/design-tokens.md) - All tokens documented
@@ -144,7 +144,7 @@ docs/
 │   └── social-previews.md              ⏳
 │
 └── reference/
-    ├── api-reference.md                ⏳
+    ├── api-reference.md                ✅ Public v1 (ODD 009)
     ├── database-schema.md              ⏳
     └── design-tokens.md                ⏳
 ```
