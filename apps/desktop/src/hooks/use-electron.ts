@@ -53,6 +53,11 @@ export function useElectron() {
     // Listen for timer actions
     const unsubscribe = desktopBridge.onTimerAction(handleTimerAction)
 
+    // Tray "Quick Add Task..." → focus main window + open Quick-Add.
+    const unsubscribeTray = desktopBridge.onQuickAddTask(() => {
+      window.dispatchEvent(new CustomEvent('openQuickAdd'))
+    })
+
     // Register global shortcuts if in native shell
     if (desktopBridge.isNative()) {
       // Toggle Mini Timer: CommandOrControl+Shift+T
@@ -61,18 +66,21 @@ export function useElectron() {
       })
       // Quick Create Task: CommandOrControl+Shift+N
       desktopBridge.registerShortcut('CommandOrControl+Shift+N', () => {
-        uiStore.openCreateTaskDialog()
+        desktopBridge.focusMainWindow().then(() => {
+          window.dispatchEvent(new CustomEvent('openQuickAdd'))
+        })
       })
     }
 
     return () => {
       unsubscribe()
+      unsubscribeTray()
       if (desktopBridge.isNative()) {
         desktopBridge.unregisterShortcut('CommandOrControl+Shift+T')
         desktopBridge.unregisterShortcut('CommandOrControl+Shift+N')
       }
     }
-  }, [handleTimerAction, uiStore])
+  }, [handleTimerAction])
 
   // Start timer interval if running
   useEffect(() => {

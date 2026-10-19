@@ -85,6 +85,8 @@ import type {
   CreateAttachmentDto,
   // AI
   AIProfile,
+  ParsedTaskInput,
+  ParseTaskRequest,
   OptimalScheduleResponse,
   PredictDurationResponse,
   WeeklyReportResponse,
@@ -1802,7 +1804,19 @@ export class OrdoApiClient {
     return response.data;
   }
 
-  // ============ AI ENDPOINTS (7) ============
+  // ============ AI ENDPOINTS (8) ============
+
+  /**
+   * Parse natural language task input (fast mode skips the LLM)
+   * POST /ai/parse-task
+   */
+  async parseTask(request: ParseTaskRequest): Promise<ParsedTaskInput> {
+    const response = await this.axios.post<ParsedTaskInput>(
+      "/ai/parse-task",
+      request,
+    );
+    return response.data;
+  }
 
   /**
    * Get AI profile for current user

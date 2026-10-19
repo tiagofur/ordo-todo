@@ -77,6 +77,7 @@ Quick-Add + palette rows above apply to desktop too.
 | `Cmd/Ctrl+Backspace` | Delete current task | `defaultShortcuts` → `deleteCurrentTask` event (no listener — reserved) |
 | `Cmd/Ctrl+Enter` | Complete current task | `defaultShortcuts` → `completeCurrentTask` event (no listener — reserved) |
 | `Cmd/Ctrl+I` | Toggle task details | `defaultShortcuts` → `toggleTaskDetails` event (no listener — reserved) |
+| `Cmd/Ctrl+Shift+N` (OS-level) | Quick-Add from anywhere | Tauri global-shortcut (`use-electron.ts`) → `focus_main_window` (Rust) → `openQuickAdd` event; works minimized/background. Tray menu "Quick Add Task..." does the same via `quick-add-task` event. |
 
 In-app help mirrors the real shortcuts (`KeyboardShortcutsHelp`).
 

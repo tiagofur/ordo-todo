@@ -111,6 +111,45 @@ class DesktopBridge {
     return false;
   }
 
+  /**
+   * Bring the main window to front (unminimize + show + focus).
+   * Used by the global Quick-Add shortcut so capture works even
+   * with the app minimized or in the background.
+   */
+  public async focusMainWindow(): Promise<void> {
+    if (this.isTauri) {
+      try {
+        await invoke('focus_main_window');
+      } catch (err) {
+        console.warn('Failed to focus main window:', err);
+      }
+    } else if (typeof window !== 'undefined') {
+      window.focus();
+    }
+  }
+
+  /**
+   * Listen for the tray "Quick Add Task..." menu event (emitted by
+   * the Rust side as `quick-add-task`). Returns an unsubscribe fn.
+   */
+  public onQuickAddTask(callback: () => void): () => void {
+    let unlistenTauri: UnlistenFn | null = null;
+
+    if (this.isTauri) {
+      listen('quick-add-task', () => {
+        callback();
+      }).then((unlisten) => {
+        unlistenTauri = unlisten;
+      });
+    }
+
+    return () => {
+      if (unlistenTauri) {
+        unlistenTauri();
+      }
+    };
+  }
+
   // ==========================================
   // System Tray & Mini Timer
   // ==========================================

@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { Plus, X, Calendar, Clock, Tag, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Plus, X, Calendar, Clock, Tag, ChevronDown, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
-import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger } from '@ordo-todo/ui';
+import { cn, Button, Input, Textarea, Popover, PopoverContent, PopoverTrigger, Badge } from '@ordo-todo/ui';
 import { useTasks, useCreateTask, useProjects, useTags } from '@/lib/shared-hooks';
-import { serializeCalendarDateForApi } from '@ordo-todo/core';
+import { useParseTask } from '@/hooks/use-parse-task';
+import { serializeCalendarDateForApi, toCalendarDateString } from '@ordo-todo/core';
 
 interface QuickAddTaskProps {
   isOpen: boolean;
@@ -25,6 +27,34 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
   const { data: projects } = useProjects("");
   const { data: tags } = useTags("");
   const createTask = useCreateTask();
+  const { t } = useTranslation();
+
+  // Live NL parse of the title input (S5): prefills date/priority/
+  // project; empty fields only, manual edits always win.
+  const { parsed: nlParsed, isParsing: nlParsing } = useParseTask(title);
+
+  useEffect(() => {
+    if (!nlParsed) return;
+    if (nlParsed.dueAt && !dueDate) {
+      setDueDate(toCalendarDateString(nlParsed.dueAt));
+    }
+    if (nlParsed.priority && nlParsed.priority !== 'MEDIUM') {
+      setPriority((current) =>
+        current === 'medium' ? (nlParsed.priority as string).toLowerCase() as 'low' | 'medium' | 'high' : current,
+      );
+    }
+    if (nlParsed.projectHint && !projectId && projects) {
+      const hint = nlParsed.projectHint.toLowerCase();
+      const match = projects.find(
+        (project) =>
+          project.name.toLowerCase().includes(hint) ||
+          project.slug.toLowerCase() === hint,
+      );
+      if (match) setProjectId(match.id);
+    }
+    // Intentionally not depending on dueDate/projectId: prefill once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nlParsed, projects]);
 
   // Auto-focus input when opened
   useEffect(() => {
@@ -126,6 +156,35 @@ export function QuickAddTask({ isOpen, onClose }: QuickAddTaskProps) {
               autoFocus
             />
           </div>
+
+          {/* NL parse preview */}
+          {(nlParsing || (nlParsed && title.trim())) && (
+            <div className="flex flex-wrap items-center gap-2">
+              {nlParsing && (
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+              )}
+              {!nlParsing && nlParsed?.dueAt && (
+                <Badge variant="secondary">
+                  {new Date(nlParsed.dueAt).toLocaleDateString()}
+                </Badge>
+              )}
+              {!nlParsing && nlParsed?.priority && nlParsed.priority !== 'MEDIUM' && (
+                <Badge variant="secondary">{nlParsed.priority}</Badge>
+              )}
+              {!nlParsing && nlParsed?.projectHint && (
+                <Badge variant="secondary">#{nlParsed.projectHint}</Badge>
+              )}
+              {!nlParsing && nlParsed?.recurrence && (
+                <Badge variant="secondary">{nlParsed.recurrence}</Badge>
+              )}
+              {!nlParsing && nlParsed?.needsConfirmation && (
+                <span className="flex items-center gap-1 text-xs text-amber-600">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  {t('QuickAdd.confirmHint', 'Review before creating')}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Description */}
           <div>

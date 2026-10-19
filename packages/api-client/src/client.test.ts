@@ -1791,6 +1791,30 @@ describe('OrdoApiClient', () => {
       preferences: { music: 'ambient', notifications: 'minimal' },
     };
 
+    it('should parse a task in fast mode', async () => {
+      const mockParsed = {
+        title: 'informe',
+        dueAt: '2026-10-23T09:00:00.000Z',
+        priority: 'MEDIUM',
+        tags: [],
+        confidence: 'HIGH',
+        reasoning: 'mock',
+        needsConfirmation: false,
+      };
+      mockAxios.post.mockResolvedValue({ data: mockParsed });
+
+      const result = await client.parseTask({
+        input: 'informe viernes 9h',
+        fast: true,
+      });
+
+      expect(mockAxios.post).toHaveBeenCalledWith('/ai/parse-task', {
+        input: 'informe viernes 9h',
+        fast: true,
+      });
+      expect(result).toEqual(mockParsed);
+    });
+
     it('should get AI profile', async () => {
       mockAxios.get.mockResolvedValue({ data: mockAIProfile });
 
