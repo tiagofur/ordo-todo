@@ -92,7 +92,7 @@ export function Sidebar() {
         renderWorkspaceSelector={() => (
           <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
         )}
-        showSettingsButton={true}
+        showSettingsButton={false}
         labels={{
           appName: "Ordo",
           settings: t("Sidebar.settings"),

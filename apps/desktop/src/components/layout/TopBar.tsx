@@ -34,15 +34,6 @@ export function TopBar({ onMenuClick }: TopBarProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  const userInitial = user?.name
-    ? user.name
-        .split(" ")
-        .map((n: string) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "U";
-
   return (
     <>
       <TopBarUI
@@ -59,22 +50,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         onSearchClick={() => setIsSearchOpen(true)}
         onAICopilotClick={() => navigate("/ai-chat")}
         renderNotifications={() => <NotificationPopover />}
-        renderSyncStatus={() => (
-          <div className="flex items-center gap-2">
-            {/* User Presence Avatar with Online Dot */}
-            <div
-              className="relative flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-[11px] font-semibold ring-1 ring-border cursor-pointer transition-transform hover:scale-105"
-              onClick={() => navigate("/profile")}
-              title={`${user?.name || "Usuario"} (En línea)`}
-            >
-              {userInitial}
-              <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-emerald-500 ring-1 ring-background" />
-            </div>
-
-            {/* Tactical Sync Status Indicator */}
-            <SyncStatusIndicator size="sm" />
-          </div>
-        )}
+        renderSyncStatus={() => <SyncStatusIndicator size="sm" />}
         labels={{
           searchPlaceholder: t("TopBar.searchPlaceholder", "Buscar con lenguaje natural (IA)"),
           myAccount: t("TopBar.myAccount", "Mi Cuenta"),

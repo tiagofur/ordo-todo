@@ -110,7 +110,7 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
           <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
         )}
         renderInstallButton={() => <InstallPWAButton />}
-        showSettingsButton={true}
+        showSettingsButton={false}
         labels={{
           appName: "Ordo",
           settings: t("settings"),
