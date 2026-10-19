@@ -101,7 +101,7 @@ export function TimerWidget({ onExpand, accentColor = "#f43f5e", className }: Ti
         paused: t("Timer.paused", "En Pausa"),
         focusMode: t("Timer.enterFocusMode", "Enfoque"),
         assignedTask: t("Timer.currentTask", "TAREA ASIGNADA"),
-        pomodoroCount: (count: number) => t("Timer.modes.pomodoroCount", `Pomodoro ${count}`, { count }),
+        pomodoroCount: (count: number) => `Pomodoro #${count}`,
         pauseCount: (count: number) => t("Timer.pauses", `${count} pausa${count !== 1 ? "s" : ""}`, { count }),
       }}
     />

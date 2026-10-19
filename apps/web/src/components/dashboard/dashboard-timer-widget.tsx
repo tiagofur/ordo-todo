@@ -105,7 +105,7 @@ export function DashboardTimerWidget({ accentColor = "#f43f5e", className }: Das
         paused: pt.has("paused") ? pt("paused") : "En Pausa",
         focusMode: pt.has("enterFocusMode") ? pt("enterFocusMode") : "Enfoque",
         assignedTask: pt.has("currentTask") ? pt("currentTask") : "TAREA ASIGNADA",
-        pomodoroCount: (count: number) => pt.has("modes.pomodoroCount") ? pt("modes.pomodoroCount", { count }) : `Pomodoro ${count}`,
+        pomodoroCount: (count: number) => `Pomodoro #${count}`,
         pauseCount: (count: number) => pt.has("pauses") ? pt("pauses", { count }) : `${count} pausa${count !== 1 ? "s" : ""}`,
       }}
     />
