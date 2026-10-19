@@ -35,19 +35,15 @@ export function TopBar({ onMenuClick }: TopBarProps) {
     enabled: !!selectedWorkspaceId && !!user,
   });
 
-  // Keyboard shortcut handler
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Cmd+K or Ctrl+K
-    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-      e.preventDefault();
-      setIsSearchOpen(true);
-    }
-  }, []);
+  // Search is opened from the command palette (Cmd/Ctrl+K lives there
+  // now) via the ordo:open-search event, or by clicking the search box.
+  const openSearch = useCallback(() => setIsSearchOpen(true), []);
 
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+    const listener = () => openSearch();
+    document.addEventListener("ordo:open-search", listener);
+    return () => document.removeEventListener("ordo:open-search", listener);
+  }, [openSearch]);
 
   return (
     <>

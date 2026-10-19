@@ -8,6 +8,8 @@ import { ErrorBoundary } from "./error-boundary";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { KeyboardShortcutsHelp } from "@/components/shortcuts/keyboard-shortcuts-help";
 import { QuickAddDialog } from "@/components/task/quick-add-dialog";
+import { CommandPalette } from "@/components/shared/command-palette";
+import { useRouter } from "@/i18n/navigation";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,11 +19,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const router = useRouter();
 
   const { showShortcutsHelp, setShowShortcutsHelp } = useKeyboardShortcuts({
     enabled: true,
     onToggleSidebar: () => setSidebarCollapsed((prev) => !prev),
     onNewTask: () => setQuickAddOpen(true),
+    onSearchOpen: () => setPaletteOpen(true),
+    onNewProject: () => router.push("/projects?action=new"),
   });
 
   return (
@@ -55,6 +61,13 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Global Quick-Add (Cmd/Ctrl+N) */}
       <QuickAddDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+
+      {/* Command Palette (Cmd/Ctrl+K) */}
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onNewTask={() => setQuickAddOpen(true)}
+      />
     </div>
   );
 }

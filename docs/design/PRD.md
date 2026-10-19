@@ -157,7 +157,7 @@ User
 ### 4.1 Task Management
 
 #### Quick Creation
-- Quick-add from any screen (Cmd/Ctrl+K command palette)
+- Quick-add from any screen (`N` / `Cmd/Ctrl+N`), command palette on `Cmd/Ctrl+K` (see `docs/guides/shortcuts.md`)
 - Natural language parsing via AI ("Meeting with client tomorrow 3pm #work @high")
 - AI extracts: date, time, tags, priority, project
 

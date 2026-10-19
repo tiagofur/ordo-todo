@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import {
   FolderKanban,
@@ -40,6 +40,14 @@ type ViewMode = "grid" | "list";
 export default function ProjectsPage() {
   const t = useTranslations("Projects");
   const [showCreateProject, setShowCreateProject] = useState(false);
+
+  // Opened via the command palette or Ctrl+Shift+N (?action=new).
+  // Client-only read (no useSearchParams → no Suspense requirement).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("action") === "new") {
+      setShowCreateProject(true);
+    }
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");

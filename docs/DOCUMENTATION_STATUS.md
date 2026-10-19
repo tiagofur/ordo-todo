@@ -89,7 +89,7 @@
 
 - [ ] [Client integration guides](./guides/integrations/) - 1-click + manual per client (owner: ODD 002)
 - [ ] [Directory status](./guides/integrations/directory-status.md) - ChatGPT/Claude/ClawHub/Zapier listings (owner: ODD 003)
-- [ ] [Shortcuts](./guides/shortcuts.md) - Canonical shortcuts map (owner: ODD 007)
+- [x] [Shortcuts](./guides/shortcuts.md) - Canonical shortcuts map (ODD 007 C3)
 - [ ] [Calendar sync](./guides/integrations/calendar-sync.md) - How it works + honest limits (owner: ODD 010)
 - [ ] [Slack](./guides/integrations/slack.md) - Setup + scopes + limits (owner: ODD 011)
 - [ ] [Billing](./guides/billing.md) - Plans, limits, Stripe runbook (owner: ODD 012)
