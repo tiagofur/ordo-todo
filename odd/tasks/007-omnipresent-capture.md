@@ -49,12 +49,18 @@ Fuera de alcance: auto-scheduling (005), ritual (006), voz propia con STT (futur
 
 | ID | Cubre | Unidad | Ruta sugerida | Estado | Evidencia |
 |---|---|---|---|---|---|
-| T1 | S1 | `parse-task` v2 compatible + matriz 30 frases | delegada | pending | — |
-| T2 | S2 | Quick-Add global web (`Cmd/Ctrl+N`) | delegada | pending | — |
-| T3 | S3–S4 | Paleta `Cmd/Ctrl+K` web+desktop + `shortcuts.md` + limpieza contradicciones | delegada | pending | — |
-| T4 | S5 | Atajo global + ventana captura desktop Tauri | delegada | pending | — |
-| T5 | S6 | Captura móvil (FAB + share-intent → borrador) | delegada | pending | — |
+| T1 | S1 | `parse-task` v2 compatible + matriz 30 frases | delegada | done | worktree /tmp/ordo-236, commits T1 + C1b. jest src/ai: 68/68 (matriz 32/32 ES/EN/PT + fast/default + DTO pipe); tsc 0; eslint 0 errores. |
+| T2 | S2 | Quick-Add global web (`Cmd/Ctrl+N`) | delegada | done | commits C2a + C2b. vitest ui quick-add 9/9 + web dialog 7/7; tsc web/ui/api-client/i18n 0; eslint 0. |
+| T3 | S3–S4 | Paleta `Cmd/Ctrl+K` web+desktop + `shortcuts.md` + limpieza contradicciones | delegada | done | commits C3 + C4a. vitest web 17/17 + desktop 31/31; tsc 0; eslint 0; grep contradicciones vacío. |
+| T4 | S5 | Atajo global + ventana captura desktop Tauri | delegada | done | commit C4b. vitest desktop 97/97; api-client 153/154 (1 timer preexistente); tsc 0; cargo check ok; atajo OS + tray + prefill NL. |
+| T5 | S6 | Captura móvil (FAB + share-intent → borrador) | delegada | done | commit C5. FAB vivo + `?text=` deep-link + prefill NL + chips; eslint 0; tsc móvil 0; jest móvil: infra rota preexistente (CI móvil solo exige lint+tsc). |
 
 ## Log
 
 L1. "quiero que seamos la mejor de lejos... hoy tenemos que estar tan bien o mejor que la competencia en las funciones que ofrecen a sus usuarios, ser facil de usar" (mensaje del usuario 2026-10-18; este doc cubre el núcleo captura/velocidad).
+
+L2 (2026-10-19). T1–T5 completados en worktree aislado `/tmp/ordo-236`, branch `feature/omnipresent-capture` desde `main` post-#272 (rebased a post-#273 antes de publicar). 0 dependencias nuevas. Decisiones: parser determinista trilingüe con bounds Unicode-safe (plain `\b` falla tras vocales acentuadas aun con flag `u`); modo `fast` salta Gemini (preview <200ms real, no optimista-teatral); `AIParseTaskDto` decorado — el pipe global lo 400'eaba todo (hallazgo por probe, endpoint roto antes de C1b); QuickAdd `ui` 100% controlado (constraint del package); `?action=new` cableado de verdad en web + desktop (hash-aware); paleta desktop = mismas 8 ids canónicas + 7 extras (no rewrite); atajo global OS reutiliza `openQuickAdd` + comando Rust `focus_main_window` (sin ventana nueva); móvil sin share-intent nativo (requeriría dev-client: `?text=` deep-link documentado como equivalente). Deuda honesta heredada, NO introducida: prettier T1 sin `--fix` (revertido del commit), types calendar/slack en `src` sin `dist` (rebuild local), 1 fail timer en api-client, jest móvil roto repo-wide (BABEL `.plugins`), Docker web en main roto pre-#274 (`@ordo-todo/auth-provider`). Barrido final por commit en tabla. Pendiente padre: push + PRs apilados (refs #236).
+
+L3 (2026-10-19). Push + PRs hechos ("adelante"). 7 ramas/PRs apilados sobre `main`: #274 (T1, base main) → #275 (C1b+C2a) → #276 (C2b) → #277 (C3) → #278 (C4a) → #279 (C4b) → #280 (C5, closes #236). Comentario de tracking en #236. Título de #274 dice "T1/C1b" pero el branch solo traía T1 (C1b iba en #275 — cosmético, verificado contenido por contenido antes de mergear).
+
+L4 (2026-10-19). Merge secuencial estrategia A completado. Orden: #274 → #275 → #276 → #277 → #278 → #279 → #280, cada uno con CI verde antes de mergear (retarget + rebase --onto + trigger CI; el retarget solo NO dispara CI — lección reafirmada). 0 conflictos en los 6 rebases; 0 rojos en PRs (todos verdes al primer intento). #236 CLOSED. Ramas de la pila borradas (remotas). Pendiente humano: smoke real NL end-to-end en las 4 superficies + atajo global OS minimizado.
