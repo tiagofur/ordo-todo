@@ -194,6 +194,19 @@
       "loading": "Loading connections…",
       "disconnected": "{name} disconnected",
       "disconnectError": "Could not disconnect {name}"
+    },
+    "slack": {
+      "title": "Slack",
+      "description": "Get notified, create tasks and sync focus without leaving Slack.",
+      "connect": "Connect Slack",
+      "disconnect": "Disconnect",
+      "disconnected": "{name} disconnected",
+      "disconnectError": "Could not disconnect",
+      "loading": "Loading connections…",
+      "channelLinked": "Channel {channel}",
+      "noChannel": "No channel assigned",
+      "dailySummary": "Daily summary to channel",
+      "focusSync": "Sync focus status"
     }
   },
   "TimerWidget": {

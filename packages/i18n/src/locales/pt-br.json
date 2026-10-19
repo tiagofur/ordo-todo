@@ -194,6 +194,19 @@
       "loading": "Carregando conexões…",
       "disconnected": "{name} desconectado",
       "disconnectError": "Não foi possível desconectar {name}"
+    },
+    "slack": {
+      "title": "Slack",
+      "description": "Receba avisos, crie tarefas e sincronize o foco sem sair do Slack.",
+      "connect": "Conectar Slack",
+      "disconnect": "Desconectar",
+      "disconnected": "{name} desconectado",
+      "disconnectError": "Não foi possível desconectar",
+      "loading": "Carregando conexões…",
+      "channelLinked": "Canal {channel}",
+      "noChannel": "Sem canal atribuído",
+      "dailySummary": "Resumo diário no canal",
+      "focusSync": "Sincronizar status de foco"
     }
   },
   "TimerWidget": {

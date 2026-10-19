@@ -51,6 +51,7 @@ import type {
   UserPreferences,
   UserIntegration,
   CalendarAccountStatus,
+  SlackTeamMapping,
   Workspace,
   WorkspaceMember,
   WorkspaceInvitation,
@@ -492,6 +493,27 @@ export const apiClient = {
     axiosInstance
       .delete(`/integrations/calendar/${provider}`)
       .then((res) => res.data),
+  getSlackTeams: (): Promise<SlackTeamMapping[]> =>
+    axiosInstance.get("/slack/teams").then((res) => res.data),
+  startSlackInstall: (): Promise<{ installUrl: string; state: string }> =>
+    axiosInstance.post("/slack/install").then((res) => res.data),
+  uninstallSlack: (teamId: string): Promise<void> =>
+    axiosInstance.delete(`/slack/team/${teamId}`).then((res) => res.data),
+  updateSlackMapping: (
+    id: string,
+    data: Partial<
+      Pick<
+        SlackTeamMapping,
+        | 'channelId'
+        | 'projectId'
+        | 'dailySummary'
+        | 'summaryHour'
+        | 'focusSync'
+        | 'focusDnd'
+      >
+    >,
+  ): Promise<SlackTeamMapping> =>
+    axiosInstance.patch(`/slack/mappings/${id}`, data).then((res) => res.data),
   connectIntegration: (
     provider: string,
     data?: Record<string, any>,

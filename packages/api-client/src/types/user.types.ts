@@ -84,6 +84,19 @@ export interface CalendarAccountStatus {
   conflicts: unknown[];
 }
 
+export interface SlackTeamMapping {
+  id: string;
+  teamId: string;
+  teamName: string | null;
+  slackUserId: string | null;
+  channelId: string | null;
+  projectId: string | null;
+  dailySummary: boolean;
+  summaryHour: number | null;
+  focusSync: boolean;
+  focusDnd: boolean;
+}
+
 export type EnergyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface FocusAudioPreferences {

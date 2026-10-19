@@ -17,6 +17,7 @@ import type {
   UpdatePreferencesDto,
   UserIntegration,
   CalendarAccountStatus,
+  SlackTeamMapping,
   // Workspace
   Workspace,
   WorkspaceWithMembers,
@@ -868,6 +869,60 @@ export class OrdoApiClient {
    */
   async disconnectCalendar(provider: string): Promise<void> {
     await this.axios.delete(`/integrations/calendar/${provider}`);
+  }
+
+  /**
+   * Slack connected teams
+   * GET /slack/teams
+   */
+  async getSlackTeams(): Promise<SlackTeamMapping[]> {
+    const response = await this.axios.get<SlackTeamMapping[]>("/slack/teams");
+    return response.data;
+  }
+
+  /**
+   * Start Slack install
+   * POST /slack/install
+   */
+  async startSlackInstall(): Promise<{ installUrl: string; state: string }> {
+    const response = await this.axios.post<{
+      installUrl: string;
+      state: string;
+    }>("/slack/install");
+    return response.data;
+  }
+
+  /**
+   * Uninstall Slack from a team
+   * DELETE /slack/team/:teamId
+   */
+  async uninstallSlack(teamId: string): Promise<void> {
+    await this.axios.delete(`/slack/team/${teamId}`);
+  }
+
+  /**
+   * Update Slack mapping settings
+   * PATCH /slack/mappings/:id
+   */
+  async updateSlackMapping(
+    id: string,
+    data: Partial<
+      Pick<
+        SlackTeamMapping,
+        | 'channelId'
+        | 'projectId'
+        | 'dailySummary'
+        | 'summaryHour'
+        | 'focusSync'
+        | 'focusDnd'
+      >
+    >,
+  ): Promise<SlackTeamMapping> {
+    const response = await this.axios.patch<SlackTeamMapping>(
+      `/slack/mappings/${id}`,
+      data,
+    );
+    return response.data;
   }
 
   /**
