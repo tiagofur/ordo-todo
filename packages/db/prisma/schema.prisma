@@ -92,6 +92,9 @@ model User {
   calendarEventMappings CalendarEventMapping[]
   externalCalendarBlocks ExternalCalendarBlock[]
 
+  // Slack integration (ODD 011)
+  slackWorkspaceMaps SlackWorkspaceMap[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -398,6 +401,29 @@ model UserIntegration {
 
   @@unique([userId, provider])
   @@index([userId])
+}
+
+model SlackWorkspaceMap {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  teamId       String
+  teamName     String?
+  slackUserId  String?
+  channelId    String?
+  projectId    String?
+  dailySummary Boolean @default(false)
+  summaryHour  Int?
+  focusSync    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, teamId, channelId, projectId])
+  @@index([userId])
+  @@index([teamId])
 }
 
 model CalendarEventMapping {
