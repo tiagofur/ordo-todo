@@ -104,13 +104,32 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
             // No active session logic
             if (!isRunning) { // Only reset if not running locally (race condition protection)
                 if (type === "CONTINUOUS") {
-                    // Logic to stay or switch mode
+                    setTimeLeft(0);
+                    setMode("CONTINUOUS");
+                } else if (mode === "CONTINUOUS") {
+                    setTimeLeft(getDuration("WORK"));
+                    setMode("WORK");
                 }
                 setIsRunning(false);
                 setIsPaused(false);
             }
         }
     }, [activeSession, getDuration, type]); // removed isRunning to avoid loops, relying on activeSession change
+
+    // Reset when config or type changes
+    useEffect(() => {
+        if (!activeSession && !isRunning && !isPaused) {
+            if (type === "CONTINUOUS") {
+                setTimeLeft(0);
+                setMode("CONTINUOUS");
+            } else if (mode === "CONTINUOUS") {
+                setTimeLeft(getDuration("WORK"));
+                setMode("WORK");
+            } else {
+                setTimeLeft(getDuration(mode));
+            }
+        }
+    }, [config, getDuration, activeSession, isRunning, isPaused, type, mode]);
 
     const start = useCallback(async () => {
         try {

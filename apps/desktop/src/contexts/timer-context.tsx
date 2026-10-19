@@ -54,9 +54,13 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     const { data: preferences } = useUserPreferences();
     const updateTask = useUpdateTask();
     const [config, setConfig] = useState<TimerConfig>(DEFAULT_CONFIG);
+    const [timerType, setTimerType] = useState<"POMODORO" | "CONTINUOUS">("POMODORO");
 
     useEffect(() => {
         const prefs = preferences as any;
+        if (prefs?.timerMode) {
+             setTimerType(prefs.timerMode === "CONTINUOUS" ? "CONTINUOUS" : "POMODORO");
+        }
         if (prefs?.timerConfig) {
              setConfig({
                  ...DEFAULT_CONFIG,
@@ -68,7 +72,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
     const timer = useTimerBackend({
-        type: "POMODORO", // Default type
+        type: timerType,
         config,
         taskId: selectedTaskId,
         onSessionComplete: () => {

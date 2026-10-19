@@ -97,6 +97,8 @@ export default function SettingsPage() {
   const handleTimerChange = (newTimerSettings: Parameters<typeof updateSettings>[0]) => {
     updateSettings(newTimerSettings);
     const backendPayload: Record<string, any> = {};
+    if (newTimerSettings.defaultMode !== undefined)
+      backendPayload.timerMode = newTimerSettings.defaultMode;
     if (newTimerSettings.workDuration !== undefined)
       backendPayload.pomodoroDuration = newTimerSettings.workDuration;
     if (newTimerSettings.shortBreakDuration !== undefined)
@@ -111,6 +113,7 @@ export default function SettingsPage() {
     if (Object.keys(backendPayload).length > 0) {
       updatePreferences.mutate(backendPayload);
     }
+    toast.success(t("settingsSaved") || "Ajuste guardado");
   };
 
   const handleAmbientAutoChange = (enabled: boolean) => {
@@ -406,14 +409,20 @@ export default function SettingsPage() {
             >
               {/* Default Mode */}
               <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-                    <Zap className="h-4.5 w-4.5" />
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                      <Zap className="h-4.5 w-4.5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-foreground">{t("defaultMode")}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">{t("defaultModeDescription")}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-foreground">{t("defaultMode")}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">{t("defaultModeDescription")}</p>
-                  </div>
+                  <span className="text-xs text-muted-foreground hidden sm:flex items-center gap-1.5 bg-muted/40 px-2.5 py-1 rounded-full border border-border/40 select-none">
+                    <Check className="h-3 w-3 text-emerald-500" />
+                    <span>Guardado automático</span>
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
