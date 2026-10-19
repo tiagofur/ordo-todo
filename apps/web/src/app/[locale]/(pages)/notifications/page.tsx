@@ -62,116 +62,143 @@ export default function NotificationsPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Bell className="w-6 h-6 text-pink-500" />
-              {t('title')}
-            </h1>
-            <p className="text-muted-foreground">Stay updated with your team activity.</p>
+      <div className="space-y-6">
+        {/* Header - Apple Style Unified Pattern */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-pink-500 text-white shadow-sm shadow-pink-500/25 shrink-0">
+              <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight truncate">
+                {t("title")}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate">
+                {t("subtitle")}
+              </p>
+            </div>
           </div>
+
           {(unreadCount as number) > 0 && (
             <Button 
               variant="outline" 
               size="sm"
               onClick={handleMarkAllAsRead}
               disabled={markAllAsRead.isPending}
-              className="gap-2"
+              className="rounded-xl border-border/60 hover:bg-accent/50 gap-2 shrink-0 self-start sm:self-auto cursor-pointer"
             >
-              <CheckCheck className="w-4 h-4" />
-              {t('markAllRead')}
+              <CheckCheck className="w-4 h-4 text-pink-500" />
+              <span>{t("markAllRead")}</span>
             </Button>
           )}
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-2 pb-2 border-b border-border/50">
-            <Button 
-                variant={filter === 'all' ? 'secondary' : 'ghost'} 
-                size="sm"
-                onClick={() => setFilter('all')}
-            >
-                All
-            </Button>
-            <Button 
-                variant={filter === 'unread' ? 'secondary' : 'ghost'} 
-                size="sm"
-                onClick={() => setFilter('unread')}
-                className="relative"
-            >
-                Unread
-                {(unreadCount as number) > 0 && (
-                    <span className="ml-2 bg-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                        {unreadCount as number}
-                    </span>
-                )}
-            </Button>
+        {/* Filters - Apple Segmented Pill */}
+        <div className="inline-flex items-center gap-1.5 rounded-2xl border border-border/60 bg-card p-1 shadow-xs">
+          <button
+            type="button"
+            onClick={() => setFilter('all')}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer",
+              filter === 'all'
+                ? "bg-pink-500 text-white shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <span>{t("filterAll")}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('unread')}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all cursor-pointer",
+              filter === 'unread'
+                ? "bg-pink-500 text-white shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <span>{t("filterUnread")}</span>
+            {(unreadCount as number) > 0 && (
+              <span className={cn(
+                "px-1.5 py-0.2 rounded-full text-[10px] font-bold tabular-nums",
+                filter === 'unread' ? "bg-white/20 text-white" : "bg-pink-500 text-white"
+              )}>
+                {unreadCount as number}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Content */}
         <div className="space-y-4">
-             {isLoading ? (
-                <div className="flex justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
-                </div>
-             ) : filteredNotifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card/50 rounded-xl border border-dashed border-border">
-                    <Inbox className="w-12 h-12 mb-4 opacity-20" />
-                    <p>{filter === 'unread' ? "You're all caught up!" : t('empty')}</p>
-                </div>
-             ) : (
-                <div className="space-y-2">
-                    {filteredNotifications.map((notification: Notification) => (
-                        <Card 
-                            key={notification.id}
-                            className={cn(
-                                "p-4 transition-all duration-200 cursor-default hover:shadow-md",
-                                !notification.isRead ? "bg-card border-l-4 border-l-pink-500" : "bg-card/50 opacity-80"
-                            )}
-                        >
-                            <div className="flex gap-4">
-                                <div className={cn(
-                                    "mt-1 w-2 h-2 rounded-full shrink-0",
-                                    !notification.isRead ? "bg-pink-500" : "bg-transparent"
-                                )} />
-                                
-                                <div className="flex-1 space-y-1">
-                                    <div className="flex justify-between items-start">
-                                        <h4 className={cn("font-medium", !notification.isRead && "font-semibold")}>
-                                            {notification.title}
-                                        </h4>
-                                        <span className="text-xs text-muted-foreground whitespace-nowrap ml-4">
-                                            {formatTime(notification.createdAt)}
-                                        </span>
-                                    </div>
-                                    
-                                    {notification.message && (
-                                        <p className="text-sm text-muted-foreground">
-                                            {notification.message}
-                                        </p>
-                                    )}
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+            </div>
+          ) : filteredNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card/40 rounded-2xl border border-dashed border-border/60 p-8 text-center">
+              <div className="h-12 w-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3 text-muted-foreground/60">
+                <Inbox className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-foreground">
+                {filter === 'unread' ? t("emptyUnread") : t("emptyAll")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                {t("subtitle")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredNotifications.map((notification: Notification) => (
+                <Card 
+                  key={notification.id}
+                  className={cn(
+                    "rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-default shadow-xs",
+                    !notification.isRead 
+                      ? "border-pink-500/30 bg-card shadow-pink-500/5 hover:border-pink-500/50" 
+                      : "border-border/60 bg-card/60 opacity-85 hover:border-border hover:opacity-100"
+                  )}
+                >
+                  <div className="flex items-start gap-3.5">
+                    <div className={cn(
+                      "mt-1.5 h-2 w-2 rounded-full shrink-0",
+                      !notification.isRead ? "bg-pink-500 shadow-xs shadow-pink-500/50" : "bg-muted-foreground/30"
+                    )} />
+                    
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex justify-between items-start gap-3">
+                        <h4 className={cn("text-sm text-foreground", !notification.isRead ? "font-semibold" : "font-medium")}>
+                          {notification.title}
+                        </h4>
+                        <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                          {formatTime(notification.createdAt)}
+                        </span>
+                      </div>
+                      
+                      {notification.message && (
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                          {notification.message}
+                        </p>
+                      )}
 
-                                    {!notification.isRead && (
-                                        <div className="pt-2 flex justify-end">
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
-                                                className="h-6 text-xs"
-                                                onClick={(e) => handleMarkAsRead(notification.id, e)}
-                                            >
-                                                Mark as read
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
-                    ))}
-                </div>
-             )}
+                      {!notification.isRead && (
+                        <div className="pt-2 flex justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-xs rounded-xl hover:bg-pink-500/10 hover:text-pink-500 text-muted-foreground cursor-pointer"
+                            onClick={(e) => handleMarkAsRead(notification.id, e)}
+                          >
+                            {t("markAsRead")}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </AppLayout>

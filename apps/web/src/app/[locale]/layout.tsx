@@ -32,7 +32,7 @@ export const metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#4F46E5",
+  themeColor: "#ad46ff",
   width: "device-width",
   initialScale: 1,
 };
@@ -55,7 +55,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="icon" href="/icons/icon-192.png" />
       </head>
-      <body className={`${font.className} antialiased`} suppressHydrationWarning>
+      <body className={`${font.className} antialiased bg-background text-foreground`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <PWAProvider>
             <Providers>

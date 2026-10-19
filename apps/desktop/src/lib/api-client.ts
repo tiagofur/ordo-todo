@@ -179,8 +179,44 @@ export class DesktopApiClient extends OrdoApiClient {
 
   // ============ AI MEETING ANALYZER ============
 
-  async analyzeMeetingTranscript(transcript: string) {
-    const response = await this.axios.post('/ai/analyze-meeting', { transcript });
+  async analyzeMeetingTranscript(
+    transcript: string,
+    options?: { meetingTitle?: string; participants?: string[]; duration?: number }
+  ) {
+    try {
+      const response = await this.axios.post('/meetings/analyze', { transcript, ...options });
+      return response.data;
+    } catch {
+      const response = await this.axios.post('/ai/analyze-meeting', { transcript });
+      return response.data;
+    }
+  }
+
+  async convertActionsToTasks(actionItems: any[], options?: { projectId?: string }) {
+    const response = await this.axios.post('/meetings/convert-to-tasks', { actionItems, ...options });
+    return response.data;
+  }
+
+  async saveMeeting(data: {
+    title: string;
+    date: string | Date;
+    duration: number;
+    transcript?: string;
+    audioUrl?: string;
+    analysis?: any;
+    projectId?: string;
+  }) {
+    const response = await this.axios.post('/meetings/save', data);
+    return response.data;
+  }
+
+  async getMeetings(params?: { projectId?: string; limit?: number }) {
+    const response = await this.axios.get('/meetings', { params });
+    return response.data;
+  }
+
+  async deleteMeeting(id: string) {
+    const response = await this.axios.delete(`/meetings/${id}`);
     return response.data;
   }
 
@@ -193,6 +229,30 @@ export class DesktopApiClient extends OrdoApiClient {
 
   async getReports(params?: { scope?: string; limit?: number; offset?: number }) {
     const response = await this.axios.get('/reports', { params });
+    return response.data;
+  }
+
+  // ============ GAMIFICATION ============
+
+  async getGamificationProfile(): Promise<{
+    xp: number;
+    level: number;
+    currentLevelProgress: number;
+    nextLevelXp: number;
+    achievementsTotal: number;
+    achievementsUnlocked: number;
+    achievements: Array<{
+      id: string;
+      code: string;
+      name: string;
+      description: string;
+      icon: string;
+      xpReward: number;
+      isUnlocked: boolean;
+      unlockedAt: string | null;
+    }>;
+  }> {
+    const response = await this.axios.get('/gamification/me');
     return response.data;
   }
 }

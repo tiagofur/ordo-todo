@@ -10,10 +10,16 @@
 @import "@ordo-todo/styles/src/base.css";
 @import "@ordo-todo/styles/src/components.css";
 
+@source "../../../packages/ui";
 @plugin "tailwindcss-animate";
 
-/* Configure dark mode variant */
-@custom-variant dark (&:is(.dark *));
+/* Configure dark mode variant matching next-themes class on html */
+@variant dark (.dark &);
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
 
 /* Desktop-specific overrides or additions can go here */
 /* Example: Electron-specific styles, native menu integrations, etc. */
@@ -24,4 +30,17 @@
 }
 .dark .bg-dot-pattern {
   background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+}
+
+/* Glassmorphism utilities for the dashboard */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .glass-panel {
+  background: rgba(24, 24, 27, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }

@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useProjectBySlug } from "@/hooks/use-projects";
+import { useWorkspaceByUsernameAndSlug } from "@/lib/api-hooks";
 import { ProjectDetailView } from "@/components/project/project-detail-view";
 
 export default function UserWorkspaceProjectDetailPage() {
@@ -16,6 +17,10 @@ export default function UserWorkspaceProjectDetailPage() {
     workspaceSlug,
     projectSlug
   );
+  const { data: workspace } = useWorkspaceByUsernameAndSlug(
+    username,
+    workspaceSlug
+  );
 
   return (
     <ProjectDetailView
@@ -24,7 +29,7 @@ export default function UserWorkspaceProjectDetailPage() {
       breadcrumbs={[
         { label: t("breadcrumbs.workspaces"), href: "/workspaces" },
         {
-          label: workspaceSlug,
+          label: workspace?.name || workspaceSlug,
           href: `/${username}/${workspaceSlug}`,
         },
         { label: project?.name || "..." },

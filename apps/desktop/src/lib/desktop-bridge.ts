@@ -66,11 +66,14 @@ class DesktopBridge {
    * Platform identifier ('macos', 'windows', 'linux', or 'web')
    */
   public getPlatform(): string {
-    if (!this.isTauri) return 'web';
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.includes('mac')) return 'darwin';
-    if (ua.includes('win')) return 'win32';
-    return 'linux';
+    if (typeof navigator !== 'undefined') {
+      const ua = navigator.userAgent.toLowerCase();
+      const plat = (navigator.platform || '').toLowerCase();
+      if (ua.includes('mac') || plat.includes('mac')) return 'darwin';
+      if (ua.includes('win') || plat.includes('win')) return 'win32';
+      if (ua.includes('linux') || plat.includes('linux')) return 'linux';
+    }
+    return 'unknown';
   }
 
   // ==========================================
@@ -92,6 +95,12 @@ class DesktopBridge {
   public async close(): Promise<void> {
     if (this.isTauri) {
       await getCurrentWindow().close();
+    }
+  }
+
+  public async startDragging(): Promise<void> {
+    if (this.isTauri) {
+      await getCurrentWindow().startDragging();
     }
   }
 

@@ -17,9 +17,10 @@ import { HabitsWidget as SharedHabitsWidget } from "@ordo-todo/ui";
 
 interface HabitsWidgetProps {
   accentColor?: string;
+  className?: string;
 }
 
-export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
+export function HabitsWidget({ accentColor = "#10B981", className }: HabitsWidgetProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: todayData, isLoading } = useTodayHabits();
@@ -54,6 +55,7 @@ export function HabitsWidget({ accentColor = "#10B981" }: HabitsWidgetProps) {
 
   return (
     <SharedHabitsWidget
+      className={className}
       habits={habitsData}
       summary={summary}
       isLoading={isLoading}

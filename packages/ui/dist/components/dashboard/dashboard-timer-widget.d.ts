@@ -6,6 +6,7 @@ interface TimerWidgetProps {
     completedPomodoros: number;
     progress: number;
     accentColor?: string;
+    className?: string;
     onToggle: () => void;
     onReset: () => void;
     onSkip: () => void;
@@ -24,6 +25,6 @@ interface TimerWidgetProps {
         skip?: string;
     };
 }
-export declare function DashboardTimerWidget({ mode, isRunning, isPaused, timeLeft, completedPomodoros, progress, accentColor, onToggle, onReset, onSkip, onClick, formatTime, labels, }: TimerWidgetProps): import("react/jsx-runtime").JSX.Element;
+export declare function DashboardTimerWidget({ mode, isRunning, isPaused, timeLeft, completedPomodoros, progress, accentColor, onToggle, onReset, onSkip, onClick, formatTime, className, labels, }: TimerWidgetProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=dashboard-timer-widget.d.ts.map

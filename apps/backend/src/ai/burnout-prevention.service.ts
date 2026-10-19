@@ -544,7 +544,9 @@ export class BurnoutPreventionService {
     const burnoutAnalysis = await this.analyzeBurnoutRisk(userId);
 
     // Calculate overall score (inverse of risk)
-    const overallScore = Math.max(0, 100 - burnoutAnalysis.riskScore);
+    const overallScore = Math.round(
+      Math.max(0, 100 - burnoutAnalysis.riskScore),
+    );
 
     // Generate highlights and concerns
     const highlights: string[] = [];
@@ -733,7 +735,7 @@ export class BurnoutPreventionService {
       score += 10;
     }
 
-    return Math.min(100, Math.max(0, score));
+    return Math.round(Math.min(100, Math.max(0, score)));
   }
 
   private getRiskLevel(score: number): BurnoutRiskLevel {

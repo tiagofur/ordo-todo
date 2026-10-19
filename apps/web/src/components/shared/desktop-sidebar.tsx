@@ -12,6 +12,12 @@ import {
   Target,
   Users,
   Bot,
+  StickyNote,
+  LayoutGrid,
+  MessageSquare,
+  Heart,
+  Tags,
+  Trash2,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
@@ -65,12 +71,7 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
         { name: t("projects"), href: "/projects", icon: FolderKanban, color: "pink" },
         { name: t("habits"), href: "/habits", icon: Sparkles, color: "emerald" },
         { name: t("goals"), href: "/goals", icon: Target, color: "orange" },
-      ],
-    },
-    {
-      label: t("sectionInsights"),
-      items: [
-        { name: t("insights"), href: "/insights", icon: BarChart3, color: "cyan" },
+        { name: t("notes"), href: "/notes", icon: StickyNote, color: "yellow" },
       ],
     },
     {
@@ -78,6 +79,17 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
       items: [
         { name: t("workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
         { name: t("workload"), href: "/workload", icon: Users, color: "purple" },
+        { name: t("eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
+        { name: t("meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
+      ],
+    },
+    {
+      label: t("sectionInsights"),
+      items: [
+        { name: t("insights"), href: "/insights", icon: BarChart3, color: "cyan" },
+        { name: t("wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
+        { name: t("tags"), href: "/tags", icon: Tags, color: "green" },
+        { name: t("trash"), href: "/trash/tasks", icon: Trash2, color: "red" },
       ],
     },
   ];
@@ -98,7 +110,7 @@ export function DesktopSidebar({ collapsed = false }: DesktopSidebarProps) {
           <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
         )}
         renderInstallButton={() => <InstallPWAButton />}
-        showSettingsButton={false}
+        showSettingsButton={true}
         labels={{
           appName: "Ordo",
           settings: t("settings"),

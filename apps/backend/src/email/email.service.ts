@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+// @ts-ignore
 import * as nodemailer from 'nodemailer';
+// @ts-ignore
 import type { Transporter } from 'nodemailer';
 import { SendEmailDto } from './dto/send-email.dto';
 import { workspaceInvitationTemplate } from './templates/workspace-invitation.template';

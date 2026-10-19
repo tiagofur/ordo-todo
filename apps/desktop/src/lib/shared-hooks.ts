@@ -56,6 +56,7 @@ export const {
     useProjects,
     useAllProjects,
     useProject,
+    useProjectBySlugs: _useProjectBySlugs,
     useCreateProject,
     useUpdateProject,
     useArchiveProject,
@@ -242,6 +243,27 @@ export function usePermanentDeleteTask() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', 'deleted'] });
     },
+  });
+}
+
+// ============ PROJECT BY SLUGS HOOK ============
+
+export function useProjectBySlugs(workspaceSlug: string, projectSlug: string) {
+  return useQuery({
+    queryKey: ['projects', 'by-slug', workspaceSlug, projectSlug],
+    queryFn: () => apiClient.getProjectBySlugs(workspaceSlug, projectSlug),
+    enabled: !!workspaceSlug && !!projectSlug,
+  });
+}
+
+// ============ GAMIFICATION HOOK ============
+
+export function useGamificationProfile(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ['gamification', 'me'],
+    queryFn: () => apiClient.getGamificationProfile(),
+    staleTime: 30 * 1000,
+    ...options,
   });
 }
 

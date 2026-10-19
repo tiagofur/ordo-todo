@@ -13,13 +13,18 @@ import { useNavigate } from "react-router-dom";
 import { useObjectivesDashboard } from "@/hooks/api";
 import { OkrWidget as SharedOkrWidget } from "@ordo-todo/ui";
 
-export function OkrWidget() {
+interface OkrWidgetProps {
+  className?: string;
+}
+
+export function OkrWidget({ className }: OkrWidgetProps = {}) {
   const { t } = (useTranslation as any)();
   const navigate = useNavigate();
   const { data: summary, isLoading } = useObjectivesDashboard();
 
   return (
     <SharedOkrWidget
+      className={className}
       summary={summary}
       isLoading={isLoading}
       onNavigate={(path) => navigate(path)}

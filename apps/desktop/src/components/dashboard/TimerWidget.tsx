@@ -15,9 +15,11 @@ import { DashboardTimerWidget as SharedTimerWidget } from "@ordo-todo/ui";
 
 interface TimerWidgetProps {
   onExpand?: () => void;
+  accentColor?: string;
+  className?: string;
 }
 
-export function TimerWidget({ onExpand }: TimerWidgetProps) {
+export function TimerWidget({ onExpand, accentColor = "#06b6d4", className }: TimerWidgetProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   
@@ -56,12 +58,14 @@ export function TimerWidget({ onExpand }: TimerWidgetProps) {
 
   return (
     <SharedTimerWidget
+      className={className}
       mode={mode}
       isRunning={isRunning}
       isPaused={isPaused}
       timeLeft={timeLeft}
       completedPomodoros={completedPomodoros}
       progress={getProgress()}
+      accentColor={accentColor}
       onToggle={handleToggle}
       onReset={handleReset}
       onSkip={handleSkip}

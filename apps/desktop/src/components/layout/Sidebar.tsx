@@ -1,146 +1,103 @@
 import { useState, useEffect } from "react";
-import { Home, CheckSquare, FolderKanban, Tags, BarChart3, Settings, Calendar, Briefcase, Target, Heart, Users, Sparkles, StickyNote, LayoutGrid, MessageSquare, Trash2, Bot } from "lucide-react";
+import {
+  Home,
+  CheckSquare,
+  FolderKanban,
+  BarChart3,
+  Briefcase,
+  Calendar,
+  Sparkles,
+  Target,
+  Users,
+  Bot,
+  StickyNote,
+  LayoutGrid,
+  MessageSquare,
+  Heart,
+  Tags,
+  Trash2,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Sidebar as SidebarUI, type NavSection } from "@ordo-todo/ui";
 import { cn } from "@/lib/utils";
 import { WorkspaceSelector } from "../workspace/WorkspaceSelector";
 import { CreateWorkspaceDialog } from "../workspace/CreateWorkspaceDialog";
-import { TimerWidget } from "../dashboard/TimerWidget";
+import { TimerWidget } from "../timer/timer-widget";
 import { desktopBridge } from "@/lib/desktop-bridge";
-
-const colorClasses = {
-  cyan: "group-hover:bg-cyan-500/10 group-hover:text-cyan-500",
-  purple: "group-hover:bg-purple-500/10 group-hover:text-purple-500",
-  pink: "group-hover:bg-pink-500/10 group-hover:text-pink-500",
-  orange: "group-hover:bg-orange-500/10 group-hover:text-orange-500",
-  green: "group-hover:bg-green-500/10 group-hover:text-green-500",
-  blue: "group-hover:bg-blue-500/10 group-hover:text-blue-500",
-  yellow: "group-hover:bg-yellow-500/10 group-hover:text-yellow-500",
-  red: "group-hover:bg-red-500/10 group-hover:text-red-500",
-};
-
-const activeColorClasses = {
-  cyan: "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20",
-  purple: "bg-purple-500 text-white shadow-lg shadow-purple-500/20",
-  pink: "bg-pink-500 text-white shadow-lg shadow-pink-500/20",
-  orange: "bg-orange-500 text-white shadow-lg shadow-orange-500/20",
-  green: "bg-green-500 text-white shadow-lg shadow-green-500/20",
-  blue: "bg-blue-500 text-white shadow-lg shadow-blue-500/20",
-  yellow: "bg-yellow-500 text-white shadow-lg shadow-yellow-500/20",
-  red: "bg-red-500 text-white shadow-lg shadow-red-500/20",
-};
 
 export function Sidebar() {
   const { t } = (useTranslation as any)();
   const location = useLocation();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
-  const [platform, setPlatform] = useState<string>('unknown');
-
-  // Detect platform for proper spacing
-  useEffect(() => {
-    setPlatform(desktopBridge.getPlatform());
-  }, []);
+  const [platform] = useState<string>(() => desktopBridge.getPlatform());
 
   // macOS: add padding for traffic lights (48px)
   // Windows/Linux: add padding for custom TitleBar (40px)
-  const topPadding = platform === 'darwin' ? 'pt-12' : 'pt-10';
+  const topPadding = platform === "darwin" ? "pt-12" : "pt-10";
 
-  const navigation = [
-    { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
-    { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
-    { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
-    { name: t("Sidebar.notes"), href: "/notes", icon: StickyNote, color: "yellow" },
-    { name: t("Sidebar.habits"), href: "/habits", icon: Sparkles, color: "green" },
-    { name: t("Sidebar.goals"), href: "/goals", icon: Target, color: "pink" },
-    { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
-    { name: t("Sidebar.eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
-    { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
-    { name: t("Sidebar.meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
-    { name: t("Sidebar.wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
-    { name: t("Sidebar.workload"), href: "/workload", icon: Users, color: "orange" },
-    { name: t("Sidebar.workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
-    { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
-    { name: t("Sidebar.analytics"), href: "/analytics", icon: BarChart3, color: "cyan" },
-    { name: t("Sidebar.trash"), href: "/tasks/trash", icon: Trash2, color: "red" },
+  const navSections: NavSection[] = [
+    {
+      items: [
+        { name: t("Sidebar.today"), href: "/dashboard", icon: Home, color: "cyan" },
+        { name: "AI Chat", href: "/ai-chat", icon: Bot, color: "blue" },
+        { name: t("Sidebar.tasks"), href: "/tasks", icon: CheckSquare, color: "purple" },
+        { name: t("Sidebar.calendar"), href: "/calendar", icon: Calendar, color: "blue" },
+      ],
+    },
+    {
+      label: t("Sidebar.sectionPlan"),
+      items: [
+        { name: t("Sidebar.projects"), href: "/projects", icon: FolderKanban, color: "pink" },
+        { name: t("Sidebar.habits"), href: "/habits", icon: Sparkles, color: "emerald" },
+        { name: t("Sidebar.goals"), href: "/goals", icon: Target, color: "orange" },
+        { name: t("Sidebar.notes"), href: "/notes", icon: StickyNote, color: "yellow" },
+      ],
+    },
+    {
+      label: t("Sidebar.sectionTeam"),
+      items: [
+        { name: t("Sidebar.workspaces"), href: "/workspaces", icon: Briefcase, color: "orange" },
+        { name: t("Sidebar.workload"), href: "/workload", icon: Users, color: "purple" },
+        { name: t("Sidebar.eisenhower"), href: "/eisenhower", icon: LayoutGrid, color: "purple" },
+        { name: t("Sidebar.meetings"), href: "/meetings", icon: MessageSquare, color: "purple" },
+      ],
+    },
+    {
+      label: t("Sidebar.sectionInsights"),
+      items: [
+        { name: t("Sidebar.insights") || t("Sidebar.analytics"), href: "/insights", icon: BarChart3, color: "cyan" },
+        { name: t("Sidebar.wellbeing"), href: "/wellbeing", icon: Heart, color: "pink" },
+        { name: t("Sidebar.tags"), href: "/tags", icon: Tags, color: "green" },
+        { name: t("Sidebar.trash"), href: "/trash/tasks", icon: Trash2, color: "red" },
+      ],
+    },
   ];
+
+  const isMac = desktopBridge.getPlatform() === "darwin" || (typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("mac"));
 
   return (
     <>
-      <aside className={cn("fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-background", topPadding)}>
-        <div className="flex h-full flex-col">
-          {/* Logo */}
-          <div className="flex h-16 items-center border-b border-border/50 px-6">
-            <Link to="/dashboard" className="flex items-center gap-3 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/20 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                <CheckSquare className="h-6 w-6" />
-              </div>
-              <span className="text-2xl font-bold text-foreground">
-                Ordo
-              </span>
-            </Link>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-3 py-4">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href || location.pathname?.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? activeColorClasses[item.color as keyof typeof activeColorClasses]
-                      : cn(
-                        "text-muted-foreground hover:text-foreground",
-                        colorClasses[item.color as keyof typeof colorClasses]
-                      )
-                  )}
-                >
-                  <item.icon className={cn(
-                    "h-5 w-5 transition-transform duration-200",
-                    isActive ? "" : "group-hover:scale-110"
-                  )} />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Timer Widget */}
-          <div className="border-t border-border/50 p-3">
-            <TimerWidget />
-          </div>
-
-          {/* Workspace Selector */}
-          <div className="border-t border-border/50 p-3">
-            <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
-          </div>
-
-          {/* Settings */}
-          <div className="border-t border-border/50 p-3 space-y-1">
-            <Link
-              to="/settings"
-              className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                location.pathname === "/settings" || location.pathname?.startsWith("/settings/")
-                  ? activeColorClasses.blue
-                  : cn(
-                    "text-muted-foreground hover:text-foreground",
-                    colorClasses.blue
-                  )
-              )}
-            >
-              <Settings className={cn(
-                "h-5 w-5 transition-transform duration-200",
-                location.pathname === "/settings" || location.pathname?.startsWith("/settings/") ? "" : "group-hover:scale-110"
-              )} />
-              {t("Sidebar.settings")}
-            </Link>
-          </div>
-        </div>
-      </aside>
+      <SidebarUI
+        className="block"
+        pathname={location.pathname}
+        navSections={navSections}
+        safeAreaTop={true}
+        renderLink={({ href, className, children }) => (
+          <Link to={href} className={className}>
+            {children}
+          </Link>
+        )}
+        renderTimerWidget={() => <TimerWidget />}
+        renderWorkspaceSelector={() => (
+          <WorkspaceSelector onCreateClick={() => setShowCreateWorkspace(true)} />
+        )}
+        showSettingsButton={true}
+        labels={{
+          appName: "Ordo",
+          settings: t("Sidebar.settings"),
+        }}
+      />
 
       <CreateWorkspaceDialog
         open={showCreateWorkspace}

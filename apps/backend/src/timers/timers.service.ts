@@ -161,10 +161,23 @@ export class TimersService {
    */
   async stop(stopTimerDto: StopTimerDto, userId: string) {
     const stopTimerUseCase = new StopTimerUseCase(this.timerRepository);
-    const session = await stopTimerUseCase.execute(
-      userId,
-      stopTimerDto.wasCompleted ?? false,
-    );
+    let session: any;
+    try {
+      session = await stopTimerUseCase.execute(
+        userId,
+        stopTimerDto.wasCompleted ?? false,
+      );
+    } catch (error: any) {
+      if (error?.message?.includes('No active timer session found')) {
+        return {
+          id: '',
+          status: 'STOPPED',
+          wasCompleted: stopTimerDto.wasCompleted ?? false,
+          duration: 0,
+        };
+      }
+      throw error;
+    }
 
     // Auto-track metrics if session was completed
     if (stopTimerDto.wasCompleted && session.props.duration) {

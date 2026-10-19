@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { SessionsManager } from "@/components/settings/sessions-manager";
 import {
   cn,
   Card,
@@ -95,25 +96,9 @@ export function ProfileSecurityTab({
           </div>
         </div>
 
-        {/* Active Sessions */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Active Sessions</h4>
-          <div className="p-3 border rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                  <span className="text-green-500 text-xl">💻</span>
-                </div>
-                <div>
-                  <p className="font-medium">Current Session</p>
-                  <p className="text-xs text-muted-foreground">This device</p>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-green-500 border-green-500">
-                Active
-              </Badge>
-            </div>
-          </div>
+        {/* Active Sessions Manager */}
+        <div className="pt-2">
+          <SessionsManager />
         </div>
       </CardContent>
     </Card>

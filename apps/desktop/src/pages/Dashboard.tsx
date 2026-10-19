@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
@@ -15,25 +15,25 @@ import {
   Plus,
   Timer,
   FolderPlus,
-  Rocket,
-  Search,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@ordo-todo/ui"; // or @/lib/utils if cn is not in ui
+import { cn } from "@ordo-todo/ui";
 import { isCalendarDateToday, isCalendarDateOverdue } from "@ordo-todo/core";
 import { 
   useTimerStats, 
   useDailyMetrics, 
-  // useCreateTask, // Removed 
-  // useCreateProject, // Removed
   useProductivityStreak,
-  useTasks 
+  useTasks,
+  useProjects,
 } from "@/hooks/api";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { CreateTaskDialog } from "@/components/task/create-task-dialog";
 import { CreateProjectDialog } from "@/components/project/create-project-dialog";
-// Using TaskCard as TaskCardCompact replacement for now
-import { TaskCard } from "@/components/task/task-card";
+import { TaskCardCompact } from "@/components/task/task-card-compact";
 import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { DailyRitualDialog, type RitualMode } from "@/components/planning/daily-ritual-dialog";
 import { 
   TimerWidget, 
   ProductivityStreakWidget, 
@@ -41,15 +41,14 @@ import {
   OkrWidget, 
   AIInsightsWidget 
 } from "@/components/dashboard";
-import { type TaskPriority } from "@ordo-todo/api-client";
 
 type SortOption = "priority" | "duration" | "created";
 type ViewMode = "list" | "grid";
 
 export function Dashboard() {
-  const { t, i18n } = useTranslation(); // Note: check translation namespace
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const accentColor = "var(--theme-dashboard)"; // Use dashboard theme variable
+  const accentColor = "#06b6d4";
 
   // UI State
   const [sortBy, setSortBy] = useState<SortOption>("priority");
@@ -57,12 +56,15 @@ export function Dashboard() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
-  // Quick Actions State
+  // Quick Actions & Ritual State
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
-  
-  // Hooks removed as Dialogs handle mutation internally
+  const [showDailyRitualDialog, setShowDailyRitualDialog] = useState(false);
+  const [dailyRitualMode, setDailyRitualMode] = useState<RitualMode>("morning");
+
+  const { selectedWorkspaceId } = useWorkspaceStore();
+  const { data: projects = [] } = useProjects(selectedWorkspaceId || "");
 
   // Get today's date range
   const today = new Date();
@@ -96,8 +98,19 @@ export function Dashboard() {
   // Fetch all tasks (we'll filter for today's tasks to display)
   const { data: allTasks = [] } = useTasks();
 
-  // Filter tasks for today view
+  // Filter tasks for today view with workspace isolation
   const todaysTasks = allTasks.filter((task: any) => {
+    // Workspace isolation filter
+    if (selectedWorkspaceId) {
+      const taskWorkspaceId = task.project?.workspace?.id || task.project?.workspaceId;
+      if (taskWorkspaceId && taskWorkspaceId !== selectedWorkspaceId) {
+        return false;
+      }
+      if (!taskWorkspaceId && projects.length > 0 && !projects.some((p: any) => p.id === task.projectId)) {
+        return false;
+      }
+    }
+
     // Check if task has dueDate = today
     if (task.dueDate && isCalendarDateToday(task.dueDate)) {
       return true;
@@ -154,8 +167,8 @@ export function Dashboard() {
         return aPriority - bPriority;
       }
       case "duration": {
-        const aDuration = a.estimatedTime ?? Infinity;
-        const bDuration = b.estimatedTime ?? Infinity;
+        const aDuration = a.estimatedMinutes ?? a.estimatedTime ?? Infinity;
+        const bDuration = b.estimatedMinutes ?? b.estimatedTime ?? Infinity;
         return aDuration - bDuration;
       }
       case "created": {
@@ -178,8 +191,8 @@ export function Dashboard() {
   const subtasksCompletedToday = dailyMetrics?.subtasksCompleted ?? 0;
 
   // Format time worked
-  const hoursWorked = stats ? Math.floor(stats.totalMinutesWorked / 60) : 0;
-  const minutesWorked = stats ? stats.totalMinutesWorked % 60 : 0;
+  const hoursWorked = stats ? Math.floor((stats.totalMinutesWorked ?? 0) / 60) : 0;
+  const minutesWorked = stats ? (stats.totalMinutesWorked ?? 0) % 60 : 0;
   const timeWorkedText =
     hoursWorked > 0
       ? `${hoursWorked}h ${minutesWorked}m`
@@ -203,51 +216,78 @@ export function Dashboard() {
       title: t("Dashboard.completed", "Completadas"),
       value: completedToday.toString(),
       icon: CheckCircle2,
-      color: "var(--theme-dashboard)",
-      bgClass: "bg-dashboard",
+      color: accentColor,
     },
     {
       title: "Subtareas",
       value: subtasksCompletedToday.toString(),
       icon: ListChecks,
-      color: "var(--theme-tasks)",
-      bgClass: "bg-tasks",
+      color: "#8b5cf6", // Purple
     },
     {
       title: t("Dashboard.timeWorked", "Tiempo"),
       value: timeWorkedText,
       icon: Clock,
-      color: "var(--theme-calendar)",
-      bgClass: "bg-calendar",
+      color: "#f59e0b", // Amber
     },
     {
       title: t("Dashboard.productivity", "Productividad"),
       value: productivity,
       icon: TrendingUp,
-      color: "var(--theme-habits)",
-      bgClass: "bg-habits",
+      color: "#10b981", // Emerald
     },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 sm:gap-3">
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-dashboard text-white shadow-lg shadow-dashboard/25">
-              <Home className="h-5 w-5 sm:h-6 sm:w-6" />
-            </div>
-            {t("Dashboard.today", "Hoy")}
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-2">
-            {new Date().toLocaleDateString(i18n.language, {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-3.5">
+          <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 shrink-0">
+            <Home className="h-5 w-5 sm:h-6 sm:w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight">
+              {t("Dashboard.today", "Hoy")}
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+              {new Date().toLocaleDateString(i18n.language, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
+        </div>
+
+        {/* Daily Ritual Button */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              const isEvening = new Date().getHours() >= 17;
+              setDailyRitualMode(isEvening ? "evening" : "morning");
+              setShowDailyRitualDialog(true);
+            }}
+            className={cn(
+              "group relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border shadow-xs hover:shadow-md cursor-pointer",
+              new Date().getHours() >= 17
+                ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20"
+                : "bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border-amber-500/30 text-amber-800 dark:text-amber-200 hover:border-amber-500/50"
+            )}
+          >
+            {new Date().getHours() >= 17 ? (
+              <>
+                <Moon className="h-4 w-4 text-indigo-500 transition-transform group-hover:-rotate-12" />
+                <span>Daily Shutdown</span>
+              </>
+            ) : (
+              <>
+                <Sun className="h-4 w-4 text-amber-500 transition-transform group-hover:rotate-45" />
+                <span>Plan My Day</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -256,25 +296,24 @@ export function Dashboard() {
         {statCards.map((card, index) => (
           <motion.div
             key={card.title}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className={cn(
-              "group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300",
-              "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20"
-            )}
-            style={{
-              borderLeftWidth: "4px",
-              borderLeftColor: card.color,
+            transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{
+              y: -4,
+              borderColor: `${card.color}70`,
+              boxShadow: `0 12px 28px -6px ${card.color}25`,
+              transition: { duration: 0.2, ease: "easeOut" },
             }}
+            className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 cursor-pointer"
           >
             <div className="flex items-center gap-4">
               <div
-                className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 text-white",
-                  card.bgClass
-                )}
+                className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300 group-hover:scale-105"
+                style={{
+                  backgroundColor: `${card.color}15`,
+                  color: card.color,
+                }}
               >
                 <card.icon className="h-6 w-6" />
               </div>
@@ -288,27 +327,61 @@ export function Dashboard() {
       </div>
 
       {/* New Widgets Row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <ProductivityStreakWidget
-          currentStreak={currentStreak}
-          longestStreak={longestStreak}
-          accentColor="var(--theme-tasks)"
-        />
-        {/* Using TimerWidget instead of DashboardTimerWidget - assumes TimerWidget fits context */}
-        <TimerWidget onExpand={() => navigate("/timer")} />
-        <HabitsWidget accentColor="var(--theme-habits)" />
-        <OkrWidget />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 items-stretch">
+        <motion.div
+          className="h-full flex flex-col"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <ProductivityStreakWidget
+            currentStreak={currentStreak}
+            longestStreak={longestStreak}
+            accentColor={accentColor}
+            className="h-full flex-1"
+          />
+        </motion.div>
+        <motion.div
+          className="h-full flex flex-col"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <TimerWidget onExpand={() => navigate("/timer")} className="h-full flex-1" />
+        </motion.div>
+        <motion.div
+          className="h-full flex flex-col"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <HabitsWidget accentColor="#10b981" className="h-full flex-1" />
+        </motion.div>
+        <motion.div
+          className="h-full flex flex-col"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <OkrWidget className="h-full flex-1" />
+        </motion.div>
       </div>
 
       {/* AI Insights Widget */}
-      <AIInsightsWidget className="w-full" />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <AIInsightsWidget className="w-full" />
+      </motion.div>
 
       {/* Tasks Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.15 }}
-        className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300"
+        transition={{ duration: 0.35, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6"
       >
         {/* Header with controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -316,14 +389,14 @@ export function Dashboard() {
 
           <div className="flex items-center gap-3">
             {/* View mode toggle */}
-            <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+            <div className="flex items-center border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode("list")}
                 className={cn(
-                  "p-1.5 transition-all duration-200",
+                  "p-1.5 transition-all duration-200 cursor-pointer",
                   viewMode === "list"
-                    ? "bg-tasks/10 text-tasks"
-                    : "text-muted-foreground hover:bg-muted/50"
+                    ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
                 title="Vista de lista"
               >
@@ -332,10 +405,10 @@ export function Dashboard() {
               <button
                 onClick={() => setViewMode("grid")}
                 className={cn(
-                  "p-1.5 transition-all duration-200",
+                  "p-1.5 transition-all duration-200 cursor-pointer",
                   viewMode === "grid"
-                    ? "bg-tasks/10 text-tasks"
-                    : "text-muted-foreground hover:bg-muted/50"
+                    ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
                 title="Vista de cuadrícula"
               >
@@ -349,7 +422,7 @@ export function Dashboard() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="bg-background border border-border/50 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                className="bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
               >
                 <option value="priority">{t("Dashboard.sortOptions.priority", "Prioridad")}</option>
                 <option value="duration">{t("Dashboard.sortOptions.duration", "Duración")}</option>
@@ -361,10 +434,10 @@ export function Dashboard() {
             <button
               onClick={() => setShowCompleted(!showCompleted)}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border",
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 border cursor-pointer",
                 showCompleted
-                  ? "bg-tasks/10 border-tasks/20 text-tasks"
-                  : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted"
+                  ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-700 dark:text-cyan-300 font-semibold"
+                  : "bg-muted border-border text-muted-foreground hover:bg-muted"
               )}
             >
               {showCompleted ? (
@@ -380,7 +453,7 @@ export function Dashboard() {
                   className={cn(
                     "px-1.5 py-0.5 rounded-full text-xs font-medium",
                     showCompleted
-                      ? "bg-tasks/20 text-tasks"
+                      ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300"
                       : "bg-muted text-muted-foreground"
                   )}
                 >
@@ -393,7 +466,7 @@ export function Dashboard() {
 
         {sortedTasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-            <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
+            <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="mb-2 text-lg font-medium">
               {!showCompleted && completedCount > 0
                 ? t("Dashboard.allTasksCompleted", "Todas las tareas completadas")
@@ -407,7 +480,7 @@ export function Dashboard() {
             {!showCompleted && completedCount > 0 ? (
               <button
                 onClick={() => setShowCompleted(true)}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-muted hover:bg-muted/80 transition-all duration-200"
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-muted hover:bg-muted/80 transition-all duration-200 cursor-pointer"
               >
                 <Eye className="h-4 w-4" />
                 Mostrar completadas
@@ -415,7 +488,7 @@ export function Dashboard() {
             ) : (
               <button
                 onClick={() => setShowCreateTaskDialog(true)}
-                className="flex items-center gap-2 rounded-xl bg-tasks px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-tasks/25 transition-all duration-200 hover:scale-105"
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-cyan-500 text-white shadow-sm shadow-cyan-500/25 hover:bg-cyan-600 transition-all duration-200 cursor-pointer"
               >
                 <Plus className="h-4 w-4" />
                 {t("Dashboard.createTask", "Crear tarea")}
@@ -430,11 +503,16 @@ export function Dashboard() {
                 : "space-y-2"
             )}
           >
-            {sortedTasks.map((task: any) => (
-
-              <div key={task.id} onClick={() => setSelectedTaskId(task.id)}>
-                 <TaskCard task={task} />
-              </div>
+            {sortedTasks.map((task: any, index: number) => (
+              <TaskCardCompact
+                key={task.id}
+                task={task}
+                index={index}
+                viewMode={viewMode}
+                showProject={true}
+                showGradient={true}
+                onTaskClick={(taskId) => setSelectedTaskId(taskId)}
+              />
             ))}
           </div>
         )}
@@ -459,7 +537,7 @@ export function Dashboard() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+                className="fixed inset-0 bg-background/80 backdrop-blur-xs"
                 onClick={() => setShowQuickActions(false)}
               />
 
@@ -475,12 +553,12 @@ export function Dashboard() {
                     setShowQuickActions(false);
                     setShowCreateProjectDialog(true);
                   }}
-                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
+                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group cursor-pointer"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                     Nuevo Proyecto
                   </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-projects text-white shadow-sm shadow-projects/10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-pink-500 shadow-sm shadow-pink-500/25">
                     <FolderPlus className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -495,12 +573,12 @@ export function Dashboard() {
                     setShowQuickActions(false);
                     navigate("/timer");
                   }}
-                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
+                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group cursor-pointer"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                     Iniciar Timer
                   </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-workspaces text-white shadow-sm shadow-workspaces/10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-amber-500 shadow-sm shadow-amber-500/25">
                     <Timer className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -515,12 +593,12 @@ export function Dashboard() {
                     setShowQuickActions(false);
                     setShowCreateTaskDialog(true);
                   }}
-                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group"
+                  className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 group cursor-pointer"
                 >
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  <span className="text-sm font-medium text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                     Nueva Tarea
                   </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-tasks text-white shadow-sm shadow-tasks/10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white bg-cyan-500 shadow-sm shadow-cyan-500/25">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
                 </motion.button>
@@ -531,11 +609,11 @@ export function Dashboard() {
 
         {/* Main FAB Button */}
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowQuickActions(!showQuickActions)}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-2xl bg-dashboard text-white shadow-lg shadow-dashboard/25 transition-all duration-300",
+            "flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 cursor-pointer",
             showQuickActions ? "rotate-45" : "rotate-0"
           )}
         >
@@ -551,6 +629,12 @@ export function Dashboard() {
       <CreateProjectDialog
         open={showCreateProjectDialog}
         onOpenChange={setShowCreateProjectDialog}
+      />
+      <DailyRitualDialog
+        open={showDailyRitualDialog}
+        onOpenChange={setShowDailyRitualDialog}
+        defaultMode={dailyRitualMode}
+        workspaceId={selectedWorkspaceId || undefined}
       />
     </div>
   );

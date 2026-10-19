@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use tauri::menu::{Menu, MenuItem};
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SystemInfo {
@@ -81,13 +81,33 @@ pub fn run() {
         .setup(|app| {
             // Build system tray menu
             let show_i = MenuItem::with_id(app, "show", "Show Ordo-Todo", true, None::<&str>)?;
-            let timer_i = MenuItem::with_id(app, "timer", "Toggle Mini Timer", true, None::<&str>)?;
-            let quit_i = MenuItem::with_id(app, "quit", "Quit Ordo-Todo", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_i, &timer_i, &quit_i])?;
+            let quick_add_i = MenuItem::with_id(app, "quick_add", "Quick Add Task...", true, Some("CmdOrCtrl+Shift+N"))?;
+            let sep1 = PredefinedMenuItem::separator(app)?;
+            let pomodoro_start_i = MenuItem::with_id(app, "pomodoro_start", "Start 25m Pomodoro", true, None::<&str>)?;
+            let pomodoro_toggle_i = MenuItem::with_id(app, "pomodoro_toggle", "Pause / Resume Timer", true, None::<&str>)?;
+            let timer_i = MenuItem::with_id(app, "timer", "Toggle Mini Timer", true, Some("CmdOrCtrl+Shift+T"))?;
+            let sep2 = PredefinedMenuItem::separator(app)?;
+            let quit_i = MenuItem::with_id(app, "quit", "Quit Ordo-Todo", true, Some("CmdOrCtrl+Q"))?;
+
+            let menu = Menu::with_items(
+                app,
+                &[
+                    &show_i,
+                    &quick_add_i,
+                    &sep1,
+                    &pomodoro_start_i,
+                    &pomodoro_toggle_i,
+                    &timer_i,
+                    &sep2,
+                    &quit_i,
+                ],
+            )?;
 
             // Setup tray icon
             let _tray = TrayIconBuilder::with_id("main-tray")
                 .menu(&menu)
+                .title("Ordo")
+                .tooltip("Ordo-Todo")
                 .show_menu_on_left_click(false)
                 .icon(app.default_window_icon().unwrap().clone())
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -97,6 +117,20 @@ pub fn run() {
                             let _ = window.unminimize();
                             let _ = window.set_focus();
                         }
+                    }
+                    "quick_add" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.unminimize();
+                            let _ = window.set_focus();
+                            let _ = window.emit("quick-add-task", ());
+                        }
+                    }
+                    "pomodoro_start" => {
+                        let _ = app.emit("tray-pomodoro-start", ());
+                    }
+                    "pomodoro_toggle" => {
+                        let _ = app.emit("tray-pomodoro-toggle", ());
                     }
                     "timer" => {
                         let _ = toggle_mini_timer(app.clone());

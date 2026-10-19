@@ -9,7 +9,9 @@ export interface NavSection {
     label?: string;
     items: NavItem[];
 }
-interface SidebarProps {
+export interface SidebarProps {
+    /** Custom classes to apply to the sidebar aside container */
+    className?: string;
     /** Current pathname to determine active state */
     pathname?: string;
     /** Navigation items (flat list) */
@@ -22,6 +24,10 @@ interface SidebarProps {
         className: string;
         children: ReactNode;
     }) => ReactNode;
+    /** Render custom header slot above the logo (e.g. for macOS window traffic lights) */
+    renderTopHeader?: () => ReactNode;
+    /** Whether to add safe area spacing at the top (for macOS traffic lights / window dragging) */
+    safeAreaTop?: boolean;
     /** Workspace selector component */
     renderWorkspaceSelector?: () => ReactNode;
     /** Timer widget component */
@@ -48,6 +54,5 @@ interface SidebarProps {
         analytics?: string;
     };
 }
-export declare function Sidebar({ pathname, navItems, navSections, collapsed, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, showSettingsButton, labels, }: SidebarProps): import("react/jsx-runtime").JSX.Element;
-export {};
+export declare function Sidebar({ className, pathname, navItems, navSections, collapsed, renderTopHeader, safeAreaTop, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref, showSettingsButton, labels, }: SidebarProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=sidebar.d.ts.map

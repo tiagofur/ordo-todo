@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogDescription,
   Checkbox,
+  cn,
 } from "@ordo-todo/ui";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -115,9 +116,9 @@ export function ExportDataButton({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={className}>
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
+          <Button variant="outline" size="sm" className={cn("text-foreground", className)}>
+            <Download className="h-4 w-4 mr-2 text-foreground" />
+            <span className="text-foreground font-medium">Exportar</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

@@ -22,8 +22,21 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Trophy,
+  AtSign,
+  Clock,
+  Camera,
+  Check,
+  Copy,
+  ShieldCheck,
+  Building2,
+  Briefcase,
+  Phone,
 } from "lucide-react";
+import { apiClient } from "@/lib/api-client";
+import { ChangePasswordDialog } from "./change-password-dialog";
+import { SessionsManager } from "../settings/SessionsManager";
 import { useUsernameValidation } from "@ordo-todo/hooks";
 import {
   cn,
@@ -72,6 +85,33 @@ const TIMEZONES = [
   { value: "Europe/Paris", label: "Paris (GMT+1)" },
   { value: "Asia/Tokyo", label: "Tokyo (GMT+9)" },
 ];
+
+function getPlanBadgeClasses(plan?: string) {
+  switch (plan) {
+    case "PRO":
+      return "bg-purple-600 text-white border-purple-500/30";
+    case "TEAM":
+      return "bg-blue-600 text-white border-blue-500/30";
+    case "ENTERPRISE":
+      return "bg-amber-600 text-white border-amber-500/30";
+    default:
+      return "bg-muted text-muted-foreground border-border";
+  }
+}
+
+function getLocalTimeInTimezone(timezone: string) {
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+      timeZoneName: "short",
+    }).format(new Date());
+  } catch {
+    return null;
+  }
+}
 
 const ENERGY_LEVELS = [
   { value: "LOW", label: "Low", icon: Moon, color: "text-blue-500" },
@@ -177,6 +217,8 @@ export function ProfileTabs({
   const [username, setUsername] = useState("");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [hasCopiedUrl, setHasCopiedUrl] = useState(false);
   // Profile form state
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -364,6 +406,17 @@ export function ProfileTabs({
     }
   };
 
+  const handleCopyProfileUrl = () => {
+    const handle = profile?.username || "user";
+    const url = `https://ordotodo.app/@${handle}`;
+    navigator.clipboard?.writeText(url);
+    setHasCopiedUrl(true);
+    setTimeout(() => setHasCopiedUrl(false), 2000);
+  };
+
+  const localTime = getLocalTimeInTimezone(profileForm.timezone);
+  const plan = profile?.subscription?.plan || "FREE";
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -373,270 +426,457 @@ export function ProfileTabs({
   }
 
   return (
-    <Tabs defaultValue="profile" className="mt-6">
-      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-6 h-auto p-1">
-        <TabsTrigger value="profile" className="flex items-center gap-2">
-          <User className="h-4 w-4" />
-          <span className="hidden sm:inline">Profile</span>
-        </TabsTrigger>
-        <TabsTrigger value="ai" className="flex items-center gap-2">
-          <Brain className="h-4 w-4" />
-          <span className="hidden sm:inline">AI</span>
-        </TabsTrigger>
-        <TabsTrigger value="security" className="flex items-center gap-2">
-          <Shield className="h-4 w-4" />
-          <span className="hidden sm:inline">Security</span>
-        </TabsTrigger>
-        <TabsTrigger value="privacy" className="flex items-center gap-2">
-          <Lock className="h-4 w-4" />
-          <span className="hidden sm:inline">Privacy</span>
-        </TabsTrigger>
-        <TabsTrigger value="integrations" className="flex items-center gap-2">
-          <Link2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Integrations</span>
-        </TabsTrigger>
-        <TabsTrigger value="subscription" className="flex items-center gap-2">
-          <CreditCard className="h-4 w-4" />
-          <span className="hidden sm:inline">Subscription</span>
-        </TabsTrigger>
-        <TabsTrigger value="account" className="flex items-center gap-2">
-          <Settings2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Account</span>
-        </TabsTrigger>
-      </TabsList>
+    <Tabs defaultValue="profile" className="mt-4">
+      <div className="overflow-x-auto no-scrollbar mb-6 pb-1">
+        <TabsList className="inline-flex items-center gap-1.5 p-1.5 bg-muted/60 dark:bg-zinc-900/80 border border-border/80 rounded-2xl shadow-xs min-w-full sm:min-w-0">
+          <TabsTrigger
+            value="profile"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <User className="h-4 w-4 shrink-0" />
+            <span>Profile</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="ai"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <Brain className="h-4 w-4 shrink-0" />
+            <span>AI</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="security"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <Shield className="h-4 w-4 shrink-0" />
+            <span>Security</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="privacy"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <Lock className="h-4 w-4 shrink-0" />
+            <span>Privacy</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="integrations"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <Link2 className="h-4 w-4 shrink-0" />
+            <span>Integrations</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="subscription"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <CreditCard className="h-4 w-4 shrink-0" />
+            <span>Subscription</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="gamification"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <Trophy className="h-4 w-4 shrink-0 text-amber-500" />
+            <span>Level & XP</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="account"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium transition-all cursor-pointer shrink-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=active]:font-semibold text-muted-foreground hover:text-foreground hover:bg-background/40"
+          >
+            <Settings2 className="h-4 w-4 shrink-0" />
+            <span>Account</span>
+          </TabsTrigger>
+        </TabsList>
+      </div>
 
       {/* Profile Tab */}
       <TabsContent value="profile" className="mt-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Update your personal information and preferences</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Avatar Section */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={profile?.image || undefined} />
-                <AvatarFallback className="text-lg">{getInitials(profile?.name)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <Button variant="outline" size="sm">Change Avatar</Button>
-                <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max 2MB.</p>
-              </div>
-            </div>
-
-            {/* Username Section */}
-            <div className="rounded-lg border p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <Label className="text-base font-medium">Username</Label>
+        <div className="space-y-6">
+          {/* Identity Hero Card */}
+          <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs relative overflow-hidden transition-all">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                {/* Avatar with hover state */}
+                <div className="relative group shrink-0">
+                  <Avatar className="h-20 w-20 sm:h-22 sm:w-22 rounded-2xl border-2 border-border shadow-xs">
+                    <AvatarImage src={profile?.image || undefined} className="object-cover" />
+                    <AvatarFallback className="text-xl font-bold bg-muted text-foreground rounded-2xl">
+                      {getInitials(profile?.name || sessionUser?.email)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    type="button"
+                    className="absolute inset-0 bg-black/50 text-white rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] font-medium cursor-pointer"
+                    title="Change Avatar"
+                  >
+                    <Camera className="h-5 w-5 mb-0.5" />
+                    Change
+                  </button>
                 </div>
-                {onUpdateUsername && !isEditingUsername && (
-                  <Button 
-                    variant="ghost" 
+
+                {/* Profile Identity Details */}
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+                      {profileForm.name || profile?.name || "Your Profile"}
+                    </h2>
+                    <Badge
+                      className={cn(
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
+                        getPlanBadgeClasses(plan)
+                      )}
+                    >
+                      {plan}
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <span className="font-mono text-foreground font-semibold flex items-center gap-1">
+                      <AtSign className="h-3 w-3 text-muted-foreground" />
+                      {profile?.username || "no-username"}
+                    </span>
+                    <span>•</span>
+                    <span className="truncate max-w-[200px] sm:max-w-none">{sessionUser?.email}</span>
+                    {(profileForm.jobTitle || profileForm.department) && (
+                      <>
+                        <span>•</span>
+                        <span className="text-muted-foreground">
+                          {[profileForm.jobTitle, profileForm.department].filter(Boolean).join(" in ")}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Profile Actions */}
+              <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end shrink-0">
+                {profile?.username && (
+                  <Button
+                    variant="outline"
                     size="sm"
+                    className="rounded-xl text-xs gap-1.5 h-9"
+                    onClick={handleCopyProfileUrl}
+                    title="Copy public profile URL"
+                  >
+                    {hasCopiedUrl ? (
+                      <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                    <span>{hasCopiedUrl ? "Copied" : "Share URL"}</span>
+                  </Button>
+                )}
+                {onUpdateUsername && !isEditingUsername && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl text-xs gap-1.5 h-9"
                     onClick={() => setIsEditingUsername(true)}
                     disabled={!canChangeUsername && !!profile?.username}
                   >
-                    {profile?.username ? "Change" : "Add Username"}
+                    <AtSign className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{profile?.username ? "Change Handle" : "Set Handle"}</span>
                   </Button>
                 )}
               </div>
-              
-              {isEditingUsername ? (
-                <div className="space-y-3">
-                  <div className="flex gap-2 items-center">
-                    <div className="relative flex-1 max-w-xs">
-                      <Input
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
-                        placeholder="your-username"
-                        className={cn(
-                          "pr-10",
-                          validationResult.isLoading && "border-muted",
-                          validationResult.isAvailable === true && username.length >= 3 && "border-green-500 focus:border-green-500",
-                          validationResult.isAvailable === false && username.length >= 3 && "border-destructive focus:border-destructive"
-                        )}
-                      />
-                      {/* Validation icon */}
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        {validationResult.isLoading && (
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                        )}
-                        {!validationResult.isLoading && validationResult.isAvailable === true && username.length >= 3 && (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                        {!validationResult.isLoading && validationResult.isAvailable === false && username.length >= 3 && (
-                          <XCircle className="h-4 w-4 text-destructive" />
-                        )}
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleUpdateUsername} 
-                      disabled={
-                        isUpdatingUsername || 
-                        username.length < 3 || 
-                        validationResult.isLoading ||
-                        validationResult.isAvailable === false ||
-                        username === profile?.username
-                      }
-                      size="sm"
-                    >
-                      {isUpdatingUsername ? "Saving..." : "Save"}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => {
-                        setIsEditingUsername(false);
-                        setUsername(profile?.username || "");
-                        resetValidation();
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                  
-                  {/* Validation message */}
-                  {username.length > 0 && validationResult.message && (
-                    <p className={cn(
-                      "text-xs flex items-center gap-1",
-                      validationResult.isAvailable === true && "text-green-600 dark:text-green-400",
-                      validationResult.isAvailable === false && "text-destructive",
-                      validationResult.isLoading && "text-muted-foreground"
-                    )}>
-                      {validationResult.message}
-                    </p>
-                  )}
-                  
-                  {/* Character count hint */}
-                  {username.length > 0 && username.length < 3 && (
-                    <p className="text-xs text-muted-foreground">
-                      Username must be at least 3 characters ({username.length}/3)
-                    </p>
-                  )}
-                  
-                  {profile?.username && (
-                    <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
-                      <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium">Warning: Changing your username will:</p>
-                        <ul className="list-disc list-inside mt-1 text-xs">
-                          <li>Change your profile URL</li>
-                          <li>Break existing bookmarks and shared links</li>
-                          <li>You can only change it again after 30 days</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
+            </div>
+          </div>
+
+          {/* Username Editor Panel */}
+          {isEditingUsername && (
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 dark:bg-primary/10 p-5 space-y-4 animate-in fade-in-50 duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AtSign className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Change Public Username</span>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-medium">
-                      {profile?.username ? `@${profile.username}` : "No username set"}
-                    </span>
-                    {!profile?.username && (
-                      <Badge variant="outline" className="text-amber-600 border-amber-300">Required</Badge>
+                <span className="text-xs text-muted-foreground font-mono">
+                  ordotodo.app/@{username || "username"}
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                <div className="relative flex-1 max-w-sm">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">
+                    @
+                  </span>
+                  <Input
+                    value={username}
+                    onChange={(e) =>
+                      setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))
+                    }
+                    placeholder="your-username"
+                    className={cn(
+                      "pl-8 pr-10 font-mono text-sm rounded-xl",
+                      validationResult.isLoading && "border-muted",
+                      validationResult.isAvailable === true &&
+                        username.length >= 3 &&
+                        "border-green-500 focus:border-green-500",
+                      validationResult.isAvailable === false &&
+                        username.length >= 3 &&
+                        "border-destructive focus:border-destructive"
                     )}
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    {validationResult.isLoading && (
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    )}
+                    {!validationResult.isLoading &&
+                      validationResult.isAvailable === true &&
+                      username.length >= 3 && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    {!validationResult.isLoading &&
+                      validationResult.isAvailable === false &&
+                      username.length >= 3 && <XCircle className="h-4 w-4 text-destructive" />}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Your profile URL: ordotodo.app/{profile?.username || "username"}/workspace
-                  </p>
-                  {!canChangeUsername && profile?.username && (
-                    <p className="text-xs text-muted-foreground">
-                      You can change your username again in {getDaysUntilUsernameChange()} days
-                    </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={handleUpdateUsername}
+                    disabled={
+                      isUpdatingUsername ||
+                      username.length < 3 ||
+                      validationResult.isLoading ||
+                      validationResult.isAvailable === false ||
+                      username === profile?.username
+                    }
+                    size="sm"
+                    className="rounded-xl h-9"
+                  >
+                    {isUpdatingUsername ? "Saving..." : "Save Handle"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-xl h-9"
+                    onClick={() => {
+                      setIsEditingUsername(false);
+                      setUsername(profile?.username || "");
+                      resetValidation();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+
+              {username.length > 0 && validationResult.message && (
+                <p
+                  className={cn(
+                    "text-xs flex items-center gap-1.5",
+                    validationResult.isAvailable === true && "text-green-600 dark:text-green-400 font-medium",
+                    validationResult.isAvailable === false && "text-destructive font-medium",
+                    validationResult.isLoading && "text-muted-foreground"
                   )}
+                >
+                  {validationResult.message}
+                </p>
+              )}
+
+              {username.length > 0 && username.length < 3 && (
+                <p className="text-xs text-muted-foreground">
+                  Username must be at least 3 characters ({username.length}/3)
+                </p>
+              )}
+
+              {profile?.username && (
+                <div className="flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-900/60">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <div>
+                    <p className="font-semibold">Important note regarding handle changes:</p>
+                    <p className="text-muted-foreground mt-0.5">
+                      Updating your handle changes your public link and cannot be changed again for 30 days.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
+          )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+          {/* Main Settings Card */}
+          <Card className="rounded-2xl border border-border/80 shadow-xs">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-bold">Personal Information</CardTitle>
+              <CardDescription>
+                Manage your personal profile details, timezone, and professional information.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Section 1: Contact Details */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-primary" />
+                  Identity & Contact
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-xs font-medium">
+                      Full Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={profileForm.name}
+                      onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                      placeholder="e.g. Alex Morgan"
+                      className="rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="email" className="text-xs font-medium flex items-center gap-1">
+                        Email Address
+                        <Lock className="h-3 w-3 text-muted-foreground" />
+                      </Label>
+                      <span className="text-[10px] text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                        <ShieldCheck className="h-3 w-3" />
+                        Verified
+                      </span>
+                    </div>
+                    <Input
+                      id="email"
+                      value={sessionUser?.email || ""}
+                      disabled
+                      className="bg-muted/50 rounded-xl cursor-not-allowed opacity-80"
+                    />
+                  </div>
+
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="phone" className="text-xs font-medium flex items-center gap-1.5">
+                      <Phone className="h-3 w-3 text-muted-foreground" />
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      value={profileForm.phone}
+                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                      placeholder="+1 (555) 012-3456"
+                      className="rounded-xl max-w-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-border/60" />
+
+              {/* Section 2: Professional Role */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Briefcase className="h-3.5 w-3.5 text-primary" />
+                  Organization & Role
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="jobTitle" className="text-xs font-medium">
+                      Job Title
+                    </Label>
+                    <Input
+                      id="jobTitle"
+                      value={profileForm.jobTitle}
+                      onChange={(e) => setProfileForm({ ...profileForm, jobTitle: e.target.value })}
+                      placeholder="e.g. Senior Product Architect"
+                      className="rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="department" className="text-xs font-medium flex items-center gap-1.5">
+                      <Building2 className="h-3 w-3 text-muted-foreground" />
+                      Department
+                    </Label>
+                    <Input
+                      id="department"
+                      value={profileForm.department}
+                      onChange={(e) => setProfileForm({ ...profileForm, department: e.target.value })}
+                      placeholder="e.g. Engineering & Design"
+                      className="rounded-xl"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-border/60" />
+
+              {/* Section 3: Timezone & Regional */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-primary" />
+                    Timezone & Regional
+                  </h3>
+                  {localTime && (
+                    <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                      <span>Current time: <strong className="text-foreground">{localTime}</strong></span>
+                    </span>
+                  )}
+                </div>
+                <div className="max-w-md space-y-2">
+                  <Label htmlFor="timezone" className="text-xs font-medium">
+                    Primary Working Timezone
+                  </Label>
+                  <Select
+                    value={profileForm.timezone}
+                    onValueChange={(value) => setProfileForm({ ...profileForm, timezone: value })}
+                  >
+                    <SelectTrigger className="rounded-xl">
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONES.map((tz) => (
+                        <SelectItem key={tz.value} value={tz.value}>
+                          {tz.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    AI scheduling and task reminders automatically adapt to your chosen timezone.
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-px bg-border/60" />
+
+              {/* Section 4: Bio */}
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={profileForm.name}
-                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                  placeholder="John Doe"
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="bio" className="text-xs font-medium">
+                    About You (Bio)
+                  </Label>
+                  <span className="text-[11px] text-muted-foreground">
+                    {profileForm.bio?.length || 0}/250
+                  </span>
+                </div>
+                <Textarea
+                  id="bio"
+                  value={profileForm.bio}
+                  onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                  placeholder="Write a brief overview of what you focus on and what your superpowers are..."
+                  rows={3}
+                  maxLength={250}
+                  className="rounded-xl resize-none"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  value={sessionUser?.email || ""}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={profileForm.phone}
-                  onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                  placeholder="+1 555 0123"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input
-                  id="jobTitle"
-                  value={profileForm.jobTitle}
-                  onChange={(e) => setProfileForm({ ...profileForm, jobTitle: e.target.value })}
-                  placeholder="Product Manager"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
-                  value={profileForm.department}
-                  onChange={(e) => setProfileForm({ ...profileForm, department: e.target.value })}
-                  placeholder="Engineering"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="timezone">Timezone</Label>
-                <Select
-                  value={profileForm.timezone}
-                  onValueChange={(value) => setProfileForm({ ...profileForm, timezone: value })}
+
+              {/* Save Action Bar */}
+              <div className="flex items-center justify-end pt-4 border-t border-border/60">
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={isUpdateProfilePending}
+                  className="rounded-xl px-5 py-2.5 font-medium shadow-xs gap-2"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select timezone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIMEZONES.map((tz) => (
-                      <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {isUpdateProfilePending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  {isUpdateProfilePending ? "Saving changes..." : "Save Profile"}
+                </Button>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                value={profileForm.bio}
-                onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                placeholder="Tell us a bit about yourself..."
-                rows={3}
-              />
-            </div>
-
-            <div className="flex justify-end">
-              <Button onClick={handleSaveProfile} disabled={isUpdateProfilePending}>
-                <Save className="h-4 w-4 mr-2" />
-                {isUpdateProfilePending ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
 
       {/* AI & Productivity Tab */}
@@ -802,9 +1042,11 @@ export function ProfileTabs({
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="space-y-0.5">
                 <Label className="text-base">Password</Label>
-                <p className="text-sm text-muted-foreground">Last changed: 3 months ago</p>
+                <p className="text-sm text-muted-foreground">Update your account password securely</p>
               </div>
-              <Button variant="outline">Change Password</Button>
+              <Button variant="outline" onClick={() => setIsChangePasswordOpen(true)}>
+                Change Password
+              </Button>
             </div>
 
             {/* 2FA */}
@@ -837,23 +1079,9 @@ export function ProfileTabs({
               </div>
             </div>
 
-            {/* Active Sessions */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Active Sessions</h4>
-              <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
-                      <span className="text-green-500 text-xl">💻</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">Current Session</p>
-                      <p className="text-xs text-muted-foreground">This device</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="text-green-500 border-green-500">Active</Badge>
-                </div>
-              </div>
+            {/* Active Sessions Manager */}
+            <div className="pt-2">
+              <SessionsManager />
             </div>
           </CardContent>
         </Card>
@@ -1045,6 +1273,11 @@ export function ProfileTabs({
         </Card>
       </TabsContent>
 
+      {/* Gamification (Level & XP) Tab */}
+      <TabsContent value="gamification" className="mt-2">
+        <ProfileGamificationSection />
+      </TabsContent>
+
       {/* Account Tab */}
       <TabsContent value="account" className="mt-2">
         <Card>
@@ -1119,6 +1352,151 @@ export function ProfileTabs({
           </CardContent>
         </Card>
       </TabsContent>
+
+      <ChangePasswordDialog
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      />
     </Tabs>
+  );
+}
+
+function ProfileGamificationSection() {
+  const [gamification, setGamification] = useState<any>(null);
+  const [isLoadingGamification, setIsLoadingGamification] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingGamification(true);
+    apiClient
+      .getGamificationProfile()
+      .then((data) => {
+        if (isMounted) setGamification(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load gamification profile in desktop", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingGamification(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-amber-500" />
+          <CardTitle>Level & Achievements</CardTitle>
+        </div>
+        <CardDescription>
+          Earn experience points (XP) and unlock achievements by completing tasks, habits, and focus sessions.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {isLoadingGamification ? (
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl border border-border bg-card">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Current Level
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-foreground">
+                    Level {gamification?.level || 1}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <div className="flex justify-between text-xs text-muted-foreground font-medium">
+                  <span>Total XP: {gamification?.xp || 0}</span>
+                  <span>Next Level: {gamification?.currentLevelProgress || 0} / 1,000 XP</span>
+                </div>
+                <div className="w-full h-3 bg-muted rounded-full overflow-hidden border border-border">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 to-violet-500 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        ((gamification?.currentLevelProgress || 0) / 1000) * 100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Unlocked Achievements ({gamification?.achievementsUnlocked || 0} /{" "}
+                  {gamification?.achievementsTotal || 0})
+                </h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {gamification?.achievements && gamification.achievements.length > 0 ? (
+                  gamification.achievements.map((ach: any) => (
+                    <div
+                      key={ach.id}
+                      className={cn(
+                        "flex items-start gap-3.5 p-4 rounded-xl border transition-colors",
+                        ach.isUnlocked
+                          ? "border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/10"
+                          : "border-border/60 bg-muted/20 opacity-60"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "p-2.5 rounded-xl border flex items-center justify-center flex-shrink-0 text-lg",
+                          ach.isUnlocked
+                            ? "bg-amber-500/15 border-amber-500/30 text-amber-500"
+                            : "bg-muted border-border text-muted-foreground"
+                        )}
+                      >
+                        {ach.icon || "🏆"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {ach.name}
+                          </p>
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "text-[10px] font-bold shrink-0",
+                              ach.isUnlocked && "bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                            )}
+                          >
+                            +{ach.xpReward} XP
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                          {ach.description}
+                        </p>
+                        {ach.isUnlocked && ach.unlockedAt && (
+                          <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 mt-1 font-medium">
+                            Desbloqueado
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground col-span-2 py-4 text-center">
+                    Completa tareas y pomodoros para desbloquear logros.
+                  </p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

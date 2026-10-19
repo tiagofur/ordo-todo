@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/shared/app-layout";
 import {
   Sparkles,
@@ -12,9 +12,13 @@ import {
   CheckCircle2,
   Pause,
   MoreHorizontal,
-  BarChart3,
   Bell,
   Zap,
+  Search,
+  X,
+  LayoutGrid,
+  List,
+  RotateCcw,
 } from "lucide-react";
 import { type OnboardingStep } from "@ordo-todo/ui";
 import { FeatureOnboarding } from "@/components/shared/feature-onboarding.component";
@@ -24,7 +28,6 @@ import { useTranslations, useFormatter } from "next-intl";
 import { useTodayHabits, useCompleteHabit, useUncompleteHabit } from "@/lib/api-hooks";
 import { toast } from "sonner";
 import { HabitCelebration, useHabitCelebration } from "@/components/habit/habit-celebration";
-import { StreakBadge } from "@/components/habit/streak-badge";
 import dynamic from "next/dynamic";
 import { Habit, CompleteHabitResponse } from "@ordo-todo/api-client";
 
@@ -38,9 +41,7 @@ const HabitDetailPanel = dynamic(
   { ssr: false }
 );
 
-
 const accentColor = "#10B981"; // Emerald
-
 
 export default function HabitsPage() {
   const t = useTranslations("Habits");
@@ -49,53 +50,63 @@ export default function HabitsPage() {
   // State
   const [showCreateHabit, setShowCreateHabit] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed" | "paused">("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const celebration = useHabitCelebration();
 
   const habitOnboardingSteps: OnboardingStep[] = [
     {
-      id: 'welcome',
+      id: "welcome",
       icon: Sparkles,
-      color: '#10B981',
-      title: t('onboarding.welcome.title'),
-      description: t('onboarding.welcome.description'),
+      color: "#10B981",
+      title: t("onboarding.welcome.title"),
+      description: t("onboarding.welcome.description"),
     },
     {
-      id: 'streaks',
+      id: "streaks",
       icon: Flame,
-      color: '#f59e0b',
-      title: t('onboarding.streaks.title'),
-      description: t('onboarding.streaks.description'),
+      color: "#f59e0b",
+      title: t("onboarding.streaks.title"),
+      description: t("onboarding.streaks.description"),
     },
     {
-      id: 'reminders',
+      id: "reminders",
       icon: Bell,
-      color: '#8b5cf6',
-      title: t('onboarding.reminders.title'),
-      description: t('onboarding.reminders.description'),
+      color: "#8b5cf6",
+      title: t("onboarding.reminders.title"),
+      description: t("onboarding.reminders.description"),
     },
     {
-      id: 'gamification',
+      id: "gamification",
       icon: Zap,
-      color: '#06b6d4',
-      title: t('onboarding.gamification.title'),
-      description: t('onboarding.gamification.description'),
+      color: "#06b6d4",
+      title: t("onboarding.gamification.title"),
+      description: t("onboarding.gamification.description"),
     },
   ];
 
   // Fetch habits from API
-  const { data: todayData, isLoading, refetch } = useTodayHabits();
+  const { data: todayData, isLoading } = useTodayHabits();
   const completeHabit = useCompleteHabit();
   const uncompleteHabit = useUncompleteHabit();
 
   // API returns Habit[] directly
   const habitsData = Array.isArray(todayData) ? todayData : [];
   const habits: Habit[] = habitsData;
-    
-  const summary = { 
-    total: habitsData.length, 
-    completed: habitsData.filter(h => h.completions && h.completions.length > 0).length,
-    remaining: habitsData.filter(h => !h.completions || h.completions.length === 0).length,
-    percentage: habitsData.length > 0 ? Math.round((habitsData.filter(h => h.completions && h.completions.length > 0).length / habitsData.length) * 100) : 0
+
+  const summary = {
+    total: habitsData.length,
+    completed: habitsData.filter((h) => h.completions && h.completions.length > 0).length,
+    remaining: habitsData.filter((h) => !h.completions || h.completions.length === 0).length,
+    percentage:
+      habitsData.length > 0
+        ? Math.round(
+            (habitsData.filter((h) => h.completions && h.completions.length > 0).length /
+              habitsData.length) *
+              100
+          )
+        : 0,
   };
 
   const handleComplete = async (habitId: string, isCompleted: boolean) => {
@@ -104,8 +115,10 @@ export default function HabitsPage() {
         await uncompleteHabit.mutateAsync(habitId);
         toast.success(t("toast.uncompleted"));
       } else {
-        const result = await completeHabit.mutateAsync({ habitId }) as unknown as CompleteHabitResponse;
-        
+        const result = (await completeHabit.mutateAsync({
+          habitId,
+        })) as unknown as CompleteHabitResponse;
+
         // Show celebration for milestone streaks
         const streak = result.habit.currentStreak;
         if (streak === 7 || streak === 30 || streak === 100 || streak % 50 === 0) {
@@ -122,7 +135,6 @@ export default function HabitsPage() {
       toast.error(error instanceof Error ? error.message : t("toast.updated"));
     }
   };
-
 
   // Stats cards
   const statCards = [
@@ -156,64 +168,121 @@ export default function HabitsPage() {
     },
   ];
 
+  // Filtering
+  const filteredHabits = useMemo(() => {
+    return habits.filter((habit) => {
+      const isCompleted = habit.completions && habit.completions.length > 0;
+      const isPaused = !!habit.isPaused;
+
+      // 1. Search Query
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        const matchesName = habit.name.toLowerCase().includes(query);
+        const matchesDesc = habit.description?.toLowerCase().includes(query);
+        if (!matchesName && !matchesDesc) return false;
+      }
+
+      // 2. Status Filter
+      if (statusFilter === "pending") {
+        return !isCompleted && !isPaused;
+      }
+      if (statusFilter === "completed") {
+        return isCompleted;
+      }
+      if (statusFilter === "paused") {
+        return isPaused;
+      }
+
+      return true;
+    });
+  }, [habits, searchQuery, statusFilter]);
+
+  const hasActiveFilters = searchQuery.trim() !== "" || statusFilter !== "all";
+
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
-              <motion.div
-                initial={{ rotate: -10, scale: 0.9 }}
-                animate={{ rotate: 0, scale: 1 }}
-                className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25"
-              >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
-              </motion.div>
-              {t("title")}
-            </h1>
-            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
-              {t("subtitle")}
-            </p>
+        {/* Header - Apple Style Unified Pattern (matching Tasks, Calendar & Projects) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-3.5">
+            <motion.div
+              initial={{ rotate: -10, scale: 0.9 }}
+              animate={{ rotate: 0, scale: 1 }}
+              className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 shrink-0"
+            >
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
+            </motion.div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight">
+                {t("title")}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+                {t("subtitle")}
+              </p>
+            </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setShowCreateHabit(true)}
-            className="flex items-center gap-2 rounded-xl px-2.5 sm:px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("newHabit")}</span>
-          </motion.button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Live KPI Summary Pill */}
+            <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Total:</span>
+              <span className="font-bold text-foreground">{summary.total}</span>
+              <span className="text-border">|</span>
+              <span>Completados:</span>
+              <span className="font-bold text-foreground">{summary.completed}</span>
+              <span className="text-border">|</span>
+              <span>Pendientes:</span>
+              <span className="font-bold text-foreground">{summary.remaining}</span>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowCreateHabit(true)}
+              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-emerald-500/25 transition-all duration-200 hover:bg-emerald-600 cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>{t("newHabit")}</span>
+            </motion.button>
+          </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:gap-5 grid-cols-2 lg:grid-cols-4">
           {statCards.map((card, index) => (
             <motion.div
               key={card.title}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ y: -4 }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-border/80"
+              transition={{ duration: 0.35, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{
+                y: -4,
+                borderColor: `${card.color}70`,
+                boxShadow: `0 12px 28px -6px ${card.color}25`,
+                transition: { duration: 0.2, ease: "easeOut" },
+              }}
+              className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 cursor-pointer"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3.5">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-transform duration-300 group-hover:scale-105"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105"
                   style={{
                     backgroundColor: `${card.color}15`,
                     color: card.color,
                   }}
                 >
-                  <card.icon className="h-6 w-6" />
+                  <card.icon className="h-5 w-5" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{card.title}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground truncate">{card.title}</p>
                   <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <p className="text-2xl font-bold tracking-tight">{card.value}</p>
-                    <span className="text-xs text-muted-foreground">{card.subtitle}</span>
+                    <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                      {card.value}
+                    </p>
+                    <span className="text-xs text-muted-foreground/80 font-medium truncate">
+                      {card.subtitle}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -221,99 +290,291 @@ export default function HabitsPage() {
           ))}
         </div>
 
-        {/* Progress Bar */}
+        {/* Apple Health Activity Progress Card */}
         {habits.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="rounded-2xl border border-border bg-card p-6"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">{t("todayProgress")}</h3>
-              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                {summary.percentage}%
-              </span>
+          <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-emerald-500" />
+                <span className="text-xs sm:text-sm font-semibold text-foreground capitalize">
+                  {format.dateTime(new Date(), {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-xs text-muted-foreground">
+                  {summary.completed === summary.total && summary.total > 0
+                    ? t("allDone")
+                    : t("keepGoing")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                <span>
+                  {summary.completed} de {summary.total}
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                  {summary.percentage}%
+                </span>
+              </div>
             </div>
-            <div className="h-3 rounded-full bg-muted overflow-hidden">
+            <div className="h-2.5 rounded-full bg-muted/60 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${summary.percentage}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
                 className="h-full rounded-full bg-emerald-500"
               />
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              {summary.completed === summary.total && summary.total > 0
-                ? t("allDone")
-                : t("keepGoing")}
-            </p>
-          </motion.div>
+          </div>
         )}
 
-        {/* Habits List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25 }}
-          className="rounded-2xl border border-border bg-card p-6"
-        >
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
-            {format.dateTime(new Date(), {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            })}
-          </h2>
+        {/* Row 2: Apple Standard Toolbar */}
+        {habits.length > 0 && (
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            {/* Search Bar */}
+            <div className="relative w-full lg:w-72 2xl:w-80 min-w-[220px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar hábitos..."
+                className="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-border/60 bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                  aria-label="Limpiar búsqueda"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
+            {/* Status Filter Tabs & View Toggle */}
+            <div className="flex items-center gap-2.5 justify-between lg:justify-end flex-wrap sm:flex-nowrap">
+              <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                {(
+                  [
+                    { key: "all", label: "Todos" },
+                    { key: "pending", label: "Pendientes" },
+                    { key: "completed", label: "Completados" },
+                    { key: "paused", label: "Pausados" },
+                  ] as const
+                ).map((filter) => (
+                  <button
+                    key={filter.key}
+                    type="button"
+                    onClick={() => setStatusFilter(filter.key)}
+                    className={cn(
+                      "px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+                      statusFilter === filter.key
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* View Switcher: Grid vs List */}
+              <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border/40 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={cn(
+                    "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                    viewMode === "grid"
+                      ? "bg-background text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                  title="Cuadrícula"
+                  aria-label="Cuadrícula"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  <span className="hidden sm:inline">Cuadrícula</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                    viewMode === "list"
+                      ? "bg-background text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                  title="Lista"
+                  aria-label="Lista"
+                >
+                  <List className="h-4 w-4" />
+                  <span className="hidden sm:inline">Lista</span>
+                </button>
+              </div>
             </div>
-          ) : habits.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-2xl">
-              <Sparkles className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="mb-2 text-lg font-medium">{t("noHabits")}</h3>
-              <p className="mb-4 text-sm text-muted-foreground max-w-sm">
-                {t("noHabitsDescription")}
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowCreateHabit(true)}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all duration-200"
-              >
-                <Plus className="h-4 w-4" />
-                {t("createHabit")}
-              </motion.button>
+          </div>
+        )}
+
+        {/* Habits Content */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
+          </div>
+        ) : habits.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-dashed border-border/70 bg-card/40 p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-3">
+              <Sparkles className="h-6 w-6" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              <AnimatePresence mode="popLayout">
-                {habits.map((habit: Habit, index: number) => {
-                  const isCompleted = habit.completions && habit.completions.length > 0;
-                  const isPaused = habit.isPaused;
-                  
-                  return (
-                    <motion.div
-                      key={habit.id}
-                      layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      onClick={() => setSelectedHabitId(habit.id)}
-                      className={cn(
-                        "group relative flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer",
-                        isCompleted
-                          ? "bg-muted border-border"
-                          : "bg-card border-border hover:border-border hover:shadow-md",
-                        isPaused && "opacity-60"
-                      )}
-                    >
-                      {/* Completion Button */}
+            <h3 className="text-base font-semibold text-foreground mb-1">{t("noHabits")}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-4">
+              {t("noHabitsDescription")}
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowCreateHabit(true)}
+              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 hover:bg-emerald-600 transition-all cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              {t("createHabit")}
+            </motion.button>
+          </div>
+        ) : filteredHabits.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-dashed border-border/70 bg-card/40 p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground mb-3">
+              <Search className="h-6 w-6" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground mb-1">
+              No se encontraron hábitos
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-4">
+              No hay hábitos que coincidan con la búsqueda o el filtro seleccionado.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+              }}
+              className="flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3.5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Limpiar filtros
+            </button>
+          </div>
+        ) : viewMode === "grid" ? (
+          /* Grid View - Apple Health Cards */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <AnimatePresence mode="popLayout">
+              {filteredHabits.map((habit) => {
+                const isCompleted = habit.completions && habit.completions.length > 0;
+                const isPaused = !!habit.isPaused;
+
+                return (
+                  <motion.div
+                    key={habit.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => setSelectedHabitId(habit.id)}
+                    className={cn(
+                      "group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer",
+                      isCompleted
+                        ? "bg-card/70 border-border/60 hover:border-emerald-500/40"
+                        : "bg-card border-border/60 hover:border-border hover:shadow-xs",
+                      isPaused && "opacity-65"
+                    )}
+                  >
+                    <div>
+                      {/* Card Header: Icon + Streaks / Badges + More */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div
+                          className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-xs shrink-0 transition-transform duration-200 group-hover:scale-105"
+                          style={{ backgroundColor: habit.color || accentColor }}
+                        >
+                          <Sparkles className="h-5 w-5" />
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          {habit.currentStreak > 0 && (
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 tabular-nums">
+                              <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                              <span>{habit.currentStreak}</span>
+                            </div>
+                          )}
+
+                          {isPaused && (
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border/40">
+                              <Pause className="h-3 w-3" />
+                              <span>{t("status.paused")}</span>
+                            </div>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedHabitId(habit.id);
+                            }}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+                            aria-label="Opciones del hábito"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Title & Description */}
+                      <div className="mt-3.5">
+                        <h3
+                          className={cn(
+                            "font-semibold text-base text-foreground tracking-tight line-clamp-1 transition-all duration-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400",
+                            isCompleted && "line-through text-muted-foreground/80"
+                          )}
+                        >
+                          {habit.name}
+                        </h3>
+                        {habit.description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {habit.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Frequency & Time of day tags */}
+                      <div className="flex flex-wrap items-center gap-1.5 mt-3 text-xs text-muted-foreground">
+                        <span className="px-2 py-0.5 rounded-md bg-muted/60 border border-border/40 font-medium">
+                          {t(`frequency.${habit.frequency}`)}
+                        </span>
+                        {habit.timeOfDay && (
+                          <span className="px-2 py-0.5 rounded-md bg-muted/60 border border-border/40 font-medium">
+                            {t(`timeOfDay.${habit.timeOfDay}`)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Bottom: Completion CTA */}
+                    <div className="pt-3.5 mt-4 border-t border-border/50 flex items-center justify-between">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {isCompleted ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Completado hoy
+                          </span>
+                        ) : (
+                          "Pendiente para hoy"
+                        )}
+                      </span>
+
                       <motion.button
+                        type="button"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={(e) => {
@@ -322,100 +583,151 @@ export default function HabitsPage() {
                         }}
                         disabled={isPaused || completeHabit.isPending || uncompleteHabit.isPending}
                         className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300",
+                          "flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-200 cursor-pointer shrink-0",
                           isCompleted
-                            ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-gray-300 dark:border-gray-600 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                            ? "border-emerald-500 bg-emerald-500 text-white shadow-xs shadow-emerald-500/30"
+                            : "border-border/80 hover:border-emerald-500 hover:bg-emerald-500/10 text-transparent hover:text-emerald-500"
                         )}
+                        aria-label={isCompleted ? "Marcar como pendiente" : "Completar hábito"}
                       >
                         <CheckCircle2
                           className={cn(
-                            "h-5 w-5 transition-all duration-300",
+                            "h-5 w-5 transition-all duration-200",
                             isCompleted ? "scale-100" : "scale-0 group-hover:scale-75"
                           )}
                         />
                       </motion.button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        ) : (
+          /* List View - Apple Checklist Rows */
+          <div className="space-y-2.5">
+            <AnimatePresence mode="popLayout">
+              {filteredHabits.map((habit) => {
+                const isCompleted = habit.completions && habit.completions.length > 0;
+                const isPaused = !!habit.isPaused;
 
-                      {/* Habit Icon & Info */}
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-105"
-                        style={{ backgroundColor: habit.color || accentColor }}
-                      >
-                        <Sparkles className="h-5 w-5" />
-                      </div>
+                return (
+                  <motion.div
+                    key={habit.id}
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => setSelectedHabitId(habit.id)}
+                    className={cn(
+                      "group relative flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer",
+                      isCompleted
+                        ? "bg-card/70 border-border/60 hover:border-emerald-500/40"
+                        : "bg-card border-border/60 hover:border-border hover:shadow-xs",
+                      isPaused && "opacity-65"
+                    )}
+                  >
+                    {/* Completion Check Button */}
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleComplete(habit.id, !!isCompleted);
+                      }}
+                      disabled={isPaused || completeHabit.isPending || uncompleteHabit.isPending}
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-200 cursor-pointer shrink-0",
+                        isCompleted
+                          ? "border-emerald-500 bg-emerald-500 text-white shadow-xs shadow-emerald-500/30"
+                          : "border-border/80 hover:border-emerald-500 hover:bg-emerald-500/10 text-transparent hover:text-emerald-500"
+                      )}
+                      aria-label={isCompleted ? "Marcar como pendiente" : "Completar hábito"}
+                    >
+                      <CheckCircle2
+                        className={cn(
+                          "h-5 w-5 transition-all duration-200",
+                          isCompleted ? "scale-100" : "scale-0 group-hover:scale-75"
+                        )}
+                      />
+                    </motion.button>
 
-                      <div className="flex-1 min-w-0">
+                    {/* Habit Icon */}
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-xs shrink-0 transition-transform duration-200 group-hover:scale-105"
+                      style={{ backgroundColor: habit.color || accentColor }}
+                    >
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
                         <h3
                           className={cn(
-                            "font-medium transition-all duration-300",
-                            "line-clamp-2 sm:line-clamp-1",
-                            isCompleted && "line-through opacity-60"
+                            "font-semibold text-sm sm:text-base text-foreground tracking-tight truncate transition-all duration-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400",
+                            isCompleted && "line-through text-muted-foreground/80"
                           )}
                         >
                           {habit.name}
                         </h3>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Flame className="h-3.5 w-3.5 text-orange-500" />
-                            {habit.currentStreak || 0}
+                        {isPaused && (
+                          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border/40 shrink-0">
+                            <Pause className="h-3 w-3" />
+                            {t("status.paused")}
                           </span>
-                          <span className="hidden xs:inline">•</span>
-                          <span>
-                            {t(`frequency.${habit.frequency}`)}
-                          </span>
-                          {habit.timeOfDay && (
-                            <>
-                              <span className="hidden sm:inline">•</span>
-                              <span className="hidden sm:inline">{t(`timeOfDay.${habit.timeOfDay}`)}</span>
-                            </>
-                          )}
-                        </div>
+                        )}
                       </div>
 
-                      {/* Streak Badge */}
-                      {habit.currentStreak >= 7 && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: "#f59e0b15",
-                            color: "#f59e0b",
-                          }}
-                        >
-                          <Flame className="h-3 w-3" />
-                          {habit.currentStreak}
-                        </motion.div>
-                      )}
-
-                      {/* Paused Badge */}
-                      {isPaused && (
-                        <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                          <Pause className="h-3 w-3" />
-                          {t("status.paused")}
-                        </div>
-                      )}
-
-                      {/* Actions */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center pr-1">
-                        <span className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                          <MoreHorizontal className="h-4 w-4" />
+                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground mt-0.5">
+                        <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
+                          <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                          {habit.currentStreak || 0} {t("stats.days")}
                         </span>
+                        <span>•</span>
+                        <span>{t(`frequency.${habit.frequency}`)}</span>
+                        {habit.timeOfDay && (
+                          <>
+                            <span>•</span>
+                            <span>{t(`timeOfDay.${habit.timeOfDay}`)}</span>
+                          </>
+                        )}
                       </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          )}
-        </motion.div>
+                    </div>
+
+                    {/* Right Badges / Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {habit.currentStreak >= 7 && (
+                        <div className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 tabular-nums">
+                          <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                          <span>Racha de {habit.currentStreak}d</span>
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedHabitId(habit.id);
+                        }}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+                        aria-label="Opciones del hábito"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {/* Dialogs */}
-      <CreateHabitDialog
-        open={showCreateHabit}
-        onOpenChange={setShowCreateHabit}
-      />
+      <CreateHabitDialog open={showCreateHabit} onOpenChange={setShowCreateHabit} />
       <HabitDetailPanel
         habitId={selectedHabitId}
         open={!!selectedHabitId}

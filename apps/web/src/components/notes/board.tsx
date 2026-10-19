@@ -46,7 +46,7 @@ export function NoteBoard({ workspaceId, notes, hideAddButton }: NoteBoardProps)
   const handleAddNote = () => {
     createNote.mutate({
       workspaceId,
-      content: '',
+      content: 'Nueva nota',
       x: 100 + Math.random() * 50,
       y: 100 + Math.random() * 50,
       color: '#feff9c',

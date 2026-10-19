@@ -9,7 +9,7 @@ export default defineConfig({
         react(),
     ],
     server: {
-        port: 5173,
+        port: 1420,
         strictPort: true,
         watch: {
             // Tell Vite to ignore watching `src-tauri`
@@ -121,11 +121,13 @@ export default defineConfig({
     optimizeDeps: {
         include: [
             '@ordo-todo/api-client',
-            '@ordo-todo/ui',
             '@ordo-todo/hooks',
             '@ordo-todo/core',
             '@ordo-todo/stores',
             '@ordo-todo/auth-provider',
+        ],
+        exclude: [
+            '@ordo-todo/ui',
         ],
     },
     base: './',

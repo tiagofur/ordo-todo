@@ -1688,7 +1688,7 @@ interface UserRepository {
      * }
      * ```
      */
-    findByUsername(username: string): Promise<User | null>;
+    findByUsername(username: string, withPassword?: boolean): Promise<User | null>;
     /**
      * Finds a user by their unique ID.
      *

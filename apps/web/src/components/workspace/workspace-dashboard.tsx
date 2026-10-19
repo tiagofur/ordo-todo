@@ -104,26 +104,32 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex items-center gap-3 sm:gap-4">
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-6 shadow-xs">
+        {/* Ambient glow top right */}
+        <div
+          className="absolute -top-12 -right-12 h-32 w-32 rounded-full blur-2xl opacity-15 pointer-events-none"
+          style={{ backgroundColor: workspaceColor }}
+        />
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <div
-              className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl shadow-sm transition-transform hover:scale-105 flex-shrink-0"
+              className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border shadow-xs transition-transform hover:scale-105 flex-shrink-0 text-2xl select-none"
               style={{
-                backgroundColor: `${workspaceColor}15`,
+                backgroundColor: `${workspaceColor}14`,
+                borderColor: `${workspaceColor}30`,
                 color: workspaceColor,
               }}
             >
-              <TypeIcon className="h-6 w-6 sm:h-8 sm:w-8" />
+              {workspace.icon || <TypeIcon className="h-6 w-6 sm:h-7 sm:w-7" style={{ color: workspaceColor }} />}
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
                 {workspace.name}
               </h1>
               {workspace.description && (
-                <span className="text-muted-foreground text-xs sm:text-sm hidden sm:inline border-l pl-2 ml-2">
+                <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 line-clamp-1">
                   {workspace.description}
-                </span>
+                </p>
               )}
             </div>
           </div>
@@ -184,18 +190,21 @@ export function WorkspaceDashboard({ workspace }: WorkspaceDashboardProps) {
           value={workspace.stats?.projectCount || 0}
           icon={FolderKanban}
           color="blue"
+          delay={0}
         />
         <StatCard
           title={t("stats.tasks")}
           value={workspace.stats?.taskCount || 0}
           icon={CheckSquare}
           color="green"
+          delay={0.05}
         />
         <StatCard
           title={t("stats.members")}
           value={workspace.stats?.memberCount || 0}
           icon={Users}
           color="purple"
+          delay={0.1}
         />
       </div>
 
@@ -401,34 +410,64 @@ interface StatCardProps {
   value: number;
   icon: LucideIcon;
   color: "blue" | "green" | "purple";
+  delay?: number;
 }
 
-function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
-  const colorStyles: Record<StatCardProps["color"], string> = {
-    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    green: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    purple: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-  };
+const colorConfig: Record<
+  StatCardProps["color"],
+  { hex: string; bg: string; text: string }
+> = {
+  blue: {
+    hex: "#3b82f6",
+    bg: "bg-blue-500/15",
+    text: "text-blue-600 dark:text-blue-400",
+  },
+  green: {
+    hex: "#10b981",
+    bg: "bg-emerald-500/15",
+    text: "text-emerald-600 dark:text-emerald-400",
+  },
+  purple: {
+    hex: "#8b5cf6",
+    bg: "bg-purple-500/15",
+    text: "text-purple-600 dark:text-purple-400",
+  },
+};
+
+function StatCard({ title, value, icon: Icon, color, delay = 0 }: StatCardProps) {
+  const cfg = colorConfig[color] || colorConfig.blue;
 
   return (
-    <Card className="rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-border/80">
-      <CardContent className="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{
+        y: -4,
+        borderColor: `${cfg.hex}70`,
+        boxShadow: `0 12px 28px -6px ${cfg.hex}25`,
+        transition: { duration: 0.2, ease: "easeOut" },
+      }}
+      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 cursor-pointer shadow-xs transition-colors"
+    >
+      <div className="flex items-center gap-3.5">
         <div
           className={cn(
-            "p-2.5 sm:p-3 rounded-2xl",
-            colorStyles[color],
+            "flex h-11 w-11 items-center justify-center rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105",
+            cfg.bg,
+            cfg.text,
           )}
         >
-          <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+          <Icon className="h-5 w-5" />
         </div>
-        <div>
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground">
-            {title}
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground truncate">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground tabular-nums mt-0.5">
+            {value}
           </p>
-          <h3 className="text-xl sm:text-2xl font-bold">{value}</h3>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }
 

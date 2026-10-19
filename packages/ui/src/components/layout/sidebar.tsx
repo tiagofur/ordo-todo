@@ -24,7 +24,9 @@ export interface NavSection {
   items: NavItem[];
 }
 
-interface SidebarProps {
+export interface SidebarProps {
+  /** Custom classes to apply to the sidebar aside container */
+  className?: string;
   /** Current pathname to determine active state */
   pathname?: string;
   /** Navigation items (flat list) */
@@ -37,6 +39,10 @@ interface SidebarProps {
     className: string;
     children: ReactNode;
   }) => ReactNode;
+  /** Render custom header slot above the logo (e.g. for macOS window traffic lights) */
+  renderTopHeader?: () => ReactNode;
+  /** Whether to add safe area spacing at the top (for macOS traffic lights / window dragging) */
+  safeAreaTop?: boolean;
   /** Workspace selector component */
   renderWorkspaceSelector?: () => ReactNode;
   /** Timer widget component */
@@ -101,10 +107,13 @@ const DEFAULT_LABELS = {
 };
 
 export function Sidebar({
+  className,
   pathname = '',
   navItems,
   navSections,
   collapsed = false,
+  renderTopHeader,
+  safeAreaTop = false,
   renderLink,
   renderWorkspaceSelector,
   renderTimerWidget,
@@ -129,26 +138,75 @@ export function Sidebar({
   }];
 
   const isActiveRoute = (href: string) => {
-    return pathname === href || pathname?.startsWith(`${href}/`);
+    if (!pathname) return false;
+
+    // Handle Projects routes: /projects, /projects/*, or nested /.../projects/*
+    if (href === '/projects') {
+      return pathname === '/projects' || pathname.startsWith('/projects/') || pathname.includes('/projects');
+    }
+
+    // Handle Workspaces routes:
+    // 1. Direct /workspaces or /workspaces/* (excluding nested /projects)
+    // 2. User workspace routes like /:username/:slug (excluding reserved top-level and nested /projects)
+    if (href === '/workspaces') {
+      if (pathname.includes('/projects')) return false;
+      if (pathname === '/workspaces' || pathname.startsWith('/workspaces/')) return true;
+
+      const segments = pathname.replace(/^\//, '').replace(/\/$/, '').split('/');
+      const firstSegment = segments[0];
+      const reservedTopLevel = [
+        'dashboard', 'tasks', 'calendar', 'projects', 'workspaces', 'habits',
+        'goals', 'notes', 'ai-chat', 'eisenhower', 'meetings', 'insights',
+        'wellbeing', 'tags', 'settings', 'profile', 'notifications', 'reports',
+        'timer', 'trash', 'login', 'register', 'auth'
+      ];
+      if (segments.length === 2 && firstSegment && !reservedTopLevel.includes(firstSegment)) {
+        return true;
+      }
+      return false;
+    }
+
+    // Handle Trash routes: /trash, /trash/*, /tasks/trash
+    if (href === '/trash' || href.startsWith('/trash')) {
+      return pathname === '/trash' || pathname.startsWith('/trash/') || pathname === '/tasks/trash';
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen border-r border-border bg-background hidden lg:block transition-all duration-300",
-        collapsed ? "w-20" : "w-64"
+        "fixed left-0 top-0 z-40 h-screen border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300",
+        collapsed ? "w-20" : "w-64",
+        className !== undefined ? className : "hidden lg:block"
       )}
     >
       <div className="flex h-full flex-col overflow-hidden">
+        {/* macOS / Window controls safe-area drag header */}
+        {safeAreaTop && (
+          <div
+            data-tauri-drag-region
+            style={{
+              WebkitAppRegion: "drag",
+              minHeight: "28px",
+              height: "max(env(safe-area-inset-top, 0px), 28px)",
+            } as React.CSSProperties}
+            className="h-7 w-full shrink-0 select-none bg-transparent"
+          />
+        )}
+        {/* Top Header slot (e.g. for custom slots) */}
+        {renderTopHeader?.()}
+
         {/* Logo */}
-        <div className={cn("flex h-16 items-center border-b border-border/50 shrink-0", collapsed ? "justify-center px-2" : "px-6")}>
+        <div className={cn("flex items-center border-b border-sidebar-border/50 shrink-0", safeAreaTop ? "h-14" : "h-16", collapsed ? "justify-center px-2" : "px-6")}>
           {renderLink({
             href: logoHref,
             className: 'flex items-center gap-3 group',
             children: (
               <>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white shadow-sm shadow-purple-500/20 transition-transform duration-300 group-hover:scale-105">
-                  <CheckSquare className="h-6 w-6" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ad46ff] text-white shadow-md shadow-[#ad46ff]/30 transition-transform duration-300 group-hover:scale-105">
+                  <CheckSquare className="h-6 w-6 stroke-[2.2]" />
                 </div>
                 {!collapsed && (
                   <span className="text-2xl font-bold text-foreground tracking-tight">
@@ -211,21 +269,21 @@ export function Sidebar({
 
           {/* Timer Widget */}
           {renderTimerWidget && !collapsed && (
-            <div className="border-t border-border/50 p-3">
+            <div className="border-t border-sidebar-border/50 p-3">
               {renderTimerWidget()}
             </div>
           )}
 
           {/* Workspace Selector */}
           {renderWorkspaceSelector && !collapsed && (
-            <div className="border-t border-border/50 p-3">
+            <div className="border-t border-sidebar-border/50 p-3">
               {renderWorkspaceSelector()}
             </div>
           )}
 
           {/* Settings & PWA */}
           {(showSettingsButton || renderInstallButton) && (
-            <div className="border-t border-border/50 p-3 space-y-1">
+            <div className="border-t border-sidebar-border/50 p-3 space-y-1">
               {showSettingsButton && renderLink({
                 href: '/settings',
                 className: cn(

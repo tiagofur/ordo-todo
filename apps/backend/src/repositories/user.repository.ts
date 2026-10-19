@@ -128,13 +128,18 @@ export class PrismaUserRepository implements UserRepository {
     return domainUser;
   }
 
-  async findByUsername(username: string): Promise<User | null> {
+  async findByUsername(
+    username: string,
+    withPassword?: boolean,
+  ): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { username },
       select: this.userSelectFields,
     });
     if (!user) return null;
-    return this.toDomain(user as any).withoutPassword();
+
+    const domainUser = this.toDomain(user as any);
+    return withPassword ? domainUser : domainUser.withoutPassword();
   }
 
   async findById(id: string, withPassword?: boolean): Promise<User | null> {

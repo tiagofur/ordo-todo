@@ -1374,6 +1374,7 @@ function createHooks(config2) {
     useProjects,
     useAllProjects,
     useProject,
+    useProjectBySlugs,
     useCreateProject,
     useUpdateProject,
     useArchiveProject,

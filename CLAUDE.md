@@ -54,6 +54,16 @@ This project uses **elite specialist agents** for autonomous development. Each a
 - ✅ Validate quality gates (type check, lint, coverage)
 - ✅ Iterate until everything is perfect
 
+## 🧭 Vision, Roadmap & ODD (Agent-First, Oct 2026)
+
+**Working on a roadmap feature? Start here, in this order:**
+
+1. **`docs/vision/`** - Product context: [product-vision.md](docs/vision/product-vision.md) (goal, positioning, closed decisions), [competitive-analysis.md](docs/vision/competitive-analysis.md), [agent-first-strategy.md](docs/vision/agent-first-strategy.md), [promises-audit.md](docs/vision/promises-audit.md) (promise-vs-reality audit — never promise anything it marks ❌)
+2. **`docs/planning/roadmap.md`** - Executable roadmap: phases, dependencies, GitHub milestones, ODD ↔ issue map
+3. **`odd/tasks/NNN-*.md`** - The executable work doc for the task. **Read it until `## Log` before editing.** Its `## Specs` (`S#`) are authoritative over any summary (issue, handoff, chat). Its `## Allowed edit surfaces` are the only writable paths. Its `## Verification` lists the exact commands to run. See [odd/README.md](odd/README.md) for the workflow (Gentle-AI ODD compatible).
+
+**Rules:** no ODD doc → not approved for implementation; work-unit commits; PRs ≤300 lines ideal; test-first for behavior changes; evidence (exact command + observed result), never claims.
+
 ## Project Overview
 
 **Ordo-Todo** is a modern task organization platform built with **DDD (Domain-Driven Design) + Clean Architecture** in a **Turborepo monorepo**. The project features:

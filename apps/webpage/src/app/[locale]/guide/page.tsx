@@ -16,6 +16,7 @@ export default function GuidePage() {
     { color: '#F97316', href: '/guide/tasks' },
     { color: '#10B981', href: '/guide/focus' },
     { color: '#A855F7', href: '/guide/analytics' },
+    { color: '#06B6D4', href: '/guide/connect' },
   ];
 
   return (
@@ -96,7 +97,7 @@ export default function GuidePage() {
       <h2>{t('main.explore_title')}</h2>
       <p>{t('main.explore_text')}</p>
       <div className="not-prose grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {['projects', 'tasks', 'focus', 'analytics'].map((card, index) => (
+        {['projects', 'tasks', 'focus', 'analytics', 'connect'].map((card, index) => (
           <motion.div
             key={card}
             initial={{ opacity: 0, y: 20 }}

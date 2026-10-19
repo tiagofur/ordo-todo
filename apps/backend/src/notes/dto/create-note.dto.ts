@@ -8,8 +8,8 @@ import {
 
 export class CreateNoteDto {
   @IsString()
-  @IsNotEmpty()
-  content: string;
+  @IsOptional()
+  content?: string;
 
   @IsNumber()
   @IsOptional()

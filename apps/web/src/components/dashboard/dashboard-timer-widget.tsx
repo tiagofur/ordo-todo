@@ -18,9 +18,10 @@ import { DashboardTimerWidget as SharedTimerWidget } from "@ordo-todo/ui";
 
 interface DashboardTimerWidgetProps {
   accentColor?: string;
+  className?: string;
 }
 
-export function DashboardTimerWidget({ accentColor = "#6b7280" }: DashboardTimerWidgetProps) {
+export function DashboardTimerWidget({ accentColor = "#6b7280", className }: DashboardTimerWidgetProps) {
   const t = useTranslations("Timer");
   const router = useRouter();
   
@@ -59,6 +60,7 @@ export function DashboardTimerWidget({ accentColor = "#6b7280" }: DashboardTimer
 
   return (
     <SharedTimerWidget
+      className={className}
       mode={mode}
       isRunning={isRunning}
       isPaused={isPaused}

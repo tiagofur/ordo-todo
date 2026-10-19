@@ -34,7 +34,7 @@ const DEFAULT_LABELS = {
     tags: 'Tags',
     analytics: 'Analytics',
 };
-export function Sidebar({ pathname = '', navItems, navSections, collapsed = false, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref = '/dashboard', showSettingsButton = false, labels = {}, }) {
+export function Sidebar({ className, pathname = '', navItems, navSections, collapsed = false, renderTopHeader, safeAreaTop = false, renderLink, renderWorkspaceSelector, renderTimerWidget, renderInstallButton, logoHref = '/dashboard', showSettingsButton = false, labels = {}, }) {
     const t = { ...DEFAULT_LABELS, ...labels };
     // Build sections: prefer navSections, fall back to navItems as a single section
     const sections = navSections || [{
@@ -49,12 +49,47 @@ export function Sidebar({ pathname = '', navItems, navSections, collapsed = fals
             ],
         }];
     const isActiveRoute = (href) => {
-        return pathname === href || pathname?.startsWith(`${href}/`);
+        if (!pathname)
+            return false;
+        // Handle Projects routes: /projects, /projects/*, or nested /.../projects/*
+        if (href === '/projects') {
+            return pathname === '/projects' || pathname.startsWith('/projects/') || pathname.includes('/projects');
+        }
+        // Handle Workspaces routes:
+        // 1. Direct /workspaces or /workspaces/* (excluding nested /projects)
+        // 2. User workspace routes like /:username/:slug (excluding reserved top-level and nested /projects)
+        if (href === '/workspaces') {
+            if (pathname.includes('/projects'))
+                return false;
+            if (pathname === '/workspaces' || pathname.startsWith('/workspaces/'))
+                return true;
+            const segments = pathname.replace(/^\//, '').replace(/\/$/, '').split('/');
+            const firstSegment = segments[0];
+            const reservedTopLevel = [
+                'dashboard', 'tasks', 'calendar', 'projects', 'workspaces', 'habits',
+                'goals', 'notes', 'ai-chat', 'eisenhower', 'meetings', 'insights',
+                'wellbeing', 'tags', 'settings', 'profile', 'notifications', 'reports',
+                'timer', 'trash', 'login', 'register', 'auth'
+            ];
+            if (segments.length === 2 && firstSegment && !reservedTopLevel.includes(firstSegment)) {
+                return true;
+            }
+            return false;
+        }
+        // Handle Trash routes: /trash, /trash/*, /tasks/trash
+        if (href === '/trash' || href.startsWith('/trash')) {
+            return pathname === '/trash' || pathname.startsWith('/trash/') || pathname === '/tasks/trash';
+        }
+        return pathname === href || pathname.startsWith(`${href}/`);
     };
-    return (_jsx("aside", { className: cn("fixed left-0 top-0 z-40 h-screen border-r border-border bg-background hidden lg:block transition-all duration-300", collapsed ? "w-20" : "w-64"), children: _jsxs("div", { className: "flex h-full flex-col overflow-hidden", children: [_jsx("div", { className: cn("flex h-16 items-center border-b border-border/50 shrink-0", collapsed ? "justify-center px-2" : "px-6"), children: renderLink({
+    return (_jsx("aside", { className: cn("fixed left-0 top-0 z-40 h-screen border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300", collapsed ? "w-20" : "w-64", className !== undefined ? className : "hidden lg:block"), children: _jsxs("div", { className: "flex h-full flex-col overflow-hidden", children: [safeAreaTop && (_jsx("div", { "data-tauri-drag-region": true, style: {
+                        WebkitAppRegion: "drag",
+                        minHeight: "28px",
+                        height: "max(env(safe-area-inset-top, 0px), 28px)",
+                    }, className: "h-7 w-full shrink-0 select-none bg-transparent" })), renderTopHeader?.(), _jsx("div", { className: cn("flex items-center border-b border-sidebar-border/50 shrink-0", safeAreaTop ? "h-14" : "h-16", collapsed ? "justify-center px-2" : "px-6"), children: renderLink({
                         href: logoHref,
                         className: 'flex items-center gap-3 group',
-                        children: (_jsxs(_Fragment, { children: [_jsx("div", { className: "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white shadow-sm shadow-purple-500/20 transition-transform duration-300 group-hover:scale-105", children: _jsx(CheckSquare, { className: "h-6 w-6" }) }), !collapsed && (_jsx("span", { className: "text-2xl font-bold text-foreground tracking-tight", children: t.appName }))] })),
+                        children: (_jsxs(_Fragment, { children: [_jsx("div", { className: "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ad46ff] text-white shadow-md shadow-[#ad46ff]/30 transition-transform duration-300 group-hover:scale-105", children: _jsx(CheckSquare, { className: "h-6 w-6 stroke-[2.2]" }) }), !collapsed && (_jsx("span", { className: "text-2xl font-bold text-foreground tracking-tight", children: t.appName }))] })),
                     }) }), _jsxs("div", { className: "flex-1 overflow-y-auto", children: [_jsx("nav", { role: "navigation", "aria-label": "Navegaci\u00F3n principal", className: cn("py-4", collapsed ? "px-2" : "px-3"), children: sections.map((section, sectionIndex) => (_jsxs("div", { className: cn(sectionIndex > 0 && 'mt-4'), children: [section.label && !collapsed && (_jsx("div", { className: "px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70", children: section.label })), _jsx("div", { className: "space-y-1", children: section.items.map((item) => {
                                             const isActive = isActiveRoute(item.href);
                                             const itemColor = item.color || 'cyan';
@@ -67,7 +102,7 @@ export function Sidebar({ pathname = '', navItems, navSections, collapsed = fals
                                                         : cn('text-muted-foreground hover:text-foreground', hoverClass)),
                                                     children: (_jsxs(_Fragment, { children: [_jsx(item.icon, { className: cn('h-5 w-5 shrink-0 transition-transform duration-200', isActive ? 'text-white' : 'text-muted-foreground group-hover:scale-110') }), !collapsed && _jsx("span", { children: item.name })] })),
                                                 }) }, item.href));
-                                        }) })] }, section.label || sectionIndex))) }), renderTimerWidget && !collapsed && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderTimerWidget() })), renderWorkspaceSelector && !collapsed && (_jsx("div", { className: "border-t border-border/50 p-3", children: renderWorkspaceSelector() })), (showSettingsButton || renderInstallButton) && (_jsxs("div", { className: "border-t border-border/50 p-3 space-y-1", children: [showSettingsButton && renderLink({
+                                        }) })] }, section.label || sectionIndex))) }), renderTimerWidget && !collapsed && (_jsx("div", { className: "border-t border-sidebar-border/50 p-3", children: renderTimerWidget() })), renderWorkspaceSelector && !collapsed && (_jsx("div", { className: "border-t border-sidebar-border/50 p-3", children: renderWorkspaceSelector() })), (showSettingsButton || renderInstallButton) && (_jsxs("div", { className: "border-t border-sidebar-border/50 p-3 space-y-1", children: [showSettingsButton && renderLink({
                                     href: '/settings',
                                     className: cn('group flex items-center gap-3 rounded-xl py-2.5 text-sm font-medium transition-all duration-200', collapsed ? 'justify-center px-2' : 'px-3', isActiveRoute('/settings')
                                         ? activeColorClasses.blue

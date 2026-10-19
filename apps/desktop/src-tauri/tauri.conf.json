@@ -5,7 +5,7 @@
   "identifier": "com.ordo-todo.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:5173",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "npm run build:vite",
     "frontendDist": "../dist"
   },
@@ -40,12 +40,6 @@
     ],
     "security": {
       "csp": null
-    },
-    "trayIcon": {
-      "id": "main-tray",
-      "iconPath": "icons/32x32.png",
-      "tooltip": "Ordo-Todo",
-      "title": "Ordo"
     }
   },
   "bundle": {

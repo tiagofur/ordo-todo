@@ -156,19 +156,27 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
     const stop = useCallback(async (wasCompleted: boolean = false) => {
         try {
             await stopTimerMutation.mutateAsync({ wasCompleted });
+        } catch (error: any) {
+            console.warn("Timer stop backend error:", error);
+        } finally {
             setIsRunning(false);
             setIsPaused(false);
-            // Reset to default
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
             if (type === "POMODORO" && !wasCompleted) {
                 setTimeLeft(getDuration(mode));
             } else if (type === "CONTINUOUS") {
                 setTimeLeft(0);
             }
 
-            await refetchActiveSession();
+            try {
+                await refetchActiveSession();
+            } catch {
+                // Ignore refetch errors during stop
+            }
             if (onSessionComplete) onSessionComplete();
-        } catch (error: any) {
-            toast.error(error.message || "Error al detener timer");
         }
     }, [stopTimerMutation, refetchActiveSession, onSessionComplete, type, mode, getDuration]);
 
@@ -191,16 +199,30 @@ export function useTimerBackend({ type, config, taskId, onSessionComplete }: Use
                 setTimeLeft(prev => {
                     if (type === "CONTINUOUS") return prev + 1;
                     if (prev <= 1) {
-                        stop(true);
+                        if (intervalRef.current) {
+                            clearInterval(intervalRef.current);
+                            intervalRef.current = null;
+                        }
+                        setTimeout(() => {
+                            stop(true);
+                        }, 0);
                         return 0;
                     }
                     return prev - 1;
                 });
             }, 1000);
         } else {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         }
-        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
     }, [isRunning, isPaused, type, stop]);
 
     const getProgress = (): number => {

@@ -40,7 +40,11 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: emailSchema,
+  /** Email address or username. Kept as `email` for API compatibility. */
+  email: z
+    .string()
+    .min(1, "Email or username is required")
+    .max(255, "Email or username must be less than 255 characters"),
   password: z.string().min(1, "Password is required"),
 });
 

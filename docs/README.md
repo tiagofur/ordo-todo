@@ -1,6 +1,6 @@
 # Ordo-Todo Documentation
 
-> **Last updated:** March 2026
+> **Last updated:** October 2026
 
 Welcome to the documentation for **Ordo-Todo**, a modern cross-platform task management platform built with **DDD** and **Clean Architecture**.
 
@@ -88,6 +88,28 @@ docs/
 │   ├── DEPLOYMENT-STATUS.md         # Current status
 │   └── QUICK-COMMANDS.md            # Deploy commands
 │
+├── vision/                          # Product Vision (Agent-First, Oct 2026)
+│   ├── README.md                    # Vision index + how to use
+│   ├── product-vision.md            # Goal, positioning, closed decisions
+│   ├── competitive-analysis.md      # Ordo vs Slack, Notion, Todoist, Linear...
+│   ├── agent-first-strategy.md      # MCP, 1-click connector, own agent
+│   └── promises-audit.md            # Promise-vs-reality audit + fixes
+│
+├── planning/                        # Executable Planning
+│   └── roadmap.md                   # Phases, milestones, ODD ↔ issue map
+│
+├── reference/                       # Technical Reference
+│   ├── api-reference.md             # Public API v1 + webhooks (from ODD 009)
+│   └── mcp-server.md                # MCP server spec (from ODD 001)
+│
+├── guides/
+│   ├── integrations/                # Integration guides (from ODD 002/003/010/011)
+│   ├── shortcuts.md                 # Canonical shortcuts map (from ODD 007)
+│   ├── platform-parity.md           # Web/Desktop/Mobile parity (from ODD 013)
+│   └── billing.md                   # Plans, limits, Stripe runbook (from ODD 012)
+│
+└── (repo root) odd/tasks/           # Executable ODD work docs (see odd/README.md)
+    ├── 001-mcp-server.md ... 013-marketing-docs-cleanup.md
 ├── ROADMAP.md                       # Development roadmap
 ├── COMPONENT_GUIDELINES.md          # MANDATORY component patterns
 ├── PROJECT_ORGANIZATION.md          # File organization rules
@@ -162,11 +184,11 @@ docs/
 
 | Document | Purpose |
 |----------|---------|
-| [PRD.md](./design/PRD.md) | What we're building and why |
+| [product-vision.md](./vision/product-vision.md) | Product goal, positioning, closed decisions (Oct 2026) |
+| [roadmap.md](./planning/roadmap.md) | Executable roadmap: phases, milestones, ODD ↔ issue map |
+| [promises-audit.md](./vision/promises-audit.md) | Promise-vs-reality audit — never contradict it |
+| [PRD.md](./design/PRD.md) | Previous PRD (v2.0, March 2026 — superseded by vision/ where they differ) |
 | [DESIGN_SYSTEM.md](./design/DESIGN_SYSTEM.md) | How it looks (colors, tokens, components) |
-| [COMPONENT_GUIDELINES.md](./COMPONENT_GUIDELINES.md) | How to create components (MANDATORY) |
-| [ROADMAP.md](./ROADMAP.md) | What's next |
-| [COMPETITIVE-ANALYSIS.md](./mejoras-competencia/COMPETITIVE-ANALYSIS.md) | Market positioning |
 
 ---
 

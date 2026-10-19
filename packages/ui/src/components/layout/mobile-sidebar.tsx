@@ -93,7 +93,40 @@ export function MobileSidebar({
   const sections: NavSection[] = navSections || [{ items: navItems }];
 
   const isActiveRoute = (href: string) => {
-    return pathname === href || pathname?.startsWith(`${href}/`);
+    if (!pathname) return false;
+
+    // Handle Projects routes: /projects, /projects/*, or nested /.../projects/*
+    if (href === '/projects') {
+      return pathname === '/projects' || pathname.startsWith('/projects/') || pathname.includes('/projects');
+    }
+
+    // Handle Workspaces routes:
+    // 1. Direct /workspaces or /workspaces/* (excluding nested /projects)
+    // 2. User workspace routes like /:username/:slug (excluding reserved top-level and nested /projects)
+    if (href === '/workspaces') {
+      if (pathname.includes('/projects')) return false;
+      if (pathname === '/workspaces' || pathname.startsWith('/workspaces/')) return true;
+
+      const segments = pathname.replace(/^\//, '').replace(/\/$/, '').split('/');
+      const firstSegment = segments[0];
+      const reservedTopLevel = [
+        'dashboard', 'tasks', 'calendar', 'projects', 'workspaces', 'habits',
+        'goals', 'notes', 'ai-chat', 'eisenhower', 'meetings', 'insights',
+        'wellbeing', 'tags', 'settings', 'profile', 'notifications', 'reports',
+        'timer', 'trash', 'login', 'register', 'auth'
+      ];
+      if (segments.length === 2 && firstSegment && !reservedTopLevel.includes(firstSegment)) {
+        return true;
+      }
+      return false;
+    }
+
+    // Handle Trash routes: /trash, /trash/*, /tasks/trash
+    if (href === '/trash' || href.startsWith('/trash')) {
+      return pathname === '/trash' || pathname.startsWith('/trash/') || pathname === '/tasks/trash';
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   const handleLinkClick = () => {

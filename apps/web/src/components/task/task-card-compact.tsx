@@ -445,7 +445,7 @@ export function TaskCardCompact({
             'group relative flex items-center overflow-hidden rounded-xl border border-border px-4 py-4 transition-all duration-200 cursor-pointer',
             isCompleted
               ? 'bg-muted opacity-70 hover:opacity-90'
-              : 'bg-card hover:bg-accent/5 hover:shadow-md'
+              : 'bg-card text-card-foreground hover:bg-accent/5 hover:shadow-md'
           )}
         >
           {/* Subtle accent indicator */}
@@ -579,35 +579,48 @@ export function TaskCardCompact({
         transition={{ duration: 0.3, delay: index * 0.03 }}
         onClick={handleClick}
         className={cn(
-          'group relative overflow-hidden rounded-xl border border-border p-4 transition-all duration-300 cursor-pointer h-full flex flex-col',
-          'hover:shadow-lg',
+          'group relative overflow-hidden rounded-2xl border border-border/60 bg-card/90 text-card-foreground backdrop-blur-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer h-full flex flex-col',
+          'hover:shadow-md hover:border-purple-500/30',
           isCompleted
-            ? 'bg-muted opacity-60 hover:opacity-80'
-            : 'bg-card hover:border-border'
+            ? 'bg-muted/40 opacity-70 hover:opacity-90'
+            : ''
         )}
       >
-        {/* Header: Accent indicator & Menu */}
-        <div className="relative z-10 flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        {/* Header: Project indicator & Priority + Menu */}
+        <div className="relative z-10 flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 min-w-0">
             <span
               className="h-2 w-2 rounded-full shrink-0"
               style={{ backgroundColor: isCompleted ? '#22c55e' : accentColor }}
               aria-hidden="true"
             />
             {showProject && task.project && (
-              <span className="text-xs text-muted-foreground truncate max-w-[140px] font-medium">
+              <span className="text-xs text-muted-foreground truncate font-medium">
                 {task.project.name}
               </span>
             )}
           </div>
-          {renderActionsMenu()}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Priority Badge */}
+            <div
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium"
+              style={{
+                backgroundColor: priorityConfig.bgColor,
+                color: priorityConfig.color,
+              }}
+            >
+              <PriorityIcon className="h-3 w-3" />
+              <span>{priorityConfig.label}</span>
+            </div>
+            {renderActionsMenu()}
+          </div>
         </div>
 
         {/* Title */}
         <h3
           className={cn(
-            'relative z-10 font-semibold text-base leading-tight mb-2 line-clamp-2',
-            isCompleted && 'line-through text-muted-foreground'
+            'relative z-10 font-semibold text-base leading-snug mb-1.5 line-clamp-2',
+            isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
           )}
         >
           {task.title}
@@ -615,7 +628,7 @@ export function TaskCardCompact({
 
         {/* Description - only in grid */}
         {task.description && !isCompleted && (
-          <p className="relative z-10 text-sm text-muted-foreground line-clamp-2 mb-3">
+          <p className="relative z-10 text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
             {task.description}
           </p>
         )}
@@ -623,7 +636,7 @@ export function TaskCardCompact({
         {/* Tags */}
         {task.tags && task.tags.length > 0 && !isCompleted && (
           <div className="relative z-10 flex flex-wrap gap-1.5 mb-3">
-            {task.tags.slice(0, 2).map((tag) => (
+            {task.tags.slice(0, 3).map((tag) => (
               <Badge
                 key={tag.id}
                 variant="secondary"
@@ -636,61 +649,41 @@ export function TaskCardCompact({
                 {tag.name}
               </Badge>
             ))}
-            {task.tags.length > 2 && (
+            {task.tags.length > 3 && (
               <span className="text-xs text-muted-foreground">
-                +{task.tags.length - 2}
+                +{task.tags.length - 3}
               </span>
             )}
           </div>
         )}
 
         {/* Footer */}
-        <div className="relative z-10 mt-auto pt-3 border-t border-dashed border-border">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-3 text-muted-foreground">
-              {showProject && task.project && (
-                <span className="flex items-center gap-1.5 truncate max-w-24">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: task.project.color }}
-                  />
-                  <span className="truncate">{task.project.name}</span>
-                </span>
-              )}
+        <div className="relative z-10 mt-auto pt-3 border-t border-border/40">
+          <div className="flex items-center justify-between gap-2 text-xs">
+            {/* Left: Due Date & Recurrence */}
+            <div className="flex items-center gap-2 flex-wrap min-w-0 text-muted-foreground">
               {task.dueDate && (
                 <span
                   className={cn(
-                    'flex items-center gap-1',
-                    isOverdue ? 'text-destructive font-medium' : ''
+                    'inline-flex items-center gap-1 whitespace-nowrap font-medium',
+                    isOverdue ? 'text-destructive font-semibold' : ''
                   )}
                 >
-                  <Calendar className="h-3.5 w-3.5" />
-                  {formatDueDate(task.dueDate)}
+                  <Calendar className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formatDueDate(task.dueDate)}</span>
                 </span>
               )}
               {task.recurrence && (
-                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                  <Repeat className="h-3 w-3" />
+                <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 whitespace-nowrap shrink-0">
+                  <Repeat className="h-3 w-3 shrink-0" />
                   <span className="capitalize">{task.recurrence.pattern.toLowerCase()}</span>
                 </span>
               )}
             </div>
 
-            {/* Status & Priority */}
-            <div className="flex items-center gap-2">
+            {/* Right: Status Dropdown */}
+            <div className="shrink-0">
               {renderStatusDropdown('end')}
-
-              {/* Priority Badge */}
-              <div
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium"
-                style={{
-                  backgroundColor: priorityConfig.bgColor,
-                  color: priorityConfig.color,
-                }}
-              >
-                <PriorityIcon className="h-3.5 w-3.5" />
-                <span>{priorityConfig.label}</span>
-              </div>
             </div>
           </div>
         </div>

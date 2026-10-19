@@ -1,92 +1,131 @@
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Plus } from "lucide-react";
 import { TaskCalendar } from "@/components/calendar/task-calendar";
 import { UnscheduledTasks } from "@/components/calendar/unscheduled-tasks";
-import { motion } from "framer-motion";
-
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-        },
-    },
-};
-
-const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-        y: 0,
-        opacity: 1,
-        transition: {
-            type: "spring" as const,
-            stiffness: 100,
-            damping: 12
-        },
-    },
-};
+import { CreateTaskDialog } from "@/components/task/create-task-dialog";
+import { TaskDetailPanel } from "@/components/task/task-detail-panel";
+import { PageTransition, SlideIn } from "@/components/motion";
+import { useTasks } from "@/hooks/api";
+import { Task } from "@ordo-todo/api-client";
+import { isCalendarDateToday, toCalendarDateString } from "@ordo-todo/core";
 
 export function Calendar() {
   const { t } = (useTranslation as any)();
+  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [showCreateTask, setShowCreateTask] = useState(false);
+
+  const { data: tasks } = useTasks();
+
+  const stats = useMemo(() => {
+    const list: Task[] = tasks || [];
+    const todayTasks = list.filter(
+      (task) =>
+        task.status !== "COMPLETED" &&
+        (isCalendarDateToday(task.scheduledDate) ||
+          isCalendarDateToday(task.dueDate))
+    ).length;
+    const scheduledTasks = list.filter(
+      (task) =>
+        task.status !== "COMPLETED" &&
+        !!toCalendarDateString(task.scheduledDate || task.dueDate)
+    ).length;
+    const unscheduledTasks = list.filter(
+      (task) =>
+        task.status !== "COMPLETED" &&
+        !task.scheduledDate &&
+        !task.scheduledTime
+    ).length;
+    return { todayTasks, scheduledTasks, unscheduledTasks };
+  }, [tasks]);
 
   return (
-    <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="h-full flex flex-col space-y-8 p-8 overflow-hidden bg-background/50"
-    >
-        {/* Header - Premium Iconic Design */}
-        <motion.div 
-            variants={itemVariants} 
-            className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card p-8 rounded-[2.5rem] border border-border/50 shadow-sm relative overflow-hidden group shrink-0"
-        >
-            {/* Background Decorations */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-calendar/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-calendar/5 rounded-full -ml-12 -mb-12 transition-transform group-hover:scale-110" />
-
-            <div className="flex items-center gap-6 relative z-10">
-                <motion.div
-                    initial={{ rotate: -10, scale: 0.9 }}
-                    animate={{ rotate: 3, scale: 1 }}
-                    whileHover={{ rotate: 0, scale: 1.05 }}
-                    className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-calendar text-white shadow-xl shadow-calendar/25 shrink-0 transition-transform duration-500"
-                >
-                    <CalendarIcon className="h-10 w-10" />
-                </motion.div>
-                <div className="flex-1 min-w-0">
-                    <h1 className="text-4xl font-black tracking-tight text-foreground truncate">
-                        {t("Calendar.title") || "Calendario"}
-                    </h1>
-                    <p className="text-muted-foreground text-lg mt-1 font-medium line-clamp-1">
-                        {t("Calendar.subtitle") || "Visualiza y organiza tus tareas en el tiempo"}
-                    </p>
-                </div>
+    <PageTransition>
+      <div className="space-y-5 h-full flex flex-col min-h-0">
+        {/* Header - Apple Style Unified Pattern */}
+        <SlideIn direction="top">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+            <div className="flex items-center gap-3 sm:gap-3.5">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-sm shadow-blue-500/25 shrink-0">
+                <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground m-0 leading-tight">
+                  {t("Calendar.title") || "Calendario"}
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+                  {t("Calendar.subtitle") ||
+                    "Visualiza y gestiona tus tareas en el tiempo"}
+                </p>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-3 relative z-10">
-                 <div className="px-4 py-2 bg-calendar/10 rounded-2xl border border-calendar/20 flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-calendar animate-pulse" />
-                    <span className="text-sm font-bold text-calendar">Live View</span>
-                 </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Summary Pills */}
+              <div className="hidden md:flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground tabular-nums">
+                <span className="h-2 w-2 rounded-full bg-blue-500" />
+                <span>{t("Calendar.today") || "Hoy"}:</span>
+                <span className="font-bold text-foreground">
+                  {stats.todayTasks}
+                </span>
+                <span className="text-border">|</span>
+                <span>En calendario:</span>
+                <span className="font-bold text-foreground">
+                  {stats.scheduledTasks}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowCreateTask(true)}
+                className="flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-blue-500/25 transition-all duration-200 hover:bg-blue-600 hover:scale-[1.02] cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                <span>{t("Tasks.newTask") || "Nueva Tarea"}</span>
+              </button>
             </div>
-        </motion.div>
+          </div>
+        </SlideIn>
 
-        {/* Calendar Container */}
-        <motion.div variants={itemVariants} className="flex-1 min-h-0 flex overflow-hidden gap-8 pb-4">
-              {/* Unscheduled Tasks Sidebar */}
-              <aside className="w-80 shrink-0 h-full hidden xl:block group">
-                   <div className="h-full rounded-[2.5rem] border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-lg hover:shadow-black/5">
-                        <UnscheduledTasks />
-                   </div>
-              </aside>
+        {/* Main Workspace: Calendar + Apple Day Inspector & Unscheduled Tray */}
+        <div className="flex flex-col lg:flex-row flex-1 min-h-0 gap-5 pb-2 overflow-hidden">
+          <main className="flex-1 min-h-[520px] lg:min-h-0 border border-border/60 rounded-2xl bg-card shadow-xs overflow-hidden h-full">
+            <TaskCalendar
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              onSelectTask={setSelectedTaskId}
+            />
+          </main>
 
-              <main className="flex-1 min-h-0 border border-border/50 rounded-[2.5rem] bg-card shadow-sm shadow-black/5 overflow-hidden h-full transition-all hover:shadow-xl hover:shadow-black/10">
-                 <TaskCalendar />
-              </main>
-        </motion.div>
-    </motion.div>
+          <aside className="w-full lg:w-80 xl:w-88 shrink-0 h-full min-h-0">
+            <UnscheduledTasks
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              onSelectTask={setSelectedTaskId}
+              onCreateTask={() => setShowCreateTask(true)}
+            />
+          </aside>
+        </div>
+
+        {/* Create Task Dialog */}
+        <CreateTaskDialog
+          open={showCreateTask}
+          onOpenChange={setShowCreateTask}
+        />
+
+        {/* Task Detail Drawer */}
+        {selectedTaskId && (
+          <TaskDetailPanel
+            taskId={selectedTaskId}
+            open={!!selectedTaskId}
+            onOpenChange={(open) => {
+              if (!open) setSelectedTaskId(null);
+            }}
+          />
+        )}
+      </div>
+    </PageTransition>
   );
 }
 

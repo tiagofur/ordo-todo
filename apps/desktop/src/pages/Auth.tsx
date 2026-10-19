@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@ordo-todo/auth-provider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Input, Label, Separator } from "@ordo-todo/ui";
+import TitleBar from "@/components/TitleBar";
 
 // Define interface for password checks
 interface PasswordChecks {
@@ -160,7 +161,11 @@ export function Auth() {
     formData.password !== formData.confirmPassword;
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-purple-500/5 to-cyan-500/5 p-4 overflow-hidden">
+    <div
+      data-tauri-drag-region
+      className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-purple-500/5 to-cyan-500/5 p-4 overflow-hidden select-none"
+    >
+      <TitleBar />
       {/* Decorative elements */}
       <div className="absolute left-10 top-20 h-32 w-32 rotate-12 rounded-3xl bg-purple-500/10 blur-3xl animate-pulse" />
       <div className="absolute right-20 top-40 h-40 w-40 -rotate-12 rounded-full bg-cyan-500/10 blur-3xl animate-pulse delay-700" />
@@ -178,9 +183,9 @@ export function Auth() {
             initial={{ scale: 0.8, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ duration: 0.5, type: "spring" }}
-            className={`group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-3 ${isLogin ? 'bg-purple-500 shadow-purple-500/30' : 'bg-cyan-500 shadow-cyan-500/30'}`}
+            className="group mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#ad46ff] shadow-lg shadow-[#ad46ff]/30 transition-all duration-300 hover:scale-105"
           >
-            <CheckSquare className="h-9 w-9 text-white" />
+            <CheckSquare className="h-9 w-9 text-white stroke-[2.2]" />
           </motion.div>
           <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
             {isLogin ? "Bienvenido de nuevo" : "Crear Cuenta"}
@@ -247,18 +252,21 @@ export function Auth() {
 
             {/* Email Input */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Correo Electrónico</label>
+              <label className="text-sm font-medium text-foreground">
+                {isLogin ? "Correo o usuario" : "Correo Electrónico"}
+              </label>
               <div className="relative group">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-500">
                   <Mail className="h-5 w-5" />
                 </div>
                 <input
-                  type="email"
+                  type={isLogin ? "text" : "email"}
+                  autoComplete={isLogin ? "username" : "email"}
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
-                  placeholder="tu@email.com"
+                  placeholder={isLogin ? "tu@email.com o usuario" : "tu@email.com"}
                 />
               </div>
             </div>

@@ -38,6 +38,15 @@
 
 - [x] [Content Pipeline](./features/content-pipeline.md) - Killer feature
 
+### Vision & Planning (NEW — Oct 2026, Agent-First)
+
+- [x] [Product Vision](./vision/product-vision.md) - Goal, positioning, pillars, closed decisions
+- [x] [Competitive Analysis](./vision/competitive-analysis.md) - Ordo vs Slack, Notion, Todoist, Linear, Asana, Motion, Sunsama, Reclaim, Obsidian
+- [x] [Agent-First Strategy](./vision/agent-first-strategy.md) - MCP standard, 1-click connector, clients, own agent scope
+- [x] [Promises Audit](./vision/promises-audit.md) - Promise-vs-reality audit (A–I) + mandatory fixes checklist
+- [x] [Roadmap](./planning/roadmap.md) - Executable roadmap: phases, dependencies, milestones, ODD ↔ issue map
+- [x] [ODD workflow](../odd/README.md) + 13 task docs in `odd/tasks/` - Executable specs (S#), edit surfaces, verification commands
+
 ---
 
 ## 📝 Pending Documentation
@@ -71,9 +80,20 @@
 
 ### Reference Documentation
 
-- [ ] [API Reference](./reference/api-reference.md) - All API endpoints
+- [ ] [API Reference](./reference/api-reference.md) - Public API v1 + webhooks (owner: ODD 009)
+- [ ] [MCP Server](./reference/mcp-server.md) - MCP transport/auth/tools (owner: ODD 001)
 - [ ] [Database Schema](./reference/database-schema.md) - Prisma schema
 - [ ] [Design Tokens Reference](./reference/design-tokens.md) - All tokens documented
+
+### Integration & Guide Docs (owner: ODD tasks)
+
+- [ ] [Client integration guides](./guides/integrations/) - 1-click + manual per client (owner: ODD 002)
+- [ ] [Directory status](./guides/integrations/directory-status.md) - ChatGPT/Claude/ClawHub/Zapier listings (owner: ODD 003)
+- [ ] [Shortcuts](./guides/shortcuts.md) - Canonical shortcuts map (owner: ODD 007)
+- [ ] [Calendar sync](./guides/integrations/calendar-sync.md) - How it works + honest limits (owner: ODD 010)
+- [ ] [Slack](./guides/integrations/slack.md) - Setup + scopes + limits (owner: ODD 011)
+- [ ] [Billing](./guides/billing.md) - Plans, limits, Stripe runbook (owner: ODD 012)
+- [ ] [Platform parity](./guides/platform-parity.md) - Web/Desktop/Mobile matrix (owner: ODD 013)
 
 ---
 
@@ -179,12 +199,16 @@ packages/
 | Packages       | 5/8       | 8      | 63%      |
 | Best Practices | 1/5       | 5      | 20%      |
 | Features       | 1/7       | 7      | 14%      |
-| Reference      | 0/3       | 3      | 0%       |
-| **Total**      | **13/31** | **31** | **42%**  |
+| Reference      | 0/4       | 4      | 0%       |
+| Vision & Planning (NEW) | 6/6 | 6   | 100% ✅  |
+| ODD-owned guides (NEW) | 0/7 | 7    | 0%       |
+| **Total**      | **19/45** | **45** | **42%**  |
 
 ---
 
 ## 🚀 Next Priority
+
+> **Oct 2026 update**: the executable priority is now the [roadmap](./planning/roadmap.md) (M0 → M1 → M2 → M3 → M4) with [ODD tasks](../odd/tasks/). The list below is the pre-roadmap backlog and stays valid as secondary priority.
 
 Based on ORDO's development priorities and hybrid UI migration:
 
@@ -310,12 +334,14 @@ When adding new documentation:
 
 ---
 
-**Last Updated**: January 14, 2026
+**Last Updated**: October 18, 2026
 
-**Documentation Progress**: 42% Complete (Updated with Hybrid UI Architecture)
+**Documentation Progress**: 42% Complete (19/45 — Vision & Planning + ODD system added)
 
 **Major Changes**:
 
+- ✅ Added Vision & Planning docs (product-vision, competitive-analysis, agent-first-strategy, promises-audit, roadmap)
+- ✅ Added ODD executable work system (`odd/README.md` + 13 task docs in `odd/tasks/`)
 - ✅ Refactored UI architecture documentation
 - ✅ Added Design Tokens guide
 - ✅ Added UI Architecture Strategy guide
