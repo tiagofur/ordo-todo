@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ModuleRef } from '@nestjs/core';
 import { UnauthorizedException } from '@nestjs/common';
 import { SlackActionsService } from './slack-actions.service';
 import { PrismaService } from '../database/prisma.service';
@@ -33,6 +34,16 @@ describe('SlackActionsService', () => {
         { provide: V1TasksService, useValue: mockV1Tasks },
         { provide: AIService, useValue: mockAI },
         { provide: SlackNotifierService, useValue: mockNotifier },
+        {
+          provide: ModuleRef,
+          useValue: {
+            get: (token: unknown) => {
+              if (token === V1TasksService) return mockV1Tasks;
+              if (token === AIService) return mockAI;
+              throw new Error('unexpected token');
+            },
+          },
+        },
       ],
     }).compile();
 

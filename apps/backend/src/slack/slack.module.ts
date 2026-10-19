@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '../database/database.module';
-import { V1Module } from '../v1/v1.module';
-import { AIModule } from '../ai/ai.module';
 import { SlackController } from './slack.controller';
 import { SlackOAuthService } from './slack-oauth.service';
 import { SlackNotifierService } from './slack-notifier.service';
@@ -11,7 +9,12 @@ import { SlackSignatureGuard } from './slack-signature.guard';
 import { SLACK_NOTIFIER } from './slack-notifier.port';
 
 @Module({
-  imports: [DatabaseModule, ConfigModule, V1Module, AIModule],
+  // NOTE: V1Module/AIModule deliberately NOT imported: SlackModule is
+  // imported (forwardRef) by NotificationsModule, which TasksModule
+  // imports directly — closing that loop breaks ES evaluation
+  // (V1Module.imports[0] === undefined at bootstrap). SlackActionsService
+  // resolves V1TasksService/AIService lazily via ModuleRef instead.
+  imports: [DatabaseModule, ConfigModule],
   controllers: [SlackController],
   providers: [
     SlackOAuthService,

@@ -4,6 +4,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { PrismaService } from '../database/prisma.service';
 import { V1TasksService } from '../v1/v1-tasks.service';
 import { AIService } from '../ai/ai.service';
@@ -46,10 +47,22 @@ export class SlackActionsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly v1Tasks: V1TasksService,
-    private readonly aiService: AIService,
+    private readonly moduleRef: ModuleRef,
     private readonly notifier: SlackNotifierService,
   ) {}
+
+  // Lazy resolution breaks the MODULE cycle
+  // (Slack → V1 → Tasks → Notifications → Slack): services are looked
+  // up at call time through the global injector instead of module
+  // imports. Class imports below are values (needed as DI tokens)
+  // but create no ES cycle: the service files don't loop back here.
+  private get v1Tasks(): V1TasksService {
+    return this.moduleRef.get(V1TasksService, { strict: false });
+  }
+
+  private get aiService(): AIService {
+    return this.moduleRef.get(AIService, { strict: false });
+  }
 
   async handleBlockAction(input: BlockActionInput): Promise<{ ok: true }> {
     const userId = await this.resolveUser(input.teamId, input.slackUserId);
