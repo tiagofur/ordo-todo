@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ModuleRef } from '@nestjs/core';
 import { SlackDigestService } from './slack-digest.service';
 import { SLACK_CLIENT_FACTORY } from './slack-notifier.service';
 import { PrismaService } from '../database/prisma.service';
@@ -21,6 +22,10 @@ describe('SlackDigestService', () => {
         SlackDigestService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: V1TasksService, useValue: mockV1Tasks },
+        {
+          provide: ModuleRef,
+          useValue: { get: () => mockV1Tasks },
+        },
         { provide: SLACK_CLIENT_FACTORY, useValue: mockClientFactory },
       ],
     }).compile();

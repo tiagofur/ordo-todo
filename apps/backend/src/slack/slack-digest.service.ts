@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { WebClient } from '@slack/web-api';
 import { PrismaService } from '../database/prisma.service';
@@ -24,11 +25,17 @@ export class SlackDigestService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly v1Tasks: V1TasksService,
+    private readonly moduleRef: ModuleRef,
     @Optional()
     @Inject(SLACK_CLIENT_FACTORY)
     private readonly clientFactory: SlackClientFactory = defaultFactory,
   ) {}
+
+  // Same module-cycle rationale as SlackActionsService: V1Module is
+  // not imported here, the service is resolved lazily at call time.
+  private get v1Tasks(): V1TasksService {
+    return this.moduleRef.get(V1TasksService, { strict: false });
+  }
 
   @Cron(CronExpression.EVERY_HOUR)
   async handleCron(): Promise<void> {
