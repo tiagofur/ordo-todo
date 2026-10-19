@@ -7,6 +7,7 @@ import { TopBar } from "./topbar";
 import { ErrorBoundary } from "./error-boundary";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { KeyboardShortcutsHelp } from "@/components/shortcuts/keyboard-shortcuts-help";
+import { QuickAddDialog } from "@/components/task/quick-add-dialog";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,10 +16,12 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   const { showShortcutsHelp, setShowShortcutsHelp } = useKeyboardShortcuts({
     enabled: true,
     onToggleSidebar: () => setSidebarCollapsed((prev) => !prev),
+    onNewTask: () => setQuickAddOpen(true),
   });
 
   return (
@@ -49,6 +52,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         open={showShortcutsHelp}
         onOpenChange={setShowShortcutsHelp}
       />
+
+      {/* Global Quick-Add (Cmd/Ctrl+N) */}
+      <QuickAddDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
     </div>
   );
 }
