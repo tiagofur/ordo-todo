@@ -14,6 +14,7 @@ import type { Request, Response } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { McpProtocolService } from './mcp-protocol.service';
 import { McpAuthGuard } from './mcp-auth.guard';
+import { runWithMcpContext } from './mcp-context';
 import { Public } from '../common/decorators/public.decorator';
 
 /**
@@ -43,8 +44,21 @@ export class McpController {
     res.on('close', () => {
       void transport.close();
     });
+    const user = (req as unknown as { user: { id: string } }).user;
+    const scopes = (req as unknown as { mcpScopes?: string[] }).mcpScopes ?? [];
+    const oauth = (req as unknown as { oauth?: { clientId?: string } }).oauth;
+    const apiToken = (req as unknown as { apiToken?: { id?: string } })
+      .apiToken;
     await this.protocol.getServer().connect(transport);
-    await transport.handleRequest(req as never, res as never, req.body);
+    await runWithMcpContext(
+      {
+        userId: user.id,
+        scopes,
+        clientId: oauth?.clientId,
+        tokenId: apiToken?.id,
+      },
+      () => transport.handleRequest(req as never, res as never, req.body),
+    );
   }
 
   @Public()
