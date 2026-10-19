@@ -1,0 +1,30 @@
+{
+  "id": "ordo",
+  "name": "Ordo",
+  "description": "Operate your Ordo tasks, projects, habits and goals from OpenClaw channels.",
+  "activation": { "onStartup": true },
+  "contracts": {
+    "tools": [
+      "ordo_today",
+      "ordo_task_create",
+      "ordo_task_done",
+      "ordo_habits",
+      "ordo_plan_day"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "serverUrl": {
+        "type": "string",
+        "description": "Ordo MCP server URL (defaults to https://ordotodo.app/mcp)"
+      },
+      "token": {
+        "type": "string",
+        "description": "Ordo personal access token (ordo_pat_...) or OAuth access token"
+      }
+    },
+    "required": ["token"],
+    "additionalProperties": false
+  }
+}

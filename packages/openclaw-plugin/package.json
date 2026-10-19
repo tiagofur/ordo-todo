@@ -1,0 +1,58 @@
+{
+  "name": "@ordo-todo/openclaw-plugin",
+  "version": "0.1.0",
+  "description": "Official Ordo plugin for OpenClaw: operate tasks, projects, habits and goals from WhatsApp, Telegram or Discord.",
+  "license": "MIT",
+  "author": "Ordo",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "openclaw.plugin.json",
+    "skills",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "ordo",
+    "productivity",
+    "tasks"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiagofur/ordo-todo.git"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.8.2"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@ordo-todo/typescript-config": "*",
+    "@types/node": "^25.0.8",
+    "openclaw": "2026.10.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

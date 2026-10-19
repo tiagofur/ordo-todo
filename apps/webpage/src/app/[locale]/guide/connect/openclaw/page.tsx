@@ -107,6 +107,11 @@ export default function OpenClawGuide() {
           </div>
         ))}
       </div>
+
+      <h2>{t('listing_title')}</h2>
+      <div className="not-prose p-5 rounded-xl border bg-card my-6">
+        <p className="text-sm text-muted-foreground">{t('listing_text')}</p>
+      </div>
     </div>
   );
 }
