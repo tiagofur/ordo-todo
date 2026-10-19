@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import type {
   TimerRepository,
   TaskRepository,
@@ -29,6 +29,8 @@ import {
 } from './dto/timer-stats.dto';
 
 import { GamificationService } from '../gamification/gamification.service';
+import { SLACK_FOCUS_SYNC } from '../slack/slack-focus-sync.service';
+import type { SlackFocusSync } from '../slack/slack-focus-sync.service';
 
 @Injectable()
 export class TimersService {
@@ -42,6 +44,9 @@ export class TimersService {
     @Inject('AIProfileRepository')
     private readonly aiProfileRepository: AIProfileRepository,
     private readonly gamificationService: GamificationService,
+    @Optional()
+    @Inject(SLACK_FOCUS_SYNC)
+    private readonly slackFocus?: SlackFocusSync,
   ) {}
 
   /**
@@ -97,6 +102,13 @@ export class TimersService {
       startTimerDto.taskId,
       startTimerDto.type ?? 'WORK',
     );
+    // Best-effort Slack status sync (opt-in per team; never blocks timers).
+    if (this.slackFocus) {
+      const endsAt = new Date(Date.now() + 25 * 60 * 1000);
+      void this.slackFocus
+        .onFocusStart(userId, endsAt, 25)
+        .catch(() => undefined);
+    }
     return session.props;
   }
 
@@ -242,6 +254,10 @@ export class TimersService {
       }
     }
 
+    if (this.slackFocus) {
+      void this.slackFocus.onFocusEnd(userId).catch(() => undefined);
+    }
+
     return session.props;
   }
 
@@ -251,6 +267,9 @@ export class TimersService {
       userId,
       pauseTimerDto.pauseStartedAt ?? new Date(),
     );
+    if (this.slackFocus) {
+      void this.slackFocus.onFocusEnd(userId).catch(() => undefined);
+    }
     return session.props;
   }
 
@@ -261,6 +280,12 @@ export class TimersService {
       resumeTimerDto.pauseStartedAt,
       new Date(),
     );
+    if (this.slackFocus) {
+      const endsAt = new Date(Date.now() + 25 * 60 * 1000);
+      void this.slackFocus
+        .onFocusStart(userId, endsAt, 25)
+        .catch(() => undefined);
+    }
     return session.props;
   }
 
