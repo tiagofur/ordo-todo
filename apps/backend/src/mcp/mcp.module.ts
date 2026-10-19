@@ -6,6 +6,7 @@ import { TasksModule } from '../tasks/tasks.module';
 import { SearchModule } from '../search/search.module';
 import { HabitsModule } from '../habits/habits.module';
 import { ObjectivesModule } from '../objectives/objectives.module';
+import { AuthAuditService } from '../auth/auth-audit.service';
 import { McpController } from './mcp.controller';
 import { McpWellKnownController } from './mcp-well-known.controller';
 import { McpProtocolService } from './mcp-protocol.service';
@@ -29,6 +30,7 @@ import { McpAuthGuard } from './mcp-auth.guard';
     McpCatalogService,
     McpMetadataService,
     McpAuthGuard,
+    AuthAuditService,
   ],
   exports: [McpProtocolService, McpAuthGuard],
 })

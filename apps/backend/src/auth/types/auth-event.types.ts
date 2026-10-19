@@ -24,6 +24,7 @@ export enum AuthEventType {
   OAUTH_TOKEN_ISSUED = 'OAUTH_TOKEN_ISSUED',
   WEBHOOK_CREATED = 'WEBHOOK_CREATED',
   WEBHOOK_DELETED = 'WEBHOOK_DELETED',
+  MCP_TOOL_CALL = 'MCP_TOOL_CALL',
 }
 
 export default AuthEventType;

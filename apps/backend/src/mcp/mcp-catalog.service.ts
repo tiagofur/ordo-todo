@@ -1,9 +1,17 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
+  Optional,
+} from '@nestjs/common';
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { McpProtocolService } from './mcp-protocol.service';
 import { MCP_TOOL_SCOPES } from './mcp-tool-scopes';
 import { mcpContext } from './mcp-context';
+import { AuthAuditService } from '../auth/auth-audit.service';
+import { AuthEventType } from '../auth/types/auth-event.types';
 import { V1TasksService } from '../v1/v1-tasks.service';
 import { V1ProjectsService } from '../v1/v1-projects.service';
 import { V1CommentsService } from '../v1/v1-comments.service';
@@ -44,6 +52,20 @@ function toolError(message: string, extra?: Record<string, unknown>) {
 export class McpCatalogService implements OnModuleInit {
   private readonly logger = new Logger(McpCatalogService.name);
 
+  /**
+   * Tools that mutate state. Every successful call is audit-logged
+   * (S5); read tools are not logged to keep the audit signal clean.
+   */
+  private static readonly MUTATING_TOOLS = new Set([
+    'ordo_task_create',
+    'ordo_task_update',
+    'ordo_task_complete',
+    'ordo_project_create',
+    'ordo_project_update',
+    'ordo_comment_add',
+    'ordo_habit_complete',
+  ]);
+
   constructor(
     private readonly protocol: McpProtocolService,
     private readonly v1Tasks: V1TasksService,
@@ -54,6 +76,9 @@ export class McpCatalogService implements OnModuleInit {
     private readonly habitsService: HabitsService,
     private readonly objectivesService: ObjectivesService,
     private readonly prisma: PrismaService,
+    @Optional()
+    @Inject(AuthAuditService)
+    private readonly audit?: AuthAuditService,
   ) {}
 
   onModuleInit(): void {
@@ -87,7 +112,16 @@ export class McpCatalogService implements OnModuleInit {
     try {
       const { userId, scopes } = mcpContext();
       this.requireScope(tool, scopes);
-      return text(await fn(userId));
+      const result = await fn(userId);
+      if (McpCatalogService.MUTATING_TOOLS.has(tool)) {
+        await this.audit?.logEvent({
+          type: AuthEventType.MCP_TOOL_CALL,
+          userId,
+          timestamp: new Date(),
+          metadata: { tool },
+        });
+      }
+      return text(result);
     } catch (error) {
       const err = error as Error & {
         code?: string;
