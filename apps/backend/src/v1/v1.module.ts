@@ -37,6 +37,15 @@ import { V1UsersController } from './v1-users.controller';
   ],
   // ApiTokensModule is re-exported so consumers of PublicApiGuard
   // (e.g. WebhooksModule) can resolve its ApiTokenGuard dependency.
-  exports: [PublicApiGuard, TokenRateLimitGuard, ApiTokensModule],
+  // V1*Services are exported so McpModule's catalog can delegate to
+  // the same public contract external REST clients use.
+  exports: [
+    PublicApiGuard,
+    TokenRateLimitGuard,
+    ApiTokensModule,
+    V1TasksService,
+    V1ProjectsService,
+    V1CommentsService,
+  ],
 })
 export class V1Module {}
