@@ -1,6 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PublicApiGuard } from './public-api.guard';
+import { TokenRateLimitGuard } from './token-rate-limit.guard';
 import { UsersService } from '../users/users.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
@@ -8,7 +9,7 @@ import type { RequestUser } from '../common/types/request-user.interface';
 @ApiTags('Public API v1 - Users')
 @ApiBearerAuth()
 @Controller('v1/users')
-@UseGuards(PublicApiGuard)
+@UseGuards(PublicApiGuard, TokenRateLimitGuard)
 export class V1UsersController {
   constructor(private readonly usersService: UsersService) {}
 

@@ -18,6 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PublicApiGuard } from './public-api.guard';
+import { TokenRateLimitGuard } from './token-rate-limit.guard';
 import { V1TasksService } from './v1-tasks.service';
 import type { V1TaskFilters } from './v1-tasks.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -28,7 +29,7 @@ import { UpdateTaskDto } from '../tasks/dto/update-task.dto';
 @ApiTags('Public API v1 - Tasks')
 @ApiBearerAuth()
 @Controller('v1/tasks')
-@UseGuards(PublicApiGuard)
+@UseGuards(PublicApiGuard, TokenRateLimitGuard)
 export class V1TasksController {
   constructor(private readonly v1TasksService: V1TasksService) {}
 

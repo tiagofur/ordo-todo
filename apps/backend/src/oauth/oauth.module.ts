@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { DatabaseModule } from '../database/database.module';
+import { AuthAuditService } from '../auth/auth-audit.service';
 import { OAuthController } from './oauth.controller';
 import { OAuthService } from './oauth.service';
 import { OAuthGuard } from './oauth.guard';
@@ -18,7 +19,7 @@ import { OAuthGuard } from './oauth.guard';
     }),
   ],
   controllers: [OAuthController],
-  providers: [OAuthService, OAuthGuard],
+  providers: [OAuthService, OAuthGuard, AuthAuditService],
   exports: [OAuthService, OAuthGuard],
 })
 export class OAuthModule {}

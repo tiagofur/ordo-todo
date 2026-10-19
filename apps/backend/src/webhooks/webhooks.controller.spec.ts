@@ -3,6 +3,7 @@ import { WebhooksController } from './webhooks.controller';
 import { WebhooksService } from './webhooks.service';
 import { WebhookDispatcherService } from './webhook-dispatcher.service';
 import { PublicApiGuard } from '../v1/public-api.guard';
+import { TokenRateLimitGuard } from '../v1/token-rate-limit.guard';
 
 describe('WebhooksController', () => {
   let controller: WebhooksController;
@@ -30,6 +31,8 @@ describe('WebhooksController', () => {
       ],
     })
       .overrideGuard(PublicApiGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(TokenRateLimitGuard)
       .useValue({ canActivate: () => true })
       .compile();
 

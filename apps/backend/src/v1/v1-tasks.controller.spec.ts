@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { V1TasksController } from './v1-tasks.controller';
 import { V1TasksService } from './v1-tasks.service';
 import { PublicApiGuard } from './public-api.guard';
+import { TokenRateLimitGuard } from './token-rate-limit.guard';
 
 describe('V1TasksController', () => {
   let controller: V1TasksController;
@@ -23,6 +24,8 @@ describe('V1TasksController', () => {
       providers: [{ provide: V1TasksService, useValue: mockService }],
     })
       .overrideGuard(PublicApiGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(TokenRateLimitGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
