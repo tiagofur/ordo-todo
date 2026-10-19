@@ -5,6 +5,7 @@ import { CommentsModule } from '../comments/comments.module';
 import { UsersModule } from '../users/users.module';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { PublicApiGuard } from './public-api.guard';
+import { TokenRateLimitGuard } from './token-rate-limit.guard';
 import { V1TasksService } from './v1-tasks.service';
 import { V1TasksController } from './v1-tasks.controller';
 import { V1ProjectsService } from './v1-projects.service';
@@ -29,10 +30,11 @@ import { V1UsersController } from './v1-users.controller';
   ],
   providers: [
     PublicApiGuard,
+    TokenRateLimitGuard,
     V1TasksService,
     V1ProjectsService,
     V1CommentsService,
   ],
-  exports: [PublicApiGuard],
+  exports: [PublicApiGuard, TokenRateLimitGuard],
 })
 export class V1Module {}

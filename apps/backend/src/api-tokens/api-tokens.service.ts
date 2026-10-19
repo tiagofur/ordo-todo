@@ -1,12 +1,16 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../database/prisma.service';
+import { AuthAuditService } from '../auth/auth-audit.service';
+import { AuthEventType } from '../auth/types/auth-event.types';
 import { CreateApiTokenDto } from './dto/create-api-token.dto';
 import { apiTokenDelegate } from './api-token.delegate';
 import {
@@ -42,7 +46,12 @@ export interface ValidatedApiToken {
 export class ApiTokensService {
   private readonly logger = new Logger(ApiTokensService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional()
+    @Inject(AuthAuditService)
+    private readonly audit?: AuthAuditService,
+  ) {}
 
   async create(
     userId: string,
@@ -72,6 +81,12 @@ export class ApiTokensService {
     this.logger.log(
       `API token created for user ${userId} (token ${created.id})`,
     );
+    await this.audit?.logEvent({
+      type: AuthEventType.PAT_CREATED,
+      userId,
+      timestamp: new Date(),
+      metadata: { tokenId: created.id, tokenPrefix, scopes: dto.scopes },
+    });
 
     return {
       id: created.id,
@@ -115,6 +130,12 @@ export class ApiTokensService {
     }
 
     this.logger.log(`API token ${tokenId} revoked by user ${userId}`);
+    await this.audit?.logEvent({
+      type: AuthEventType.PAT_REVOKED,
+      userId,
+      timestamp: new Date(),
+      metadata: { tokenId },
+    });
   }
 
   async validateToken(rawToken: string): Promise<ValidatedApiToken | null> {

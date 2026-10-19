@@ -17,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PublicApiGuard } from './public-api.guard';
+import { TokenRateLimitGuard } from './token-rate-limit.guard';
 import { V1ProjectsService } from './v1-projects.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { RequestUser } from '../common/types/request-user.interface';
@@ -26,7 +27,7 @@ import { UpdateProjectDto } from '../projects/dto/update-project.dto';
 @ApiTags('Public API v1 - Projects')
 @ApiBearerAuth()
 @Controller('v1/projects')
-@UseGuards(PublicApiGuard)
+@UseGuards(PublicApiGuard, TokenRateLimitGuard)
 export class V1ProjectsController {
   constructor(private readonly v1ProjectsService: V1ProjectsService) {}
 

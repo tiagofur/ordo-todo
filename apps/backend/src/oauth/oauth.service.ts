@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +13,8 @@ import * as bcrypt from 'bcrypt';
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import type { StringValue } from 'ms';
 import { PrismaService } from '../database/prisma.service';
+import { AuthAuditService } from '../auth/auth-audit.service';
+import { AuthEventType } from '../auth/types/auth-event.types';
 import { API_TOKEN_SCOPES } from '../api-tokens/api-token.constants';
 import { oAuthDelegates } from './oauth.delegate';
 import {
@@ -86,6 +90,9 @@ export class OAuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Optional()
+    @Inject(AuthAuditService)
+    private readonly audit?: AuthAuditService,
   ) {}
 
   async registerClient(
@@ -136,6 +143,15 @@ export class OAuthService {
     });
 
     this.logger.log(`OAuth client registered: ${created.clientId}`);
+    await this.audit?.logEvent({
+      type: AuthEventType.OAUTH_CLIENT_REGISTERED,
+      timestamp: new Date(),
+      metadata: {
+        clientId: created.clientId,
+        clientName: created.clientName,
+        scopes: created.scopes,
+      },
+    });
 
     return {
       client_id: created.clientId,
@@ -243,6 +259,12 @@ export class OAuthService {
     this.logger.log(
       `OAuth code exchanged for user ${stored.userId} (client ${stored.clientId})`,
     );
+    await this.audit?.logEvent({
+      type: AuthEventType.OAUTH_TOKEN_ISSUED,
+      userId: stored.userId,
+      timestamp: new Date(),
+      metadata: { clientId: stored.clientId, scope: stored.scopes.join(' ') },
+    });
 
     return {
       access_token: accessToken,

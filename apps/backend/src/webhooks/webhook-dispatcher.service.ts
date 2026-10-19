@@ -16,10 +16,7 @@ import {
   WEBHOOK_REQUEST_TIMEOUT_MS,
   webhookRetryDelayMs,
 } from './webhook.constants';
-import type {
-  WebhookEvent,
-  WebhookFetch,
-} from './webhook.constants';
+import type { WebhookEvent, WebhookFetch } from './webhook.constants';
 
 const defaultFetch: WebhookFetch = async (url, init) => {
   const response = await fetch(url, init);
