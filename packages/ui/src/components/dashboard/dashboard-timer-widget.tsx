@@ -44,6 +44,7 @@ export interface DashboardTimerWidgetProps {
     selectTaskPlaceholder?: string;
     pomodoroCount?: (count: number) => string;
     pauseCount?: (count: number) => string;
+    freeFlow?: string;
   };
 }
 
@@ -63,6 +64,7 @@ const DEFAULT_LABELS = {
   shortBreak: 'Pausa Corta',
   longBreak: 'Pausa Larga',
   continuous: 'Continuo',
+  freeFlow: 'Libre',
   idle: 'Inactivo',
   completedPomodoros: 'pomodoros completados',
   reset: 'Reiniciar',
@@ -102,6 +104,7 @@ export function DashboardTimerWidget({
 
   const activeModeColor = MODE_COLORS[mode] || customAccentColor || '#f43f5e';
   const isActiveRun = isRunning && !isPaused;
+  const isContinuous = mode === 'CONTINUOUS' || mode === 'STOPWATCH';
 
   const clampedProgress = Number.isFinite(progress) ? Math.max(0, Math.min(100, progress)) : 0;
 
@@ -190,44 +193,51 @@ export function DashboardTimerWidget({
 
         {/* Right: Compact Duration Chips & Focus Icon Button */}
         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-          {/* Subtle duration preset indicator */}
-          <div className="flex items-center bg-muted/40 px-1.5 py-0.5 rounded-lg border border-border/40 text-[10px] font-semibold text-muted-foreground gap-1 select-none">
-            <span
-              className={cn(
-                'px-1 py-0.5 rounded transition-colors',
-                mode === 'WORK' || mode === 'POMODORO'
-                  ? 'text-rose-500 font-bold bg-rose-500/10'
-                  : 'opacity-60'
-              )}
-              title={t.work}
-            >
-              {config?.workDuration || 25}m
-            </span>
-            <span className="opacity-30">•</span>
-            <span
-              className={cn(
-                'px-1 py-0.5 rounded transition-colors',
-                mode === 'SHORT_BREAK'
-                  ? 'text-emerald-500 font-bold bg-emerald-500/10'
-                  : 'opacity-60'
-              )}
-              title={t.shortBreak}
-            >
-              {config?.shortBreakDuration || 5}m
-            </span>
-            <span className="opacity-30">•</span>
-            <span
-              className={cn(
-                'px-1 py-0.5 rounded transition-colors',
-                mode === 'LONG_BREAK'
-                  ? 'text-teal-500 font-bold bg-teal-500/10'
-                  : 'opacity-60'
-              )}
-              title={t.longBreak}
-            >
-              {config?.longBreakDuration || 15}m
-            </span>
-          </div>
+          {/* Subtle duration preset indicator (Pomodoro) or Free flow indicator (Continuous) */}
+          {isContinuous ? (
+            <div className="flex items-center bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-lg border border-blue-500/20 text-[10px] font-semibold gap-1 select-none">
+              <span className="font-mono text-xs leading-none">∞</span>
+              <span>{t.freeFlow}</span>
+            </div>
+          ) : (
+            <div className="flex items-center bg-muted/40 px-1.5 py-0.5 rounded-lg border border-border/40 text-[10px] font-semibold text-muted-foreground gap-1 select-none">
+              <span
+                className={cn(
+                  'px-1 py-0.5 rounded transition-colors',
+                  mode === 'WORK' || mode === 'POMODORO'
+                    ? 'text-rose-500 font-bold bg-rose-500/10'
+                    : 'opacity-60'
+                )}
+                title={t.work}
+              >
+                {config?.workDuration || 25}m
+              </span>
+              <span className="opacity-30">•</span>
+              <span
+                className={cn(
+                  'px-1 py-0.5 rounded transition-colors',
+                  mode === 'SHORT_BREAK'
+                    ? 'text-emerald-500 font-bold bg-emerald-500/10'
+                    : 'opacity-60'
+                )}
+                title={t.shortBreak}
+              >
+                {config?.shortBreakDuration || 5}m
+              </span>
+              <span className="opacity-30">•</span>
+              <span
+                className={cn(
+                  'px-1 py-0.5 rounded transition-colors',
+                  mode === 'LONG_BREAK'
+                    ? 'text-teal-500 font-bold bg-teal-500/10'
+                    : 'opacity-60'
+                )}
+                title={t.longBreak}
+              >
+                {config?.longBreakDuration || 15}m
+              </span>
+            </div>
+          )}
 
           {/* Focus Mode Icon Button */}
           {onFocusModeClick && (
@@ -308,16 +318,20 @@ export function DashboardTimerWidget({
       <div className="relative z-10 flex items-center gap-2.5 w-full">
         <div className="flex-1 h-2 rounded-full bg-muted/50 overflow-hidden relative border border-border/30">
           <div
-            className="h-full rounded-full transition-all duration-500 ease-out"
+            className={cn(
+              'h-full rounded-full transition-all duration-500 ease-out',
+              isContinuous && isActiveRun ? 'animate-pulse' : ''
+            )}
             style={{
-              width: `${clampedProgress}%`,
+              width: isContinuous ? '100%' : `${clampedProgress}%`,
               backgroundColor: activeModeColor,
-              boxShadow: `0 0 10px ${activeModeColor}80`,
+              boxShadow: `0 0 10px ${activeModeColor}${isActiveRun ? '80' : '20'}`,
+              opacity: isContinuous && !isActiveRun ? 0.35 : 1,
             }}
           />
         </div>
-        <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0 min-w-[28px] text-right">
-          {Math.round(clampedProgress)}%
+        <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0 min-w-[28px] text-right font-mono">
+          {isContinuous ? '∞' : `${Math.round(clampedProgress)}%`}
         </span>
       </div>
 

@@ -39,6 +39,7 @@ export interface DashboardTimerWidgetProps {
         selectTaskPlaceholder?: string;
         pomodoroCount?: (count: number) => string;
         pauseCount?: (count: number) => string;
+        freeFlow?: string;
     };
 }
 export type TimerWidgetProps = DashboardTimerWidgetProps;
