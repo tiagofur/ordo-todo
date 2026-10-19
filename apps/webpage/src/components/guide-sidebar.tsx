@@ -9,6 +9,7 @@ import {
   CheckSquare, 
   Timer, 
   BarChart3,
+  Plug,
   ChevronRight,
   Sparkles
 } from 'lucide-react';
@@ -47,6 +48,12 @@ export function GuideSidebar() {
       href: '/guide/analytics', 
       icon: BarChart3,
       color: '#A855F7',
+    },
+    { 
+      key: 'connect', 
+      href: '/guide/connect', 
+      icon: Plug,
+      color: '#06B6D4',
     },
   ];
 

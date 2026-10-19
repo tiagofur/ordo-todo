@@ -35,32 +35,56 @@
     "eisenhower": {
       "title": "Eisenhower Matrix",
       "description": "Prioritize tasks by urgency and importance. See at a glance what needs your attention now.",
-      "highlights": ["Visual Priority", "Smart Sorting", "Quick Actions"]
+      "highlights": [
+        "Visual Priority",
+        "Smart Sorting",
+        "Quick Actions"
+      ]
     },
     "kanban": {
       "title": "Kanban Boards",
       "description": "Visualize your workflow with flexible boards. Drag and drop tasks between columns.",
-      "highlights": ["Drag & Drop", "Custom Columns", "Progress Tracking"]
+      "highlights": [
+        "Drag & Drop",
+        "Custom Columns",
+        "Progress Tracking"
+      ]
     },
     "time_blocking": {
       "title": "Time Blocking",
       "description": "Schedule tasks in your calendar. Block time for deep work and protect your productivity.",
-      "highlights": ["Calendar View", "Time Slots", "Reminders"]
+      "highlights": [
+        "Calendar View",
+        "Time Slots",
+        "Reminders"
+      ]
     },
     "focus_timer": {
       "title": "Focus Timer",
       "description": "Built-in Pomodoro timer with customizable sessions. Track your focus time and take smart breaks.",
-      "highlights": ["Pomodoro", "Statistics", "Break Alerts"]
+      "highlights": [
+        "Pomodoro",
+        "Statistics",
+        "Break Alerts"
+      ]
     },
     "okrs": {
       "title": "OKRs & Goals",
       "description": "Set objectives and key results. Track progress on what matters most to you.",
-      "highlights": ["Objectives", "Key Results", "Progress"]
+      "highlights": [
+        "Objectives",
+        "Key Results",
+        "Progress"
+      ]
     },
     "collaboration": {
       "title": "Team Collaboration",
       "description": "Invite team members, assign tasks, and work together seamlessly in shared workspaces.",
-      "highlights": ["Workspaces", "Assignments", "Comments"]
+      "highlights": [
+        "Workspaces",
+        "Assignments",
+        "Comments"
+      ]
     }
   },
   "AIFeatures": {
@@ -121,7 +145,6 @@
     "still_need_help": "Can't find what you're looking for?",
     "contact_us": "Contact Us"
   },
-
   "Navigation": {
     "home": "Home",
     "guide": "User Guide",
@@ -191,22 +214,42 @@
       "tasks": {
         "title": "Smart Task Management",
         "description": "Organize tasks with projects, tags, priorities, and due dates. Our intuitive interface makes managing complex workflows a breeze.",
-        "features": ["Drag & Drop", "Subtasks", "Dependencies", "Tags & Labels"]
+        "features": [
+          "Drag & Drop",
+          "Subtasks",
+          "Dependencies",
+          "Tags & Labels"
+        ]
       },
       "focus": {
         "title": "Focus Timer & Pomodoro",
         "description": "Stay focused with our built-in Pomodoro timer. Track your deep work sessions and take smart breaks to prevent burnout.",
-        "features": ["Customizable Timers", "Session History", "Focus Analytics", "Break Reminders"]
+        "features": [
+          "Customizable Timers",
+          "Session History",
+          "Focus Analytics",
+          "Break Reminders"
+        ]
       },
       "ai": {
         "title": "AI-Powered Scheduling",
         "description": "Let our AI assistant help you prioritize tasks and schedule your day for maximum productivity.",
-        "features": ["Smart Suggestions", "Auto-Scheduling", "Priority Insights", "Workload Balancing"]
+        "features": [
+          "Smart Suggestions",
+          "Auto-Scheduling",
+          "Priority Insights",
+          "Workload Balancing"
+        ]
       },
       "analytics": {
         "title": "Beautiful Analytics",
         "description": "Understand your productivity patterns with detailed charts and insights. See what works and optimize your workflow.",
-        "features": ["Weekly Reports", "Time Tracking", "Goal Progress", "Productivity Trends"]
+        "features": [
+          "Weekly Reports",
+          "Time Tracking",
+          "Goal Progress",
+          "Productivity Trends"
+        ]
       }
     }
   },
@@ -278,7 +321,8 @@
       "analytics": "Analytics",
       "need_help": "Need more help?",
       "community_text": "Join our community for tips and support.",
-      "community_link": "Join Community"
+      "community_link": "Join Community",
+      "connect": "Connect your assistant"
     },
     "main": {
       "badge": "Quick Start Guide",
@@ -330,6 +374,10 @@
       "analytics": {
         "title": "Analytics",
         "description": "Track and improve your productivity"
+      },
+      "connect": {
+        "title": "Connect your assistant",
+        "description": "Use Ordo from ChatGPT, Claude, Hermes or OpenClaw"
       }
     }
   },
@@ -676,5 +724,282 @@
     },
     "contact_title": "Contact Us",
     "contact_text": "If you have any questions about these Terms, please"
+  },
+  "GuideConnect": {
+    "badge": "Connect your assistant",
+    "title": "Connect Ordo to your assistant",
+    "subtitle": "Use your tasks, projects and habits from ChatGPT, Claude, Hermes or OpenClaw. No jargon: search, connect, approve.",
+    "how_title": "Two ways to connect",
+    "how_text": "Pick whichever you prefer. Both use the same secure connection: Ordo only shows your assistant what you can see.",
+    "oneclick_title": "1-click connection",
+    "oneclick_text": "For everyone. Under 60 seconds, nothing to copy, no strange screens.",
+    "manual_title": "Manual setup",
+    "manual_text": "For developers and terminal tools. Ready-to-copy blocks.",
+    "clients_title": "Pick your assistant",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Connect Ordo as an app from the directory"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Add Ordo as a connector on web or desktop"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Your memory-enabled helper, now with Ordo inside"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Run Ordo from WhatsApp, Telegram or Discord"
+      }
+    },
+    "more_title": "More ways to use Ordo",
+    "slack_title": "Ordo inside Slack",
+    "slack_text": "Attach Ordo to Slackbot and work without leaving your channels.",
+    "zapier_title": "Bridge with Zapier",
+    "zapier_text": "Connect Ordo to thousands of apps while native integrations arrive."
+  },
+  "GuideConnectChatGPT": {
+    "badge": "ChatGPT",
+    "title": "Connect Ordo to ChatGPT",
+    "subtitle": "Ask ChatGPT to organize your day, create tasks or summarize your week, with your real Ordo data.",
+    "oneclick_title": "1-click connection",
+    "oneclick_text": "You do not need to copy or understand anything technical. Just follow these steps:",
+    "steps": {
+      "1": {
+        "title": "Open the app directory",
+        "description": "In ChatGPT, go to Settings, then Connected apps. Press Add app."
+      },
+      "2": {
+        "title": "Search for Ordo",
+        "description": "Type Ordo in the search box and pick the official Ordo Todo app."
+      },
+      "3": {
+        "title": "Press Connect and approve",
+        "description": "Your browser will open your Ordo account. If you were not signed in, sign in first, then press Authorize."
+      },
+      "4": {
+        "title": "Go back to ChatGPT and try it",
+        "description": "Type something like what tasks do I have today? ChatGPT will answer with your real Ordo data."
+      }
+    },
+    "manual_title": "Manual setup (Codex and terminal)",
+    "manual_text": "If you use Codex or prefer to set it up by hand, add this block to your ~/.codex/config.toml file:",
+    "config_title": "Configuration block",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://ordotodo.app/mcp\"\n# On first use, Codex will open the browser so you approve with your Ordo account.",
+    "verify_text": "Save the file, restart Codex and ask: list my Ordo projects. If it answers with your real projects, it is connected.",
+    "verify_code": "Codex › which tasks are due this week?",
+    "trouble_title": "If something fails",
+    "errors": {
+      "1": {
+        "title": "The browser shows an error when approving",
+        "fix": "Close the tab, make sure you are signed in to Ordo in that browser, and try again from ChatGPT."
+      },
+      "2": {
+        "title": "ChatGPT says it cannot find Ordo",
+        "fix": "Go back to Settings, Connected apps and check that Ordo shows as connected. If not, repeat step 2."
+      },
+      "3": {
+        "title": "Codex does not show Ordo tools",
+        "fix": "Check that the URL in config.toml is exactly the one above, with no extra spaces or trailing slash, and restart Codex."
+      }
+    }
+  },
+  "GuideConnectClaude": {
+    "badge": "Claude",
+    "title": "Connect Ordo to Claude",
+    "subtitle": "Let Claude handle your planning: read your tasks, propose the day plan and execute it with you.",
+    "oneclick_title": "1-click connection",
+    "oneclick_text": "You do not need to copy or understand anything technical. Just follow these steps:",
+    "steps": {
+      "1": {
+        "title": "Open connectors",
+        "description": "In Claude, go to Settings, then Connectors. Press Add connector."
+      },
+      "2": {
+        "title": "Search for Ordo",
+        "description": "Type Ordo in the search box and pick the official connector."
+      },
+      "3": {
+        "title": "Press Connect and approve",
+        "description": "Your browser will open your Ordo account. If you were not signed in, sign in first, then press Authorize."
+      },
+      "4": {
+        "title": "Go back to Claude and try it",
+        "description": "Type something like organize my day. Claude will read your tasks and propose a plan."
+      }
+    },
+    "manual_title": "Manual setup (Claude Code and terminal)",
+    "manual_text": "If you use the terminal, connect Ordo with a single command:",
+    "config_title": "Connection command",
+    "config_code": "claude mcp add --transport http ordo https://ordotodo.app/mcp\n# Then run /mcp inside Claude Code and approve in the browser.",
+    "verify_text": "Ask: show me this quarter's objectives. If Claude answers with your real objectives, it is connected.",
+    "verify_code": "Claude Code › /mcp  (must show ordo as connected)",
+    "trouble_title": "If something fails",
+    "errors": {
+      "1": {
+        "title": "The browser shows an error when approving",
+        "fix": "Close the tab, make sure you are signed in to Ordo in that browser, and try again."
+      },
+      "2": {
+        "title": "Claude Code says the server is not responding",
+        "fix": "Run claude mcp list and check that the URL is exactly the one above. If you changed it, remove and add it again."
+      },
+      "3": {
+        "title": "Claude answers without using your data",
+        "fix": "Mention Ordo explicitly in your message, for example: using Ordo, what do I have today? That way Claude knows which connector to use."
+      }
+    }
+  },
+  "GuideConnectHermes": {
+    "badge": "Hermes",
+    "title": "Connect Ordo to Hermes",
+    "subtitle": "Your memory-enabled personal helper now knows your tasks: ask it to organize you over Telegram, Discord or wherever you use it.",
+    "oneclick_title": "1-click connection",
+    "oneclick_text": "You do not need to copy or understand anything technical. Just follow these steps:",
+    "steps": {
+      "1": {
+        "title": "Open connections",
+        "description": "In Hermes, go to Settings, then Connections. Press Add connection."
+      },
+      "2": {
+        "title": "Search for Ordo",
+        "description": "Type Ordo in the search box and pick the official connection."
+      },
+      "3": {
+        "title": "Press Connect and approve",
+        "description": "Your browser will open your Ordo account. If you were not signed in, sign in first, then press Authorize."
+      },
+      "4": {
+        "title": "Ask Hermes for something",
+        "description": "Message your helper something like remind me of today's habits. It will answer with your real data."
+      }
+    },
+    "manual_title": "Manual setup (YAML file)",
+    "manual_text": "If you run Hermes from the terminal, add this to your ~/.hermes/config.yaml file:",
+    "config_title": "Configuration block",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://ordotodo.app/mcp\n      auth: oauth  # Hermes will open the browser on first use",
+    "verify_text": "Restart Hermes and ask about today's tasks. If it answers with real data, it is connected.",
+    "verify_code": "Hermes › which habits are left today?",
+    "trouble_title": "If something fails",
+    "errors": {
+      "1": {
+        "title": "The browser shows an error when approving",
+        "fix": "Close the tab, make sure you are signed in to Ordo in that browser, and try again."
+      },
+      "2": {
+        "title": "Hermes says the connection failed",
+        "fix": "Check that the URL in config.yaml is exactly the one above, with https and no trailing slash, and restart Hermes."
+      },
+      "3": {
+        "title": "Hermes answers without your data",
+        "fix": "Name Ordo in your message, for example: in Ordo, what is due tomorrow? That way Hermes knows where to look."
+      }
+    }
+  },
+  "GuideConnectOpenClaw": {
+    "badge": "OpenClaw",
+    "title": "Connect Ordo to OpenClaw",
+    "subtitle": "Run Ordo from WhatsApp, Telegram or Discord: create tasks, check your day and get summaries where you already chat.",
+    "oneclick_title": "1-click connection",
+    "oneclick_text": "You do not need to copy or understand anything technical. Just follow these steps:",
+    "steps": {
+      "1": {
+        "title": "Open the add-on marketplace",
+        "description": "In your OpenClaw dashboard, go to Add-ons and search for Ordo in ClawHub."
+      },
+      "2": {
+        "title": "Install the Ordo add-on",
+        "description": "Press Install on the official Ordo listing and wait for it to finish."
+      },
+      "3": {
+        "title": "Connect your account and approve",
+        "description": "Press Connect. Your browser will open your Ordo account. If you were not signed in, sign in first, then press Authorize."
+      },
+      "4": {
+        "title": "Talk to your assistant",
+        "description": "Message it on your usual channel something like organize my day with Ordo. It will answer with your real plan."
+      }
+    },
+    "manual_title": "Manual setup (terminal)",
+    "manual_text": "If you manage OpenClaw from the terminal, add the remote server with this command:",
+    "config_title": "Connection command",
+    "config_code": "openclaw mcp add ordo https://ordotodo.app/mcp --auth oauth\n# Then approve in the browser when OpenClaw asks you to.",
+    "verify_text": "Ask your assistant for the day summary. If it includes your real Ordo tasks, it is connected.",
+    "verify_code": "You › organize my day with Ordo",
+    "trouble_title": "If something fails",
+    "errors": {
+      "1": {
+        "title": "The browser shows an error when approving",
+        "fix": "Close the tab, make sure you are signed in to Ordo in that browser, and try again."
+      },
+      "2": {
+        "title": "OpenClaw does not list the add-on",
+        "fix": "Refresh the ClawHub index from the dashboard and search for Ordo again. If you installed via terminal, restart the OpenClaw process."
+      },
+      "3": {
+        "title": "The assistant answers without your data",
+        "fix": "Name Ordo in your message, for example: with Ordo, what is pending? That way it uses the right connection."
+      }
+    }
+  },
+  "GuideConnectSlack": {
+    "badge": "Slack",
+    "title": "Use Ordo inside Slack",
+    "subtitle": "Attach Ordo to Slackbot to check and create tasks without leaving your channels.",
+    "steps_title": "Steps",
+    "steps": {
+      "1": {
+        "title": "Open your Slack app settings",
+        "description": "Go to your Slack workspace settings and open Apps."
+      },
+      "2": {
+        "title": "Add Ordo as a server",
+        "description": "In the external servers section, add the Ordo address and choose to sign in with your account when asked."
+      },
+      "3": {
+        "title": "Approve in the browser",
+        "description": "Your Ordo account will open. If you were not signed in, sign in first, then press Authorize."
+      },
+      "4": {
+        "title": "Enable Ordo in Slackbot",
+        "description": "Open a direct message with Slackbot, go to Apps and enable Ordo with the + button."
+      },
+      "5": {
+        "title": "Pick your permissions",
+        "description": "The first time Ordo wants to act, Slack will ask you: allow once, always allow or deny. You decide."
+      }
+    },
+    "permissions_title": "Your permissions, your control",
+    "permissions_sub": "Nothing runs without your permission",
+    "permissions_text": "Ordo can only see what you see. Every action (creating a task, for example) asks your permission the first time, and you can change it anytime from Slackbot."
+  },
+  "GuideConnectZapier": {
+    "badge": "Zapier",
+    "title": "Connect Ordo with Zapier",
+    "subtitle": "Use Ordo alongside thousands of apps through Zapier, while native integrations are on the way.",
+    "steps_title": "Steps",
+    "steps": {
+      "1": {
+        "title": "Create a new Zap",
+        "description": "In Zapier, press Create Zap and pick the app that triggers the automation (for example, Gmail)."
+      },
+      "2": {
+        "title": "Add the Ordo step",
+        "description": "As the action, search for Ordo and pick what you want to do, like creating a task."
+      },
+      "3": {
+        "title": "Connect your account and approve",
+        "description": "Zapier will ask you to connect your Ordo account. Your browser will open: sign in if needed and press Authorize."
+      },
+      "4": {
+        "title": "Test and turn on",
+        "description": "Send a test from Zapier, check that the task shows up in Ordo, and turn the Zap on."
+      }
+    },
+    "example_title": "Example: important email → task",
+    "example_text": "When an email marked important arrives, create an Ordo task with the subject as the title:",
+    "example_code": "Trigger: Gmail › New important email\nAction: Ordo › Create task\n  Title: {{email subject}}\n  Project: Inbox"
   }
 }

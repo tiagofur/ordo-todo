@@ -35,32 +35,56 @@
     "eisenhower": {
       "title": "Matriz de Eisenhower",
       "description": "Priorize tarefas por urgência e importância. Veja de relance o que precisa da sua atenção agora.",
-      "highlights": ["Prioridade Visual", "Ordenação Inteligente", "Ações Rápidas"]
+      "highlights": [
+        "Prioridade Visual",
+        "Ordenação Inteligente",
+        "Ações Rápidas"
+      ]
     },
     "kanban": {
       "title": "Quadros Kanban",
       "description": "Visualize seu fluxo de trabalho com quadros flexíveis. Arraste e solte tarefas entre colunas.",
-      "highlights": ["Arrastar e Soltar", "Colunas Personalizadas", "Acompanhamento de Progresso"]
+      "highlights": [
+        "Arrastar e Soltar",
+        "Colunas Personalizadas",
+        "Acompanhamento de Progresso"
+      ]
     },
     "time_blocking": {
       "title": "Bloqueio de Tempo",
       "description": "Agende tarefas no seu calendário. Bloqueie tempo para trabalho profundo e proteja sua produtividade.",
-      "highlights": ["Visualização de Calendário", "Blocos de Tempo", "Lembretes"]
+      "highlights": [
+        "Visualização de Calendário",
+        "Blocos de Tempo",
+        "Lembretes"
+      ]
     },
     "focus_timer": {
       "title": "Timer de Foco",
       "description": "Timer Pomodoro integrado com sessões personalizáveis. Acompanhe seu tempo de foco e faça pausas inteligentes.",
-      "highlights": ["Pomodoro", "Estatísticas", "Alertas de Pausa"]
+      "highlights": [
+        "Pomodoro",
+        "Estatísticas",
+        "Alertas de Pausa"
+      ]
     },
     "okrs": {
       "title": "OKRs e Metas",
       "description": "Defina objetivos e resultados-chave. Acompanhe o progresso no que mais importa para você.",
-      "highlights": ["Objetivos", "Resultados-Chave", "Progresso"]
+      "highlights": [
+        "Objetivos",
+        "Resultados-Chave",
+        "Progresso"
+      ]
     },
     "collaboration": {
       "title": "Colaboração em Equipe",
       "description": "Convide membros da equipe, atribua tarefas e trabalhe junto perfeitamente em espaços compartilhados.",
-      "highlights": ["Espaços de Trabalho", "Atribuições", "Comentários"]
+      "highlights": [
+        "Espaços de Trabalho",
+        "Atribuições",
+        "Comentários"
+      ]
     }
   },
   "AIFeatures": {
@@ -121,7 +145,6 @@
     "still_need_help": "Não encontrou o que procura?",
     "contact_us": "Entre em Contato"
   },
-
   "Navigation": {
     "home": "Início",
     "guide": "Guia do Usuário",
@@ -191,22 +214,42 @@
       "tasks": {
         "title": "Gestão de Tarefas Inteligente",
         "description": "Organize tarefas com projetos, tags, prioridades e datas. Nossa interface intuitiva facilita o gerenciamento de fluxos complexos.",
-        "features": ["Arrastar e Soltar", "Subtarefas", "Dependências", "Tags e Rótulos"]
+        "features": [
+          "Arrastar e Soltar",
+          "Subtarefas",
+          "Dependências",
+          "Tags e Rótulos"
+        ]
       },
       "focus": {
         "title": "Timer de Foco e Pomodoro",
         "description": "Mantenha o foco com nosso timer Pomodoro integrado. Acompanhe suas sessões de trabalho profundo e faça pausas inteligentes.",
-        "features": ["Timers Personalizáveis", "Histórico de Sessões", "Análises de Foco", "Lembretes de Pausa"]
+        "features": [
+          "Timers Personalizáveis",
+          "Histórico de Sessões",
+          "Análises de Foco",
+          "Lembretes de Pausa"
+        ]
       },
       "ai": {
         "title": "Agenda com IA",
         "description": "Deixe nosso assistente IA ajudar você a priorizar tarefas e agendar seu dia para máxima produtividade.",
-        "features": ["Sugestões Inteligentes", "Auto-Agendamento", "Insights de Prioridade", "Equilíbrio de Carga"]
+        "features": [
+          "Sugestões Inteligentes",
+          "Auto-Agendamento",
+          "Insights de Prioridade",
+          "Equilíbrio de Carga"
+        ]
       },
       "analytics": {
         "title": "Análises Bonitas",
         "description": "Entenda seus padrões de produtividade com gráficos detalhados. Veja o que funciona e otimize seu fluxo.",
-        "features": ["Relatórios Semanais", "Rastreamento de Tempo", "Progresso de Metas", "Tendências de Produtividade"]
+        "features": [
+          "Relatórios Semanais",
+          "Rastreamento de Tempo",
+          "Progresso de Metas",
+          "Tendências de Produtividade"
+        ]
       }
     }
   },
@@ -278,7 +321,8 @@
       "analytics": "Análises",
       "need_help": "Precisa de mais ajuda?",
       "community_text": "Junte-se à nossa comunidade para dicas e suporte.",
-      "community_link": "Entrar na Comunidade"
+      "community_link": "Entrar na Comunidade",
+      "connect": "Conectar seu assistente"
     },
     "main": {
       "badge": "Guia de Início Rápido",
@@ -330,6 +374,10 @@
       "analytics": {
         "title": "Análises",
         "description": "Acompanhe e melhore sua produtividade"
+      },
+      "connect": {
+        "title": "Conectar seu assistente",
+        "description": "Use o Ordo no ChatGPT, Claude, Hermes ou OpenClaw"
       }
     }
   },
@@ -676,5 +724,282 @@
     },
     "contact_title": "Entre em Contato",
     "contact_text": "Se você tiver alguma dúvida sobre estes Termos, por favor"
+  },
+  "GuideConnect": {
+    "badge": "Conectar seu assistente",
+    "title": "Conecte o Ordo ao seu assistente",
+    "subtitle": "Use suas tarefas, projetos e hábitos no ChatGPT, Claude, Hermes ou OpenClaw. Sem jargão: busque, conecte, aprove.",
+    "how_title": "Duas formas de conectar",
+    "how_text": "Escolha a que preferir. Ambas usam a mesma conexão segura: o Ordo só mostra ao seu assistente o que você pode ver.",
+    "oneclick_title": "Conexão em 1 clique",
+    "oneclick_text": "Para todo mundo. Menos de 60 segundos, nada para copiar, sem telas estranhas.",
+    "manual_title": "Configuração manual",
+    "manual_text": "Para desenvolvedores e ferramentas de terminal. Blocos prontos para copiar e colar.",
+    "clients_title": "Escolha seu assistente",
+    "clients": {
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Conecte o Ordo como aplicativo pelo diretório"
+      },
+      "claude": {
+        "title": "Claude",
+        "description": "Adicione o Ordo como conector na web ou no desktop"
+      },
+      "hermes": {
+        "title": "Hermes",
+        "description": "Seu ajudante pessoal com memória, agora com Ordo dentro"
+      },
+      "openclaw": {
+        "title": "OpenClaw",
+        "description": "Opere o Ordo pelo WhatsApp, Telegram ou Discord"
+      }
+    },
+    "more_title": "Mais formas de usar o Ordo",
+    "slack_title": "Ordo dentro do Slack",
+    "slack_text": "Anexe o Ordo ao Slackbot e trabalhe sem sair dos seus canais.",
+    "zapier_title": "Ponte com o Zapier",
+    "zapier_text": "Conecte o Ordo a milhares de aplicativos enquanto as integrações próprias chegam."
+  },
+  "GuideConnectChatGPT": {
+    "badge": "ChatGPT",
+    "title": "Conectar o Ordo ao ChatGPT",
+    "subtitle": "Peça ao ChatGPT para organizar seu dia, criar tarefas ou resumir sua semana, com seus dados reais do Ordo.",
+    "oneclick_title": "Conexão em 1 clique",
+    "oneclick_text": "Você não precisa copiar nem entender nada técnico. Siga estes passos:",
+    "steps": {
+      "1": {
+        "title": "Abra o diretório de aplicativos",
+        "description": "No ChatGPT, vá para Configurações e depois Aplicativos conectados. Toque em Adicionar aplicativo."
+      },
+      "2": {
+        "title": "Busque Ordo",
+        "description": "Digite Ordo na busca e escolha o aplicativo oficial Ordo Todo."
+      },
+      "3": {
+        "title": "Toque em Conectar e aprove",
+        "description": "Seu navegador vai abrir sua conta Ordo. Se você não estava logado, faça login primeiro e depois toque em Autorizar."
+      },
+      "4": {
+        "title": "Volte ao ChatGPT e teste",
+        "description": "Escreva algo como quais tarefas tenho hoje? O ChatGPT vai responder com seus dados reais do Ordo."
+      }
+    },
+    "manual_title": "Configuração manual (Codex e terminal)",
+    "manual_text": "Se você usa o Codex ou prefere configurar à mão, adicione este bloco ao seu arquivo ~/.codex/config.toml:",
+    "config_title": "Bloco de configuração",
+    "config_code": "[mcp_servers.ordo]\nurl = \"https://ordotodo.app/mcp\"\n# No primeiro uso, o Codex vai abrir o navegador para você aprovar com sua conta Ordo.",
+    "verify_text": "Salve o arquivo, reinicie o Codex e peça: liste meus projetos do Ordo. Se responder com seus projetos reais, está conectado.",
+    "verify_code": "Codex › quais tarefas vencem esta semana?",
+    "trouble_title": "Se algo falhar",
+    "errors": {
+      "1": {
+        "title": "O navegador mostra um erro ao aprovar",
+        "fix": "Feche a aba, confira se você está logado no Ordo nesse navegador e tente de novo pelo ChatGPT."
+      },
+      "2": {
+        "title": "O ChatGPT diz que não encontra o Ordo",
+        "fix": "Volte para Configurações, Aplicativos conectados e confira se o Ordo aparece como conectado. Se não, repita o passo 2."
+      },
+      "3": {
+        "title": "O Codex não mostra as ferramentas do Ordo",
+        "fix": "Confira se a URL no config.toml é exatamente a de cima, sem espaços nem barra final a mais, e reinicie o Codex."
+      }
+    }
+  },
+  "GuideConnectClaude": {
+    "badge": "Claude",
+    "title": "Conectar o Ordo ao Claude",
+    "subtitle": "Deixe o Claude cuidar do seu planejamento: ler suas tarefas, propor o plano do dia e executar com você.",
+    "oneclick_title": "Conexão em 1 clique",
+    "oneclick_text": "Você não precisa copiar nem entender nada técnico. Siga estes passos:",
+    "steps": {
+      "1": {
+        "title": "Abra os conectores",
+        "description": "No Claude, vá para Configurações e depois Conectores. Toque em Adicionar conector."
+      },
+      "2": {
+        "title": "Busque Ordo",
+        "description": "Digite Ordo na busca e escolha o conector oficial."
+      },
+      "3": {
+        "title": "Toque em Conectar e aprove",
+        "description": "Seu navegador vai abrir sua conta Ordo. Se você não estava logado, faça login primeiro e depois toque em Autorizar."
+      },
+      "4": {
+        "title": "Volte ao Claude e teste",
+        "description": "Escreva algo como organize meu dia. O Claude vai ler suas tarefas e propor um plano."
+      }
+    },
+    "manual_title": "Configuração manual (Claude Code e terminal)",
+    "manual_text": "Se você usa o terminal, conecte o Ordo com um único comando:",
+    "config_title": "Comando de conexão",
+    "config_code": "claude mcp add --transport http ordo https://ordotodo.app/mcp\n# Depois execute /mcp dentro do Claude Code e aprove no navegador.",
+    "verify_text": "Peça: mostre meus objetivos do trimestre. Se o Claude responder com seus objetivos reais, está conectado.",
+    "verify_code": "Claude Code › /mcp  (deve mostrar ordo como conectado)",
+    "trouble_title": "Se algo falhar",
+    "errors": {
+      "1": {
+        "title": "O navegador mostra um erro ao aprovar",
+        "fix": "Feche a aba, confira se você está logado no Ordo nesse navegador e tente de novo."
+      },
+      "2": {
+        "title": "O Claude Code diz que o servidor não responde",
+        "fix": "Execute claude mcp list e confira se a URL é exatamente a de cima. Se você mudou, remova e adicione de novo."
+      },
+      "3": {
+        "title": "O Claude responde sem usar seus dados",
+        "fix": "Mencione o Ordo explicitamente na sua mensagem, por exemplo: usando o Ordo, o que tenho hoje? Assim o Claude sabe qual conector usar."
+      }
+    }
+  },
+  "GuideConnectHermes": {
+    "badge": "Hermes",
+    "title": "Conectar o Ordo ao Hermes",
+    "subtitle": "Seu ajudante pessoal com memória agora conhece suas tarefas: peça para organizar você pelo Telegram, Discord ou onde você o usa.",
+    "oneclick_title": "Conexão em 1 clique",
+    "oneclick_text": "Você não precisa copiar nem entender nada técnico. Siga estes passos:",
+    "steps": {
+      "1": {
+        "title": "Abra as conexões",
+        "description": "No Hermes, vá para Ajustes e depois Conexões. Toque em Adicionar conexão."
+      },
+      "2": {
+        "title": "Busque Ordo",
+        "description": "Digite Ordo na busca e escolha a conexão oficial."
+      },
+      "3": {
+        "title": "Toque em Conectar e aprove",
+        "description": "Seu navegador vai abrir sua conta Ordo. Se você não estava logado, faça login primeiro e depois toque em Autorizar."
+      },
+      "4": {
+        "title": "Peça algo ao Hermes",
+        "description": "Mande uma mensagem ao seu ajudante como me lembre dos hábitos de hoje. Ele vai responder com seus dados reais."
+      }
+    },
+    "manual_title": "Configuração manual (arquivo YAML)",
+    "manual_text": "Se você executa o Hermes pelo terminal, adicione isto ao seu arquivo ~/.hermes/config.yaml:",
+    "config_title": "Bloco de configuração",
+    "config_code": "mcp:\n  servers:\n    ordo:\n      url: https://ordotodo.app/mcp\n      auth: oauth  # O Hermes vai abrir o navegador no primeiro uso",
+    "verify_text": "Reinicie o Hermes e pergunte sobre as tarefas de hoje. Se responder com dados reais, está conectado.",
+    "verify_code": "Hermes › quais hábitos faltam hoje?",
+    "trouble_title": "Se algo falhar",
+    "errors": {
+      "1": {
+        "title": "O navegador mostra um erro ao aprovar",
+        "fix": "Feche a aba, confira se você está logado no Ordo nesse navegador e tente de novo."
+      },
+      "2": {
+        "title": "O Hermes diz que a conexão falhou",
+        "fix": "Confira se a URL no config.yaml é exatamente a de cima, com https e sem barra final, e reinicie o Hermes."
+      },
+      "3": {
+        "title": "O Hermes responde sem seus dados",
+        "fix": "Nomeie o Ordo na sua mensagem, por exemplo: no Ordo, o que vence amanhã? Assim o Hermes sabe onde buscar."
+      }
+    }
+  },
+  "GuideConnectOpenClaw": {
+    "badge": "OpenClaw",
+    "title": "Conectar o Ordo ao OpenClaw",
+    "subtitle": "Opere o Ordo pelo WhatsApp, Telegram ou Discord: crie tarefas, consulte seu dia e receba resumos onde você já conversa.",
+    "oneclick_title": "Conexão em 1 clique",
+    "oneclick_text": "Você não precisa copiar nem entender nada técnico. Siga estes passos:",
+    "steps": {
+      "1": {
+        "title": "Abra o mercado de complementos",
+        "description": "No seu painel do OpenClaw, vá para Complementos e busque Ordo no ClawHub."
+      },
+      "2": {
+        "title": "Instale o complemento do Ordo",
+        "description": "Toque em Instalar na ficha oficial do Ordo e aguarde terminar."
+      },
+      "3": {
+        "title": "Conecte sua conta e aprove",
+        "description": "Toque em Conectar. Seu navegador vai abrir sua conta Ordo. Se você não estava logado, faça login primeiro e depois toque em Autorizar."
+      },
+      "4": {
+        "title": "Fale com seu assistente",
+        "description": "Escreva pelo seu canal habitual algo como organize meu dia com o Ordo. Ele vai responder com seu plano real."
+      }
+    },
+    "manual_title": "Configuração manual (terminal)",
+    "manual_text": "Se você gerencia o OpenClaw pelo terminal, adicione o servidor remoto com este comando:",
+    "config_title": "Comando de conexão",
+    "config_code": "openclaw mcp add ordo https://ordotodo.app/mcp --auth oauth\n# Depois aprove no navegador quando o OpenClaw pedir.",
+    "verify_text": "Peça ao seu assistente o resumo do dia. Se incluir suas tarefas reais do Ordo, está conectado.",
+    "verify_code": "Você › organize meu dia com o Ordo",
+    "trouble_title": "Se algo falhar",
+    "errors": {
+      "1": {
+        "title": "O navegador mostra um erro ao aprovar",
+        "fix": "Feche a aba, confira se você está logado no Ordo nesse navegador e tente de novo."
+      },
+      "2": {
+        "title": "O OpenClaw não lista o complemento",
+        "fix": "Atualize o índice do ClawHub pelo painel e busque Ordo de novo. Se você instalou pelo terminal, reinicie o processo do OpenClaw."
+      },
+      "3": {
+        "title": "O assistente responde sem seus dados",
+        "fix": "Nomeie o Ordo na sua mensagem, por exemplo: com o Ordo, o que está pendente? Assim ele usa a conexão certa."
+      }
+    }
+  },
+  "GuideConnectSlack": {
+    "badge": "Slack",
+    "title": "Usar o Ordo dentro do Slack",
+    "subtitle": "Anexe o Ordo ao Slackbot para consultar e criar tarefas sem sair dos seus canais.",
+    "steps_title": "Passos",
+    "steps": {
+      "1": {
+        "title": "Abra os ajustes do seu app do Slack",
+        "description": "Vá para as configurações do seu workspace do Slack e abra Aplicativos."
+      },
+      "2": {
+        "title": "Adicione o Ordo como servidor",
+        "description": "Na seção de servidores externos, adicione o endereço do Ordo e escolha entrar com sua conta quando pedir."
+      },
+      "3": {
+        "title": "Aprove no navegador",
+        "description": "Sua conta Ordo vai abrir. Se você não estava logado, faça login primeiro e depois toque em Autorizar."
+      },
+      "4": {
+        "title": "Ative o Ordo no Slackbot",
+        "description": "Abra uma mensagem direta com o Slackbot, vá para Aplicativos e ative o Ordo com o botão +."
+      },
+      "5": {
+        "title": "Escolha suas permissões",
+        "description": "Na primeira vez que o Ordo quiser agir, o Slack vai perguntar: permitir uma vez, permitir sempre ou negar. Você decide."
+      }
+    },
+    "permissions_title": "Suas permissões, seu controle",
+    "permissions_sub": "Nada executa sem sua permissão",
+    "permissions_text": "O Ordo só pode ver o que você vê. Cada ação (criar uma tarefa, por exemplo) pede sua permissão na primeira vez, e você pode mudar quando quiser pelo Slackbot."
+  },
+  "GuideConnectZapier": {
+    "badge": "Zapier",
+    "title": "Conectar o Ordo com o Zapier",
+    "subtitle": "Use o Ordo junto com milhares de aplicativos através do Zapier, enquanto as integrações próprias chegam.",
+    "steps_title": "Passos",
+    "steps": {
+      "1": {
+        "title": "Crie um Zap novo",
+        "description": "No Zapier, toque em Criar Zap e escolha o aplicativo que dispara a automação (por exemplo, Gmail)."
+      },
+      "2": {
+        "title": "Adicione o passo do Ordo",
+        "description": "Como ação, busque Ordo e escolha o que você quer fazer, como criar uma tarefa."
+      },
+      "3": {
+        "title": "Conecte sua conta e aprove",
+        "description": "O Zapier vai pedir para conectar sua conta Ordo. Seu navegador vai abrir: faça login se precisar e toque em Autorizar."
+      },
+      "4": {
+        "title": "Teste e ative",
+        "description": "Envie um teste pelo Zapier, confira se a tarefa aparece no Ordo e ative o Zap."
+      }
+    },
+    "example_title": "Exemplo: email importante → tarefa",
+    "example_text": "Quando chegar um email marcado como importante, criar uma tarefa no Ordo com o assunto como título:",
+    "example_code": "Gatilho: Gmail › Novo email importante\nAção: Ordo › Criar tarefa\n  Título: {{assunto do email}}\n  Projeto: Caixa de entrada"
   }
 }
