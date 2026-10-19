@@ -81,7 +81,7 @@
 ### Reference Documentation
 
 - [x] [API Reference](./reference/api-reference.md) - Public API v1 + webhooks + OAuth (ODD 009-T6)
-- [ ] [MCP Server](./reference/mcp-server.md) - MCP transport/auth/tools (owner: ODD 001)
+- [x] [MCP Server](./reference/mcp-server.md) - Remote MCP: transport, auth, scopes, tool catalog (ODD 001-T5)
 - [ ] [Database Schema](./reference/database-schema.md) - Prisma schema
 - [ ] [Design Tokens Reference](./reference/design-tokens.md) - All tokens documented
 
@@ -145,6 +145,7 @@ docs/
 │
 └── reference/
     ├── api-reference.md                ✅ Public v1 (ODD 009)
+    ├── mcp-server.md                   ✅ MCP remote (ODD 001)
     ├── database-schema.md              ⏳
     └── design-tokens.md                ⏳
 ```
